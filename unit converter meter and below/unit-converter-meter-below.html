@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Length Converter (Below Meter)</title>
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0f1220;
+    font-family: system-ui, sans-serif;
+    color: #fff;
+  }
+
+  .card {
+    background: #161a35;
+    padding: 22px;
+    width: 500px;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.45);
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 14px;
+    font-size: 1.3rem;
+  }
+
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+  }
+
+  input, select {
+    background: #0f1220;
+    color: #fff;
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .result {
+    background: #0f1220;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.2rem;
+    min-height: 46px;
+    margin-bottom: 8px;
+  }
+
+  .decimals {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .decimals button {
+    flex: 1;
+    background: #2b2f55;
+  }
+
+  .decimals button.active {
+    background: #4f7cff;
+  }
+
+  button {
+    background: #4f7cff;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+
+  button.secondary {
+    background: #2b2f55;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  .note {
+    text-align: center;
+    font-size: 0.75rem;
+    opacity: 0.6;
+    margin-top: 8px;
+  }
+
+  .convert-btn {
+  font-size: 1.2rem;
+  padding: 22px;              /* double height */
+  margin-top: 10px;
+  margin-bottom: 25px;
+
+  background: #a6cfff;        /* light red */
+  color: #3423ca;
+  font-weight: bold;
+
+  border-radius: 10px;
+
+  /* 3D raised effect */
+  box-shadow:
+    0 8px 0 #4ea2d5,          /* hard bottom edge */
+    0 14px 20px rgba(107, 144, 255, 0.45);
+
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+/* Press animation */
+.convert-btn:active {
+  transform: translateY(6px);
+  box-shadow:
+    0 2px 0 #e25555,
+    0 6px 12px rgba(255,107,107,0.35);
+}
+
+
+.convert-btn:active {
+  transform: scale(0.97);
+}
+
+.reset-btn {
+  margin-top: 14px;
+  opacity: 0.85;
+}
+
+.reset-btn:hover {
+  opacity: 1;
+}
+
+.convert-row {
+  align-items: center;
+}
+
+.arrow {
+  font-size: 1.4rem;
+  font-weight: 700;
+  opacity: 0.75;
+  user-select: none;
+}
+
+.paste-btn {
+  font-size: 0.9rem;
+  padding: 8px;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+.paste-btn:active {
+  transform: scale(0.96);
+}
+
+.history {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  opacity: 0.9;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.history-title {
+  margin-bottom: 6px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.history-item {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: default;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+
+
+
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+  <div class="card">
+  <h2>Length Converter (≤ 1 meter)</h2>
+
+  <button onclick="pasteValue()" class="secondary paste-btn">
+  Paste value
+</button>
+
+
+  <input type="number" id="value" placeholder="Enter value" step="any">
+
+  <div class="row">
+    <!-- FROM -->
+    <select id="from" onchange="invalidateResult()">
+      <option value="m">Meter (m)</option>
+      <option value="ft">Feet (ft)</option>
+      <option value="dm">Decimeter (dm)</option>
+      <option value="in">Inch (in)</option>
+      <option value="cm">Centimeter (cm)</option>
+      <option value="mm">Millimeter (mm)</option>
+      <option value="um">Micrometer (µm)</option>
+      <option value="nm">Nanometer (nm)</option>
+      <option value="A">Ångström (Å)</option>
+      <option value="pm">Picometer (pm)</option>
+      <option value="fm">Femtometer (fm)</option>
+      <option value="am">Attometer (am)</option>
+      <option value="zm">Zeptometer (zm)</option>
+      <option value="ym">Yoctometer (ym)</option>
+    </select>
+
+    <div class="arrow">→</div>
+
+    <!-- TO -->
+    <select id="to" onchange="invalidateResult()">
+      <option value="m">Meter (m)</option>
+      <option value="ft">Feet (ft)</option>
+      <option value="dm">Decimeter (dm)</option>
+      <option value="in">Inch (in)</option>
+      <option value="cm">Centimeter (cm)</option>
+      <option value="mm">Millimeter (mm)</option>
+      <option value="um">Micrometer (µm)</option>
+      <option value="nm">Nanometer (nm)</option>
+      <option value="A">Ångström (Å)</option>
+      <option value="pm">Picometer (pm)</option>
+      <option value="fm">Femtometer (fm)</option>
+      <option value="am">Attometer (am)</option>
+      <option value="zm">Zeptometer (zm)</option>
+      <option value="ym">Yoctometer (ym)</option>
+    </select>
+  </div>
+
+  
+
+  <div class="result" id="result">Result pending...</div>
+
+  <button onclick="convert()" class="convert-btn">Convert</button>
+
+  <!--<button onclick="showFullDecimal()" class="secondary">
+  Show full decimal
+</button> -->
+
+
+  <div class="decimals">
+    <button onclick="setDecimals(3)">3 dec</button>
+    <button onclick="setDecimals(2)">2 dec</button>
+    <button onclick="setDecimals(1)">1 dec</button>
+    <button onclick="revertDecimals()" class="secondary">Revert</button>
+  </div>
+
+  
+
+  <button onclick="copyResult()" class="secondary" id="copyBtn">Copy</button>
+
+  <button onclick="resetAll()" class="secondary reset-btn">
+  Reset
+</button>
+
+
+  <div class="note">
+    Base unit: meter · 1 ft = 0.3048 m · 1 in = 0.0254 m (exact)
+  </div>
+
+  <div class="history">
+  <div class="history-title">Last 15 calculations</div>
+  <div id="historyList"></div>
+</div>
+
+</div>
+
+<script>
+
+  const historyList = document.getElementById("historyList");
+  let history = [];
+
+  function addToHistory(input, from, output, to) {
+  const entry = `${input} ${from} → ${output} ${to}`;
+  history.unshift(entry);
+
+  // Keep only last 15
+  if (history.length > 15) {
+    history.pop();
+  }
+
+  renderHistory();
+}
+
+function renderHistory() {
+  historyList.innerHTML = "";
+  history.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.textContent = item;
+    historyList.appendChild(div);
+  });
+}
+
+
+
+  function invalidateResult() {
+  resultBox.textContent = "Result pending...";
+  rawResult = null;
+  decimals = null;
+
+  // Clear active decimal buttons
+  decimalButtons.forEach(btn => btn.classList.remove("active"));
+
+  // Reset copy button text
+  copyBtn.textContent = "Copy";
+}
+
+
+  async function pasteValue() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text) return;
+
+    // Extract first valid number (handles "1,234.56 m" etc.)
+    const match = text.replace(/,/g, "").match(/-?\d+(\.\d+)?/);
+    if (!match) return;
+
+    const input = document.getElementById("value");
+    input.value = match[0];
+    input.focus();
+  } catch (err) {
+    alert("Clipboard access blocked. Use Ctrl+V instead.");
+  }
+}
+
+
+  function resetAll() {
+  // Reset input
+  document.getElementById("value").value = "";
+
+  // Reset dropdowns to default
+  document.getElementById("from").value = "m";
+  document.getElementById("to").value = "m";
+
+  // Reset result
+  resultBox.textContent = "Result pending...";
+
+  // Reset internal state
+  rawResult = null;
+  decimals = null;
+
+  // Clear active decimal buttons
+  decimalButtons.forEach(btn => btn.classList.remove("active"));
+
+  // Reset copy button text
+  copyBtn.textContent = "Copy";
+}
+
+
+
+  /*function showFullDecimal() {
+  if (rawResult === null) return;
+
+  // Expand safely (limit digits to avoid lying precision)
+  let full = rawResult.toFixed(30);
+
+  // Trim trailing zeros
+  full = full.replace(/\.?0+$/, "");
+
+  resultBox.textContent = full;
+}*/
+
+  const resultBox = document.getElementById("result");
+  const copyBtn = document.getElementById("copyBtn");
+  const decimalButtons = document.querySelectorAll(".decimals button");
+
+  const factors = {
+    m: 1,
+    ft: 0.3048,
+    dm: 1e-1,
+    in: 0.0254,
+    cm: 1e-2,
+    mm: 1e-3,
+    um: 1e-6,
+    nm: 1e-9,
+    A: 1e-10,
+    pm: 1e-12,
+    fm: 1e-15,
+    am: 1e-18,
+    zm: 1e-21,
+    ym: 1e-24
+  };
+
+  const exactPowers = {
+  nm: 9,
+  pm: 12,
+  fm: 15,
+  am: 18,
+  zm: 21,
+  ym: 24,
+  A: 10
+};
+
+
+  let rawResult = null;
+  let decimals = null;
+
+  function convert() {
+  const value = parseFloat(document.getElementById("value").value);
+  if (isNaN(value)) return;
+
+  const from = document.getElementById("from").value;
+  const to = document.getElementById("to").value;
+
+  let outputText = null; // <-- ALWAYS produce this
+
+  // --- EXACT INTEGER PATH (meter → tiny units) ---
+  if (from === "m" && exactPowers[to] !== undefined && Number.isInteger(value)) {
+    const big = BigInt(value) * (10n ** BigInt(exactPowers[to]));
+    outputText = big.toLocaleString("en-US");
+
+    rawResult = null;
+    decimals = null;
+    updateButtons();
+  }
+  // --- NORMAL FLOAT PATH ---
+  else {
+    rawResult = (value * factors[from]) / factors[to];
+    outputText = format(rawResult);
+
+    decimals = null;
+    updateButtons();
+  }
+
+  // --- SINGLE OUTPUT + HISTORY POINT (CRITICAL) ---
+  resultBox.textContent = outputText;
+  addToHistory(value, from, outputText, to);
+}
+
+
+
+  function format(num) {
+  const abs = Math.abs(num);
+
+  // Use scientific notation when decimal display breaks down
+  if (abs > 0 && abs < 1e-12) {
+    return num.toExponential(6); // e.g. 3.937008e-23
+  }
+
+  if (decimals !== null) {
+    return num.toFixed(decimals);
+  }
+
+  return num.toLocaleString("en-US", { maximumFractionDigits: 12 });
+}
+
+  function setDecimals(n) {
+    if (rawResult === null) return;
+    decimals = n;
+    updateButtons();
+    resultBox.textContent = rawResult.toFixed(n);
+  }
+
+  function revertDecimals() {
+    if (rawResult === null) return;
+    decimals = null;
+    updateButtons();
+    resultBox.textContent = format(rawResult);
+  }
+
+  function updateButtons() {
+    decimalButtons.forEach(btn => btn.classList.remove("active"));
+    if (decimals !== null) {
+      decimalButtons.forEach(btn => {
+        if (btn.textContent.startsWith(decimals.toString())) {
+          btn.classList.add("active");
+        }
+      });
+    }
+  }
+
+  function copyResult() {
+    if (resultBox.textContent === "—") return;
+    navigator.clipboard.writeText(resultBox.textContent);
+    copyBtn.textContent = "Copied!";
+    setTimeout(() => copyBtn.textContent = "Copy", 800);
+  }
+</script>
+
+</body>
+</html>

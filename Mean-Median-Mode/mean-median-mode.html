@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mean Median Mode Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: #111827;
+      padding: 25px;
+      border-radius: 12px;
+      width: 360px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 22px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    button.calc {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button.calc:hover {
+      background: #2563eb;
+    }
+
+    .result {
+      margin-top: 15px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .label {
+      color: #93c5fd;
+      width: 70px;
+    }
+
+    .value {
+      flex: 1;
+      text-align: center;
+    }
+
+    .copy-btn {
+      background: #374151;
+      border: none;
+      color: #e5e7eb;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .copy-btn:hover {
+      background: #4b5563;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Mean · Median · Mode</h1>
+
+    <input id="numbers" placeholder="Enter numbers (e.g. 2,4,6,8)" />
+
+    <button class="calc" onclick="calculate()">Calculate</button>
+
+    <div class="result">
+      <div class="row">
+        <span class="label">Mean</span>
+        <span class="value" id="mean">–</span>
+        <button class="copy-btn" onclick="copyText('mean', this)">Copy</button>
+      </div>
+
+      <div class="row">
+        <span class="label">Median</span>
+        <span class="value" id="median">–</span>
+        <button class="copy-btn" onclick="copyText('median', this)">Copy</button>
+      </div>
+
+      <div class="row">
+        <span class="label">Mode</span>
+        <span class="value" id="mode">–</span>
+        <button class="copy-btn" onclick="copyText('mode', this)">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      let input = document.getElementById("numbers").value;
+      let arr = input.split(",").map(Number).filter(n => !isNaN(n));
+
+      if (arr.length === 0) return;
+
+      // Mean
+      let mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+
+      // Median
+      let sorted = [...arr].sort((a, b) => a - b);
+      let mid = Math.floor(sorted.length / 2);
+      let median = sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+
+      // Mode
+      let freq = {};
+      let maxFreq = 0;
+      let modes = [];
+
+      sorted.forEach(n => {
+        freq[n] = (freq[n] || 0) + 1;
+        maxFreq = Math.max(maxFreq, freq[n]);
+      });
+
+      for (let n in freq) {
+        if (freq[n] === maxFreq && maxFreq > 1) {
+          modes.push(n);
+        }
+      }
+
+      document.getElementById("mean").textContent = mean.toFixed(2);
+      document.getElementById("median").textContent = median;
+      document.getElementById("mode").textContent =
+        modes.length ? modes.join(", ") : "No mode";
+    }
+
+    function copyText(id, btn) {
+      let text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text);
+
+      let original = btn.textContent;
+      btn.textContent = "Copied!";
+      setTimeout(() => btn.textContent = original, 1000);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Productivity Stopwatch</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: #121212;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+.app {
+  width: 330px;
+  background: #1e1e2f;
+  padding: 25px;
+  border-radius: 18px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+#display {
+  font-size: 42px;
+  margin: 20px 0;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #6a5acd;
+  color: #fff;
+}
+
+button:hover { opacity: 0.9; }
+
+.extra { margin-top: 10px; }
+
+.hidden { display: none !important; }
+
+#historyPanel {
+  margin-top: 15px;
+  text-align: left;
+  font-size: 13px;
+}
+
+#historyList {
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #333;
+}
+
+/* POPUP */
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+}
+
+.popup-box {
+  background: #222;
+  padding: 20px;
+  width: 300px;
+  border-radius: 14px;
+}
+
+textarea {
+  width: 100%;
+  height: 70px;
+  margin-top: 10px;
+  resize: none;
+}
+
+/* FIREWORKS */
+#fireworks {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- FIREWORKS CANVAS (✅ MUST BE BEFORE SCRIPT) -->
+<canvas id="fireworks"></canvas>
+
+<div class="app">
+  <h2>STOPWATCH</h2>
+  <div id="display">00:00:00</div>
+
+  <div>
+    <button id="start">Start</button>
+    <button id="pause">Pause</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <div class="extra">
+    <button id="historyBtn">History</button>
+    <button id="todayBtn">Today Productivity</button>
+  </div>
+
+  <div id="historyPanel" class="hidden">
+    <h3>History</h3>
+    <ul id="historyList"></ul>
+    <button id="clearHistory">Clear History</button>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup hidden">
+  <div class="popup-box">
+    <h3>What did you do in this session?</h3>
+    <textarea id="commentInput" placeholder="Write here..."></textarea>
+    <div style="margin-top:10px;text-align:right">
+      <button id="saveSession">Save</button>
+      <button id="cancelSession">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================
+   STOPWATCH
+===================== */
+
+let startTime = 0;
+let elapsed = 0;
+let timer = null;
+let sessionStartISO = null;
+
+const display = document.getElementById("display");
+
+function formatTime(ms) {
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor(ms / 1000) % 60;
+  const cs = Math.floor((ms % 1000) / 10);
+  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}:${String(cs).padStart(2,"0")}`;
+}
+
+function updateDisplay() {
+  display.textContent = formatTime(elapsed);
+}
+
+/* =====================
+   STORAGE
+===================== */
+
+let sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+
+function saveSessions() {
+  localStorage.setItem("sessions", JSON.stringify(sessions));
+}
+
+/* =====================
+   BUTTONS
+===================== */
+
+start.onclick = () => {
+  if (timer) return;
+  if (!sessionStartISO) sessionStartISO = new Date().toISOString();
+
+  startTime = Date.now() - elapsed;
+  timer = setInterval(() => {
+    elapsed = Date.now() - startTime;
+    updateDisplay();
+  }, 10);
+};
+
+pause.onclick = () => {
+  clearInterval(timer);
+  timer = null;
+};
+
+reset.onclick = () => {
+  if (elapsed === 0) return;
+  popup.classList.remove("hidden");
+  commentInput.focus();
+};
+
+/* =====================
+   POPUP SAVE
+===================== */
+
+saveSession.onclick = () => {
+  const end = new Date();
+
+  sessions.unshift({
+    time: formatTime(elapsed),
+    ms: elapsed,
+    comment: commentInput.value || "No comment",
+    startISO: sessionStartISO,
+    endISO: end.toISOString(),
+    day: end.toISOString().slice(0, 10)
+  });
+
+  saveSessions();
+  popup.classList.add("hidden");
+  commentInput.value = "";
+
+  runFireworks(); // 🎆
+
+  elapsed = 0;
+  sessionStartISO = null;
+  clearInterval(timer);
+  timer = null;
+  updateDisplay();
+};
+
+cancelSession.onclick = () => popup.classList.add("hidden");
+
+/* =====================
+   HISTORY
+===================== */
+
+historyBtn.onclick = () => {
+  historyPanel.classList.toggle("hidden");
+  historyList.innerHTML = "";
+
+  sessions.forEach(s => {
+    const from = new Date(s.startISO).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const to = new Date(s.endISO).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    historyList.innerHTML += `
+      <li>
+        <strong>${from} → ${to}</strong><br>
+        ${s.comment}<br>
+        <small>Total: ${s.time}</small><hr>
+      </li>`;
+  });
+};
+
+clearHistory.onclick = () => {
+  if (!confirm("Clear all history?")) return;
+  sessions = [];
+  saveSessions();
+  historyList.innerHTML = "";
+};
+
+/* =====================
+   TODAY PRODUCTIVITY
+===================== */
+
+todayBtn.onclick = () => {
+  const todayKey = new Date().toISOString().slice(0,10);
+  const todaySessions = sessions.filter(s => s.day === todayKey);
+
+  if (!todaySessions.length) {
+    alert("No sessions today.");
+    return;
+  }
+
+  let total = 0;
+  let msg = "Today you worked on:\n\n";
+
+  todaySessions.forEach(s => {
+    const from = new Date(s.startISO).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    const to = new Date(s.endISO).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    total += s.ms;
+    msg += `• ${from} → ${to}\n  ${s.comment} (${s.time})\n\n`;
+  });
+
+  msg += `Total time: ${formatTime(total)}`;
+  alert(msg);
+};
+
+
+/* =====================
+   FIREWORKS 🎆
+===================== */
+
+const fwCanvas = document.getElementById("fireworks");
+const fwCtx = fwCanvas.getContext("2d");
+
+function resizeFW() {
+  fwCanvas.width = innerWidth;
+  fwCanvas.height = innerHeight;
+}
+resizeFW();
+addEventListener("resize", resizeFW);
+
+let fireworks = [];
+
+function runFireworks(duration = 2500) {
+  const start = Date.now();
+
+  function loop() {
+    fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+
+    if (Math.random() < 0.2) {
+      const x = Math.random() * fwCanvas.width;
+      const y = Math.random() * fwCanvas.height * 0.5;
+      for (let i=0;i<40;i++) {
+        fireworks.push({
+          x, y,
+          vx:(Math.random()-0.5)*6,
+          vy:(Math.random()-0.5)*6,
+          life:60,
+          color:`hsl(${Math.random()*360},100%,60%)`
+        });
+      }
+    }
+
+    fireworks.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life--;
+      fwCtx.fillStyle=p.color;
+      fwCtx.globalAlpha=p.life/60;
+      fwCtx.beginPath();
+      fwCtx.arc(p.x,p.y,2,0,Math.PI*2);
+      fwCtx.fill();
+    });
+
+    fireworks = fireworks.filter(p=>p.life>0);
+    fwCtx.globalAlpha=1;
+
+    if (Date.now()-start<duration) requestAnimationFrame(loop);
+    else fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+  }
+  loop();
+}
+
+updateDisplay();
+</script>
+
+</body>
+</html>
