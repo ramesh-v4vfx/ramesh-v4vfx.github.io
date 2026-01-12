@@ -2,24 +2,51 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>Advanced Pomodoro Timer</title>
+
 <style>
   body {
-    font-family: system-ui, sans-serif;
-    background: #0b0000;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+  font-family: system-ui, sans-serif;
+  background: #0b0000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;   /* ← change */
+  padding: 12px;      /* ← add */
+}
+
 
   .app {
-    background: #161a35;
+    background: #040724;
     padding: 25px;
     border-radius: 14px;
-    width: 360px;
+    width: 100%;
+     max-width: 360px;
     box-shadow: 0 20px 40px rgba(0,0,0,.4);
+    position: relative;
+  }
+
+  /* watermark */
+  .app::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("images/Ramesh-logo-scifi.png");
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 60px;
+    margin-top: 8px;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app > * {
+    position: relative;
+    z-index: 1;
   }
 
   h2 {
@@ -56,11 +83,17 @@
     background: #2b2f55;
   }
 
+  button.danger {
+    background: #7a1f1f;
+  }
+
   .history {
     margin-top: 15px;
     max-height: 160px;
     overflow-y: auto;
     font-size: 0.85rem;
+    -webkit-overflow-scrolling: touch;
+
   }
 
   .history div {
@@ -68,40 +101,29 @@
     border-bottom: 1px solid #552a2a;
   }
 
- .app {
-  background: #040724;
-  padding: 25px;
-  border-radius: 14px;
-  width: 360px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+  @media (max-width: 480px) {
 
-  position: relative; /* REQUIRED */
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .timer {
+    font-size: 2.6rem; /* bigger timer */
+  }
+
+  .info {
+    font-size: 0.95rem;
+  }
+
+  button {
+    padding: 14px;     /* better tap target */
+    font-size: 1.05rem;
+  }
+
+  .history {
+    max-height: 140px; /* avoids overflow */
+  }
 }
-
-/* watermark layer */
-.app::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background-image: url("images/Ramesh-logo-scifi.png");
-  background-repeat: no-repeat;
-  background-position: top;
-  background-size: 60px;
-  margin-top: 8px;
-
-  opacity: 0.8;          /* FORCE visibility */
-  pointer-events: none;
-  z-index: 0;
-}
-
-
-/* content above watermark */
-.app > * {
-  position: relative;
-  z-index: 1;
-}
-
 
 </style>
 </head>
@@ -119,18 +141,12 @@
   <button onclick="startPomodoro()">Start</button>
   <button class="secondary" onclick="stopTimer()">Stop</button>
   <button class="secondary" onclick="showHistory()">History</button>
+  <button class="danger" onclick="deleteHistory()">Delete History</button>
 
   <div class="history" id="history"></div>
 </div>
 
 <script>
-
-function requestNotificationPermission() {
-  if ("Notification" in window && Notification.permission !== "granted") {
-    Notification.requestPermission();
-  }
-}
-
 /* ---------------- CONFIG ---------------- */
 const WORK_TIME = 25 * 60 * 1000;
 const BREAK_TIME = 5 * 60 * 1000;
@@ -140,10 +156,8 @@ let startTime = 0;
 let duration = WORK_TIME;
 let timerId;
 let mode = "work";
-
 let warned5 = false;
 let warned2 = false;
-
 let sessionsToday = 0;
 let workMsToday = 0;
 
@@ -155,49 +169,47 @@ const totalWorkEl = document.getElementById("totalWork");
 const historyEl = document.getElementById("history");
 
 /* ---------------- UTILS ---------------- */
-function unlockAudio() {
-  if (!("speechSynthesis" in window)) return;
-
-  const msg = new SpeechSynthesisUtterance(" ");
-  msg.volume = 0;
-  speechSynthesis.speak(msg);
-}
-
-function speak(text) {
-  if (!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
-  const msg = new SpeechSynthesisUtterance(text);
-  msg.rate = 0.95;
-  speechSynthesis.speak(msg);
-}
-
 function format(ms) {
   const totalSec = ms / 1000;
   const min = Math.floor(totalSec / 60);
   const sec = Math.floor(totalSec % 60);
-  const micro = Math.floor((ms % 1000));
+  const micro = Math.floor(ms % 1000);
   return `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}.${String(micro).padStart(3,"0")}`;
 }
 
 function todayKey() {
-  const d = new Date();
-  return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+  return new Date().toLocaleDateString("en-GB", {
+    day:"2-digit", month:"short", year:"numeric"
+  });
 }
 
 /* ---------------- STORAGE ---------------- */
 function loadToday() {
   const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
   const key = todayKey();
+
+  // new day → reset counters
+  if (key !== currentDayKey) {
+    currentDayKey = key;
+    sessionsToday = 0;
+    workMsToday = 0;
+    updateStats();
+    return;
+  }
+
   if (data[key]) {
     sessionsToday = data[key].sessions;
     workMsToday = data[key].workMs;
+  } else {
+    sessionsToday = 0;
+    workMsToday = 0;
   }
 }
 
+
 function saveToday() {
   const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
-  const key = todayKey();
-  data[key] = {
+  data[todayKey()] = {
     sessions: sessionsToday,
     workMs: workMsToday
   };
@@ -207,14 +219,11 @@ function saveToday() {
 /* ---------------- TIMER ---------------- */
 function startPomodoro() {
   stopTimer();
-  requestNotificationPermission();
-  unlockAudio();
   mode = "work";
   duration = WORK_TIME;
   warned5 = warned2 = false;
   startTime = performance.now();
   statusEl.textContent = "Focus time";
-  speak("Focus started");
   timerId = requestAnimationFrame(update);
 }
 
@@ -224,7 +233,6 @@ function startBreak() {
   duration = BREAK_TIME;
   startTime = performance.now();
   statusEl.textContent = "Break time";
-  speak("Time for 5 minute break");
   timerId = requestAnimationFrame(update);
 }
 
@@ -245,25 +253,11 @@ function update(now) {
       workMsToday += WORK_TIME;
       saveToday();
       updateStats();
-      speak("Session complete. Time for break.");
       startBreak();
     } else {
-      speak("Break complete. Ready to focus again.");
       statusEl.textContent = "Ready for next session";
     }
     return;
-  }
-
-  // voice warnings
-  if (mode === "work") {
-    if (!warned5 && remaining <= 5 * 60 * 1000) {
-      speak("Five minutes remaining");
-      warned5 = true;
-    }
-    if (!warned2 && remaining <= 2 * 60 * 1000) {
-      speak("Two minutes remaining");
-      warned2 = true;
-    }
   }
 
   display.textContent = format(remaining);
@@ -296,6 +290,24 @@ function showHistory() {
     `;
   });
 }
+
+/* ---------------- DELETE HISTORY ---------------- */
+function deleteHistory() {
+  const ok = confirm(
+    "Delete all Pomodoro history?\n\nThis will permanently remove all saved sessions from this device."
+  );
+  if (!ok) return;
+
+  localStorage.removeItem("pomodoroLog");
+  sessionsToday = 0;
+  workMsToday = 0;
+  updateStats();
+  historyEl.innerHTML = "";
+  statusEl.textContent = "History deleted";
+}
+
+setInterval(loadToday, 60000); // check date every minute
+
 
 /* ---------------- INIT ---------------- */
 loadToday();
