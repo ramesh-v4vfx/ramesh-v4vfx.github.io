@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mean Median Mode Calculator</title>
   <style>
     body {
@@ -15,12 +16,17 @@
     }
 
     .card {
-      background: #111827;
-      padding: 25px;
-      border-radius: 12px;
-      width: 360px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
+  background: #111827;
+  padding: 20px;
+  border-radius: 12px;
+
+  width: 100%;
+  max-width: 380px;   /* desktop size */
+  margin: 0 auto;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
 
     h1 {
       text-align: center;
@@ -105,15 +111,26 @@
 }
 
 /* Mobile friendly */
-@media (max-width: 480px) {
-  .input-row {
-    flex-direction: column;
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
   }
 
-  .input-row button {
-    width: 100%;
+  h1 {
+    font-size: 20px;
+  }
+
+  input {
+    font-size: 16px; /* prevents iOS zoom */
+    padding: 12px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 12px;
   }
 }
+
 
   </style>
 </head>
