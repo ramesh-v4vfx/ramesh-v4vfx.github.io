@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Length Converter (Below Meter)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Microscopic Length Calculator</title>
 
 <style>
   * { box-sizing: border-box; }
@@ -26,11 +28,14 @@
     box-shadow: 0 20px 40px rgba(0,0,0,.45);
   }
 
-  h2 {
-    text-align: center;
-    margin-bottom: 14px;
-    font-size: 1.3rem;
-  }
+  
+    h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 30px;
+  font-size: 1.3rem;
+}
+  
 
   input, select, button {
     width: 100%;
@@ -59,6 +64,7 @@
     font-size: 1.2rem;
     min-height: 46px;
     margin-bottom: 8px;
+    margin-top: 6px;
   }
 
   .decimals {
@@ -92,7 +98,8 @@
   }
 
   button:hover {
-    opacity: 0.9;
+  filter: brightness(1.12);
+  transform: translateY(-1px);
   }
 
   .note {
@@ -108,7 +115,7 @@
   margin-top: 10px;
   margin-bottom: 25px;
 
-  background: #a6cfff;        /* light red */
+  background: #ff9999;        /* light red */
   color: #3423ca;
   font-weight: bold;
 
@@ -116,8 +123,8 @@
 
   /* 3D raised effect */
   box-shadow:
-    0 8px 0 #4ea2d5,          /* hard bottom edge */
-    0 14px 20px rgba(107, 144, 255, 0.45);
+    0 4px 0 #161010,          /* hard bottom edge */
+    0 8px 8px rgba(107, 144, 255, 0.45);
 
   transition:
     transform 0.12s ease,
@@ -126,10 +133,10 @@
 
 /* Press animation */
 .convert-btn:active {
-  transform: translateY(6px);
+  transform: translateY(3px);
   box-shadow:
     0 2px 0 #e25555,
-    0 6px 12px rgba(255,107,107,0.35);
+    0 3px 12px rgba(255,107,107,0.35);
 }
 
 
@@ -138,7 +145,7 @@
 }
 
 .reset-btn {
-  margin-top: 14px;
+  margin-top: 0px;
   opacity: 0.85;
 }
 
@@ -151,16 +158,17 @@
 }
 
 .arrow {
-  font-size: 1.4rem;
+  font-size: 1rem;
   font-weight: 700;
   opacity: 0.75;
   user-select: none;
+  margin-top: 8px;
 }
 
 .paste-btn {
   font-size: 0.9rem;
   padding: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 16px;
   opacity: 0.9;
 }
 
@@ -174,6 +182,7 @@
   opacity: 0.9;
   max-height: 100px;
   overflow-y: auto;
+  display: none; /* ← add this */
 }
 
 .history-title {
@@ -192,7 +201,72 @@
   border-bottom: none;
 }
 
+@media (max-width: 480px) {
 
+  body {
+    justify-content: center;   /* center vertically */
+    align-items: center;       /* center horizontally */
+    padding: 14px;
+    min-height: 100vh;
+  }
+
+   .card {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  h2 {
+    font-size: 1.15rem;
+    margin-bottom: 24px;
+  }
+
+  input, select, button {
+    font-size: 1rem;
+    padding: 12px; /* better tap targets */
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .convert-btn {
+    font-size: 1.1rem;
+    padding: 20px;
+  }
+
+  .decimals {
+    gap: 6px;
+  }
+
+  .history {
+    max-height: 120px;
+  }
+
+  .row select {
+    margin-bottom: 6px;
+  }
+
+  .row .arrow {
+    margin: 0px 0;
+  }
+
+   /* Remove extra gap between FROM and TO selects */
+  .row select:first-child {
+    margin-bottom: 0;
+  }
+
+  .arrow {
+    transform: none;          /* no rotation */
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+    text-align: center;
+    margin: 4px 0;
+  }
+
+   
+}
 
 
 
@@ -203,7 +277,7 @@
 
 <div class="app">
   <div class="card">
-  <h2>Length Converter (≤ 1 meter)</h2>
+  <h2>Microscopic Length Calculator</h2>
 
   <button onclick="pasteValue()" class="secondary paste-btn">
   Paste value
@@ -231,7 +305,8 @@
       <option value="ym">Yoctometer (ym)</option>
     </select>
 
-    <div class="arrow">→</div>
+    <div class="arrow">To</div>
+
 
     <!-- TO -->
     <select id="to" onchange="invalidateResult()">
@@ -276,12 +351,12 @@
 
   <button onclick="resetAll()" class="secondary reset-btn">
   Reset
+</button>  
+
+  <button onclick="toggleHistory()" class="secondary">
+  Show History
 </button>
 
-
-  <div class="note">
-    Base unit: meter · 1 ft = 0.3048 m · 1 in = 0.0254 m (exact)
-  </div>
 
   <div class="history">
   <div class="history-title">Last 15 calculations</div>
@@ -300,7 +375,7 @@
   history.unshift(entry);
 
   // Keep only last 15
-  if (history.length > 15) {
+  if (history.length > 10) {
     history.pop();
   }
 
@@ -501,6 +576,20 @@ function renderHistory() {
     copyBtn.textContent = "Copied!";
     setTimeout(() => copyBtn.textContent = "Copy", 800);
   }
+
+  function toggleHistory() {
+  const historyDiv = document.querySelector(".history");
+  const btn = event.target;
+
+  if (historyDiv.style.display === "none") {
+    historyDiv.style.display = "block";
+    btn.textContent = "Hide History";
+  } else {
+    historyDiv.style.display = "none";
+    btn.textContent = "Show History";
+  }
+}
+
 </script>
 
 </body>
