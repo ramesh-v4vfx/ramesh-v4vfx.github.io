@@ -1,348 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Division Calculator</title>
+  <meta charset="UTF-8">
+  <title>Mean Median Mode Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-<style>
+    .card {
+      background: #111827;
+      padding: 25px;
+      border-radius: 12px;
+      width: 360px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
 
-  html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100%;
-  background: #040b10; /* your dark background */
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 22px;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background: #040b10;
-  color: rgb(255, 149, 149);
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
 
-  display: flex;
-  justify-content: center;
-  align-items: center;       /* 🖥️ center on PC */
+    button.calc {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-  min-height: 100svh;
-  margin: 0;
+    button.calc:hover {
+      background: #2563eb;
+    }
 
-  transition: background 0.3s, color 0.3s;
-}
+    .result {
+      margin-top: 15px;
+    }
 
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
 
+    .label {
+      color: #93c5fd;
+      width: 70px;
+    }
 
+    .value {
+      flex: 1;
+      text-align: center;
+    }
 
-/* Wrapper */
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px;
-}
+    .copy-btn {
+      background: #374151;
+      border: none;
+      color: #e5e7eb;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
 
-.heading {
-  font-size: 26px;
-  font-weight: bold;
-  text-align: center;
-  margin: 0;
-}
+    .copy-btn:hover {
+      background: #4b5563;
+    }
 
-.container {
-  display: flex;
-  gap: 30px;
-  align-items: stretch;
-}
-
-.card {
-  background: rgb(66, 17, 17);
-  padding: 25px;
-  border-radius: 15px;
-  width: 330px;
-  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 1px solid #bbb;
-  font-size: 16px;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-#calculateBtn { background: #007bff; }
-#resetBtn    { background: #ff4e4e; display: none; }
-#copyBtn     { background: #00a84f; display: none; }
-#historyBtn  { background: #6f42c1; display: none; }
-
-#resultCard { display: none; }
-
-/* 🔢 Rounding buttons */
-.round-buttons {
+    .input-row {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  margin-bottom: 15px;
 }
 
-.round-buttons button {
+.input-row input {
   flex: 1;
-  background: #444;
-  font-size: 14px;
-  padding: 10px;
+  margin-bottom: 0; /* remove old spacing */
 }
 
-.round-buttons button:hover {
-  background: #666;
+.input-row button {
+  width: auto;
+  white-space: nowrap;
 }
 
-.round-buttons button:last-child {
-  background: #8b0000; /* dark red */
-}
-
-.round-buttons button:last-child:hover {
-  background: #a00000;
-}
-
-/* Modals */
-#warningBox, #historyBox {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-#warningContent, #historyContent {
-  background: #242222;
-  padding: 25px;
-  width: 320px;
-  max-height: 70vh;
-  border-radius: 12px;
-  text-align: center;
-  overflow-y: auto;
-}
-
-.close-btn {
-  color: red;
-  font-weight: 600;
-}
-
-.heading {
-  margin-bottom: 10px;
-}
-
-
-
-/* 📱 Mobile */
-@media (max-width: 768px) {
-  body {
-    align-items: flex-start;
-    padding: 12px 10px;
-  }
-
-  .container {
+/* Mobile friendly */
+@media (max-width: 480px) {
+  .input-row {
     flex-direction: column;
-    gap: 20px;
   }
 
-  .card {
+  .input-row button {
     width: 100%;
-    max-width: 360px;
   }
 }
 
-
-
-
-/* 🔘 Button click animation */
-@keyframes pressBounce {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(0.92); }
-  70%  { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.animate-btn {
-  animation: pressBounce 0.25s ease;
-}
-
-
-
-</style>
+  </style>
 </head>
-
 <body>
 
-<div class="wrapper">
-  <h1 class="heading">Division Calculator</h1>
+  <div class="card">
+    <h1>Mean · Median · Mode</h1>
 
-  <div class="container">
-
-    <div class="card">
-      <h3>Enter Values</h3>
-      <input id="value1" placeholder="Enter dividend" oninput="filterInput(this)">
-      <input id="value2" placeholder="Enter divisor" oninput="filterInput(this)">
-      <button id="calculateBtn" onclick="calculate()">Calculate</button>
-      <button id="resetBtn" onclick="resetAll()">Reset</button>
+    <div class="input-row">
+      <input id="numbers" placeholder="Enter numbers (e.g. 2,4,6,8)" />
+      <button class="calc" onclick="calculate()">Calculate</button>
     </div>
 
-    <div class="card" id="resultCard">
-      <h3>Result</h3>
 
-      <p id="decimal">Decimal:</p>
+    <div class="result">
+      <div class="row">
+        <span class="label">Mean</span>
+        <span class="value" id="mean">–</span>
+        <button class="copy-btn" onclick="copyText('mean', this)">Copy</button>
+      </div>
 
-      <!-- 🔢 NEW ROUND BUTTONS -->
-      <div class="round-buttons">
-  <button onclick="animateButton(this); roundDecimal(1)">1 dec</button>
-  <button onclick="animateButton(this); roundDecimal(2)">2 dec</button>
-  <button onclick="animateButton(this); roundDecimal(3)">3 dec</button>
-  <button onclick="animateButton(this); revertDecimal()">Revert</button>
-</div>
+      <div class="row">
+        <span class="label">Median</span>
+        <span class="value" id="median">–</span>
+        <button class="copy-btn" onclick="copyText('median', this)">Copy</button>
+      </div>
 
-
-      <button id="copyBtn" onclick="animateButton(this); copyDecimal()">Copy Decimal</button>
-
-
-      <p id="quotient">Quotient:</p>
-      <p id="remainder">Remainder:</p>
-
-      <button id="historyBtn" onclick="openHistory()">History (Last 10)</button>
+      <div class="row">
+        <span class="label">Mode</span>
+        <span class="value" id="mode">–</span>
+        <button class="copy-btn" onclick="copyText('mode', this)">Copy</button>
+      </div>
     </div>
-
   </div>
-</div>
 
-<div id="historyBox">
-  <div id="historyContent">
-    <h3>Calculation History</h3>
-    <ul id="historyList"></ul>
-    <button class="close-btn" onclick="closeHistory()">Close</button>
-  </div>
-</div>
-
-<script>
-/* ---------- DOM REFERENCES (MUST BE FIRST) ---------- */
-const value1 = document.getElementById("value1");
-const value2 = document.getElementById("value2");
-
-const calculateBtn = document.getElementById("calculateBtn");
-const resetBtn = document.getElementById("resetBtn");
-const copyBtn = document.getElementById("copyBtn");
-const historyBtn = document.getElementById("historyBtn");
-
-const resultCard = document.getElementById("resultCard");
-
-const decimalEl = document.getElementById("decimal");
-const quotientEl = document.getElementById("quotient");
-const remainderEl = document.getElementById("remainder");
-
-const historyBox = document.getElementById("historyBox");
-const historyList = document.getElementById("historyList");
-
-/* ---------- DATA ---------- */
-let historyData = [];
-let lastDecimalValue = null;
-
-/* ---------- FUNCTIONS ---------- */
-
-function filterInput(el) {
-  el.value = el.value.replace(/[^0-9.\-]/g, "");
+  <script>
+    function formatNumber(num) {
+  return Number(num).toLocaleString("en-US", {
+    maximumFractionDigits: 2
+  });
 }
 
-function animateButton(btn) {
-  btn.classList.remove("animate-btn"); // reset
-  void btn.offsetWidth;                // reflow trick
-  btn.classList.add("animate-btn");
-}
+    
+    function calculate() {
+      let input = document.getElementById("numbers").value;
+      let arr = input.split(",").map(Number).filter(n => !isNaN(n));
 
+      if (arr.length === 0) return;
 
-function calculate() {
-  const aVal = value1.value.trim();
-  const bVal = value2.value.trim();
+      // Mean
+      let mean = arr.reduce((a, b) => a + b, 0) / arr.length;
 
-  if (!aVal || !bVal) return;
+      // Median
+      let sorted = [...arr].sort((a, b) => a - b);
+      let mid = Math.floor(sorted.length / 2);
+      let median = sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
 
-  const a = Number(aVal);
-  const b = Number(bVal);
+      // Mode
+      let freq = {};
+      let maxFreq = 0;
+      let modes = [];
 
-  if (isNaN(a) || isNaN(b) || b === 0) return;
+      sorted.forEach(n => {
+        freq[n] = (freq[n] || 0) + 1;
+        maxFreq = Math.max(maxFreq, freq[n]);
+      });
 
-  const decimal = a / b;
-  lastDecimalValue = decimal;
+      for (let n in freq) {
+        if (freq[n] === maxFreq && maxFreq > 1) {
+          modes.push(n);
+        }
+      }
 
-  decimalEl.textContent = "Decimal: " + decimal;
-  quotientEl.textContent = "Quotient: " + Math.floor(decimal);
-  remainderEl.textContent = "Remainder: " + (a % b);
+            document.getElementById("mean").textContent = formatNumber(mean);
+            document.getElementById("median").textContent = formatNumber(median);
+            document.getElementById("mode").textContent =
+            modes.length
+          ? modes.map(n => formatNumber(n)).join(", ")
+          : "No mode";
 
-  historyData.unshift(`${a} ÷ ${b} = ${decimal}`);
-  if (historyData.length > 10) historyData.pop();
+    }
 
-  resultCard.style.display = "block";
-  calculateBtn.style.display = "none";
-  resetBtn.style.display = "block";
-  copyBtn.style.display = "block";
-  historyBtn.style.display = "block";
-}
+    function copyText(id, btn) {
+      let text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text);
 
-function roundDecimal(n) {
-  if (lastDecimalValue === null) return;
-  decimalEl.textContent =
-    `Decimal (${n} dec): ${lastDecimalValue.toFixed(n)}`;
-}
-
-function revertDecimal() {
-  if (lastDecimalValue === null) return;
-  decimalEl.textContent = "Decimal: " + lastDecimalValue;
-}
-
-function resetAll() {
-  value1.value = "";
-  value2.value = "";
-
-  decimalEl.textContent = "Decimal:";
-  quotientEl.textContent = "Quotient:";
-  remainderEl.textContent = "Remainder:";
-
-  resultCard.style.display = "none";
-  calculateBtn.style.display = "block";
-  resetBtn.style.display = "none";
-  copyBtn.style.display = "none";
-  historyBtn.style.display = "none";
-}
-
-function copyDecimal() {
-  const val = decimalEl.textContent.replace(/.*:\s*/, "");
-  navigator.clipboard.writeText(val);
-}
-
-function openHistory() {
-  historyList.innerHTML = historyData
-    .map(v => `<li>${v}</li>`)
-    .join("");
-  historyBox.style.display = "flex";
-}
-
-function closeHistory() {
-  historyBox.style.display = "none";
-}
-</script>
-
+      let original = btn.textContent;
+      btn.textContent = "Copied!";
+      setTimeout(() => btn.textContent = original, 1000);
+    }
+  </script>
 
 </body>
 </html>
