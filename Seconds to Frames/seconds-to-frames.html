@@ -2,9 +2,136 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FPS to Frames Calculator</title>
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+   body {
+  font-family: system-ui, sans-serif;
+  background: #180303;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 14px;   /* ← ADD THIS */
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+
+    .calculator {
+      background: #181c3a;
+      padding: 24px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 280px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    label {
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      margin: 6px 0 14px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    #frames {
+      font-weight: bold;
+      color: #4fd1ff;
+    }
+
+    /* remove number arrows */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .copy-btn {
+      margin-left: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      background: #2b6cff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: #1f54cc;
+    }
+
+    .copy-btn.copied {
+      background: #22c55e;
+    }
+
+    @media (max-width: 480px) {
+
+  .calculator {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  input,
+  select {
+    height: 48px;        /* better thumb tap */
+    font-size: 16px;    /* prevents iOS zoom */
+  }
+
+  .result {
+    font-size: 17px;
+  }
+
+  .copy-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+  </style>
 </head>
+
 <body>
 
   <div class="calculator">
@@ -28,13 +155,47 @@
     </select>
 
     <div class="result">
-  Total Frames:
-  <span id="frames">0</span>
-  <button id="copyBtn" class="copy-btn">Copy</button>
-</div>
-
+      Total Frames:
+      <span id="frames">0</span>
+      <button id="copyBtn" class="copy-btn">Copy</button>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const secondsInput = document.getElementById("seconds");
+    const fpsSelect = document.getElementById("fps");
+    const framesOutput = document.getElementById("frames");
+    const copyBtn = document.getElementById("copyBtn");
+
+    function calculateFrames() {
+      const seconds = parseFloat(secondsInput.value);
+      const fps = parseFloat(fpsSelect.value);
+
+      if (isNaN(seconds) || seconds < 0) {
+        framesOutput.textContent = 0;
+        return;
+      }
+
+      const totalFrames = seconds * fps;
+      framesOutput.textContent = Math.round(totalFrames);
+    }
+
+    copyBtn.addEventListener("click", () => {
+      const value = framesOutput.textContent;
+      navigator.clipboard.writeText(value);
+
+      copyBtn.textContent = "Copied!";
+      copyBtn.classList.add("copied");
+
+      setTimeout(() => {
+        copyBtn.textContent = "Copy";
+        copyBtn.classList.remove("copied");
+      }, 500);
+    });
+
+    secondsInput.addEventListener("input", calculateFrames);
+    fpsSelect.addEventListener("change", calculateFrames);
+  </script>
+
 </body>
 </html>
