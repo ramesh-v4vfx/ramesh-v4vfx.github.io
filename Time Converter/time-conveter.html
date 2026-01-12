@@ -1,7 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
 <meta charset="UTF-8">
+  <meta http-equiv="Content-Language" content="en">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
 <title>Time Converter</title>
 
 <style>
@@ -13,7 +18,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #0f1220;
+    background: #0f0101;
     font-family: system-ui, sans-serif;
     color: #fff;
   }
@@ -77,7 +82,7 @@
   }
 
   button {
-    background: #4f7cff;
+    background: #ff4f58;
     color: #fff;
     cursor: pointer;
     transition: transform 0.1s ease, opacity 0.1s ease;
@@ -95,9 +100,11 @@
     opacity: 0.9;
   }
 
+  /* HISTORY */
   .history {
     margin-top: 10px;
     font-size: 0.85rem;
+    display: none; /* hidden by default */
   }
 
   .history h3 {
@@ -120,7 +127,7 @@
 </style>
 </head>
 
-<body>
+<body class="notranslate">
 
 <div class="card">
   <h2>Time Converter</h2>
@@ -151,21 +158,26 @@
     </select>
   </div>
 
-  <div class="result" id="result">—</div>
-
+  <div class="result" id="result">—</div>  
+  
   <div class="decimals">
-  <button onclick="setDecimals(3)">3 dec</button>
-  <button onclick="setDecimals(2)">2 dec</button>
-  <button onclick="setDecimals(1)">1 dec</button>
-  <button onclick="revertDecimals()" class="secondary">Revert</button>
-</div>
-
+    <button onclick="setDecimals(3)">3 dec</button>
+    <button onclick="setDecimals(2)">2 dec</button>
+    <button onclick="setDecimals(1)">1 dec</button>
+    <button onclick="revertDecimals()" class="secondary">Revert</button>
+  </div>
 
   <button onclick="convert()">Convert</button>
   <button onclick="copyResult()" class="secondary" id="copyBtn">Copy</button>
   <button onclick="resetAll()" class="secondary">Reset</button>
 
-  <div class="history">
+  <!-- TOGGLE HISTORY BUTTON -->
+  <button onclick="toggleHistory()" class="secondary" id="historyToggle">
+    Show history
+  </button>
+
+  <!-- HISTORY PANEL -->
+  <div class="history" id="historyPanel">
     <h3>Last 10 calculations</h3>
     <div id="history"></div>
   </div>
@@ -178,6 +190,8 @@
 <script>
   const resultBox = document.getElementById("result");
   const historyBox = document.getElementById("history");
+  const historyPanel = document.getElementById("historyPanel");
+  const historyToggle = document.getElementById("historyToggle");
   const copyBtn = document.getElementById("copyBtn");
   const decimalButtons = document.querySelectorAll(".decimals button");
 
@@ -206,10 +220,7 @@
 
     rawResult = (value * factors[from]) / factors[to];
 
-    // Clamp integer-only units
-    if (to === "ns" || to === "us") {
-      rawResult = Math.round(rawResult);
-    }
+    if (to === "ns" || to === "us") rawResult = Math.round(rawResult);
 
     decimals = null;
     updateDecimalButtons();
@@ -232,37 +243,32 @@
   }
 
   function format(num) {
-    if (decimals !== null) {
-      return num.toFixed(decimals);
-    }
+    if (decimals !== null) return num.toFixed(decimals);
     return num.toLocaleString("en-US", { maximumFractionDigits: 8 });
   }
 
   function setDecimals(n) {
-  if (rawResult === null) return;
-  decimals = n;
-  updateDecimalButtons();
-  resultBox.textContent = rawResult.toFixed(n);
-}
-
-function revertDecimals() {
-  if (rawResult === null) return;
-  decimals = null;
-  updateDecimalButtons();
-  resultBox.textContent = format(rawResult);
-}
-
-function updateDecimalButtons() {
-  decimalButtons.forEach(btn => btn.classList.remove("active"));
-
-  if (decimals !== null) {
-    decimalButtons.forEach(btn => {
-      if (btn.textContent.startsWith(decimals.toString())) {
-        btn.classList.add("active");
-      }
-    });
+    if (rawResult === null) return;
+    decimals = n;
+    updateDecimalButtons();
+    resultBox.textContent = rawResult.toFixed(n);
   }
-}
+
+  function revertDecimals() {
+    if (rawResult === null) return;
+    decimals = null;
+    updateDecimalButtons();
+    resultBox.textContent = format(rawResult);
+  }
+
+  function updateDecimalButtons() {
+    decimalButtons.forEach(btn => btn.classList.remove("active"));
+    if (decimals !== null) {
+      decimalButtons.forEach(btn => {
+        if (btn.textContent.startsWith(decimals)) btn.classList.add("active");
+      });
+    }
+  }
 
   function copyResult() {
     if (resultBox.textContent === "—") return;
@@ -285,6 +291,12 @@ function updateDecimalButtons() {
       div.textContent = h;
       historyBox.appendChild(div);
     });
+  }
+
+  function toggleHistory() {
+    const visible = historyPanel.style.display === "block";
+    historyPanel.style.display = visible ? "none" : "block";
+    historyToggle.textContent = visible ? "Show history" : "Hide history";
   }
 
   function resetAll() {
