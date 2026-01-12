@@ -6,196 +6,172 @@
 <title>Division Calculator</title>
 
 <style>
-
-    body {
-    font-family: Arial, sans-serif;
-    background: #040b10;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    transition: background 0.3s, color 0.3s;
-  }
-
-  /* Wrapper to center heading + container */
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 25px;
-  }
-
-  .heading {
-    font-size: 26px;
-    font-weight: bold;
-    text-align: center;
-    margin: 0;
-  }
-
-  .container {
-    display: flex;
-    gap: 30px;
-    align-items: stretch;
-  }
-
-  .card {
-    background: rgb(66, 17, 17);
-    padding: 25px;
-    border-radius: 15px;
-    width: 330px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
-  }
-
-  input {
-    width: 90%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: 1px solid #bbb;
-    font-size: 16px;
-    text-align: center;
-  }
-
-  input::placeholder {
-    text-align: center;
-    color: #888;
-  }
-
-  button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    color: rgb(255, 255, 255);
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-
-  #calculateBtn { background: #007bff; }
-  #resetBtn    { background: #ff4e4e; display: none; }
-  #copyBtn     { background: #00a84f; display: none; }
-  #historyBtn  { background: #6f42c1; display: none; }
-
-  #resultCard {
-    display: none;
-  }
-
-  #darkModeToggle {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    padding: 8px 14px;
-    font-size: 14px;
-    border-radius: 20px;
-    background: #333;
-    color: #fff;
-  }
-
-  #warningBox,
-  #historyBox {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  #warningContent,
-  #historyContent {
-    background: white;
-    padding: 25px;
-    width: 320px;
-    max-height: 70vh;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-    overflow-y: auto;
-    transition: background 0.3s, color 0.3s;
-  }
-
-  #historyList {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  @keyframes bounceIn {
-    0%   { transform: scale(0.8); opacity: 0; }
-    60%  { transform: scale(1.05); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .bounce {
-    animation: bounceIn 0.4s ease;
-  }
-
-  .dark-mode {
-    background: #121212;
-    color: #f5f5f5;
-  }
-
-  .dark-mode .card {
-    background: #1e1e1e;
-    color: #f5f5f5;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.6);
-  }
-
-  .dark-mode input {
-    background: #2a2a2a;
-    color: #f5f5f5;
-    border-color: #555;
-  }
-
-  .dark-mode #warningContent,
-  .dark-mode #historyContent {
-    background: #1e1e1e;
-    color: #ffffff;
-  }
-
-  .dark-mode #darkModeToggle {
-    background: #f5f5f5;
-    color: #121212;
-  }
-
-  .watermark {
-  position: fixed;
-  vertical-align: center;
-  margin-bottom: 100px;
-  width: 50px;   /* 👈 size you requested */
-  opacity: 0.35; /* light watermark look (you can change it) */
-  pointer-events: none; /* cannot be clicked */
-  z-index: 999; /* always stays above */
+body {
+  font-family: Arial, sans-serif;
+  background: #040b10;
+  color: rgb(255, 149, 149);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
 }
 
+/* Wrapper */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+.heading {
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  gap: 30px;
+  align-items: stretch;
+}
+
+.card {
+  background: rgb(66, 17, 17);
+  padding: 25px;
+  border-radius: 15px;
+  width: 330px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  font-size: 16px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#calculateBtn { background: #007bff; }
+#resetBtn    { background: #ff4e4e; display: none; }
+#copyBtn     { background: #00a84f; display: none; }
+#historyBtn  { background: #6f42c1; display: none; }
+
+#resultCard { display: none; }
+
+/* 🔢 Rounding buttons */
+.round-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.round-buttons button {
+  flex: 1;
+  background: #444;
+  font-size: 14px;
+  padding: 10px;
+}
+
+.round-buttons button:hover {
+  background: #666;
+}
+
+.round-buttons button:last-child {
+  background: #8b0000; /* dark red */
+}
+
+.round-buttons button:last-child:hover {
+  background: #a00000;
+}
+
+/* Modals */
+#warningBox, #historyBox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#warningContent, #historyContent {
+  background: #242222;
+  padding: 25px;
+  width: 320px;
+  max-height: 70vh;
+  border-radius: 12px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.close-btn {
+  color: red;
+  font-weight: 600;
+}
+
+
+
+/* 📱 Mobile */
+@media (max-width: 768px) {
+  body { padding: 20px 10px; align-items: flex-start; }
+  .container { flex-direction: column; gap: 20px; }
+  .card { width: 100%; max-width: 360px; }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding-top: 50px;
+  }
+}
+
+
+/* 🔘 Button click animation */
+@keyframes pressBounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.92); }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-btn {
+  animation: pressBounce 0.25s ease;
+}
+
+
+
 </style>
-
 </head>
+
 <body>
-  <img src="images\ramesh-logo.png" class="watermark">
-
-
-<button id="darkModeToggle" onclick="toggleDarkMode()">Dark Mode: OFF</button>
 
 <div class="wrapper">
-
   <h1 class="heading">Division Calculator</h1>
 
   <div class="container">
 
     <div class="card">
       <h3>Enter Values</h3>
-
-      <input id="value1" placeholder="Enter dividend"
-             autocomplete="off" inputmode="decimal" oninput="filterInput(this)">
-      <input id="value2" placeholder="Enter divisor"
-             autocomplete="off" inputmode="decimal" oninput="filterInput(this)">
-
+      <input id="value1" placeholder="Enter dividend" oninput="filterInput(this)">
+      <input id="value2" placeholder="Enter divisor" oninput="filterInput(this)">
       <button id="calculateBtn" onclick="calculate()">Calculate</button>
       <button id="resetBtn" onclick="resetAll()">Reset</button>
     </div>
@@ -203,11 +179,22 @@
     <div class="card" id="resultCard">
       <h3>Result</h3>
 
-      <p id="decimal">Decimal: </p>
-      <button id="copyBtn" onclick="copyDecimal()">Copy Decimal</button>
+      <p id="decimal">Decimal:</p>
 
-      <p id="quotient">Quotient: </p>
-      <p id="remainder">Remainder: </p>
+      <!-- 🔢 NEW ROUND BUTTONS -->
+      <div class="round-buttons">
+  <button onclick="animateButton(this); roundDecimal(1)">1 dec</button>
+  <button onclick="animateButton(this); roundDecimal(2)">2 dec</button>
+  <button onclick="animateButton(this); roundDecimal(3)">3 dec</button>
+  <button onclick="animateButton(this); revertDecimal()">Revert</button>
+</div>
+
+
+      <button id="copyBtn" onclick="animateButton(this); copyDecimal()">Copy Decimal</button>
+
+
+      <p id="quotient">Quotient:</p>
+      <p id="remainder">Remainder:</p>
 
       <button id="historyBtn" onclick="openHistory()">History (Last 10)</button>
     </div>
@@ -215,191 +202,121 @@
   </div>
 </div>
 
-<!-- Warning Box -->
-<div id="warningBox">
-  <div id="warningContent">
-    <h3 id="warningTitle">Warning</h3>
-    <p id="warningText"></p>
-    <button onclick="closeDialog()">OK</button>
-  </div>
-</div>
-
-<!-- History Box -->
 <div id="historyBox">
   <div id="historyContent">
     <h3>Calculation History</h3>
     <ul id="historyList"></ul>
-    <button onclick="closeHistory()">Close</button>
+    <button class="close-btn" onclick="closeHistory()">Close</button>
   </div>
 </div>
 
 <script>
+/* ---------- DOM REFERENCES (MUST BE FIRST) ---------- */
+const value1 = document.getElementById("value1");
+const value2 = document.getElementById("value2");
 
-  const MAX = Number.MAX_SAFE_INTEGER;
-  let historyData = [];
-  let dialogShouldReset = false;
+const calculateBtn = document.getElementById("calculateBtn");
+const resetBtn = document.getElementById("resetBtn");
+const copyBtn = document.getElementById("copyBtn");
+const historyBtn = document.getElementById("historyBtn");
 
-  function addBounce(el) {
-    el.classList.remove("bounce");
-    void el.offsetWidth;
-    el.classList.add("bounce");
-  }
+const resultCard = document.getElementById("resultCard");
 
-  function filterInput(el) {
-    el.value = el.value.replace(/[^0-9.\-]/g, "");
-  }
+const decimalEl = document.getElementById("decimal");
+const quotientEl = document.getElementById("quotient");
+const remainderEl = document.getElementById("remainder");
 
-  function toggleDarkMode() {
-    const body = document.body;
-    const btn = document.getElementById("darkModeToggle");
-    body.classList.toggle("dark-mode");
+const historyBox = document.getElementById("historyBox");
+const historyList = document.getElementById("historyList");
 
-    btn.textContent = body.classList.contains("dark-mode")
-      ? "Dark Mode: ON"
-      : "Dark Mode: OFF";
-  }
+/* ---------- DATA ---------- */
+let historyData = [];
+let lastDecimalValue = null;
 
-  function showDialog(title, msg, shouldReset) {
-    dialogShouldReset = !!shouldReset;
-    document.getElementById("warningTitle").textContent = title;
-    document.getElementById("warningText").textContent = msg;
+/* ---------- FUNCTIONS ---------- */
 
-    const box = document.getElementById("warningBox");
-    const content = document.getElementById("warningContent");
-    box.style.display = "flex";
-    addBounce(content);
-  }
+function filterInput(el) {
+  el.value = el.value.replace(/[^0-9.\-]/g, "");
+}
 
-  function closeDialog() {
-    document.getElementById("warningBox").style.display = "none";
+function animateButton(btn) {
+  btn.classList.remove("animate-btn"); // reset
+  void btn.offsetWidth;                // reflow trick
+  btn.classList.add("animate-btn");
+}
 
-    if (dialogShouldReset) {
-      document.getElementById("value1").value = "0";
-      document.getElementById("value2").value = "0";
 
-      document.getElementById("resultCard").style.display = "none";
+function calculate() {
+  const aVal = value1.value.trim();
+  const bVal = value2.value.trim();
 
-      document.getElementById("calculateBtn").style.display = "block";
-      document.getElementById("resetBtn").style.display = "none";
-      document.getElementById("copyBtn").style.display = "none";
-      document.getElementById("historyBtn").style.display = "none";
-    }
-  }
+  if (!aVal || !bVal) return;
 
-  function addToHistory(a, b, decimal, quotient, remainder) {
-    historyData.unshift({ a, b, decimal, quotient, remainder });
-    if (historyData.length > 10) historyData.pop();
-  }
+  const a = Number(aVal);
+  const b = Number(bVal);
 
-  function renderHistory() {
-    const list = document.getElementById("historyList");
-    list.innerHTML = "";
+  if (isNaN(a) || isNaN(b) || b === 0) return;
 
-    if (historyData.length === 0) {
-      list.innerHTML = "<li>No history yet.</li>";
-      return;
-    }
+  const decimal = a / b;
+  lastDecimalValue = decimal;
 
-    historyData.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent =
-        `${item.a} ÷ ${item.b} = ${item.decimal} (Q: ${item.quotient}, R: ${item.remainder})`;
-      list.appendChild(li);
-    });
-  }
+  decimalEl.textContent = "Decimal: " + decimal;
+  quotientEl.textContent = "Quotient: " + Math.floor(decimal);
+  remainderEl.textContent = "Remainder: " + (a % b);
 
-  function openHistory() {
-    renderHistory();
-    const box = document.getElementById("historyBox");
-    const content = document.getElementById("historyContent");
-    box.style.display = "flex";
-    addBounce(content);
-  }
+  historyData.unshift(`${a} ÷ ${b} = ${decimal}`);
+  if (historyData.length > 10) historyData.pop();
 
-  function closeHistory() {
-    document.getElementById("historyBox").style.display = "none";
-  }
+  resultCard.style.display = "block";
+  calculateBtn.style.display = "none";
+  resetBtn.style.display = "block";
+  copyBtn.style.display = "block";
+  historyBtn.style.display = "block";
+}
 
-  function calculate() {
-    const v1 = document.getElementById("value1");
-    const v2 = document.getElementById("value2");
+function roundDecimal(n) {
+  if (lastDecimalValue === null) return;
+  decimalEl.textContent =
+    `Decimal (${n} dec): ${lastDecimalValue.toFixed(n)}`;
+}
 
-    const aVal = v1.value.trim();
-    const bVal = v2.value.trim();
+function revertDecimal() {
+  if (lastDecimalValue === null) return;
+  decimalEl.textContent = "Decimal: " + lastDecimalValue;
+}
 
-    const a = Number(aVal);
-    const b = Number(bVal);
+function resetAll() {
+  value1.value = "";
+  value2.value = "";
 
-    if (!aVal || !bVal) {
-      showDialog("Warning", "Please enter both numbers.", true);
-      return;
-    }
+  decimalEl.textContent = "Decimal:";
+  quotientEl.textContent = "Quotient:";
+  remainderEl.textContent = "Remainder:";
 
-    if (isNaN(a) || isNaN(b)) {
-      showDialog("Warning", "Invalid input. Numbers only.", true);
-      return;
-    }
+  resultCard.style.display = "none";
+  calculateBtn.style.display = "block";
+  resetBtn.style.display = "none";
+  copyBtn.style.display = "none";
+  historyBtn.style.display = "none";
+}
 
-    if (Math.abs(a) > MAX) {
-      showDialog("Warning", "Value 1 is too large.\nMax allowed: " + MAX, true);
-      return;
-    }
+function copyDecimal() {
+  const val = decimalEl.textContent.replace(/.*:\s*/, "");
+  navigator.clipboard.writeText(val);
+}
 
-    if (Math.abs(b) > MAX) {
-      showDialog("Warning", "Value 2 is too large.\nMax allowed: " + MAX, true);
-      return;
-    }
+function openHistory() {
+  historyList.innerHTML = historyData
+    .map(v => `<li>${v}</li>`)
+    .join("");
+  historyBox.style.display = "flex";
+}
 
-    if (b === 0) {
-      showDialog("Warning", "Cannot divide by zero.", true);
-      return;
-    }
-
-    const decimal   = a / b;
-    const quotient  = Math.floor(a / b);
-    const remainder = a % b;
-
-    document.getElementById("decimal").textContent   = "Decimal: " + decimal;
-    document.getElementById("quotient").textContent  = "Quotient: " + quotient;
-    document.getElementById("remainder").textContent = "Remainder: " + remainder;
-
-    addToHistory(a, b, decimal, quotient, remainder);
-
-    const resultCard = document.getElementById("resultCard");
-    resultCard.style.display = "block";
-    addBounce(resultCard);
-
-    document.getElementById("calculateBtn").style.display = "none";
-    document.getElementById("resetBtn").style.display     = "block";
-    document.getElementById("copyBtn").style.display      = "block";
-    document.getElementById("historyBtn").style.display   = "block";
-  }
-
-  function resetAll() {
-    document.getElementById("value1").value = "";
-    document.getElementById("value2").value = "";
-
-    document.getElementById("decimal").textContent   = "Decimal: ";
-    document.getElementById("quotient").textContent  = "Quotient: ";
-    document.getElementById("remainder").textContent = "Remainder: ";
-
-    document.getElementById("calculateBtn").style.display = "block";
-    document.getElementById("resetBtn").style.display     = "none";
-    document.getElementById("copyBtn").style.display      = "none";
-    document.getElementById("historyBtn").style.display   = "none";
-    document.getElementById("resultCard").style.display   = "none";
-  }
-
-  function copyDecimal() {
-    const val = document
-      .getElementById("decimal")
-      .textContent.replace("Decimal: ", "");
-
-    navigator.clipboard.writeText(val);
-    showDialog("Message", "Decimal value copied!", false);
-  }
-
+function closeHistory() {
+  historyBox.style.display = "none";
+}
 </script>
+
 
 </body>
 </html>
