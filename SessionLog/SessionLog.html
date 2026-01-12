@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Productivity Stopwatch</title>
 
 <style>
+/* =====================
+   BASE (DESKTOP)
+===================== */
 body {
   margin: 0;
   min-height: 100vh;
@@ -28,7 +30,7 @@ body {
 }
 
 .app {
-   width: 100%;
+  width: 100%;
   max-width: 360px;
   background: #1e1e2f;
   padding: 24px;
@@ -39,7 +41,8 @@ body {
 }
 
 h2 {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
+  font-size: 1.4rem;
 }
 
 #display {
@@ -47,7 +50,7 @@ h2 {
   margin: 16px 0 20px;
 }
 
-/* BUTTON GROUPS */
+/* BUTTON GROUPS (DESKTOP) */
 .buttons,
 .extra {
   display: flex;
@@ -60,7 +63,7 @@ button {
   flex: 1;
   padding: 12px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   background: #6a5acd;
   color: #fff;
@@ -71,7 +74,7 @@ button:hover { opacity: 0.9; }
 
 .hidden { display: none !important; }
 
-/* HISTORY PANEL */
+/* HISTORY */
 #historyPanel {
   margin-top: 15px;
   background: #141422;
@@ -90,9 +93,8 @@ button:hover { opacity: 0.9; }
 #historyList {
   max-height: 150px;
   overflow-y: auto;
-  padding-left: 0;
   list-style: none;
-  -webkit-overflow-scrolling: touch;
+  padding: 0;
 }
 
 #historyList li {
@@ -101,7 +103,7 @@ button:hover { opacity: 0.9; }
   border-bottom: 1px solid #333;
 }
 
-/* SMALL CLEAR BUTTON */
+/* CLEAR BUTTON */
 .clear-btn {
   padding: 6px 10px;
   font-size: 12px;
@@ -130,60 +132,106 @@ button:hover { opacity: 0.9; }
 
 textarea {
   width: 100%;
-  height: 70px;
+  height: 80px;
   margin-top: 10px;
   resize: none;
+  font-size: 16px;
 }
 
+/* BUTTON FEEDBACK */
 button {
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
   box-shadow: 0 4px 10px rgba(0,0,0,0.35);
 }
 
-/* press effect */
 button:active {
-  transform: scale(0.95);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  transform: scale(0.96);
 }
 
-/* small buttons too */
-.clear-btn:active {
-  transform: scale(0.92);
+/* History button – teal / info */
+#historyBtn {
+  background: #14b8a6;        /* teal */
+  color: #042f2e;
 }
+
+#historyBtn:hover {
+  opacity: 0.9;
+}
+
+/* Today button – amber / highlight */
+#todayBtn {
+  background: #14b8a6;   
+  color: #042f2e;
+}
+
+#todayBtn:hover {
+  opacity: 0.9;
+}
+
 
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* =====================
+   MOBILE LAYOUT
+===================== */
 @media (max-width: 480px) {
+
   body {
-    padding: 16px;
-    align-items: stretch;
-    justify-content: center; /* 👈 THIS WAS MISSING */
-  }
+    padding: 14px;
+    align-items: flex-start;
+      }
 
   .app {
+    max-width: 420px;
     width: 100%;
-    max-width: none;
-    margin-top: 16px;
-    border-radius: 18px;
-    padding: 26px;
-    box-shadow: none; /* removes floating-card illusion */
-    min-height: auto; /* 👈 THIS */
+    padding: 24px 20px 26px;
+    border-radius: 20px;
+    box-shadow: none;
+    margin-top: 10vh;   /* 👈 visually centered */
   }
 
-   h2 {
-    margin-top: 24px;
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 14px;
   }
 
   #display {
     font-size: 3.2rem;
+    margin-bottom: 20px;
+  }
+
+  /* STACK BUTTONS LIKE POMODORO APP */
+  .buttons,
+  .extra {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  button {
+    font-size: 1.05rem;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  #historyPanel {
+    margin-top: 18px;
+  }
+
+  /* POPUP — KEYBOARD SAFE */
+  .popup {
+    align-items: flex-start;
+    padding-top: 14vh;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .popup-box {
+    width: 100%;
+    max-width: 420px;
   }
 }
-
-
-
-
 </style>
 </head>
 
@@ -293,9 +341,20 @@ pause.onclick = () => {
 
 reset.onclick = () => {
   if (!elapsed) return;
+
+  /* STOP the stopwatch immediately */
+  clearInterval(timer);
+  timer = null;
+
+  /* Freeze the current elapsed time */
+  elapsed = Date.now() - startTime;
+  updateDisplay();
+
+  /* Open popup */
   popup.classList.remove("hidden");
   commentInput.focus();
 };
+
 
 /* =====================
    SAVE SESSION
@@ -419,7 +478,7 @@ function runFireworks(duration = 2500) {
 
     if (Math.random() < 0.2) {
       const x = Math.random() * fwCanvas.width;
-      const y = Math.random() * fwCanvas.height * 0.5;
+      const y = Math.random() * fwCanvas.height;
       for (let i = 0; i < 40; i++) {
         fireworks.push({
           x, y,
