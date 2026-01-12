@@ -6,17 +6,32 @@
 <title>Division Calculator</title>
 
 <style>
+
+  html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #040b10; /* your dark background */
+}
+
 body {
   font-family: Arial, sans-serif;
   background: #040b10;
   color: rgb(255, 149, 149);
+
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  align-items: center;       /* 🖥️ center on PC */
+
+  min-height: 100svh;
   margin: 0;
+
   transition: background 0.3s, color 0.3s;
 }
+
+
+
 
 /* Wrapper */
 .wrapper {
@@ -132,10 +147,22 @@ button {
 
 /* 📱 Mobile */
 @media (max-width: 768px) {
-  body { padding: 20px 10px; align-items: flex-start; }
-  .container { flex-direction: column; gap: 20px; }
-  .card { width: 100%; max-width: 360px; }
+  body {
+    align-items: flex-start;   /* 📱 top on mobile */
+    padding-top: 20px;
+  }
+
+  .container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 360px;
+  }
 }
+
 
 @media (max-width: 768px) {
   .wrapper {
