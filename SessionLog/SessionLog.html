@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Productivity Stopwatch</title>
+<title>Session Logger</title>
 
 <style>
 /* =====================
@@ -13,7 +13,7 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  background: #110000;
+  background: #050000;
   font-family: system-ui, sans-serif;
   display: flex;
   justify-content: center;
@@ -240,13 +240,13 @@ button:active {
 <canvas id="fireworks"></canvas>
 
 <div class="app">
-  <h2>STOPWATCH</h2>
+  <h2>Start Session</h2>
   <div id="display">00:00:00</div>
 
   <div class="buttons">
     <button id="start">Start</button>
     <button id="pause">Pause</button>
-    <button id="reset">Reset</button>
+    <button id="reset">Reset & Save</button>
   </div>
 
   <div class="extra">
@@ -318,6 +318,19 @@ let sessions = JSON.parse(localStorage.getItem("sessions")) || [];
 function saveSessions() {
   localStorage.setItem("sessions", JSON.stringify(sessions));
 }
+
+/* =====================
+   VISIBILITY FIX (Chrome background)
+===================== */
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && timer) {
+    // Tab became active again → resync time
+    elapsed = Date.now() - startTime;
+    updateDisplay();
+  }
+});
+
 
 /* =====================
    BUTTONS
