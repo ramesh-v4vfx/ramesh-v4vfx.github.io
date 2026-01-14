@@ -7,7 +7,7 @@
 <style>
   body {
     margin: 0;
-    background: #0f172a;
+    background: #0b0101;
     font-family: system-ui, sans-serif;
     color: #e5e7eb;
   }
@@ -123,20 +123,7 @@ button:active {
   transform: scale(0.95);
 }
 
-@keyframes pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-  100% { transform: scale(1); }
-}
-
-.saved {
-  animation: pop 0.25s ease;
-}
-
-
-
-
-  * {
+* {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -255,7 +242,14 @@ function render() {
   const tasks = getToday();
 
   for (let i = 0; i < TOTAL; i++) {
-    const data = tasks[i] || { text: '', start: null, end: null, saved: false };
+    const data = tasks[i] || {
+      text: '',
+      lastSavedText: '',
+      start: null,
+      end: null,
+      saved: false
+    };
+
     const done = data.end !== null;
 
     const task = document.createElement('div');
@@ -270,13 +264,20 @@ function render() {
     input.value = data.text;
     input.disabled = done;
 
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Save';
-    saveBtn.className = 'save';
-    saveBtn.disabled = done || !input.value.trim();
-    if (data.saved) {
-  saveBtn.classList.add('saved'); // 👈 THIS is the key fix
-}
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = data.saved ? 'Saved' : 'Save';
+      saveBtn.className = 'save';
+
+      saveBtn.disabled =
+      done ||
+      data.saved ||
+      !input.value.trim() ||
+      input.value === data.lastSavedText;
+
+      if (data.saved) {
+      saveBtn.classList.add('saved');
+      }
+
 
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Edit';
@@ -298,11 +299,17 @@ function render() {
     else status.textContent = 'Not started';
 
     input.addEventListener('input', () => {
-      saveBtn.disabled = !input.value.trim();
-    });
+  saveBtn.disabled =
+    done ||
+    data.saved ||
+    !input.value.trim() ||
+    input.value === data.lastSavedText;
+});
+
 
     saveBtn.onclick = () => {
       data.text = input.value;
+      data.lastSavedText = input.value;
       data.start = Date.now();
       data.saved = true;
       tasks[i] = data;
@@ -311,7 +318,14 @@ function render() {
       render();
     };
 
-    editBtn.onclick = () => input.focus();
+    editBtn.onclick = () => {
+  data.saved = false;          // unlock Save
+  data.start = null;           // reset timer
+  saveToday(tasks);
+  render();
+  input.focus();
+};
+
 
     doneBtn.onclick = () => {
       data.end = Date.now();
@@ -325,6 +339,9 @@ function render() {
   }
 
   saveResetBtn.disabled = !allDone(tasks);
+  // Disable History button if no history exists
+  toggleHistoryBtn.disabled = getHistory().length === 0;
+
 }
 
 saveResetBtn.onclick = () => {
@@ -369,9 +386,14 @@ function renderHistory() {
 clearHistoryBtn.onclick = () => {
   if (confirm('Clear history only?')) {
     localStorage.removeItem(historyKey);
-    renderHistory();
+
+    historyList.innerHTML = '';   // clear UI
+    historyEl.style.display = 'none'; // 👈 hide history panel
+    toggleHistoryBtn.disabled = true;
+
   }
 };
+
 
 resetAllBtn.onclick = () => {
   if (confirm('Delete ALL tasks and history?')) {
