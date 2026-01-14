@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session Logger</title>
+
+<style>
+/* =====================
+   BASE (DESKTOP)
+===================== */
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #050000;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+/* FIREWORKS */
+#fireworks {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app {
+  width: 100%;
+  max-width: 360px;
+  background: #1e1e2f;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 1.4rem;
+}
+
+#display {
+  font-size: 42px;
+  margin: 16px 0 20px;
+}
+
+/* BUTTON GROUPS (DESKTOP) */
+.buttons,
+.extra {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #6a5acd;
+  color: #fff;
+  font-size: 14px;
+}
+
+button:hover { opacity: 0.9; }
+
+.hidden { display: none !important; }
+
+/* HISTORY */
+#historyPanel {
+  margin-top: 15px;
+  background: #141422;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13px;
+}
+
+#historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#historyList {
+  max-height: 150px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+}
+
+#historyList li {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+/* CLEAR BUTTON */
+.clear-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #3a3a55;
+  border-radius: 8px;
+  flex: none;
+}
+
+/* POPUP */
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+}
+
+.popup-box {
+  background: #222;
+  padding: 20px;
+  width: 300px;
+  border-radius: 14px;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 10px;
+  resize: none;
+  font-size: 16px;
+}
+
+/* BUTTON FEEDBACK */
+button {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+/* History button – teal / info */
+#historyBtn {
+  background: #14b8a6;        /* teal */
+  color: #042f2e;
+}
+
+#historyBtn:hover {
+  opacity: 0.9;
+}
+
+/* Today button – amber / highlight */
+#todayBtn {
+  background: #14b8a6;   
+  color: #042f2e;
+}
+
+#todayBtn:hover {
+  opacity: 0.9;
+}
+
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =====================
+   MOBILE LAYOUT
+===================== */
+@media (max-width: 480px) {
+
+  body {
+    padding: 14px;
+    align-items: flex-start;
+      }
+
+  .app {
+    max-width: 420px;
+    width: 100%;
+    padding: 24px 20px 26px;
+    border-radius: 20px;
+    box-shadow: none;
+    margin-top: 10vh;   /* 👈 visually centered */
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 14px;
+  }
+
+  #display {
+    font-size: 3.2rem;
+    margin-bottom: 20px;
+  }
+
+  /* STACK BUTTONS LIKE POMODORO APP */
+  .buttons,
+  .extra {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  button {
+    font-size: 1.05rem;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  #historyPanel {
+    margin-top: 18px;
+  }
+
+  /* POPUP — KEYBOARD SAFE */
+  .popup {
+    align-items: flex-start;
+    padding-top: 14vh;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .popup-box {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="app">
+  <h2>Start Session</h2>
+  <div id="display">00:00:00</div>
+
+  <div class="buttons">
+    <button id="start">Start</button>
+    <button id="pause">Pause</button>
+    <button id="reset">Reset & Save</button>
+  </div>
+
+  <div class="extra">
+    <button id="historyBtn">Show History</button>
+    <button id="todayBtn">Today</button>
+  </div>
+
+  <div id="historyPanel" class="hidden">
+    <div id="historyHeader">
+      <strong>Session History</strong>
+      <button id="clearHistory" class="clear-btn">Clear</button>
+    </div>
+    <ul id="historyList"></ul>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup hidden">
+  <div class="popup-box">
+    <h3>What did you do?</h3>
+    <textarea id="commentInput" placeholder="Write here..."></textarea>
+    <div class="buttons">
+      <button id="saveSession">Save</button>
+      <button id="cancelSession">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================
+   UTILITIES
+===================== */
+
+function formatTime(ms) {
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor(ms / 1000) % 60;
+  const cs = Math.floor((ms % 1000) / 10);
+  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}:${String(cs).padStart(2,"0")}`;
+}
+
+function formatDurationHM(ms) {
+  const totalMinutes = Math.floor(ms / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
+}
+
+/* =====================
+   STOPWATCH
+===================== */
+
+let startTime = 0;
+let elapsed = 0;
+let timer = null;
+let sessionStartISO = null;
+
+const display = document.getElementById("display");
+
+function updateDisplay() {
+  display.textContent = formatTime(elapsed);
+}
+
+/* =====================
+   STORAGE
+===================== */
+
+let sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+
+function saveSessions() {
+  localStorage.setItem("sessions", JSON.stringify(sessions));
+}
+
+/* =====================
+   VISIBILITY FIX (Chrome background)
+===================== */
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && timer) {
+    // Tab became active again → resync time
+    elapsed = Date.now() - startTime;
+    updateDisplay();
+  }
+});
+
+
+/* =====================
+   BUTTONS
+===================== */
+
+start.onclick = () => {
+  if (timer) return;
+  if (!sessionStartISO) sessionStartISO = new Date().toISOString();
+
+  startTime = Date.now() - elapsed;
+  timer = setInterval(() => {
+    elapsed = Date.now() - startTime;
+    updateDisplay();
+  }, 10);
+};
+
+pause.onclick = () => {
+  clearInterval(timer);
+  timer = null;
+};
+
+reset.onclick = () => {
+  if (!elapsed) return;
+
+  /* STOP the stopwatch immediately */
+  clearInterval(timer);
+  timer = null;
+
+  /* Freeze the current elapsed time */
+  elapsed = Date.now() - startTime;
+  updateDisplay();
+
+  /* Open popup */
+  popup.classList.remove("hidden");
+  commentInput.focus();
+};
+
+
+/* =====================
+   SAVE SESSION
+===================== */
+
+saveSession.onclick = () => {
+  const end = new Date();
+
+  sessions.unshift({
+    ms: elapsed,
+    time: formatTime(elapsed),
+    comment: commentInput.value || "No comment",
+    startISO: sessionStartISO,
+    endISO: end.toISOString(),
+    day: end.toISOString().slice(0,10)
+  });
+
+  saveSessions();
+  popup.classList.add("hidden");
+  commentInput.value = "";
+
+  runFireworks(); // 🎆 celebration
+
+  elapsed = 0;
+  sessionStartISO = null;
+  clearInterval(timer);
+  timer = null;
+  updateDisplay();
+};
+
+cancelSession.onclick = () => popup.classList.add("hidden");
+
+/* =====================
+   HISTORY
+===================== */
+
+historyBtn.onclick = () => {
+  const isHidden = historyPanel.classList.toggle("hidden");
+  historyBtn.textContent = isHidden ? "Show History" : "Hide History";
+  if (!isHidden) renderHistory();
+};
+
+function renderHistory() {
+  historyList.innerHTML = "";
+  sessions.forEach(s => {
+    const from = new Date(s.startISO).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const to = new Date(s.endISO).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    historyList.innerHTML += `
+      <li>
+        <strong>${from} → ${to}</strong><br>
+        ${s.comment}<br>
+        <small>Duration: ${formatDurationHM(s.ms)}</small>
+      </li>`;
+  });
+}
+
+clearHistory.onclick = () => {
+  if (!confirm("Clear all history?")) return;
+  sessions = [];
+  saveSessions();
+  historyList.innerHTML = "";
+};
+
+/* =====================
+   TODAY PRODUCTIVITY
+===================== */
+
+todayBtn.onclick = () => {
+  const today = new Date().toISOString().slice(0,10);
+  const todaySessions = sessions.filter(s => s.day === today);
+
+  if (!todaySessions.length) {
+    alert("No sessions today.");
+    return;
+  }
+
+  let total = 0;
+  let msg = "Today:\n\n";
+
+  todaySessions.forEach(s => {
+    total += s.ms;
+    msg += `• ${s.comment} (${formatDurationHM(s.ms)})\n`;
+  });
+
+  msg += `\nTotal: ${formatDurationHM(total)}`;
+  alert(msg);
+};
+
+document.querySelectorAll("button").forEach(btn => {
+  btn.addEventListener("touchstart", () => {
+    btn.style.transform = "scale(0.95)";
+  });
+  btn.addEventListener("touchend", () => {
+    btn.style.transform = "";
+  });
+});
+
+
+/* =====================
+   FIREWORKS 🎆
+===================== */
+
+const fwCanvas = document.getElementById("fireworks");
+const fwCtx = fwCanvas.getContext("2d");
+
+function resizeFW() {
+  fwCanvas.width = innerWidth;
+  fwCanvas.height = innerHeight;
+}
+resizeFW();
+addEventListener("resize", resizeFW);
+
+let fireworks = [];
+
+function runFireworks(duration = 2500) {
+  const start = Date.now();
+
+  function loop() {
+    fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+
+    if (Math.random() < 0.2) {
+      const x = Math.random() * fwCanvas.width;
+      const y = Math.random() * fwCanvas.height;
+      for (let i = 0; i < 40; i++) {
+        fireworks.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          life: 60,
+          color: `hsl(${Math.random()*360},100%,60%)`
+        });
+      }
+    }
+
+    fireworks.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life--;
+      fwCtx.fillStyle = p.color;
+      fwCtx.globalAlpha = p.life / 60;
+      fwCtx.beginPath();
+      fwCtx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      fwCtx.fill();
+    });
+
+    fireworks = fireworks.filter(p => p.life > 0);
+    fwCtx.globalAlpha = 1;
+
+    if (Date.now() - start < duration) requestAnimationFrame(loop);
+    else fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+  }
+
+  loop();
+}
+
+updateDisplay();
+</script>
+
+</body>
+</html>

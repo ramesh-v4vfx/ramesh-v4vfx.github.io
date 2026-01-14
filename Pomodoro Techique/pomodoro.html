@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Advanced Pomodoro Timer</title>
+
+<style>
+  body {
+  font-family: system-ui, sans-serif;
+  background: #0b0000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;   /* ← change */
+  padding: 12px;      /* ← add */
+}
+
+
+  .app {
+    background: #040724;
+    padding: 25px;
+    border-radius: 14px;
+    width: 100%;
+     max-width: 360px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.4);
+    position: relative;
+  }
+
+  /* watermark */
+  .app::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("images/Ramesh-logo-scifi.png");
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 60px;
+    margin-top: 8px;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .timer {
+    font-size: 2.2rem;
+    text-align: center;
+    margin: 15px 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .info {
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.85;
+  }
+
+  button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #4f6cff;
+    color: white;
+    font-size: 1rem;
+  }
+
+  button.secondary {
+    background: #2b2f55;
+  }
+
+  button.danger {
+    background: #7a1f1f;
+  }
+
+  .history {
+    margin-top: 15px;
+    max-height: 160px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    -webkit-overflow-scrolling: touch;
+
+  }
+
+  .history div {
+    padding: 6px;
+    border-bottom: 1px solid #552a2a;
+  }
+
+  @media (max-width: 480px) {
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .timer {
+    font-size: 2.6rem; /* bigger timer */
+  }
+
+  .info {
+    font-size: 0.95rem;
+  }
+
+  button {
+    padding: 14px;     /* better tap target */
+    font-size: 1.05rem;
+  }
+
+  .history {
+    max-height: 140px; /* avoids overflow */
+  }
+}
+
+</style>
+</head>
+
+<body>
+<div class="app">
+  <h2>Pomodoro Focus</h2>
+
+  <div class="timer" id="display">25:00.000</div>
+
+  <div class="info" id="status">Ready to focus</div>
+  <div class="info">Sessions: <span id="sessions">0</span></div>
+  <div class="info">Total Work: <span id="totalWork">0 min</span></div>
+
+  <button onclick="startPomodoro()">Start</button>
+  <button class="secondary" onclick="stopTimer()">Stop</button>
+  <button class="secondary" onclick="showHistory()">History</button>
+  <button class="danger" onclick="deleteHistory()">Delete History</button>
+
+  <div class="history" id="history"></div>
+</div>
+
+<script>
+/* ---------------- CONFIG ---------------- */
+const WORK_TIME = 25 * 60 * 1000;
+const BREAK_TIME = 5 * 60 * 1000;
+
+/* ---------------- STATE ---------------- */
+let startTime = 0;
+let duration = WORK_TIME;
+let timerId;
+let mode = "work";
+let warned5 = false;
+let warned2 = false;
+let sessionsToday = 0;
+let workMsToday = 0;
+
+/* ---------------- ELEMENTS ---------------- */
+const display = document.getElementById("display");
+const statusEl = document.getElementById("status");
+const sessionsEl = document.getElementById("sessions");
+const totalWorkEl = document.getElementById("totalWork");
+const historyEl = document.getElementById("history");
+
+/* ---------------- UTILS ---------------- */
+function format(ms) {
+  const totalSec = ms / 1000;
+  const min = Math.floor(totalSec / 60);
+  const sec = Math.floor(totalSec % 60);
+  const micro = Math.floor(ms % 1000);
+  return `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}.${String(micro).padStart(3,"0")}`;
+}
+
+function todayKey() {
+  return new Date().toLocaleDateString("en-GB", {
+    day:"2-digit", month:"short", year:"numeric"
+  });
+}
+
+/* ---------------- STORAGE ---------------- */
+function loadToday() {
+  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
+  const key = todayKey();
+
+  // new day → reset counters
+  if (key !== currentDayKey) {
+    currentDayKey = key;
+    sessionsToday = 0;
+    workMsToday = 0;
+    updateStats();
+    return;
+  }
+
+  if (data[key]) {
+    sessionsToday = data[key].sessions;
+    workMsToday = data[key].workMs;
+  } else {
+    sessionsToday = 0;
+    workMsToday = 0;
+  }
+}
+
+
+function saveToday() {
+  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
+  data[todayKey()] = {
+    sessions: sessionsToday,
+    workMs: workMsToday
+  };
+  localStorage.setItem("pomodoroLog", JSON.stringify(data));
+}
+
+/* ---------------- TIMER ---------------- */
+function startPomodoro() {
+  stopTimer();
+  mode = "work";
+  duration = WORK_TIME;
+  warned5 = warned2 = false;
+  startTime = performance.now();
+  statusEl.textContent = "Focus time";
+  timerId = requestAnimationFrame(update);
+}
+
+function startBreak() {
+  stopTimer();
+  mode = "break";
+  duration = BREAK_TIME;
+  startTime = performance.now();
+  statusEl.textContent = "Break time";
+  timerId = requestAnimationFrame(update);
+}
+
+function stopTimer() {
+  cancelAnimationFrame(timerId);
+}
+
+function update(now) {
+  const elapsed = now - startTime;
+  const remaining = duration - elapsed;
+
+  if (remaining <= 0) {
+    display.textContent = "00:00.000";
+    stopTimer();
+
+    if (mode === "work") {
+      sessionsToday++;
+      workMsToday += WORK_TIME;
+      saveToday();
+      updateStats();
+      startBreak();
+    } else {
+      statusEl.textContent = "Ready for next session";
+    }
+    return;
+  }
+
+  display.textContent = format(remaining);
+  timerId = requestAnimationFrame(update);
+}
+
+/* ---------------- UI ---------------- */
+function updateStats() {
+  sessionsEl.textContent = sessionsToday;
+  const mins = Math.floor(workMsToday / 60000);
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+  totalWorkEl.textContent = hrs > 0 ? `${hrs}h ${rem}m` : `${rem} min`;
+}
+
+function showHistory() {
+  historyEl.innerHTML = "";
+  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
+
+  Object.keys(data).sort().reverse().forEach(date => {
+    const mins = Math.floor(data[date].workMs / 60000);
+    const hrs = Math.floor(mins / 60);
+    const rem = mins % 60;
+
+    historyEl.innerHTML += `
+      <div>
+        <strong>${date}</strong><br>
+        Worked ${hrs > 0 ? hrs+"h " : ""}${rem}m • ${data[date].sessions} sessions
+      </div>
+    `;
+  });
+}
+
+/* ---------------- DELETE HISTORY ---------------- */
+function deleteHistory() {
+  const ok = confirm(
+    "Delete all Pomodoro history?\n\nThis will permanently remove all saved sessions from this device."
+  );
+  if (!ok) return;
+
+  localStorage.removeItem("pomodoroLog");
+  sessionsToday = 0;
+  workMsToday = 0;
+  updateStats();
+  historyEl.innerHTML = "";
+  statusEl.textContent = "History deleted";
+}
+
+setInterval(loadToday, 60000); // check date every minute
+
+
+/* ---------------- INIT ---------------- */
+loadToday();
+updateStats();
+</script>
+</body>
+</html>

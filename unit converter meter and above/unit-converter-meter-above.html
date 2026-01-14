@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cosmic Calculator</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #000000;
+    color: #e5e7eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .converter {
+    background: #0a0000;
+    padding: 25px;
+    border-radius: 12px;
+    width: 470px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  input, select {
+    background: #1e293b;
+    color: #fff;
+  }
+
+  button {
+    background: #ff5050;
+    color: #020617;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  .secondary-btn {
+    background: #081c1d;
+    color: #fff;
+  }
+
+  .round-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .result {
+    margin-top: 15px;
+    padding: 16px;
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  }
+
+  .result.flash {
+    transform: scale(1.08);
+    box-shadow: 0 0 18px rgba(56,189,248,0.9);
+    opacity: 0.85;
+  }
+
+  .copy-btn {
+    background: #45ff51;
+  }
+
+  .copy-btn.copied {
+    background: #16a34a;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .history {
+    margin-top: 15px;
+    display: none;
+    border-top: 1px solid #334155;
+    padding-top: 10px;
+  }
+
+  .history-item {
+    padding: 6px 8px;
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .history-item:hover {
+    background: #1e293b;
+  }
+
+  .value-input {
+    font-size: 18px;
+    padding: 14px 20px;
+    -moz-appearance: textfield;
+  }
+
+  .value-input::-webkit-inner-spin-button,
+  .value-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .value-input,
+  select {
+    height: 52px;
+    padding: 0 20px;
+    font-size: 18px;
+    line-height: 52px;
+  }
+
+  /* ===== Mobile-friendly additions (NO layout change) ===== */
+
+/* Better iOS height handling */
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Remove mobile tap highlight */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile screen adjustments only */
+@media (max-width: 480px) {
+
+  body {
+    padding: 12px;
+    align-items: flex-start; /* prevents cut-off on small screens */
+  }
+
+  .converter {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .round-buttons,
+  .action-row {
+    flex-direction: column;
+  }
+
+  input,
+  select,
+  button {
+    font-size: 16px; /* prevents iOS zoom */
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="converter">
+  <h2>Cosmic Calculator</h2>
+
+  <button class="secondary-btn" onclick="pasteValue()">Paste Value</button>
+
+  <input type="number" id="value" class="value-input" placeholder="Enter value">
+
+  <!-- ✅ ORDER UPDATED EXACTLY AS REQUESTED -->
+  <select id="conversion">
+    <option value="m-km">meters → km</option>
+    <option value="km-m">km → meters</option>
+
+    <option value="km-mi">km → miles</option>
+    <option value="mi-km">miles → km</option>
+
+    <option value="er-km">Earth Radius → km</option>
+    <option value="km-er">km → Earth Radius</option>
+
+    <option value="sr-km">Solar Radius → km</option>
+    <option value="km-sr">km → Solar Radius</option>
+
+    <option value="au-km">AU → km</option>
+    <option value="km-au">km → AU</option>
+
+    <option value="ly-km">light-year → km</option>
+    <option value="km-ly">km → light-year</option>
+
+    <option value="ly-pc">light-year → parsec</option>
+    <option value="pc-ly">parsec → light-year</option>
+  </select>
+
+  <button onclick="convert()">Convert</button>
+
+  <div class="round-buttons">
+    <button class="secondary-btn" onclick="roundResult(2)">Round: 2 digits</button>
+    <button class="secondary-btn" onclick="roundResult(3)">Round: 3 digits</button>
+  </div>
+
+  <div class="result" id="result">Result waiting...</div>
+
+  <button class="copy-btn" id="copyBtn" onclick="copyMainResult()">Copy Result</button>
+
+  <div class="action-row">
+    <button class="secondary-btn" onclick="resetAll()">Reset</button>
+    <button class="secondary-btn" id="historyToggle" onclick="toggleHistory()">Show History</button>
+  </div>
+
+  <div class="history" id="historyBox">
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+  function pasteValue() {
+    navigator.clipboard.readText().then(text => {
+      if (isNaN(text.trim())) return alert("Clipboard does not contain a valid number");
+      document.getElementById("value").value = text.trim();
+      flashResult();
+    });
+  }
+
+  const AU_IN_KM = 149597870.7;
+  const SOLAR_RADIUS_KM = 695700;
+  const EARTH_RADIUS_KM = 6371;
+
+  let lastResult = null;
+  let history = [];
+
+  function flashResult() {
+    const r = document.getElementById("result");
+    r.classList.add("flash");
+    setTimeout(() => r.classList.remove("flash"), 250);
+  }
+
+  function convert() {
+    const value = parseFloat(document.getElementById("value").value);
+    if (isNaN(value)) return;
+
+    const type = document.getElementById("conversion").value;
+    let result;
+
+    switch (type) {
+      case "km-m": result = value * 1000; break;
+      case "m-km": result = value / 1000; break;
+      case "km-mi": result = value * 0.621371; break;
+      case "mi-km": result = value / 0.621371; break;
+      case "ly-km": result = value * 9.4607e12; break;
+      case "km-ly": result = value / 9.4607e12; break;
+      case "ly-pc": result = value / 3.26156; break;
+      case "pc-ly": result = value * 3.26156; break;
+      case "au-km": result = value * AU_IN_KM; break;
+      case "km-au": result = value / AU_IN_KM; break;
+      case "km-sr": result = value / SOLAR_RADIUS_KM; break;
+      case "sr-km": result = value * SOLAR_RADIUS_KM; break;
+      case "km-er": result = value / EARTH_RADIUS_KM; break;
+      case "er-km": result = value * EARTH_RADIUS_KM; break;
+    }
+
+    lastResult = result;
+    document.getElementById("result").innerText = result;
+    flashResult();
+    addToHistory(value, type, result);
+  }
+
+  function roundResult(d) {
+    if (lastResult === null) return;
+    document.getElementById("result").innerText = lastResult.toFixed(d);
+    flashResult();
+  }
+
+  function copyMainResult() {
+    const btn = document.getElementById("copyBtn");
+    navigator.clipboard.writeText(document.getElementById("result").innerText);
+    btn.innerText = "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.innerText = "Copy Result";
+      btn.classList.remove("copied");
+    }, 500);
+  }
+
+  function addToHistory(input, type, result) {
+    history.unshift({ input, type, result });
+    history = history.slice(0, 10);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const list = document.getElementById("historyList");
+    list.innerHTML = "";
+    history.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "history-item";
+      div.innerText = `${item.input} (${item.type}) = ${item.result}`;
+      div.onclick = () => navigator.clipboard.writeText(item.result);
+      list.appendChild(div);
+    });
+  }
+
+  function toggleHistory() {
+    const box = document.getElementById("historyBox");
+    const btn = document.getElementById("historyToggle");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+    btn.innerText = box.style.display === "block" ? "Hide History" : "Show History";
+  }
+
+  function resetAll() {
+    document.getElementById("value").value = "";
+    document.getElementById("result").innerText = "Result waiting...";
+    history = [];
+    renderHistory();
+    lastResult = null;
+  }
+</script>
+
+</body>
+</html>
