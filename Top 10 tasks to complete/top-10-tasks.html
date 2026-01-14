@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Top 10 Things To Do</title>
+<style>
+  body {
+    margin: 0;
+    background: #0f172a;
+    font-family: system-ui, sans-serif;
+    color: #e5e7eb;
+  }
+
+  .page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 480px;
+    background: #111827;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+
+  h2 {
+    text-align: center;
+    margin: 0 0 14px;
+  }
+
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    background: #1f2933;
+    color: #e5e7eb;
+  }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .primary { background: #14532d; }
+  .danger { background: #7f1d1d; }
+  .save { background: #374151; }
+  .done { background: #14532d; }
+  .edit { background: #1e3a8a; }
+
+  .task {
+    background: #0b1220;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #020617;
+    color: #e5e7eb;
+    font-size: 14px;
+  }
+
+  .pending input { color: #ef4444; }
+  .completed input { color: #22c55e; text-decoration: line-through; }
+
+  .status {
+    font-size: 12px;
+    margin-top: 6px;
+    opacity: 0.85;
+  }
+
+  .history {
+    display: none;
+    margin-top: 16px;
+  }
+
+  .history-item {
+    background: #020617;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .history-item span {
+    display: block;
+    color: #22c55e;
+  }
+
+  .saved {
+  background: #14532d !important;
+}
+
+button {
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.saved {
+  animation: pop 0.25s ease;
+}
+
+
+
+
+  * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+  @media (max-width: 480px) {
+
+  .app {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .top-actions {
+    gap: 8px;
+  }
+
+  .top-actions button {
+    flex: 1;
+  }
+
+  .row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  input[type="text"] {
+    font-size: 16px; /* prevents iOS zoom */
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .status {
+    font-size: 12px;
+  }
+
+  #resetAll {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="app">
+    <h2>Top 10 Things To Do</h2>
+
+    <div class="top-actions">
+      <button id="saveReset" class="primary" disabled>Save List & Reset</button>
+      <button id="toggleHistory">Show/Hide History</button>
+    </div>
+
+    <div id="tasks"></div>
+
+    <div class="history" id="history">
+      <button id="clearHistory" class="danger">Clear History</button>
+      <div id="historyList"></div>
+    </div>
+
+    <button id="resetAll" class="danger" style="margin-top:14px;width:100%;">
+      Reset All (Fresh Start)
+    </button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 10;
+const todayKey = 'top10_today';
+const historyKey = 'top10_history';
+
+const tasksEl = document.getElementById('tasks');
+const saveResetBtn = document.getElementById('saveReset');
+const toggleHistoryBtn = document.getElementById('toggleHistory');
+const historyEl = document.getElementById('history');
+const historyList = document.getElementById('historyList');
+const clearHistoryBtn = document.getElementById('clearHistory');
+const resetAllBtn = document.getElementById('resetAll');
+
+function formatTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  return `${h}h ${m % 60}m ${s % 60}s`;
+}
+
+function getToday() {
+  return JSON.parse(localStorage.getItem(todayKey)) || [];
+}
+
+function saveToday(data) {
+  localStorage.setItem(todayKey, JSON.stringify(data));
+}
+
+function getHistory() {
+  return JSON.parse(localStorage.getItem(historyKey)) || [];
+}
+
+function saveHistory(data) {
+  localStorage.setItem(historyKey, JSON.stringify(data));
+}
+
+function allDone(tasks) {
+  return tasks.length === TOTAL && tasks.every(t => t && t.end);
+}
+
+function render() {
+  tasksEl.innerHTML = '';
+  const tasks = getToday();
+
+  for (let i = 0; i < TOTAL; i++) {
+    const data = tasks[i] || { text: '', start: null, end: null, saved: false };
+    const done = data.end !== null;
+
+    const task = document.createElement('div');
+    task.className = 'task ' + (done ? 'completed' : 'pending');
+
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = `Task ${i + 1}`;
+    input.value = data.text;
+    input.disabled = done;
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.className = 'save';
+    saveBtn.disabled = done || !input.value.trim();
+    if (data.saved) {
+  saveBtn.classList.add('saved'); // 👈 THIS is the key fix
+}
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'edit';
+    editBtn.disabled = done;
+
+    const doneBtn = document.createElement('button');
+    doneBtn.textContent = 'Done';
+    doneBtn.className = 'done';
+    doneBtn.disabled = !data.start || done;
+
+    row.append(input, saveBtn, editBtn, doneBtn);
+
+    const status = document.createElement('div');
+    status.className = 'status';
+
+    if (done) status.textContent = 'Completed in ' + formatTime(data.end - data.start);
+    else if (data.start) status.textContent = 'In progress…';
+    else status.textContent = 'Not started';
+
+    input.addEventListener('input', () => {
+      saveBtn.disabled = !input.value.trim();
+    });
+
+    saveBtn.onclick = () => {
+      data.text = input.value;
+      data.start = Date.now();
+      data.saved = true;
+      tasks[i] = data;
+      saveToday(tasks);
+       saveBtn.classList.add('saved');
+      render();
+    };
+
+    editBtn.onclick = () => input.focus();
+
+    doneBtn.onclick = () => {
+      data.end = Date.now();
+      tasks[i] = data;
+      saveToday(tasks);
+      render();
+    };
+
+    task.append(row, status);
+    tasksEl.appendChild(task);
+  }
+
+  saveResetBtn.disabled = !allDone(tasks);
+}
+
+saveResetBtn.onclick = () => {
+  const tasks = getToday();
+  const history = getHistory();
+
+  history.unshift({
+    date: new Date().toLocaleDateString(),
+    tasks
+  });
+
+  saveHistory(history);
+  localStorage.removeItem(todayKey);
+  render();
+};
+
+toggleHistoryBtn.onclick = () => {
+  const isVisible = historyEl.style.display === 'block';
+  historyEl.style.display = isVisible ? 'none' : 'block';
+
+  if (!isVisible) {
+    renderHistory();
+  }
+};
+
+
+function renderHistory() {
+  historyList.innerHTML = '';
+  getHistory().forEach(day => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `<strong>${day.date}</strong>`;
+    day.tasks.forEach(t => {
+      const span = document.createElement('span');
+      span.textContent = `• ${t.text} (${formatTime(t.end - t.start)})`;
+      div.appendChild(span);
+    });
+    historyList.appendChild(div);
+  });
+}
+
+clearHistoryBtn.onclick = () => {
+  if (confirm('Clear history only?')) {
+    localStorage.removeItem(historyKey);
+    renderHistory();
+  }
+};
+
+resetAllBtn.onclick = () => {
+  if (confirm('Delete ALL tasks and history?')) {
+    localStorage.removeItem(todayKey);
+    localStorage.removeItem(historyKey);
+    historyEl.style.display = 'none';
+    render();
+  }
+};
+
+render();
+</script>
+
+</body>
+</html>
