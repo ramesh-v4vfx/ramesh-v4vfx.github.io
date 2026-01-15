@@ -96,6 +96,27 @@ body.dark button:hover {
   opacity: 0.85;
 }
 
+/* Voice bar layout */
+.voice-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* Voice dropdown */
+#voiceSelect {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+}
+
+/* Play / Stop buttons */
+.voice-actions {
+  display: flex;
+  gap: 8px;
+}
+
 @media (max-width: 600px) {
 
  body {
@@ -133,6 +154,22 @@ textarea {
   .footer {
     font-size: 13px;
   }
+
+  .voice-bar {
+    flex-direction: column;
+  }
+
+  #voiceSelect {
+    width: 100%;
+  }
+
+  .voice-actions {
+    width: 100%;
+  }
+
+  .voice-actions button {
+    flex: 1;
+  }
 }
 
 
@@ -157,6 +194,15 @@ textarea {
   </select>
 
   <button id="downloadBtn">Download</button>
+  <div class="voice-bar">
+  <select id="voiceSelect"></select>
+  <div class="voice-actions">
+    <button id="playBtn">🔊 Play</button>
+    <button id="stopBtn">⏹ Stop</button>
+  </div>
+</div>
+
+
 </div>
 
 <textarea
@@ -277,6 +323,75 @@ themeToggle.addEventListener("click", () => {
   const isDark = document.body.classList.contains("dark");
   localStorage.setItem("theme", isDark ? "dark" : "light");
   themeToggle.textContent = isDark ? "☀️" : "🌙";
+});
+
+const synth = window.speechSynthesis;
+const voiceSelect = document.getElementById("voiceSelect");
+const playBtn = document.getElementById("playBtn");
+const stopBtn = document.getElementById("stopBtn");
+
+let voices = [];
+const savedVoiceName = localStorage.getItem("diary-voice");
+
+// Load voices
+function loadVoices() {
+  voices = synth.getVoices();
+  voiceSelect.innerHTML = "";
+
+  let selectedIndex = 0;
+
+  voices.forEach((voice, index) => {
+    if (voice.lang.startsWith("en")) {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = voice.name;
+      voiceSelect.appendChild(option);
+
+      // Restore last used voice
+      if (voice.name === savedVoiceName) {
+        selectedIndex = voiceSelect.options.length - 1;
+      }
+    }
+  });
+
+  voiceSelect.selectedIndex = selectedIndex;
+}
+
+// Required for Chrome
+synth.onvoiceschanged = loadVoices;
+loadVoices();
+
+// Save voice when changed
+voiceSelect.addEventListener("change", () => {
+  const selectedVoice = voices[voiceSelect.value];
+  if (selectedVoice) {
+    localStorage.setItem("diary-voice", selectedVoice.name);
+  }
+});
+
+// Play diary
+playBtn.addEventListener("click", () => {
+  if (!diaryText.value.trim()) return;
+
+  synth.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(diaryText.value);
+  const selectedVoice = voices[voiceSelect.value];
+
+  if (selectedVoice) {
+    utterance.voice = selectedVoice;
+  }
+
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  synth.speak(utterance);
+});
+
+// Stop
+stopBtn.addEventListener("click", () => {
+  synth.cancel();
 });
 
 </script>
