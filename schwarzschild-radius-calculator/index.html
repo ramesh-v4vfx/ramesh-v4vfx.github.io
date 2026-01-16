@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<title>Schwarzschild Radius Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    background:#0f0203;
+    color:#fff;
+    font-family:Arial, Helvetica, sans-serif;
+    text-align:center;
+    padding:30px;
+  }
+
+  select, input, button {
+    padding:10px;
+    font-size:1rem;
+    margin-top:12px;
+    border-radius:6px;
+    border:none;
+  }
+
+  input { width:220px; }
+
+  button { cursor:pointer; }
+
+  /* 🔴 CALCULATE BUTTON */
+  .btn-red {
+    background:#ff0000;
+    color:#fff;
+    font-size:1.25rem;
+    padding:16px 34px;
+    margin-top:22px;
+    border-radius:12px;
+    font-weight:700;
+    animation:pulse 2.5s infinite;
+  }
+
+  .btn-red:active {
+    transform:scale(0.96);
+  }
+
+  @keyframes pulse {
+    0% { box-shadow:0 0 0 0 rgba(255,0,0,0.6); }
+    70% { box-shadow:0 0 0 18px rgba(255,0,0,0); }
+    100% { box-shadow:0 0 0 0 rgba(255,0,0,0); }
+  }
+
+  /* COPY BUTTON */
+  .btn-small {
+    background:#161a35;
+    color:#fff;
+    padding:8px 14px;
+    font-size:0.85rem;
+    margin-left:8px;
+    transition:transform 0.15s ease, background 0.15s ease;
+  }
+
+  .btn-small:hover {
+    background:#1c2150;
+  }
+
+  .copied {
+    background:#1faa59 !important;
+    transform:scale(1.12);
+    box-shadow:0 0 12px rgba(31,170,89,0.8);
+  }
+
+  .row { margin-top:14px; }
+
+  .result {
+    margin-top:26px;
+    font-size:1rem;
+    line-height:1.9;
+  }
+
+  .line {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin-top:8px;
+  }
+
+  .dec-toggle button {
+    margin:0 6px;
+  }
+
+  .active {
+    outline:2px solid #ff0000;
+  }
+
+  .small {
+    font-size:0.8rem;
+    opacity:0.6;
+    margin-top:12px;
+  }
+</style>
+
+</head>
+
+<body>
+
+<h1>Schwarzschild Radius ⭕</h1>
+
+<select id="massType">
+  <option value="solar">☀️ Solar Mass</option>
+  <option value="earth">🌍 Earth Mass</option>
+  <option value="kg">⚖️ Kilograms</option>
+</select>
+
+<div class="row">
+  <input type="text" id="massInput" placeholder="Enter value">
+
+</div>
+
+<div class="row">
+  <button class="btn-small" onclick="pasteValue()">📋 Paste value</button>
+</div>
+
+<div class="row dec-toggle">
+  <button class="btn-small" onclick="setDecimals(null)">Original</button>
+  <button class="btn-small" onclick="setDecimals(2)">2 dec</button>
+  <button class="btn-small active" onclick="setDecimals(3)">3 dec</button>
+</div>
+
+
+
+<div class="row">
+  <button class="btn-red" onclick="calculate()">CALCULATE</button>
+</div>
+
+<div class="result" id="output"></div>
+
+<div class="small">
+  Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km
+</div>
+
+<script>
+  let decimals = 3; // default = 3 decimals
+
+
+
+
+function setDecimals(d) {
+  decimals = d;
+
+  document.querySelectorAll('.dec-toggle button')
+    .forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (lastResult) renderResult(lastResult);
+}
+
+
+const G = 6.67430e-11;
+const c = 299792458;
+const solarMass = 1.988416e30;
+const earthMass = 5.9722e24;
+const solarRadius = 6.957e8; // meters
+
+let lastResult = null;
+
+function format(n) {
+  // ORIGINAL (no forced rounding)
+  if (decimals === null) {
+    return n.toLocaleString('en-US', {
+      maximumFractionDigits: 20
+    });
+  }
+
+  // Rounded modes
+  return n.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+
+const massInput = document.getElementById("massInput");
+
+massInput.addEventListener("input", function () {
+  const cursorPos = this.selectionStart;
+
+  // Remove all non-numeric except dot
+  let raw = this.value.replace(/,/g, "");
+  if (!raw) return;
+
+  // Allow only one decimal point
+  const parts = raw.split(".");
+  parts[0] = parts[0].replace(/\D/g, "");
+  if (parts[1]) parts[1] = parts[1].replace(/\D/g, "");
+
+  // Format integer part with US commas
+  parts[0] = Number(parts[0]).toLocaleString("en-US");
+
+  const formatted = parts.join(".");
+  const diff = formatted.length - this.value.length;
+
+  this.value = formatted;
+  this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+});
+
+
+
+function calculate() {
+  const value = parseFloat(
+  document.getElementById("massInput").value.replace(/,/g, "")
+);
+
+  const type = document.getElementById("massType").value;
+
+  if (!value || value <= 0) {
+    document.getElementById("output").innerText =
+      "Enter a valid positive mass value.";
+    return;
+  }
+
+  let M;
+  if (type === "solar") M = value * solarMass;
+  else if (type === "earth") M = value * earthMass;
+  else M = value;
+
+  const rs_m = (2 * G * M) / (c * c);
+
+  lastResult = {
+    m: rs_m,
+    km: rs_m / 1000,
+    rsolar: rs_m / solarRadius
+  };
+
+  renderResult(lastResult);
+}
+
+function renderResult(r) {
+  document.getElementById("output").innerHTML = `
+    <div class="line">
+      📏 ${format(r.m)} meters
+      <button class="btn-small"
+        onclick="copyValue(this, '${format(r.m)} meters')">
+        Copy
+      </button>
+    </div>
+    <div class="line">
+      🛣️ ${format(r.km)} km
+      <button class="btn-small"
+        onclick="copyValue(this, '${format(r.km)} km')">
+        Copy
+      </button>
+    </div>
+    <div class="line">
+      ☀️ ${format(r.rsolar)} R☉
+      <button class="btn-small"
+        onclick="copyValue(this, '${format(r.rsolar)} R☉')">
+        Copy
+      </button>
+    </div>
+  `;
+}
+
+
+async function copyValue(btn, text) {
+  await navigator.clipboard.writeText(text);
+
+  const originalText = btn.innerText;
+  btn.innerText = "Copied!";
+  btn.classList.add("copied");
+
+  setTimeout(() => {
+    btn.innerText = originalText;
+    btn.classList.remove("copied");
+  }, 250); // 1 second
+}
+
+
+async function pasteValue() {
+  try {
+    const text = await navigator.clipboard.readText();
+    const num = parseFloat(text.replace(/,/g,''));
+    if (!isNaN(num)) document.getElementById("massInput").value = num;
+  } catch {}
+}
+</script>
+
+</body>
+</html>
