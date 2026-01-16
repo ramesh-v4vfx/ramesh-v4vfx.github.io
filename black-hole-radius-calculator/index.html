@@ -107,46 +107,63 @@
     opacity:0.6;
     margin-top:12px;
   }
+
+  .calculator-container {
+  display: inline-block;
+  background: rgba(255,255,255,0.045);
+  padding: 28px 32px;
+  border-radius: 18px;
+
+  /* this is the key part */
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 14px 30px rgba(0,0,0,0.45);
+}
+
 </style>
 
 </head>
 
 <body>
 
-<h1>Schwarzschild Radius ⭕</h1>
+<div class="calculator-container">
 
-<select id="massType">
-  <option value="solar">☀️ Solar Mass</option>
-  <option value="earth">🌍 Earth Mass</option>
-  <option value="kg">⚖️ Kilograms</option>
-</select>
+  <h1>Black Hole Radius Calculator ⭕</h1>
 
-<div class="row">
-  <input type="text" id="massInput" placeholder="Enter value">
+  <select id="massType">
+    <option value="solar">☀️ Solar Mass</option>
+    <option value="earth">🌍 Earth Mass</option>
+    <option value="kg">⚖️ Kilograms</option>
+  </select>
+
+  <div class="row">
+    <input type="text" id="massInput" placeholder="Enter value">
+  </div>
+
+  <div class="row">
+    <button class="btn-small" onclick="pasteValue()">📋 Paste value</button>
+  </div>
+
+  <div class="row dec-toggle">
+    <button class="btn-small" onclick="setDecimals(null)">Original</button>
+    <button class="btn-small" onclick="setDecimals(2)">2 dec</button>
+    <button class="btn-small active" onclick="setDecimals(3)">3 dec</button>
+  </div>
+
+  <div class="row">
+    <button class="btn-red" onclick="calculate()">CALCULATE</button>
+  </div>
+
+  <div class="result" id="output"></div>
+
+  <div class="small">
+    Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km
+  </div>
 
 </div>
 
-<div class="row">
-  <button class="btn-small" onclick="pasteValue()">📋 Paste value</button>
-</div>
+</body>
 
-<div class="row dec-toggle">
-  <button class="btn-small" onclick="setDecimals(null)">Original</button>
-  <button class="btn-small" onclick="setDecimals(2)">2 dec</button>
-  <button class="btn-small active" onclick="setDecimals(3)">3 dec</button>
-</div>
-
-
-
-<div class="row">
-  <button class="btn-red" onclick="calculate()">CALCULATE</button>
-</div>
-
-<div class="result" id="output"></div>
-
-<div class="small">
-  Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km
-</div>
 
 <script>
   let decimals = 3; // default = 3 decimals
