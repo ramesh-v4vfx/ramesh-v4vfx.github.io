@@ -424,7 +424,9 @@ html, body {
 
   
 
-  <button class="calculate-btn" onclick="calculateGravity()">Calculate g</button>
+<button class="calculate-btn" onclick="calculateAll()">
+  Calculate g & Vesc
+</button>
   <button class="reset-btn" onclick="resetCalculator()">Reset</button>
 
 
@@ -440,13 +442,7 @@ html, body {
   <button class="copy-btn" onclick="copyEscape()">Copy</button>
 </div>
 
-<button
-  class="calculate-btn"
-  id="escapeBtn"
-  style="display:none; margin-top:10px; background:#a855f7; color:#020617;"
-  onclick="calculateEscape()">
-  🚀 Escape Velocity
-</button>
+
 
 
   <div class="dec-toggle">
@@ -474,9 +470,10 @@ html, body {
 
 
   <div class="note">
-    Formula: g = GM / R²<br>
-    Earth ≈ 9.81 m/s²
-  </div>
+  Surface gravity: g = GM / R²<br>
+  Escape velocity: vₑ = √(2GM / R) = √(2gR)<br>
+  Earth: g ≈ 9.81 m/s², vₑ ≈ 11.186 km/s
+</div>
 </div>
 
 <script>
@@ -489,7 +486,7 @@ html, body {
 
   let rawG = null;
   let rawEarthG = null;
-  let currentMode = "raw"; // "raw" | 5 | 3
+  let currentMode = "5"; // "raw" | 5 | 3
 
   let rawEscapeV = null;
 
@@ -520,43 +517,6 @@ html, body {
 }
 
 
-  function calculateGravity() {
-    const mass = parseFlexibleNumber(document.getElementById("mass").value);
-    const radius = parseFlexibleNumber(document.getElementById("radius").value);
-
-    if (!isFinite(mass) || !isFinite(radius) || mass <= 0 || radius <= 0) {
-      alert("Please enter valid mass and radius values.");
-      return;
-    }
-
-    // Calculate once (raw values)
-rawG = (G * mass) / (radius * radius);
-rawEarthG = rawG / EARTH_G;
-
-// Render according to CURRENT active mode
-renderResult();
-
-
-// Show result box
-document.getElementById("resultBox").style.display = "flex";
-
-
-    document.getElementById("resultBox").style.display = "flex";
-
-    // ➕ Add to history
-      addToHistory(rawG, rawEarthG);
-
-      // Show result box
-document.getElementById("resultBox").style.display = "flex";
-
-// ✅ Enable Escape Velocity button
-document.getElementById("escapeBtn").style.display = "block";
-
-// History
-addToHistory(rawG, rawEarthG);
-
-  }
-
   function toDecimal(num, decimals = null) {
   if (decimals === null) {
     return num.toLocaleString("en-US", {
@@ -566,10 +526,40 @@ addToHistory(rawG, rawEarthG);
   }
 
   return num.toLocaleString("en-US", {
-    useGrouping: false,
+    useGrouping: true,   // ✅ THIS is the key change
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   });
+}
+
+
+function calculateAll() {
+  const mass = parseFlexibleNumber(document.getElementById("mass").value);
+  const radius = parseFlexibleNumber(document.getElementById("radius").value);
+
+  if (!isFinite(mass) || !isFinite(radius) || mass <= 0 || radius <= 0) {
+    alert("Please enter valid mass and radius values.");
+    return;
+  }
+
+  // Surface gravity
+  rawG = (G * mass) / (radius * radius);
+  rawEarthG = rawG / EARTH_G;
+
+  // Escape velocity
+  rawEscapeV = Math.sqrt(2 * rawG * radius);
+  rawEscapeEarth = rawEscapeV / EARTH_ESCAPE;
+
+  // Render
+  renderResult();
+  renderEscape();
+
+  // Show result boxes
+  document.getElementById("resultBox").style.display = "flex";
+  document.getElementById("escapeBox").style.display = "flex";
+
+  // History
+  addToHistory(rawG, rawEarthG);
 }
 
 function renderResult() {
@@ -594,17 +584,6 @@ function renderResult() {
   `;
 }
 
-function calculateEscape() {
-  if (rawG === null) return;
-
-  const radius = parseFlexibleNumber(document.getElementById("radius").value);
-
-  rawEscapeV = Math.sqrt(2 * rawG * radius);
-  rawEscapeEarth = rawEscapeV / EARTH_ESCAPE;
-
-  renderEscape();
-  document.getElementById("escapeBox").style.display = "flex";
-}
 
 
 function renderEscape() {
@@ -745,17 +724,13 @@ function setMode(mode) {
     renderResult();
   }
 
-  if (rawG !== null) {
-  renderResult();
-}
-
 if (rawEscapeV !== null) {
   renderEscape();
 }
 
 }
 
-setMode("raw");
+setMode("5");
 
 
 
