@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<title>Density & Volume Calculator</title>
+
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #0f0f0f;
+    color: #eaeaea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100svh;
+    padding: 12px 0;
+
+  }
+
+  .card {
+    background: #181818;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 380px;
+    margin: 16px;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  label {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  input, select, button {
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+  }
+
+  button {
+    background: #3b82f6;
+    color: white;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  .secondary { background: #374151; }
+  .copy { background: #10b981; }
+
+  .result {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  /* Modal */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background: #181818;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 320px;
+    margin: 16px;
+  }
+
+  input, select {
+  font-size: 16px;
+}
+
+
+  /* Bigger primary buttons */
+.btn-large {
+  height: 52px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+.btn-volume {
+  height: 46px;
+  font-size: 15px;
+  margin-top: 0px;
+}
+
+
+input, select {
+  height: 35px;
+  box-sizing: border-box;
+}
+
+button {
+  box-sizing: border-box;
+}
+
+/* Distinct background for Volume Calculator */
+.modal-volume .modal-content {
+  background: #100202;   /* clearly different from main card */
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* RAW toggle button */
+.raw-toggle {
+  margin-top: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 999px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.raw-toggle:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.raw-toggle.active {
+  background: rgba(14,165,233,0.15);
+  color: #38bdf8;
+  border-color: rgba(56,189,248,0.4);
+}
+
+/* Volume input highlight 
+.volume-highlight {
+  box-shadow: 0 0 0 3px rgb(255, 84, 84);
+  background-color: rgb(67, 75, 230);
+  transition: box-shadow 2s ease, background-color 3s ease;
+}*/
+
+@keyframes volumePulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.volume-pulse {
+  animation: volumePulse 600ms ease-out;
+}
+
+#densityWrap {
+  margin-top: 24px;
+}
+
+#densityWrap b {
+  font-size: 15px;
+}
+
+
+button.secondary {
+  height: 44px;
+  font-size: 14px;
+  margin-top: 22px;
+}
+
+
+.raw-toggle {
+  margin-top: 14px;
+}
+
+.btn-large {
+  margin-top: 28px;
+}
+
+.btn-calc {
+  height: 60px;              /* bigger */
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-radius: 10px;
+  background: #7c1111;       /* strong primary */
+}
+
+.btn-calc:hover {
+  background: #a01818;
+}
+
+
+.volume-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0px; /* keeps it visually bonded */
+}
+
+.btn-volume-inline {
+  height: 38px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #3745df;
+  opacity: 0.9;
+}
+
+.btn-volume-inline:hover {
+  opacity: 1;
+}
+
+@keyframes pressPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+.btn-calc.animate {
+  animation: pressPop 180ms ease-out;
+}
+
+@keyframes unitPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+.unit-animate {
+  animation: unitPop 160ms ease-out;
+}
+
+.btn-unit {
+  width: auto;               /* not full width */
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 999px;      /* pill */
+  background: rgba(255,255,255,0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255,255,255,0.15);
+  align-self: flex-start;    /* left-aligned */
+}
+
+.btn-unit:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.toggle-row button {
+  flex: 1;                 /* equal width */
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+
+  h2 {
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-size: 13px;
+  }
+
+  input, select {
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .btn-calc {
+    height: 64px;
+    font-size: 18px;
+  }
+
+  .btn-volume-inline {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .toggle-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toggle-row button {
+    width: 100%;
+  }
+}
+  
+</style>
+</head>
+
+<body>
+
+<!-- MAIN DENSITY CALCULATOR -->
+<div class="card">
+  <h2>Density & Volume Calculator 🧱🧊</h2>
+
+  <label>Mass (kg)</label>
+  <input type="text" id="mass" placeholder="Enter mass in kg" oninput="formatInput(this)">
+
+  <label>Volume (m³)</label>
+
+<div class="volume-group">
+  <input type="text" id="volume" placeholder="Enter volume or click volume calculator" oninput="formatInput(this)">
+
+ <button class="btn-volume-inline" onclick="openVolumeCalc()">
+  Open Volume Calculator
+</button>
+
+</div>
+
+
+<button class="btn-large btn-calc" onclick="calculateDensity(this)">
+  Calculate Density
+</button>
+
+  
+
+ <div class="result" id="densityWrap">
+  <span id="densityOutput" onclick="copyDensity()" style="cursor:pointer"></span>
+  
+  
+  <div class="toggle-row">
+  <button
+    id="unitBtn"
+    class="unit-toggle"
+    onclick="toggleUnit()"
+    style="display:none;">
+    kg/m³ ↔ g/cm³
+  </button>
+
+  <button
+    id="rawBtn"
+    class="raw-toggle"
+    onclick="toggleRaw(event)"
+    style="display:none;">
+    show raw value
+  </button>
+</div>
+
+
+</div>
+
+
+  <button id="copyDensityBtn" class="copy" style="display:none" onclick="copyDensity()">Copy Result</button>
+</div>
+
+<!-- VOLUME CALCULATOR MODAL -->
+<div class="modal modal-volume" id="volumeModal">
+
+  <div class="modal-content">
+    <h2>Volume Calculator</h2>
+
+    <label>Shape</label>
+    <select id="shape" onchange="updateVolumeInputs()">
+      <option value="">Select shape</option>
+      <option value="cube">Cube</option>
+      <option value="box">Box (Rectangular)</option>
+      <option value="sphere">Sphere</option>
+      <option value="cylinder">Cylinder</option>
+    </select>
+
+    <div id="volumeInputs"></div>
+
+    <button onclick="calculateVolume()">Calculate Volume</button>
+
+    <div class="result" id="volumeOutput" onclick="copyVolume()" style="cursor:pointer"></div>
+
+    <button id="copyVolumeBtn" class="copy" style="display:none" onclick="copyVolume()">Copy Volume</button>
+
+    <button class="secondary" onclick="closeVolumeCalc()">Close</button>
+  </div>
+</div>
+
+<script>
+let densitySI = null;        // kg/m³ (raw)
+let currentUnit = "kg/m3";
+let showRaw = false;
+
+let densityValueRaw = null;   // Number (true raw)
+
+
+let densityRawText = "";
+let densityRoundedText = "";
+let densityForCalc = null; // Number
+
+
+
+
+
+
+function calculateDensity(btn) {
+  // 🔘 click animation
+  if (btn) {
+    btn.classList.remove("animate"); // reset if clicked fast
+    btn.offsetHeight;                // force reflow
+    btn.classList.add("animate");
+  }
+
+  const m = parseFloat(removeCommas(mass.value));
+  const v = parseFloat(removeCommas(volume.value));
+
+  if (!m || !v) {
+    densityOutput.innerText = "Enter mass and volume.";
+    rawBtn.style.display = "none";
+    return;
+  }
+
+  const raw = m / v;
+
+  densityForCalc = raw;
+  densitySI = raw;
+
+  densityRawText = raw.toString();
+  densityRoundedText = Number(raw.toFixed(3)).toString();
+
+  currentUnit = "kg/m3";
+  showRaw = false;
+
+  renderDensity();
+
+   unitBtn.style.display = "block";
+}
+
+
+
+function toggleUnit(btn) {
+  if (densitySI === null) return;
+
+  // 🔘 animate button
+  if (btn) {
+    btn.classList.remove("unit-animate");
+    btn.offsetHeight; // force reflow
+    btn.classList.add("unit-animate");
+  }
+
+  currentUnit = currentUnit === "kg/m3" ? "g/cm3" : "kg/m3";
+  renderDensity();
+}
+
+
+function toggleRaw(e) {
+  e.stopPropagation();
+  showRaw = !showRaw;
+  renderDensity();
+}
+
+
+function renderDensity() {
+  let valueText, unit, waterDensity;
+
+  if (currentUnit === "kg/m3") {
+    valueText = showRaw ? densityRawText : densityRoundedText;
+    unit = "kg/m³";
+    waterDensity = densityForCalc / 1000;
+  } else {
+    const raw = densityForCalc / 1000;
+    valueText = showRaw
+      ? raw.toString()
+      : Number(raw.toFixed(3)).toString();
+    unit = "g/cm³";
+    waterDensity = raw;
+  }
+
+  let waterText = "";
+  if (waterDensity < 1) waterText = "Floats in water 💧⬆️";
+  else if (waterDensity === 1) waterText = "Same as water 💧⚖️";
+  else waterText = "Sinks in water 💧⬇️";
+
+  densityOutput.innerHTML = `
+    <b>Density: ${formatDisplay(valueText, showRaw)} ${unit}</b>
+<br>
+    <small>${waterText}</small><br>
+    <small>(click to copy)</small>
+  `;
+
+  rawBtn.style.display = "inline-block";
+  rawBtn.innerText = showRaw ? "show rounded (3-dec)" : "show raw value";
+  rawBtn.classList.toggle("active", showRaw);
+
+}
+
+
+function copyDensity() {
+  if (!densityForCalc) return;
+
+  const unit = currentUnit === "kg/m3" ? "kg/m³" : "g/cm³";
+  const text =
+    currentUnit === "kg/m3"
+      ? (showRaw ? densityRawText : densityRoundedText)
+      : (showRaw
+          ? (densityForCalc / 1000).toString()
+          : Number((densityForCalc / 1000).toFixed(3)).toString());
+
+  const originalHTML = densityOutput.innerHTML;
+
+  navigator.clipboard.writeText(
+  `${showRaw ? text : addCommas(text)} ${unit}`
+);
+
+
+  densityOutput.innerHTML = `<small>Copied ✔️</small>`;
+  setTimeout(() => {
+    densityOutput.innerHTML = originalHTML;
+  }, 1000);
+}
+
+
+
+
+
+
+function formatInput(el) {
+  let raw = removeCommas(el.value);
+
+  // allow only numbers + decimal
+  if (!/^\d*\.?\d*$/.test(raw)) return;
+
+  let parts = raw.split(".");
+  parts[0] = addCommas(parts[0]);
+
+  el.value = parts.join(".");
+}
+
+
+
+
+/* ---------- Volume ---------- */
+function openVolumeCalc() {
+  volumeModal.style.display = "flex";
+}
+
+function closeVolumeCalc() {
+  volumeModal.style.display = "none";
+}
+
+function updateVolumeInputs() {
+  let html = "";
+
+  if (shape.value === "cube") {
+    html = `<label>Side (m)</label><input id="a" type="number">`;
+  }
+
+  if (shape.value === "box") {
+    html = `
+      <label>Length (m)</label><input id="l" type="number">
+      <label>Width (m)</label><input id="w" type="number">
+      <label>Height (m)</label><input id="h" type="number">
+    `;
+  }
+
+  if (shape.value === "sphere") {
+    html = `<label>Radius (m)</label><input id="r" type="number">`;
+  }
+
+  if (shape.value === "cylinder") {
+    html = `
+      <label>Radius (m)</label><input id="r" type="number">
+      <label>Height (m)</label><input id="h" type="number">
+    `;
+  }
+
+  volumeInputs.innerHTML = html;
+  volumeOutput.innerText = "";
+  copyVolumeBtn.style.display = "none";
+}
+
+let lastVolumeValue = "";
+
+/* ---------- Volume ---------- */
+function calculateVolume() {
+  let V = 0;
+
+  if (shape.value === "cube") V = a.value ** 3;
+  if (shape.value === "box") V = l.value * w.value * h.value;
+  if (shape.value === "sphere") V = (4/3) * Math.PI * r.value ** 3;
+  if (shape.value === "cylinder") V = Math.PI * r.value ** 2 * h.value;
+
+  if (!V) {
+    volumeOutput.innerText = "Enter valid dimensions.";
+    return;
+  }
+
+  lastVolumeValue = Number(V.toFixed(3)).toString();
+
+
+  const displayVolume = addCommas(lastVolumeValue);
+
+volumeOutput.innerHTML = `
+  <b>Volume: ${displayVolume} m³</b><br>
+  <small>(click to copy and update volume)</small>
+`;
+
+}
+
+function copyVolume() {
+  if (!lastVolumeValue) return;
+
+  navigator.clipboard.writeText(addCommas(lastVolumeValue));
+
+  const volumeInput = document.getElementById("volume");
+  volumeInput.value = addCommas(lastVolumeValue);
+
+  // feedback message inside modal
+  volumeOutput.innerHTML = `<small>Volume updated ✔️</small>`;
+
+  // close modal first
+  setTimeout(() => {
+    closeVolumeCalc();
+
+    // 🔔 highlight AFTER modal closes
+volumeInput.focus({ preventScroll: true });
+
+  volumeInput.classList.remove("volume-pulse"); // reset if already applied
+volumeInput.offsetHeight;                    // force reflow
+volumeInput.classList.add("volume-pulse");
+
+
+  }, 700);
+}
+
+
+
+function removeCommas(value) {
+  return value.replace(/,/g, "");
+}
+
+function addCommas(value) {
+  return Number(value).toLocaleString("en-US");
+}
+
+function formatDisplay(value, isRaw) {
+  if (isRaw) return value;        // DO NOT format RAW
+  return addCommas(value);        // format only rounded
+}
+
+
+
+</script>
+
+</body>
+</html>
