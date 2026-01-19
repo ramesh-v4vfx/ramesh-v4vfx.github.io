@@ -42,12 +42,13 @@
   <style>
 
     html, body {
-  overscroll-behavior: none;
-}
+      overscroll-behavior: none;
+    }
 
-  html {
-  background: #0e0101;
-}
+    html {
+      background: #0e0101;
+    }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
@@ -71,48 +72,115 @@
       font-size: 0.95rem;
     }
 
-    .tools {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 12px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 22px;
-    }
+.tools {
+  max-width: 1000px;   /* layout width */
+  margin: 0 auto;
+  padding: 12px;
 
-    .tool {
-      background: #161a35;
-      border-radius: 14px;
-      padding: 18px;
-      text-decoration: none;
-      color: #fff;
-      box-shadow: 0 10px 25px rgba(0,0,0,.4);
-      transition: transform 0.2s ease, background 0.2s ease;
-    }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 22px;
 
-    .tool:active {
+  align-items: start;
+  justify-content: start;
+}
+
+
+
+.tool {
+    max-width: 280px;
+    height: 80px;
+    background: #161a35;
+    border-radius: 14px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(0,0,0,.4);
+
+     justify-items: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 4px;
+    
+    
+    overflow: hidden;          /* ✅ prevent spill */
+
+    transition:
+    height 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  position: relative;
+  z-index: 1;
+}
+
+
+
+     .tool:active {
   transform: scale(0.98);
   background: #222766;
 }
 
         .tool:hover {
+          height: 120px; 
       transform: translateY(-4px);
+      box-shadow: 0 14px 32px rgba(0,0,0,.5);
       background: #1c2150;
+      z-index: 10;                   /* hover above others */
     }
 
-    .tool h3 {
-      margin: 0 0 8px;
-      font-size: 1.1rem;
-       line-height: 1.3;
-    }
+.tool h3 {
+  margin: 0;
 
+  /* 👇 fills the card nicely */
+  font-size: clamp(1rem, 2.6vw, 1.15rem);
+  line-height: 1.3;
+
+  transition: font-size 0.25s ease, line-height 0.25s ease;
+}
+
+
+.tool h3,
+.tool p {
+  transition: all 0.25s ease;
+}
     
 
-    .tool p {
-      margin: 0;
-      font-size: 0.9rem;
-      opacity: 0.7;
-    }
+.tool p {
+  margin: 0;
+  opacity: 0.7;
+
+  font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+  line-height: 1.3;
+
+  transition: font-size 0.25s ease, line-height 0.25s ease;
+}
+
+
+.tool:hover {
+  height: 120px;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(0,0,0,.5);
+  z-index: 10;
+
+  background: linear-gradient(180deg, #1c2460, #171f45);
+  box-shadow:
+    0 14px 32px rgb(141, 33, 33),
+    0 0 0 1px rgb(72, 17, 17);
+}
+
+.tool:hover h3 {
+  font-size: 1.25rem;
+  line-height: 1.35;
+}
+
+.tool:hover p {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
 
     footer {
       text-align: center;
@@ -131,11 +199,104 @@
   outline-offset: 3px;
 }
 
-@media (max-width: 480px) {
-  .tools {
-    grid-template-columns: 1fr;
+.site-search {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  padding: 14px 12px;
+  display: flex;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14,1,1,.95),
+      rgba(14,1,1,.85)
+    );
+    -webkit-backdrop-filter: blur(6px); /* ✅ Safari */
+  backdrop-filter: blur(6px);
+}
+
+.site-search input {
+  width: 100%;
+  max-width: 420px;
+
+  padding: 12px 18px;
+  border-radius: 999px;   /* pill shape */
+
+  background:
+    linear-gradient(180deg, #050641, #020617);
+
+  color: #e5e7eb;
+  font-size: 15px;
+
+  border: 1px solid rgba(106,169,255,.25);
+
+  transition:
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    background 0.25s ease;
+}
+
+.site-search input:focus {
+  outline: none;
+
+  border-color: #6aa9ff;
+  background:
+    linear-gradient(180deg, #06123a, #020617);
+
+  box-shadow:
+    0 0 0 4px rgba(106,169,255,.25),
+    0 7px 20px rgb(69, 106, 255);
+
+  transform: scale(1.02);
+}
+
+.site-search input::placeholder {
+  color: rgba(229,231,235,.45);
+}
+
+
+
+.tools {
+  min-height: 60vh;
+}
+
+
+
+
+@media (max-width: 600px) {
+  .tool {
+    max-width: 92%;
   }
 }
+
+
+@media (hover: none) {
+  .tool:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .tool {
+    height: 64px;          /* 👈 less blocky */
+    padding: 10px 14px;   /* tighter spacing */
+  }
+
+  .tool h3 {
+    font-size: 0.95rem;   /* slightly smaller */
+    line-height: 1.2;
+  }
+
+  .tool p {
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+}
+
 
 
 
@@ -149,73 +310,96 @@
   <header>
   <h1>Interactive Tools for Learning & Productivity</h1>
 
-  <p>Fast, interactive tools for productivity, learning, and exploration</p>
+      <p>Fast, interactive tools for productivity, learning, and exploration</p>
 
-</header>
+  </header>
+
+<div class="site-search">
+  <input
+    type="search"
+    id="searchInput"
+    placeholder="Search by name or category…"
+    oninput="searchTools()"
+  />
+</div>
+
 
 <section class="tools">
 
-      <a class="tool" href="/top-10-tasks-monitor/">
+      <a class="tool" href="/top-10-tasks-monitor/"
+      data-search="top 10 tasks task monitor productivity">
       <h3>Top 10 Task Monitor 📋</h3>
       <p>Increase your productivity</p>
       </a>
 
-      <a class="tool" href="/session-logger/">
+      <a class="tool" href="/session-logger/"
+      data-search="session logger productivity">
       <h3>Session Logger 📝⏳</h3>
       <p>Track your work</p>
       </a>
 
-      <a class="tool" href="/my-diary/">
+      <a class="tool" href="/my-diary/"
+      data-search="my calm daily diary productivity">
       <h3>My Calm Diary 📔🌸</h3>
       <p>Auto-saves to your device • Downloadable</p>
       </a>
 
-      <a class="tool" href="/surface-gravity-calculator/">
+      <a class="tool" href="/surface-gravity-calculator/"
+      data-search="surface gravity escape velocity calculator">
       <h3>Surface Gravity 🌍🧲 & Escape Velocity Calculator 🚀</h3>
       <!--<p>know g and Vesc</p>-->
       </a>
 
-      <a class="tool" href="/pomodoro-focus/">
+      <a class="tool" href="/pomodoro-focus/"
+      data-search="pomodoro focus timer productivity">
       <h3>Pomodoro Focus 🍅🎯</h3>
       <p>Focus timer for deep work</p>
       </a>
 
-      <a class="tool" href="/division-pro/">
+      <a class="tool" href="/division-pro/"
+      data-search="division pro calculator">
       <h3>Division Pro ➗</h3>
       <p>Advanced division calculator</p>
       </a>
 
-      <a class="tool" href="/mean-median-mode/">
+      <a class="tool" href="/mean-median-mode/"
+      data-search="mean median mode calculator">
       <h3>Mean · Median · Mode 🧮</h3>
       <p>Statistical calculator</p>
       </a>
 
-      <a class="tool" href="/seconds-to-frames/">
+      <a class="tool" href="/seconds-to-frames/"
+      data-search="seconds to frames calculator">
       <h3>Seconds to Frames 🎞️</h3>
       <p>Video timing calculator</p>
       </a>
 
-      <a class="tool" href="/time-converter/">
+      <a class="tool" href="/time-converter/"
+      data-search="time converter calculator">
       <h3>Time Converter ⏱️🔄</h3>
       <p>Convert time units</p>
       </a>
 
-      <a class="tool" href="/cosmic-calculator/">
+      <a class="tool" href="/cosmic-calculator/"
+      data-search="cosmic space calculator">
       <h3>Cosmic Calculator ⭐</h3>
       <p>Meter and above</p>
       </a>
 
-      <a class="tool" href="/subatomic-calculator/">
+      <a class="tool" href="/subatomic-calculator/"
+      data-search="subatomic calculator">
       <h3>Subatomic Calculator ⚛️</h3>
       <p>Meter and below</p>
       </a>
 
-      <a class="tool" href="/black-hole-radius-calculator/">
+      <a class="tool" href="/black-hole-radius-calculator/"
+      data-search="black hole schwarzschild radius calculator">
       <h3>Black Hole Radius Calculator ⭕</h3>
       <p>schwarzschild radius</p>
       </a>
 
-       <a class="tool" href="/density-and-volume-calculator/">
+       <a class="tool" href="/density-and-volume-calculator/"
+       data-search="density volume calculator">
       <h3>Density and Volume Calculator 🧱🧊</h3>
       <p>ρ & V</p>
       </a>
@@ -234,6 +418,37 @@
     </a>
   </p>
 </footer>
+
+<script>
+function searchTools() {
+  const query = document
+    .getElementById("searchInput")
+    .value
+    .trim()
+    .toLowerCase();
+
+  const tools = document.querySelectorAll(".tool");
+
+  tools.forEach(tool => {
+    if (query === "") {
+      tool.style.display = "";
+      return;
+    }
+
+    const searchText = tool.dataset.search
+      ? tool.dataset.search.toLowerCase()
+      : tool.textContent.toLowerCase();
+
+    /* ✅ PHRASE PREFIX MATCH */
+    const match = searchText.startsWith(query)
+               || searchText.includes(" " + query);
+
+    tool.style.display = match ? "" : "none";
+  });
+}
+</script>
+
+
 
 
 </body>
