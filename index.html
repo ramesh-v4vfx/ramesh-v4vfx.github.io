@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+  <link rel="canonical" href="https://rameshverse.com/" />
+
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
 <script>
@@ -23,53 +26,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Open Graph (for link previews) -->
-  <meta property="og:title" content="Productivity Tools Hub" />
+  <meta property="og:title" content="Interactive Tools Hub" />
   <meta property="og:description"
     content="simple productivity tools like focus timers, calculators, and task trackers - fast and distraction-free." />
+
   <meta property="og:type" content="website" />
+
+  <meta name="theme-color" content="#0e0101">
+
+
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 
 
   <style>
+
+    html, body {
+  overscroll-behavior: none;
+}
+
+  html {
+  background: #0e0101;
+}
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #0f0203;
+      background: #0e0101;
       color: #ffffff;
     }
 
     header {
-      padding: 30px 20px;
+      padding: 24px 16px;
       text-align: center;
     }
 
     header h1 {
       margin: 0;
-      font-size: 2rem;
+      font-size: clamp(1.4rem, 4vw, 2rem);
     }
 
     header p {
       opacity: 0.7;
       margin-top: 8px;
+      font-size: 0.95rem;
     }
 
     .tools {
       max-width: 1000px;
       margin: 0 auto;
-      padding: 10px;
+      padding: 12px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 16px;
+      gap: 22px;
     }
 
     .tool {
       background: #161a35;
       border-radius: 14px;
-      padding: 20px;
+      padding: 18px;
       text-decoration: none;
       color: #fff;
       box-shadow: 0 10px 25px rgba(0,0,0,.4);
       transition: transform 0.2s ease, background 0.2s ease;
     }
+
+    .tool:active {
+  transform: scale(0.98);
+  background: #222766;
+}
 
         .tool:hover {
       transform: translateY(-4px);
@@ -79,7 +103,10 @@
     .tool h3 {
       margin: 0 0 8px;
       font-size: 1.1rem;
+       line-height: 1.3;
     }
+
+    
 
     .tool p {
       margin: 0;
@@ -98,6 +125,19 @@
   opacity: 0.8;
   text-decoration: underline;
 }
+
+.tool:focus-visible {
+  outline: 2px solid #6aa9ff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .tools {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
   </style>
 </head>
@@ -133,6 +173,7 @@
       <a class="tool" href="/surface-gravity-calculator/">
       <h3>Surface Gravity 🌍🧲 & Escape Velocity Calculator 🚀</h3>
       <!--<p>know g and Vesc</p>-->
+      </a>
 
       <a class="tool" href="/pomodoro-focus/">
       <h3>Pomodoro Focus 🍅🎯</h3>
