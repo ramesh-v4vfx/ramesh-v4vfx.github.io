@@ -276,9 +276,17 @@
 
 @media (hover: none) {
   .tool:hover {
-    transform: none;
+    background: #161a35;                 /* same as normal */
+    box-shadow: 0 10px 25px rgba(0,0,0,.4); /* subtle / default */
+    transform: none;                     /* no lift */
+  }
+
+  .tool:active {
+    background: #1c2150;
+    transform: scale(0.98);
   }
 }
+
 
 @media (max-width: 600px) {
   .tool {
@@ -296,6 +304,22 @@
     line-height: 1.2;
   }
 }
+
+@media (hover: none) {
+  .tool:hover {
+    height: 80px !important;
+    background: #161a35 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,.4) !important;
+    transform: none !important;
+  }
+
+  .tool:hover h3,
+  .tool:hover p {
+    font-size: inherit !important;
+    line-height: inherit !important;
+  }
+}
+
 
 
 
