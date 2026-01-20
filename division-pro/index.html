@@ -28,6 +28,43 @@
   overflow-x: hidden;
 }
 
+:root {
+  color-scheme: dark;
+}
+
+input,
+select,
+textarea {
+  background-color: #1b1b1b !important;
+  color: #ffffff !important;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 12px;
+}
+
+::placeholder {
+  color: #aaaaaa !important;
+  opacity: 1;
+}
+
+.card {
+  background: linear-gradient(135deg, #5a0f0f, #0b2a4a) !important;
+  color: #ffd6d6;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+  body,
+  .wrapper,
+  .card {
+    background-color: #040b10 !important;
+  }
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -192,7 +229,8 @@ button {
 }
 
 .heading {
-  margin-bottom: 10px;
+  margin-top: 15px;
+  margin-bottom: 14px;
 }
 
 
@@ -239,7 +277,7 @@ button {
 <body>
 
 <div class="wrapper">
-  <h1 class="heading">Division Calculator</h1>
+  <h1 class="heading">Division-Pro</h1>
 
   <div class="container">
 

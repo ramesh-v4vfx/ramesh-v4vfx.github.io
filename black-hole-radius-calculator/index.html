@@ -125,6 +125,49 @@
   justify-content: center;
 }
 
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  background-color: #040b10 !important;
+}
+
+input,
+select,
+textarea {
+  background-color: #1b1b1b !important;
+  color: #ffffff !important;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 12px;
+}
+
+::placeholder {
+  color: #aaaaaa !important;
+  opacity: 1;
+}
+
+.card {
+  background: linear-gradient(135deg, #5a0f0f, #0b2a4a) !important;
+  color: #ffd6d6;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+  body,
+  .wrapper,
+  .card {
+    background-color: #040b10 !important;
+  }
+}
+
+
+
 
 @media (max-width: 600px) {
   select,

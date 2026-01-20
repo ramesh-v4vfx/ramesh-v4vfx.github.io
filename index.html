@@ -41,6 +41,42 @@
 
   <style>
 
+  .search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  max-width: 520px; /* slightly less wide */
+
+  padding: 14px 14px;
+  border-radius: 12px;
+
+  background: #1f0303;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.45),
+    0 0 18px rgba(106,169,255,.18),   /* 👈 idle glow */
+    inset 0 0 0 1px rgba(255,255,255,.04);
+
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+
+.site-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+
+  color: #ff0000;
+  font-size: 15px;
+}
+
+
+
+
     html, body {
       overscroll-behavior: none;
     }
@@ -57,8 +93,10 @@
     }
 
     header {
-      padding: 24px 16px;
+       padding: 56px 16px 0px; /* top | sides | bottom */
       text-align: center;
+       max-width: 820px;
+  margin: 0 auto;
     }
 
     header h1 {
@@ -67,8 +105,8 @@
     }
 
     header p {
-      opacity: 0.7;
-      margin-top: 8px;
+      opacity: 0.6;
+      margin-top: 4px;
       font-size: 0.95rem;
     }
 
@@ -79,7 +117,8 @@
 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 22px;
+  row-gap: 0px;     /* vertical spacing */
+  column-gap: 25px; /* horizontal spacing */
 
   align-items: start;
   justify-content: start;
@@ -88,6 +127,7 @@
 
 
 .tool {
+    margin-top: 20px;
     max-width: 280px;
     height: 80px;
     background: #161a35;
@@ -118,13 +158,13 @@
 
 
 
-     .tool:active {
+  .tool:active {
   transform: scale(0.98);
   background: #222766;
 }
 
-        .tool:hover {
-          height: 120px; 
+      .tool:hover {
+      height: 120px; 
       transform: translateY(-4px);
       box-shadow: 0 14px 32px rgba(0,0,0,.5);
       background: #1c2150;
@@ -200,6 +240,11 @@
 }
 
 .site-search {
+
+  
+  margin-top: 18px;
+
+
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -218,41 +263,18 @@
   backdrop-filter: blur(6px);
 }
 
-.site-search input {
-  width: 100%;
-  max-width: 420px;
 
-  padding: 12px 18px;
-  border-radius: 999px;   /* pill shape */
 
-  background:
-    linear-gradient(180deg, #050641, #020617);
-
-  color: #e5e7eb;
-  font-size: 15px;
-
-  border: 1px solid rgba(106,169,255,.25);
-
-  transition:
-    box-shadow 0.25s ease,
-    border-color 0.25s ease,
-    transform 0.2s ease,
-    background 0.25s ease;
-}
-
-.site-search input:focus {
-  outline: none;
-
+.search-wrap:focus-within {
   border-color: #6aa9ff;
-  background:
-    linear-gradient(180deg, #06123a, #020617);
-
   box-shadow:
     0 0 0 4px rgba(106,169,255,.25),
-    0 7px 20px rgb(69, 106, 255);
-
-  transform: scale(1.02);
+    0 8px 22px rgb(60, 82, 246);
 }
+
+
+
+
 
 .site-search input::placeholder {
   color: rgba(229,231,235,.45);
@@ -268,10 +290,31 @@
 
 
 @media (max-width: 600px) {
-  .tool {
-    max-width: 92%;
+  .search-wrap {
+    max-width: 90%;
+    padding: 9px 12px;
   }
 }
+
+
+@media (max-width: 600px) {
+  .tools {
+    justify-items: center;
+  }
+
+  .tool {
+    width: 100%;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 600px) {
+  header p {
+    font-size: 0.9rem;
+  }
+}
+
+
 
 
 @media (hover: none) {
@@ -320,6 +363,13 @@
   }
 }
 
+@media (max-width: 600px) {
+  .site-search input {
+    max-width: 92%;
+  }
+}
+
+
 
 
 
@@ -339,13 +389,17 @@
   </header>
 
 <div class="site-search">
-  <input
-    type="search"
-    id="searchInput"
-    placeholder="Search by name or category…"
-    oninput="searchTools()"
-  />
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input
+      type="search"
+      id="searchInput"
+      placeholder="Type or press / to search"
+      oninput="searchTools()"
+    />
+  </div>
 </div>
+
 
 
 <section class="tools">
@@ -471,6 +525,16 @@ function searchTools() {
   });
 }
 </script>
+
+<script>
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+    e.preventDefault();
+    document.getElementById("searchInput").focus();
+  }
+});
+</script>
+
 
 
 
