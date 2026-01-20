@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+
+<meta charset="UTF-8">
+<title>Brain Dump</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  :root {
+    --bg:#0b0f14;
+    --card:#121826;
+    --text:#e6e9ef;
+    --muted:#9aa4b2;
+    --accent:#4fd1c5;
+    --border:#1f2937;
+    --danger:#b91c1c;
+  }
+
+  * { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  padding: 16px;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* 🔑 THIS FIXES THE STRETCH */
+  min-height: 100vh;
+}
+
+
+  html {
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+}
+
+
+  .app {
+    width:100%;
+    max-width:900px;
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:16px;
+  }
+
+  .card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+  }
+
+  h1 {
+    margin:0 0 6px;
+    font-size:1.3rem;
+  }
+
+  .sub {
+    color:var(--muted);
+    font-size:0.85rem;
+    margin-bottom:12px;
+  }
+
+  textarea {
+  width:100%;
+  min-height:260px;
+  background:#0f172a;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px;
+  resize:vertical;
+  font-size:0.95rem;
+  line-height:1.5;
+
+  /* Safari / iOS safety */
+  -webkit-overflow-scrolling: touch;
+  -webkit-appearance: none;
+}
+
+
+
+
+  textarea::placeholder {
+    color:var(--muted);
+  }
+
+  .actions {
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+
+  button {
+    flex:1;
+    border:none;
+    border-radius:8px;
+    padding:10px;
+    cursor:pointer;
+    font-size:0.85rem;
+  }
+
+  .primary { background:var(--accent); color:#042f2e; }
+  .secondary { background:#1f2937; color:var(--text); }
+  .danger { background:#3b1d1d; color:#ffdada; }
+
+  .history h2 {
+    font-size:1rem;
+    margin:0 0 8px;
+  }
+
+  .entry {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    margin-bottom:6px;
+    font-size:0.8rem;
+  }
+
+  .entry-date {
+    cursor:pointer;
+    color:var(--muted);
+    flex:1;
+  }
+
+  .entry-date:hover {
+    color:var(--text);
+  }
+
+  .delete-entry {
+    background:none;
+    border:none;
+    color:var(--danger);
+    cursor:pointer;
+    font-size:0.8rem;
+  }
+
+  .entry-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 4px 6px;
+}
+
+.entry-download {
+  color: #4fd1c5;
+}
+
+  .delete-entry:hover {
+    text-decoration: underline;
+  }
+
+  .entry-delete {
+  color: #ef4444;
+}
+
+.entry-btn:hover {
+  text-decoration: underline;
+}
+
+.note {
+    margin-top:10px;
+    font-size:0.75rem;
+    color:var(--muted);
+  }
+
+  .entry-actions {
+  display: flex;
+  gap: 6px;
+  padding: 4px 6px;
+}
+
+  @media (max-width:800px) {
+    .app { grid-template-columns:1fr; }
+  }
+
+  @media (max-width: 600px) {
+
+  body {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  .sub {
+    font-size: 0.8rem;
+  }
+
+  textarea {
+    min-height: 220px;
+    font-size: 0.95rem;
+  }
+
+  .actions {
+    gap: 10px;
+  }
+
+  button {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .entry {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .entry-actions {
+    gap: 12px;
+    font-size: 0.8rem;
+  }
+
+  .entry-date {
+    font-size: 0.8rem;
+  }
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Editor -->
+  <div class="card">
+    <h1>🧠 Brain Dump</h1>
+    <div class="sub">
+      Write freely. This is not a to-do list. Nothing here needs to be fixed.
+    </div>
+
+    <textarea id="text"
+      placeholder="Write whatever’s on your mind. It doesn’t need to be complete or make sense."></textarea>
+
+    <div class="actions">
+      <button id="saveBtn" class="primary">Save entry</button>
+      <button id="clearBtn" class="danger">Clear all</button>
+    </div>
+
+    <div class="note">
+      Auto-saved locally • Nothing is uploaded • You’re free to delete anytime
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card history">
+    <h2>Past entries</h2>
+    <div id="history"></div>
+  </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const STORAGE_KEY = "brainDumpEntries";
+  const DRAFT_KEY = "brainDumpDraft";
+
+  const textarea = document.getElementById("text");
+  const historyBox = document.getElementById("history");
+
+  const saveBtn = document.getElementById("saveBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const clearBtn = document.getElementById("clearBtn");
+
+  let entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+  // Load draft
+  textarea.value = localStorage.getItem(DRAFT_KEY) || "";
+
+  // Auto-save draft
+  textarea.addEventListener("input", () => {
+    localStorage.setItem(DRAFT_KEY, textarea.value);
+  });
+
+  saveBtn.addEventListener("click", () => {
+    if (!textarea.value.trim()) return;
+
+    entries.unshift({
+      date: new Date().toLocaleString(),
+      text: textarea.value
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    localStorage.removeItem(DRAFT_KEY);
+    textarea.value = "";
+    renderHistory();
+  });
+
+  clearBtn.addEventListener("click", () => {
+    if (!confirm("Delete all saved brain dumps?")) return;
+    entries = [];
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(DRAFT_KEY);
+    textarea.value = "";
+    renderHistory();
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    if (!entries.length) return;
+
+    let content = "";
+    entries.forEach(e => {
+      content += `--- ${e.date} ---\n${e.text}\n\n`;
+    });
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "brain-dump.txt";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  });
+
+ function renderHistory() {
+  historyBox.innerHTML = "";
+
+  entries.forEach((e, index) => {
+    const row = document.createElement("div");
+    row.className = "entry";
+
+    // Date (click to load)
+    const date = document.createElement("div");
+    date.className = "entry-date";
+    date.textContent = e.date;
+    date.onclick = () => textarea.value = e.text;
+
+    // Actions container
+    const actions = document.createElement("div");
+    actions.className = "entry-actions";
+
+    // Download button (per entry)
+    const downloadBtn = document.createElement("button");
+    downloadBtn.className = "entry-btn entry-download";
+    downloadBtn.textContent = "Download";
+    downloadBtn.onclick = () => {
+      const blob = new Blob(
+        [`--- ${e.date} ---\n${e.text}\n`],
+        { type: "text/plain" }
+      );
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `brain-dump-${index + 1}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    // Delete button
+    // Delete button
+const deleteBtn = document.createElement("button");
+deleteBtn.className = "entry-btn entry-delete";
+deleteBtn.textContent = "Delete";
+deleteBtn.onclick = () => {
+  if (!confirm("Delete this entry?")) return;
+
+  // Remove entry completely
+  entries = entries.filter((_, i) => i !== index);
+
+  // Update localStorage (deleted entry is gone)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+
+  // If the deleted entry is currently loaded, clear editor + draft
+  if (textarea.value === e.text) {
+    textarea.value = "";
+    localStorage.removeItem(DRAFT_KEY);
+  }
+
+  renderHistory();
+};
+
+
+    actions.appendChild(downloadBtn);
+    actions.appendChild(deleteBtn);
+
+    row.appendChild(date);
+    row.appendChild(actions);
+    historyBox.appendChild(row);
+  });
+}
+
+
+
+  renderHistory();
+});
+</script>
+
+</body>
+</html>
