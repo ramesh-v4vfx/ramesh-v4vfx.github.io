@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Routine</title>
+
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #0b0f14;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: auto;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+  }
+
+  .add-task {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+  }
+
+  button {
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .add-btn {
+    background: #3b82f6;
+    color: #fff;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+li {
+  background: #111827;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+li input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.task-text {
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+
+
+li.completed input[type="text"] {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+
+  li input[type="text"] {
+    background: transparent;
+    color: #fff;
+    border: none;
+    outline: none;
+    flex: 1;
+  }
+
+  .delete {
+    background: #ef4444;
+    color: #fff;
+  }
+
+  .clear {
+    margin-top: 15px;
+    width: 100%;
+    background: #374151;
+    color: #fff;
+  }
+
+  li.completed input[type="checkbox"] {
+  cursor: default;
+}
+
+
+  
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>Daily Routine ⏰</h1>
+
+  <div class="add-task">
+    <input id="taskInput" placeholder="Add a daily task…" />
+    <button class="add-btn" onclick="addTask()">Add</button>
+  </div>
+
+  <ul id="taskList"></ul>
+
+  <button class="clear" onclick="clearAll()">Clear All & Reset</button>
+</div>
+
+<script>
+const STORAGE_KEY = "daily_routine_tasks";
+const DATE_KEY = "daily_routine_date";
+
+function today() {
+  return new Date().toDateString();
+}
+
+function loadTasks() {
+  const savedDate = localStorage.getItem(DATE_KEY);
+  let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+  if (savedDate !== today()) {
+    tasks = tasks.map(t => ({ ...t, done: false }));
+    localStorage.setItem(DATE_KEY, today());
+    saveTasks(tasks);
+  }
+
+  render(tasks);
+}
+
+function saveTasks(tasks) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function addTask() {
+  const input = document.getElementById("taskInput");
+  if (!input.value.trim()) return;
+
+  const tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  tasks.push({ text: input.value.trim(), done: false });
+
+  saveTasks(tasks);
+  input.value = "";
+  render(tasks);
+}
+
+function toggleTask(index) {
+  const tasks = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  tasks[index].done = !tasks[index].done;
+  saveTasks(tasks);
+  render(tasks);
+}
+
+function editTask(index, value) {
+  const tasks = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  tasks[index].text = value;
+  saveTasks(tasks);
+}
+
+function deleteTask(index) {
+  const tasks = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  tasks.splice(index, 1);
+  saveTasks(tasks);
+  render(tasks);
+}
+
+function clearAll() {
+  if (!confirm("Delete all tasks and clear storage?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(DATE_KEY);
+  render([]);
+}
+
+function render(tasks) {
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    const li = document.createElement("li");
+    if (task.done) li.classList.add("completed");
+
+    li.innerHTML = `
+      <input type="checkbox"
+  ${task.done ? "checked disabled" : ""}
+  onchange="toggleTask(${index})">
+      <input type="text" value="${task.text}" oninput="editTask(${index}, this.value)">
+      <button class="delete" onclick="deleteTask(${index})">✕</button>
+    `;
+
+    list.appendChild(li);
+  });
+}
+
+loadTasks();
+</script>
+</body>
+</html>
