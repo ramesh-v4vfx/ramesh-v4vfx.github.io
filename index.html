@@ -224,7 +224,7 @@
 
     footer {
       text-align: center;
-      padding: 20px;
+      padding: 6px 20px 10px;
       opacity: 0.5;
       font-size: 0.85rem;
     }
@@ -285,6 +285,50 @@
 .tools {
   min-height: 60vh;
 }
+
+.share-bar {
+  margin: 2px auto 0px;
+  max-width: 420px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  background: none;        /* ✅ remove box */
+  border: none;            /* ✅ remove border */
+  box-shadow: none;        /* ✅ remove shadow */
+}
+
+.share-label {
+  font-size: 0.75rem;
+  opacity: 0.45;
+  margin-right: 6px;
+}
+
+
+.share-bar button {
+  background: transparent;   /* ✅ no tile */
+  border: none;
+  padding: 4px;
+
+  font-size: 1.05rem;
+  cursor: pointer;
+
+  opacity: 0.75;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.share-bar button:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.share-bar button:active {
+  transform: scale(0.95);
+}
+
+
 
 
 
@@ -497,6 +541,17 @@
 
 </section>
 
+<div class="share-bar">
+  <span class="share-label">Share</span>
+
+  <button onclick="shareWhatsApp()" title="WhatsApp">🟢</button>
+  <button onclick="shareFacebook()" title="Facebook">🔵</button>
+  <button onclick="shareX()" title="X">🐦</button>
+  <button onclick="shareDiscord()" title="Discord">💬</button>
+</div>
+
+
+
 <footer>
   <p>
     © 2026 Ramesh Singh ·
@@ -516,36 +571,42 @@ function searchTools() {
     .value
     .trim()
     .toLowerCase();
+    </script>
 
-  const tools = document.querySelectorAll(".tool");
+    <script>
 
-  tools.forEach(tool => {
-    if (query === "") {
-      tool.style.display = "";
-      return;
-    }
+  
+const siteURL = encodeURIComponent(window.location.href);
+const siteText = encodeURIComponent(
+  "Check out these interactive tools for learning & productivity 🚀"
+);
 
-    const searchText = tool.dataset.search
-      ? tool.dataset.search.toLowerCase()
-      : tool.textContent.toLowerCase();
-
-    /* ✅ PHRASE PREFIX MATCH */
-    const match = searchText.startsWith(query)
-               || searchText.includes(" " + query);
-
-    tool.style.display = match ? "" : "none";
-  });
+function shareWhatsApp() {
+  window.open(`https://wa.me/?text=${siteText}%20${siteURL}`, "_blank");
 }
+
+function shareFacebook() {
+  window.open(
+    `https://www.facebook.com/sharer/sharer.php?u=${siteURL}`,
+    "_blank"
+  );
+}
+
+function shareX() {
+  window.open(
+    `https://twitter.com/intent/tweet?text=${siteText}&url=${siteURL}`,
+    "_blank"
+  );
+}
+
+function shareDiscord() {
+  navigator.clipboard.writeText(window.location.href);
+  alert("Link copied! Paste it into Discord.");
+}
+
+
 </script>
 
-<script>
-document.addEventListener("keydown", e => {
-  if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
-    e.preventDefault();
-    document.getElementById("searchInput").focus();
-  }
-});
-</script>
 
 
 
