@@ -565,17 +565,56 @@
 </footer>
 
 <script>
+  //for search tool dont mess here
 function searchTools() {
   const query = document
     .getElementById("searchInput")
     .value
     .trim()
     .toLowerCase();
-    </script>
 
-    <script>
+  const tools = document.querySelectorAll(".tool");
+
+  tools.forEach(tool => {
+    if (query === "") {
+      tool.style.display = "";
+      return;
+    }
+
+    const searchText = tool.dataset.search
+      ? tool.dataset.search.toLowerCase()
+      : tool.textContent.toLowerCase();
+
+    /* ✅ PHRASE PREFIX MATCH */
+    const match = searchText.startsWith(query)
+               || searchText.includes(" " + query);
+
+    tool.style.display = match ? "" : "none";
+  });
+}
+</script>
 
   
+<script>
+
+  //for search shortcut
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+    e.preventDefault();
+    document.getElementById("searchInput").focus();
+  }
+});
+</script>
+
+
+    
+
+    
+
+  
+<script>
+
+  //for share links 
 const siteURL = encodeURIComponent(window.location.href);
 const siteText = encodeURIComponent(
   "Check out these interactive tools for learning & productivity 🚀"
@@ -603,11 +642,7 @@ function shareDiscord() {
   navigator.clipboard.writeText(window.location.href);
   alert("Link copied! Paste it into Discord.");
 }
-
-
 </script>
-
-
 
 
 
