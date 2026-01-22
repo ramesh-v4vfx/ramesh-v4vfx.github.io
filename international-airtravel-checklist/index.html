@@ -180,7 +180,7 @@
   color: #fff;
   cursor: pointer;
 ">
-  ⬇ Download checklist
+  📤 Export checklist
 </button>
 
 <button id="resetBtn" style="
@@ -316,7 +316,7 @@
 
     const downloadBtn = document.getElementById("downloadBtn");
 
-downloadBtn.addEventListener("click", () => {
+/*downloadBtn.addEventListener("click", () => {
   if (tasks.length === 0) {
     alert("Checklist is empty.");
     return;
@@ -338,7 +338,50 @@ downloadBtn.addEventListener("click", () => {
   a.click();
 
   URL.revokeObjectURL(url);
+});*/
+
+downloadBtn.addEventListener("click", async () => {
+  if (tasks.length === 0) {
+    alert("Checklist is empty.");
+    return;
+  }
+
+  let content = "International Air Travel Checklist\n\n";
+
+  tasks.forEach(task => {
+    const mark = task.completed ? "✔" : "⬜";
+    content += `${mark} ${task.text}\n`;
+  });
+
+  const blob = new Blob([content], {
+    type: "text/plain;charset=utf-8"
+  });
+
+  // ✅ Best for mobile: Share sheet
+  if (navigator.share) {
+    const file = new File(
+      [blob],
+      "international-air-travel-checklist.txt",
+      { type: "text/plain" }
+    );
+
+    try {
+      await navigator.share({
+        title: "International Travel Checklist",
+        text: "My international travel checklist",
+        files: [file]
+      });
+    } catch (err) {
+      // user cancelled share — do nothing
+    }
+  } else {
+    // ✅ Fallback: open in new tab
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 });
+
 
 const resetBtn = document.getElementById("resetBtn");
 
