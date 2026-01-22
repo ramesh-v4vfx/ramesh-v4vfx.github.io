@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Checklist</title>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .app {
+      max-width: 520px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 6px;
+      border-bottom: 1px solid #eee;
+      gap: 8px;
+    }
+
+    li.completed span {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    button.delete {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      font-size: 20px;
+      padding: 6px;
+      cursor: pointer;
+    }
+
+    .add-task {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .add-task input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .add-task button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .left span {
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    button {
+        font-size: 16px;
+      }
+
+    .hint {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+      background: #f1f3f5;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    /* Bigger touch targets */
+    input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+
+  .app {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  /* Stack add-task vertically */
+  .add-task {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .add-task input,
+  .add-task button {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  li {
+    padding: 12px 4px;
+  }
+
+  .hint {
+    font-size: 13px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <h1>✈ International Travel Checklist</h1>
+
+    <ul id="taskList"></ul>
+
+    <div class="add-task">
+      <input id="newTaskInput" type="text" placeholder="Add your own item…" />
+      <button id="addBtn">Add</button>
+    </div>
+
+    <button id="downloadBtn" style="
+  margin-top: 14px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #28a745;
+  color: #fff;
+  cursor: pointer;
+">
+  ⬇ Download checklist
+</button>
+
+<button id="resetBtn" style="
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #dc3545;
+  color: #fff;
+  cursor: pointer;
+">
+  🔄 Reset to default checklist
+</button>
+
+
+    <div class="hint">
+      💡 Some countries require 6 months passport validity and proof of onward travel.
+    </div>
+  </div>
+
+  <script>
+    const taskListEl = document.getElementById("taskList");
+    const newTaskInput = document.getElementById("newTaskInput");
+    const addBtn = document.getElementById("addBtn");
+
+    const STORAGE_KEY = "travelChecklist";
+
+    const defaultTasks = [
+      "Passport validity check",
+      "Visa check",
+      "Check destination country rules for tourists",
+      "International Driving Permit (if you plan to drive)",
+      "Departure flight tickets",
+      "Return flight tickets",
+      "Hotel bookings",
+      "Weigh check-in bags",
+      "Weigh carry-on bags",
+      "Activate debit card for international use",
+      "Activate credit card for international use",
+      "Set international transaction limits",
+      "Enable international roaming on primary SIM (emergency use)",
+      "Travel insurance",
+      "Health insurance (international coverage)",
+      "Minimum required cash in local currency"
+    ];
+
+    function loadTasks() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+
+      // first-time load
+      const initial = defaultTasks.map(text => ({
+        id: Date.now() + Math.random(),
+        text,
+        completed: false
+      }));
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+      return initial;
+    }
+
+    let tasks = loadTasks();
+
+    function saveTasks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      taskListEl.innerHTML = "";
+
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+        if (task.completed) li.classList.add("completed");
+
+        const left = document.createElement("div");
+        left.className = "left";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.completed;
+        checkbox.style.minWidth = "20px"; // 👈 ADD THIS LINE
+        checkbox.addEventListener("change", () => {
+          task.completed = checkbox.checked;
+          saveTasks();
+          renderTasks();
+        });
+
+        const span = document.createElement("span");
+        span.textContent = task.text;
+
+        left.appendChild(checkbox);
+        left.appendChild(span);
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "✕";
+        delBtn.className = "delete";
+        delBtn.addEventListener("click", () => {
+        const confirmDelete = confirm(
+          "Are you sure you want to remove this checklist item?"
+        );
+
+        if (!confirmDelete) return;
+
+        tasks = tasks.filter(t => t.id !== task.id);
+        saveTasks();
+        renderTasks();
+      });
+
+
+        li.appendChild(left);
+        li.appendChild(delBtn);
+        taskListEl.appendChild(li);
+      });
+    }
+
+    addBtn.addEventListener("click", () => {
+      const text = newTaskInput.value.trim();
+      if (!text) return;
+
+      tasks.push({
+        id: Date.now(),
+        text,
+        completed: false
+      });
+
+      newTaskInput.value = "";
+      saveTasks();
+      renderTasks();
+    });
+
+    const downloadBtn = document.getElementById("downloadBtn");
+
+downloadBtn.addEventListener("click", () => {
+  if (tasks.length === 0) {
+    alert("Checklist is empty.");
+    return;
+  }
+
+  let content = "International Air Travel Checklist\n\n";
+
+  tasks.forEach(task => {
+    const mark = task.completed ? "✔" : "⬜";
+    content += `${mark} ${task.text}\n`;
+  });
+
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "international-air-travel-checklist.txt";
+  a.click();
+
+  URL.revokeObjectURL(url);
+});
+
+const resetBtn = document.getElementById("resetBtn");
+
+resetBtn.addEventListener("click", () => {
+  const confirmReset = confirm(
+    "Are you sure you want to reset the checklist?\n\nThis will remove all your changes and restore the default list."
+  );
+
+  if (!confirmReset) return;
+
+  // Recreate default checklist
+  tasks = defaultTasks.map(text => ({
+    id: Date.now() + Math.random(),
+    text,
+    completed: false
+  }));
+
+  saveTasks();
+  renderTasks();
+});
+
+
+
+    renderTasks();
+  </script>
+
+</body>
+</html>
