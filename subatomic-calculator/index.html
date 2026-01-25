@@ -90,9 +90,11 @@
     background: #2b2f55;
   }
 
-  .decimals button.active {
-    background: #4f7cff;
-  }
+.decimals button.active {
+  outline: 2px solid #ff4d4d;
+  outline-offset: 2px;
+}
+
 
   button {
     background: #4f7cff;
@@ -267,21 +269,12 @@
     margin-bottom: 0;
   }
 
-  .arrow {
-    transform: none;          /* no rotation */
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    opacity: 0.6;
-    text-align: center;
-    margin: 4px 0;
-  }
-
+.arrow {
+  font-size: 30px;
+  font-weight: bold;
+}
    
 }
-
-
-
 </style>
 </head>
 
@@ -289,7 +282,7 @@
 
 <div class="app">
   <div class="card">
-  <h2>Microscopic Length Calculator</h2>
+  <h2>🔬 Microscopic Length Calculator</h2>
 
   <button onclick="pasteValue()" class="secondary paste-btn">
   Paste value
@@ -317,7 +310,7 @@
       <option value="ym">Yoctometer (ym)</option>
     </select>
 
-    <div class="arrow">To</div>
+    <div class="arrow">→</div>
 
 
     <!-- TO -->
@@ -351,10 +344,12 @@
 
 
   <div class="decimals">
-    <button onclick="setDecimals(3)">3 dec</button>
-    <button onclick="setDecimals(2)">2 dec</button>
-    <button onclick="setDecimals(1)">1 dec</button>
-    <button onclick="revertDecimals()" class="secondary">Revert</button>
+    <button onclick="setDecimals(3)" data-mode="3">3 dec</button>
+    <button onclick="setDecimals(2)" data-mode="2">2 dec</button>
+    <button onclick="setDecimals(1)" data-mode="1">1 dec</button>
+    <button onclick="revertDecimals()" class="secondary" data-mode="raw">
+  Raw
+</button>
   </div>
 
   
@@ -365,9 +360,15 @@
   Reset
 </button>  
 
-  <button onclick="toggleHistory()" class="secondary">
+<button onclick="toggleHistory()" class="secondary" id="historyToggleBtn" disabled>
   Show History
 </button>
+
+<button onclick="clearHistory()" class="secondary" id="clearHistoryBtn" style="display:none">
+  Clear History
+</button>
+
+
 
 
   <div class="history">
@@ -382,6 +383,10 @@
   const historyList = document.getElementById("historyList");
   let history = [];
 
+  const historyToggleBtn = document.getElementById("historyToggleBtn");
+  const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
+
   function addToHistory(input, from, output, to) {
   const entry = `${input} ${from} → ${output} ${to}`;
   history.unshift(entry);
@@ -392,6 +397,8 @@
   }
 
   renderHistory();
+  updateHistoryUI();
+
 }
 
 function renderHistory() {
@@ -412,7 +419,8 @@ function renderHistory() {
   decimals = null;
 
   // Clear active decimal buttons
-  decimalButtons.forEach(btn => btn.classList.remove("active"));
+  setActiveMode(null);
+
 
   // Reset copy button text
   copyBtn.textContent = "Copy";
@@ -453,7 +461,8 @@ function renderHistory() {
   decimals = null;
 
   // Clear active decimal buttons
-  decimalButtons.forEach(btn => btn.classList.remove("active"));
+  setActiveMode(null);
+
 
   // Reset copy button text
   copyBtn.textContent = "Copy";
@@ -515,7 +524,7 @@ function renderHistory() {
   const from = document.getElementById("from").value;
   const to = document.getElementById("to").value;
 
-  let outputText = null; // <-- ALWAYS produce this
+  let outputText;
 
   // --- EXACT INTEGER PATH (meter → tiny units) ---
   if (from === "m" && exactPowers[to] !== undefined && Number.isInteger(value)) {
@@ -524,20 +533,19 @@ function renderHistory() {
 
     rawResult = null;
     decimals = null;
-    updateButtons();
   }
   // --- NORMAL FLOAT PATH ---
   else {
     rawResult = (value * factors[from]) / factors[to];
-    outputText = format(rawResult);
-
     decimals = null;
-    updateButtons();
+    outputText = format(rawResult);
   }
 
-  // --- SINGLE OUTPUT + HISTORY POINT (CRITICAL) ---
   resultBox.textContent = outputText;
   addToHistory(value, from, outputText, to);
+
+  // Default mode after every conversion
+  setActiveMode("raw");
 }
 
 
@@ -545,42 +553,55 @@ function renderHistory() {
   function format(num) {
   const abs = Math.abs(num);
 
-  // Use scientific notation when decimal display breaks down
+  const clean = cleanFloat(num);
+
   if (abs > 0 && abs < 1e-12) {
-    return num.toExponential(6); // e.g. 3.937008e-23
+    return clean.toExponential(6);
   }
 
   if (decimals !== null) {
-    return num.toFixed(decimals);
+    return clean.toFixed(decimals);
   }
 
-  return num.toLocaleString("en-US", { maximumFractionDigits: 12 });
+  return clean.toLocaleString("en-US", {
+    maximumFractionDigits: 12
+  });
 }
 
-  function setDecimals(n) {
-    if (rawResult === null) return;
-    decimals = n;
-    updateButtons();
-    resultBox.textContent = rawResult.toFixed(n);
-  }
+function setDecimals(n) {
+  if (rawResult === null) return;
+  decimals = n;
+  setActiveMode(String(n));
+  resultBox.textContent = roundSafe(rawResult, n).toFixed(n);
+}
 
-  function revertDecimals() {
-    if (rawResult === null) return;
-    decimals = null;
-    updateButtons();
-    resultBox.textContent = format(rawResult);
-  }
 
-  function updateButtons() {
-    decimalButtons.forEach(btn => btn.classList.remove("active"));
-    if (decimals !== null) {
-      decimalButtons.forEach(btn => {
-        if (btn.textContent.startsWith(decimals.toString())) {
-          btn.classList.add("active");
-        }
-      });
-    }
-  }
+  function roundSafe(num, decimals) {
+  const factor = 10 ** decimals;
+  return Math.round((num + Number.EPSILON) * factor) / factor;
+}
+
+function cleanFloat(num) {
+  return Number(num.toPrecision(15));
+}
+
+
+
+function revertDecimals() {
+  if (rawResult === null) return;
+  decimals = null;
+  setActiveMode("raw");
+  resultBox.textContent = format(rawResult);
+}
+
+
+function setActiveMode(mode) {
+  decimalButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === mode);
+  });
+}
+
+
 
   function copyResult() {
     if (resultBox.textContent === "—") return;
@@ -590,17 +611,47 @@ function renderHistory() {
   }
 
   function toggleHistory() {
-  const historyDiv = document.querySelector(".history");
-  const btn = event.target;
+    const historyDiv = document.querySelector(".history");
 
-  if (historyDiv.style.display === "none") {
-    historyDiv.style.display = "block";
-    btn.textContent = "Hide History";
-  } else {
-    historyDiv.style.display = "none";
-    btn.textContent = "Show History";
+    if (historyDiv.style.display === "none") {
+      historyDiv.style.display = "block";
+      historyToggleBtn.textContent = "Hide History";
+    } else {
+      historyDiv.style.display = "none";
+      historyToggleBtn.textContent = "Show History";
+    }
+
+    updateHistoryUI();
   }
+
+
+function updateHistoryUI() {
+  const hasHistory = history.length > 0;
+  const historyDiv = document.querySelector(".history");
+
+  // Enable/disable Show History button
+  historyToggleBtn.disabled = !hasHistory;
+
+  // Show Clear History only when history is visible and not empty
+  clearHistoryBtn.style.display =
+    hasHistory && historyDiv.style.display === "block"
+      ? "block"
+      : "none";
 }
+
+function clearHistory() {
+  history = [];
+  renderHistory();
+
+  const historyDiv = document.querySelector(".history");
+  historyDiv.style.display = "none";
+
+  historyToggleBtn.textContent = "Show History";
+
+  updateHistoryUI();
+}
+
+
 
 </script>
 

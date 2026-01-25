@@ -33,22 +33,94 @@
   }
 
   .converter {
-    background: #0a0000;
+    background: #180505;
     padding: 25px;
     border-radius: 12px;
     width: 470px;
     box-shadow: 0 0 30px rgba(0,0,0,0.7);
   }
 
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
+h2 {
+  text-align: center;
+  margin: 0 0 32px;   /* 👈 key change */
+  font-size: 1.6rem;
+  letter-spacing: 0.3px;
+}
+
+  /* Vertical stack spacing */
+.converter > * {
+  margin-bottom: 12px;
+}
+
+/* Reduce spacing between tightly related items */
+.value-input {
+  margin-bottom: 8px;
+}
+
+select {
+  margin-bottom: 14px;
+}
+
+/* Convert = hero */
+.convert-btn {
+  font-size: 22px;
+  padding: 16px 24px;   /* ↓ from too tall */
+  border-radius: 12px;
+}
+
+.round-buttons button {
+  padding: 12px;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+.round-buttons button:hover {
+  opacity: 1;
+}
+
+.value-input:focus {
+  outline: none;
+}
+
+.value-input:focus {
+  border: 2px solid #38bdf8; /* cyan-blue highlight */
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
+  background: #020617; /* slightly darker for contrast */
+}
+
+.value-input {
+  transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+
+
+
+/* Round buttons group */
+.round-buttons {
+  margin-bottom: 12px;
+}
+
+/* Result + Copy feel like one block */
+.result {
+  padding: 14px;
+  margin-top: 4px;
+}
+
+
+.copy-btn {
+  margin-bottom: 16px;
+}
+
+/* Bottom actions tighter */
+.action-row {
+  margin-top: 8px;
+}
+
 
   input, select, button {
     width: 100%;
     padding: 10px;
-    margin-top: 10px;
+    margin-top: 0px;
     border-radius: 6px;
     border: none;
     font-size: 14px;
@@ -73,7 +145,7 @@
   }
 
   .secondary-btn {
-    background: #081c1d;
+    background: #5c1b1b;
     color: #fff;
   }
 
@@ -136,11 +208,16 @@
     background: #1e293b;
   }
 
-  .value-input {
-    font-size: 18px;
-    padding: 14px 20px;
-    -moz-appearance: textfield;
-  }
+.value-input {
+  border: 2px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.25);
+  background: #020617;
+  transition: 
+    border 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
 
   .value-input::-webkit-inner-spin-button,
   .value-input::-webkit-outer-spin-button {
@@ -168,6 +245,15 @@ body {
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+button.convert-btn,
+.converter > button:nth-of-type(2) {
+  font-size: 22px;
+  padding: 22px 26px;
+  width: 100%;
+}
+
+
 
 /* Mobile screen adjustments only */
 @media (max-width: 480px) {
@@ -200,7 +286,7 @@ body {
 <body>
 
 <div class="converter">
-  <h2>Cosmic Calculator</h2>
+  <h2>🪐 Cosmic Calculator</h2>
 
   <button class="secondary-btn" onclick="pasteValue()">Paste Value</button>
 
@@ -267,6 +353,12 @@ body {
   let lastResult = null;
   let history = [];
 
+  function roundSafe(num, decimals) {
+  const factor = 10 ** decimals;
+  return Math.round((num + Number.EPSILON) * factor) / factor;
+}
+
+
   function flashResult() {
     const r = document.getElementById("result");
     r.classList.add("flash");
@@ -298,16 +390,23 @@ body {
     }
 
     lastResult = result;
-    document.getElementById("result").innerText = result;
+    document.getElementById("result").innerText = cleanFloat(result);
     flashResult();
     addToHistory(value, type, result);
   }
 
-  function roundResult(d) {
-    if (lastResult === null) return;
-    document.getElementById("result").innerText = lastResult.toFixed(d);
-    flashResult();
-  }
+function roundResult(d) {
+  if (lastResult === null) return;
+  const rounded = roundSafe(lastResult, d);
+  document.getElementById("result").innerText = rounded.toFixed(d);
+  flashResult();
+}
+
+function cleanFloat(num) {
+  // 15 significant digits is safe for IEEE-754 doubles
+  return Number(num.toPrecision(15));
+}
+
 
   function copyMainResult() {
     const btn = document.getElementById("copyBtn");
