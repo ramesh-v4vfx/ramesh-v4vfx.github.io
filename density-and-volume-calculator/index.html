@@ -251,21 +251,34 @@ button.secondary {
   animation: unitPop 160ms ease-out;
 }
 
+/* UNIT TOGGLE BUTTON */
 .btn-unit {
-  width: auto;               /* not full width */
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 999px;      /* pill */
-  background: rgba(255,255,255,0.06);
-  color: #cbd5e1;
-  border: 1px solid rgba(255,255,255,0.15);
-  align-self: flex-start;    /* left-aligned */
+  height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+
+  background: #3b82f6;        /* blue */
+  color: #ffffff;
+
+  border: none;
+  cursor: pointer;
+
+  /* press depth */
+  box-shadow: 0 6px 0 #1e40af;
+
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
-.btn-unit:hover {
-  background: rgba(255,255,255,0.12);
+/* PRESS animation only */
+.btn-unit:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #1e40af;
 }
+
+
 
 .toggle-row {
   display: flex;
@@ -277,6 +290,51 @@ button.secondary {
 .toggle-row button {
   flex: 1;                 /* equal width */
   text-align: center;
+}
+
+/* Volume result emphasis */
+.volume-result {
+  margin-top: 18px;
+  padding: 14px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+
+.volume-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.volume-hint {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.btn-toggle {
+  height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  background: #3b82f6;              /* always blue */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 6px 0 #1e40af;       /* cube depth */
+}
+
+.btn-toggle:active {
+  transform: translateY(4px);       /* press down */
+  box-shadow: 0 2px 0 #1e40af;       /* depth reduces */
+}
+
+
+
+.btn-toggle:hover {
+  background: rgb(156, 27, 27);
 }
 
 @media (max-width: 480px) {
@@ -349,21 +407,21 @@ button.secondary {
   <span id="densityOutput" onclick="copyDensity()" style="cursor:pointer"></span>
   
   
-  <div class="toggle-row">
+<div class="toggle-row">
   <button
     id="unitBtn"
-    class="unit-toggle"
-    onclick="toggleUnit()"
+    class="btn-toggle"
+    onclick="toggleUnit(this)"
     style="display:none;">
     kg/m³ ↔ g/cm³
   </button>
 
   <button
     id="rawBtn"
-    class="raw-toggle"
+    class="btn-toggle"
     onclick="toggleRaw(event)"
     style="display:none;">
-    show raw value
+    Raw
   </button>
 </div>
 
@@ -397,8 +455,7 @@ button.secondary {
 
     <button id="copyVolumeBtn" class="copy" style="display:none" onclick="copyVolume()">Copy Volume</button>
 
-    <button class="secondary" onclick="closeVolumeCalc()">Close</button>
-  </div>
+   </div>
 </div>
 
 <script>
@@ -441,7 +498,7 @@ function calculateDensity(btn) {
   densitySI = raw;
 
   densityRawText = raw.toString();
-  densityRoundedText = Number(raw.toFixed(3)).toString();
+  densityRoundedText = roundSafe(raw, 3).toString();
 
   currentUnit = "kg/m3";
   showRaw = false;
@@ -464,6 +521,8 @@ function toggleUnit(btn) {
   }
 
   currentUnit = currentUnit === "kg/m3" ? "g/cm3" : "kg/m3";
+  unitBtn.classList.toggle("active");
+
   renderDensity();
 }
 
@@ -471,8 +530,11 @@ function toggleUnit(btn) {
 function toggleRaw(e) {
   e.stopPropagation();
   showRaw = !showRaw;
+
+  rawBtn.innerText = showRaw ? "Rounded" : "Raw";
   renderDensity();
 }
+
 
 
 function renderDensity() {
@@ -486,7 +548,8 @@ function renderDensity() {
     const raw = densityForCalc / 1000;
     valueText = showRaw
       ? raw.toString()
-      : Number(raw.toFixed(3)).toString();
+      : roundSafe(raw, 3).toString();
+
     unit = "g/cm³";
     waterDensity = raw;
   }
@@ -519,7 +582,8 @@ function copyDensity() {
       ? (showRaw ? densityRawText : densityRoundedText)
       : (showRaw
           ? (densityForCalc / 1000).toString()
-          : Number((densityForCalc / 1000).toFixed(3)).toString());
+          : roundSafe(densityForCalc / 1000, 3).toString());
+
 
   const originalHTML = densityOutput.innerHTML;
 
@@ -610,15 +674,23 @@ function calculateVolume() {
     return;
   }
 
-  lastVolumeValue = Number(V.toFixed(3)).toString();
+  lastVolumeValue = roundSafe(V, 3).toString();
+
 
 
   const displayVolume = addCommas(lastVolumeValue);
 
 volumeOutput.innerHTML = `
-  <b>Volume: ${displayVolume} m³</b><br>
-  <small>(click to copy and update volume)</small>
+  <div class="volume-result">
+    <div class="volume-value">
+      ${displayVolume} m³
+    </div>
+    <div class="volume-hint">
+      Tap to copy & update volume
+    </div>
+  </div>
 `;
+
 
 }
 
@@ -662,6 +734,12 @@ function formatDisplay(value, isRaw) {
   if (isRaw) return value;        // DO NOT format RAW
   return addCommas(value);        // format only rounded
 }
+
+function roundSafe(num, decimals) {
+  const factor = 10 ** decimals;
+  return Math.round((num + Number.EPSILON) * factor) / factor;
+}
+
 
 
 
