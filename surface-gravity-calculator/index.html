@@ -304,6 +304,12 @@ html, body {
   background: #0f172a;
 }
 
+input, button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+
 
 
 
@@ -701,7 +707,6 @@ function resetCalculator() {
 lastEscape = "";
 
 document.getElementById("escapeBox").style.display = "none";
-document.getElementById("escapeBtn").style.display = "none";
 
 rawEscapeEarth = null;
 
@@ -731,7 +736,6 @@ if (rawEscapeV !== null) {
 }
 
 setMode("5");
-
 
 
 
