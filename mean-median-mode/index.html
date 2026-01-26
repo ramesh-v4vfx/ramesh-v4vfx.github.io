@@ -24,7 +24,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;   /* fallback */
+      min-height: 100svh; /* modern Safari */
     }
 
     .card {
@@ -107,10 +108,10 @@
     }
 
     .input-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
 
 .input-row input {
   flex: 1;
@@ -121,6 +122,45 @@
   width: auto;
   white-space: nowrap;
 }
+
+#toggleMode {
+  background: #374151;
+}
+#toggleMode.raw {
+  background: #7c1111;
+}
+
+button.calc:last-child {
+  background: #374151;
+}
+
+button.calc:last-child:hover {
+  background: #4b5563;
+}
+
+.input-row.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.input-row.buttons .primary {
+  flex: 2;          /* 2/3 width */
+}
+
+/* Reset button – light red */
+.input-row.buttons .secondary {
+  flex: 1;
+  background: #7f1d1d;      /* light muted red */
+  color: #ffe4e6;
+}
+
+.input-row.buttons .secondary:hover {
+  background: #991b1b;
+}
+
+
+
+
 
 /* Mobile friendly */
 @media (max-width: 600px) {
@@ -149,12 +189,20 @@
 <body>
 
   <div class="card">
-    <h1>Mean · Median · Mode</h1>
+    <h1>Mean · Median · Mode 📊</h1>
 
     <div class="input-row">
       <input id="numbers" placeholder="Enter numbers (e.g. 2,4,6,8)" />
-      <button class="calc" onclick="calculate()">Calculate</button>
     </div>
+
+<div class="input-row buttons">
+  <button class="calc primary" onclick="calculate()">Calculate</button>
+  <button class="calc secondary" onclick="resetAll()">Reset</button>
+</div>
+
+
+ 
+
 
 
     <div class="result">
@@ -179,16 +227,22 @@
   </div>
 
   <script>
-    function formatNumber(num) {
-  return Number(num).toLocaleString("en-US", {
-    maximumFractionDigits: 2
-  });
+
+  
+
+
+function formatNumber(num) {
+  return num.toString();
 }
+
+
+
+
 
     
     function calculate() {
       let input = document.getElementById("numbers").value;
-      let arr = input.split(",").map(Number).filter(n => !isNaN(n));
+      let arr = input.split(/[\s,]+/).map(Number).filter(n => !isNaN(n));
 
       if (arr.length === 0) return;
 
@@ -218,16 +272,14 @@
         }
       }
 
-            document.getElementById("mean").textContent = formatNumber(mean);
-            document.getElementById("median").textContent = formatNumber(median);
-            document.getElementById("mode").textContent =
-            modes.length
-          ? modes.map(n => formatNumber(n)).join(", ")
-          : "No mode";
-
+        document.getElementById("mean").textContent = mean.toString();
+document.getElementById("median").textContent = median.toString();
+document.getElementById("mode").textContent =
+  modes.length ? modes.join(", ") : "No mode";
     }
 
-    function copyText(id, btn) {
+
+ function copyText(id, btn) {
       let text = document.getElementById(id).textContent;
       navigator.clipboard.writeText(text);
 
@@ -235,6 +287,27 @@
       btn.textContent = "Copied!";
       setTimeout(() => btn.textContent = original, 1000);
     }
+
+    function resetAll() {
+  // Clear input
+  const input = document.getElementById("numbers");
+  input.value = "";
+
+  // Reset results
+  document.getElementById("mean").textContent = "–";
+  document.getElementById("median").textContent = "–";
+  document.getElementById("mode").textContent = "–";
+
+ // Focus input (Safari & mobile safe)
+  input.focus();
+}
+
+
+
+
+
+
+
   </script>
 
 </body>
