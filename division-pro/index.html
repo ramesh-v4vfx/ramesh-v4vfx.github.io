@@ -224,14 +224,24 @@ button {
 }
 
 .close-btn {
-  color: red;
+  color: #ff6b6b;          /* soft red */
   font-weight: 600;
+  background: #3a1c1c;     /* dark red background */
+  padding: 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
 }
 
 .heading {
   margin-top: 15px;
   margin-bottom: 14px;
 }
+
+.close-btn:hover {
+  background: #4a2222;
+  color: #ff8f8f;
+}
+
 
 
 
@@ -319,7 +329,13 @@ button {
   <div id="historyContent">
     <h3>Calculation History</h3>
     <ul id="historyList"></ul>
-    <button class="close-btn" onclick="closeHistory()">Close</button>
+    <button
+      id="historyActionBtn"
+      class="close-btn"
+      onclick="handleHistoryAction()">
+      Clear History
+    </button>
+
   </div>
 </div>
 
@@ -341,6 +357,9 @@ const remainderEl = document.getElementById("remainder");
 
 const historyBox = document.getElementById("historyBox");
 const historyList = document.getElementById("historyList");
+
+let historyMode = "clear"; // "clear" | "closing"
+
 
 /* ---------- DATA ---------- */
 let historyData = [];
@@ -389,14 +408,18 @@ function calculate() {
 
 function roundDecimal(n) {
   if (lastDecimalValue === null) return;
+
+  const rounded = roundSafe(lastDecimalValue, n);
   decimalEl.textContent =
-    `Decimal (${n} dec): ${lastDecimalValue.toFixed(n)}`;
+    `Decimal (${n} dec): ${rounded}`;
 }
+
 
 function revertDecimal() {
   if (lastDecimalValue === null) return;
-  decimalEl.textContent = "Decimal: " + lastDecimalValue;
+  decimalEl.textContent = "Decimal: " + lastDecimalValue.toString();
 }
+
 
 function resetAll() {
   value1.value = "";
@@ -419,15 +442,39 @@ function copyDecimal() {
 }
 
 function openHistory() {
-  historyList.innerHTML = historyData
-    .map(v => `<li>${v}</li>`)
-    .join("");
+  historyList.innerHTML = historyData.length
+    ? historyData.map(v => `<li>${v}</li>`).join("")
+    : "<li>No history</li>";
+
+  historyMode = "clear";
+  const btn = document.getElementById("historyActionBtn");
+  btn.textContent = "Clear History";
+
   historyBox.style.display = "flex";
 }
 
-function closeHistory() {
-  historyBox.style.display = "none";
+
+function roundSafe(num, decimals) {
+  const factor = 10 ** decimals;
+  return Math.round((num + Number.EPSILON) * factor) / factor;
 }
+
+function handleHistoryAction() {
+  const btn = document.getElementById("historyActionBtn");
+
+  // Step 1: clear history
+  historyData = [];
+  historyList.innerHTML = "<li>History cleared</li>";
+
+  btn.textContent = "Closing…";
+
+  // Step 2: brief delay, then close
+  setTimeout(() => {
+    historyBox.style.display = "none";
+  }, 700);
+}
+
+
 </script>
 
 
