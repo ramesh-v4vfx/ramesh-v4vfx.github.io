@@ -492,7 +492,7 @@ input, button {
 
   let rawG = null;
   let rawEarthG = null;
-  let currentMode = "5"; // "raw" | 5 | 3
+  let currentMode = 5; // "raw" | 5 | 3
 
   let rawEscapeV = null;
 
@@ -505,23 +505,6 @@ input, button {
     if (!value) return NaN;
     return Number(value.replace(/,/g, ""));
   }
-
-  function formatSimple(input) {
-  let value = input.value.trim();
-
-  // If scientific notation is used, don't format
-  if (/e/i.test(value)) return;
-
-  // Remove commas
-  value = value.replace(/,/g, "");
-
-  // Stop if invalid
-  if (value === "" || isNaN(value)) return;
-
-  // Format with commas
-  input.value = Number(value).toLocaleString("en-US");
-}
-
 
   function toDecimal(num, decimals = null) {
   if (decimals === null) {
@@ -537,6 +520,34 @@ input, button {
     maximumFractionDigits: decimals
   });
 }
+
+function formatSimple(input) {
+  let value = input.value.trim();
+
+  // Allow incomplete decimals while typing
+  if (
+    value === "" ||
+    value === "-" ||
+    value.endsWith(".") ||
+    value.endsWith("e") ||
+    value.endsWith("e-")
+  ) {
+    return;
+  }
+
+  // Scientific notation → do not touch
+  if (/e/i.test(value)) return;
+
+  // Remove commas
+  value = value.replace(/,/g, "");
+
+  if (isNaN(value)) return;
+
+  input.value = Number(value).toLocaleString("en-US");
+}
+
+
+
 
 
 function calculateAll() {
@@ -646,17 +657,23 @@ function copyEscape() {
     navigator.clipboard.writeText(lastResult);
   }
 
-  function addToHistory(g, earthG) {
-  const entry = `${g.toFixed(3)} m/s² (${earthG.toFixed(3)} g)`;
+function addToHistory(g, earthG) {
+  const gText =
+    currentMode === "raw"
+      ? toDecimal(g)
+      : toDecimal(g, currentMode);
 
-  history.unshift(entry);
+  const earthText =
+    currentMode === "raw"
+      ? toDecimal(earthG)
+      : toDecimal(earthG, currentMode);
 
-  if (history.length > 5) {
-    history.pop();
-  }
+  history.unshift(`${gText} m/s² (${earthText} g)`);
 
+  if (history.length > 5) history.pop();
   renderHistory();
 }
+
 
 function renderHistory() {
   const list = document.getElementById("historyList");
@@ -735,9 +752,7 @@ if (rawEscapeV !== null) {
 
 }
 
-setMode("5");
-
-
+setMode(5);
 
 </script>
 

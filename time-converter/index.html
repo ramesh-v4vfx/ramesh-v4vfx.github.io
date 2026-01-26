@@ -25,7 +25,8 @@
 
   body {
     margin: 0;
-    height: 100vh;
+    min-height: 100dvh;   /* dynamic viewport height */
+    padding: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,14 +38,15 @@
   .card {
     background: #161a35;
     padding: 22px;
-    width: 430px;
+    width: 100%;
+    max-width: 430px;
     border-radius: 14px;
     box-shadow: 0 20px 40px rgba(0,0,0,.45);
   }
 
   h2 {
     text-align: center;
-    margin-bottom: 14px;
+    margin-bottom: 30px;
     font-size: 1.3rem;
   }
 
@@ -135,6 +137,46 @@
     opacity: 0.6;
     margin-top: 8px;
   }
+
+  #clearHistoryBtn {
+  margin-top: 10px;
+  background: #3a1c1c;      /* muted red */
+  color: #ffb4b4;
+}
+
+#clearHistoryBtn:hover {
+  background: #4a2222;
+}
+
+input,
+select,
+button {
+  font-size: 16px;   /* prevents iOS zoom */
+  padding: 12px;
+}
+
+.history {
+  max-height: 180px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+
+@media (max-width: 600px) {
+  .row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  h2 {
+    margin-bottom: 18px;
+  }
+}
+
+
+
 </style>
 </head>
 
@@ -175,7 +217,7 @@
     <button onclick="setDecimals(3)">3 dec</button>
     <button onclick="setDecimals(2)">2 dec</button>
     <button onclick="setDecimals(1)">1 dec</button>
-    <button onclick="revertDecimals()" class="secondary">Revert</button>
+    <button onclick="revertDecimals()" class="secondary">Raw</button>
   </div>
 
   <button onclick="convert()">Convert</button>
@@ -188,10 +230,19 @@
   </button>
 
   <!-- HISTORY PANEL -->
-  <div class="history" id="historyPanel">
-    <h3>Last 10 calculations</h3>
-    <div id="history"></div>
-  </div>
+<!-- HISTORY PANEL -->
+<div class="history" id="historyPanel">
+  <h3>Last 10 calculations</h3>
+  <div id="history"></div>
+
+  <button
+    id="clearHistoryBtn"
+    class="secondary"
+    onclick="clearHistory()">
+    Clear history
+  </button>
+</div>
+
 
   <div class="note">
     1 s = 1,000 ms = 1,000,000 µs = 1,000,000,000 ns
@@ -231,8 +282,6 @@
 
     rawResult = (value * factors[from]) / factors[to];
 
-    if (to === "ns" || to === "us") rawResult = Math.round(rawResult);
-
     decimals = null;
     updateDecimalButtons();
     animateCounter(lastValue, rawResult);
@@ -253,16 +302,34 @@
     requestAnimationFrame(step);
   }
 
-  function format(num) {
-    if (decimals !== null) return num.toFixed(decimals);
-    return num.toLocaleString("en-US", { maximumFractionDigits: 8 });
+function format(num) {
+  if (decimals !== null) {
+    return roundSafe(num, decimals).toFixed(decimals);
   }
+  return num.toLocaleString("en-US", {
+    maximumFractionDigits: 8
+  });
+}
+
+function clearHistory() {
+  // 1️⃣ Clear data
+  history = [];
+  historyBox.innerHTML = "<div class='history-item'>History cleared</div>";
+
+  // 2️⃣ Close panel after a brief moment
+  setTimeout(() => {
+    historyPanel.style.display = "none";
+    historyToggle.textContent = "Show history";
+  }, 600);
+}
+
+
 
   function setDecimals(n) {
     if (rawResult === null) return;
     decimals = n;
     updateDecimalButtons();
-    resultBox.textContent = rawResult.toFixed(n);
+    resultBox.textContent = roundSafe(rawResult, n).toFixed(n);
   }
 
   function revertDecimals() {
@@ -304,11 +371,12 @@
     });
   }
 
-  function toggleHistory() {
-    const visible = historyPanel.style.display === "block";
-    historyPanel.style.display = visible ? "none" : "block";
-    historyToggle.textContent = visible ? "Show history" : "Hide history";
-  }
+function toggleHistory() {
+  const visible = historyPanel.style.display === "block";
+  historyPanel.style.display = visible ? "none" : "block";
+  historyToggle.textContent = visible ? "Show history" : "Hide history";
+}
+
 
   function resetAll() {
     document.getElementById("value").value = "";
@@ -320,6 +388,12 @@
     updateDecimalButtons();
     renderHistory();
   }
+
+  function roundSafe(num, decimals) {
+  const factor = 10 ** decimals;
+  return Math.round((num + Number.EPSILON) * factor) / factor;
+}
+
 </script>
 
 </body>
