@@ -16,188 +16,327 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+:root { color-scheme: dark; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #101010;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #fff;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+/* Fix dropdown list text color */
+select option {
+  color: #000;          /* text inside dropdown */
+  background: #ffffff; /* dropdown background */
+}
+
+
+/* CARD */
+.calculator-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 28px;
+  border-radius: 20px;
+  text-align: center;
+
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.02)
+    ),
+    rgba(10, 10, 10, 0.85); /* ✅ base color */
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 30px 60px rgba(0,0,0,0.6);
+}
+
+
+@supports not ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+  .calculator-container {
+    background: rgba(20, 20, 20, 0.92);
+  }
+}
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+/* TITLE */
+h1 {
+  margin: 0 0 26px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 18px rgba(255,0,0,0.25);
+}
+
+/* CONTROLS */
+select, input, button {
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  border-radius: 14px;
+}
+
+select {
+  font-weight: 600;
+  background: linear-gradient(180deg, #181818, #101010);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 6px 14px rgba(0,0,0,0.4);
+}
+
+/* INPUT */
+.input-group {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+select,
+input {
+  width: 100%;
+  height: 56px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+
+
+input {
+  width: 100%;
+  font-size: 1.05rem;
+  background: linear-gradient(180deg, #1c1c1c, #141414);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 6px 14px rgba(0,0,0,0.45);
+}
+
+input:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,0,0,0.6),
+    0 0 0 6px rgba(255,0,0,0.15),
+    0 10px 22px rgba(0,0,0,0.6);
+}
+
+/* DECIMAL TOGGLE */
+.dec-toggle {
+  display: inline-flex;
+  gap: 8px;
+  padding: 10px 14px;
+  margin: 6px auto 0;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.btn-small {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  color: #ddd;
+  cursor: pointer;
+}
+
+.btn-small:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.btn-small.active {
+  background: rgba(255,0,0,0.12);
+  outline: 2px solid #ff0000;
+}
+
+/* CALCULATE BUTTON */
+.btn-red {
+  margin-top: 26px;
+  padding: 16px 34px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-radius: 14px;
+  background: #ff0000;
+  color: #fff;
+  cursor: pointer;
+  animation: pulse 2.5s infinite;
+}
+
+.btn-red:active { transform: scale(0.96); }
+
+.result {
+  display: none;
+  animation: resultPop 0.35s ease-out;
+}
+
+
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.6); }
+  70% { box-shadow: 0 0 0 18px rgba(255,0,0,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
+}
+
+/* RESULTS */
+.result {
+  margin-top: 28px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    0 10px 24px rgba(0,0,0,0.45);
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.line span {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+
+
+/* COPY BUTTON */
+.copy-btn {
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  color: #ddd;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255,255,255,0.16);
+}
+
+.copy-btn.copied {
+  background: #1faa59;
+  color: #fff;
+  transform: scale(1.08);
+}
+
+/* FOOTER */
+.small {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.btn-reset {
+  padding: 16px 26px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 14px;
+  background: rgb(53, 5, 5);
+  color: #ddd;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-reset:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.btn-reset:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 480px) {
+
   body {
-    background:#0f0203;
-    color:#fff;
-    font-family:Arial, Helvetica, sans-serif;
-    text-align:center;
-    padding:30px;
-  }
-
-  select, input, button {
-    padding:10px;
-    font-size:1rem;
-    margin-top:12px;
-    border-radius:6px;
-    border:none;
-  }
-
-  input { width:220px; }
-
-  button { cursor:pointer; }
-
-  /* 🔴 CALCULATE BUTTON */
-  .btn-red {
-    background:#ff0000;
-    color:#fff;
-    font-size:1.25rem;
-    padding:16px 34px;
-    margin-top:22px;
-    border-radius:12px;
-    font-weight:700;
-    animation:pulse 2.5s infinite;
-  }
-
-  .btn-red:active {
-    transform:scale(0.96);
-  }
-
-  @keyframes pulse {
-    0% { box-shadow:0 0 0 0 rgba(255,0,0,0.6); }
-    70% { box-shadow:0 0 0 18px rgba(255,0,0,0); }
-    100% { box-shadow:0 0 0 0 rgba(255,0,0,0); }
-  }
-
-  /* COPY BUTTON */
-  .btn-small {
-    background:#161a35;
-    color:#fff;
-    padding:8px 14px;
-    font-size:0.85rem;
-    margin-left:8px;
-    transition:transform 0.15s ease, background 0.15s ease;
-  }
-
-  .btn-small:hover {
-    background:#1c2150;
-  }
-
-  .copied {
-    background:#1faa59 !important;
-    transform:scale(1.12);
-    box-shadow:0 0 12px rgba(31,170,89,0.8);
-  }
-
-  .row { margin-top:14px; }
-
-  .result {
-    margin-top:26px;
-    font-size:1rem;
-    line-height:1.9;
-  }
-
-  .line {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-    margin-top:8px;
-  }
-
-  .dec-toggle button {
-    margin:0 6px;
-  }
-
-  .active {
-    outline:2px solid #ff0000;
-  }
-
-  .small {
-    font-size:0.8rem;
-    opacity:0.6;
-    margin-top:12px;
+    padding: 20px 12px;
   }
 
   .calculator-container {
-  display: inline-block;
-  background: rgba(255,255,255,0.045);
-  padding: 28px 32px;
-  border-radius: 18px;
-
-  /* this is the key part */
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.06),
-    0 14px 30px rgba(0,0,0,0.45);
-}
-
-.row {
-  display: flex;
-  justify-content: center;
-}
-
-:root {
-  color-scheme: dark;
-}
-
-html, body {
-  background-color: #040b10 !important;
-}
-
-input,
-select,
-textarea {
-  background-color: #1b1b1b !important;
-  color: #ffffff !important;
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: 12px;
-}
-
-::placeholder {
-  color: #aaaaaa !important;
-  opacity: 1;
-}
-
-.card {
-  background: linear-gradient(135deg, #5a0f0f, #0b2a4a) !important;
-  color: #ffd6d6;
-}
-
-button {
-  -webkit-tap-highlight-color: transparent;
-  appearance: none;
-}
-
-@supports (-webkit-touch-callout: none) {
-  body,
-  .wrapper,
-  .card {
-    background-color: #040b10 !important;
+    padding: 24px 18px;
+    border-radius: 18px;
   }
-}
 
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
 
-
-
-@media (max-width: 600px) {
   select,
-  input,
-  button {
-    font-size: 1rem;
-    padding: 14px;
-  }
-
   input {
-    width: 100%;
-    max-width: 280px;
+    height: 52px;
+    font-size: 1rem;
   }
 
-  .btn-red {
-    font-size: 1.1rem;
-    padding: 14px 26px;
+  .dec-toggle {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
   }
 
   .btn-small {
+    flex: 1;
+    min-width: 90px;
+    padding: 12px 0;
+    font-size: 0.95rem;
+  }
+
+  .btn-red {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 14px 0;
+  }
+
+  .result {
+    padding: 16px 14px;
+  }
+
+  .line {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .copy-btn {
+    align-self: flex-end;
     padding: 10px 16px;
-    font-size: 0.85rem;
+  }
+
+  .btn-reset {
+    width: 100%;
+    padding: 14px 0;
+  }
+
+  .small {
+    font-size: 0.75rem;
+    line-height: 1.4;
   }
 }
 
 
-
-
 </style>
-
 </head>
 
 <body>
@@ -205,38 +344,35 @@ button {
 <div class="calculator-container">
 
   <h1>Black Hole Radius Calculator ⭕</h1>
-
+<div class="input-group">
   <select id="massType">
     <option value="solar">☀️ Solar Mass</option>
     <option value="earth">🌍 Earth Mass</option>
     <option value="kg">⚖️ Kilograms</option>
   </select>
 
-  <div class="row">
-    <input
-      type="text"
-      inputmode="decimal"
-      pattern="[0-9.,]*"
-      id="massInput"
-      placeholder="Enter value">
+  <input id="massInput" placeholder="Enter value">
 
-  </div>
-
-  <div class="row">
-    <button class="btn-small" onclick="pasteValue()">📋 Paste value</button>
-  </div>
-
-  <div class="row dec-toggle">
+  <div class="dec-toggle">
     <button class="btn-small" onclick="setDecimals(null)">Original</button>
     <button class="btn-small" onclick="setDecimals(2)">2 dec</button>
     <button class="btn-small active" onclick="setDecimals(3)">3 dec</button>
   </div>
+</div>
 
-  <div class="row">
-    <button class="btn-red" onclick="calculate()">CALCULATE</button>
-  </div>
+
+<div>
+  <button class="btn-red" onclick="calculate()">CALCULATE</button>
+</div>
 
   <div class="result" id="output"></div>
+
+  <div class="result" id="output"></div>
+
+<div id="resetWrap" style="display:none; margin-top:16px;">
+  <button class="btn-reset" onclick="resetCalc()">RESET</button>
+</div>
+
 
   <div class="small">
     Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km
@@ -244,68 +380,34 @@ button {
 
 </div>
 
-</body>
-
-
 <script>
-  let decimals = 3; // default = 3 decimals
-
-
-
-
-function setDecimals(d) {
-  decimals = d;
-
-  document.querySelectorAll('.dec-toggle button')
-    .forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-
-  if (lastResult) renderResult(lastResult);
-}
-
+let decimals = 3;
+let lastResult = null;
 
 const G = 6.67430e-11;
 const c = 299792458;
 const solarMass = 1.988416e30;
 const earthMass = 5.9722e24;
-const solarRadius = 6.957e8; // meters
+const solarRadius = 6.957e8;
 
-let lastResult = null;
+const massInput = document.getElementById('massInput');
 
-function format(n) {
-  // ORIGINAL (no forced rounding)
-  if (decimals === null) {
-    return n.toLocaleString('en-US', {
-      maximumFractionDigits: 20
-    });
-  }
-
-  // Rounded modes
-  return n.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  });
-}
-
-
-const massInput = document.getElementById("massInput");
-
-massInput.addEventListener("input", function () {
+massInput.addEventListener('input', function () {
   const cursorPos = this.selectionStart;
 
-  // Remove all non-numeric except dot
-  let raw = this.value.replace(/,/g, "");
+  // Remove existing commas
+  let raw = this.value.replace(/,/g, '');
   if (!raw) return;
 
-  // Allow only one decimal point
-  const parts = raw.split(".");
-  parts[0] = parts[0].replace(/\D/g, "");
-  if (parts[1]) parts[1] = parts[1].replace(/\D/g, "");
+  // Allow only numbers and one decimal
+  const parts = raw.split('.');
+  parts[0] = parts[0].replace(/\D/g, '');
+  if (parts[1]) parts[1] = parts[1].replace(/\D/g, '');
 
-  // Format integer part with US commas
-  parts[0] = Number(parts[0]).toLocaleString("en-US");
+  // Apply US comma formatting
+  parts[0] = Number(parts[0]).toLocaleString('en-US');
 
-  const formatted = parts.join(".");
+  const formatted = parts.join('.');
   const diff = formatted.length - this.value.length;
 
   this.value = formatted;
@@ -313,85 +415,131 @@ massInput.addEventListener("input", function () {
 });
 
 
+function setDecimals(d) {
+  decimals = d;
+  document.querySelectorAll('.btn-small')
+    .forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (lastResult) renderResult(lastResult);
+}
 
-function calculate() {
-  const value = parseFloat(
-  document.getElementById("massInput").value.replace(/,/g, "")
-);
-
-  const type = document.getElementById("massType").value;
-
-  if (!value || value <= 0) {
-    document.getElementById("output").innerText =
-      "Enter a valid positive mass value.";
-    return;
+function format(n) {
+  // Original mode (no rounding)
+  if (decimals === null) {
+    return Number(n).toLocaleString('en-US', {
+      maximumFractionDigits: 20
+    });
   }
 
-  let M;
-  if (type === "solar") M = value * solarMass;
-  else if (type === "earth") M = value * earthMass;
-  else M = value;
+  // SAFE rounding before formatting
+  const rounded = roundSafe(n, decimals);
 
-  const rs_m = (2 * G * M) / (c * c);
+  return rounded.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+
+
+function calculate() {
+  const val = parseFloat(
+    document.getElementById('massInput').value.replace(/,/g,'')
+  );
+  if (!val || val <= 0) return;
+
+  const type = document.getElementById('massType').value;
+  const M =
+    type === 'solar' ? val * solarMass :
+    type === 'earth' ? val * earthMass : val;
+
+  const rs = (2 * G * M) / (c * c);
 
   lastResult = {
-    m: rs_m,
-    km: rs_m / 1000,
-    rsolar: rs_m / solarRadius
+    m: rs,
+    km: rs / 1000,
+    rsolar: rs / solarRadius
   };
 
   renderResult(lastResult);
 }
 
 function renderResult(r) {
-  document.getElementById("output").innerHTML = `
+  const output = document.getElementById('output');
+  const resetWrap = document.getElementById('resetWrap');
+
+  output.style.display = 'block';
+  resetWrap.style.display = 'block'; // ✅ show RESET here
+
+  output.innerHTML = `
     <div class="line">
-      📏 ${format(r.m)} meters
-      <button class="btn-small"
-        onclick="copyValue(this, '${format(r.m)} meters')">
-        Copy
-      </button>
+      <span>📏 ${format(r.m)} m</span>
+      <button class="copy-btn"
+        onclick="copyValue(this,'${format(r.m)} m')">Copy</button>
     </div>
+
     <div class="line">
-      🛣️ ${format(r.km)} km
-      <button class="btn-small"
-        onclick="copyValue(this, '${format(r.km)} km')">
-        Copy
-      </button>
+      <span>🛣️ ${format(r.km)} km</span>
+      <button class="copy-btn"
+        onclick="copyValue(this,'${format(r.km)} km')">Copy</button>
     </div>
+
     <div class="line">
-      ☀️ ${format(r.rsolar)} R☉
-      <button class="btn-small"
-        onclick="copyValue(this, '${format(r.rsolar)} R☉')">
-        Copy
-      </button>
+      <span>☀️ ${format(r.rsolar)} R☉</span>
+      <button class="copy-btn"
+        onclick="copyValue(this,'${format(r.rsolar)} R☉')">Copy</button>
     </div>
   `;
 }
 
 
-async function copyValue(btn, text) {
-  await navigator.clipboard.writeText(text);
 
-  const originalText = btn.innerText;
-  btn.innerText = "Copied!";
-  btn.classList.add("copied");
+
+function copyValue(btn, text) {
+  navigator.clipboard.writeText(text);
+  const original = btn.innerText;
+  btn.innerText = 'Copied!';
+  btn.classList.add('copied');
 
   setTimeout(() => {
-    btn.innerText = originalText;
-    btn.classList.remove("copied");
-  }, 250); // 1 second
+    btn.innerText = original;
+    btn.classList.remove('copied');
+  }, 600);
+}
+
+function roundSafe(num, decimals) {
+  const factor = 10 ** decimals;
+  return Math.round((num + Number.EPSILON) * factor) / factor;
+}
+
+function resetCalc() {
+  // Clear input
+  massInput.value = '';
+
+  // Reset decimals
+  decimals = 3;
+  document.querySelectorAll('.btn-small')
+    .forEach(b => b.classList.remove('active'));
+  document.querySelector('.btn-small:last-child').classList.add('active');
+
+  // Hide result + reset button
+  const output = document.getElementById('output');
+  const resetWrap = document.getElementById('resetWrap');
+
+  output.style.display = 'none';
+  output.innerHTML = '';
+  resetWrap.style.display = 'none';
+
+  // Clear state
+  lastResult = null;
+
+  // Focus input
+  massInput.focus();
 }
 
 
-async function pasteValue() {
-  try {
-    const text = await navigator.clipboard.readText();
-    const num = parseFloat(text.replace(/,/g,''));
-    if (!isNaN(num)) document.getElementById("massInput").value = num;
-  } catch {}
-}
 </script>
 
 </body>
 </html>
+
