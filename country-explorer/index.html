@@ -1,0 +1,3871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+
+<meta charset="UTF-8">
+
+<meta name="description"
+      content="Country Explorer lets you explore countries, compare GDP, population, flags, play card games and country quizzes, and earn certificates. Built on RameshVerse." />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<title>Country Explorer</title>
+
+<style>
+
+  html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #270909;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #fff;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  align-items: center;
+}
+
+header input:not(#search) {
+  flex: 1;
+  padding: 8px;
+}
+
+
+header button {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+#cards {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+
+.clear-btn.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+.card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  will-change: transform;
+  overflow: hidden;
+}
+
+#gameToggleBtn,
+header button,
+header select,
+header label {
+  flex-shrink: 0;
+}
+
+#gameToggleBtn,
+#quizToggleBtn {
+  color: #dc2626;
+  font-weight: 800;
+  border: 2px solid #dc2626;
+}
+
+#gameToggleBtn:hover,
+#quizToggleBtn:hover {
+  background: #dc2626;
+  color: #fff;
+}
+
+
+
+.card-flag {
+  height: 140px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease, object-fit 0.25s ease;
+}
+
+
+
+.card-body {
+  padding: 14px;
+}
+
+.card h3 {
+  margin: 0 0 6px;
+}
+
+.small {
+  font-size: 13px;
+  color: #444;
+}
+
+#compare {
+  background: #fff;
+  padding: 20px;
+  border-top: 3px solid #ddd;
+}
+
+.card-body hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 8px 0;
+}
+
+.compare-large .card-flag {
+  height: 180px;
+}
+
+/* ===== Compare Overlay ===== */
+
+#compare-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+#compare-container {
+  background: #f4f6f8;
+  padding: 32px 36px;
+  border-radius: 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 900px;
+  width: 95%;
+}
+
+
+#compare-left,
+#compare-right {
+  display: flex;
+  justify-content: center;
+  max-width: 420px;
+}
+
+#compare-diff {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 14px;
+}
+
+#compare-diff h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+#compare-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  font-size: 22px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.compare-card.pre {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+
+/* Bigger cards for compare */
+.compare-card {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    opacity 0.25s ease;
+}
+
+
+.compare-card .card-flag {
+  height: 160px;
+}
+
+.metric-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.metric {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ffd5d5;
+  color: #f43d3d;
+  font-weight: 600;
+}
+
+.metric.up {
+  color: #15803d;
+  background: #dcfce7;
+  font-weight: 600;
+}
+
+.card:hover .card-flag img {
+  object-fit: contain;
+  background: #f8f8f8;
+}
+
+.card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+}
+
+header select {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.rank {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #111;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.card {
+  position: relative;
+}
+
+header button.active-sort {
+  background: #b91c1c;      /* red */
+  color: #fff;
+  border: none;
+}
+
+header button.active-sort:hover {
+  background: #991b1b;
+}
+
+.game-end {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 80px;
+  color: white;
+}
+
+.game-end .trophy {
+  font-size: 64px;
+  margin-bottom: 10px;
+  animation: pop 0.6s ease;
+}
+
+.game-end h1 {
+  font-size: 42px;
+  margin: 10px 0;
+}
+
+.game-end.win h1 {
+  color: #22c55e;
+}
+
+.game-end.lose h1 {
+  color: #ef4444;
+}
+
+.final-score {
+  font-size: 18px;
+  color: #ddd;
+  margin-bottom: 24px;
+}
+
+.play-again {
+  padding: 12px 28px;
+  font-size: 16px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+
+.cpu-zone {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cpu-label {
+  margin-top: 14px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  color: #facc15;
+  text-transform: uppercase;
+}
+
+
+.choose-text {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0;
+}
+
+
+.user-card {
+  cursor: pointer;
+}
+
+.user-card:hover {
+  transform: scale(1.06);
+}
+
+.user-hand {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cpu-zone {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.choose-text {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: white;
+  margin: 20px 0;
+}
+
+.cpu-meta {
+  color: #fa1515;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.role-label {
+  font-size: 26px;          /* BIG icon */
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.role-label.user {
+  color: #22c55e;
+}
+
+.role-label.cpu {
+  color: #f02c2c;
+}
+
+.compare-card.user-winner {
+  position: relative;
+  box-shadow:
+    0 20px 50px rgba(34,197,94,0.35),
+    0 0 0 2px rgba(34,197,94,0.25);
+}
+
+
+#battle-result {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 34px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.compare-card.user-winner {
+  transform: scale(1.05);
+  box-shadow:
+    0 30px 70px rgba(34,197,94,0.45);
+}
+
+.compare-card.cpu-winner {
+  transform: scale(1.05);
+  box-shadow:
+    0 30px 70px rgba(239,68,68,0.45);
+}
+
+.compare-card.loser {
+  opacity: 0.65;
+  filter: grayscale(0.15);
+  transform: scale(0.97);
+}
+
+.compare-card.user-winner,
+.compare-card.cpu-winner {
+  transform: scale(1.03); /* subtle = premium */
+}
+
+/* Force game cards to match original card size */
+.user-card,
+.cpu-card {
+  width: 260px;
+  flex: 0 0 240px;
+}
+
+.user-card .card-flag img,
+.cpu-card .card-flag img {
+  object-fit: contain;
+  background: #f8f8f8;
+}
+
+/* GAME CARDS: start zoomed & filled */
+.user-card .card-flag img,
+.cpu-card .card-flag img {
+  object-fit: cover;
+}
+
+/* GAME CARDS: restore aspect ratio on hover */
+.user-card:hover .card-flag img {
+  object-fit: contain;
+  background: #f8f8f8;
+}
+
+/* Make CPU card body same compact height as user cards */
+.cpu-card .card-body {
+  padding: 14px;
+  text-align: center;
+}
+
+
+
+.game-label {
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.game-label.user {
+  color: #22c55e; /* green */
+}
+
+.game-label.cpu {
+  color: #facc15; /* yellow */
+}
+
+.game-subtext {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+.game-subtext.user {
+  color: #22c55e;
+}
+
+.game-subtext.cpu {
+  color: #ef4444;
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+}
+
+.pulse {
+  animation: pulseGlow 1.2s ease-in-out infinite;
+}
+
+.compare-card {
+  width: 100%;
+  max-width: 360px; /* or 380px if you prefer */
+}
+
+.metric {
+  white-space: normal;
+  max-width: 100%;
+  text-align: center;
+}
+
+.metric-row {
+  justify-content: center;
+}
+
+/* GAME CARD STRUCTURE — force consistency */
+.user-card,
+.cpu-card {
+  display: grid;
+  grid-template-rows: 140px auto;
+}
+
+.iso-alpha2 {
+  font-size: 0.75em;   /* slightly smaller than name */
+  font-weight: 600;
+  margin-left: 4px;   /* tighter gap */
+  color: #666;
+}
+
+.header-row button,
+.header-row select,
+.header-row label {
+  flex-shrink: 0;
+}
+
+
+.search-wrap {
+  position: relative;
+  flex: 0 0 360px;   /* 🔒 FIXED WIDTH */
+  max-width: 360px;
+  min-width: 260px;
+  overflow: hidden;
+}
+
+
+
+
+.search-wrap input {
+  width: 100%;
+  padding: 8px 34px 8px 32px;
+  font-size: 14px;
+
+  line-height: 1.2;      /* 🔧 FIX */
+  box-sizing: border-box; /* 🔧 FIX */
+}
+
+.quiz-option {
+  background: #dc2626;
+  color: white;
+  margin: 8px 0;
+  min-width: 280px;
+}
+
+.quiz-option:hover {
+  background: #b91c1c;
+}
+
+.quiz-option:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.quiz-option.correct {
+  background: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.4);
+}
+
+.quiz-option.wrong {
+  background: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.4);
+}
+
+.quiz-option.dim {
+  opacity: 0.6;
+}
+
+.certificate-wrap {
+  grid-column: 1 / -1;
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) translateY(-1px);
+  font-size: 14px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e5e7eb;
+  color: #444;
+
+  display: flex;              /* ✅ KEY */
+  align-items: center;        /* ✅ vertical centering */
+  justify-content: center;    /* ✅ horizontal centering */
+
+  font-size: 14px;            /* slightly smaller = visually centered */
+  font-weight: 600;
+  line-height: 1;             /* safe now */
+
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+
+.clear-btn.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+.clear-btn:hover {
+  background: #d1d5db;
+}
+
+.header-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;   /* allows buttons to move to next line */
+  width: 100%;
+  align-items: center;
+}
+
+
+.header-controls {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.header-sort button {
+  white-space: nowrap; /* prevents ugly line breaks */
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.compare-banner {
+  position: sticky;
+  top: calc(64px + 8px); /* below header */
+  z-index: 10;
+  background: linear-gradient(90deg, #3e881f, #1b6c10);
+  color: #fff;
+  padding: 10px 10px;
+  border-radius: 10px;
+  margin: 0 auto 8px;
+  display: none;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  letter-spacing: 0.2px;
+  line-height: 1.4;
+  gap: 12px;
+}
+
+.compare-banner button {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+body.compare-active .card {
+  cursor: pointer;
+  outline: 2px dashed rgba(185,28,28,0.35);
+  outline-offset: -6px;
+}
+
+/* ===== CARD FOCUS MODE ===== */
+
+/* ===== CARD FOCUS MODE ===== */
+
+body.card-focus {
+  overflow: hidden;
+}
+
+body.card-focus::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 998;
+}
+
+body.card-focus .card {
+  opacity: 0.25;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+body.card-focus .card.focused {
+
+  transition:
+    transform 0.35s cubic-bezier(.2,.8,.2,1),
+    box-shadow 0.35s ease;
+
+    
+  position: fixed;
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.25);
+  z-index: 1000;
+
+  width: 150%;
+  max-width: 300px;
+  max-height: calc(100vh - 32px);
+
+  background: white;
+  border-radius: 18px;
+  overflow-y: auto;
+
+  opacity: 1;
+  filter: none;
+  pointer-events: auto;
+
+  box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+}
+
+body.card-focus .card.focused .card-flag {
+  height: 160px;
+  }
+
+  .card-close-global:hover {
+  background: #b91c1c;
+}
+
+  
+
+body.card-focus .card:not(.focused) {
+  transform: none !important;
+}
+
+/* Close button */
+/* ===== GLOBAL CLOSE BUTTON ===== */
+
+.card-close-global {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  background: #111;
+  color: #fff;
+  border: none;
+
+  font-size: 22px;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  z-index: 1101;
+}
+
+.card-close-global:hover {
+  background: #b91c1c;
+}
+
+.card-download-btn {
+  position: sticky;
+  bottom: 12px;
+
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px;
+
+  border: none;
+  border-radius: 10px;
+  background: #111;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.card-download-btn:hover {
+  background: #b91c1c;
+}
+
+.card-download-text {
+  position: sticky;
+  bottom: 12px;
+
+  margin-top: 14px;
+  padding-top: 10px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.card-download-text:hover {
+  opacity: 0.75;
+  transform: translateY(-1px);
+}
+
+.card-download-text:active {
+  opacity: 0.6;
+  transform: translateY(0);
+}
+
+body.card-focus .card.focused .card-body::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 12px 0 8px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0,0,0,0.15),
+    transparent
+  );
+}
+
+#gameToggleBtn {
+  color: #dc2626;
+  font-weight: 800;
+  border: 2px solid #dc2626;
+}
+
+#gameToggleBtn:hover {
+  background: #dc2626;
+  color: #fff;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;   /* 👈 vertical */
+  gap: 12px;
+  margin-top: 24px;
+  align-items: center;
+}
+
+.quiz-option {
+  width: 100%;
+  max-width: 420px;         /* looks premium */
+}
+
+/* ===== CERTIFICATE ===== */
+.certificate {
+  width: 720px;
+  max-width: 95%;
+  margin: 40px auto 20px;
+  padding: 48px 44px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.55);
+  position: relative;
+  animation: pop 0.6s ease;
+  overflow: hidden;
+}
+
+.certificate.vertical {
+  width: 420px;
+  min-height: 560px;
+  padding: 32px 36px 40px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+.certificate.bronze {
+  --cert-base: #f7e2c8; /* 👈 SOLID */
+  background: linear-gradient(135deg, #f7e2c8, #fff6eb);
+  border: 4px solid #cd7f32;
+  color: #7c3e06;
+}
+
+.certificate.silver {
+  --cert-base: #eef2f7;
+  background: linear-gradient(135deg, #eef2f7, #ffffff);
+  border: 4px solid #c0c0c0;
+  color: #374151;
+}
+
+.certificate.gold {
+  --cert-base: #f7c948;
+
+  background:
+    radial-gradient(
+      circle at center,
+      #ffef7a 0%,
+      #f7d046 35%,
+      #e0ad2f 60%,
+      #c58a1a 82%,
+      #a96a0f 100%
+    );
+
+  border: 4px solid #e0ad2f;
+  color: #5a3306;
+}
+
+.certificate.gold::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255,255,255,0.25),
+      transparent 60%
+    );
+  pointer-events: none;
+}
+
+
+
+.certificate.gold .cert-divider {
+  background: linear-gradient(
+    to right,
+    transparent,
+    #c58a1a,
+    transparent
+  );
+  opacity: 0.45;
+}
+
+
+
+
+.certificate.gold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 40%,
+    rgba(255,255,255,0.35) 50%,
+    transparent 60%
+  );
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+
+
+
+
+
+.certificate h1 {
+  margin: 5px 0 10px;
+  font-size: 30px;
+  letter-spacing: 1px;
+}
+
+.certificate {
+  position: relative;
+  overflow: hidden;
+}
+
+.certificate-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top,
+      rgba(0,0,0,0.06),
+      transparent 70%);
+  z-index: 1;
+}
+
+/* Make text sit ABOVE background */
+.certificate * {
+  position: relative;
+  z-index: 2;
+}
+
+
+.cert-name {
+  font-size: 13px;
+  opacity: 0.65;
+  margin-bottom: 4px; /* 🔥 tighten */
+}
+
+
+.certificate h2 {
+  margin: 4px 0 8px;  /* ⬇ much tighter */
+  font-size: 26px;
+}
+
+
+.cert-text {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.cert-footer {
+  margin-top: 28px;
+  font-size: 11px;
+  opacity: 0.45;
+}
+
+.cert-footer {
+  letter-spacing: 0.3px;
+}
+
+
+/* THEMES */
+.certificate.bronze {
+  border: 4px solid #cd7f32;
+  color: #7c3e06;
+}
+
+.certificate.silver {
+  --cert-base: #f1f3f6;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f3f4f6 25%,
+      #e5e7eb 50%,
+      #f3f4f6 75%,
+      #ffffff 100%
+    );
+
+  border: 4px solid #cfd3da;
+  color: #374151;
+}
+
+.certificate.silver::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    120deg,
+    transparent 35%,
+    rgba(255,255,255,0.55) 50%,
+    transparent 65%
+  );
+
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.certificate.silver .cert-divider {
+  background: linear-gradient(
+    to right,
+    transparent,
+    #cfd3da,
+    transparent
+  );
+}
+
+.certificate.silver h1,
+.certificate.silver h2 {
+  color: #2f3a4a;
+}
+
+
+
+
+
+.certificate.gold {
+  border: 4px solid #facc15;
+  color: #92400e;
+}
+
+.certificate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--cert-base);
+  z-index: 0;
+}
+
+
+/* 🚫 Disable overlays during certificate capture */
+body.capturing::before {
+  display: none !important;
+}
+
+body.capturing {
+  background: transparent !important;
+}
+
+body.capturing * {
+  filter: none !important;
+  opacity: 1;
+}
+
+body.capturing h1,
+body.capturing h2,
+body.capturing .cert-name,
+body.capturing .cert-text,
+body.capturing .cert-footer {
+  color: #4a2400 !important; /* MUCH darker */
+   font-weight: 600
+}
+
+body.capturing,
+body.capturing * {
+  opacity: 1 !important;
+}
+
+
+
+/* ===== EXPORT-ONLY FIXES ===== */
+body.capturing .certificate-bg {
+  background: radial-gradient(
+    circle at top,
+    rgba(0,0,0,0.12),
+    rgba(0,0,0,0.02) 70%
+    display: none !important;
+  );
+}
+
+body.capturing .cert-name,
+body.capturing .cert-footer {
+  opacity: 0.9; /* restore contrast */
+}
+
+body.capturing h1,
+body.capturing h2 {
+  color: #7c3e06;
+  font-weight: 800 /* force rich brown */
+}
+
+body.capturing .certificate {
+  box-shadow: none !important; /* shadows look bad when flattened */
+  }
+
+/* ===== EXPORT MODE: HARD COLORS ===== */
+body.capturing .certificate-bg {
+  display: none !important;
+}
+
+body.capturing h1 {
+  color: #8a4b08 !important;
+  opacity: 1 !important;
+}
+
+body.capturing h2 {
+  color: #7c3e06 !important;
+  opacity: 1 !important;
+}
+
+body.capturing .cert-name,
+body.capturing .cert-footer,
+body.capturing .cert-text {
+  color: #6b3a0a !important;
+  opacity: 1 !important;
+}
+
+.cert-divider {
+  width: 120px;
+  height: 2px;
+  margin: 22px auto;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    to right,
+    transparent,
+    #cd7f32,
+    transparent
+  );
+
+  opacity: 0.45; /* subtle & premium */
+}
+
+
+
+.cert-achievement {
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.85;
+  margin-bottom: 16px;
+}
+
+.cert-validation {
+  margin-top: 46px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.cert-block {
+  text-align: center;
+  flex: 1;
+}
+
+.cert-label {
+  font-size: 12px;
+  opacity: 0.65;
+  margin-bottom: 6px;
+}
+
+.cert-value {
+  font-size: 13px;
+  font-weight: 700;
+  border-top: 2px solid rgba(205,127,50,0.45);
+  padding-top: 8px;
+}
+
+.cert-validation.vertical {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.cert-validation.vertical .cert-block {
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+}
+
+.cert-validation.vertical .cert-value {
+  border-top: 2px solid rgba(205,127,50,0.45);
+  padding-top: 8px;
+}
+
+.certificate-icon {
+  font-size: 42px;     /* sweet spot */
+  margin-bottom: 12px;
+  opacity: 0.85;
+}
+
+/* ===== BADGE ICON ===== */
+.certificate-icon.badge {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+  font-weight: 900;
+
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.6),
+    inset 0 -3px 6px rgba(0,0,0,0.15),
+    0 10px 24px rgba(0,0,0,0.25);
+}
+
+.certificate-icon.badge.bronze {
+  background:
+    radial-gradient(circle at top,
+      #ffd7b0,
+      #cd7f32
+    );
+  color: #7c3e06;
+}
+
+.certificate-icon.badge.bronze::before {
+  content: "🥉";
+}
+
+.certificate-icon.badge.silver {
+  background:
+    radial-gradient(circle at top,
+      #ffffff,
+      #cfd3da
+    );
+  color: #2f3a4a;
+}
+
+.certificate-icon.badge.silver::before {
+  content: "🥈";
+}
+
+.certificate-icon.badge.gold {
+  background:
+    radial-gradient(
+      circle at top,
+      #fff3a0 0%,
+      #f7c948 45%,
+      #c58a1a 100%
+    );
+  color: #5a3306;
+}
+
+
+.certificate-icon.badge.gold::before {
+  content: "🥇";
+}
+
+.quiz-title {
+  font-size: 20px;
+  margin-bottom: 0px;
+}
+
+.quiz-subtitle {
+  max-width: 520px;
+  margin: 0 auto 0px;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.rounds {
+  max-width: 520px;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.round {
+  padding: 10px 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+}
+
+.round h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.round ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+
+.quiz-warning {
+  max-width: 520px;
+  margin: 0 auto 36px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(250,204,21,0.08);
+  color: #fde68a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.start-btn {
+  margin-top: 24px;
+  padding: 14px 34px;
+  font-size: 16px;
+  border-radius: 999px;
+}
+
+.start-challenge-btn {
+  margin-top: 32px;
+
+  padding: 18px 44px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(
+    135deg,
+    #22c55e,
+    #16a34a
+  );
+
+  color: #052e16;
+
+  box-shadow:
+    0 16px 40px rgba(34,197,94,0.45),
+    inset 0 2px 0 rgba(255,255,255,0.35);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.start-challenge-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 50px rgba(34,197,94,0.55),
+    inset 0 2px 0 rgba(255,255,255,0.4);
+}
+
+.start-challenge-btn:active {
+  transform: translateY(0);
+  box-shadow:
+    0 10px 24px rgba(34,197,94,0.4),
+    inset 0 3px 6px rgba(0,0,0,0.25);
+}
+
+.start-challenge-btn {
+  display: block;
+  margin: 36px auto 0 auto;
+}
+
+/* ===== CERTIFICATE ACTION BUTTONS ===== */
+.cert-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Base */
+.cert-btn {
+  padding: 8px 14px;          /* 👈 slimmer */
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+/* Primary (Download) */
+.cert-btn.primary {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #052e16;
+
+  box-shadow:
+    0 8px 18px rgba(34,197,94,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.cert-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 26px rgba(34,197,94,0.45);
+}
+
+/* Ghost buttons (Share / Play again) */
+.cert-btn.ghost {
+  background: rgba(0,0,0,0.06);
+  color: #3f2a10;
+}
+
+.certificate.gold .cert-btn.ghost {
+  background: rgba(255,255,255,0.18);
+  color: #5a3306;
+}
+
+.cert-btn.ghost:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* Active */
+.cert-btn:active {
+  transform: translateY(0);
+  opacity: 0.9;
+}
+
+
+@keyframes pulseOutline {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(252, 50, 255, 0.65),
+      0 16px 40px rgba(34,197,94,0.45),
+      inset 0 2px 0 rgba(255,255,255,0.35);
+  }
+
+  70% {
+    box-shadow:
+      0 0 0 10px rgba(179, 50, 174, 0),
+      0 16px 40px rgba(34,197,94,0.45),
+      inset 0 2px 0 rgba(255,255,255,0.35);
+  }
+
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239,68,68,0),
+      0 16px 40px rgba(34,197,94,0.45),
+      inset 0 2px 0 rgba(255,255,255,0.35);
+  }
+}
+
+.start-challenge-btn {
+  animation: pulseOutline 2.4s ease-out infinite;
+}
+
+.start-challenge-btn:hover {
+  animation: none;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 640px) {
+  body.card-focus .card.focused {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@media (max-height: 720px) {
+  .start-btn-wrap {
+    margin-top: 12px;
+  }
+}
+
+/* 📱 MOBILE HEADER FIX */
+@media (max-width: 768px) {
+  header {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .header-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+  }
+
+  .header-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  header button,
+  header select,
+  header label {
+    font-size: 13px;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+
+  .search-wrap {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  /* 📱 MOBILE CARDS */
+@media (max-width: 640px) {
+  #cards {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .card {
+    border-radius: 16px;
+  }
+
+  .card-flag {
+    height: 120px;
+  }
+
+  .card h3 {
+    font-size: 18px;
+  }
+
+  .small {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+}
+
+/* 📱 COLLAPSE EXTRA METRICS ON MOBILE */
+@media (max-width: 640px) {
+  .card .small:nth-of-type(n+7) {
+    display: none;
+  }
+
+  body.card-focus .card.focused .small {
+    display: block;
+  }
+}
+
+/* 📱 FOCUS & COMPARE FIX */
+@media (max-width: 640px) {
+  body.card-focus .card.focused {
+    width: 92%;
+    max-width: 360px;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+
+  #compare-container {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  #battle-result {
+    font-size: 24px;
+  }
+}
+
+/* 📱 BIG TOUCH TARGETS */
+@media (max-width: 640px) {
+  button,
+  .quiz-option,
+  .play-again {
+    min-height: 44px;
+    font-size: 15px;
+  }
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<!-- ROW 1: Filters & actions -->
+  <div class="header-row header-controls">
+
+    <select id="continentFilter" onchange="filterByContinent(this.value)">
+      <option value="">All Continents</option>
+    </select>
+
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="search" placeholder="Search country…" />
+      <button class="clear-btn" id="clearSearch" onclick="clearSearch()">×</button>
+    </div>
+
+    <button id="quizToggleBtn" onclick="showQuizIntro()">🧠 Country Quiz</button>
+
+    <button id="gameToggleBtn" onclick="toggleGame()">▶ Play Card Game</button>
+
+      <button onclick="startCompare()">Compare Countries</button>
+
+    <button onclick="resetView()">Reset All</button>
+
+    <label class="check">
+      <input type="checkbox" id="transToggle"
+             onchange="toggleTranscontinental(this.checked)">
+      Transcontinental
+    </label>
+
+    </div>
+
+
+
+<div id="compare-status" class="compare-banner">
+  🆚 Compare mode active — select <b>two countries</b>
+  <button onclick="cancelCompare()">✕ Cancel</button>
+</div>
+
+
+    <!-- ROW 2: Sorting -->
+  <div class="header-row header-sort">
+
+
+
+    <button data-sort="population" data-label="Population"
+      onclick="sortBy('population')">Population</button>
+
+    <button data-sort="area" data-label="Area"
+      onclick="sortBy('area')">Area</button>
+
+    <button data-sort="gdp" data-label="GDP"
+      onclick="sortBy('gdp')">GDP</button>
+
+    <button data-sort="gdppc" data-label="GDP / capita"
+      onclick="sortBy('gdppc')">GDP / capita</button>
+
+    <button data-sort="gdpppp" data-label="GDP (PPP)"
+      onclick="sortBy('gdpppp')">GDP (PPP)</button>
+
+    <button data-sort="gdppppc" data-label="GDP (PPP) / capita"
+      onclick="sortBy('gdppppc')">GDP (PPP) / capita</button>
+
+    <button data-sort="gdpkm2" data-label="GDP / km²"
+      onclick="sortBy('gdpkm2')">GDP / km²</button>
+
+    <button data-sort="gdppppkm2" data-label="GDP (PPP) / km²"
+      onclick="sortBy('gdppppkm2')">GDP (PPP) / km²</button>
+
+    <button data-sort="pppfactor" data-label="PPP factor"
+      onclick="sortBy('pppfactor')">PPP factor</button>
+
+    <button data-sort="pppgap" data-label="Nominal–PPP gap"
+      onclick="sortBy('pppgap')">Nominal–PPP gap</button>
+
+    <button data-sort="density" data-label="Population density"
+      onclick="sortBy('density')">Population density</button>
+
+  </div>
+
+</header>
+
+<main id="cards"></main>
+
+<!-- Compare Overlay -->
+<div id="compare-overlay">
+  <button id="compare-close" onclick="closeCompare()">✕</button>
+
+  <div id="compare-container">
+    <div id="battle-result"></div>
+    <div id="compare-left"></div>
+    <div id="compare-right"></div>
+  </div>
+</div>
+
+
+<script>
+/* ================= LOAD DATA ================= */
+
+let quizRound = 1;          // 1 | 2 | 3
+let quizTimer = null;
+let timeLeft = 0;
+
+const ROUND_TIME = {
+  1: 10,  // Round 1 → 60 sec
+  2: 7,   // Round 2 → 60 sec
+  3: 5    // Round 3 → 60 sec
+};
+
+
+const QUIZ_TYPES = [
+  "capital",
+  "currency",
+  "continent",
+  "language",
+  "flag"
+];
+
+const CURRENCY_LOOKUP = {
+  INR: "Indian Rupee",
+  USD: "United States Dollar",
+  EUR: "Euro",
+  JPY: "Japanese Yen",
+  GBP: "British Pound",
+  AUD: "Australian Dollar",
+  CAD: "Canadian Dollar",
+  CHF: "Swiss Franc",
+  CNY: "Chinese Yuan",
+  RUB: "Russian Ruble",
+  ZAR: "South African Rand",
+  BRL: "Brazilian Real",
+  MXN: "Mexican Peso",
+  TRY: "Turkish Lira",
+  KRW: "South Korean Won",
+  SGD: "Singapore Dollar",
+  NZD: "New Zealand Dollar",
+  AED: "UAE Dirham",
+  SAR: "Saudi Riyal",
+  AFN: "Afghani",
+  ALL: "Lek",
+  DZD: "Algerian Dinar",
+  AOA: "Angolan Kwanza",
+  XCD: "East Caribbean Dollar",
+  ARS: "Argentine Peso",
+  AMD: "Armenian Dram",
+  AZN: "Azerbaijani Manat",
+  BHD: "Bahraini Dinar",
+  BDT: "Bangladeshi Taka",
+  BBD: "Barbadian Dollar",
+  BYN: "Belarusian Ruble",
+  BZD: "Belize Dollar",
+  XOF: "West African CFA Franc",
+  BTN: "Bhutanese Ngultrum",
+  BOB: "Bolivian Boliviano",
+  BAM: "Bosnia and Herzegovina Convertible Mark",
+  BWP: "Botswana Pula",
+  BND: "Brunei Dollar",
+  BIF: "Burundian Franc",
+  KHR: "Cambodian Riel",
+  XAF: "Central African CFA Franc",
+  CVE: "Cape Verdean Escudo",
+  CLP: "Chilean Peso",
+  COP: "Colombian Peso",
+  KMF: "Comorian Franc",
+  CRC: "Costa Rican Colón",
+  CUP: "Cuban Peso",
+  CZK: "Czech Koruna",
+  CDF: "Congolese Franc",
+  DKK: "Danish Krone",
+  DJF: "Djiboutian Franc",
+  DOP: "Dominican Peso",
+  EGP: "Egyptian Pound",
+  ERN: "Eritrean Nakfa",
+  ETB: "Ethiopian Birr",
+  FJD: "Fijian Dollar",
+  XPF: "CFP franc",
+  GEL: "Georgian lari",
+  GHS: "Ghanaian cedi",
+  GTQ: "Guatemalan quetzal",
+  GNF: "Guinean franc",
+  GYD: "Guyanese dollar",
+  HTG: "Haitian gourde",
+  HNL: "Honduran lempira",
+  HUF: "Hungarian forint",
+  ISK: "Icelandic króna",
+  IDR: "Indonesian rupiah",
+  IRR: "Iranian rial",
+  PYG: "Paraguayan guaraní",
+  ILS: "Israeli new shekel",
+  LBP: "Lebanese pound",
+  RSD: "Serbian dinar",
+  KZT: "Kazakhstani tenge",
+  KES: "Kenyan shilling",
+  KWD: "Kuwaiti dinar",
+  KGS: "Kyrgyzstani som",
+  LAK: "Lao kip",
+  LSL: "Lesotho loti",
+  LYD: "Libyan dinar",
+  MUR: "Mauritian rupee",
+  MGA: "Malagasy ariary",
+  MWK: "Malawian kwacha",
+  MYR: "Malaysian ringgit",
+  MVR: "Maldivian rufiyaa",
+  MRU: "Mauritanian ouguiya",
+  MDL: "Moldovan leu",
+  MNT: "Mongolian tögrög",
+  MAD: "Moroccan dirham",
+  MZN: "Mozambican metical",
+  MMK: "Myanmar kyat",
+  NAD: "Namibian dollar",
+  NPR: "Nepalese rupee",
+  NIO: "Nicaraguan córdoba",
+  NGN: "Nigerian naira",
+  KPW: "North Korean won",
+  MKD: "Macedonian denar",
+  NOK: "Norwegian krone",
+  OMR: "Omani rial",
+  PKR: "Pakistani rupee",
+  PAB: "Panamanian balboa",
+  PGK: "Papua New Guinean kina",
+  PEN: "Peruvian sol",
+  PHP: "Philippine peso",
+  PLN: "Polish złoty",
+  QAR: "Qatari riyal",
+  RON: "Romanian leu",
+  RWF: "Rwandan franc",
+  WST: "Samoan tālā",
+  STN: "São Tomé and Príncipe dobra",
+  SCR: "Seychellois rupee",
+  SLE: "Sierra Leonean leone",
+  SBD: "Solomon Islands dollar",
+  SOS: "Somali shilling",
+  SSP: "South Sudanese pound",
+  LKR: "Sri Lankan rupee",
+  SDG: "Sudanese pound",
+  SRD: "Surinamese dollar",
+  SEK: "Swedish krona",
+  SYP: "Syrian pound",
+  TWD: "New Taiwan dollar",
+  TJS: "Tajikistani somoni",
+  TZS: "Tanzanian shilling",
+  THB: "Thai baht",
+  BSD: "Bahamian dollar",
+  GMD: "Gambian dalasi",
+  TOP: "Tongan paʻanga",
+  TTD: "Trinidad and Tobago dollar",
+  TND: "Tunisian dinar",
+  TMT: "Turkmenistan manat",
+  UGX: "Ugandan shilling",
+  UAH: "Ukrainian hryvnia",
+  UYU: "Uruguayan peso",
+  UZS: "Uzbekistani soʻm",
+  VUV: "Vanuatu vatu",
+  VED: "Venezuelan digital bolívar",
+  VND: "Vietnamese đồng",
+  YER: "Yemeni rial",
+  ZMW: "Zambian kwacha",
+  ZWG: "Zimbabwe Gold",
+  IQD: "Iraqi dinar",
+  JOD: "Jordanian dinar",
+  LRD: "Liberian dollar",
+  SZL: "Lilangeni"
+};
+
+function currencyLabelFromCode(code) {
+  return CURRENCY_LOOKUP[code]
+    ? `${CURRENCY_LOOKUP[code]} (${code})`
+    : code;
+}
+
+
+
+let quizUserName = "";
+
+let countries = [];
+let current = [];
+
+let compareMode = false;
+let compareSelection = [];
+
+let activeContinent = "";
+
+
+let transcontinentalOnly = false;
+
+let sortKey = "name";        // name | population | area | gdp | gdppc
+let sortDirection = "asc"; 
+
+let gameMode = false;
+
+let userHand = [];
+let cpuHand = [];
+
+let cpuCard = null;
+let userCard = null;
+
+let userScoreTotal = 0;
+let cpuScoreTotal = 0;
+let overlayPurpose = null; // "compare" | "game"
+
+let focusedCard = null;
+
+let quizMode = false;
+let quizQuestions = [];
+let quizIndex = 0;
+let quizScore = 0;
+
+function showQuizIntro() {
+  if (gameMode) endGame();
+
+  quizMode = true;
+  setGameControlsDisabled(true);
+
+  document.getElementById("cards").innerHTML = `
+    <div class="game-end win" style="max-width:720px; margin:0 auto">
+<h1 class="quiz-title">🧠 Country Quiz Challenge</h1>
+<p class="quiz-subtitle">
+  Test your geography skills across
+  <b>3 increasingly difficult rounds</b>.<br>
+  Only <b>perfect scores</b> advance.
+</p>
+
+
+      <hr style="margin:24px auto; max-width:420px; opacity:.3">
+
+      <div style="text-align:left; max-width:520px; margin:0 auto">
+
+        <div class="rounds">
+
+  <div class="round bronze">
+    <h3>🥉 Round 1 — Explorer</h3>
+    <ul>
+      <li>⏱ 10 seconds per question</li>
+      <li>🎁 Explorer Certificate (with your name)</li>
+    </ul>
+  </div>
+
+  <div class="round silver">
+    <h3>🥈 Round 2 — Master Explorer</h3>
+    <ul>
+      <li>⏱ 7 seconds per question</li>
+      <li>🎁 Master Explorer Certificate</li>
+    </ul>
+  </div>
+
+  <div class="round gold">
+    <h3>🏆 Round 3 — Brilliance Challenge</h3>
+    <ul>
+      <li>⏱ 5 seconds per question</li>
+      <li>🎁 Country Explorer Brilliance Certificate</li>
+    </ul>
+  </div>
+
+</div>
+
+ <button class="start-challenge-btn" onclick="startQuiz()">
+  ▶ Start the Challenge
+</button>
+
+      <hr style="margin:24px auto; max-width:420px; opacity:.3">
+
+ <div class="quiz-warning">
+  ⚠️ You must score <b>10 / 10</b> to pass a round.<br>
+  Any mistake restarts the challenge from <b>Round 1</b>.
+</div>
+
+
+
+
+    </div>
+  `;
+}
+
+function ensureUserName() {
+  if (!quizUserName) {
+    quizUserName = prompt("Enter your name for the certificate:");
+    if (!quizUserName) quizUserName = "Explorer";
+  }
+}
+
+
+
+function startQuiz() {
+  if (gameMode) endGame();
+
+  quizMode = true;
+  quizRound = 1;
+  quizIndex = 0;
+  quizScore = 0;
+
+  setGameControlsDisabled(true);
+  generateQuizQuestions();
+  renderQuizQuestion();
+}
+
+
+function failQuiz() {
+  clearInterval(quizTimer);
+
+  document.getElementById("cards").innerHTML = `
+    <div class="game-end lose">
+      <h1>⚠️ Round Not Cleared</h1>
+
+      <p class="final-score">
+        You scored <b>${quizScore} / 10</b><br>
+        A perfect score is required to advance.
+      </p>
+
+      <p style="opacity:.75; margin-bottom:24px">
+        Don’t worry — every attempt improves your speed.
+      </p>
+
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+        <button class="play-again" onclick="startQuiz()">
+          🔁 Try Again
+        </button>
+
+        <button class="play-again" onclick="exitQuiz()"
+                style="background:#374151; color:white">
+          ❌ Exit Quiz
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+
+
+
+
+
+function handleCardClick(e, code) {
+  // 🔒 Respect existing modes
+  if (compareMode || gameMode) {
+    cardClick(code);
+    return;
+  }
+
+  // Prevent double triggering
+  e.stopPropagation();
+
+  focusCard(code);
+}
+
+function focusCard(code) {
+  const card = document.querySelector(
+    `.card[data-iso="${code}"]`
+  );
+
+  if (!card) return;
+
+  focusedCard = card;
+  document.body.classList.add("card-focus");
+  card.classList.add("focused");
+
+  // remove existing close button
+  document.querySelector(".card-close-global")?.remove();
+
+  // ===== CLOSE BUTTON =====
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "card-close card-close-global";
+  closeBtn.innerHTML = "×";
+  closeBtn.onclick = (e) => {
+    e.stopPropagation();
+    closeFocusedCard();
+  };
+  document.body.appendChild(closeBtn);
+
+  // ===== DOWNLOAD BUTTON =====
+// ===== DOWNLOAD TEXT (TEXT + EMOJI AS ONE) =====
+const downloadEl = document.createElement("div");
+downloadEl.className = "card-download-text";
+downloadEl.innerHTML = `<span>Download</span> <span aria-hidden="true">⬇</span>`;
+
+downloadEl.onclick = (e) => {
+  e.stopPropagation();
+  downloadCardData(code);
+};
+
+card.appendChild(downloadEl);
+
+}
+
+
+
+
+
+function closeFocusedCard() {
+  if (!focusedCard) return;
+
+  focusedCard.classList.remove("focused");
+
+  // 🧹 remove download button
+  focusedCard.querySelector(".card-download-text")?.remove();
+
+
+  document.querySelector(".card-close-global")?.remove();
+  document.body.classList.remove("card-focus");
+
+  focusedCard = null;
+}
+
+
+
+// ESC key support
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeFocusedCard();
+});
+
+
+function populationDensity(c) {
+  if (!c.population || !c.area_km2) return null;
+  return Math.round(c.population / c.area_km2);
+}
+
+function startCompare() {
+  if (gameMode) return;
+
+  // 🔁 FULL RESET
+  compareMode = true;
+  compareSelection = [];
+
+  document.body.classList.add("compare-active");
+
+  const status = document.getElementById("compare-status");
+
+  // ✅ RESET TEXT EVERY TIME
+  status.innerHTML = `
+    🆚 Compare mode active — use the search box to select two countries
+    <button onclick="cancelCompare()">✕ Cancel</button>
+  `;
+
+  status.style.display = "flex";
+}
+
+
+function cancelCompare() {
+  compareMode = false;
+  compareSelection = [];
+
+  document.body.classList.remove("compare-active");
+  document.getElementById("compare-status").style.display = "none";
+}
+
+
+
+
+fetch("data/countries.json")
+  .then(res => res.json())
+  .then(data => {
+    countries = data;
+    populateContinents();
+
+    sortKey = "name";
+    sortDirection = "asc";
+    sortBy("name"); // ✅ default A–Z
+  });
+
+
+/* ================= HELPERS ================= */
+
+function gdpPerCapita(c) {
+  if (!c.gdp_nominal_usd || !c.population) return null;
+  return Math.round(c.gdp_nominal_usd / c.population);
+}
+
+function format(v) {
+  if (v === null || v === undefined) return "N/A";
+  return v.toLocaleString("en-US");
+}
+
+
+/* ================= RENDER ================= */
+
+function render(list) {
+  const el = document.getElementById("cards");
+  el.innerHTML = "";
+
+  list.forEach((c, index) => {
+  const isRankable =
+  sortKey !== "name" &&
+  !( (sortKey === "gdp" || sortKey === "gdppc") && c.gdp_nominal_usd === null );
+
+const rank = c._rank;
+
+
+
+    
+
+    el.innerHTML += `
+        <div class="card"
+     data-iso="${c.iso_alpha2}"
+     onclick="handleCardClick(event, '${c.iso_alpha2}')">
+
+        ${sortKey !== "name" && rank ? `<div class="rank">#${rank}</div>` : ""}
+        <div class="card-flag">
+          <img src="flags/${c.iso_alpha2.toLowerCase()}.svg" loading="lazy">
+        </div>
+
+
+        <div class="card-body">
+    <h3>
+<h3>
+  ${c.name}<span class="iso-alpha2">(${c.iso_alpha2})</span>
+</h3>
+
+
+
+
+            <div class="small"><b>Capital:</b> ${c.capital.join(", ")}</div>
+            <div class="small"><b>Continent:</b> ${continentLabel(c)}</div>
+
+            <div class="small"><b>Languages:</b> ${c.official_language.join(", ")}</div>
+            <div class="small"><b>Currency:</b> ${currencyLabel(c)}</div>
+
+
+            <hr>
+
+            <div class="small"><b>Population:</b> ${populationLabel(c)}</div>
+
+            <div class="small"><b>Area:</b> ${format(c.area_km2)} km²</div>
+
+            <div class="small"><b>Population density:</b>
+
+            ${populationDensity(c)
+            ? format(populationDensity(c)) + " / km²"
+            : "N/A"}
+            </div>
+
+
+            <div class="small"><b>GDP:</b> ${gdpLabel(c)}</div>
+
+            <div class="small"><b>GDP per capita:</b>
+              ${gdpPerCapita(c) ? "$" + format(gdpPerCapita(c)) : "N/A"}
+            </div>
+
+            <div class="small"><b>GDP (PPP):</b> ${gdpPPPLabel(c)}</div>
+
+            <div class="small"><b>GDP (PPP) per capita:</b>
+              ${gdpPPPPerCapita(c) ? "$" + format(gdpPPPPerCapita(c)) : "N/A"}
+            </div>
+
+            <div class="small"><b>GDP / km²:</b>
+              ${gdpPerKm2(c) ? "$" + format(gdpPerKm2(c)) : "N/A"}
+            </div>
+
+            <div class="small"><b>GDP (PPP) / km²:</b>
+              ${gdpPPPPerKm2(c) ? "$" + format(gdpPPPPerKm2(c)) : "N/A"}
+            </div>
+
+            <div class="small"><b>PPP factor:</b>
+              ${pppFactor(c) ? pppFactor(c).toFixed(2) : "N/A"}
+            </div>
+
+            <div class="small"><b>Nominal–PPP gap:</b>
+              ${pppGapPercent(c) !== null ? pppGapPercent(c).toFixed(1) + "%" : "N/A"}
+            </div>
+
+
+
+
+          </div>
+      </div>
+    `;
+  });
+}
+
+/* ================= SORTING ================= */
+
+function sortBy(key) {
+  if (sortKey === key) {
+    // 🔒 Do NOT auto-toggle for name on initial load
+    if (key !== "name") {
+      sortDirection = sortDirection === "desc" ? "asc" : "desc";
+    }
+  } else {
+    sortKey = key;
+    sortDirection = key === "name" ? "asc" : "desc";
+  }
+
+  let list = scopedCountries();
+
+if (key === "gdp" || key === "gdppc") {
+  list = list.filter(c => c.gdp_nominal_usd !== null);
+}
+
+if (key === "gdpkm2") {
+  list = list.filter(c =>
+    c.gdp_nominal_usd !== null && c.area_km2 !== null
+  );
+}
+
+
+if (key === "gdpppp" || key === "gdppppc" || key === "gdppppkm2") {
+  list = list.filter(c => c.gdp_ppp_usd !== null);
+}
+
+if (key === "pppfactor" || key === "pppgap") {
+  list = list.filter(c =>
+    c.gdp_nominal_usd !== null && c.gdp_ppp_usd !== null
+  );
+}
+
+
+
+
+
+  list.sort((a, b) => {
+    let aVal, bVal;
+
+    switch (key) {
+      case "population":
+        aVal = a.population ?? -1;
+        bVal = b.population ?? -1;
+        break;
+      case "area":
+        aVal = a.area_km2 ?? -1;
+        bVal = b.area_km2 ?? -1;
+        break;
+      case "gdp":
+        aVal = a.gdp_nominal_usd ?? -1;
+        bVal = b.gdp_nominal_usd ?? -1;
+        break;
+      case "gdppc":
+        aVal = gdpPerCapita(a) ?? -1;
+        bVal = gdpPerCapita(b) ?? -1;
+        break;
+
+      case "gdpppp":
+        aVal = a.gdp_ppp_usd ?? -1;
+        bVal = b.gdp_ppp_usd ?? -1;
+        break;
+
+      case "gdppppc":
+        aVal = gdpPPPPerCapita(a) ?? -1;
+        bVal = gdpPPPPerCapita(b) ?? -1;
+        break;
+
+      case "gdpkm2":
+        aVal = gdpPerKm2(a) ?? -Infinity;
+        bVal = gdpPerKm2(b) ?? -Infinity;
+        break;
+
+
+      case "gdppppkm2":
+        aVal = gdpPPPPerKm2(a) ?? -Infinity;
+        bVal = gdpPPPPerKm2(b) ?? -Infinity;
+        break;
+
+      case "pppfactor":
+        aVal = pppFactor(a) ?? -Infinity;
+        bVal = pppFactor(b) ?? -Infinity;
+        break;
+
+      case "pppgap":
+        aVal = pppGapPercent(a) ?? -Infinity;
+        bVal = pppGapPercent(b) ?? -Infinity;
+        break;
+
+
+      case "density":
+        aVal = populationDensity(a) ?? -1;
+        bVal = populationDensity(b) ?? -1;
+        break;
+
+      default:
+        aVal = a.name;
+        bVal = b.name;
+    }
+
+    if (typeof aVal === "string") {
+      return sortDirection === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
+
+    return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+
+  });
+
+if (key !== "name") {
+  list.forEach((c, i) => {
+    c._rank = sortDirection === "desc"
+      ? i + 1
+      : list.length - i;
+  });
+} else {
+  // Clear ranks in default A–Z mode
+  list.forEach(c => delete c._rank);
+}
+
+
+  current = list;
+  render(current);
+  updateSortButtons();
+
+}
+
+function sortLabel() {
+  const arrow = sortDirection === "desc" ? "↓" : "↑";
+
+  switch (sortKey) {
+    case "population": return `Population ${arrow}`;
+    case "area": return `Area ${arrow}`;
+    case "gdp": return `GDP ${arrow}`;
+    case "gdppc": return `GDP / capita ${arrow}`;
+    case "gdpkm2": return `GDP / km² ${arrow}`;
+    case "density": return `Population density ${arrow}`;
+    case "gdpppp": return `GDP (PPP) ${arrow}`;
+    case "gdppppc": return `GDP (PPP) / capita ${arrow}`;
+    case "gdppppkm2": return `GDP (PPP) / km² ${arrow}`;
+    case "pppfactor": return `PPP factor ${arrow}`;
+    case "pppgap": return `Nominal–PPP gap ${arrow}`;
+
+
+
+    default: return `A–Z`;
+  }
+}
+
+
+
+
+
+function populationLabel(c) {
+  if (!c.population || !c.population_year) return "N/A";
+
+  const approx = c.population_estimate ? "≈" : "";
+  return `${approx}${format(c.population)} (${c.population_year})`;
+}
+
+function gdpLabel(c) {
+  if (!c.gdp_nominal_usd || !c.gdp_year) return "Not available";
+  return `≈$${format(c.gdp_nominal_usd)} (${c.gdp_year})`;
+}
+
+
+
+function currencyLabel(c) {
+  if (!c.currency || !c.currency.length) return "N/A";
+
+  return c.currency
+    .map(code => currencyLabelFromCode(code))
+    .join(", ");
+}
+
+
+
+
+
+function cardClick(code) {
+  if (!compareMode) return;
+
+  const c = countries.find(x => x.iso_alpha2 === code);
+  if (compareSelection.includes(c)) return;
+
+  compareSelection.push(c);
+
+  const status = document.getElementById("compare-status");
+
+  // First selection
+if (compareSelection.length === 1) {
+  status.innerHTML = `🆚 <b>${c.name}</b> selected — choose one more country`;
+  return;
+}
+
+
+  // Second selection → now everything happens
+  if (compareSelection.length === 2) {
+    status.style.display = "none";
+    compareMode = false;
+
+    document.body.classList.remove("compare-active");
+
+
+    openCompare(compareSelection[0], compareSelection[1]);
+     }
+}
+
+
+function closeCompare() {
+  document.getElementById("compare-overlay").style.display = "none";
+
+  if (overlayPurpose === "game") {
+    nextRound(); // ✅ ONLY here
+  }
+
+  overlayPurpose = null;
+  compareSelection = [];
+  compareMode = false;
+}
+
+
+
+
+/* ================= SEARCH ================= */
+
+/* ================= SEARCH ================= */
+
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  const clearBtn = document.getElementById("clearSearch");
+
+  clearBtn.classList.toggle("show", q.length > 0);
+
+
+  render(current.filter(c => c.name.toLowerCase().includes(q)));
+});
+
+
+/* ================= COMPARE ================= */
+
+function renderCompareCard(c, other, role) {
+  return `
+    <div class="card compare-card">
+      <div class="card-flag">
+        <img src="flags/${c.iso_alpha2.toLowerCase()}.svg">
+      </div>
+
+      <div class="card-body">
+      ${overlayPurpose === "game"
+        ? `<div class="role-label ${role}">
+            ${role === "user" ? "🧑" : "🤖"}
+          </div>`
+        : ""
+      }
+
+
+    <h3>
+  ${c.name}<span class="iso-alpha2">(${c.iso_alpha2})</span>
+</h3>
+
+
+
+
+        <div class="small"><b>Capital:</b> ${c.capital.join(", ")}</div>
+       <div class="small"><b>Continent:</b> ${continentLabel(c)}</div>
+
+        <div class="small"><b>Languages:</b> ${c.official_language.join(", ")}</div>
+
+        <hr>
+
+     <div class="small"><b>Population:</b> ${populationLabel(c)}</div>
+
+
+
+        <div class="small"><b>Area:</b> ${format(c.area_km2)} km²</div>
+        <div class="small"><b>GDP:</b> ${gdpLabel(c)}</div>
+
+
+        <div class="small"><b>GDP per capita:</b> ${gdpPerCapita(c) ? "$" + format(gdpPerCapita(c)) : "N/A"}</div>
+
+         <div class="small"><b>GDP (PPP):</b> ${gdpPPPLabel(c)}</div>
+        <div class="small"><b>GDP (PPP) per capita:</b>
+          ${gdpPPPPerCapita(c) ? "$" + format(gdpPPPPerCapita(c)) : "N/A"}
+        </div>
+
+        <div class="small"><b>GDP / km²:</b>
+          ${gdpPerKm2(c) ? "$" + format(gdpPerKm2(c)) : "N/A"}
+        </div>
+
+        <div class="small"><b>GDP (PPP) / km²:</b>
+          ${gdpPPPPerKm2(c) ? "$" + format(gdpPPPPerKm2(c)) : "N/A"}
+        </div>
+
+        <div class="small"><b>PPP factor:</b>
+          ${pppFactor(c) ? pppFactor(c).toFixed(2) : "N/A"}
+        </div>
+
+        <div class="small"><b>Nominal–PPP gap:</b>
+          ${pppGapPercent(c) !== null ? pppGapPercent(c).toFixed(1) + "%" : "N/A"}
+        </div>
+
+        <div class="metric-row">
+          ${metricUpArrow(c.population, other.population, "Population")}
+          ${metricUpArrow(c.area_km2, other.area_km2, "Area")}
+          ${metricUpArrow(populationDensity(c),
+            populationDensity(other),
+            "Population density"
+          )}
+
+          ${metricUpArrow(c.gdp_nominal_usd, other.gdp_nominal_usd, "GDP")}
+          ${metricUpArrow(gdpPerCapita(c), gdpPerCapita(other), "GDP per capita")}
+          ${metricUpArrow(c.gdp_ppp_usd, other.gdp_ppp_usd, "GDP (PPP)")}
+          ${metricUpArrow(gdpPPPPerCapita(c), gdpPPPPerCapita(other), "GDP (PPP) / capita")}
+          ${metricUpArrow(gdpPerKm2(c), gdpPerKm2(other), "GDP / km²")}
+          ${metricUpArrow(gdpPPPPerKm2(c), gdpPPPPerKm2(other), "GDP (PPP) / km²")}
+          ${metricUpArrow(pppFactor(c), pppFactor(other), "PPP factor")}
+          ${metricUpArrow(pppGapPercent(c), pppGapPercent(other), "Nominal–PPP gap")}
+
+
+        </div>
+          
+      </div>
+    </div>
+  `;
+}
+
+
+
+function openCompare(a, b) {
+  overlayPurpose = "compare";
+
+  document.getElementById("compare-overlay").style.display = "flex";
+
+  // 🧹 CLEAR GAME TEXT
+  document.getElementById("battle-result").innerHTML = "";
+
+  document.getElementById("compare-left").innerHTML =
+    renderCompareCard(a, b);
+
+  document.getElementById("compare-right").innerHTML =
+    renderCompareCard(b, a);
+}
+
+function downloadCertificateImage() {
+  const cert = document.getElementById("certificateCard");
+  if (!cert) return;
+
+  document.body.classList.add("capturing");
+
+  // 🎯 pick solid background per theme
+  let bg = "#ffffff";
+  if (cert.classList.contains("bronze")) bg = "#f7e2c8";
+  if (cert.classList.contains("silver")) bg = "#eef2f7";
+if (cert.classList.contains("gold")) bg = "#f7c948";
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+
+      html2canvas(cert, {
+        scale: 3,
+        backgroundColor: bg,   // ✅ KEY CHANGE
+        useCORS: true
+      }).then(canvas => {
+
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = `${quizUserName}_Certificate.png`;
+        a.click();
+
+      }).finally(() => {
+        document.body.classList.remove("capturing");
+      });
+
+    });
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function metricUpArrow(a, b, label) {
+  if (a === null || b === null) return "";
+  if (a <= b) return "";
+
+  const percent = ((a - b) / b) * 100;
+
+const percentText = percent >= 1
+  ? percent.toFixed(1)
+  : percent.toFixed(2);
+
+
+
+  return `
+    <span class="metric">
+      ${label} ↑ (+${percentText}%)
+    </span>
+  `;
+}
+
+function populateContinents() {
+  const select = document.getElementById("continentFilter");
+
+  const continents = [...new Set(
+    countries.map(c => c.continent).filter(Boolean)
+  )].sort();
+
+  continents.forEach(cont => {
+    const opt = document.createElement("option");
+    opt.value = cont;
+    opt.textContent = cont;
+    select.appendChild(opt);
+  });
+}
+
+
+function filterByContinent(continent) {
+  activeContinent = continent;
+
+  document.getElementById("search").value = "";
+
+  // 🔴 RESET sorting completely
+  resetSortingState();
+
+  current = scopedCountries().sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
+  render(current);
+  }
+
+
+
+
+function scopedCountries() {
+  let list = [...countries];
+
+  // Apply transcontinental toggle first
+  if (transcontinentalOnly) {
+    list = list.filter(c => c.continent_secondary !== null);
+  }
+
+  // Then apply continent filter
+  if (activeContinent) {
+    list = list.filter(c =>
+      c.continent === activeContinent ||
+      c.continent_secondary === activeContinent
+    );
+  }
+
+  return list;
+}
+
+
+function toggleTranscontinental(isOn) {
+  transcontinentalOnly = isOn;
+
+  // reset search
+  document.getElementById("search").value = "";
+
+  
+  sortKey = "name";
+  sortDirection = "asc";
+  sortBy("name");
+
+}
+
+function updateSortButtons() {
+  document.querySelectorAll("header button").forEach(btn => {
+    const key = btn.getAttribute("data-sort");
+    if (!key) return;
+
+    // Reset
+    btn.classList.remove("active-sort");
+    btn.textContent = btn.dataset.label;
+
+    // Active sort button
+    if (key === sortKey) {
+      btn.classList.add("active-sort");
+      btn.textContent =
+        btn.dataset.label + (sortDirection === "desc" ? " ↓" : " ↑");
+    }
+  });
+}
+
+
+function resetView() {
+  // Reset all state
+  activeContinent = "";
+  transcontinentalOnly = false;
+  sortKey = "name";
+  sortDirection = "asc";
+
+  // Reset UI
+  document.getElementById("continentFilter").value = "";
+  document.getElementById("transToggle").checked = false;
+  document.getElementById("search").value = "";
+
+  // Clear ranks
+  countries.forEach(c => delete c._rank);
+
+  // Render default
+  current = [...countries].sort((a, b) => a.name.localeCompare(b.name));
+  render(current);
+  updateSortButtons();
+}
+
+function resetSortingState() {
+  sortKey = "name";
+  sortDirection = "asc";
+
+  document.querySelectorAll("header button").forEach(btn => {
+    btn.classList.remove("active-sort");
+    if (btn.dataset.label) {
+      btn.textContent = btn.dataset.label;
+    }
+  });
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function startGame(cardCount = 5) {
+
+  userScoreTotal = 0;
+  cpuScoreTotal = 0;
+  userHand = [];
+  cpuHand = [];
+  userCard = null;
+  cpuCard = null;
+
+  setGameControlsDisabled(true);
+
+  gameMode = true;
+  compareMode = false;
+
+  const pool = shuffle(
+  countries.filter(c =>
+  c.population &&
+  c.area_km2 &&
+  c.gdp_nominal_usd &&
+  c.gdp_ppp_usd
+));
+
+  userHand = pool.slice(0, cardCount);
+  cpuHand  = pool.slice(cardCount, cardCount * 2);
+
+  // CPU plays first
+  cpuCard = cpuHand.pop();
+
+  renderGameUI();
+  document.getElementById("gameToggleBtn").textContent = "⛔ End Game";
+
+}
+
+function renderGameUI() {
+  const el = document.getElementById("cards");
+
+  el.innerHTML = `
+    <div class="user-hand">
+      ${userHand.map(c => `
+        <div class="card user-card" onclick="playUserCard('${c.iso_alpha2}')">
+          <div class="card-flag">
+            <img src="flags/${c.iso_alpha2.toLowerCase()}.svg">
+          </div>
+          <div class="card-body">
+<h3>
+  ${c.name}<span class="iso-alpha2">(${c.iso_alpha2})</span>
+</h3>
+
+
+
+          </div>
+        </div>
+      `).join("")}
+    </div>
+
+        <div class="choose-text">
+     <div class="game-label user" id="userLabel">
+      🧑 YOU PLAY
+    </div>
+    <div class="game-subtext user">
+      You • ${userHand.length} cards remaining
+    </div>
+
+      </div>
+
+
+    <div class="cpu-zone">
+      
+
+      <div class="card cpu-card">
+        <div class="card-flag">
+          <img src="flags/${cpuCard.iso_alpha2.toLowerCase()}.svg">
+        </div>
+        <div class="card-body">
+          <h3>${cpuCard.name}</h3>
+        </div>
+      </div>
+      <div class="game-label cpu" id="cpuLabel">
+        🤖 COMPUTER PLAYED
+      </div>
+      <div class="game-subtext cpu">
+        CPU • ${cpuHand.length} cards remaining
+      </div>
+
+    </div>
+  `;
+    setActivePlayer("user");
+
+}
+
+
+function setActivePlayer(player) {
+  const user = document.getElementById("userLabel");
+  const cpu = document.getElementById("cpuLabel");
+
+  if (!user || !cpu) return;
+
+  user.classList.remove("pulse");
+  cpu.classList.remove("pulse");
+
+  if (player === "user") user.classList.add("pulse");
+  if (player === "cpu") cpu.classList.add("pulse");
+}
+
+
+
+
+function playUserCard(code) {
+  if (!gameMode) return;
+
+  userCard = userHand.find(c => c.iso_alpha2 === code);
+  userHand = userHand.filter(c => c !== userCard);
+  // 🤖 CPU is active now
+  setActivePlayer("cpu");
+
+
+  resolveBattle();
+}
+
+function battleScore(a, b) {
+  let score = 0;
+
+  if (a.population > b.population) score++;
+  if (a.area_km2 > b.area_km2) score++;
+  if (a.gdp_nominal_usd > b.gdp_nominal_usd) score++;
+  if (gdpPerCapita(a) > gdpPerCapita(b)) score++;
+  if (a.gdp_ppp_usd > b.gdp_ppp_usd) score++;
+  if (gdpPPPPerCapita(a) > gdpPPPPerCapita(b)) score++;
+  if (populationDensity(a) > populationDensity(b)) score++; 
+  
+   // 🆕 NEW METRICS
+  if (gdpPerKm2(a) > gdpPerKm2(b)) score++;
+  if (gdpPPPPerKm2(a) > gdpPPPPerKm2(b)) score++;
+  if (pppFactor(a) > pppFactor(b)) score++;
+  if (pppGapPercent(a) > pppGapPercent(b)) score++;
+
+
+  return score;
+}
+
+
+function resolveBattle() {
+  const userScore = battleScore(userCard, cpuCard);
+  const cpuScore  = battleScore(cpuCard, userCard);
+
+  if (userScore > cpuScore) {
+    userHand.push(userCard, cpuCard);
+    userScoreTotal++;
+  } 
+  else if (cpuScore > userScore) {
+    cpuHand.push(cpuCard, userCard);
+    cpuScoreTotal++;
+  } 
+  else {
+    userHand.push(userCard);
+    cpuHand.push(cpuCard);
+  }
+
+  // ✅ SHOW RESULT ONCE
+  showBattleResult("", userScore, cpuScore);
+
+  // ❌ NO setTimeout
+}
+
+
+
+function showBattleResult(text, userScore, cpuScore) {
+  overlayPurpose = "game";
+  document.getElementById("compare-overlay").style.display = "flex";
+
+  const userWon = userScore > cpuScore;
+  const draw = userScore === cpuScore;
+
+  // Render cards
+  document.getElementById("compare-left").innerHTML =
+    renderCompareCard(userCard, cpuCard, "user");
+
+  document.getElementById("compare-right").innerHTML =
+    renderCompareCard(cpuCard, userCard, "cpu");
+
+  // Result text
+  document.getElementById("battle-result").innerHTML = draw
+    ? "🤝 DRAW"
+    : userWon
+      ? "🎉 YOU WIN THIS ROUND"
+      : "🤖 COMPUTER WINS THIS ROUND";
+
+  document.getElementById("battle-result").style.color =
+    draw ? "#e5e7eb" : userWon ? "#22c55e" : "#ef4444";
+
+  // ✅ 1. PRE-STATE (immediate, no animation yet)
+  const cards = document.querySelectorAll(".compare-card");
+  cards.forEach(card => card.classList.add("pre"));
+
+  // ✅ 2. NEXT FRAME → animate to final state
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      cards.forEach(card => card.classList.remove("pre"));
+
+      if (!draw) {
+        const winnerSelector = userWon
+          ? "#compare-left .compare-card"
+          : "#compare-right .compare-card";
+
+        const loserSelector = userWon
+          ? "#compare-right .compare-card"
+          : "#compare-left .compare-card";
+
+        document.querySelector(winnerSelector)
+          .classList.add(userWon ? "user-winner" : "cpu-winner");
+
+        document.querySelector(loserSelector)
+          .classList.add("loser");
+      }
+    });
+  });
+}
+
+function nextRound() {
+  document.getElementById("compare-overlay").style.display = "none";
+  document.getElementById("compare-status").style.display = "none";
+
+  if (userHand.length === 0 || cpuHand.length === 0) {
+    endGame();
+    return;
+  }
+
+  // CPU plays first again
+  cpuCard = cpuHand.pop();
+  userCard = null;
+
+  renderGameUI();
+
+  // 🧑 USER turn again
+  setActivePlayer("user");
+}
+
+function endGame() {
+  setGameControlsDisabled(false);
+  gameMode = false;
+document.getElementById("gameToggleBtn").textContent = "▶ Play Card Game";
+
+  const el = document.getElementById("cards");
+
+  let gameResult = "draw";
+
+if (userScoreTotal > cpuScoreTotal) gameResult = "win";
+else if (cpuScoreTotal > userScoreTotal) gameResult = "lose";
+
+
+  el.innerHTML = `
+  <div class="game-end ${gameResult}">
+    <div class="trophy">
+      ${
+        gameResult === "win"
+          ? "🧑🏆"
+          : gameResult === "lose"
+          ? "🤖😄"
+          : "🤝"
+      }
+    </div>
+
+    <h1>
+      ${
+        gameResult === "win"
+          ? "YOU WON THE GAME!"
+          : gameResult === "lose"
+          ? "YOU LOST THE GAME"
+          : "IT'S A DRAW"
+      }
+    </h1>
+
+      <p class="final-score">
+        Final Score — You: ${userScoreTotal} | CPU: ${cpuScoreTotal}
+      </p>
+
+     <button class="play-again" onclick="startGame(6)">
+      🔁 Play Again
+    </button>
+  </div>
+`;
+  
+}
+
+function toggleGame() {
+  if (!gameMode) {
+    startGame(6);
+  } else {
+    endGame();
+  }
+}
+
+function setGameControlsDisabled(disabled) {
+  document
+    .querySelectorAll("header input, header select, header button")
+    .forEach(el => {
+      if (el.id !== "gameToggleBtn") {
+        el.disabled = disabled;
+        el.style.opacity = disabled ? 0.5 : 1;
+      }
+    });
+}
+
+function gdpPPPPerCapita(c) {
+  if (!c.gdp_ppp_usd || !c.population) return null;
+  return Math.round(c.gdp_ppp_usd / c.population);
+}
+
+function gdpPPPLabel(c) {
+  if (!c.gdp_ppp_usd || !c.gdp_ppp_year) return "Not available";
+  return `≈$${format(c.gdp_ppp_usd)} (${c.gdp_ppp_year})`;
+}
+
+
+// GDP per km² (Nominal)
+function gdpPerKm2(c) {
+  if (!c.gdp_nominal_usd || !c.area_km2) return null;
+  return Math.round(c.gdp_nominal_usd / c.area_km2);
+}
+
+// GDP (PPP) per km²
+function gdpPPPPerKm2(c) {
+  if (!c.gdp_ppp_usd || !c.area_km2) return null;
+  return Math.round(c.gdp_ppp_usd / c.area_km2);
+}
+
+// PPP factor (price level ratio)
+function pppFactor(c) {
+  if (!c.gdp_ppp_usd || !c.gdp_nominal_usd) return null;
+  return c.gdp_ppp_usd / c.gdp_nominal_usd;
+}
+
+// Nominal–PPP gap (%)
+function pppGapPercent(c) {
+  if (!c.gdp_ppp_usd || !c.gdp_nominal_usd) return null;
+  return ((c.gdp_ppp_usd - c.gdp_nominal_usd) / c.gdp_nominal_usd) * 100;
+}
+
+function continentLabel(c) {
+  if (c.continent_secondary) {
+    return `${c.continent} · ${c.continent_secondary}`;
+  }
+  return c.continent;
+}
+
+function clearSearch() {
+  const input = document.getElementById("search");
+  input.value = "";
+  document.getElementById("clearSearch").classList.remove("show");
+  render(current); // reset results
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  compareMode = false;
+  compareSelection = [];
+  document.body.classList.remove("compare-active");
+  document.getElementById("compare-status").style.display = "none";
+});
+
+function downloadCardData(iso) {
+  const c = countries.find(x => x.iso_alpha2 === iso);
+  if (!c) return;
+
+  const text = `
+COUNTRY PROFILE
+===============
+
+Name: ${c.name} (${c.iso_alpha2})
+Capital: ${c.capital.join(", ")}
+Continent: ${continentLabel(c)}
+
+Languages: ${c.official_language.join(", ")}
+Currency: ${
+  c.currency
+    .map(code => currencyLabelFromCode(code))
+    .join(", ")
+}
+
+--------------------------------
+DEMOGRAPHY
+--------------------------------
+
+Population: ${populationLabel(c)}
+Area: ${format(c.area_km2)} km²
+Population Density: ${
+  populationDensity(c) !== null
+    ? format(populationDensity(c)) + " / km²"
+    : "N/A"
+}
+
+--------------------------------
+ECONOMY
+--------------------------------
+
+GDP (Nominal): ${gdpLabel(c)}
+GDP per capita: ${
+  gdpPerCapita(c) !== null ? "$" + format(gdpPerCapita(c)) : "N/A"
+}
+
+GDP (PPP): ${gdpPPPLabel(c)}
+GDP (PPP) per capita: ${
+  gdpPPPPerCapita(c) !== null ? "$" + format(gdpPPPPerCapita(c)) : "N/A"
+}
+
+GDP / km²: ${
+  gdpPerKm2(c) !== null ? "$" + format(gdpPerKm2(c)) : "N/A"
+}
+
+GDP (PPP) / km²: ${
+  gdpPPPPerKm2(c) !== null ? "$" + format(gdpPPPPerKm2(c)) : "N/A"
+}
+
+PPP factor: ${
+  pppFactor(c) !== null ? pppFactor(c).toFixed(2) : "N/A"
+}
+
+Nominal–PPP gap: ${
+  pppGapPercent(c) !== null ? pppGapPercent(c).toFixed(1) + "%" : "N/A"
+}
+
+--------------------------------
+Generated using Country Explorer on rameshverse.com
+`;
+
+  const blob = new Blob([text.trim()], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${c.name.replace(/\s+/g, "_")}.txt`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function unique(arr) {
+  return [...new Set(arr.filter(Boolean))];
+}
+
+
+function generateQuizQuestions() {
+  quizQuestions = shuffle(countries)
+    .map(c => {
+      const type = QUIZ_TYPES[Math.floor(Math.random() * QUIZ_TYPES.length)];
+      return buildQuestion(type, c);
+    })
+    .filter(Boolean)
+    .slice(0, 10);
+}
+
+
+
+function buildQuestion(type, country) {
+  let question = "";
+  let correct = "";
+  let options = [];
+
+if (type === "capital") {
+  question = `What is the capital of ${country.name}?`;
+  correct = country.capital[0];
+
+  const pool = shuffle(
+    unique(
+      countries.flatMap(c => c.capital || [])
+    ).filter(c => c !== correct)
+  );
+
+  options = shuffle([correct, ...pool.slice(0, 3)]);
+}
+
+
+
+if (type === "continent") {
+  question = `Which continent is ${country.name} in?`;
+  correct = country.continent;
+
+  const pool = shuffle(
+    unique(countries.map(c => c.continent))
+      .filter(c => c !== correct)
+  );
+
+  options = shuffle([correct, ...pool.slice(0, 3)]);
+}
+
+
+
+if (type === "currency") {
+  if (!country.currency || country.currency.length === 0) return null;
+
+  // 🎯 choose ONE currency for the question
+  const correctCode = country.currency[0];
+
+  question = `What is the currency of ${country.name}?`;
+
+  // build unique pool of ALL currency codes
+  const pool = unique(
+    countries.flatMap(c => c.currency || [])
+  ).filter(code => code !== correctCode);
+
+  options = shuffle([
+    currencyLabelFromCode(correctCode),
+    ...pool.slice(0, 3).map(currencyLabelFromCode)
+  ]);
+
+  correct = currencyLabelFromCode(correctCode);
+}
+
+
+
+
+if (type === "language") {
+  if (!country.official_language?.length) return null;
+
+  question = `Which is an official language of ${country.name}?`;
+  correct = country.official_language[0];
+
+  const pool = unique(
+    countries.flatMap(c => c.official_language || [])
+  ).filter(l => l !== correct);
+
+  options = shuffle([correct, ...pool.slice(0, 3)]);
+}
+
+
+if (type === "flag") {
+  question = `Which country does this flag belong to?`;
+  correct = country.name;
+
+  options = shuffle([
+    correct,
+    ...shuffle(countries)
+      .filter(c => c.name !== correct)
+      .slice(0, 3)
+      .map(c => c.name)
+  ]);
+
+  return {
+    question,
+    correct,
+    options,
+    flag: country.iso_alpha2
+  };
+}
+
+
+
+  // 🔒 fallback
+  if (!question || options.length < 4) {
+    return null;
+  }
+
+  return { question, correct, options };
+}
+
+
+function renderQuizQuestion() {
+  const q = quizQuestions[quizIndex];
+  const el = document.getElementById("cards");
+
+  el.innerHTML = `
+  <div class="game-end quiz-mode">
+
+    <div style="font-size:14px; opacity:.85; margin-bottom:6px">
+      🔁 Round ${quizRound} / 3
+    </div>
+
+    <div id="quiz-timer"
+         style="font-size:22px; font-weight:800; margin-bottom:12px">
+      ⏱ ${ROUND_TIME[quizRound]}s
+    </div>
+
+    ${q.flag ? `
+      <div class="card-flag"
+           style="height:160px; margin:12px auto; max-width:260px">
+        <img src="flags/${q.flag.toLowerCase()}.svg"
+             style="width:100%; height:100%; object-fit:contain">
+      </div>
+    ` : ""}
+
+    <h2>${q.question}</h2>
+
+    <div class="quiz-options">
+      ${q.options.map(o => `
+        <button class="play-again quiz-option" data-answer="${o}">
+          ${o}
+        </button>
+      `).join("")}
+    </div>
+
+    <p style="margin-top:16px; opacity:.7">
+      Question ${quizIndex + 1} / 10
+    </p>
+  </div>
+  `;
+
+  document.querySelectorAll(".quiz-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      answerQuiz(btn.dataset.answer);
+    });
+  });
+
+  startQuizTimer(); // 🔥 START TIMER
+}
+
+
+
+
+function answerQuiz(selected) {
+   clearInterval(quizTimer);
+  const q = quizQuestions[quizIndex];
+
+  const buttons = document.querySelectorAll(".quiz-option");
+
+  buttons.forEach(btn => {
+    const answer = btn.dataset.answer;
+
+    // 1️⃣ Disable all buttons
+    btn.disabled = true;
+
+    // 2️⃣ Correct answer
+    if (answer === q.correct) {
+      btn.classList.add("correct");
+      btn.innerHTML += " ✔";
+    }
+
+    // 3️⃣ Wrong selected answer
+    if (answer === selected && selected !== q.correct) {
+      btn.classList.add("wrong");
+      btn.innerHTML += " ✖";
+    }
+
+    // 4️⃣ Dim others
+    if (answer !== q.correct && answer !== selected) {
+      btn.classList.add("dim");
+    }
+  });
+
+  // 5️⃣ Update score
+  if (selected === q.correct) {
+    quizScore++;
+  }
+
+  // 6️⃣ Tiny vibration (mobile only)
+  if (navigator.vibrate) navigator.vibrate(40);
+
+  // 7️⃣ Move to next question
+  setTimeout(() => {
+    quizIndex++;
+
+    if (quizIndex >= quizQuestions.length) {
+      endQuiz();
+    } else {
+      renderQuizQuestion();
+    }
+  }, 900);
+}
+
+
+
+
+function endQuiz() {
+  clearInterval(quizTimer);
+
+  if (quizScore < 10) {
+    failQuiz();
+    return;
+  }
+
+  // 👤 Ask name ONLY on success
+  ensureUserName();
+
+  if (quizRound === 1) {
+    showRoundCertificate(1);
+    return;
+  }
+
+  if (quizRound === 2) {
+    showRoundCertificate(2);
+    return;
+  }
+
+  showMasterReward();
+}
+
+
+
+
+
+
+function showRoundCertificate(round) {
+  const certMap = {
+    1: {
+      title: "EXPLORER CERTIFICATE",
+      theme: "bronze",
+      subtitle: "For successfully clearing Round 1"
+    },
+    2: {
+      title: "MASTER EXPLORER CERTIFICATE",
+      theme: "silver",
+      subtitle: "For successfully clearing Round 2"
+    }
+  };
+
+  const cert = certMap[round];
+
+  document.getElementById("cards").innerHTML = `
+    <div class="certificate-wrap">
+      <div class="certificate vertical ${cert.theme}" id="certificateCard">
+
+      <div class="certificate-bg"></div>
+
+        <div class="certificate-icon badge ${cert.theme}"></div>
+
+        <h1>${cert.title}</h1>
+
+        <p class="cert-name">Awarded to</p>
+        <h2>${quizUserName}</h2>
+
+          <p class="cert-text">
+          ${cert.subtitle}<br>
+          Country Quiz Challenge
+        </p>
+
+        <div class="cert-divider"></div>
+
+        <p class="cert-achievement">
+          Achieved a perfect score in the Explorer Round<br>
+          by demonstrating strong knowledge of world geography
+        </p>
+
+        <div class="cert-divider"></div>
+
+<div class="cert-validation vertical">
+  <div class="cert-block">
+    <div class="cert-label">Issued by</div>
+    <div class="cert-value">Country Explorer Platform</div>
+  </div>
+
+  <div class="cert-block">
+    <div class="cert-label">Date of Issue</div>
+    <div class="cert-value">05 February 2026</div>
+  </div>
+
+  <div class="cert-block">
+    <div class="cert-label">Website</div>
+    <div class="cert-value">rameshverse.com</div>
+  </div>
+</div>
+
+
+
+
+        <div class="cert-footer">
+          Country Explorer · rameshverse.com
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:20px">
+        <button class="play-again" onclick="startNextRound()">
+          ▶ Continue to Round ${round + 1}
+        </button>
+
+        <button class="play-again" onclick="downloadCertificateImage()">
+  📸 Download
+</button>
+
+<button class="play-again" onclick="shareCertificate()" style="margin-left:12px">
+  🔗 Share
+</button>
+
+      </div>
+    </div>
+  `;
+}
+
+function shareCertificate() {
+  if (!navigator.share) {
+    alert("Sharing not supported on this device.");
+    return;
+  }
+
+  navigator.share({
+    title: "Country Explorer Certificate",
+    text: `${quizUserName} earned a Country Explorer certificate!`,
+    url: "https://rameshverse.com"
+  });
+}
+
+
+
+function startNextRound() {
+  quizRound++;
+  quizIndex = 0;
+  quizScore = 0;
+  generateQuizQuestions();
+  renderQuizQuestion();
+}
+
+
+
+function showMasterReward() {
+  document.getElementById("cards").innerHTML = `
+    <div class="certificate-wrap">
+      <div class="certificate vertical gold" id="certificateCard">
+
+        <div class="certificate-bg"></div>
+    <div class="certificate-icon badge gold"></div>
+
+
+
+        <h1>COUNTRY EXPLORER<br>BRILLIANCE</h1>
+
+        <p class="cert-name">Awarded to</p>
+        <h2>${quizUserName}</h2>
+
+        <p class="cert-text">
+          30 / 30 — Flawless Performance<br>
+          You conquered all 3 rounds of the<br>
+          Country Quiz Challenge
+        </p>
+
+        <div class="cert-divider"></div>
+
+<p class="cert-achievement">
+  Demonstrated exceptional mastery of global geography,<br>
+  speed, and accuracy under increasing difficulty.
+</p>
+
+<div class="cert-divider"></div>
+
+<div class="cert-validation vertical">
+  <div class="cert-block">
+    <div class="cert-label">Achievement Level</div>
+    <div class="cert-value">🏆 Brilliance Tier</div>
+  </div>
+
+  <div class="cert-block">
+    <div class="cert-label">Date of Issue</div>
+    <div class="cert-value">05 February 2026</div>
+  </div>
+
+  <div class="cert-block">
+    <div class="cert-label">Platform</div>
+    <div class="cert-value">rameshverse.com</div>
+  </div>
+</div>
+
+
+        <div class="cert-footer">
+          Country Explorer · rameshverse.com
+        </div>
+      </div>
+
+<div class="cert-actions">
+  <button class="cert-btn primary" onclick="downloadCertificateImage()">
+    ⬇ Download
+  </button>
+
+  <button class="cert-btn ghost" onclick="shareCertificate()">
+    🔗 Share
+  </button>
+
+  <button class="cert-btn ghost" onclick="startQuiz()">
+    🔁 Play Again
+  </button>
+</div>
+
+    </div>
+  `;
+}
+
+
+
+function downloadQuizCertificate(title) {
+  const text = `
+CERTIFICATE OF ACHIEVEMENT
+==========================
+
+This certifies that
+
+${quizUserName}
+
+has successfully earned the
+
+${title}
+
+by demonstrating exceptional
+geography knowledge and speed.
+
+Generated using Country Explorer
+on rameshverse.com
+`;
+
+  const blob = new Blob([text.trim()], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${quizUserName.replace(/\s+/g, "_")}_${title.replace(/\s+/g, "_")}.txt`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+
+
+// reset only when exiting quiz
+function exitQuiz() {
+  quizUserName = "";
+  quizMode = false;
+  quizQuestions = [];
+  quizIndex = 0;
+  quizScore = 0;
+
+  setGameControlsDisabled(false);
+  resetView();
+}
+
+
+document.addEventListener("keydown", e => {
+  if (!e.ctrlKey) return;
+
+  quizUserName = quizUserName || "Ramesh";
+
+  if (e.key === "1") showRoundCertificate(1);
+  if (e.key === "2") showRoundCertificate(2);
+  if (e.key === "3") showMasterReward();
+});
+
+
+function startQuizTimer() {
+  clearInterval(quizTimer);
+
+  timeLeft = ROUND_TIME[quizRound];
+
+  const timerEl = document.getElementById("quiz-timer");
+
+  // Initial render
+  timerEl.textContent = `⏱ ${timeLeft}s`;
+
+  quizTimer = setInterval(() => {
+    timeLeft--;
+
+    if (timeLeft <= 0) {
+      clearInterval(quizTimer);
+      timerEl.textContent = "⏱ 0s";
+
+      // ⛔ time ran out → auto fail question
+      failQuiz();
+      return;
+    }
+
+    timerEl.textContent = `⏱ ${timeLeft}s`;
+  }, 1000);
+}
+
+
+
+
+
+</script>
+
+</body>
+</html>

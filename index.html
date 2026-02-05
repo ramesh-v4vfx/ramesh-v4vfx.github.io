@@ -329,6 +329,42 @@
   transform: scale(0.95);
 }
 
+/* 🌍 Country Explorer – flagship tile */
+.tool-country {
+  grid-column: span 4;      /* 👈 covers 4 tools horizontally */
+  max-width: none;
+   justify-content: center;  
+   height: 80px;
+    align-items: center;     /* centers items horizontally */
+  text-align: center;  
+    }    /* centers text lines */        
+
+
+
+.tool-country:hover {
+  height: 120px;            /* same hover behavior */
+}
+
+/* 🌍 Country Explorer – title hierarchy */
+.tool-country h3 {
+  font-size: 1.7rem;
+  line-height: 1.4;
+}
+
+.tool-country p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 75%;
+}
+
+.tool-country:hover h3 {
+  font-size: 1.7rem;
+}
+
+
+
+
+
 @media (max-width: 600px) {
   .search-wrap {
     max-width: 90%;
@@ -404,6 +440,20 @@
     max-width: 92%;
   }
 }
+
+@media (max-width: 600px) {
+  .tool-country {
+    grid-column: span 1;   /* stack like normal */
+  }
+}
+
+@media (max-width: 600px) {
+  .tool-country {
+    justify-content: space-between;
+  }
+}
+
+
   </style>
 </head>
 <body>
@@ -413,7 +463,7 @@
 
 
 <p>
-RameshVerse is a collection of fast, distraction-free tools for productivity,
+rameshverse is a collection of fast, distraction-free tools for productivity,
 learning, and exploration - including calculators, focus timers, and science apps.
 </p>
 
@@ -435,6 +485,8 @@ learning, and exploration - including calculators, focus timers, and science app
 
 
 <section class="tools">
+
+      
 
       <a class="tool" href="/top-10-tasks-monitor/"
       data-search="top 10 tasks task monitor productivity">
@@ -458,6 +510,12 @@ learning, and exploration - including calculators, focus timers, and science app
       data-search="surface gravity escape velocity calculator">
       <h3>Surface Gravity 🌍🧲 & Escape Velocity Calculator 🚀</h3>
       <p>know g and Vesc</p>
+      </a>
+
+      <a class="tool tool-country" href="/country-explorer/"
+      data-search="country explorer geography flags quiz map">
+      <h3>Country Explorer 🌍</h3>
+      <p>Explore countries, play card game, play country quiz and get cetificates, compare countries and more.</p>
       </a>
 
       <a class="tool" href="/pomodoro-focus/"
@@ -504,8 +562,8 @@ learning, and exploration - including calculators, focus timers, and science app
 
       <a class="tool" href="/black-hole-radius-calculator/"
       data-search="black hole schwarzschild radius calculator">
-      <h3>Black Hole Radius Calculator ⭕</h3>
-      <p>Explore black holes by calculating their event horizon radius.</p>
+      <h3>Black Hole Event Horizon Radius Calculator ⭕</h3>
+      <p>Calculate the event horizon radius.</p>
       </a>
 
        <a class="tool" href="/density-and-volume-calculator/"
