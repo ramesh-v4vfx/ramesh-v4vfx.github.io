@@ -95,9 +95,9 @@ header label {
 
 #gameToggleBtn,
 #quizToggleBtn {
-  color: #dc2626;
+  color: #264adc;
   font-weight: 800;
-  border: 2px solid #dc2626;
+  border: 2px solid #2733db;
 }
 
 #gameToggleBtn:hover,
@@ -911,9 +911,9 @@ body.card-focus .card.focused .card-body::after {
 }
 
 #gameToggleBtn {
-  color: #dc2626;
+  color: #284be6;
   font-weight: 800;
-  border: 2px solid #dc2626;
+  border: 2px solid #142acd;
 }
 
 #gameToggleBtn:hover {
@@ -1586,6 +1586,18 @@ body.capturing .cert-text {
   animation: none;
 }
 
+#resetBtn {
+  color: #dc2626;
+  font-weight: 800;
+  border: 2px solid #dc2626;
+}
+
+#resetBtn:hover {
+  background: #dc2626;
+  color: #fff;
+}
+
+
 @keyframes pop {
   0% { transform: scale(0.6); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
@@ -1725,7 +1737,7 @@ body.capturing .cert-text {
 
       <button onclick="startCompare()">Compare Countries</button>
 
-    <button onclick="resetView()">Reset All</button>
+    <button id="resetBtn" onclick="hardReset()">🔄 Reset All</button>
 
     <label class="check">
       <input type="checkbox" id="transToggle"
@@ -3201,7 +3213,8 @@ function setGameControlsDisabled(disabled) {
   document
     .querySelectorAll("header input, header select, header button")
     .forEach(el => {
-      if (el.id !== "gameToggleBtn") {
+      if (el.id !== "gameToggleBtn" && el.id !== "resetBtn") {
+
         el.disabled = disabled;
         el.style.opacity = disabled ? 0.5 : 1;
       }
@@ -3860,6 +3873,48 @@ function startQuizTimer() {
     timerEl.textContent = `⏱ ${timeLeft}s`;
   }, 1000);
 }
+
+function hardReset() {
+  // 🔴 Exit quiz
+  if (quizMode) {
+    clearInterval(quizTimer);
+    quizMode = false;
+    quizQuestions = [];
+    quizIndex = 0;
+    quizScore = 0;
+    quizUserName = "";
+  }
+
+  // 🔴 Exit game
+  if (gameMode) {
+    gameMode = false;
+    userHand = [];
+    cpuHand = [];
+    userScoreTotal = 0;
+    cpuScoreTotal = 0;
+    document.getElementById("gameToggleBtn").textContent = "▶ Play Card Game";
+  }
+
+  // 🔴 Exit compare
+  compareMode = false;
+  compareSelection = [];
+  overlayPurpose = null;
+
+  document.body.classList.remove(
+    "compare-active",
+    "card-focus"
+  );
+
+  document.getElementById("compare-overlay").style.display = "none";
+  document.getElementById("compare-status").style.display = "none";
+
+  // 🔓 Re-enable controls
+  setGameControlsDisabled(false);
+
+  // 🔄 Reset filters + list
+  resetView();
+}
+
 
 
 
