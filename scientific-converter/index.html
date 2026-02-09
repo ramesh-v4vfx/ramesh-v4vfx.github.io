@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scientific ⇄ Decimal Converter</title>
+
+<meta name="description" content="Convert scientific notation to decimal and decimal to scientific notation instantly. Free online scientific ⇄ decimal converter for large numbers.">
+<meta name="keywords" content="scientific notation converter, decimal converter, exponential notation, number converter, scientific to decimal, decimal to scientific">
+
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #eef1f5;
+    margin: 0;
+    padding: 16px;
+}
+
+/* Card */
+.app {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 420px;
+    margin: auto;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 5px;
+}
+
+label {
+    display: block;
+    margin-top: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Button rows */
+.row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* Buttons */
+button {
+    border: none;
+    border-radius: 6px;
+    padding: 14px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.convert {
+    flex: 2;
+    background: #2ecc71;
+}
+
+.blue-btn {
+    flex: 1;
+    background: #3498db;
+}
+
+.red-btn {
+    flex: 1;
+    background: #e74c3c;
+}
+
+/* MOBILE LAYOUT */
+@media (max-width: 480px) {
+
+    .row {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    input {
+        font-size: 16px;
+    }
+
+    .app {
+        padding: 18px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+    <h2>Scientific Notation ⇄ Decimal Converter ⚙️</h2>
+
+    <label>Enter Value</label>
+    <input id="inputValue" placeholder="Example: 1.2e5 or 120000">
+
+    <div class="row">
+        <button class="blue-btn" onclick="pasteValue()">Paste Value</button>
+        <button class="convert" onclick="convert()">Convert</button>
+    </div>
+
+<label>Decimal</label>
+<div class="row">
+    <input id="decimalResult" readonly>
+    <button id="copyDecimalBtn" class="blue-btn" onclick="copyDecimal()">Copy</button>
+</div>
+
+<label>Scientific</label>
+<div class="row">
+    <input id="scientificResult" readonly>
+    <button id="copyScientificBtn" class="blue-btn" onclick="copyScientific()">Copy</button>
+</div>
+
+<div id="copiedMsg" style="display:none; color:green; margin-top:8px;">
+    Copied!
+</div>
+
+<div class="row">
+    <button class="red-btn" onclick="resetApp()">Reset</button>
+</div>
+</div>
+
+<script>
+function formatWithCommas(numStr) {
+    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function scientificToDecimal(str) {
+    const match = str.toLowerCase().match(/^([0-9.]+)e([+-]?\d+)$/);
+    if (!match) return null;
+
+    let mantissa = match[1];
+    let exponent = parseInt(match[2]);
+
+    let [intPart, decPart = ""] = mantissa.split(".");
+    let digits = intPart + decPart;
+
+    let decimalPos = intPart.length + exponent;
+
+    if (decimalPos <= 0) {
+        return "0." + "0".repeat(Math.abs(decimalPos)) + digits;
+    }
+
+    if (decimalPos >= digits.length) {
+        return digits + "0".repeat(decimalPos - digits.length);
+    }
+
+    return digits.slice(0, decimalPos) + "." + digits.slice(decimalPos);
+}
+
+function decimalToScientific(str) {
+    str = str.replace(/^0+/, "");
+    let exponent = str.length - 1;
+    return str[0] + "." + str.slice(1) + "e+" + exponent;
+}
+
+function convert() {
+    const input = document.getElementById("inputValue").value.trim();
+
+    if (!input) return;
+
+    let decimal, scientific;
+
+    if (input.toLowerCase().includes("e")) {
+        decimal = scientificToDecimal(input);
+        scientific = input;
+    } else {
+        decimal = input.replace(/,/g, "");
+        scientific = decimalToScientific(decimal);
+    }
+
+    if (!decimal) return;
+
+    if (!decimal.includes(".")) {
+        decimal = formatWithCommas(decimal);
+    }
+
+    document.getElementById("decimalResult").value = decimal;
+    document.getElementById("scientificResult").value = scientific;
+}
+
+async function pasteValue() {
+    const text = await navigator.clipboard.readText();
+    document.getElementById("inputValue").value = text;
+}
+
+function showCopied() {
+    const msg = document.getElementById("copiedMsg");
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 1200);
+}
+
+function flashButton(btn) {
+    const original = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.disabled = true;
+
+    setTimeout(() => {
+        btn.textContent = original;
+        btn.disabled = false;
+    }, 1000);
+}
+
+function copyDecimal() {
+    const value = document.getElementById("decimalResult").value;
+    const btn = document.getElementById("copyDecimalBtn");
+
+    navigator.clipboard.writeText(value);
+    flashButton(btn);
+}
+
+function copyScientific() {
+    const value = document.getElementById("scientificResult").value;
+    const btn = document.getElementById("copyScientificBtn");
+
+    navigator.clipboard.writeText(value);
+    flashButton(btn);
+}
+
+function resetApp() {
+    document.getElementById("inputValue").value = "";
+    document.getElementById("decimalResult").value = "";
+    document.getElementById("scientificResult").value = "";
+}
+</script>
+
+
+
+</body>
+</html>
