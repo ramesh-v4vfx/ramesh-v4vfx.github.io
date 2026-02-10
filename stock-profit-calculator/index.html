@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta name="description"
+content="Free stock profit calculator. Calculate investment, profit, or loss by entering buying price, selling price, and number of shares.">
+
+<meta name="keywords"
+content="stock profit calculator, share profit calculator, investment profit calculator, stock loss calculator, trading calculator">
+
+<meta name="robots" content="index, follow">
+<meta name="author" content="Ramesh Singh">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Profit Calculator 💰</title>
+
+<style>
+body {
+  font-family: system-ui, sans-serif;
+  background: #0f172a;
+  color: white;
+  margin: 0;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.app {
+  background: #020617;
+  padding: 20px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #22c55e;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button.reset {
+  background: #334155;
+  margin-top: 8px;
+}
+
+.result {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #020617;
+  border: 1px solid #334155;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Small-screen improvements */
+@media (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+
+  .app {
+    padding: 16px;
+  }
+
+  input, button {
+    font-size: 16px;
+  }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+<h2>Stock Profit Calculator 💰</h2>
+
+<input id="buy" type="number" placeholder="Buying price per share">
+<input id="sell" type="number" placeholder="Selling price per share">
+<input id="qty" type="number" placeholder="Number of shares">
+
+<button onclick="calculate()">Calculate</button>
+<button onclick="resetApp()" class="reset">Reset</button>
+
+<div class="result" id="result">Result will appear here</div>
+
+</div>
+
+<script>
+function calculate() {
+  const buy = parseFloat(document.getElementById("buy").value);
+  const sell = parseFloat(document.getElementById("sell").value);
+  const qty = parseFloat(document.getElementById("qty").value);
+  const resultBox = document.getElementById("result");
+
+  if (isNaN(buy) || isNaN(sell) || isNaN(qty)) {
+    resultBox.textContent = "Enter valid numbers";
+    return;
+  }
+
+  const totalSpent = buy * qty;
+  const totalSell = sell * qty;
+  const profit = totalSell - totalSpent;
+
+  const locale = navigator.language;
+
+  const spentFormatted = totalSpent.toLocaleString(locale, {
+    maximumFractionDigits: 2
+  });
+
+  const profitFormatted = profit.toLocaleString(locale, {
+    maximumFractionDigits: 2
+  });
+
+  const color = profit >= 0 ? "#22c55e" : "#ef4444";
+  const label = profit >= 0 ? "Profit" : "Loss";
+
+  resultBox.innerHTML =
+    `Investment: ${spentFormatted}<br>
+     ${label}: <span style="color:${color}">${profitFormatted}</span>`;
+}
+
+function resetApp() {
+  document.getElementById("buy").value = "";
+  document.getElementById("sell").value = "";
+  document.getElementById("qty").value = "";
+  document.getElementById("result").textContent = "Result will appear here";
+}
+
+</script>
+
+</body>
+</html>
