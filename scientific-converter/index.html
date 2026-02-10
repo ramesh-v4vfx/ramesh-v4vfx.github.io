@@ -175,9 +175,16 @@ function scientificToDecimal(str) {
 
 function decimalToScientific(str) {
     str = str.replace(/^0+/, "");
+
     let exponent = str.length - 1;
-    return str[0] + "." + str.slice(1) + "e+" + exponent;
+    let mantissa = str[0] + "." + str.slice(1);
+
+    // remove trailing zeros
+    mantissa = mantissa.replace(/\.?0+$/, "");
+
+    return mantissa + "e+" + exponent;
 }
+
 
 function convert() {
     const input = document.getElementById("inputValue").value.trim();
