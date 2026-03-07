@@ -113,13 +113,12 @@ button.reset {
 <body>
 
 <div class="app">
-<h2>Stock Profit Calculator 💰</h2>
+<h2>Stock profit / loss calculator 💰</h2>
 
-<input id="buy" type="number" placeholder="Buying price per share">
-<input id="sell" type="number" placeholder="Selling price per share">
-<input id="qty" type="number" placeholder="Number of shares">
+<input id="buy" type="number" placeholder="Buying price per share" oninput="calculate()">
+<input id="sell" type="number" placeholder="Selling price per share" oninput="calculate()">
+<input id="qty" type="number" placeholder="Number of shares" oninput="calculate()">
 
-<button onclick="calculate()">Calculate</button>
 <button onclick="resetApp()" class="reset">Reset</button>
 
 <div class="result" id="result">Result will appear here</div>
