@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta name="description" 
+content="Free average share price calculator. Calculate your stock average cost after multiple buys. Simple and fast tool for investors.">
+
+<meta name="robots" content="index, follow">
+<meta name="author" content="Ramesh Singh">
+
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Average Share Price Calculator</title>
+
+<style>
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --border: #d9dee5;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --result-bg: #eef4ff;
+  --avg-bg: #f8fafc;
+  --reset-bg: #e5e7eb;
+  --shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  --radius: 12px;
+  --gap: 10px;
+  --input-height: 42px;
+  --delete-width: 50px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+h2 {
+  margin: 0 0 16px;
+  font-size: 24px;
+}
+
+.header-row,
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) var(--delete-width);
+  gap: var(--gap);
+  align-items: center;
+}
+
+.header-row {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.row {
+  margin-bottom: 10px;
+}
+
+input,
+.row-avg,
+button {
+  height: var(--input-height);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+input,
+.row-avg {
+  border: 1px solid var(--border);
+}
+
+input {
+  width: 100%;
+  padding: 0 12px;
+  background: #fff;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.row-avg {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--avg-bg);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.delete {
+  width: var(--delete-width);
+  background: var(--danger);
+  color: #fff;
+  font-size: 16px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.add {
+  width: 100%;
+  padding: 12px;
+  height: auto;
+  background: var(--success);
+  color: #fff;
+}
+
+.reset {
+  width: 100%;
+  padding: 12px;
+  height: auto;
+  background: var(--reset-bg);
+  color: var(--text);
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 18px;
+  background: var(--result-bg);
+  border-radius: 14px;
+  line-height: 1.7;
+  font-size: 17px;
+}
+
+.result-box .avg {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 18px;
+  }
+
+  .header-row,
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .header-row div:nth-child(3),
+  .header-row div:nth-child(4) {
+    display: none;
+  }
+
+  .row-avg {
+    grid-column: 1 / 2;
+  }
+
+  .delete {
+    width: 100%;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Average Share Price Calculator</h2>
+
+  <div class="header-row" aria-hidden="true">
+    <div>No. of Shares</div>
+    <div>Price</div>
+    <div>After Buy Avg</div>
+    <div></div>
+  </div>
+
+  <div id="rows"></div>
+
+  <div class="actions">
+    <button id="addRowBtn" class="add" type="button">+ Add Buy</button>
+    <button id="resetBtn" class="reset" type="button">Reset to Default</button>
+  </div>
+
+  <div id="result" class="result-box">
+    <div>Total Shares: 0</div>
+    <div>Total Invested: 0</div>
+    <div class="avg">Final Avg: 0</div>
+  </div>
+</div>
+
+<script>
+const rowsContainer = document.getElementById("rows");
+const resultBox = document.getElementById("result");
+const addRowBtn = document.getElementById("addRowBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+function roundToTwo(num) {
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
+function formatNumber(num) {
+  return num.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+}
+
+function calculateAverage() {
+  const rows = rowsContainer.querySelectorAll(".row");
+  let totalShares = 0;
+  let totalValue = 0;
+
+  rows.forEach((row) => {
+    const sharesInput = row.querySelector(".shares");
+    const priceInput = row.querySelector(".price");
+    const avgBox = row.querySelector(".row-avg");
+
+    const shares = parseFloat(sharesInput.value) || 0;
+    const price = parseFloat(priceInput.value) || 0;
+
+    totalShares += shares;
+    totalValue += shares * price;
+
+    const runningAvg = totalShares > 0 ? roundToTwo(totalValue / totalShares) : 0;
+    avgBox.textContent = shares > 0 ? formatNumber(runningAvg) : "—";
+  });
+
+  const finalAvg = totalShares > 0 ? roundToTwo(totalValue / totalShares) : 0;
+
+  resultBox.innerHTML = `
+    <div>Total Shares: ${formatNumber(totalShares)}</div>
+    <div>Total Invested: ${formatNumber(totalValue)}</div>
+    <div class="avg">Final Avg: ${formatNumber(finalAvg)}</div>
+  `;
+}
+
+function createInput(className, placeholder, value = "") {
+  const input = document.createElement("input");
+  input.type = "number";
+  input.className = className;
+  input.placeholder = placeholder;
+  input.value = value;
+  input.min = "0";
+  input.step = "any";
+  input.addEventListener("input", calculateAverage);
+  return input;
+}
+
+function addRow(shares = "", price = "") {
+  const row = document.createElement("div");
+  row.className = "row";
+
+  const sharesInput = createInput("shares", "Enter no. of shares", shares);
+  const priceInput = createInput("price", "Enter price", price);
+
+  const avgBox = document.createElement("div");
+  avgBox.className = "row-avg";
+  avgBox.textContent = "—";
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete";
+  deleteBtn.type = "button";
+  deleteBtn.textContent = "X";
+  deleteBtn.setAttribute("aria-label", "Delete row");
+  deleteBtn.addEventListener("click", () => {
+    row.remove();
+    calculateAverage();
+  });
+
+  row.append(sharesInput, priceInput, avgBox, deleteBtn);
+  rowsContainer.appendChild(row);
+
+  calculateAverage();
+}
+
+function resetToDefault() {
+  const shouldReset = window.confirm(
+    "Reset all rows and restore the default 2 empty rows?"
+  );
+
+  if (!shouldReset) {
+    return;
+  }
+
+  rowsContainer.innerHTML = "";
+  addRow();
+  addRow();
+}
+
+addRowBtn.addEventListener("click", () => addRow());
+resetBtn.addEventListener("click", resetToDefault);
+
+addRow();
+addRow();
+</script>
+
+</body>
+</html>
