@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 
+  <link rel="canonical" href="https://rameshverse.com/" />
+
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
 <script>
@@ -11,729 +13,743 @@
 
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
-
+  
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RameshVerse — Tools for Learning & Productivity</title>
-  <meta name="description" content="Fast, free productivity and learning tools — calculators, focus timers, educational apps and more. Clean, lightweight and distraction-free." />
+
+<title>Free Productivity & Learning Tools – Calculators, Timers & Apps | RameshVerse</title>
+
+
+  <meta name="description"
+  content="Fast, free productivity and learning tools — calculators, focus timers, educational apps and more. Clean, lightweight and distraction-free." />
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Open Graph (for link previews) -->
   <meta property="og:title" content="RameshVerse – Interactive Tools Hub" />
-  <meta property="og:description" content="Fast, lightweight productivity and learning tools like calculators, focus timers and educational apps." />
+  <meta property="og:description"
+  content="Fast, lightweight productivity and learning tools like calculators, focus timers and educational apps." />
+
+
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://rameshverse.com/" />
-  <meta name="theme-color" content="#0a0a0f">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0e0101">
+
+
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+
 
   <style>
-    :root {
-      --bg:         #07070d;
-      --bg2:        #0d0d1a;
-      --card:       #0f0f1c;
-      --card-hover: #141428;
-      --border:     rgba(255,255,255,0.07);
-      --border-h:   rgba(255,255,255,0.14);
-      --accent:     #e05252;
-      --accent2:    #f08060;
-      --accent3:    #5b8fff;
-      --text:       #f0f0f5;
-      --muted:      rgba(240,240,245,0.45);
-      --glow:       rgba(224,82,82,0.18);
+
+    h1 {
+  color: #ea6d6d; /* any color */
+}
+
+
+  .search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  max-width: 520px; /* slightly less wide */
+
+  padding: 14px 14px;
+  border-radius: 12px;
+
+  background: #1f0303;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.45),
+    0 0 18px rgba(106,169,255,.18),   /* 👈 idle glow */
+    inset 0 0 0 1px rgba(255,255,255,.04);
+
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+
+.site-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+
+  color: #ff0000;
+  font-size: 15px;
+}
+
+
+
+
+    html, body {
+      overscroll-behavior: none;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html {
-      background: var(--bg);
-      overscroll-behavior: none;
-      scroll-behavior: smooth;
+      background: #0e0101;
     }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0e0101;
+      color: #ffffff;
     }
 
-    /* ─── BACKGROUND GRID ─── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ─── RADIAL GLOW ─── */
-    body::after {
-      content: '';
-      position: fixed;
-      top: -20vh;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80vw;
-      height: 60vh;
-      background: radial-gradient(ellipse, rgba(224,82,82,0.10) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ─── HEADER ─── */
     header {
-      position: relative;
-      z-index: 1;
+       padding: 30px 16px 0px; /* top | sides | bottom */
       text-align: center;
-      padding: 64px 20px 20px;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
-    .site-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 22px;
-      font-family: 'Syne', sans-serif;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0.9;
-    }
-
-    .site-logo::before,
-    .site-logo::after {
-      content: '';
-      display: block;
-      height: 1px;
-      width: 32px;
-      background: var(--accent);
-      opacity: 0.5;
+       max-width: 820px;
+  margin: 0 auto;
     }
 
     header h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(2rem, 5.5vw, 3.2rem);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 14px;
-    }
-
-    header h1 span {
-      color: var(--accent);
+      margin: 0 0 5px 0;   /* 👈 adds space below title */
+      font-size: clamp(1.4rem, 4vw, 2rem);
     }
 
     header p {
-      font-size: 1rem;
-      color: var(--muted);
-      max-width: 480px;
-      margin: 0 auto;
-      line-height: 1.65;
-      font-weight: 300;
-    }
-
-    /* ─── SEARCH ─── */
-    .site-search {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: center;
-      padding: 16px 20px;
-      background: linear-gradient(180deg, rgba(7,7,13,0.97) 70%, transparent);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .search-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      max-width: 480px;
-      padding: 11px 16px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      transition: border-color .2s, box-shadow .2s;
-    }
-
-    .search-wrap:focus-within {
-      border-color: rgba(224,82,82,0.5);
-      box-shadow: 0 0 0 3px rgba(224,82,82,0.12);
-    }
-
-    .search-icon {
-      font-size: 14px;
-      opacity: 0.4;
-      flex-shrink: 0;
-    }
-
-    .site-search input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-    }
-
-    .site-search input::placeholder {
-      color: var(--muted);
-    }
-
-    /* ─── SECTION LABELS ─── */
-    .section-label {
-      position: relative;
-      z-index: 1;
-      max-width: 1040px;
-      margin: 32px auto 0;
-      padding: 0 20px;
-      font-family: 'Syne', sans-serif;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    /* ─── GRID ─── */
-    .tools {
-      position: relative;
-      z-index: 1;
-      max-width: 1040px;
-      margin: 12px auto 0;
-      padding: 8px 20px 40px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 12px;
-    }
-
-    /* ─── TOOL CARD ─── */
-    .tool {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 16px 18px;
-      border-radius: 12px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      text-decoration: none;
-      color: var(--text);
-      transition: background .2s, border-color .2s, transform .2s, box-shadow .2s;
-      min-height: 80px;
-    }
-
-    .tool:hover {
-      background: var(--card-hover);
-      border-color: var(--border-h);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(224,82,82,0.15);
-    }
-
-    .tool:active {
-      transform: translateY(-1px) scale(0.99);
-    }
-
-    .tool:focus-visible {
-      outline: 2px solid var(--accent3);
-      outline-offset: 3px;
-    }
-
-    .tool h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #e8e8f2;
-      line-height: 1.3;
-    }
-
-    .tool p {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.45;
-      font-weight: 300;
-    }
-
-    /* ─── FEATURED / WIDE CARD ─── */
-    .tool-featured {
-      grid-column: 1 / -1;
-      flex-direction: row;
-      align-items: center;
-      gap: 20px;
-      min-height: 90px;
-      background: linear-gradient(135deg, #0e0e20, #14142a);
-      border-color: rgba(91,143,255,0.18);
-    }
-
-    .tool-featured:hover {
-      border-color: rgba(91,143,255,0.35);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(91,143,255,0.2);
-    }
-
-    .tool-featured .feat-icon {
-      font-size: 2.2rem;
-      flex-shrink: 0;
-      line-height: 1;
-    }
-
-    .tool-featured .feat-text { flex: 1; }
-
-    .tool-featured h3 {
-      font-size: 1.15rem;
-      color: #c8d8ff;
-      font-weight: 700;
-    }
-
-    .tool-featured p {
-      font-size: 0.85rem;
-      color: rgba(200,216,255,0.55);
-      max-width: 600px;
-    }
-
-    .tool-featured .feat-badge {
-      flex-shrink: 0;
-      font-family: 'Syne', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 20px;
-      background: rgba(91,143,255,0.14);
-      border: 1px solid rgba(91,143,255,0.25);
-      color: #7aaaff;
-    }
-
-    /* ─── CATEGORY CHIPS (color accent per tag) ─── */
-    .tool[data-cat="science"] h3 { color: #a5e0ff; }
-    .tool[data-cat="finance"] h3  { color: #9effd0; }
-    .tool[data-cat="productivity"] h3 { color: #ffd6a5; }
-    .tool[data-cat="math"] h3    { color: #f7c5ff; }
-    .tool[data-cat="geo"] h3     { color: #c8d8ff; }
-
-    /* ─── SHARE BAR ─── */
-    .share-bar {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 8px 20px 32px;
-    }
-
-    .share-label {
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .share-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      cursor: pointer;
-      font-size: 14px;
-      transition: background .15s, transform .15s;
-      text-decoration: none;
-    }
-
-    .share-btn:hover {
-      background: rgba(255,255,255,0.09);
-      transform: translateY(-2px);
-    }
-
-    .share-btn:active { transform: scale(0.95); }
-
-    /* ─── FOOTER ─── */
-    footer {
-      position: relative;
-      z-index: 1;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 20px;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    footer a {
-      color: var(--muted);
-      text-decoration: none;
-      transition: color .15s;
-    }
-
-    footer a:hover { color: var(--text); }
-
-    /* ─── EMPTY STATE ─── */
-    .no-results {
-      display: none;
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
+      opacity: 0.6;
+      margin-top: 0px;
       font-size: 0.95rem;
     }
 
-    /* ─── ANIMATIONS ─── */
-    .tool {
-      animation: fadeUp 0.4s ease both;
-    }
+.tools {
+  max-width: 1000px;   /* layout width */
+  margin: 0 auto;
+  padding: 12px;
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  row-gap: 0px;     /* vertical spacing */
+  column-gap: 25px; /* horizontal spacing */
 
-    /* stagger first 12 */
-    .tool:nth-child(1)  { animation-delay: .04s }
-    .tool:nth-child(2)  { animation-delay: .08s }
-    .tool:nth-child(3)  { animation-delay: .12s }
-    .tool:nth-child(4)  { animation-delay: .16s }
-    .tool:nth-child(5)  { animation-delay: .20s }
-    .tool:nth-child(6)  { animation-delay: .24s }
-    .tool:nth-child(7)  { animation-delay: .28s }
-    .tool:nth-child(8)  { animation-delay: .32s }
-    .tool:nth-child(9)  { animation-delay: .36s }
-    .tool:nth-child(10) { animation-delay: .40s }
-    .tool:nth-child(11) { animation-delay: .44s }
-    .tool:nth-child(12) { animation-delay: .48s }
+  align-items: start;
+  justify-content: start;
+}
 
-    /* ─── MOBILE ─── */
-    @media (max-width: 600px) {
-      header { padding: 44px 16px 14px; }
-      header h1 { font-size: 1.9rem; }
-      .tools { padding: 8px 12px 32px; gap: 10px; }
-      .tool { min-height: 72px; padding: 13px 14px; }
-      .tool h3 { font-size: 0.88rem; }
-      .tool p { font-size: 0.75rem; }
-      .tool-featured { flex-direction: column; align-items: flex-start; gap: 10px; }
-      .tool-featured .feat-badge { align-self: flex-start; }
-    }
 
-    @media (hover: none) {
+
+.tool {
+    margin-top: 20px;
+    max-width: 280px;
+    height: 80px;
+    background: #161a35;
+    border-radius: 14px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(0,0,0,.4);
+
+     justify-items: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 4px;
+    
+    
+    overflow: hidden;          /* ✅ prevent spill */
+
+    transition:
+    height 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  position: relative;
+  z-index: 1;
+}
+
+
+
+  .tool:active {
+  transform: scale(0.98);
+  background: #222766;
+}
+
       .tool:hover {
-        transform: none;
-        box-shadow: none;
-        background: var(--card);
-        border-color: var(--border);
-      }
-      .tool:active {
-        background: var(--card-hover);
-        transform: scale(0.98);
-      }
+      height: 120px; 
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px rgba(0,0,0,.5);
+      background: #1c2150;
+      z-index: 10;                   /* hover above others */
     }
+
+.tool h3 {
+  margin: 0;
+
+  /* 👇 fills the card nicely */
+  font-size: clamp(1rem, 2.6vw, 1.15rem);
+  line-height: 1.3;
+  color: #fc7676;
+
+  transition: font-size 0.25s ease, line-height 0.25s ease;
+}
+
+
+.tool h3,
+.tool p {
+  transition: all 0.25s ease;
+}
+    
+
+.tool p {
+  margin: 0;
+  opacity: 0.7;
+
+  font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+  line-height: 1.3;
+
+  transition: font-size 0.25s ease, line-height 0.25s ease;
+}
+
+
+.tool:hover {
+  height: 120px;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(0,0,0,.5);
+  z-index: 10;
+
+  background: linear-gradient(180deg, #1c2460, #171f45);
+  box-shadow:
+    0 14px 32px rgb(141, 33, 33),
+    0 0 0 1px rgb(72, 17, 17);
+}
+
+.tool:hover h3 {
+  font-size: 1.25rem;
+  line-height: 1.35;
+}
+
+.tool:hover p {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+
+    footer {
+      text-align: center;
+      padding: 0px 20px 0px;
+      opacity: 0.5;
+      font-size: 0.85rem;
+    }
+
+    footer a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.tool:focus-visible {
+  outline: 2px solid #6aa9ff;
+  outline-offset: 3px;
+}
+
+.site-search {
+
+  
+  margin-top: 18px;
+
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  padding: 14px 12px;
+  display: flex;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14,1,1,.95),
+      rgba(14,1,1,.85)
+    );
+    -webkit-backdrop-filter: blur(6px); /* ✅ Safari */
+  backdrop-filter: blur(6px);
+}
+
+.search-wrap:focus-within {
+  border-color: #6aa9ff;
+  box-shadow:
+    0 0 0 4px rgba(106,169,255,.25),
+    0 8px 22px rgb(60, 82, 246);
+}
+
+.site-search input::placeholder {
+  color: rgba(229,231,235,.45);
+}
+
+.tools {
+  min-height: 60vh;
+}
+
+.share-bar {
+  margin: 0px auto 0px;
+  max-width: 420px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  background: none;        /* ✅ remove box */
+  border: none;            /* ✅ remove border */
+  box-shadow: none;        /* ✅ remove shadow */
+}
+
+.share-label {
+  font-size: 0.75rem;
+  opacity: 0.45;
+  margin-right: 6px;
+}
+
+.share-bar button {
+  background: transparent;   /* ✅ no tile */
+  border: none;
+  padding: 4px;
+
+  font-size: 1.05rem;
+  cursor: pointer;
+
+  opacity: 0.75;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.share-bar button:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.share-bar button:active {
+  transform: scale(0.95);
+}
+
+/* 🌍 Country Explorer – flagship tile */
+.tool-country {
+  grid-column: span 4;      /* 👈 covers 4 tools horizontally */
+  max-width: none;
+   justify-content: center;  
+   height: 80px;
+    align-items: center;     /* centers items horizontally */
+  text-align: center;  
+    }    /* centers text lines */        
+
+
+
+.tool-country:hover {
+  height: 120px;            /* same hover behavior */
+}
+
+/* 🌍 Country Explorer – title hierarchy */
+.tool-country h3 {
+  font-size: 1.7rem;
+  line-height: 1.4;
+}
+
+.tool-country p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 75%;
+}
+
+.tool-country:hover h3 {
+  font-size: 1.7rem;
+}
+
+
+
+
+
+@media (max-width: 600px) {
+  .search-wrap {
+    max-width: 90%;
+    padding: 9px 12px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .tools {
+    justify-items: center;
+  }
+
+  .tool {
+    width: 100%;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 600px) {
+  header p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (hover: none) {
+  .tool:hover {
+    background: #161a35;                 /* same as normal */
+    box-shadow: 0 10px 25px rgba(0,0,0,.4); /* subtle / default */
+    transform: none;                     /* no lift */
+  }
+
+  .tool:active {
+    background: #1c2150;
+    transform: scale(0.98);
+  }
+}
+
+@media (max-width: 600px) {
+  .tool {
+    height: 64px;          /* 👈 less blocky */
+    padding: 10px 14px;   /* tighter spacing */
+  }
+
+  .tool h3 {
+    font-size: 0.95rem;   /* slightly smaller */
+    line-height: 1.2;
+  }
+
+  .tool p {
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+}
+
+@media (hover: none) {
+  .tool:hover {
+    height: 80px !important;
+    background: #161a35 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,.4) !important;
+    transform: none !important;
+  }
+
+  .tool:hover h3,
+  .tool:hover p {
+    font-size: inherit !important;
+    line-height: inherit !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-search input {
+    max-width: 92%;
+  }
+}
+
+@media (max-width: 600px) {
+  .tool-country {
+    grid-column: span 1;   /* stack like normal */
+  }
+}
+
+@media (max-width: 600px) {
+  .tool-country {
+    justify-content: space-between;
+  }
+}
+
+
   </style>
 </head>
 <body>
 
-  <!-- ─── HEADER ─── -->
   <header>
-    <div class="site-logo">RameshVerse</div>
-    <h1>Tools for <span>Learning</span><br>& Productivity</h1>
-    <p>Fast, distraction-free tools for calculations, focus, exploration, and more.</p>
+  <h1>Interactive Tools for Learning & Productivity</h1>
+
+
+<p>
+rameshverse is a collection of fast, distraction-free tools for productivity,
+learning, and exploration - including calculators, focus timers, and science apps.
+</p>
+
+
   </header>
 
-  <!-- ─── SEARCH ─── -->
-  <div class="site-search">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input
-        type="search"
-        id="searchInput"
-        placeholder="Search tools… or press /"
-        oninput="searchTools()"
-        autocomplete="off"
-        spellcheck="false"
-      />
-    </div>
+<div class="site-search">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input
+      type="search"
+      id="searchInput"
+      placeholder="Type or press / to search"
+      oninput="searchTools()"
+    />
   </div>
+</div>
 
-  <!-- ─── FEATURED ─── -->
-  <div class="section-label">Featured</div>
-  <section class="tools" id="featured-grid">
 
-    <a class="tool tool-featured" href="/country-explorer/"
-       data-search="country explorer geography flags quiz map" data-cat="geo">
-      <div class="feat-icon">🌍</div>
-      <div class="feat-text">
-        <h3>Country Explorer</h3>
-        <p>Explore countries, play the card game, take a geography quiz, earn certificates, compare nations and more.</p>
-      </div>
-      <div class="feat-badge">Flagship</div>
-    </a>
 
-  </section>
+<section class="tools">
 
-  <!-- ─── PRODUCTIVITY ─── -->
-  <div class="section-label">Productivity</div>
-  <section class="tools" id="tools-grid">
+      
 
-    <a class="tool" href="/top-10-tasks-monitor/"
-       data-search="top 10 tasks task monitor productivity" data-cat="productivity">
-      <h3>📋 Top 10 Task Monitor</h3>
-      <p>Track and prioritise your most important pending tasks.</p>
-    </a>
+      <a class="tool" href="/top-10-tasks-monitor/"
+      data-search="top 10 tasks task monitor productivity">
+      <h3>Top 10 Task Monitor 📋</h3>
+      <p>Increase productivity by tracking tasks that are still pending.</p>
+      </a>
 
-    <a class="tool" href="/session-logger/"
-       data-search="session logger productivity" data-cat="productivity">
-      <h3>📝 Session Logger</h3>
-      <p>Log work sessions and turn your time into measurable progress.</p>
-    </a>
+      <a class="tool" href="/session-logger/"
+      data-search="session logger productivity">
+      <h3>Session Logger 📝⏳</h3>
+      <p>Log your work sessions, and turn your time into measurable productivity.</p>
+      </a>
 
-    <a class="tool" href="/my-diary/"
-       data-search="my calm daily diary productivity" data-cat="productivity">
-      <h3>📔 My Calm Diary</h3>
-      <p>A quiet space to write and reflect. Auto-saves &amp; downloadable.</p>
-    </a>
+      <a class="tool" href="/my-diary/"
+      data-search="my calm daily diary productivity">
+      <h3>My Calm Diary 📔🌸</h3>
+      <p>A quiet space to write, reflect, and unwind. Auto-saves to your device • Downloadable</p>
+      </a>
 
-    <a class="tool" href="/brain-dump/"
-       data-search="brain dump productivity tool" data-cat="productivity">
-      <h3>🧠 Brain Dump</h3>
-      <p>Clear your mind by dumping every thought somewhere safe.</p>
-    </a>
+      <a class="tool" href="/surface-gravity-calculator/"
+      data-search="surface gravity escape velocity calculator">
+      <h3>Surface Gravity 🌍🧲 & Escape Velocity Calculator 🚀</h3>
+      <p>know g and Vesc</p>
+      </a>
 
-    <a class="tool" href="/pomodoro-focus/"
-       data-search="pomodoro focus timer productivity" data-cat="productivity">
-      <h3>🍅 Pomodoro Focus</h3>
-      <p>Stay focused with the Pomodoro technique — work smarter, not longer.</p>
-    </a>
+      <a class="tool tool-country" href="/country-explorer/"
+      data-search="country explorer geography flags quiz map">
+      <h3>Country Explorer 🌍</h3>
+      <p>Explore countries, play card game, play country quiz and get cetificates, compare countries and more. </p>
+      </a>
 
-    <a class="tool" href="/daily-routine/"
-       data-search="daily routine productivity tool" data-cat="productivity">
-      <h3>⏰ Daily Routine</h3>
-      <p>A gentle daily checklist for busy schedules.</p>
-    </a>
+      <a class="tool" href="/pomodoro-focus/"
+      data-search="pomodoro focus timer productivity">
+      <h3>Pomodoro Focus 🍅🎯</h3>
+      <p>Stay focused using the Pomodoro technique to work better, not longer.</p>
+      </a>
 
-    <a class="tool" href="/international-airtravel-checklist/"
-       data-search="international travel checklist productivity tool" data-cat="productivity">
-      <h3>🧳 Travel Checklist</h3>
-      <p>A stress-free checklist for international air travel.</p>
-    </a>
+      <a class="tool" href="/division-pro/"
+      data-search="division pro calculator">
+      <h3>Division Pro ➗</h3>
+      <p>Divide numbers instantly and get both quotient and remainder.</p>
+      </a>
 
-  </section>
+      <a class="tool" href="/mean-median-mode/"
+      data-search="mean median mode calculator">
+      <h3>Mean · Median · Mode 🧮</h3>
+      <p>Calculate mean, median, and mode instantly for any dataset.</p>
+      </a>
 
-  <!-- ─── MATH & NUMBERS ─── -->
-  <div class="section-label">Math &amp; Numbers</div>
-  <section class="tools">
+      <a class="tool" href="/seconds-to-frames/"
+      data-search="seconds to frames calculator">
+      <h3>Seconds to Frames 🎞️</h3>
+      <p>A simple tool to calculate frames from seconds for any FPS.</p>
+      </a>
 
-    <a class="tool" href="/division-pro/"
-       data-search="division pro calculator" data-cat="math">
-      <h3>➗ Division Pro</h3>
-      <p>Divide instantly and get both quotient and remainder.</p>
-    </a>
+      <a class="tool" href="/time-converter/"
+      data-search="time converter calculator">
+      <h3>Time Converter ⏱️🔄</h3>
+      <p>Convert time units instantly: seconds, minutes, hours, days, and more.</p>
+      </a>
 
-    <a class="tool" href="/mean-median-mode/"
-       data-search="mean median mode calculator" data-cat="math">
-      <h3>🧮 Mean · Median · Mode</h3>
-      <p>Calculate averages and central tendency for any dataset.</p>
-    </a>
+      <a class="tool" href="/cosmic-calculator/"
+      data-search="cosmic space calculator">
+      <h3>Cosmic Calculator ⭐</h3>
+      <p>Calculate cosmic-scale distances from meters to astronomical units.</p>
+      </a>
 
-    <a class="tool" href="/percentage-of-total/"
-       data-search="percentage of total calculator exam number" data-cat="math">
-      <h3>🧮 Percentage of Total</h3>
+      <a class="tool" href="/subatomic-calculator/"
+      data-search="subatomic calculator">
+      <h3>Subatomic Calculator ⚛️</h3>
+      <p>A precision calculator for sub-atomic and quantum-scale values.</p>
+      </a>
+
+      <a class="tool" href="/black-hole-radius-calculator/"
+      data-search="black hole schwarzschild radius calculator">
+      <h3>Black Hole Event Horizon Radius Calculator ⭕</h3>
+      <p>Calculate the event horizon radius.</p>
+      </a>
+
+       <a class="tool" href="/density-and-volume-calculator/"
+       data-search="density volume calculator">
+      <h3>Density and Volume Calculator 🧱🧊</h3>
+      <p>Calculate density and volume quickly using mass and measurements.</p>
+      </a>
+
+      <a class="tool" href="/brain-dump/"
+      data-search="brain dump productivity tool">
+      <h3>🧠🧹 Brain Dump</h3>
+      <p>A simple space to dump your thoughts and clear your mind.</p>
+      </a>
+
+      <a class="tool" href="/daily-routine/"
+      data-search="daily routine productivity tool">
+      <h3>Daily Routine ⏰</h3>
+      <p>A gentle daily checklist for busy schedules</p>
+      </a>
+
+      <a class="tool" href="/international-airtravel-checklist/"
+      data-search="international travel checklist productivity tool">
+      <h3>International Travel Checklist 🧳✈️</h3>
+      <p>A checklist for stress-free international air travel.</p>
+      </a>
+
+      <a class="tool" href="/percentage-of-total/"
+      data-search="percentage of total calculator exam number">
+      <h3>Percentage of Total 🧮 </h3>
       <p>Find what percentage one value is of another.</p>
-    </a>
+      </a>
 
-    <a class="tool" href="/percentage-of-a-number/"
-       data-search="percentage of a number calculator interest calculator" data-cat="math">
-      <h3>％ Percent of a Number</h3>
+      <a class="tool" href="/percentage-of-a-number/"
+      data-search="percentage of a number calculator interest calculator">
+      <h3>Percent of a Number ％ </h3>
       <p>Calculate the value of X% of any number.</p>
-    </a>
+      </a>
 
-    <a class="tool" href="/percentage-change-calculator/"
-       data-search="percentage change calculator" data-cat="math">
-      <h3>📈 Percentage Change</h3>
-      <p>See how much a value has increased or decreased.</p>
-    </a>
+      <a class="tool" href="/percentage-change-calculator/"
+      data-search="percentage change calculator">
+      <h3>Percentage Change Calculator 📈</h3>
+      <p>Calculate how much a value has increased or decreased.</p>
+      </a>
 
-    <a class="tool" href="/percentage-difference-calculator/"
-       data-search="percentage difference calculator" data-cat="math">
-      <h3>📊 Percentage Difference</h3>
-      <p>Find how different two values are from each other.</p>
-    </a>
+      <a class="tool" href="/percentage-difference-calculator/"
+      data-search="percentage difference calculator">
+      <h3>Percentage Difference Calculator 📊</h3>
+      <p>how different two values are from each other.</p>
+      </a>
 
-    <a class="tool" href="/scientific-converter/"
-       data-search="scientific notation to decimal converter decimal to scientific notation" data-cat="math">
-      <h3>⚙️ Scientific ⇄ Decimal</h3>
-      <p>Convert between scientific notation and decimal form.</p>
-    </a>
+      <a class="tool" href="/scientific-converter/"
+      data-search="scientific notaion to decimal converter decimal to scientific notation">
+      <h3>Scientific Notation ⇄ Decimal Converter ⚙️</h3>
+      <p>Convert scientific notation to decimal and vice versa.</p>
+      </a>
 
-  </section>
+      <a class="tool" href="/weight-converter/"
+      data-search="universal weight converter">
+      <h3>⚖️ Universal Weight Converter</h3>
+      <p>weight converter, gram to kg, kg to pound, ounce to gram etc</p>
+      </a>
 
-  <!-- ─── SCIENCE ─── -->
-  <div class="section-label">Science &amp; Space</div>
-  <section class="tools">
+      <a class="tool" href="/stock-profit-calculator/"
+      data-search="stock profit calculator share">
+      <h3>Stock Profit / Loss Calculator 💰</h3>
+      <p>Helps you calculate profit or loss from your share trades.</p>
+      </a>
 
-    <a class="tool" href="/surface-gravity-calculator/"
-       data-search="surface gravity escape velocity calculator" data-cat="science">
-      <h3>🌍 Surface Gravity &amp; Escape Velocity</h3>
-      <p>Calculate g and V<sub>esc</sub> for any planetary body.</p>
-    </a>
+      <a class="tool" href="/average-share-price-calculator/"
+      data-search="average share price calculaor">
+      <h3>Average Share Price Calculator 📊</h3>
+      <p>Calculate average share price for multiple buys.</p>
+      </a>
 
-    <a class="tool" href="/cosmic-calculator/"
-       data-search="cosmic space calculator" data-cat="science">
-      <h3>⭐ Cosmic Calculator</h3>
-      <p>Scale distances from meters to astronomical units.</p>
-    </a>
-
-    <a class="tool" href="/subatomic-calculator/"
-       data-search="subatomic calculator" data-cat="science">
-      <h3>⚛️ Subatomic Calculator</h3>
-      <p>Precision calculations for quantum-scale values.</p>
-    </a>
-
-    <a class="tool" href="/black-hole-radius-calculator/"
-       data-search="black hole schwarzschild radius calculator" data-cat="science">
-      <h3>⭕ Black Hole Event Horizon</h3>
-      <p>Calculate the Schwarzschild radius of any black hole.</p>
-    </a>
-
-    <a class="tool" href="/your-weight-in-space/"
-       data-search="your weight on various space objects" data-cat="science">
+      <a class="tool" href="/your-weight-in-space/"
+      data-search="your weight on various space objects ">
       <h3>🪐 Your Weight in Space</h3>
-      <p>See how much you'd weigh on different planets and moons.</p>
-    </a>
+      <p>See how much you would weigh on different space objects</p>
+      </a>
 
-    <a class="tool" href="/density-and-volume-calculator/"
-       data-search="density volume calculator" data-cat="science">
-      <h3>🧱 Density &amp; Volume</h3>
-      <p>Calculate density or volume from mass and measurements.</p>
-    </a>
-
-  </section>
-
-  <!-- ─── FINANCE & CONVERSION ─── -->
-  <div class="section-label">Finance &amp; Conversion</div>
-  <section class="tools">
-
-    <a class="tool" href="/stock-profit-calculator/"
-       data-search="stock profit calculator share" data-cat="finance">
-      <h3>💰 Stock Profit / Loss</h3>
-      <p>Calculate profit or loss from your share trades.</p>
-    </a>
-
-    <a class="tool" href="/average-share-price-calculator/"
-       data-search="average share price calculator" data-cat="finance">
-      <h3>📊 Average Share Price</h3>
-      <p>Average out your share price across multiple buys.</p>
-    </a>
-
-    <a class="tool" href="/emi-calculator/"
-       data-search="loan emi calculator monthly payment interest" data-cat="finance">
+      <a class="tool" href="/emi-calculator/"
+      data-search="loan emi calculator monthly payment interest">      
       <h3>🏦 EMI Calculator</h3>
-      <p>Calculate your monthly loan repayment instantly.</p>
+      <p>Calculate your monthly loan EMI instantly</p>
+      </a>
+
+
+</section>
+
+<div class="share-bar">
+  <span class="share-label">Share</span>
+
+  <button onclick="shareWhatsApp()" title="WhatsApp">🟢</button>
+  <button onclick="shareFacebook()" title="Facebook">🔵</button>
+  <button onclick="shareX()" title="X">🐦</button>
+  <button onclick="shareDiscord()" title="Discord">💬</button>
+</div>
+
+
+
+<footer>
+  <p>
+    © 2026 RameshVerse · Created by Ramesh Singh
+    <a href="https://www.youtube.com/@v4vfx"
+       target="_blank"
+       rel="noopener"
+       style="color:#ffffff; text-decoration:none;">
+      ▶️ YouTube Channel
     </a>
+  </p>
+</footer>
 
-    <a class="tool" href="/weight-converter/"
-       data-search="universal weight converter gram kg pound ounce" data-cat="math">
-      <h3>⚖️ Weight Converter</h3>
-      <p>Convert between grams, kg, pounds, ounces and more.</p>
-    </a>
+<script>
+  //for search tool dont mess here
+function searchTools() {
+  const query = document
+    .getElementById("searchInput")
+    .value
+    .trim()
+    .toLowerCase();
 
-    <a class="tool" href="/time-converter/"
-       data-search="time converter calculator seconds minutes hours days" data-cat="math">
-      <h3>⏱️ Time Converter</h3>
-      <p>Convert between seconds, minutes, hours, and days.</p>
-    </a>
+  const tools = document.querySelectorAll(".tool");
 
-    <a class="tool" href="/seconds-to-frames/"
-       data-search="seconds to frames calculator fps" data-cat="math">
-      <h3>🎞️ Seconds to Frames</h3>
-      <p>Convert time to frames for any FPS value.</p>
-    </a>
-
-  </section>
-
-  <!-- ─── NO RESULTS ─── -->
-  <div class="no-results" id="no-results">No tools match your search.</div>
-
-  <!-- ─── SHARE ─── -->
-  <div class="share-bar">
-    <span class="share-label">Share</span>
-    <button class="share-btn" onclick="shareWhatsApp()" title="Share on WhatsApp">💬</button>
-    <button class="share-btn" onclick="shareFacebook()" title="Share on Facebook">🔵</button>
-    <button class="share-btn" onclick="shareX()" title="Share on X">🐦</button>
-    <button class="share-btn" onclick="shareDiscord()" title="Copy for Discord">📋</button>
-  </div>
-
-  <!-- ─── FOOTER ─── -->
-  <footer>
-    <p>© 2026 RameshVerse · Created by Ramesh Singh &nbsp;·&nbsp;
-      <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">▶ YouTube</a>
-    </p>
-  </footer>
-
-  <script>
-    /* ─── SEARCH ─── */
-    function searchTools() {
-      const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      const tools    = document.querySelectorAll('.tool');
-      const labels   = document.querySelectorAll('.section-label');
-      const sections = document.querySelectorAll('section.tools');
-      let anyVisible = false;
-
-      tools.forEach(tool => {
-        const text = (tool.dataset.search || tool.textContent).toLowerCase();
-        const match = q === '' || text.includes(q);
-        tool.style.display = match ? '' : 'none';
-        if (match) anyVisible = true;
-      });
-
-      // hide empty sections + their labels
-      sections.forEach((sec, i) => {
-        const visible = [...sec.querySelectorAll('.tool')].some(t => t.style.display !== 'none');
-        sec.style.display = visible ? '' : 'none';
-        if (labels[i]) labels[i].style.display = visible ? '' : 'none';
-      });
-
-      document.getElementById('no-results').style.display = anyVisible ? 'none' : 'block';
+  tools.forEach(tool => {
+    if (query === "") {
+      tool.style.display = "";
+      return;
     }
 
-    /* ─── KEYBOARD SHORTCUT ─── */
-    document.addEventListener('keydown', e => {
-      if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
-        e.preventDefault();
-        document.getElementById('searchInput').focus();
-      }
-    });
+    const searchText = tool.dataset.search
+      ? tool.dataset.search.toLowerCase()
+      : tool.textContent.toLowerCase();
 
-    /* ─── SHARE ─── */
-    const siteURL  = encodeURIComponent(window.location.href);
-    const siteText = encodeURIComponent('Check out these interactive tools for learning & productivity 🚀');
+    /* ✅ PHRASE PREFIX MATCH */
+    const match = searchText.startsWith(query)
+               || searchText.includes(" " + query);
 
-    function shareWhatsApp() { window.open(`https://wa.me/?text=${siteText}%20${siteURL}`, '_blank'); }
-    function shareFacebook() { window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteURL}`, '_blank'); }
-    function shareX()        { window.open(`https://twitter.com/intent/tweet?text=${siteText}&url=${siteURL}`, '_blank'); }
-    function shareDiscord()  { navigator.clipboard.writeText(window.location.href); alert('Link copied! Paste it into Discord.'); }
-  </script>
+    tool.style.display = match ? "" : "none";
+  });
+}
+</script>
+
+  
+<script>
+
+  //for search shortcut
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+    e.preventDefault();
+    document.getElementById("searchInput").focus();
+  }
+});
+</script>
+    
+
+  
+<script>
+
+  //for share links 
+const siteURL = encodeURIComponent(window.location.href);
+const siteText = encodeURIComponent(
+  "Check out these interactive tools for learning & productivity 🚀"
+);
+
+function shareWhatsApp() {
+  window.open(`https://wa.me/?text=${siteText}%20${siteURL}`, "_blank");
+}
+
+function shareFacebook() {
+  window.open(
+    `https://www.facebook.com/sharer/sharer.php?u=${siteURL}`,
+    "_blank"
+  );
+}
+
+function shareX() {
+  window.open(
+    `https://twitter.com/intent/tweet?text=${siteText}&url=${siteURL}`,
+    "_blank"
+  );
+}
+
+function shareDiscord() {
+  navigator.clipboard.writeText(window.location.href);
+  alert("Link copied! Paste it into Discord.");
+}
+</script>
 </body>
 </html>
