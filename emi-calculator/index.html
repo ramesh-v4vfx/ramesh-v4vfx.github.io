@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>EMI Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1927;
+    --surface2: #232235;
+    --border: rgba(255,255,255,0.08);
+    --accent: #e8c547;
+    --accent2: #5eead4;
+    --accent3: #f97066;
+    --text: #f0ece2;
+    --muted: #8a87a0;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-top: 12px;
+  }
+
+  .tagline {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 6vw, 42px);
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 20px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  .field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+
+  .field-label {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .field-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .field-value span {
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 99px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+    transition: transform 0.15s;
+  }
+
+  input[type="range"]:active::-webkit-slider-thumb {
+    transform: scale(1.2);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg);
+  }
+
+  .range-track-wrapper {
+    position: relative;
+    padding: 8px 0;
+  }
+
+  .range-limits {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .range-limit {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .number-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .num-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    -moz-appearance: textfield;
+  }
+
+  .num-input::-webkit-outer-spin-button,
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .num-input:focus { border-color: var(--accent); }
+
+  .unit-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .result-tile {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 16px 14px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-tile.featured {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #1e1c10 0%, #231f0e 100%);
+    border-color: rgba(232, 197, 71, 0.3);
+  }
+
+  .result-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 2px 0 0 2px;
+  }
+
+  .result-tile.featured::before { background: var(--accent); }
+  .result-tile.interest::before { background: var(--accent3); }
+  .result-tile.total::before { background: var(--accent2); }
+
+  .tile-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 8px;
+  }
+
+  .tile-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(20px, 5vw, 26px);
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .result-tile.featured .tile-value {
+    color: var(--accent);
+    font-size: clamp(26px, 6vw, 36px);
+  }
+
+  .tile-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .breakdown-bar {
+    height: 8px;
+    border-radius: 99px;
+    background: var(--surface2);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60%;
+    height: 100%;
+    background: var(--accent3);
+    border-radius: 99px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+
+
+  .error-msg {
+    display: none;
+    background: rgba(249, 112, 102, 0.1);
+    border: 1px solid rgba(249, 112, 102, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--accent3);
+    margin-bottom: 16px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 20px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  @media (min-width: 480px) {
+    body { max-width: 460px; margin: 0 auto; padding: 32px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="tagline">Loan Planner</p>
+  <h1>EMI <em>Calculator</em></h1>
+</header>
+
+<div class="error-msg" id="errorMsg">Please enter valid positive values for all fields.</div>
+
+<div class="card">
+  <p class="card-title">Loan Details</p>
+
+  <div class="field">
+    <div class="field-header">
+      <span class="field-label">Principal amount</span>
+      <span class="field-value" id="principalDisplay">₹5,00,000</span>
+    </div>
+    <div class="range-track-wrapper">
+      <input type="range" id="principalRange" min="10000" max="10000000" step="10000" value="500000">
+    </div>
+    <div class="range-limits">
+      <span class="range-limit">₹10K</span>
+      <span class="range-limit">₹1Cr</span>
+    </div>
+    <div class="number-input-row">
+      <input type="number" class="num-input" id="principalInput" min="10000" max="10000000" value="500000" placeholder="Amount">
+      <span class="unit-badge">₹ INR</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-header">
+      <span class="field-label">Annual interest rate</span>
+      <span class="field-value" id="rateDisplay">8.5 <span>% p.a.</span></span>
+    </div>
+    <div class="range-track-wrapper">
+      <input type="range" id="rateRange" min="1" max="30" step="0.1" value="8.5">
+    </div>
+    <div class="range-limits">
+      <span class="range-limit">1%</span>
+      <span class="range-limit">30%</span>
+    </div>
+    <div class="number-input-row">
+      <input type="number" class="num-input" id="rateInput" min="0.1" max="30" step="0.1" value="8.5" placeholder="Rate">
+      <span class="unit-badge">% / yr</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-header">
+      <span class="field-label">Loan tenure</span>
+      <span class="field-value" id="tenureDisplay">5 <span>years</span></span>
+    </div>
+    <div class="range-track-wrapper">
+      <input type="range" id="tenureRange" min="1" max="30" step="1" value="5">
+    </div>
+    <div class="range-limits">
+      <span class="range-limit">1 yr</span>
+      <span class="range-limit">30 yrs</span>
+    </div>
+    <div class="number-input-row">
+      <input type="number" class="num-input" id="tenureInput" min="1" max="30" value="5" placeholder="Years">
+      <span class="unit-badge">Years</span>
+    </div>
+  </div>
+</div>
+
+<div class="results-grid">
+  <div class="result-tile featured">
+    <p class="tile-label">Monthly EMI</p>
+    <p class="tile-value" id="emiResult">₹0</p>
+    <p class="tile-sub" id="emiSub">per month for 60 months</p>
+  </div>
+  <div class="result-tile interest">
+    <p class="tile-label">Total interest</p>
+    <p class="tile-value" id="interestResult">₹0</p>
+    <p class="tile-sub" id="interestPercent">0% of principal</p>
+  </div>
+  <div class="result-tile total">
+    <p class="tile-label">Total payable</p>
+    <p class="tile-value" id="totalResult">₹0</p>
+    <p class="tile-sub">principal + interest</p>
+  </div>
+</div>
+
+<div class="card" id="breakdownCard">
+  <p class="card-title">Cost breakdown</p>
+  <div class="breakdown-bar">
+    <div class="bar-fill" id="breakdownBar" style="width: 60%;"></div>
+  </div>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background: var(--accent);"></div>
+      <span>Principal <strong id="principalPct" style="color:var(--text);">—</strong></span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: var(--accent3);"></div>
+      <span>Interest <strong id="interestPct" style="color:var(--text);">—</strong></span>
+    </div>
+  </div>
+</div>
+
+
+
+<footer>All calculations use standard reducing-balance method · Indicative only</footer>
+
+<script>
+  // --- Precise arithmetic helpers (avoid floating-point drift) ---
+  function round2(n) { return Math.round(n * 100) / 100; }
+  function roundToInt(n) { return Math.round(n); }
+
+  function formatINR(n) {
+    n = round2(n);
+    return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function calcEMI(P, annualRate, years) {
+    const n = roundToInt(years * 12);
+    if (annualRate === 0) {
+      return round2(P / n);
+    }
+    const r = round2(annualRate / 12 / 100 * 1e10) / 1e10; // precision guard
+    const factor = Math.pow(1 + r, n);
+    const emi = P * r * factor / (factor - 1);
+    return round2(emi);
+  }
+
+  function buildSchedule(P, annualRate, years) {
+    const n = roundToInt(years * 12);
+    const r = annualRate === 0 ? 0 : (round2(annualRate / 12 / 100 * 1e10) / 1e10);
+    const emi = calcEMI(P, annualRate, years);
+
+    let balance = round2(P);
+    const rows = [];
+    let totalInterestPaid = 0;
+
+    for (let i = 1; i <= n; i++) {
+      const interestPart = round2(balance * r);
+      let principalPart = round2(emi - interestPart);
+
+      // Last month correction to avoid floating drift
+      if (i === n) {
+        principalPart = balance;
+      }
+
+      totalInterestPaid = round2(totalInterestPaid + interestPart);
+      balance = round2(balance - principalPart);
+      if (balance < 0) balance = 0;
+
+      rows.push({ i, emi: round2(interestPart + principalPart), interest: interestPart, principal: principalPart, balance });
+    }
+    return { rows, totalInterestPaid };
+  }
+
+  // --- Sync range ↔ text input ---
+  function linkInputs(rangeId, inputId, displayId, formatter, onUpdate) {
+    const range = document.getElementById(rangeId);
+    const input = document.getElementById(inputId);
+
+    range.addEventListener('input', () => {
+      input.value = range.value;
+      document.getElementById(displayId).innerHTML = formatter(parseFloat(range.value));
+      onUpdate();
+    });
+    input.addEventListener('input', () => {
+      const v = parseFloat(input.value);
+      if (!isNaN(v) && v >= parseFloat(range.min) && v <= parseFloat(range.max)) {
+        range.value = v;
+        document.getElementById(displayId).innerHTML = formatter(v);
+        onUpdate();
+      }
+    });
+  }
+
+  function principalFmt(v) {
+    if (v >= 1e7) return '₹' + (v/1e7).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
+    if (v >= 1e5) return '₹' + (v/1e5).toFixed(1).replace(/\.?0+$/, '') + ' L';
+    return '₹' + roundToInt(v).toLocaleString('en-IN');
+  }
+  function rateFmt(v) { return parseFloat(v).toFixed(1) + ' <span>% p.a.</span>'; }
+  function tenureFmt(v) { return Math.round(v) + ' <span>' + (Math.round(v) === 1 ? 'year' : 'years') + '</span>'; }
+
+  function getValues() {
+    return {
+      P: parseFloat(document.getElementById('principalInput').value),
+      r: parseFloat(document.getElementById('rateInput').value),
+      y: parseFloat(document.getElementById('tenureInput').value)
+    };
+  }
+
+  function validate({ P, r, y }) {
+    return P > 0 && r > 0 && y > 0 && !isNaN(P) && !isNaN(r) && !isNaN(y);
+  }
+
+  function update() {
+    const { P, r, y } = getValues();
+    const err = document.getElementById('errorMsg');
+
+    if (!validate({ P, r, y })) {
+      err.style.display = 'block';
+      return;
+    }
+    err.style.display = 'none';
+
+    const emi = calcEMI(P, r, y);
+    const months = roundToInt(y * 12);
+    const { totalInterestPaid } = buildSchedule(P, r, y);
+    const totalPayable = round2(emi * months);
+    const correctedInterest = round2(totalPayable - P);
+
+    document.getElementById('emiResult').textContent = formatINR(emi);
+    document.getElementById('emiSub').textContent = `per month for ${months} months`;
+    document.getElementById('interestResult').textContent = formatINR(correctedInterest);
+    const ipct = round2(correctedInterest / P * 100);
+    document.getElementById('interestPercent').textContent = ipct.toFixed(1) + '% of principal';
+    document.getElementById('totalResult').textContent = formatINR(totalPayable);
+
+    // breakdown bar
+    const principalPct = round2(P / totalPayable * 100);
+    const intPct = round2(100 - principalPct);
+    document.getElementById('breakdownBar').style.width = principalPct + '%';
+    document.getElementById('principalPct').textContent = principalPct.toFixed(1) + '%';
+    document.getElementById('interestPct').textContent = intPct.toFixed(1) + '%';
+
+
+  }
+
+  linkInputs('principalRange', 'principalInput', 'principalDisplay', principalFmt, update);
+  linkInputs('rateRange', 'rateInput', 'rateDisplay', rateFmt, update);
+  linkInputs('tenureRange', 'tenureInput', 'tenureDisplay', tenureFmt, update);
+
+  update();
+</script>
+</body>
+</html>
