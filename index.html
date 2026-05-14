@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
 
-  <link rel="canonical" href="https://rameshverse.com/" />
-
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
 <script>
@@ -13,129 +11,149 @@
 
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
-  
-  <meta charset="UTF-8" />
 
+<meta charset="UTF-8">
 <title>Free Productivity & Learning Tools – Calculators, Timers & Apps | RameshVerse</title>
+<meta name="description" content="Fast, free productivity and learning tools — calculators, focus timers, educational apps and more. Clean, lightweight and distraction-free." />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="RameshVerse – Interactive Tools Hub" />
+<meta property="og:description" content="Fast, lightweight productivity and learning tools like calculators, focus timers and educational apps." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://rameshverse.com/" />
+<meta name="theme-color" content="#0e0101">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-
-  <meta name="description"
-  content="Fast, free productivity and learning tools — calculators, focus timers, educational apps and more. Clean, lightweight and distraction-free." />
-
-
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Open Graph (for link previews) -->
-  <meta property="og:title" content="RameshVerse – Interactive Tools Hub" />
-  <meta property="og:description"
-  content="Fast, lightweight productivity and learning tools like calculators, focus timers and educational apps." />
-
-
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://rameshverse.com/" />
-
-  <meta name="theme-color" content="#0e0101">
-
-
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-
-
-  <style>
-
-    h1 {
-  color: #ea6d6d; /* any color */
-}
-
+<style>
+  h1 { color: #ea6d6d; }
 
   .search-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 520px;
+    padding: 14px 14px;
+    border-radius: 12px;
+    background: #1f0303;
+    border: 2px solid rgba(255,255,255,0.35);
+    box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 18px rgba(106,169,255,.18), inset 0 0 0 1px rgba(255,255,255,.04);
+    transition: box-shadow .25s ease, border-color .25s ease;
+  }
 
-  width: 100%;
-  max-width: 520px; /* slightly less wide */
+  .site-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    color: #ff0000;
+    font-size: 15px;
+  }
 
-  padding: 14px 14px;
-  border-radius: 12px;
+  html, body { overscroll-behavior: none; }
+  html { background: #0e0101; }
 
-  background: #1f0303;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0e0101;
+    color: #ffffff;
+  }
 
-  box-shadow:
-    0 6px 18px rgba(0,0,0,.45),
-    0 0 18px rgba(106,169,255,.18),   /* 👈 idle glow */
-    inset 0 0 0 1px rgba(255,255,255,.04);
+  header {
+    padding: 30px 16px 0px;
+    text-align: center;
+    max-width: 820px;
+    margin: 0 auto;
+  }
 
-  transition: box-shadow .25s ease, border-color .25s ease;
-}
+  header h1 {
+    margin: 0 0 5px 0;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+  }
 
-.site-search input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  box-shadow: none;
+  header p {
+    opacity: 0.6;
+    margin-top: 0px;
+    font-size: 0.95rem;
+  }
 
-  color: #ff0000;
-  font-size: 15px;
-}
+  /* ── STICKY SEARCH + TABS WRAPPER ── */
+  .sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: linear-gradient(180deg, rgba(14,1,1,.97), rgba(14,1,1,.90));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    padding-bottom: 0;
+    
+  }
 
+  .site-search {
+    padding: 14px 12px 30px;
+    display: flex;
+    justify-content: center;
+  }
 
+  .search-wrap:focus-within {
+    border-color: #6aa9ff;
+    box-shadow: 0 0 0 4px rgba(106,169,255,.25), 0 8px 22px rgb(60,82,246);
+  }
 
+  .site-search input::placeholder { color: rgba(229,231,235,.45); }
 
-    html, body {
-      overscroll-behavior: none;
-    }
+  /* ── TABS ── */
+  .tabs-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0 0px 0px;
+  }
 
-    html {
-      background: #0e0101;
-    }
+  .tab-btn {
+    background: #1f0303;
+    border: 1.5px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.65);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, color .2s, transform .15s;
+    white-space: nowrap;
+  }
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0e0101;
-      color: #ffffff;
-    }
+  .tab-btn:hover {
+    background: #2d0505;
+    color: #fff;
+    border-color: rgba(255,100,100,0.5);
+  }
 
-    header {
-       padding: 30px 16px 0px; /* top | sides | bottom */
-      text-align: center;
-       max-width: 820px;
-  margin: 0 auto;
-    }
+  .tab-btn.active {
+    background: #7c1a1a;
+    border-color: #ea6d6d;
+    color: #fff;
+    font-weight: bold;
+  }
 
-    header h1 {
-      margin: 0 0 5px 0;   /* 👈 adds space below title */
-      font-size: clamp(1.4rem, 4vw, 2rem);
-    }
+  .tab-btn:active { transform: scale(0.96); }
 
-    header p {
-      opacity: 0.6;
-      margin-top: 0px;
-      font-size: 0.95rem;
-    }
+  /* ── TOOLS GRID ── */
+  .tools {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    row-gap: 0px;
+    column-gap: 25px;
+    align-items: start;
+    justify-content: start;
+    min-height: 60vh;
+  }
 
-.tools {
-  max-width: 1000px;   /* layout width */
-  margin: 0 auto;
-  padding: 12px;
-
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  row-gap: 0px;     /* vertical spacing */
-  column-gap: 25px; /* horizontal spacing */
-
-  align-items: start;
-  justify-content: start;
-}
-
-
-
-.tool {
+  .tool {
     margin-top: 20px;
     max-width: 280px;
     height: 80px;
@@ -145,611 +163,440 @@
     text-decoration: none;
     color: #fff;
     box-shadow: 0 10px 25px rgba(0,0,0,.4);
-
-     justify-items: center;
-
+    justify-items: center;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     gap: 4px;
-    
-    
-    overflow: hidden;          /* ✅ prevent spill */
-
-    transition:
-    height 0.25s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  position: relative;
-  z-index: 1;
-}
-
-
-
-  .tool:active {
-  transform: scale(0.98);
-  background: #222766;
-}
-
-      .tool:hover {
-      height: 120px; 
-      transform: translateY(-4px);
-      box-shadow: 0 14px 32px rgba(0,0,0,.5);
-      background: #1c2150;
-      z-index: 10;                   /* hover above others */
-    }
-
-.tool h3 {
-  margin: 0;
-
-  /* 👇 fills the card nicely */
-  font-size: clamp(1rem, 2.6vw, 1.15rem);
-  line-height: 1.3;
-  color: #fc7676;
-
-  transition: font-size 0.25s ease, line-height 0.25s ease;
-}
-
-
-.tool h3,
-.tool p {
-  transition: all 0.25s ease;
-}
-    
-
-.tool p {
-  margin: 0;
-  opacity: 0.7;
-
-  font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-  line-height: 1.3;
-
-  transition: font-size 0.25s ease, line-height 0.25s ease;
-}
-
-
-.tool:hover {
-  height: 120px;
-  transform: translateY(-4px);
-  box-shadow: 0 14px 32px rgba(0,0,0,.5);
-  z-index: 10;
-
-  background: linear-gradient(180deg, #1c2460, #171f45);
-  box-shadow:
-    0 14px 32px rgb(141, 33, 33),
-    0 0 0 1px rgb(72, 17, 17);
-}
-
-.tool:hover h3 {
-  font-size: 1.25rem;
-  line-height: 1.35;
-}
-
-.tool:hover p {
-  font-size: 1.05rem;
-  line-height: 1.35;
-}
-
-
-    footer {
-      text-align: center;
-      padding: 0px 20px 0px;
-      opacity: 0.5;
-      font-size: 0.85rem;
-    }
-
-    footer a:hover {
-  opacity: 0.8;
-  text-decoration: underline;
-}
-
-.tool:focus-visible {
-  outline: 2px solid #6aa9ff;
-  outline-offset: 3px;
-}
-
-.site-search {
-
-  
-  margin-top: 18px;
-
-
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-
-  padding: 14px 12px;
-  display: flex;
-  justify-content: center;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(14,1,1,.95),
-      rgba(14,1,1,.85)
-    );
-    -webkit-backdrop-filter: blur(6px); /* ✅ Safari */
-  backdrop-filter: blur(6px);
-}
-
-.search-wrap:focus-within {
-  border-color: #6aa9ff;
-  box-shadow:
-    0 0 0 4px rgba(106,169,255,.25),
-    0 8px 22px rgb(60, 82, 246);
-}
-
-.site-search input::placeholder {
-  color: rgba(229,231,235,.45);
-}
-
-.tools {
-  min-height: 60vh;
-}
-
-.share-bar {
-  margin: 0px auto 0px;
-  max-width: 420px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-
-  background: none;        /* ✅ remove box */
-  border: none;            /* ✅ remove border */
-  box-shadow: none;        /* ✅ remove shadow */
-}
-
-.share-label {
-  font-size: 0.75rem;
-  opacity: 0.45;
-  margin-right: 6px;
-}
-
-.share-bar button {
-  background: transparent;   /* ✅ no tile */
-  border: none;
-  padding: 4px;
-
-  font-size: 1.05rem;
-  cursor: pointer;
-
-  opacity: 0.75;
-  transition: opacity .15s ease, transform .15s ease;
-}
-
-.share-bar button:hover {
-  opacity: 1;
-  transform: translateY(-2px);
-}
-
-.share-bar button:active {
-  transform: scale(0.95);
-}
-
-/* 🌍 Country Explorer – flagship tile */
-.tool-country {
-  grid-column: span 4;      /* 👈 covers 4 tools horizontally */
-  max-width: none;
-   justify-content: center;  
-   height: 80px;
-    align-items: center;     /* centers items horizontally */
-  text-align: center;  
-    }    /* centers text lines */        
-
-
-
-.tool-country:hover {
-  height: 120px;            /* same hover behavior */
-}
-
-/* 🌍 Country Explorer – title hierarchy */
-.tool-country h3 {
-  font-size: 1.7rem;
-  line-height: 1.4;
-}
-
-.tool-country p {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  max-width: 75%;
-}
-
-.tool-country:hover h3 {
-  font-size: 1.7rem;
-}
-
-
-
-
-
-@media (max-width: 600px) {
-  .search-wrap {
-    max-width: 90%;
-    padding: 9px 12px;
-  }
-}
-
-
-@media (max-width: 600px) {
-  .tools {
-    justify-items: center;
+    overflow: hidden;
+    transition: height 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    z-index: 1;
   }
 
-  .tool {
-    width: 100%;
-    max-width: 90%;
-  }
-}
+  .tool:active { transform: scale(0.98); background: #222766; }
 
-@media (max-width: 600px) {
-  header p {
-    font-size: 0.9rem;
-  }
-}
-
-@media (hover: none) {
   .tool:hover {
-    background: #161a35;                 /* same as normal */
-    box-shadow: 0 10px 25px rgba(0,0,0,.4); /* subtle / default */
-    transform: none;                     /* no lift */
-  }
-
-  .tool:active {
+    height: 120px;
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(0,0,0,.5);
     background: #1c2150;
-    transform: scale(0.98);
-  }
-}
-
-@media (max-width: 600px) {
-  .tool {
-    height: 64px;          /* 👈 less blocky */
-    padding: 10px 14px;   /* tighter spacing */
+    z-index: 10;
   }
 
   .tool h3 {
-    font-size: 0.95rem;   /* slightly smaller */
-    line-height: 1.2;
+    margin: 0;
+    font-size: clamp(1rem, 2.6vw, 1.15rem);
+    line-height: 1.3;
+    color: #fc7676;
+    transition: font-size 0.25s ease, line-height 0.25s ease;
   }
+
+  .tool h3, .tool p { transition: all 0.25s ease; }
 
   .tool p {
-    font-size: 0.78rem;
-    line-height: 1.2;
+    margin: 0;
+    opacity: 0.7;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    line-height: 1.3;
+    transition: font-size 0.25s ease, line-height 0.25s ease;
   }
-}
 
-@media (hover: none) {
   .tool:hover {
-    height: 80px !important;
-    background: #161a35 !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,.4) !important;
-    transform: none !important;
+    height: 120px;
+    transform: translateY(-4px);
+    background: linear-gradient(180deg, #1c2460, #171f45);
+    box-shadow: 0 14px 32px rgb(141,33,33), 0 0 0 1px rgb(72,17,17);
+    z-index: 10;
   }
 
-  .tool:hover h3,
-  .tool:hover p {
-    font-size: inherit !important;
-    line-height: inherit !important;
-  }
-}
+  .tool:hover h3 { font-size: 1.25rem; line-height: 1.35; }
+  .tool:hover p  { font-size: 1.05rem; line-height: 1.35; }
 
-@media (max-width: 600px) {
-  .site-search input {
-    max-width: 92%;
+  footer {
+    text-align: center;
+    padding: 0px 20px 0px;
+    opacity: 0.5;
+    font-size: 0.85rem;
   }
-}
 
-@media (max-width: 600px) {
+  footer a:hover { opacity: 0.8; text-decoration: underline; }
+
+  .tool:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 3px; }
+
+  /* ── FLAGSHIP TILE ── */
   .tool-country {
-    grid-column: span 1;   /* stack like normal */
+    grid-column: span 4;
+    max-width: none;
+    justify-content: center;
+    height: 80px;
+    align-items: center;
+    text-align: center;
   }
-}
+  .tool-country:hover { height: 120px; }
+  .tool-country h3 { font-size: 1.7rem; line-height: 1.4; }
+  .tool-country p  { font-size: 1.05rem; line-height: 1.6; max-width: 75%; }
+  .tool-country:hover h3 { font-size: 1.7rem; }
 
-@media (max-width: 600px) {
-  .tool-country {
-    justify-content: space-between;
+  /* ── SHARE BAR ── */
+  .share-bar {
+    margin: 0px auto 0px;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    box-shadow: none;
   }
-}
 
+  .share-label { font-size: 0.75rem; opacity: 0.45; margin-right: 6px; }
 
-  </style>
+  .share-bar button {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+
+  .share-bar button:hover  { opacity: 1; transform: translateY(-2px); }
+  .share-bar button:active { transform: scale(0.95); }
+
+  /* ── NO RESULTS ── */
+  .no-results {
+    display: none;
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    opacity: 0.45;
+    font-size: 1rem;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .search-wrap { max-width: 90%; padding: 9px 12px; }
+    .site-search input { max-width: 92%; }
+    .tools { justify-items: center; }
+    .tool { width: 100%; max-width: 90%; height: 64px; padding: 10px 14px; }
+    .tool h3 { font-size: 0.95rem; line-height: 1.2; }
+    .tool p   { font-size: 0.78rem; line-height: 1.2; }
+    .tool-country { grid-column: span 1; justify-content: space-between; }
+    header p { font-size: 0.9rem; }
+    .tabs-bar { gap: 5px; padding: 0 8px 8px; }
+    .tab-btn { font-size: 0.78rem; padding: 4px 11px; }
+  }
+
+  @media (hover: none) {
+    .tool:hover {
+      height: 80px !important;
+      background: #161a35 !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,.4) !important;
+      transform: none !important;
+    }
+    .tool:hover h3, .tool:hover p { font-size: inherit !important; line-height: inherit !important; }
+    .tool:active { background: #1c2150; transform: scale(0.98); }
+  }
+</style>
 </head>
 <body>
 
-  <header>
+<header>
   <h1>Interactive Tools for Learning & Productivity</h1>
+  <p>rameshverse is a collection of fast, distraction-free tools for productivity, learning, and exploration - including calculators, focus timers, and science apps.</p>
+</header>
 
+<!-- STICKY SEARCH + TABS -->
+<div class="sticky-top">
+  <div class="site-search">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="searchInput" placeholder="Type or press / to search" oninput="handleSearch()" />
+    </div>
+  </div>
 
-<p>
-rameshverse is a collection of fast, distraction-free tools for productivity,
-learning, and exploration - including calculators, focus timers, and science apps.
-</p>
-
-
-  </header>
-
-<div class="site-search">
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input
-      type="search"
-      id="searchInput"
-      placeholder="Type or press / to search"
-      oninput="searchTools()"
-    />
+  <div class="tabs-bar" id="tabsBar">
+    <button class="tab-btn active" data-tab="all"       onclick="setTab(this)">⚡ All</button>
+    <button class="tab-btn"        data-tab="productivity" onclick="setTab(this)">📋 Productivity</button>
+    <button class="tab-btn"        data-tab="calculator"   onclick="setTab(this)">🧮 Calculators</button>
+    <button class="tab-btn"        data-tab="science"      onclick="setTab(this)">🔬 Science & Space</button>
+    <button class="tab-btn"        data-tab="finance"      onclick="setTab(this)">💰 Finance</button>
+    <button class="tab-btn"        data-tab="geography"    onclick="setTab(this)">🌍 Geography</button>
   </div>
 </div>
 
+<!-- TOOLS GRID -->
+<section class="tools" id="toolsGrid">
 
+  <a class="tool" href="/top-10-tasks-monitor/"
+     data-search="top 10 tasks task monitor productivity"
+     data-category="productivity">
+    <h3>Top 10 Task Monitor 📋</h3>
+    <p>Increase productivity by tracking tasks that are still pending.</p>
+  </a>
 
-<section class="tools">
+  <a class="tool" href="/session-logger/"
+     data-search="session logger productivity"
+     data-category="productivity">
+    <h3>Session Logger 📝⏳</h3>
+    <p>Log your work sessions, and turn your time into measurable productivity.</p>
+  </a>
 
-      
+  <a class="tool" href="/my-diary/"
+     data-search="my calm daily diary productivity"
+     data-category="productivity">
+    <h3>My Calm Diary 📔🌸</h3>
+    <p>A quiet space to write, reflect, and unwind. Auto-saves to your device • Downloadable</p>
+  </a>
 
-      <a class="tool" href="/top-10-tasks-monitor/"
-      data-search="top 10 tasks task monitor productivity">
-      <h3>Top 10 Task Monitor 📋</h3>
-      <p>Increase productivity by tracking tasks that are still pending.</p>
-      </a>
+  <a class="tool" href="/surface-gravity-calculator/"
+     data-search="surface gravity escape velocity calculator"
+     data-category="science calculator">
+    <h3>Surface Gravity 🌍🧲 &amp; Escape Velocity Calculator 🚀</h3>
+    <p>know g and Vesc</p>
+  </a>
 
-      <a class="tool" href="/session-logger/"
-      data-search="session logger productivity">
-      <h3>Session Logger 📝⏳</h3>
-      <p>Log your work sessions, and turn your time into measurable productivity.</p>
-      </a>
+  <a class="tool tool-country" href="/country-explorer/"
+     data-search="country explorer geography flags quiz map"
+     data-category="geography">
+    <h3>Country Explorer 🌍</h3>
+    <p>Explore countries, play card game, play country quiz and get certificates, compare countries and more.</p>
+  </a>
 
-      <a class="tool" href="/my-diary/"
-      data-search="my calm daily diary productivity">
-      <h3>My Calm Diary 📔🌸</h3>
-      <p>A quiet space to write, reflect, and unwind. Auto-saves to your device • Downloadable</p>
-      </a>
+  <a class="tool" href="/pomodoro-focus/"
+     data-search="pomodoro focus timer productivity"
+     data-category="productivity">
+    <h3>Pomodoro Focus 🍅🎯</h3>
+    <p>Stay focused using the Pomodoro technique to work better, not longer.</p>
+  </a>
 
-      <a class="tool" href="/surface-gravity-calculator/"
-      data-search="surface gravity escape velocity calculator">
-      <h3>Surface Gravity 🌍🧲 & Escape Velocity Calculator 🚀</h3>
-      <p>know g and Vesc</p>
-      </a>
+  <a class="tool" href="/division-pro/"
+     data-search="division pro calculator"
+     data-category="calculator">
+    <h3>Division Pro ➗</h3>
+    <p>Divide numbers instantly and get both quotient and remainder.</p>
+  </a>
 
-      <a class="tool tool-country" href="/country-explorer/"
-      data-search="country explorer geography flags quiz map">
-      <h3>Country Explorer 🌍</h3>
-      <p>Explore countries, play card game, play country quiz and get cetificates, compare countries and more. </p>
-      </a>
+  <a class="tool" href="/mean-median-mode/"
+     data-search="mean median mode calculator"
+     data-category="calculator">
+    <h3>Mean · Median · Mode 🧮</h3>
+    <p>Calculate mean, median, and mode instantly for any dataset.</p>
+  </a>
 
-      <a class="tool" href="/pomodoro-focus/"
-      data-search="pomodoro focus timer productivity">
-      <h3>Pomodoro Focus 🍅🎯</h3>
-      <p>Stay focused using the Pomodoro technique to work better, not longer.</p>
-      </a>
+  <a class="tool" href="/seconds-to-frames/"
+     data-search="seconds to frames calculator"
+     data-category="calculator">
+    <h3>Seconds to Frames 🎞️</h3>
+    <p>A simple tool to calculate frames from seconds for any FPS.</p>
+  </a>
 
-      <a class="tool" href="/division-pro/"
-      data-search="division pro calculator">
-      <h3>Division Pro ➗</h3>
-      <p>Divide numbers instantly and get both quotient and remainder.</p>
-      </a>
+  <a class="tool" href="/time-converter/"
+     data-search="time converter calculator"
+     data-category="calculator">
+    <h3>Time Converter ⏱️🔄</h3>
+    <p>Convert time units instantly: seconds, minutes, hours, days, and more.</p>
+  </a>
 
-      <a class="tool" href="/mean-median-mode/"
-      data-search="mean median mode calculator">
-      <h3>Mean · Median · Mode 🧮</h3>
-      <p>Calculate mean, median, and mode instantly for any dataset.</p>
-      </a>
+  <a class="tool" href="/cosmic-calculator/"
+     data-search="cosmic space calculator"
+     data-category="science calculator">
+    <h3>Cosmic Calculator ⭐</h3>
+    <p>Calculate cosmic-scale distances from meters to astronomical units.</p>
+  </a>
 
-      <a class="tool" href="/seconds-to-frames/"
-      data-search="seconds to frames calculator">
-      <h3>Seconds to Frames 🎞️</h3>
-      <p>A simple tool to calculate frames from seconds for any FPS.</p>
-      </a>
+  <a class="tool" href="/subatomic-calculator/"
+     data-search="subatomic calculator"
+     data-category="science calculator">
+    <h3>Subatomic Calculator ⚛️</h3>
+    <p>A precision calculator for sub-atomic and quantum-scale values.</p>
+  </a>
 
-      <a class="tool" href="/time-converter/"
-      data-search="time converter calculator">
-      <h3>Time Converter ⏱️🔄</h3>
-      <p>Convert time units instantly: seconds, minutes, hours, days, and more.</p>
-      </a>
+  <a class="tool" href="/black-hole-radius-calculator/"
+     data-search="black hole schwarzschild radius calculator"
+     data-category="science calculator">
+    <h3>Black Hole Event Horizon Radius Calculator ⭕</h3>
+    <p>Calculate the event horizon radius.</p>
+  </a>
 
-      <a class="tool" href="/cosmic-calculator/"
-      data-search="cosmic space calculator">
-      <h3>Cosmic Calculator ⭐</h3>
-      <p>Calculate cosmic-scale distances from meters to astronomical units.</p>
-      </a>
+  <a class="tool" href="/density-and-volume-calculator/"
+     data-search="density volume calculator"
+     data-category="science calculator">
+    <h3>Density and Volume Calculator 🧱🧊</h3>
+    <p>Calculate density and volume quickly using mass and measurements.</p>
+  </a>
 
-      <a class="tool" href="/subatomic-calculator/"
-      data-search="subatomic calculator">
-      <h3>Subatomic Calculator ⚛️</h3>
-      <p>A precision calculator for sub-atomic and quantum-scale values.</p>
-      </a>
+  <a class="tool" href="/brain-dump/"
+     data-search="brain dump productivity tool"
+     data-category="productivity">
+    <h3>🧠🧹 Brain Dump</h3>
+    <p>A simple space to dump your thoughts and clear your mind.</p>
+  </a>
 
-      <a class="tool" href="/black-hole-radius-calculator/"
-      data-search="black hole schwarzschild radius calculator">
-      <h3>Black Hole Event Horizon Radius Calculator ⭕</h3>
-      <p>Calculate the event horizon radius.</p>
-      </a>
+  <a class="tool" href="/daily-routine/"
+     data-search="daily routine productivity tool"
+     data-category="productivity">
+    <h3>Daily Routine ⏰</h3>
+    <p>A gentle daily checklist for busy schedules</p>
+  </a>
 
-       <a class="tool" href="/density-and-volume-calculator/"
-       data-search="density volume calculator">
-      <h3>Density and Volume Calculator 🧱🧊</h3>
-      <p>Calculate density and volume quickly using mass and measurements.</p>
-      </a>
+  <a class="tool" href="/international-airtravel-checklist/"
+     data-search="international travel checklist productivity tool"
+     data-category="productivity">
+    <h3>International Travel Checklist 🧳✈️</h3>
+    <p>A checklist for stress-free international air travel.</p>
+  </a>
 
-      <a class="tool" href="/brain-dump/"
-      data-search="brain dump productivity tool">
-      <h3>🧠🧹 Brain Dump</h3>
-      <p>A simple space to dump your thoughts and clear your mind.</p>
-      </a>
+  <a class="tool" href="/percentage-of-total/"
+     data-search="percentage of total calculator exam number"
+     data-category="calculator">
+    <h3>Percentage of Total 🧮</h3>
+    <p>Find what percentage one value is of another.</p>
+  </a>
 
-      <a class="tool" href="/daily-routine/"
-      data-search="daily routine productivity tool">
-      <h3>Daily Routine ⏰</h3>
-      <p>A gentle daily checklist for busy schedules</p>
-      </a>
+  <a class="tool" href="/percentage-of-a-number/"
+     data-search="percentage of a number calculator interest calculator"
+     data-category="calculator">
+    <h3>Percent of a Number ％</h3>
+    <p>Calculate the value of X% of any number.</p>
+  </a>
 
-      <a class="tool" href="/international-airtravel-checklist/"
-      data-search="international travel checklist productivity tool">
-      <h3>International Travel Checklist 🧳✈️</h3>
-      <p>A checklist for stress-free international air travel.</p>
-      </a>
+  <a class="tool" href="/percentage-change-calculator/"
+     data-search="percentage change calculator"
+     data-category="calculator">
+    <h3>Percentage Change Calculator 📈</h3>
+    <p>Calculate how much a value has increased or decreased.</p>
+  </a>
 
-      <a class="tool" href="/percentage-of-total/"
-      data-search="percentage of total calculator exam number">
-      <h3>Percentage of Total 🧮 </h3>
-      <p>Find what percentage one value is of another.</p>
-      </a>
+  <a class="tool" href="/percentage-difference-calculator/"
+     data-search="percentage difference calculator"
+     data-category="calculator">
+    <h3>Percentage Difference Calculator 📊</h3>
+    <p>how different two values are from each other.</p>
+  </a>
 
-      <a class="tool" href="/percentage-of-a-number/"
-      data-search="percentage of a number calculator interest calculator">
-      <h3>Percent of a Number ％ </h3>
-      <p>Calculate the value of X% of any number.</p>
-      </a>
+  <a class="tool" href="/scientific-converter/"
+     data-search="scientific notation to decimal converter decimal to scientific notation"
+     data-category="calculator science">
+    <h3>Scientific Notation ⇄ Decimal Converter ⚙️</h3>
+    <p>Convert scientific notation to decimal and vice versa.</p>
+  </a>
 
-      <a class="tool" href="/percentage-change-calculator/"
-      data-search="percentage change calculator">
-      <h3>Percentage Change Calculator 📈</h3>
-      <p>Calculate how much a value has increased or decreased.</p>
-      </a>
+  <a class="tool" href="/weight-converter/"
+     data-search="universal weight converter"
+     data-category="calculator">
+    <h3>⚖️ Universal Weight Converter</h3>
+    <p>weight converter, gram to kg, kg to pound, ounce to gram etc</p>
+  </a>
 
-      <a class="tool" href="/percentage-difference-calculator/"
-      data-search="percentage difference calculator">
-      <h3>Percentage Difference Calculator 📊</h3>
-      <p>how different two values are from each other.</p>
-      </a>
+  <a class="tool" href="/stock-profit-calculator/"
+     data-search="stock profit calculator share"
+     data-category="finance">
+    <h3>Stock Profit / Loss Calculator 💰</h3>
+    <p>Helps you calculate profit or loss from your share trades.</p>
+  </a>
 
-      <a class="tool" href="/scientific-converter/"
-      data-search="scientific notaion to decimal converter decimal to scientific notation">
-      <h3>Scientific Notation ⇄ Decimal Converter ⚙️</h3>
-      <p>Convert scientific notation to decimal and vice versa.</p>
-      </a>
+  <a class="tool" href="/average-share-price-calculator/"
+     data-search="average share price calculator"
+     data-category="finance">
+    <h3>Average Share Price Calculator 📊</h3>
+    <p>Calculate average share price for multiple buys.</p>
+  </a>
 
-      <a class="tool" href="/weight-converter/"
-      data-search="universal weight converter">
-      <h3>⚖️ Universal Weight Converter</h3>
-      <p>weight converter, gram to kg, kg to pound, ounce to gram etc</p>
-      </a>
+  <a class="tool" href="/your-weight-in-space/"
+     data-search="your weight on various space objects"
+     data-category="science">
+    <h3>🪐 Your Weight in Space</h3>
+    <p>See how much you would weigh on different space objects</p>
+  </a>
 
-      <a class="tool" href="/stock-profit-calculator/"
-      data-search="stock profit calculator share">
-      <h3>Stock Profit / Loss Calculator 💰</h3>
-      <p>Helps you calculate profit or loss from your share trades.</p>
-      </a>
+  <a class="tool" href="/emi-calculator/"
+     data-search="loan emi calculator monthly payment interest"
+     data-category="finance calculator">
+    <h3>🏦 EMI Calculator</h3>
+    <p>Calculate your monthly loan EMI instantly</p>
+  </a>
 
-      <a class="tool" href="/average-share-price-calculator/"
-      data-search="average share price calculaor">
-      <h3>Average Share Price Calculator 📊</h3>
-      <p>Calculate average share price for multiple buys.</p>
-      </a>
-
-      <a class="tool" href="/your-weight-in-space/"
-      data-search="your weight on various space objects ">
-      <h3>🪐 Your Weight in Space</h3>
-      <p>See how much you would weigh on different space objects</p>
-      </a>
-
-      <a class="tool" href="/emi-calculator/"
-      data-search="loan emi calculator monthly payment interest">      
-      <h3>🏦 EMI Calculator</h3>
-      <p>Calculate your monthly loan EMI instantly</p>
-      </a>
-
+  <p class="no-results" id="noResults">No tools found. Try a different search or tab.</p>
 
 </section>
 
 <div class="share-bar">
   <span class="share-label">Share</span>
-
   <button onclick="shareWhatsApp()" title="WhatsApp">🟢</button>
   <button onclick="shareFacebook()" title="Facebook">🔵</button>
   <button onclick="shareX()" title="X">🐦</button>
   <button onclick="shareDiscord()" title="Discord">💬</button>
 </div>
 
-
-
 <footer>
   <p>
     © 2026 RameshVerse · Created by Ramesh Singh
-    <a href="https://www.youtube.com/@v4vfx"
-       target="_blank"
-       rel="noopener"
-       style="color:#ffffff; text-decoration:none;">
-      ▶️ YouTube Channel
-    </a>
+    <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener"
+       style="color:#ffffff; text-decoration:none;">▶️ YouTube Channel</a>
   </p>
 </footer>
 
 <script>
-  //for search tool dont mess here
-function searchTools() {
-  const query = document
-    .getElementById("searchInput")
-    .value
-    .trim()
-    .toLowerCase();
+  let activeTab = "all";
+  let searchQuery = "";
 
-  const tools = document.querySelectorAll(".tool");
+  function filterTools() {
+    const tools = document.querySelectorAll(".tool");
+    let visibleCount = 0;
 
-  tools.forEach(tool => {
-    if (query === "") {
-      tool.style.display = "";
-      return;
-    }
+    tools.forEach(tool => {
+      const searchText = (tool.dataset.search || tool.textContent).toLowerCase();
+      const catText    = (tool.dataset.category || "").toLowerCase();
 
-    const searchText = tool.dataset.search
-      ? tool.dataset.search.toLowerCase()
-      : tool.textContent.toLowerCase();
+      const matchSearch = searchQuery === ""
+        || searchText.startsWith(searchQuery)
+        || searchText.includes(" " + searchQuery);
 
-    /* ✅ PHRASE PREFIX MATCH */
-    const match = searchText.startsWith(query)
-               || searchText.includes(" " + query);
+      const matchTab = activeTab === "all"
+        || catText.split(" ").includes(activeTab);
 
-    tool.style.display = match ? "" : "none";
-  });
-}
-</script>
+      const show = matchSearch && matchTab;
+      tool.style.display = show ? "" : "none";
+      if (show) visibleCount++;
+    });
 
-  
-<script>
-
-  //for search shortcut
-document.addEventListener("keydown", e => {
-  if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
-    e.preventDefault();
-    document.getElementById("searchInput").focus();
+    document.getElementById("noResults").style.display =
+      visibleCount === 0 ? "block" : "none";
   }
-});
+
+  function handleSearch() {
+    searchQuery = document.getElementById("searchInput").value.trim().toLowerCase();
+    filterTools();
+  }
+
+  function setTab(btn) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeTab = btn.dataset.tab;
+    filterTools();
+  }
+
+  // Press / to focus search
+  document.addEventListener("keydown", e => {
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+      e.preventDefault();
+      document.getElementById("searchInput").focus();
+    }
+  });
+
+  // Share
+  const siteURL  = encodeURIComponent(window.location.href);
+  const siteText = encodeURIComponent("Check out these interactive tools for learning & productivity 🚀");
+
+  function shareWhatsApp() { window.open(`https://wa.me/?text=${siteText}%20${siteURL}`, "_blank"); }
+  function shareFacebook() { window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteURL}`, "_blank"); }
+  function shareX()        { window.open(`https://twitter.com/intent/tweet?text=${siteText}&url=${siteURL}`, "_blank"); }
+  function shareDiscord()  { navigator.clipboard.writeText(window.location.href); alert("Link copied! Paste it into Discord."); }
 </script>
-    
 
-  
-<script>
-
-  //for share links 
-const siteURL = encodeURIComponent(window.location.href);
-const siteText = encodeURIComponent(
-  "Check out these interactive tools for learning & productivity 🚀"
-);
-
-function shareWhatsApp() {
-  window.open(`https://wa.me/?text=${siteText}%20${siteURL}`, "_blank");
-}
-
-function shareFacebook() {
-  window.open(
-    `https://www.facebook.com/sharer/sharer.php?u=${siteURL}`,
-    "_blank"
-  );
-}
-
-function shareX() {
-  window.open(
-    `https://twitter.com/intent/tweet?text=${siteText}&url=${siteURL}`,
-    "_blank"
-  );
-}
-
-function shareDiscord() {
-  navigator.clipboard.writeText(window.location.href);
-  alert("Link copied! Paste it into Discord.");
-}
-</script>
 </body>
 </html>
