@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Currency Converter</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-tertiary: #eeecea;
+    --text: #1a1a18;
+    --text-secondary: #6b6a66;
+    --text-tertiary: #9e9d99;
+    --border: rgba(0,0,0,0.12);
+    --border-secondary: rgba(0,0,0,0.18);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg-secondary: #252522;
+      --bg-tertiary: #2e2e2b;
+      --text: #f0efe9;
+      --text-secondary: #a8a7a2;
+      --text-tertiary: #6b6a66;
+      --border: rgba(255,255,255,0.1);
+      --border-secondary: rgba(255,255,255,0.16);
+    }
+  }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg-tertiary);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .cc-wrap {
+    background: var(--bg);
+    border-radius: 20px;
+    border: 0.5px solid var(--border);
+    padding: 2rem 1.75rem 2.5rem;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+  }
+
+  .cc-header { margin-bottom: 2rem; }
+
+  .cc-brand {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+  }
+
+  .cc-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    margin-bottom: 0;
+  }
+
+  .cc-update-note {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+    padding: 0 2px;
+  }
+
+  .cc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 400;
+    font-style: normal;
+    color: #cc0000;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+  }
+
+  .cc-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .cc-field-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  .cc-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .cc-amount-input {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cc-amount-input::placeholder { color: var(--text-tertiary); }
+  .cc-amount-input::-webkit-outer-spin-button,
+  .cc-amount-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .cc-amount-input[type=number] { -moz-appearance: textfield; }
+
+  .cur-picker {
+    position: relative;
+    min-width: 130px;
+  }
+
+  .cur-trigger {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    padding: 8px 12px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: border-color 0.12s;
+  }
+
+  .cur-trigger:hover { border-color: var(--border-secondary); }
+  .cur-trigger .arrow { margin-left: auto; font-size: 10px; color: var(--text-tertiary); }
+
+  .cur-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 220px;
+    background: var(--bg);
+    border: 0.5px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .cur-dropdown.open { display: block; }
+
+  .cur-search {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    background: var(--bg-secondary);
+    border: none;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    width: 100%;
+    outline: none;
+  }
+
+  .cur-search::placeholder { color: var(--text-tertiary); }
+
+  .cur-list {
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .cur-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 9px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+    transition: background 0.1s;
+  }
+
+  .cur-item:hover { background: var(--bg-secondary); }
+  .cur-item.selected { background: var(--bg-tertiary); font-weight: 500; }
+
+  .cur-item .cur-name {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  .cur-item mark {
+    background: #cc000022;
+    color: #cc0000;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  .cur-no-results {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    padding: 12px;
+    text-align: center;
+  }
+
+  .cc-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 1rem;
+  }
+
+  .cc-divider-line {
+    flex: 1;
+    height: 0.5px;
+    background: var(--border);
+  }
+
+  .cc-swap-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border-secondary);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .cc-swap-btn:hover {
+    border-color: var(--text-tertiary);
+    color: var(--text);
+  }
+
+  .cc-result-card {
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .cc-result-value {
+    font-family: 'Fraunces', serif;
+    font-size: 44px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+    word-break: break-all;
+  }
+
+  .cc-result-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+  }
+
+  .cc-rate-strip {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+
+  .cc-rate-pill {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border);
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+
+
+  .cc-status {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 1rem;
+    min-height: 16px;
+    letter-spacing: 0.04em;
+  }
+
+  .cc-status.loading { color: var(--text-secondary); }
+  .cc-status.error { color: #c0392b; }
+
+  .cc-trending { margin-top: 1.5rem; }
+
+  .cc-trending-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+  }
+
+  .cc-pair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+    gap: 8px;
+  }
+
+  .cc-pair-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    padding: 8px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+  }
+
+  .cc-pair-btn:hover {
+    border-color: var(--border-secondary);
+    color: var(--text);
+    background: var(--bg-secondary);
+  }
+
+  .attribution {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 1.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .disclaimer {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    margin-top: 1.25rem;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+  }
+
+  .attribution a {
+    color: var(--text-tertiary);
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<div class="cc-wrap">
+  <div class="cc-header">
+    <div class="cc-brand">rameshverse.com</div>
+    <div class="cc-title">Currency Converter</div>
+    <div class="cc-eyebrow">Exchange rates · updated every 24 hours</div>
+  </div>
+
+  <div class="cc-card">
+    <div class="cc-field-label">You send</div>
+    <div class="cc-row">
+      <input class="cc-amount-input" id="amount" type="number" value="100" min="0" step="any" placeholder="0">
+      <div class="cur-picker" id="fromPicker">
+        <button class="cur-trigger" id="fromTrigger">
+          <span id="fromFlag">🇺🇸</span><span id="fromCode">USD</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="cur-dropdown" id="fromDropdown">
+          <input class="cur-search" id="fromSearch" placeholder="search currency..." autocomplete="off">
+          <div class="cur-list" id="fromList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cc-divider">
+    <div class="cc-divider-line"></div>
+    <button class="cc-swap-btn" id="swapBtn">⇅ swap</button>
+    <div class="cc-divider-line"></div>
+  </div>
+
+  <div class="cc-result-card">
+    <div class="cc-field-label">You receive</div>
+    <div class="cc-row" style="align-items: flex-end; gap: 14px; flex-wrap: wrap;">
+      <div class="cc-result-value" id="resultVal">—</div>
+      <div class="cur-picker" id="toPicker" style="margin-bottom: 6px;">
+        <button class="cur-trigger" id="toTrigger">
+          <span id="toFlag">🇮🇳</span><span id="toCode">INR</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="cur-dropdown" id="toDropdown">
+          <input class="cur-search" id="toSearch" placeholder="search currency..." autocomplete="off">
+          <div class="cur-list" id="toList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cc-result-meta" id="rateInfo">enter an amount above</div>
+  </div>
+
+  <div class="cc-rate-strip" id="rateStrip"></div>
+  <div class="cc-update-note">Rates are updated every 24 hours. Last update shown in status below.</div>
+
+
+  <div class="cc-status" id="statusMsg">rates from open.er-api.com — no API key needed</div>
+
+  <div class="cc-trending">
+    <div class="cc-trending-label">Quick pairs</div>
+    <div class="cc-pair-grid" id="pairGrid"></div>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ Disclaimer: All rates shown are mid-market reference rates for informational purposes only. They do not reflect the actual rate you will receive when exchanging currency. Banks, airports, and exchange counters apply their own fees and markups — meaning the real rate you get will always differ. This app is not intended for financial transactions or forex trading.
+  </div>
+
+  <div class="attribution">
+    Exchange rates by <a href="https://www.exchangerate-api.com" target="_blank">ExchangeRate-API</a>
+  </div>
+</div>
+
+<script>
+const CURRENCIES = [
+  {code:'USD',flag:'🇺🇸',name:'US Dollar'},
+  {code:'EUR',flag:'🇪🇺',name:'Euro'},
+  {code:'GBP',flag:'🇬🇧',name:'British Pound'},
+  {code:'INR',flag:'🇮🇳',name:'Indian Rupee'},
+  {code:'JPY',flag:'🇯🇵',name:'Japanese Yen'},
+  {code:'CAD',flag:'🇨🇦',name:'Canadian Dollar'},
+  {code:'AUD',flag:'🇦🇺',name:'Australian Dollar'},
+  {code:'CHF',flag:'🇨🇭',name:'Swiss Franc'},
+  {code:'CNY',flag:'🇨🇳',name:'Chinese Yuan'},
+  {code:'SGD',flag:'🇸🇬',name:'Singapore Dollar'},
+  {code:'HKD',flag:'🇭🇰',name:'Hong Kong Dollar'},
+  {code:'MXN',flag:'🇲🇽',name:'Mexican Peso'},
+  {code:'BRL',flag:'🇧🇷',name:'Brazilian Real'},
+  {code:'KRW',flag:'🇰🇷',name:'Korean Won'},
+  {code:'SEK',flag:'🇸🇪',name:'Swedish Krona'},
+  {code:'NOK',flag:'🇳🇴',name:'Norwegian Krone'},
+  {code:'DKK',flag:'🇩🇰',name:'Danish Krone'},
+  {code:'NZD',flag:'🇳🇿',name:'New Zealand Dollar'},
+  {code:'ZAR',flag:'🇿🇦',name:'South African Rand'},
+  {code:'AED',flag:'🇦🇪',name:'UAE Dirham'},
+  {code:'SAR',flag:'🇸🇦',name:'Saudi Riyal'},
+  {code:'THB',flag:'🇹🇭',name:'Thai Baht'},
+  {code:'IDR',flag:'🇮🇩',name:'Indonesian Rupiah'},
+  {code:'MYR',flag:'🇲🇾',name:'Malaysian Ringgit'},
+  {code:'PHP',flag:'🇵🇭',name:'Philippine Peso'},
+  {code:'PKR',flag:'🇵🇰',name:'Pakistani Rupee'},
+  {code:'TRY',flag:'🇹🇷',name:'Turkish Lira'},
+  {code:'RUB',flag:'🇷🇺',name:'Russian Ruble'},
+  {code:'PLN',flag:'🇵🇱',name:'Polish Zloty'},
+  {code:'CZK',flag:'🇨🇿',name:'Czech Koruna'},
+  {code:'HUF',flag:'🇭🇺',name:'Hungarian Forint'},
+  {code:'ILS',flag:'🇮🇱',name:'Israeli Shekel'},
+  {code:'CLP',flag:'🇨🇱',name:'Chilean Peso'},
+  {code:'COP',flag:'🇨🇴',name:'Colombian Peso'},
+  {code:'PEN',flag:'🇵🇪',name:'Peruvian Sol'},
+  {code:'ARS',flag:'🇦🇷',name:'Argentine Peso'},
+  {code:'VND',flag:'🇻🇳',name:'Vietnamese Dong'},
+  {code:'BDT',flag:'🇧🇩',name:'Bangladeshi Taka'},
+  {code:'LKR',flag:'🇱🇰',name:'Sri Lankan Rupee'},
+  {code:'NPR',flag:'🇳🇵',name:'Nepalese Rupee'},
+  {code:'MMK',flag:'🇲🇲',name:'Myanmar Kyat'},
+  {code:'KHR',flag:'🇰🇭',name:'Cambodian Riel'},
+  {code:'LAK',flag:'🇱🇦',name:'Lao Kip'},
+  {code:'TWD',flag:'🇹🇼',name:'Taiwan Dollar'},
+  {code:'KZT',flag:'🇰🇿',name:'Kazakhstani Tenge'},
+  {code:'UZS',flag:'🇺🇿',name:'Uzbekistani Som'},
+  {code:'GEL',flag:'🇬🇪',name:'Georgian Lari'},
+  {code:'AMD',flag:'🇦🇲',name:'Armenian Dram'},
+  {code:'AZN',flag:'🇦🇿',name:'Azerbaijani Manat'},
+  {code:'BYN',flag:'🇧🇾',name:'Belarusian Ruble'},
+  {code:'UAH',flag:'🇺🇦',name:'Ukrainian Hryvnia'},
+  {code:'MDL',flag:'🇲🇩',name:'Moldovan Leu'},
+  {code:'RON',flag:'🇷🇴',name:'Romanian Leu'},
+  {code:'BGN',flag:'🇧🇬',name:'Bulgarian Lev'},
+  {code:'HRK',flag:'🇭🇷',name:'Croatian Kuna'},
+  {code:'RSD',flag:'🇷🇸',name:'Serbian Dinar'},
+  {code:'BAM',flag:'🇧🇦',name:'Bosnia Mark'},
+  {code:'MKD',flag:'🇲🇰',name:'Macedonian Denar'},
+  {code:'ALL',flag:'🇦🇱',name:'Albanian Lek'},
+  {code:'ISK',flag:'🇮🇸',name:'Icelandic Krona'},
+  {code:'GBP',flag:'🇬🇧',name:'British Pound'},
+  {code:'EGP',flag:'🇪🇬',name:'Egyptian Pound'},
+  {code:'NGN',flag:'🇳🇬',name:'Nigerian Naira'},
+  {code:'KES',flag:'🇰🇪',name:'Kenyan Shilling'},
+  {code:'GHS',flag:'🇬🇭',name:'Ghanaian Cedi'},
+  {code:'TZS',flag:'🇹🇿',name:'Tanzanian Shilling'},
+  {code:'UGX',flag:'🇺🇬',name:'Ugandan Shilling'},
+  {code:'ETB',flag:'🇪🇹',name:'Ethiopian Birr'},
+  {code:'DZD',flag:'🇩🇿',name:'Algerian Dinar'},
+  {code:'MAD',flag:'🇲🇦',name:'Moroccan Dirham'},
+  {code:'TND',flag:'🇹🇳',name:'Tunisian Dinar'},
+  {code:'LYD',flag:'🇱🇾',name:'Libyan Dinar'},
+  {code:'SDG',flag:'🇸🇩',name:'Sudanese Pound'},
+  {code:'MUR',flag:'🇲🇺',name:'Mauritian Rupee'},
+  {code:'SCR',flag:'🇸🇨',name:'Seychellois Rupee'},
+  {code:'BWP',flag:'🇧🇼',name:'Botswana Pula'},
+  {code:'ZMW',flag:'🇿🇲',name:'Zambian Kwacha'},
+  {code:'MZN',flag:'🇲🇿',name:'Mozambican Metical'},
+  {code:'NAD',flag:'🇳🇦',name:'Namibian Dollar'},
+  {code:'QAR',flag:'🇶🇦',name:'Qatari Riyal'},
+  {code:'KWD',flag:'🇰🇼',name:'Kuwaiti Dinar'},
+  {code:'BHD',flag:'🇧🇭',name:'Bahraini Dinar'},
+  {code:'OMR',flag:'🇴🇲',name:'Omani Rial'},
+  {code:'JOD',flag:'🇯🇴',name:'Jordanian Dinar'},
+  {code:'LBP',flag:'🇱🇧',name:'Lebanese Pound'},
+  {code:'SYP',flag:'🇸🇾',name:'Syrian Pound'},
+  {code:'IQD',flag:'🇮🇶',name:'Iraqi Dinar'},
+  {code:'IRR',flag:'🇮🇷',name:'Iranian Rial'},
+  {code:'AFN',flag:'🇦🇫',name:'Afghan Afghani'},
+  {code:'UYU',flag:'🇺🇾',name:'Uruguayan Peso'},
+  {code:'PYG',flag:'🇵🇾',name:'Paraguayan Guarani'},
+  {code:'BOB',flag:'🇧🇴',name:'Bolivian Boliviano'},
+  {code:'GTQ',flag:'🇬🇹',name:'Guatemalan Quetzal'},
+  {code:'HNL',flag:'🇭🇳',name:'Honduran Lempira'},
+  {code:'NIO',flag:'🇳🇮',name:'Nicaraguan Cordoba'},
+  {code:'CRC',flag:'🇨🇷',name:'Costa Rican Colon'},
+  {code:'PAB',flag:'🇵🇦',name:'Panamanian Balboa'},
+  {code:'DOP',flag:'🇩🇴',name:'Dominican Peso'},
+  {code:'CUP',flag:'🇨🇺',name:'Cuban Peso'},
+  {code:'JMD',flag:'🇯🇲',name:'Jamaican Dollar'},
+  {code:'TTD',flag:'🇹🇹',name:'Trinidad Dollar'},
+  {code:'BBD',flag:'🇧🇧',name:'Barbadian Dollar'},
+  {code:'BSD',flag:'🇧🇸',name:'Bahamian Dollar'},
+  {code:'HTG',flag:'🇭🇹',name:'Haitian Gourde'},
+  {code:'FJD',flag:'🇫🇯',name:'Fijian Dollar'},
+  {code:'PGK',flag:'🇵🇬',name:'Papua New Guinea Kina'},
+  {code:'WST',flag:'🇼🇸',name:'Samoan Tala'},
+  {code:'TOP',flag:'🇹🇴',name:'Tongan Paanga'},
+  {code:'VUV',flag:'🇻🇺',name:'Vanuatu Vatu'},
+  {code:'SBD',flag:'🇸🇧',name:'Solomon Islands Dollar'},
+  {code:'MNT',flag:'🇲🇳',name:'Mongolian Tugrik'},
+  {code:'KGS',flag:'🇰🇬',name:'Kyrgyzstani Som'},
+  {code:'TJS',flag:'🇹🇯',name:'Tajikistani Somoni'},
+  {code:'TMT',flag:'🇹🇲',name:'Turkmenistani Manat'},
+  {code:'MOP',flag:'🇲🇴',name:'Macanese Pataca'},
+  {code:'BND',flag:'🇧🇳',name:'Brunei Dollar'},
+  {code:'KYD',flag:'🇰🇾',name:'Cayman Islands Dollar'},
+  {code:'AWG',flag:'🇦🇼',name:'Aruban Florin'},
+  {code:'ANG',flag:'🇨🇼',name:'Netherlands Antillean Guilder'},
+  {code:'XCD',flag:'🇦🇬',name:'East Caribbean Dollar'},
+  {code:'BMD',flag:'🇧🇲',name:'Bermudian Dollar'},
+  {code:'GYD',flag:'🇬🇾',name:'Guyanese Dollar'},
+  {code:'SRD',flag:'🇸🇷',name:'Surinamese Dollar'},
+  {code:'BZD',flag:'🇧🇿',name:'Belize Dollar'},
+  {code:'MWK',flag:'🇲🇼',name:'Malawian Kwacha'},
+  {code:'RWF',flag:'🇷🇼',name:'Rwandan Franc'},
+  {code:'BIF',flag:'🇧🇮',name:'Burundian Franc'},
+  {code:'DJF',flag:'🇩🇯',name:'Djiboutian Franc'},
+  {code:'ERN',flag:'🇪🇷',name:'Eritrean Nakfa'},
+  {code:'SOS',flag:'🇸🇴',name:'Somali Shilling'},
+  {code:'MGA',flag:'🇲🇬',name:'Malagasy Ariary'},
+  {code:'KMF',flag:'🇰🇲',name:'Comorian Franc'},
+  {code:'CVE',flag:'🇨🇻',name:'Cape Verdean Escudo'},
+  {code:'STN',flag:'🇸🇹',name:'Sao Tome Dobra'},
+  {code:'XOF',flag:'🌍',name:'West African CFA Franc'},
+  {code:'XAF',flag:'🌍',name:'Central African CFA Franc'},
+  {code:'GMD',flag:'🇬🇲',name:'Gambian Dalasi'},
+  {code:'GNF',flag:'🇬🇳',name:'Guinean Franc'},
+  {code:'SLL',flag:'🇸🇱',name:'Sierra Leonean Leone'},
+  {code:'LRD',flag:'🇱🇷',name:'Liberian Dollar'},
+  {code:'CDF',flag:'🇨🇩',name:'Congolese Franc'},
+  {code:'AOA',flag:'🇦🇴',name:'Angolan Kwanza'},
+  {code:'SZL',flag:'🇸🇿',name:'Swazi Lilangeni'},
+  {code:'LSL',flag:'🇱🇸',name:'Lesotho Loti'},
+  {code:'ZWL',flag:'🇿🇼',name:'Zimbabwean Dollar'},
+];
+
+const QUICK_PAIRS = [
+  ['USD','EUR'],['USD','GBP'],['USD','INR'],['EUR','GBP'],
+  ['USD','JPY'],['GBP','INR'],['EUR','JPY'],['AUD','USD'],
+];
+
+let rates = {};
+let lastBase = '';
+let selectedFrom = 'USD';
+let selectedTo = 'INR';
+
+const amountInput = document.getElementById('amount');
+const resultVal = document.getElementById('resultVal');
+const rateInfo = document.getElementById('rateInfo');
+const statusMsg = document.getElementById('statusMsg');
+const rateStrip = document.getElementById('rateStrip');
+const pairGrid = document.getElementById('pairGrid');
+
+function buildList(listEl, searchVal, selectedCode, onSelect) {
+  const q = searchVal.toLowerCase();
+  const filtered = CURRENCIES.filter(c =>
+    c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
+  );
+  listEl.innerHTML = '';
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="cur-no-results">no results</div>';
+    return;
+  }
+  filtered.forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'cur-item' + (c.code === selectedCode ? ' selected' : '');
+    const highlight = (str) => {
+      if (!q) return str;
+      const idx = str.toLowerCase().indexOf(q);
+      if (idx === -1) return str;
+      return str.slice(0,idx) + '<mark>' + str.slice(idx, idx+q.length) + '</mark>' + str.slice(idx+q.length);
+    };
+    item.innerHTML = '<span>' + c.flag + '</span><span>' + highlight(c.code) + '</span><span class="cur-name">' + highlight(c.name) + '</span>';
+    item.addEventListener('click', () => onSelect(c));
+    listEl.appendChild(item);
+  });
+}
+
+function setupPicker(triggerEl, dropdownEl, searchEl, listEl, getSelected, onSelect) {
+  triggerEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = dropdownEl.classList.contains('open');
+    document.querySelectorAll('.cur-dropdown.open').forEach(d => d.classList.remove('open'));
+    if (!isOpen) {
+      dropdownEl.classList.add('open');
+      searchEl.value = '';
+      buildList(listEl, '', getSelected(), onSelect);
+      searchEl.focus();
+    }
+  });
+  searchEl.addEventListener('input', () => {
+    buildList(listEl, searchEl.value, getSelected(), onSelect);
+  });
+  searchEl.addEventListener('click', e => e.stopPropagation());
+}
+
+function setFrom(c) {
+  selectedFrom = c.code;
+  document.getElementById('fromFlag').textContent = c.flag;
+  document.getElementById('fromCode').textContent = c.code;
+  document.getElementById('fromDropdown').classList.remove('open');
+  doConvert();
+}
+
+function setTo(c) {
+  selectedTo = c.code;
+  document.getElementById('toFlag').textContent = c.flag;
+  document.getElementById('toCode').textContent = c.code;
+  document.getElementById('toDropdown').classList.remove('open');
+  doConvert();
+}
+
+setupPicker(
+  document.getElementById('fromTrigger'),
+  document.getElementById('fromDropdown'),
+  document.getElementById('fromSearch'),
+  document.getElementById('fromList'),
+  () => selectedFrom, setFrom
+);
+
+setupPicker(
+  document.getElementById('toTrigger'),
+  document.getElementById('toDropdown'),
+  document.getElementById('toSearch'),
+  document.getElementById('toList'),
+  () => selectedTo, setTo
+);
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.cur-dropdown.open').forEach(d => d.classList.remove('open'));
+});
+
+function setStatus(msg, type) {
+  statusMsg.textContent = msg;
+  statusMsg.className = 'cc-status ' + (type || '');
+}
+
+function saveToStorage(base, ratesData) {
+  try {
+    const payload = { rates: ratesData, timestamp: Date.now() };
+    localStorage.setItem('cc_rates_' + base, JSON.stringify(payload));
+  } catch(e) {}
+}
+
+function loadFromStorage(base) {
+  try {
+    const raw = localStorage.getItem('cc_rates_' + base);
+    if (!raw) return null;
+    const payload = JSON.parse(raw);
+    const ageHours = (Date.now() - payload.timestamp) / (1000 * 60 * 60);
+    return { rates: payload.rates, stale: ageHours >= 24, savedAt: new Date(payload.timestamp) };
+  } catch(e) { return null; }
+}
+
+async function fetchRates(base) {
+  if (rates[base] && lastBase === base) return true;
+
+  const cached = loadFromStorage(base);
+  if (cached && !cached.stale) {
+    rates[base] = cached.rates;
+    lastBase = base;
+    setStatus('updated ' + cached.savedAt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+    return true;
+  }
+
+  setStatus('fetching rates…', 'loading');
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/' + base);
+    const d = await r.json();
+    if (d.result !== 'success') throw new Error('bad response');
+    rates[base] = d.rates;
+    lastBase = base;
+    saveToStorage(base, d.rates);
+    setStatus('updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+    return true;
+  } catch(e) {
+    if (cached) {
+      rates[base] = cached.rates;
+      lastBase = base;
+      setStatus('⚠️ no internet — showing rates from ' + cached.savedAt.toLocaleDateString([], {day:'2-digit',month:'short',year:'numeric'}), 'error');
+      return true;
+    }
+    setStatus('⚠️ no internet & no cached rates — please connect and refresh', 'error');
+    return false;
+  }
+}
+
+function formatAmount(val, code) {
+  if (isNaN(val)) return '—';
+  const decimals = ['JPY','KRW','IDR'].includes(code) ? 0 : 2;
+  return new Intl.NumberFormat('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals}).format(val);
+}
+
+async function doConvert() {
+  const base = selectedFrom;
+  const target = selectedTo;
+  const amt = parseFloat(amountInput.value);
+
+  if (isNaN(amt) || amt < 0) {
+    resultVal.textContent = '—';
+    rateInfo.textContent = 'enter a valid amount';
+    return;
+  }
+
+  if (base === target) {
+    resultVal.textContent = formatAmount(amt, target);
+    rateInfo.textContent = '1 ' + base + ' = 1 ' + target;
+    updateStrip(base, target, 1);
+    return;
+  }
+
+  const ok = await fetchRates(base);
+  if (!ok && !rates[base]) return;
+
+  const rate = rates[base] ? rates[base][target] : null;
+  if (!rate) { resultVal.textContent = '—'; return; }
+
+  const converted = amt * rate;
+  resultVal.textContent = formatAmount(converted, target);
+  rateInfo.textContent = '1 ' + base + ' = ' + rate.toFixed(4) + ' ' + target;
+  updateStrip(base, target, rate);
+}
+
+function updateStrip(base, target, rate) {
+  const checkpoints = [1, 5, 10, 50];
+  rateStrip.innerHTML = '';
+  checkpoints.forEach(n => {
+    const pill = document.createElement('div');
+    pill.className = 'cc-rate-pill';
+    pill.textContent = n + ' ' + base + ' = ' + formatAmount(n * rate, target) + ' ' + target;
+    rateStrip.appendChild(pill);
+  });
+}
+
+function buildPairGrid() {
+  pairGrid.innerHTML = '';
+  QUICK_PAIRS.forEach(([a, b]) => {
+    const btn = document.createElement('button');
+    btn.className = 'cc-pair-btn';
+    const ca = CURRENCIES.find(c => c.code === a);
+    const cb = CURRENCIES.find(c => c.code === b);
+    btn.textContent = (ca ? ca.flag : '') + ' ' + a + ' → ' + (cb ? cb.flag : '') + ' ' + b;
+    btn.addEventListener('click', () => {
+      setFrom(CURRENCIES.find(c => c.code === a));
+      setTo(CURRENCIES.find(c => c.code === b));
+    });
+    pairGrid.appendChild(btn);
+  });
+}
+
+buildPairGrid();
+
+
+document.getElementById('swapBtn').addEventListener('click', () => {
+  const tmpCode = selectedFrom;
+  const fromC = CURRENCIES.find(c => c.code === selectedTo);
+  const toC = CURRENCIES.find(c => c.code === tmpCode);
+  setFrom(fromC);
+  setTo(toC);
+});
+
+amountInput.addEventListener('input', doConvert);
+
+
+doConvert();
+</script>
+</body>
+</html>
