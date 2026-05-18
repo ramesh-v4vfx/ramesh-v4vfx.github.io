@@ -15,13 +15,13 @@
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://rameshverse.com/time-converter" />
-<meta property="og:title" content="Time Converter – Free Online Tool" />
+<meta property="og:title" content="Time Converter" />
 <meta property="og:description" content="Easily convert between nanoseconds, milliseconds, seconds, minutes, hours, days and more. Fast & free!" />
 <meta property="og:image" content="https://rameshverse.com/time-converter/preview-image/time-converter-preview.jpg" />
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Time Converter – Free Online Tool" />
+<meta name="twitter:title" content="Time Converter" />
 <meta name="twitter:description" content="Easily convert between nanoseconds, milliseconds, seconds, minutes, hours, days and more. Fast & free!" />
 <meta name="twitter:image" content="https://rameshverse.com/time-converter/preview-image/time-converter-preview.jpg" />
 
@@ -289,6 +289,20 @@
         Facebook
       </button>
 
+      <!-- Messenger -->
+      <button class="share-icon-btn" id="shareMessenger">
+        <svg viewBox="0 0 24 24">
+          <defs>
+            <linearGradient id="msgGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#0099FF"/>
+              <stop offset="100%" style="stop-color:#A033FF"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#msgGrad)" d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.652V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8.1l3.131 3.26L19.752 8.1l-6.561 6.863z"/>
+        </svg>
+        Messenger
+      </button>
+
       <!-- Instagram -->
       <button class="share-icon-btn" id="shareInstagram">
         <svg viewBox="0 0 24 24">
@@ -448,8 +462,9 @@
     renderHistory();
   }
 
-  function roundSafe(num, decimals) {
-    const factor = 10 ** decimals;
+  // FIX: use integer-safe pow to avoid floating point drift in roundSafe
+  function roundSafe(num, dec) {
+    const factor = Math.round(Math.pow(10, dec)); // Math.round neutralises e.g. 10**7 = 9999999.99...
     return Math.round((num + Number.EPSILON) * factor) / factor;
   }
 
@@ -467,6 +482,16 @@
 
   document.getElementById('shareFacebook').onclick = () =>
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}`, '_blank');
+
+  // Messenger: works on mobile (app deep-link) and desktop (messenger.com)
+  document.getElementById('shareMessenger').onclick = () => {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.open(`fb-messenger://share?link=${encodeURIComponent(APP_URL)}`, '_blank');
+    } else {
+      window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(APP_URL)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(APP_URL)}`, '_blank');
+    }
+  };
 
   document.getElementById('shareInstagram').onclick = () => {
     const btn = document.getElementById('shareInstagram');
