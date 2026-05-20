@@ -12,417 +12,356 @@
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
 
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Top 10 Things To Do</title>
-<style>
-  body {
-    margin: 0;
-    background: #0b0101;
-    font-family: system-ui, sans-serif;
-    color: #e5e7eb;
-  }
 
-  .page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 16px;
-  }
+  <!-- Open Graph (Facebook, WhatsApp, Messenger, Telegram) -->
+  <meta property="og:title"       content="Top 10 Things To Do" />
+  <meta property="og:description" content="A free productivity tool to track your daily top 10 tasks." />
+  <meta property="og:image"       content="https://rameshverse.com/image-preview/top-10-task-image-preview.jpg" />
+  <meta property="og:url"         content="https://rameshverse.com/" />
+  <meta property="og:type"        content="website" />
 
-  .app {
-    width: 100%;
-    max-width: 480px;
-    background: #111827;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  }
-
-  h2 {
-    text-align: center;
-    margin: 0 0 14px;
-  }
-
-  .top-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    background: #1f2933;
-    color: #e5e7eb;
-  }
-
-  button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  .primary { background: #14532d; }
-  .danger { background: #7f1d1d; }
-  .save { background: #374151; }
-  .done { background: #14532d; }
-  .edit { background: #1e3a8a; }
-
-  .task {
-    background: #0b1220;
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
-
-  .row {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-
-  input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #020617;
-    color: #e5e7eb;
-    font-size: 14px;
-  }
-
-  .pending input { color: #ef4444; }
-  .completed input { color: #22c55e; text-decoration: line-through; }
-
-  .status {
-    font-size: 12px;
-    margin-top: 6px;
-    opacity: 0.85;
-  }
-
-  .history {
-    display: none;
-    margin-top: 16px;
-  }
-
-  .history-item {
-    background: #020617;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    font-size: 13px;
-  }
-
-  .history-item span {
-    display: block;
-    color: #22c55e;
-  }
-
-  .saved {
-  background: #14532d !important;
-}
-
-button {
-  transition: transform 0.15s ease, background 0.2s ease;
-}
-
-button:active {
-  transform: scale(0.95);
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
+  <!-- Twitter / X card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Top 10 Things To Do" />
+  <meta name="twitter:description" content="A free productivity tool to track your daily top 10 tasks." />
+  <meta name="twitter:image"       content="https://rameshverse.com/image-preview/top-10-task-image-preview.jpg" />
 
 
-
-
-
-  @media (max-width: 480px) {
-
-  .app {
-    padding: 16px;
-    border-radius: 14px;
-  }
-
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  .top-actions {
-    gap: 8px;
-  }
-
-  .top-actions button {
-    flex: 1;
-  }
-
-  .row {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  input[type="text"] {
-    font-size: 16px; /* prevents iOS zoom */
-  }
-
-  button {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .status {
-    font-size: 12px;
-  }
-
-  #resetAll {
-    font-size: 14px;
-    padding: 12px;
-  }
-}
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Top 10 Things To Do</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background: #0b0101; font-family: system-ui, sans-serif; color: #e5e7eb; }
+    .page { min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 16px; }
+    .app { width: 100%; max-width: 480px; background: #111827; padding: 20px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.5); }
+    h2 { text-align: center; margin: 0 0 14px; }
+    .top-actions { display: flex; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+    button { padding: 8px 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; background: #1f2933; color: #e5e7eb; transition: transform .15s ease, background .2s ease; }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    button:active { transform: scale(.95); }
+    .primary { background: #14532d; }
+    .danger { background: #7f1d1d; }
+    .save { background: #374151; }
+    .done { background: #14532d; }
+    .edit { background: #1e3a8a; }
+    .saved { background: #14532d !important; }
+    .task { background: #0b1220; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+    .row { display: flex; gap: 6px; align-items: center; }
+    input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #020617; color: #e5e7eb; font-size: 14px; }
+    .pending input { color: #ef4444; }
+    .completed input { color: #22c55e; text-decoration: line-through; }
+    .status { font-size: 12px; margin-top: 6px; opacity: .85; }
+    .history { display: none; margin-top: 16px; }
+    .history-item { background: #020617; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; }
+    .history-item span { display: block; color: #22c55e; }
+    #clearHistory { margin-top: 10px; background: #3a1c1c; color: #ffb4b4; width: 100%; }
+    #clearHistory:hover { background: #4a2222; }
+    .share-panel { display: none; background: #0f1220; border-radius: 10px; padding: 12px; margin-top: 8px; }
+    .share-panel p { margin: 0 0 10px; font-size: 13px; opacity: .7; text-align: center; }
+    .share-icons { display: flex; gap: 6px; flex-wrap: wrap; }
+    .share-icon-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #2b2f55; border: none; border-radius: 10px; padding: 10px 4px; cursor: pointer; font-size: 10px; color: #d1d5db; flex: 1; min-width: 50px; transition: background .2s; margin-bottom: 0; width: auto; }
+    .share-icon-btn svg { width: 22px; height: 22px; }
+    .share-icon-btn:hover { background: #3a3f70; opacity: 1; }
+    .share-icon-btn.copied { background: #14532d; }
+    @media (max-width: 480px) {
+      .app { padding: 16px; border-radius: 14px; }
+      h2 { font-size: 1.2rem; }
+      .top-actions button { flex: 1; }
+      .row { flex-wrap: wrap; gap: 6px; }
+      input[type="text"] { font-size: 16px; }
+      button { font-size: 14px; padding: 10px; }
+      .status { font-size: 12px; }
+      #resetAll { font-size: 14px; padding: 12px; }
+    }
+  </style>
 </head>
 <body>
 
 <div class="page">
   <div class="app">
 
-   
-
-
     <h2>Top 10 Things To Do</h2>
 
     <div class="top-actions">
-      <button id="saveReset" class="primary" disabled>Save List & Reset</button>
+      <button id="saveReset" class="primary" disabled>Save List &amp; Reset</button>
       <button id="toggleHistory">Show/Hide History</button>
     </div>
 
     <div id="tasks"></div>
 
     <div class="history" id="history">
-      <button id="clearHistory" class="danger">Clear History</button>
       <div id="historyList"></div>
+      <button id="clearHistory" class="danger">Clear History</button>
     </div>
 
-    <button id="resetAll" class="danger" style="margin-top:14px;width:100%;">
-      Reset All (Fresh Start)
-    </button>
+    <button id="resetAll" class="danger" style="margin-top:14px; width:100%;">Reset All (Fresh Start)</button>
+
+    <button onclick="toggleShare()" style="background:#4c1d95; margin-top:8px; width:100%;">&#128228; Share This App</button>
+
+    <div class="share-panel" id="sharePanel">
+      <p>Share this tool with friends:</p>
+      <div class="share-icons">
+
+        <!-- WhatsApp -->
+        <button class="share-icon-btn" id="shareWhatsapp">
+          <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.123 1.532 5.855L.057 23.885l6.194-1.623A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.499-5.24-1.374l-.375-.222-3.878 1.017 1.034-3.774-.243-.386A9.959 9.959 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          WhatsApp
+        </button>
+
+        <!-- Facebook -->
+        <button class="share-icon-btn" id="shareFacebook">
+          <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.971h-1.513c-1.491 0-1.956.93-1.956 1.874v2.279h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          Facebook
+        </button>
+
+        <!-- Messenger -->
+        <button class="share-icon-btn" id="shareMessenger">
+          <svg viewBox="0 0 24 24">
+            <defs><linearGradient id="msgGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#0099FF"/><stop offset="100%" style="stop-color:#A033FF"/></linearGradient></defs>
+            <path fill="url(#msgGrad)" d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.652V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8.1l3.131 3.26L19.752 8.1l-6.561 6.863z"/>
+          </svg>
+          Messenger
+        </button>
+
+        <!-- Instagram -->
+        <button class="share-icon-btn" id="shareInstagram">
+          <svg viewBox="0 0 24 24">
+            <defs><linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="25%" style="stop-color:#e6683c"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="75%" style="stop-color:#cc2366"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs>
+            <path fill="url(#igGrad)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+          Instagram
+        </button>
+
+        <!-- X (Twitter) -->
+        <button class="share-icon-btn" id="shareTwitter">
+          <svg viewBox="0 0 24 24" fill="#e5e7eb"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X (Twitter)
+        </button>
+
+        <!-- Telegram -->
+        <button class="share-icon-btn" id="shareTelegram">
+          <svg viewBox="0 0 24 24" fill="#229ED9"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          Telegram
+        </button>
+
+        <!-- Copy Link -->
+        <button class="share-icon-btn" id="shareCopy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Link
+        </button>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
 <script>
-const TOTAL = 10;
-const todayKey = 'top10_today';
-const historyKey = 'top10_history';
+  const TOTAL = 10;
+  const todayKey = 'top10_today';
+  const historyKey = 'top10_history';
 
-const tasksEl = document.getElementById('tasks');
-const saveResetBtn = document.getElementById('saveReset');
-const toggleHistoryBtn = document.getElementById('toggleHistory');
-const historyEl = document.getElementById('history');
-const historyList = document.getElementById('historyList');
-const clearHistoryBtn = document.getElementById('clearHistory');
-const resetAllBtn = document.getElementById('resetAll');
+  const tasksEl         = document.getElementById('tasks');
+  const saveResetBtn    = document.getElementById('saveReset');
+  const toggleHistoryBtn= document.getElementById('toggleHistory');
+  const historyEl       = document.getElementById('history');
+  const historyList     = document.getElementById('historyList');
+  const clearHistoryBtn = document.getElementById('clearHistory');
+  const resetAllBtn     = document.getElementById('resetAll');
 
-function formatTime(ms) {
-  const s = Math.floor(ms / 1000);
-  const m = Math.floor(s / 60);
-  const h = Math.floor(m / 60);
-  return `${h}h ${m % 60}m ${s % 60}s`;
-}
+  function formatTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    return `${h}h ${m % 60}m ${s % 60}s`;
+  }
 
-function getToday() {
-  return JSON.parse(localStorage.getItem(todayKey)) || [];
-}
+  function getToday()       { return JSON.parse(localStorage.getItem(todayKey))   || []; }
+  function saveToday(d)     { localStorage.setItem(todayKey,   JSON.stringify(d)); }
+  function getHistory()     { return JSON.parse(localStorage.getItem(historyKey)) || []; }
+  function saveHistory(d)   { localStorage.setItem(historyKey, JSON.stringify(d)); }
+  function allDone(tasks)   { return tasks.length === TOTAL && tasks.every(t => t && t.end); }
 
-function saveToday(data) {
-  localStorage.setItem(todayKey, JSON.stringify(data));
-}
+  function render() {
+    tasksEl.innerHTML = '';
+    const tasks = getToday();
 
-function getHistory() {
-  return JSON.parse(localStorage.getItem(historyKey)) || [];
-}
+    for (let i = 0; i < TOTAL; i++) {
+      const data = tasks[i] || { text: '', lastSavedText: '', start: null, end: null, saved: false };
+      const done = data.end !== null;
 
-function saveHistory(data) {
-  localStorage.setItem(historyKey, JSON.stringify(data));
-}
+      const task = document.createElement('div');
+      task.className = 'task ' + (done ? 'completed' : 'pending');
 
-function allDone(tasks) {
-  return tasks.length === TOTAL && tasks.every(t => t && t.end);
-}
+      const row = document.createElement('div');
+      row.className = 'row';
 
-function render() {
-  tasksEl.innerHTML = '';
-  const tasks = getToday();
-
-  for (let i = 0; i < TOTAL; i++) {
-    const data = tasks[i] || {
-      text: '',
-      lastSavedText: '',
-      start: null,
-      end: null,
-      saved: false
-    };
-
-    const done = data.end !== null;
-
-    const task = document.createElement('div');
-    task.className = 'task ' + (done ? 'completed' : 'pending');
-
-    const row = document.createElement('div');
-    row.className = 'row';
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = `Task ${i + 1}`;
-    input.value = data.text;
-    input.disabled = done;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = `Task ${i + 1}`;
+      input.value = data.text;
+      input.disabled = done;
 
       const saveBtn = document.createElement('button');
       saveBtn.textContent = data.saved ? 'Saved' : 'Save';
       saveBtn.className = 'save';
+      saveBtn.disabled = done || data.saved || !input.value.trim() || input.value === data.lastSavedText;
+      if (data.saved) saveBtn.classList.add('saved');
 
-      saveBtn.disabled =
-      done ||
-      data.saved ||
-      !input.value.trim() ||
-      input.value === data.lastSavedText;
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.className = 'edit';
+      editBtn.disabled = done;
 
-      if (data.saved) {
-      saveBtn.classList.add('saved');
-      }
+      const doneBtn = document.createElement('button');
+      doneBtn.textContent = 'Done';
+      doneBtn.className = 'done';
+      doneBtn.disabled = !data.start || done;
 
+      row.append(input, saveBtn, editBtn, doneBtn);
 
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Edit';
-    editBtn.className = 'edit';
-    editBtn.disabled = done;
+      const status = document.createElement('div');
+      status.className = 'status';
+      if (done)        status.textContent = 'Completed in ' + formatTime(data.end - data.start);
+      else if (data.start) status.textContent = 'In progress…';
+      else             status.textContent = 'Not started';
 
-    const doneBtn = document.createElement('button');
-    doneBtn.textContent = 'Done';
-    doneBtn.className = 'done';
-    doneBtn.disabled = !data.start || done;
+      input.addEventListener('input', () => {
+        saveBtn.disabled = done || data.saved || !input.value.trim() || input.value === data.lastSavedText;
+      });
 
-    row.append(input, saveBtn, editBtn, doneBtn);
+      saveBtn.onclick = () => {
+        data.text = input.value;
+        data.lastSavedText = input.value;
+        data.start = Date.now();
+        data.saved = true;
+        tasks[i] = data;
+        saveToday(tasks);
+        render();
+      };
 
-    const status = document.createElement('div');
-    status.className = 'status';
+      editBtn.onclick = () => {
+        data.saved = false;
+        data.start = null;
+        saveToday(tasks);
+        render();
+        input.focus();
+      };
 
-    if (done) status.textContent = 'Completed in ' + formatTime(data.end - data.start);
-    else if (data.start) status.textContent = 'In progress…';
-    else status.textContent = 'Not started';
+      doneBtn.onclick = () => {
+        data.end = Date.now();
+        tasks[i] = data;
+        saveToday(tasks);
+        render();
+      };
 
-    input.addEventListener('input', () => {
-  saveBtn.disabled =
-    done ||
-    data.saved ||
-    !input.value.trim() ||
-    input.value === data.lastSavedText;
-});
+      task.append(row, status);
+      tasksEl.appendChild(task);
+    }
 
-
-    saveBtn.onclick = () => {
-      data.text = input.value;
-      data.lastSavedText = input.value;
-      data.start = Date.now();
-      data.saved = true;
-      tasks[i] = data;
-      saveToday(tasks);
-       saveBtn.classList.add('saved');
-      render();
-    };
-
-    editBtn.onclick = () => {
-  data.saved = false;          // unlock Save
-  data.start = null;           // reset timer
-  saveToday(tasks);
-  render();
-  input.focus();
-};
-
-
-    doneBtn.onclick = () => {
-      data.end = Date.now();
-      tasks[i] = data;
-      saveToday(tasks);
-      render();
-    };
-
-    task.append(row, status);
-    tasksEl.appendChild(task);
+    saveResetBtn.disabled   = !allDone(tasks);
+    toggleHistoryBtn.disabled = getHistory().length === 0;
   }
 
-  saveResetBtn.disabled = !allDone(tasks);
-  // Disable History button if no history exists
-  toggleHistoryBtn.disabled = getHistory().length === 0;
-
-}
-
-saveResetBtn.onclick = () => {
-  const tasks = getToday();
-  const history = getHistory();
-
-  history.unshift({
-    date: new Date().toLocaleDateString(),
-    tasks
-  });
-
-  saveHistory(history);
-  localStorage.removeItem(todayKey);
-  render();
-};
-
-toggleHistoryBtn.onclick = () => {
-  const isVisible = historyEl.style.display === 'block';
-  historyEl.style.display = isVisible ? 'none' : 'block';
-
-  if (!isVisible) {
-    renderHistory();
-  }
-};
-
-
-function renderHistory() {
-  historyList.innerHTML = '';
-  getHistory().forEach(day => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    div.innerHTML = `<strong>${day.date}</strong>`;
-    day.tasks.forEach(t => {
-      const span = document.createElement('span');
-      span.textContent = `• ${t.text} (${formatTime(t.end - t.start)})`;
-      div.appendChild(span);
-    });
-    historyList.appendChild(div);
-  });
-}
-
-clearHistoryBtn.onclick = () => {
-  if (confirm('Clear history only?')) {
-    localStorage.removeItem(historyKey);
-
-    historyList.innerHTML = '';   // clear UI
-    historyEl.style.display = 'none'; // 👈 hide history panel
-    toggleHistoryBtn.disabled = true;
-
-  }
-};
-
-
-resetAllBtn.onclick = () => {
-  if (confirm('Delete ALL tasks and history?')) {
+  saveResetBtn.onclick = () => {
+    const tasks   = getToday();
+    const history = getHistory();
+    history.unshift({ date: new Date().toLocaleDateString(), tasks });
+    saveHistory(history);
     localStorage.removeItem(todayKey);
-    localStorage.removeItem(historyKey);
-    historyEl.style.display = 'none';
     render();
-  }
-};
+  };
 
-render();
+  toggleHistoryBtn.onclick = () => {
+    const isVisible = historyEl.style.display === 'block';
+    historyEl.style.display = isVisible ? 'none' : 'block';
+    if (!isVisible) renderHistory();
+  };
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    getHistory().forEach(day => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.innerHTML = `<strong>${day.date}</strong>`;
+      day.tasks.forEach(t => {
+        const span = document.createElement('span');
+        span.textContent = `• ${t.text} (${formatTime(t.end - t.start)})`;
+        div.appendChild(span);
+      });
+      historyList.appendChild(div);
+    });
+  }
+
+  clearHistoryBtn.onclick = () => {
+    if (confirm('Clear history only?')) {
+      localStorage.removeItem(historyKey);
+      historyList.innerHTML = '';
+      historyEl.style.display = 'none';
+      toggleHistoryBtn.disabled = true;
+    }
+  };
+
+  resetAllBtn.onclick = () => {
+    if (confirm('Delete ALL tasks and history?')) {
+      localStorage.removeItem(todayKey);
+      localStorage.removeItem(historyKey);
+      historyEl.style.display = 'none';
+      render();
+    }
+  };
+
+  render();
+
+  /* ── Share logic ── */
+  const APP_URL   = window.location.href;
+  const APP_TITLE = 'Top 10 Things To Do – a free productivity tool!';
+
+  function toggleShare() {
+    const p = document.getElementById('sharePanel');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  }
+
+  document.getElementById('shareWhatsapp').onclick = () =>
+    window.open(`https://wa.me/?text=${encodeURIComponent(APP_TITLE + '\n' + APP_URL)}`, '_blank');
+
+  document.getElementById('shareFacebook').onclick = () =>
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}`, '_blank');
+
+  document.getElementById('shareMessenger').onclick = () => {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.open(`fb-messenger://share?link=${encodeURIComponent(APP_URL)}`, '_blank');
+    } else {
+      window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(APP_URL)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(APP_URL)}`, '_blank');
+    }
+  };
+
+  document.getElementById('shareInstagram').onclick = () => {
+    const btn = document.getElementById('shareInstagram');
+    navigator.clipboard.writeText(APP_URL).then(() => {
+      btn.classList.add('copied');
+      btn.lastChild.textContent = 'Link copied!';
+      window.open('https://www.instagram.com/', '_blank');
+      setTimeout(() => { btn.classList.remove('copied'); btn.lastChild.textContent = 'Instagram'; }, 3000);
+    });
+  };
+
+  document.getElementById('shareTwitter').onclick = () =>
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(APP_TITLE)}&url=${encodeURIComponent(APP_URL)}`, '_blank');
+
+  document.getElementById('shareTelegram').onclick = () =>
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(APP_TITLE)}`, '_blank');
+
+  document.getElementById('shareCopy').onclick = () => {
+    const btn = document.getElementById('shareCopy');
+    navigator.clipboard.writeText(APP_URL).then(() => {
+      btn.classList.add('copied');
+      btn.lastChild.textContent = 'Copied!';
+      setTimeout(() => { btn.classList.remove('copied'); btn.lastChild.textContent = 'Copy Link'; }, 2000);
+    });
+  };
 </script>
 
 </body>
