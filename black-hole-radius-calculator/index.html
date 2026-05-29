@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
 <script>
@@ -12,13 +13,22 @@
 </script>
 
 <meta charset="UTF-8">
-
-<meta name="description"
-      content="Calculate the Schwarzschild radius of a black hole instantly using mass. Learn how event horizon radius is derived and explore black hole physics with this interactive calculator." />
-
-
+<meta name="description" content="Calculate the Schwarzschild radius of a black hole instantly using mass. Learn how event horizon radius is derived and explore black hole physics with this interactive calculator." />
 <title>Black Hole Event Horizon Radius Calculator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://rameshverse.com/black-hole-radius-calculator/preview-image/bhrc-preview.jpg" />
+<meta property="og:url" content="https://rameshverse.com/black-hole-radius-calculator" />
+<meta property="og:title" content="Black Hole Radius Calculator" />
+<meta property="og:description" content="Calculate the radius of event horion of Black Hole" />
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://rameshverse.com/black-hole-radius-calculator/preview-image/bhrc-preview.jpg" />
+<meta name="twitter:title" content="Black Hole Radius Calculator" />
+<meta name="twitter:description" content="Calculate the radius of event horion of Black Hole" />
 
 <style>
 :root { color-scheme: dark; }
@@ -37,37 +47,30 @@ body {
   padding: 40px 16px;
 }
 
-/* Fix dropdown list text color */
 select option {
-  color: #000;          /* text inside dropdown */
-  background: #ffffff; /* dropdown background */
+  color: #000;
+  background: #ffffff;
 }
 
-
-/* CARD */
 .calculator-container {
   width: 100%;
   max-width: 420px;
   padding: 32px 28px;
   border-radius: 20px;
   text-align: center;
-
   background:
     radial-gradient(
       120% 120% at 50% 0%,
       rgba(255,255,255,0.08),
       rgba(255,255,255,0.02)
     ),
-    rgba(10, 10, 10, 0.85); /* ✅ base color */
-
+    rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.06),
     0 30px 60px rgba(0,0,0,0.6);
 }
-
 
 @supports not ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
   .calculator-container {
@@ -75,15 +78,8 @@ select option {
   }
 }
 
+*, *::before, *::after { box-sizing: border-box; }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-
-/* TITLE */
 h1 {
   margin: 0 0 26px;
   font-weight: 800;
@@ -91,7 +87,6 @@ h1 {
   text-shadow: 0 0 18px rgba(255,0,0,0.25);
 }
 
-/* CONTROLS */
 select, input, button {
   border: none;
   outline: none;
@@ -108,7 +103,6 @@ select {
     0 6px 14px rgba(0,0,0,0.4);
 }
 
-/* INPUT */
 .input-group {
   margin-top: 18px;
   display: flex;
@@ -116,8 +110,7 @@ select {
   gap: 14px;
 }
 
-select,
-input {
+select, input {
   width: 100%;
   height: 56px;
   padding: 0 18px;
@@ -126,8 +119,6 @@ input {
   color: #fff;
   box-sizing: border-box;
 }
-
-
 
 input {
   width: 100%;
@@ -146,7 +137,6 @@ input:focus {
     0 10px 22px rgba(0,0,0,0.6);
 }
 
-/* DECIMAL TOGGLE */
 .dec-toggle {
   display: inline-flex;
   gap: 8px;
@@ -165,16 +155,13 @@ input:focus {
   cursor: pointer;
 }
 
-.btn-small:hover {
-  background: rgba(255,255,255,0.12);
-}
+.btn-small:hover { background: rgba(255,255,255,0.12); }
 
 .btn-small.active {
   background: rgba(255,0,0,0.12);
   outline: 2px solid #ff0000;
 }
 
-/* CALCULATE BUTTON */
 .btn-red {
   margin-top: 26px;
   padding: 16px 34px;
@@ -189,21 +176,14 @@ input:focus {
 
 .btn-red:active { transform: scale(0.96); }
 
-.result {
-  display: none;
-  animation: resultPop 0.35s ease-out;
-}
-
-
-
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.6); }
   70% { box-shadow: 0 0 0 18px rgba(255,0,0,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
 }
 
-/* RESULTS */
 .result {
+  display: none;
   margin-top: 28px;
   padding: 18px 20px;
   border-radius: 16px;
@@ -211,6 +191,12 @@ input:focus {
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.05),
     0 10px 24px rgba(0,0,0,0.45);
+  animation: resultPop 0.35s ease-out;
+}
+
+@keyframes resultPop {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .line {
@@ -221,14 +207,8 @@ input:focus {
   margin-top: 10px;
 }
 
-.line span {
-  word-break: break-all;
-  overflow-wrap: anywhere;
-}
+.line span { word-break: break-all; overflow-wrap: anywhere; }
 
-
-
-/* COPY BUTTON */
 .copy-btn {
   padding: 8px 14px;
   border-radius: 12px;
@@ -238,9 +218,7 @@ input:focus {
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.copy-btn:hover {
-  background: rgba(255,255,255,0.16);
-}
+.copy-btn:hover { background: rgba(255,255,255,0.16); }
 
 .copy-btn.copied {
   background: #1faa59;
@@ -248,7 +226,6 @@ input:focus {
   transform: scale(1.08);
 }
 
-/* FOOTER */
 .small {
   margin-top: 14px;
   font-size: 0.8rem;
@@ -266,19 +243,76 @@ input:focus {
   transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.btn-reset:hover {
-  background: rgba(255,255,255,0.2);
+.btn-reset:hover { background: rgba(255,255,255,0.2); }
+.btn-reset:active { transform: scale(0.96); }
+
+/* ── SHARE BUTTON ── */
+.btn-share {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 14px;
+  background: #4c1d95;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.btn-reset:active {
-  transform: scale(0.96);
+.btn-share:hover { background: #5b21b6; }
+.btn-share:active { transform: scale(0.97); }
+
+/* ── SHARE PANEL ── */
+.share-panel {
+  display: none;
+  background: #0f1220;
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 14px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
 }
+
+.share-panel p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  opacity: 0.65;
+  text-align: center;
+  color: #fff;
+}
+
+.share-icons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.share-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: #2b2f55;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 4px;
+  cursor: pointer;
+  font-size: 10px;
+  color: #d1d5db;
+  flex: 1;
+  min-width: 50px;
+  transition: background 0.2s;
+  height: auto;
+  font-weight: 400;
+}
+
+.share-icon-btn svg { width: 22px; height: 22px; }
+.share-icon-btn:hover { background: #3a3f70; }
+.share-icon-btn.copied { background: #14532d; }
 
 @media (max-width: 480px) {
-
-  body {
-    padding: 20px 12px;
-  }
+  body { padding: 20px 12px; }
 
   .calculator-container {
     padding: 24px 18px;
@@ -290,8 +324,7 @@ input:focus {
     margin-bottom: 20px;
   }
 
-  select,
-  input {
+  select, input {
     height: 52px;
     font-size: 1rem;
   }
@@ -315,9 +348,7 @@ input:focus {
     padding: 14px 0;
   }
 
-  .result {
-    padding: 16px 14px;
-  }
+  .result { padding: 16px 14px; }
 
   .line {
     grid-template-columns: 1fr;
@@ -339,8 +370,6 @@ input:focus {
     line-height: 1.4;
   }
 }
-
-
 </style>
 </head>
 
@@ -349,38 +378,107 @@ input:focus {
 <div class="calculator-container">
 
   <h1>Black Hole Radius Calculator ⭕</h1>
-<div class="input-group">
-  <select id="massType">
-    <option value="solar">☀️ Solar Mass</option>
-    <option value="earth">🌍 Earth Mass</option>
-    <option value="kg">⚖️ Kilograms</option>
-  </select>
 
-  <input id="massInput" placeholder="Enter value">
+  <div class="input-group">
+    <select id="massType">
+      <option value="solar">☀️ Solar Mass</option>
+      <option value="earth">🌍 Earth Mass</option>
+      <option value="kg">⚖️ Kilograms</option>
+    </select>
 
-  <div class="dec-toggle">
-    <button class="btn-small" onclick="setDecimals(null)">Original</button>
-    <button class="btn-small" onclick="setDecimals(2)">2 dec</button>
-    <button class="btn-small active" onclick="setDecimals(3)">3 dec</button>
+    <input id="massInput" placeholder="Enter value">
+
+    <div class="dec-toggle">
+      <button class="btn-small" onclick="setDecimals(null)">Original</button>
+      <button class="btn-small" onclick="setDecimals(2)">2 dec</button>
+      <button class="btn-small active" onclick="setDecimals(3)">3 dec</button>
+    </div>
   </div>
-</div>
 
-
-<div>
-  <button class="btn-red" onclick="calculate()">CALCULATE</button>
-</div>
+  <div>
+    <button class="btn-red" onclick="calculate()">CALCULATE</button>
+  </div>
 
   <div class="result" id="output"></div>
 
-  <div class="result" id="output"></div>
-
-<div id="resetWrap" style="display:none; margin-top:16px;">
-  <button class="btn-reset" onclick="resetCalc()">RESET</button>
-</div>
-
+  <div id="resetWrap" style="display:none; margin-top:16px;">
+    <button class="btn-reset" onclick="resetCalc()">RESET</button>
+  </div>
 
   <div class="small">
     Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km
+  </div>
+
+  <!-- Share Button -->
+  <button class="btn-share" onclick="toggleShare()">📤 Share This App</button>
+
+  <!-- Share Panel -->
+  <div class="share-panel" id="sharePanel">
+    <p>Share this tool with friends:</p>
+    <div class="share-icons">
+
+      <!-- WhatsApp -->
+      <button class="share-icon-btn" id="shareWhatsapp">
+        <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.123 1.532 5.855L.057 23.885l6.194-1.623A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.499-5.24-1.374l-.375-.222-3.878 1.017 1.034-3.774-.243-.386A9.959 9.959 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        WhatsApp
+      </button>
+
+      <!-- Facebook -->
+      <button class="share-icon-btn" id="shareFacebook">
+        <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.971h-1.513c-1.491 0-1.956.93-1.956 1.874v2.279h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+        Facebook
+      </button>
+
+      <!-- Messenger -->
+      <button class="share-icon-btn" id="shareMessenger">
+        <svg viewBox="0 0 24 24">
+          <defs>
+            <linearGradient id="msgGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#0099FF"/>
+              <stop offset="100%" style="stop-color:#A033FF"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#msgGrad)" d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.652V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8.1l3.131 3.26L19.752 8.1l-6.561 6.863z"/>
+        </svg>
+        Messenger
+      </button>
+
+      <!-- Instagram -->
+      <button class="share-icon-btn" id="shareInstagram">
+        <svg viewBox="0 0 24 24">
+          <defs>
+            <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#f09433"/>
+              <stop offset="25%" style="stop-color:#e6683c"/>
+              <stop offset="50%" style="stop-color:#dc2743"/>
+              <stop offset="75%" style="stop-color:#cc2366"/>
+              <stop offset="100%" style="stop-color:#bc1888"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#igGrad)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+        </svg>
+        Instagram
+      </button>
+
+      <!-- X (Twitter) -->
+      <button class="share-icon-btn" id="shareTwitter">
+        <svg viewBox="0 0 24 24" fill="#e5e7eb"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        X (Twitter)
+      </button>
+
+      <!-- Telegram -->
+      <button class="share-icon-btn" id="shareTelegram">
+        <svg viewBox="0 0 24 24" fill="#229ED9"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Telegram
+      </button>
+
+      <!-- Copy Link -->
+      <button class="share-icon-btn" id="shareCopy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Link
+      </button>
+
+    </div>
   </div>
 
 </div>
@@ -399,117 +497,75 @@ const massInput = document.getElementById('massInput');
 
 massInput.addEventListener('input', function () {
   const cursorPos = this.selectionStart;
-
-  // Remove existing commas
   let raw = this.value.replace(/,/g, '');
   if (!raw) return;
-
-  // Allow only numbers and one decimal
   const parts = raw.split('.');
   parts[0] = parts[0].replace(/\D/g, '');
   if (parts[1]) parts[1] = parts[1].replace(/\D/g, '');
-
-  // Apply US comma formatting
   parts[0] = Number(parts[0]).toLocaleString('en-US');
-
   const formatted = parts.join('.');
   const diff = formatted.length - this.value.length;
-
   this.value = formatted;
   this.setSelectionRange(cursorPos + diff, cursorPos + diff);
 });
 
-
 function setDecimals(d) {
   decimals = d;
-  document.querySelectorAll('.btn-small')
-    .forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.btn-small').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   if (lastResult) renderResult(lastResult);
 }
 
 function format(n) {
-  // Original mode (no rounding)
   if (decimals === null) {
-    return Number(n).toLocaleString('en-US', {
-      maximumFractionDigits: 20
-    });
+    return Number(n).toLocaleString('en-US', { maximumFractionDigits: 20 });
   }
-
-  // SAFE rounding before formatting
   const rounded = roundSafe(n, decimals);
-
   return rounded.toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   });
 }
 
-
-
 function calculate() {
-  const val = parseFloat(
-    document.getElementById('massInput').value.replace(/,/g,'')
-  );
+  const val = parseFloat(document.getElementById('massInput').value.replace(/,/g,''));
   if (!val || val <= 0) return;
-
   const type = document.getElementById('massType').value;
   const M =
     type === 'solar' ? val * solarMass :
     type === 'earth' ? val * earthMass : val;
-
   const rs = (2 * G * M) / (c * c);
-
-  lastResult = {
-    m: rs,
-    km: rs / 1000,
-    rsolar: rs / solarRadius
-  };
-
+  lastResult = { m: rs, km: rs / 1000, rsolar: rs / solarRadius };
   renderResult(lastResult);
 }
 
 function renderResult(r) {
   const output = document.getElementById('output');
   const resetWrap = document.getElementById('resetWrap');
-
   output.style.display = 'block';
-  resetWrap.style.display = 'block'; // ✅ show RESET here
-
+  resetWrap.style.display = 'block';
   output.innerHTML = `
     <div class="line">
       <span>📏 ${format(r.m)} m</span>
-      <button class="copy-btn"
-        onclick="copyValue(this,'${format(r.m)} m')">Copy</button>
+      <button class="copy-btn" onclick="copyValue(this,'${format(r.m)} m')">Copy</button>
     </div>
-
     <div class="line">
       <span>🛣️ ${format(r.km)} km</span>
-      <button class="copy-btn"
-        onclick="copyValue(this,'${format(r.km)} km')">Copy</button>
+      <button class="copy-btn" onclick="copyValue(this,'${format(r.km)} km')">Copy</button>
     </div>
-
     <div class="line">
       <span>☀️ ${format(r.rsolar)} R☉</span>
-      <button class="copy-btn"
-        onclick="copyValue(this,'${format(r.rsolar)} R☉')">Copy</button>
+      <button class="copy-btn" onclick="copyValue(this,'${format(r.rsolar)} R☉')">Copy</button>
     </div>
   `;
 }
-
-
-
 
 function copyValue(btn, text) {
   navigator.clipboard.writeText(text);
   const original = btn.innerText;
   btn.innerText = 'Copied!';
   btn.classList.add('copied');
-
-  setTimeout(() => {
-    btn.innerText = original;
-    btn.classList.remove('copied');
-  }, 600);
+  setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 600);
 }
 
 function roundSafe(num, decimals) {
@@ -518,33 +574,68 @@ function roundSafe(num, decimals) {
 }
 
 function resetCalc() {
-  // Clear input
   massInput.value = '';
-
-  // Reset decimals
   decimals = 3;
-  document.querySelectorAll('.btn-small')
-    .forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.btn-small').forEach(b => b.classList.remove('active'));
   document.querySelector('.btn-small:last-child').classList.add('active');
-
-  // Hide result + reset button
   const output = document.getElementById('output');
   const resetWrap = document.getElementById('resetWrap');
-
   output.style.display = 'none';
   output.innerHTML = '';
   resetWrap.style.display = 'none';
-
-  // Clear state
   lastResult = null;
-
-  // Focus input
   massInput.focus();
 }
 
+// ── SHARE LOGIC ──
+const APP_URL = 'https://rameshverse.com/black-hole-radius-calculator'; // 👈 Replace with your actual URL
+const APP_TITLE = 'Black Hole Radius Calculator – a free tool for space enthusiasts!';
 
+function toggleShare() {
+  const panel = document.getElementById('sharePanel');
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+document.getElementById('shareWhatsapp').onclick = () =>
+  window.open(`https://wa.me/?text=${encodeURIComponent(APP_TITLE + '\n' + APP_URL)}`, '_blank');
+
+document.getElementById('shareFacebook').onclick = () =>
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}`, '_blank');
+
+document.getElementById('shareMessenger').onclick = () => {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.open(`fb-messenger://share?link=${encodeURIComponent(APP_URL)}`, '_blank');
+  } else {
+    window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(APP_URL)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(APP_URL)}`, '_blank');
+  }
+};
+
+document.getElementById('shareInstagram').onclick = () => {
+  const btn = document.getElementById('shareInstagram');
+  navigator.clipboard.writeText(APP_URL).then(() => {
+    btn.classList.add('copied');
+    btn.lastChild.textContent = 'Link copied!';
+    window.open('https://www.instagram.com/', '_blank');
+    setTimeout(() => { btn.classList.remove('copied'); btn.lastChild.textContent = 'Instagram'; }, 3000);
+  });
+};
+
+document.getElementById('shareTwitter').onclick = () =>
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(APP_TITLE)}&url=${encodeURIComponent(APP_URL)}`, '_blank');
+
+document.getElementById('shareTelegram').onclick = () =>
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(APP_TITLE)}`, '_blank');
+
+document.getElementById('shareCopy').onclick = () => {
+  const btn = document.getElementById('shareCopy');
+  navigator.clipboard.writeText(APP_URL).then(() => {
+    btn.classList.add('copied');
+    btn.lastChild.textContent = 'Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.lastChild.textContent = 'Copy Link'; }, 2000);
+  });
+};
 </script>
 
 </body>
 </html>
-
