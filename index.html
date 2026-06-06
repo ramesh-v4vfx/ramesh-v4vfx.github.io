@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-  <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -24,6 +24,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
+  *, *::before, *::after { box-sizing: border-box; }
+
   h1 { color: #ea6d6d; }
 
   .search-wrap {
@@ -60,22 +62,188 @@
     color: #ffffff;
   }
 
-  header {
-    padding: 30px 16px 0px;
-    text-align: center;
-    max-width: 820px;
-    margin: 0 auto;
+  /* ── HERO SLIDESHOW ── */
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 56vw;
+    max-height: 520px;
+    min-height: 220px;
+    overflow: hidden;
+    background: #0e0101;
   }
 
-  header h1 {
-    margin: 0 0 5px 0;
-    font-size: clamp(1.4rem, 4vw, 2rem);
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    pointer-events: none;
   }
 
-  header p {
-    opacity: 0.6;
-    margin-top: 0px;
-    font-size: 0.95rem;
+  .hero-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hero-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+  }
+
+  /* Ken Burns zoom effect on active slide */
+  .hero-slide.active img {
+    animation: kenburns 8s ease-out forwards;
+  }
+
+  @keyframes kenburns {
+    from { transform: scale(1.08); }
+    to   { transform: scale(1); }
+  }
+
+  /* Netflix-style gradient overlay at bottom */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(14,1,1,0)    0%,
+      rgba(14,1,1,0)    45%,
+      rgba(14,1,1,0.55) 70%,
+      rgba(14,1,1,0.92) 88%,
+      rgba(14,1,1,1)    100%
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Vignette on sides */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      rgba(14,1,1,0.35) 0%,
+      transparent 20%,
+      transparent 80%,
+      rgba(14,1,1,0.35) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Slide info overlay (bottom-left, Netflix style) */
+  .hero-info {
+    position: absolute;
+    bottom: 28px;
+    left: 28px;
+    z-index: 3;
+    max-width: 420px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.6s ease 0.4s, transform 0.6s ease 0.4s;
+  }
+
+  .hero-slide.active ~ .hero-info,
+  .hero.loaded .hero-info {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* We attach hero-info inside hero, animate per active slide */
+  .hero-info {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .hero-channel {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ea6d6d;
+    margin-bottom: 4px;
+    font-weight: bold;
+  }
+
+  .hero-title {
+    font-size: clamp(1.1rem, 3.5vw, 1.85rem);
+    font-weight: bold;
+    color: #fff;
+    margin: 0 0 6px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    line-height: 1.2;
+  }
+
+  .hero-desc {
+    font-size: clamp(0.78rem, 1.8vw, 0.92rem);
+    color: rgba(255,255,255,0.72);
+    margin: 0 0 12px;
+    line-height: 1.4;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(234,109,109,0.85);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: background 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .hero-cta:hover { background: rgba(234,109,109,1); }
+
+  /* Slide dots */
+  .hero-dots {
+    position: absolute;
+    bottom: 14px;
+    right: 20px;
+    z-index: 4;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .hero-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+
+  .hero-dot.active {
+    background: #ea6d6d;
+    transform: scale(1.3);
+  }
+
+  /* Progress bar (thin red line at very top) */
+  .hero-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: #ea6d6d;
+    z-index: 5;
+    width: 0%;
+    transition: width linear;
+    box-shadow: 0 0 8px rgba(234,109,109,0.7);
   }
 
   /* ── STICKY SEARCH + TABS WRAPPER ── */
@@ -87,7 +255,6 @@
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
     padding-bottom: 0;
-    
   }
 
   .site-search {
@@ -278,6 +445,10 @@
 
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
+    .hero { height: 62vw; min-height: 200px; }
+    .hero-info { bottom: 18px; left: 14px; max-width: 70%; }
+    .hero-title { font-size: 1rem; }
+    .hero-desc { display: none; }
     .search-wrap { max-width: 90%; padding: 9px 12px; }
     .site-search input { max-width: 92%; }
     .tools { justify-items: center; }
@@ -285,7 +456,6 @@
     .tool h3 { font-size: 0.95rem; line-height: 1.2; }
     .tool p   { font-size: 0.78rem; line-height: 1.2; }
     .tool-country { grid-column: span 1; justify-content: space-between; }
-    header p { font-size: 0.9rem; }
     .tabs-bar { gap: 5px; padding: 0 8px 8px; }
     .tab-btn { font-size: 0.78rem; padding: 4px 11px; }
   }
@@ -304,10 +474,99 @@
 </head>
 <body>
 
-<header>
-  <h1>Interactive Tools for Learning & Productivity</h1>
-  <p>rameshverse is a collection of fast, distraction-free tools for productivity, learning, and exploration - including calculators, focus timers, and science apps.</p>
-</header>
+<!-- ══════════════ HERO SLIDESHOW ══════════════ -->
+<section class="hero" id="hero" aria-label="Featured videos from v4vfx">
+
+  <div class="hero-progress" id="heroProgress"></div>
+
+  <!--
+    ──────────────────────────────────────────────────────
+    HOW TO ADD YOUR VIDEO THUMBNAIL IMAGES:
+
+    Replace each src="..." below with your actual YouTube
+    thumbnail URLs or self-hosted image paths.
+
+    YouTube thumbnail URL format:
+      https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg
+    (replace VIDEO_ID with your actual video ID)
+
+    You can add or remove <div class="hero-slide"> blocks
+    to match however many videos you want to feature.
+    ──────────────────────────────────────────────────────
+  -->
+
+  <!-- SLIDE 1 -->
+<div class="hero-slide active"
+     data-title="Universe Size Comparison | Asteroids to Multiverse"
+     data-desc="A journey from asteroids to multiverse"
+     data-url="https://youtu.be/hTuJby2_97E">
+  <img src="https://img.youtube.com/vi/hTuJby2_97E/maxresdefault.jpg"
+       alt="Universe Size Comparison thumbnail"
+       loading="eager" />
+</div>
+
+  <!-- SLIDE 2 -->
+<div class="hero-slide"
+     data-title="Exploring The Solar System"
+     data-desc="A deep dive into our Solar System @v4vfx."
+     data-url="https://www.youtube.com/watch?v=y3HJITDDa0k">
+  <img src="https://img.youtube.com/vi/y3HJITDDa0k/maxresdefault.jpg"
+       alt="Exploring The Solar System thumbnail"
+       loading="lazy" />
+</div>
+
+  <!-- SLIDE 3 -->
+<div class="hero-slide"
+     data-title="Exploring Moons"
+     data-desc="Moons Size Comparison"
+     data-url="https://www.youtube.com/watch?v=3jURw6O3gFQ">
+  <img src="https://img.youtube.com/vi/3jURw6O3gFQ/maxresdefault.jpg"
+       alt="Exploring Moons thumbnail"
+       loading="lazy" />
+</div>
+
+  <!-- SLIDE 4 -->
+<div class="hero-slide"
+     data-title="Asteroids and Comets Size Comparison"
+     data-desc="Visualize the size of asteroids and comets in zoom out format"
+     data-url="https://www.youtube.com/watch?v=kkSroWyLOVA">
+  <img src="https://img.youtube.com/vi/kkSroWyLOVA/maxresdefault.jpg"
+       alt="Asteroid and Comets Zoom Out thumbnail"
+       loading="lazy" />
+</div>
+
+<!-- SLIDE 5 -->
+<div class="hero-slide"
+     data-title="Exploring Stars"
+     data-desc="Stars Size Comparison"
+     data-url="https://www.youtube.com/watch?v=uYPdBD0jis4">
+  <img src="https://img.youtube.com/vi/uYPdBD0jis4/maxresdefault.jpg"
+       alt="Exploring Stars thumbnail"
+       loading="lazy" />
+</div>
+
+<!-- SLIDE 6 -->
+<div class="hero-slide"
+     data-title="Placing All Countries and Territories in Space"
+     data-desc="All Countries and territories size comparison in space"
+     data-url="https://www.youtube.com/watch?v=x7SyWdMopIA">
+  <img src="https://img.youtube.com/vi/x7SyWdMopIA/maxresdefault.jpg"
+       alt="Exploring Countries thumbnail"
+       loading="lazy" />
+</div>
+
+  <!-- Info overlay (updates per slide) -->
+  <div class="hero-info" id="heroInfo">
+    <div class="hero-channel">▶ @v4vfx</div>
+    <div class="hero-title" id="heroTitle">Black Hole Visualized</div>
+    <div class="hero-desc" id="heroDesc">An immersive VFX breakdown of a black hole event horizon — rendered in full cinematic detail.</div>
+    <a class="hero-cta" id="heroCta" href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">▶ Watch on YouTube</a>
+  </div>
+
+  <!-- Slide dots -->
+  <div class="hero-dots" id="heroDots" role="tablist" aria-label="Video slides"></div>
+
+</section>
 
 <!-- STICKY SEARCH + TABS -->
 <div class="sticky-top">
@@ -319,7 +578,7 @@
   </div>
 
   <div class="tabs-bar" id="tabsBar">
-    <button class="tab-btn active" data-tab="all"       onclick="setTab(this)">⚡ All</button>
+    <button class="tab-btn active" data-tab="all"          onclick="setTab(this)">⚡ All</button>
     <button class="tab-btn"        data-tab="productivity" onclick="setTab(this)">📋 Productivity</button>
     <button class="tab-btn"        data-tab="calculator"   onclick="setTab(this)">🧮 Calculators</button>
     <button class="tab-btn"        data-tab="science"      onclick="setTab(this)">🔬 Science & Space</button>
@@ -331,198 +590,142 @@
 <!-- TOOLS GRID -->
 <section class="tools" id="toolsGrid">
 
-  <a class="tool" href="/top-10-tasks-monitor/"
-     data-search="top 10 tasks task monitor productivity"
-     data-category="productivity">
+  <a class="tool" href="/top-10-tasks-monitor/" data-search="top 10 tasks task monitor productivity" data-category="productivity">
     <h3>Top 10 Task Monitor 📋</h3>
     <p>Increase productivity by tracking tasks that are still pending.</p>
   </a>
 
-  <a class="tool" href="/session-logger/"
-     data-search="session logger productivity"
-     data-category="productivity">
+  <a class="tool" href="/session-logger/" data-search="session logger productivity" data-category="productivity">
     <h3>Session Logger 📝⏳</h3>
     <p>Log your work sessions, and turn your time into measurable productivity.</p>
   </a>
 
-  <a class="tool" href="/my-diary/"
-     data-search="my calm daily diary productivity"
-     data-category="productivity">
+  <a class="tool" href="/my-diary/" data-search="my calm daily diary productivity" data-category="productivity">
     <h3>My Calm Diary 📔🌸</h3>
     <p>A quiet space to write, reflect, and unwind. Auto-saves to your device • Downloadable</p>
   </a>
 
-  <a class="tool" href="/surface-gravity-calculator/"
-     data-search="surface gravity escape velocity calculator"
-     data-category="science calculator">
+  <a class="tool" href="/surface-gravity-calculator/" data-search="surface gravity escape velocity calculator" data-category="science calculator">
     <h3>Surface Gravity 🌍🧲 &amp; Escape Velocity Calculator 🚀</h3>
     <p>know g and Vesc</p>
   </a>
 
-  <a class="tool tool-country" href="/country-explorer/"
-     data-search="country explorer geography flags quiz map"
-     data-category="geography">
+  <a class="tool tool-country" href="/country-explorer/" data-search="country explorer geography flags quiz map" data-category="geography">
     <h3>Country Explorer 🌍</h3>
     <p>Explore countries, play card game, play country quiz and get certificates, compare countries and more.</p>
   </a>
 
-  <a class="tool" href="/pomodoro-focus/"
-     data-search="pomodoro focus timer productivity"
-     data-category="productivity">
+  <a class="tool" href="/pomodoro-focus/" data-search="pomodoro focus timer productivity" data-category="productivity">
     <h3>Pomodoro Focus 🍅🎯</h3>
     <p>Stay focused using the Pomodoro technique to work better, not longer.</p>
   </a>
 
-  <a class="tool" href="/division-pro/"
-     data-search="division pro calculator"
-     data-category="calculator">
+  <a class="tool" href="/division-pro/" data-search="division pro calculator" data-category="calculator">
     <h3>Division Pro ➗</h3>
     <p>Divide numbers instantly and get both quotient and remainder.</p>
   </a>
 
-  <a class="tool" href="/mean-median-mode/"
-     data-search="mean median mode calculator"
-     data-category="calculator">
+  <a class="tool" href="/mean-median-mode/" data-search="mean median mode calculator" data-category="calculator">
     <h3>Mean · Median · Mode 🧮</h3>
     <p>Calculate mean, median, and mode instantly for any dataset.</p>
   </a>
 
-  <a class="tool" href="/seconds-to-frames/"
-     data-search="seconds to frames calculator"
-     data-category="calculator">
+  <a class="tool" href="/seconds-to-frames/" data-search="seconds to frames calculator" data-category="calculator">
     <h3>Seconds to Frames 🎞️</h3>
     <p>A simple tool to calculate frames from seconds for any FPS.</p>
   </a>
 
-  <a class="tool" href="/time-converter/"
-     data-search="time converter calculator"
-     data-category="calculator">
+  <a class="tool" href="/time-converter/" data-search="time converter calculator" data-category="calculator">
     <h3>Time Converter ⏱️🔄</h3>
     <p>Convert time units instantly: seconds, minutes, hours, days, and more.</p>
   </a>
 
-  <a class="tool" href="/cosmic-calculator/"
-     data-search="cosmic space calculator"
-     data-category="science calculator">
+  <a class="tool" href="/cosmic-calculator/" data-search="cosmic space calculator" data-category="science calculator">
     <h3>Cosmic Calculator ⭐</h3>
     <p>Calculate cosmic-scale distances from meters to astronomical units.</p>
   </a>
 
-  <a class="tool" href="/subatomic-calculator/"
-     data-search="subatomic calculator"
-     data-category="science calculator">
+  <a class="tool" href="/subatomic-calculator/" data-search="subatomic calculator" data-category="science calculator">
     <h3>Subatomic Calculator ⚛️</h3>
     <p>A precision calculator for sub-atomic and quantum-scale values.</p>
   </a>
 
-  <a class="tool" href="/black-hole-radius-calculator/"
-     data-search="black hole schwarzschild radius calculator"
-     data-category="science calculator">
+  <a class="tool" href="/black-hole-radius-calculator/" data-search="black hole schwarzschild radius calculator" data-category="science calculator">
     <h3>Black Hole Event Horizon Radius Calculator ⭕</h3>
     <p>Calculate the event horizon radius.</p>
   </a>
 
-  <a class="tool" href="/density-and-volume-calculator/"
-     data-search="density volume calculator"
-     data-category="science calculator">
+  <a class="tool" href="/density-and-volume-calculator/" data-search="density volume calculator" data-category="science calculator">
     <h3>Density and Volume Calculator 🧱🧊</h3>
     <p>Calculate density and volume quickly using mass and measurements.</p>
   </a>
 
-  <a class="tool" href="/brain-dump/"
-     data-search="brain dump productivity tool"
-     data-category="productivity">
+  <a class="tool" href="/brain-dump/" data-search="brain dump productivity tool" data-category="productivity">
     <h3>🧠🧹 Brain Dump</h3>
     <p>A simple space to dump your thoughts and clear your mind.</p>
   </a>
 
-  <a class="tool" href="/daily-routine/"
-     data-search="daily routine productivity tool"
-     data-category="productivity">
+  <a class="tool" href="/daily-routine/" data-search="daily routine productivity tool" data-category="productivity">
     <h3>Daily Routine ⏰</h3>
     <p>A gentle daily checklist for busy schedules</p>
   </a>
 
-  <a class="tool" href="/international-airtravel-checklist/"
-     data-search="international travel checklist productivity tool"
-     data-category="productivity">
+  <a class="tool" href="/international-airtravel-checklist/" data-search="international travel checklist productivity tool" data-category="productivity">
     <h3>International Travel Checklist 🧳✈️</h3>
     <p>A checklist for stress-free international air travel.</p>
   </a>
 
-  <a class="tool" href="/percentage-of-total/"
-     data-search="percentage of total calculator exam number"
-     data-category="calculator">
+  <a class="tool" href="/percentage-of-total/" data-search="percentage of total calculator exam number" data-category="calculator">
     <h3>Percentage of Total 🧮</h3>
     <p>Find what percentage one value is of another.</p>
   </a>
 
-  <a class="tool" href="/percentage-of-a-number/"
-     data-search="percentage of a number calculator interest calculator"
-     data-category="calculator">
+  <a class="tool" href="/percentage-of-a-number/" data-search="percentage of a number calculator interest calculator" data-category="calculator">
     <h3>Percent of a Number ％</h3>
     <p>Calculate the value of X% of any number.</p>
   </a>
 
-  <a class="tool" href="/percentage-change-calculator/"
-     data-search="percentage change calculator"
-     data-category="calculator">
+  <a class="tool" href="/percentage-change-calculator/" data-search="percentage change calculator" data-category="calculator">
     <h3>Percentage Change Calculator 📈</h3>
     <p>Calculate how much a value has increased or decreased.</p>
   </a>
 
-  <a class="tool" href="/percentage-difference-calculator/"
-     data-search="percentage difference calculator"
-     data-category="calculator">
+  <a class="tool" href="/percentage-difference-calculator/" data-search="percentage difference calculator" data-category="calculator">
     <h3>Percentage Difference Calculator 📊</h3>
     <p>how different two values are from each other.</p>
   </a>
 
-  <a class="tool" href="/scientific-converter/"
-     data-search="scientific notation to decimal converter decimal to scientific notation"
-     data-category="calculator science">
+  <a class="tool" href="/scientific-converter/" data-search="scientific notation to decimal converter decimal to scientific notation" data-category="calculator science">
     <h3>Scientific Notation ⇄ Decimal Converter ⚙️</h3>
     <p>Convert scientific notation to decimal and vice versa.</p>
   </a>
 
-  <a class="tool" href="/weight-converter/"
-     data-search="universal weight converter"
-     data-category="calculator">
+  <a class="tool" href="/weight-converter/" data-search="universal weight converter" data-category="calculator">
     <h3>⚖️ Universal Weight Converter</h3>
     <p>weight converter, gram to kg, kg to pound, ounce to gram etc</p>
   </a>
 
-  <a class="tool" href="/stock-profit-calculator/"
-     data-search="stock profit calculator share"
-     data-category="finance">
+  <a class="tool" href="/stock-profit-calculator/" data-search="stock profit calculator share" data-category="finance">
     <h3>Stock Profit / Loss Calculator 💰</h3>
     <p>Helps you calculate profit or loss from your share trades.</p>
   </a>
 
-  <a class="tool" href="/average-share-price-calculator/"
-     data-search="average share price calculator"
-     data-category="finance">
+  <a class="tool" href="/average-share-price-calculator/" data-search="average share price calculator" data-category="finance">
     <h3>Average Share Price Calculator 📊</h3>
     <p>Calculate average share price for multiple buys.</p>
   </a>
 
-  <a class="tool" href="/your-weight-in-space/"
-     data-search="your weight on various space objects"
-     data-category="science">
+  <a class="tool" href="/your-weight-in-space/" data-search="your weight on various space objects" data-category="science">
     <h3>🪐 Your Weight in Space</h3>
     <p>See how much you would weigh on different space objects</p>
   </a>
 
-  <a class="tool" href="/emi-calculator/"
-     data-search="loan emi calculator monthly payment interest"
-     data-category="finance calculator">
+  <a class="tool" href="/emi-calculator/" data-search="loan emi calculator monthly payment interest" data-category="finance calculator">
     <h3>🏦 EMI Calculator</h3>
     <p>Calculate your monthly loan EMI instantly</p>
   </a>
 
-    <a class="tool" href="/currency-converter/"
-     data-search="currency converter"
-     data-category="finance calculator">
+  <a class="tool" href="/currency-converter/" data-search="currency converter" data-category="finance calculator">
     <h3>Currency Converter 💵⇄💶</h3>
     <p>Currency Converter</p>
   </a>
@@ -548,7 +751,93 @@
 </footer>
 
 <script>
-  let activeTab = "all";
+  /* ── HERO SLIDESHOW ── */
+  (function() {
+    const slides   = Array.from(document.querySelectorAll('.hero-slide'));
+    const dotsWrap = document.getElementById('heroDots');
+    const titleEl  = document.getElementById('heroTitle');
+    const descEl   = document.getElementById('heroDesc');
+    const ctaEl    = document.getElementById('heroCta');
+    const progress = document.getElementById('heroProgress');
+    const DURATION = 6000; // ms per slide
+
+    let current = 0;
+    let timer, progTimer, progStart;
+
+    // Build dots
+    slides.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('role', 'tab');
+      d.setAttribute('aria-label', 'Slide ' + (i + 1));
+      d.onclick = () => goTo(i);
+      dotsWrap.appendChild(d);
+    });
+
+    const infoEl = document.getElementById('heroInfo');
+
+    function updateInfo(idx) {
+      const s = slides[idx];
+      infoEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      infoEl.style.opacity = '0';
+      infoEl.style.transform = 'translateY(8px)';
+      setTimeout(() => {
+        titleEl.textContent = s.dataset.title || '';
+        descEl.textContent  = s.dataset.desc  || '';
+        ctaEl.href          = s.dataset.url   || 'https://www.youtube.com/@v4vfx';
+        infoEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        infoEl.style.opacity = '1';
+        infoEl.style.transform = 'translateY(0)';
+      }, 320);
+    }
+
+    function goTo(idx) {
+      slides[current].classList.remove('active');
+      dotsWrap.children[current].classList.remove('active');
+      current = (idx + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      dotsWrap.children[current].classList.add('active');
+      updateInfo(current);
+      startProgress();
+    }
+
+    function startProgress() {
+      clearTimeout(timer);
+      clearInterval(progTimer);
+      progress.style.transition = 'none';
+      progress.style.width = '0%';
+
+      // Force reflow so transition resets
+      void progress.offsetWidth;
+      progress.style.transition = 'width ' + DURATION + 'ms linear';
+      progress.style.width = '100%';
+
+      timer = setTimeout(() => goTo(current + 1), DURATION);
+    }
+
+    updateInfo(0);
+    startProgress();
+
+    // Pause on hover
+    const hero = document.getElementById('hero');
+    hero.addEventListener('mouseenter', () => {
+      clearTimeout(timer);
+      clearInterval(progTimer);
+      const computed = parseFloat(getComputedStyle(progress).width);
+      const total    = hero.offsetWidth;
+      progress.style.transition = 'none';
+      progress.style.width = ((computed / total) * 100).toFixed(1) + '%';
+    });
+    hero.addEventListener('mouseleave', () => {
+      const remaining = (1 - parseFloat(progress.style.width) / 100) * DURATION;
+      progress.style.transition = 'width ' + remaining + 'ms linear';
+      progress.style.width = '100%';
+      timer = setTimeout(() => goTo(current + 1), remaining);
+    });
+  })();
+
+  /* ── TOOLS FILTER ── */
+  let activeTab   = "all";
   let searchQuery = "";
 
   function filterTools() {
@@ -587,7 +876,6 @@
     filterTools();
   }
 
-  // Press / to focus search
   document.addEventListener("keydown", e => {
     if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
       e.preventDefault();
@@ -595,7 +883,7 @@
     }
   });
 
-  // Share
+  /* ── SHARE ── */
   const siteURL  = encodeURIComponent(window.location.href);
   const siteText = encodeURIComponent("Check out these interactive tools for learning & productivity 🚀");
 
