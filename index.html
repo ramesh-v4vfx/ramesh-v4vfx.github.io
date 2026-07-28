@@ -33,7 +33,7 @@
     align-items: center;
     gap: 10px;
     width: 100%;
-    max-width: 520px;
+    max-width: 640px;
     padding: 14px 14px;
     border-radius: 12px;
     background: #1f0303;
@@ -63,15 +63,32 @@
   }
 
   /* ── HERO SLIDESHOW ── */
-  .hero {
+.hero{
     position: relative;
     width: 100%;
-    height: 56vw;
-    max-height: 520px;
+    height: 46vw;
+    max-height: 430px;
     min-height: 220px;
     overflow: hidden;
     background: #0e0101;
-  }
+
+    transition:
+        height .45s ease,
+        max-height .45s ease,
+        min-height .45s ease,
+        opacity .35s ease;
+}
+
+.hero.hidden{
+    height: 0;
+    max-height: 0;
+    min-height: 0;
+    opacity: 0;
+}
+
+.sticky-top{
+    transition:transform 1s ease;
+}
 
   .hero-slide {
     position: absolute;
@@ -246,6 +263,34 @@
     box-shadow: 0 0 8px rgba(234,109,109,0.7);
   }
 
+
+
+.hero-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    z-index: 10;
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(0,0,0,.55);
+    color: #fff;
+
+    font-size: 20px;
+    cursor: pointer;
+
+    backdrop-filter: blur(5px);
+    transition: background .2s;
+}
+
+.hero-close:hover{
+    background: rgba(0,0,0,.8);
+}
+
   /* ── STICKY SEARCH + TABS WRAPPER ── */
   .sticky-top {
     position: sticky;
@@ -258,7 +303,7 @@
   }
 
   .site-search {
-    padding: 14px 12px 30px;
+    padding: 34px 12px 30px;
     display: flex;
     justify-content: center;
   }
@@ -391,20 +436,6 @@
 
   .tool:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 3px; }
 
-  /* ── FLAGSHIP TILE ── */
-  .tool-country {
-    grid-column: span 4;
-    max-width: none;
-    justify-content: center;
-    height: 80px;
-    align-items: center;
-    text-align: center;
-  }
-  .tool-country:hover { height: 120px; }
-  .tool-country h3 { font-size: 1.7rem; line-height: 1.4; }
-  .tool-country p  { font-size: 1.05rem; line-height: 1.6; max-width: 75%; }
-  .tool-country:hover h3 { font-size: 1.7rem; }
-
   /* ── SHARE BAR ── */
   .share-bar {
     margin: 0px auto 0px;
@@ -443,6 +474,39 @@
     font-size: 1rem;
   }
 
+  .hero-nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:46px;
+    height:46px;
+    border:none;
+    border-radius:50%;
+    background:rgba(0,0,0,.45);
+    color:#fff;
+    font-size:28px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:8;
+    transition:background .25s, transform .2s;
+    backdrop-filter:blur(5px);
+}
+
+.hero-nav:hover{
+    background:rgba(0,0,0,.7);
+    transform:translateY(-50%) scale(1.08);
+}
+
+.hero-prev{
+    left:16px;
+}
+
+.hero-next{
+    right:16px;
+}
+
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     .hero { height: 62vw; min-height: 200px; }
@@ -478,6 +542,18 @@
 <section class="hero" id="hero" aria-label="Featured videos from v4vfx">
 
   <div class="hero-progress" id="heroProgress"></div>
+
+  <button class="hero-close" id="heroClose" aria-label="Hide featured videos">
+    ×
+</button>
+
+<button class="hero-nav hero-prev" id="heroPrev" aria-label="Previous slide">
+    ❮
+</button>
+
+<button class="hero-nav hero-next" id="heroNext" aria-label="Next slide">
+    ❯
+</button>
 
   <!--
     ──────────────────────────────────────────────────────
@@ -610,7 +686,7 @@
     <p>know g and Vesc</p>
   </a>
 
-  <a class="tool tool-country" href="/country-explorer/" data-search="country explorer geography flags quiz map" data-category="geography">
+  <a class="tool tool" href="/country-explorer/" data-search="country explorer geography flags quiz map" data-category="geography">
     <h3>Country Explorer 🌍</h3>
     <p>Explore countries, play card game, play country quiz and get certificates, compare countries and more.</p>
   </a>
@@ -757,13 +833,32 @@
 
 <script>
   /* ── HERO SLIDESHOW ── */
-  (function() {
+  (function() {const hero = document.getElementById("hero");
+    const heroClose = document.getElementById("heroClose");
+
+    // Hide hero if already closed this session
+    if (sessionStorage.getItem("heroClosed") === "1") {
+    hero.classList.add("hidden");
+    return;
+  }
+
+  // Close button
+    heroClose.addEventListener("click", () => {
+    hero.classList.add("hidden");
+    sessionStorage.setItem("heroClosed", "1");
+});
+
+    
     const slides   = Array.from(document.querySelectorAll('.hero-slide'));
     const dotsWrap = document.getElementById('heroDots');
     const titleEl  = document.getElementById('heroTitle');
     const descEl   = document.getElementById('heroDesc');
     const ctaEl    = document.getElementById('heroCta');
     const progress = document.getElementById('heroProgress');
+
+    const prevBtn = document.getElementById('heroPrev');
+    const nextBtn = document.getElementById('heroNext');
+
     const DURATION = 6000; // ms per slide
 
     let current = 0;
@@ -806,6 +901,14 @@
       startProgress();
     }
 
+    prevBtn.addEventListener("click", () => {
+    goTo(current - 1);
+    });
+
+    nextBtn.addEventListener("click", () => {
+    goTo(current + 1);
+    });
+
     function startProgress() {
       clearTimeout(timer);
       clearInterval(progTimer);
@@ -824,7 +927,7 @@
     startProgress();
 
     // Pause on hover
-    const hero = document.getElementById('hero');
+    
     hero.addEventListener('mouseenter', () => {
       clearTimeout(timer);
       clearInterval(progTimer);
