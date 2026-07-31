@@ -213,6 +213,8 @@ textarea {
 
   <button id="restoreBtn">📂 Restore</button>
 
+  <button id="deleteAllBtn">🗑 Delete All</button>
+
   <input
     type="file"
     id="restoreFile"
@@ -268,6 +270,7 @@ const downloadDiaryBtn = document.getElementById("downloadDiaryBtn");
 const backupBtn = document.getElementById("backupBtn");
 const restoreBtn = document.getElementById("restoreBtn");
 const restoreFile = document.getElementById("restoreFile");
+const deleteAllBtn = document.getElementById("deleteAllBtn");
 
 // Set today (viewer's local date)
 const today = new Date().toLocaleDateString("en-CA");
@@ -285,6 +288,7 @@ function getDiaryDates() {
 
 function updateNavigationButtons() {
   const dates = getDiaryDates();
+  deleteAllBtn.disabled = dates.length === 0;
 
   if (dates.length === 0) {
     prevBtn.disabled = true;
@@ -698,6 +702,38 @@ restoreBtn.addEventListener("click", () => {
     restoreFile.value = "";
 
     restoreFile.click();
+
+});
+
+deleteAllBtn.addEventListener("click", () => {
+
+    const confirmed = confirm(
+`Delete All Diary Entries?
+
+This will permanently delete ALL diary entries stored in this browser.
+
+This action cannot be undone.
+
+Create a backup first if you may need these entries later.
+
+Delete all diary entries?`
+    );
+
+    if (!confirmed) return;
+
+const dates = getDiaryDates();
+
+for (const date of dates) {
+
+    localStorage.removeItem("diary-" + date);
+
+}
+
+loadEntry(datePicker.value);
+
+updateNavigationButtons();
+
+alert("All diary entries have been deleted.");
 
 });
 
