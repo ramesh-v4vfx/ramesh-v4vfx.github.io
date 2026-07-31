@@ -117,6 +117,12 @@ body.dark button:hover {
   gap: 8px;
 }
 
+  button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 @media (max-width: 600px) {
 
  body {
@@ -170,6 +176,8 @@ textarea {
   .voice-actions button {
     flex: 1;
   }
+
+
 }
 
 
@@ -192,15 +200,34 @@ textarea {
     <option value="😐">😐 Neutral</option>
     <option value="😞">😞 Sad</option>
     <option value="🤯">🤯 Stressed</option>
-
   </select>
 
-  <button id="downloadBtn">Download</button>
+  <button id="prevBtn">⬅ Previous</button>
+  <button id="nextBtn">Next ➡</button>
+
+  <button id="downloadBtn">⬇️📄Entry</button>
+
+  <button id="downloadDiaryBtn">⬇️📚 Diary</button>
+
+  <button id="backupBtn">💾 Backup</button>
+
+  <button id="restoreBtn">📂 Restore</button>
+
+  <input
+    type="file"
+    id="restoreFile"
+    accept=".json"
+    hidden
+  >
+
+
   <div class="voice-bar">
-  <select id="voiceSelect"></select>
-  <div class="voice-actions">
-    <button id="playBtn">🔊 Play</button>
-    <button id="stopBtn">⏹ Stop</button>
+    <select id="voiceSelect"></select>
+
+    <div class="voice-actions">
+      <button id="playBtn">🔊 Play</button>
+      <button id="stopBtn">⏹ Stop</button>
+    </div>
   </div>
 </div>
 
@@ -224,15 +251,23 @@ textarea {
 </div>
 
 
-
+<script src="../libraries/pdf/jspdf.umd.min.js"></script>
 
 <script>
+
+
 const datePicker = document.getElementById("datePicker");
 const diaryText = document.getElementById("diaryText");
 const moodSelect = document.getElementById("mood");
 const wordCount = document.getElementById("wordCount");
 const status = document.getElementById("status");
 const downloadBtn = document.getElementById("downloadBtn");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const downloadDiaryBtn = document.getElementById("downloadDiaryBtn");
+const backupBtn = document.getElementById("backupBtn");
+const restoreBtn = document.getElementById("restoreBtn");
+const restoreFile = document.getElementById("restoreFile");
 
 // Set today (viewer's local date)
 const today = new Date().toLocaleDateString("en-CA");
@@ -240,6 +275,35 @@ datePicker.value = today;
 
 // Load entry
 loadEntry(today);
+
+function getDiaryDates() {
+  return Object.keys(localStorage)
+    .filter(key => /^diary-\d{4}-\d{2}-\d{2}$/.test(key))
+    .map(key => key.substring(6))
+    .sort();
+}
+
+function updateNavigationButtons() {
+  const dates = getDiaryDates();
+
+  if (dates.length === 0) {
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    return;
+  }
+
+  const index = dates.indexOf(datePicker.value);
+
+  // If current date isn't in the diary list
+  if (index === -1) {
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    return;
+  }
+
+  prevBtn.disabled = index === 0;
+  nextBtn.disabled = index === dates.length - 1;
+}
 
 
 // Load entry
@@ -252,9 +316,9 @@ function loadEntry(date) {
   diaryText.value = data.text;
   moodSelect.value = data.mood;
   updateWordCount();
+  updateNavigationButtons();
 }
 
-loadEntry(today);
 
 // Auto-save
 let saveTimer;
@@ -270,6 +334,7 @@ function autoSave() {
       JSON.stringify(entry)
     );
     status.textContent = "Auto-saved ✔";
+    updateNavigationButtons();
   }, 400);
 }
 
@@ -285,29 +350,192 @@ diaryText.addEventListener("input", () => {
   autoSave();
 });
 
+diaryText.addEventListener("keydown", (e) => {
+
+    if (e.key === "Tab") {
+
+        e.preventDefault();
+
+        const start = diaryText.selectionStart;
+        const end = diaryText.selectionEnd;
+
+        diaryText.value =
+            diaryText.value.substring(0, start) +
+            "    " +
+            diaryText.value.substring(end);
+
+        diaryText.selectionStart = diaryText.selectionEnd = start + 4;
+
+        updateWordCount();
+        autoSave();
+    }
+
+});
+
 moodSelect.addEventListener("change", autoSave);
 
 datePicker.addEventListener("change", () => {
   loadEntry(datePicker.value);
+  updateNavigationButtons();
   status.textContent = "Loaded";
 });
 
+const moodNames = {
+    "😊": "Happy",
+    "😐": "Neutral",
+    "😞": "Sad",
+    "🤯": "Stressed"
+};
+
+downloadDiaryBtn.addEventListener("click", () => {
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    const dates = getDiaryDates();
+
+    doc.setFontSize(16);
+    doc.setFont(undefined, "bold");
+    doc.text("My Calm Daily Diary", 105, 20, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.setFont(undefined, "normal");
+
+    let y = 40;
+
+    let textY = y + 20;
+
+for (const date of dates) {
+
+    if (y > 240) {
+    doc.addPage();
+    y = 20;
+    }
+
+    const entry = JSON.parse(localStorage.getItem("diary-" + date));
+
+    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+    doc.setFont(undefined, "bold");
+    doc.text("Date :", 20, y);
+
+    doc.setFont(undefined, "normal");
+    doc.text(formattedDate, 40, y);
+
+      doc.setFont(undefined, "bold");
+      doc.text("Mood :", 20, y + 10);
+
+      doc.setFont(undefined, "normal");
+      doc.text(moodNames[entry.mood], 40, y + 10);
+
+      // Separator
+      doc.line(20, y + 15, 190, y + 15);
+
+      // Diary text
+      const paragraphs = entry.text.split("\n");
+
+      let textY = y + 25;
+
+      paragraphs.forEach(paragraph => {
+
+          const lines = doc.splitTextToSize(paragraph, 170);
+
+          // If the paragraph won't fit on this page,
+          // start a new page.
+          if (textY + (lines.length * 7) > 277) {
+              doc.addPage();
+              textY = 20;
+          }
+
+          doc.text(lines, 20, textY);
+
+          textY += lines.length * 7;
+
+      });
+
+      // Position for the next diary entry
+      y = textY + 25;
+
+    }
+
+    doc.save("My-Diary.pdf");
+
+});
 // Download
 downloadBtn.addEventListener("click", () => {
-  const date = datePicker.value;
-  const data = JSON.parse(localStorage.getItem("diary-" + date)) || {};
-  const text =
-`Date: ${date}
-Mood: ${data.mood || ""}
 
-${data.text || ""}`;
+    const date = datePicker.value;
 
-  const blob = new Blob([text], { type: "text/plain" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `diary-${date}.txt`;
-  link.click();
-  URL.revokeObjectURL(link.href);
+    const data = JSON.parse(localStorage.getItem("diary-" + date)) || {
+        text: "",
+        mood: ""
+    };
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(16);
+    doc.text("My Calm Daily Diary", 105, 20, { align: "center" });
+
+    // Date & Mood
+    doc.setFontSize(12);
+    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+});
+
+        // Date
+      doc.setFont(undefined, "bold");
+      doc.text("Date :", 20, 35);
+
+      doc.setFont(undefined, "normal");
+      doc.text(formattedDate, 40, 35);
+
+      // Mood
+      doc.setFont(undefined, "bold");
+      doc.text("Mood :", 20, 45);
+
+      doc.setFont(undefined, "normal");
+      doc.text(moodNames[data.mood], 40, 45);
+
+    // Horizontal separator
+    doc.line(20, 50, 190, 50);
+
+    // Diary text
+        const paragraphs = data.text.split("\n");
+
+        let textY = 65;
+
+        paragraphs.forEach(paragraph => {
+
+          const lines = doc.splitTextToSize(paragraph, 170);
+
+          if (textY + (lines.length * 7) > 277) {
+              doc.addPage();
+              textY = 20;
+          }
+
+          doc.text(lines, 20, textY);
+
+          textY += lines.length * 7;
+
+          // Add a small gap between paragraphs
+          if (paragraph.trim() !== "") {
+              textY += 3;
+          }
+
+      });
+
+    doc.save(`Diary-${date}.pdf`);
+
 });
 
 const themeToggle = document.getElementById("themeToggle");
@@ -325,6 +553,32 @@ themeToggle.addEventListener("click", () => {
   const isDark = document.body.classList.contains("dark");
   localStorage.setItem("theme", isDark ? "dark" : "light");
   themeToggle.textContent = isDark ? "☀️" : "🌙";
+});
+
+prevBtn.addEventListener("click", () => {
+  const dates = getDiaryDates();
+  const index = dates.indexOf(datePicker.value);
+
+  if (index > 0) {
+    const newDate = dates[index - 1];
+    datePicker.value = newDate;
+    loadEntry(newDate);
+    status.textContent = "Loaded";
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  if (nextBtn.disabled) return;
+
+  const dates = getDiaryDates();
+  const index = dates.indexOf(datePicker.value);
+
+  if (index === -1 || index >= dates.length - 1) return;
+
+  const newDate = dates[index + 1];
+  datePicker.value = newDate;
+  loadEntry(newDate);
+  status.textContent = "Loaded";
 });
 
 const synth = window.speechSynthesis;
@@ -395,6 +649,105 @@ playBtn.addEventListener("click", () => {
 stopBtn.addEventListener("click", () => {
   synth.cancel();
 });
+
+backupBtn.addEventListener("click", () => {
+
+    const backup = {};
+    const now = new Date();
+    const date = now.toLocaleDateString("en-CA");
+    const time = now.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit"
+    }).replace(":", "-");
+    const entryCount = getDiaryDates().length;
+    const fileName =
+    `My-Calm-Diary-Backup-${date}-${time}-${entryCount}-Entries.json`;
+
+    for (let i = 0; i < localStorage.length; i++) {
+
+        const key = localStorage.key(i);
+
+        if (/^diary-\d{4}-\d{2}-\d{2}$/.test(key)) {
+
+            backup[key] = JSON.parse(localStorage.getItem(key));
+
+        }
+
+    }
+
+    const json = JSON.stringify(backup, null, 2);
+
+      const blob = new Blob([json], {
+          type: "application/json"
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = fileName;
+      a.click();
+
+      URL.revokeObjectURL(url);
+
+});
+
+restoreBtn.addEventListener("click", () => {
+
+    restoreFile.value = "";
+
+    restoreFile.click();
+
+});
+
+restoreFile.addEventListener("change", () => {
+
+    const file = restoreFile.files[0];
+
+    if (!file) return;
+
+    const confirmed = confirm(
+      `Restore Backup?
+
+      Existing diary entries will be preserved.
+
+      If the backup contains an entry for the same date as an existing diary entry, the backup version will replace the current one.
+
+      Do you want to continue?`
+          );
+
+          if (!confirmed) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function () {
+
+        const backup = JSON.parse(reader.result);
+
+        for (const key in backup) {
+
+        localStorage.setItem(
+        key,
+        JSON.stringify(backup[key])
+        );
+      }
+
+        loadEntry(datePicker.value);
+
+        updateNavigationButtons();
+
+        alert(
+        `Diary restored successfully!
+        ${Object.keys(backup).length} entries imported.`
+      );
+
+    };
+
+    reader.readAsText(file);
+
+});
+
 
 </script>
 
