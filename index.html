@@ -360,7 +360,7 @@
   z-index: 5;
 
   /* ORIGINAL STYLE */
-  background: #0b1342;
+  background: #260101;
   border: 1px solid rgba(255, 110, 110, 0.3);
   border-radius: 12px;
   padding: 14px;
@@ -389,24 +389,23 @@
 }
 
 .popular-tool-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 4px;
-  color: #fff;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  transition: background .2s ease, color .2s ease;
-  border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 4px;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        box-shadow .2s ease;
 }
 
 .popular-tool-item:last-child {
   border-bottom: none;
-}
-
-.popular-tool-item:hover {
-  background: rgba(234,109,109,0.10);
-  color: #fff;
 }
 
 .popular-rank {
@@ -437,7 +436,14 @@
 }
 
 .popular-tool-item:hover {
-  color: #ea6d6d;
+    background: rgba(234,109,109,0.10);
+    color: #ea6d6d;
+
+    box-shadow:
+        0 0 14px rgba(234,109,109,0.35),
+        0 0 0 1px rgba(234,109,109,0.25);
+
+    z-index: 2;
 }
 
 .popular-rank {
@@ -495,13 +501,7 @@
 
   .tool:active { transform: scale(0.98); background: #222766; }
 
-  .tool:hover {
-    height: 120px;
-    transform: translateY(-4px);
-    box-shadow: 0 14px 32px rgba(0,0,0,.5);
-    background: #1c2150;
-    z-index: 10;
-  }
+
 
   .tool h3 {
     margin: 0;
@@ -521,13 +521,16 @@
     transition: font-size 0.25s ease, line-height 0.25s ease;
   }
 
-  .tool:hover {
-    height: 120px;
+ .tool:hover {
     transform: translateY(-4px);
     background: linear-gradient(180deg, #1c2460, #171f45);
-    box-shadow: 0 14px 32px rgb(141,33,33), 0 0 0 1px rgb(72,17,17);
+
+    box-shadow:
+        0 0 25px rgba(247, 16, 16, 0.75),
+        0 0 0 1px rgba(72, 17, 17, 0.9);
+
     z-index: 10;
-  }
+}
 
   .tool:hover h3 { font-size: 1.25rem; line-height: 1.35; }
   .tool:hover p  { font-size: 1.05rem; line-height: 1.35; }
