@@ -351,6 +351,104 @@
 
   .tab-btn:active { transform: scale(0.96); }
 
+  /* ── MOST POPULAR TOOLS ── */
+.popular-tools {
+  width: 300px;
+  position: absolute;
+  left: calc(25% - 400px);
+  top: 610px;
+  z-index: 5;
+  background: #0b1342;
+  border: 1px solid rgba(255, 110, 110, 0.3);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.popular-tools h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  color: #ea6d6d;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+#popularToolsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.popular-tool-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 4px;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transition: background .2s ease, color .2s ease;
+  border-radius: 6px;
+}
+
+.popular-tool-item:last-child {
+  border-bottom: none;
+}
+
+.popular-tool-item:hover {
+  background: rgba(234,109,109,0.10);
+  color: #fff;
+}
+
+.popular-rank {
+  width: 22px;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: #ea6d6d;
+  text-align: center;
+}
+
+.popular-name {
+  flex: 1;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popular-views {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+}
+
+.popular-tool-item:last-child {
+  border-bottom: none;
+}
+
+.popular-tool-item:hover {
+  color: #ea6d6d;
+}
+
+.popular-rank {
+  width: 20px;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: #ea6d6d;
+}
+
+.popular-name {
+  flex: 1;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.popular-views {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: #aaa;
+}
   /* ── TOOLS GRID ── */
   .tools {
     max-width: 1000px;
@@ -507,6 +605,14 @@
     right:16px;
 }
 
+@media (max-width: 1200px) {
+  .popular-tools {
+    position: static;
+    width: 300px;
+    margin: 30px auto;
+  }
+}
+
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     .hero { height: 62vw; min-height: 200px; }
@@ -644,6 +750,8 @@
 
 </section>
 
+
+
 <!-- STICKY SEARCH + TABS -->
 <div class="sticky-top">
   <div class="site-search">
@@ -662,6 +770,12 @@
     <button class="tab-btn"        data-tab="geography"    onclick="setTab(this)">🌍 Geography</button>
   </div>
 </div>
+
+<!-- MOST POPULAR TOOLS -->
+<aside class="popular-tools" id="popularTools">
+  <h2>🏆 Most Popular Tools</h2>
+  <div id="popularToolsList"></div>
+</aside>
 
 <!-- TOOLS GRID -->
 <section class="tools" id="toolsGrid">
@@ -999,6 +1113,35 @@
   function shareFacebook() { window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteURL}`, "_blank"); }
   function shareX()        { window.open(`https://twitter.com/intent/tweet?text=${siteText}&url=${siteURL}`, "_blank"); }
   function shareDiscord()  { navigator.clipboard.writeText(window.location.href); alert("Link copied! Paste it into Discord."); }
+
+  // Load Most Popular Tools
+fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
+  .then(response => response.json())
+  .then(apps => {
+
+    const list = document.getElementById("popularToolsList");
+
+    apps.forEach((app, index) => {
+
+      const link = document.createElement("a");
+
+      link.href = `/${app.slug}/`;
+      link.className = "popular-tool-item";
+
+      link.innerHTML = `
+        <span class="popular-rank">${index + 1}</span>
+        <span class="popular-name">${app.name}</span>
+        <span class="popular-views">👁 ${app.views}</span>
+      `;
+
+      list.appendChild(link);
+
+    });
+
+  })
+  .catch(error => {
+    console.error("Popular tools failed:", error);
+  });
 </script>
 
 </body>
