@@ -784,14 +784,11 @@ restoreFile.addEventListener("change", () => {
 
 });
 
-// Count page view
-window.addEventListener("load", () => {
-  fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/view/my-diary")
-    .catch(error => console.error("View counter failed:", error));
-});
-
 
 </script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
 
 </body>
 </html>
