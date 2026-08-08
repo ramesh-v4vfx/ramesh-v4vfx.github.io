@@ -358,10 +358,19 @@
   left: calc(25% - 400px);
   top: 610px;
   z-index: 5;
+
+  /* ORIGINAL STYLE */
   background: #0b1342;
   border: 1px solid rgba(255, 110, 110, 0.3);
   border-radius: 12px;
   padding: 14px;
+
+  /* Smooth movement when hero closes */
+  transition: top .45s ease;
+}
+
+.hero.hidden ~ .popular-tools {
+  top: 180px;
 }
 
 .popular-tools h2 {
