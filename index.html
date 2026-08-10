@@ -28,7 +28,7 @@
 
   h1 { color: #ea6d6d; }
 
-  .search-wrap {
+ .search-wrap {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -38,9 +38,50 @@
     border-radius: 12px;
     background: #1f0303;
     border: 2px solid rgba(255,255,255,0.35);
-    box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 18px rgba(106,169,255,.18), inset 0 0 0 1px rgba(255,255,255,.04);
-    transition: box-shadow .25s ease, border-color .25s ease;
-  }
+
+    position: relative;
+    overflow: visible;
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,.45),
+        0 0 18px rgba(106,169,255,.18),
+        inset 0 0 0 1px rgba(255,255,255,.04);
+
+    transition:
+        box-shadow .25s ease,
+        border-color .25s ease;
+}
+
+/* ── SEARCH BAR TRAVELING GLOW ── */
+
+.search-wrap {
+    position: relative;
+    isolation: isolate;
+}
+
+/* ── SEARCH BAR TRAVELING BORDER ── */
+
+.search-wrap {
+    position: relative;
+}
+
+/* The moving glow */
+
+.search-wrap:hover {
+    transform: translateY(-3px) scale(1.02);
+
+    border-color: #6aa9ff;
+
+    box-shadow:
+        0 0 0 3px rgba(106,169,255,.18),
+        0 0 25px rgba(106,169,255,.55),
+        0 8px 30px rgba(0,0,0,.55);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
+}
 
   .site-search input {
     flex: 1;
@@ -324,7 +365,7 @@
     padding: 0 0px 0px;
   }
 
-  .tab-btn {
+.tab-btn {
     background: #1f0303;
     border: 1.5px solid rgba(255,255,255,0.18);
     color: rgba(255,255,255,0.65);
@@ -332,15 +373,39 @@
     padding: 5px 14px;
     font-size: 0.82rem;
     cursor: pointer;
-    transition: background .2s, border-color .2s, color .2s, transform .15s;
     white-space: nowrap;
-  }
 
-  .tab-btn:hover {
-    background: #2d0505;
+    position: relative;
+    z-index: 1;
+
+    transition:
+        transform .35s cubic-bezier(.22,.61,.36,1),
+        background .3s ease,
+        border-color .3s ease,
+        color .3s ease,
+        box-shadow .35s ease;
+
+    will-change: transform;
+}
+
+.tab-btn:hover {
+    background: linear-gradient(
+        135deg,
+        #7c1a1a,
+        #3d0808
+    );
+
     color: #fff;
-    border-color: rgba(255,100,100,0.5);
-  }
+    border-color: #ea6d6d;
+
+    transform: translateY(-5px) scale(1.15);
+
+    box-shadow:
+        0 0 18px rgba(234,109,109,.75),
+        0 0 35px rgba(234,109,109,.35);
+
+    z-index: 20;
+}
 
   .tab-btn.active {
     background: #7c1a1a;
@@ -351,27 +416,26 @@
 
   .tab-btn:active { transform: scale(0.96); }
 
-  /* ── MOST POPULAR TOOLS ── */
+/* ── MOST POPULAR TOOLS ── */
 .popular-tools {
-  width: 300px;
-  position: absolute;
-  left: calc(25% - 400px);
-  top: 610px;
-  z-index: 5;
+    width: 300px;
+    position: absolute;
+    left: calc(25% - 400px);
+    top: 465px;
+    z-index: 1001;
 
-  /* ORIGINAL STYLE */
-  background: #260101;
-  border: 1px solid rgba(255, 110, 110, 0.3);
-  border-radius: 12px;
-  padding: 14px;
+    background: #260101;
+    border: 1px solid rgba(255, 110, 110, 0.3);
+    border-radius: 12px;
+    padding: 14px;
 
-  /* Smooth movement when hero closes */
-  transition: top .45s ease;
+    transition: top .45s ease;
 }
 
 .hero.hidden ~ .popular-tools {
-  top: 180px;
+    top: 180px;
 }
+
 
 .popular-tools h2 {
   margin: 0 0 12px;
@@ -399,9 +463,25 @@
     border-radius: 6px;
 
     transition:
+        transform .3s cubic-bezier(.22,.61,.36,1),
         background .2s ease,
         color .2s ease,
         box-shadow .2s ease;
+
+    transform-origin: center center;
+}
+
+.popular-tool-item:hover {
+    background: rgba(234,109,109,0.12);
+    color: #ea6d6d;
+
+    transform: scale(1.025);
+
+    box-shadow:
+        0 0 18px rgba(234,109,109,0.35),
+        0 0 0 1px rgba(234,109,109,0.25);
+
+    z-index: 2;
 }
 
 .popular-tool-item:last-child {
@@ -436,11 +516,13 @@
 }
 
 .popular-tool-item:hover {
-    background: rgba(234,109,109,0.10);
+    background: rgba(234,109,109,0.12);
     color: #ea6d6d;
 
+    transform: scale(1.025);
+
     box-shadow:
-        0 0 14px rgba(234,109,109,0.35),
+        0 0 18px rgba(234,109,109,0.35),
         0 0 0 1px rgba(234,109,109,0.25);
 
     z-index: 2;
@@ -468,7 +550,7 @@
   .tools {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 12px;
+    padding: 30px 12px 12px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     row-gap: 0px;
@@ -476,7 +558,7 @@
     align-items: start;
     justify-content: start;
     min-height: 60vh;
-  }
+}
 
   .tool {
     margin-top: 20px;
@@ -487,54 +569,92 @@
     padding: 14px 16px;
     text-decoration: none;
     color: #fff;
+
     box-shadow: 0 10px 25px rgba(0,0,0,.4);
+
     justify-items: center;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     gap: 4px;
     overflow: hidden;
-    transition: height 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
     position: relative;
     z-index: 1;
-  }
 
-  .tool:active { transform: scale(0.98); background: #222766; }
+    /*
+     * IMPORTANT:
+     * Transform is controlled by JavaScript.
+     */
+    transition:
+        transform .35s cubic-bezier(.22,.61,.36,1),
+        box-shadow .35s ease,
+        background .35s ease;
 
+    will-change: transform;
+}
 
+.tool:active {
+    transform: scale(.98);
+    background: #222766;
+}
 
-  .tool h3 {
+.tool h3 {
     margin: 0;
     font-size: clamp(1rem, 2.6vw, 1.15rem);
     line-height: 1.3;
     color: #fc7676;
-    transition: font-size 0.25s ease, line-height 0.25s ease;
-  }
 
-  .tool h3, .tool p { transition: all 0.25s ease; }
-
-  .tool p {
-    margin: 0;
-    opacity: 0.7;
-    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-    line-height: 1.3;
-    transition: font-size 0.25s ease, line-height 0.25s ease;
-  }
-
- .tool:hover {
-    transform: translateY(-4px);
-    background: linear-gradient(180deg, #1c2460, #171f45);
-
-    box-shadow:
-        0 0 25px rgba(247, 16, 16, 0.75),
-        0 0 0 1px rgba(72, 17, 17, 0.9);
-
-    z-index: 10;
+    transition:
+        font-size .35s ease,
+        line-height .35s ease;
 }
 
-  .tool:hover h3 { font-size: 1.25rem; line-height: 1.35; }
-  .tool:hover p  { font-size: 1.05rem; line-height: 1.35; }
+.tool p {
+    margin: 0;
+    opacity: .7;
+    font-size: clamp(.85rem, 2.2vw, .95rem);
+    line-height: 1.3;
 
+    transition:
+        font-size .35s ease,
+        line-height .35s ease;
+}
+
+/* The card being hovered */
+.tool.tool-hovered {
+    transform: scale(1.01);
+
+    background: linear-gradient(
+        180deg,
+        #1c2460,
+        #171f45
+    );
+
+    box-shadow:
+        0 0 30px rgba(247,16,16,.75),
+        0 0 0 1px rgba(72,17,17,.9);
+
+    z-index: 20;
+}
+
+.tool.tool-hovered h3 {
+    font-size: 1.25rem;
+    line-height: 1.35;
+}
+
+.tool.tool-hovered p {
+    font-size: 1.05rem;
+    line-height: 1.35;
+}
+
+/* Cards being pushed away */
+.tool.tool-pushed {
+    transition:
+        transform .4s cubic-bezier(.22,.61,.36,1),
+        box-shadow .35s ease,
+        background .35s ease;
+}
   footer {
     text-align: center;
     padding: 0px 20px 0px;
@@ -1154,6 +1274,254 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
   .catch(error => {
     console.error("Popular tools failed:", error);
   });
+
+  /* ── ORGANIC TOOL CARD HOVER ── */
+(function () {
+
+    const grid = document.getElementById("toolsGrid");
+
+    if (!grid) return;
+
+    const cards = Array.from(
+        grid.querySelectorAll(".tool")
+    );
+
+    const isTouchDevice =
+        window.matchMedia("(hover: none)").matches;
+
+    if (isTouchDevice) return;
+
+
+    function resetCards() {
+
+        cards.forEach(card => {
+            card.classList.remove(
+                "tool-hovered",
+                "tool-pushed"
+            );
+
+            card.style.transform = "";
+        });
+
+    }
+
+
+    cards.forEach(hoveredCard => {
+
+        hoveredCard.addEventListener("mouseenter", () => {
+
+            /* Reset first so positions are always clean */
+            cards.forEach(card => {
+                card.classList.remove(
+                    "tool-hovered",
+                    "tool-pushed"
+                );
+
+                card.style.transform = "";
+            });
+
+
+            hoveredCard.classList.add("tool-hovered");
+
+
+            /*
+             * Use the card's original grid position.
+             * This prevents the calculation from changing
+             * while cards are being transformed.
+             */
+            const hx =
+                hoveredCard.offsetLeft +
+                hoveredCard.offsetWidth / 2;
+
+            const hy =
+                hoveredCard.offsetTop +
+                hoveredCard.offsetHeight / 2;
+
+
+            cards.forEach(card => {
+
+                if (card === hoveredCard) return;
+
+                /*
+                 * Ignore hidden cards.
+                 */
+                if (
+                    getComputedStyle(card).display === "none"
+                ) {
+                    return;
+                }
+
+
+                const cx =
+                    card.offsetLeft +
+                    card.offsetWidth / 2;
+
+                const cy =
+                    card.offsetTop +
+                    card.offsetHeight / 2;
+
+
+                const dx = cx - hx;
+                const dy = cy - hy;
+
+                const distance =
+                    Math.sqrt(dx * dx + dy * dy);
+
+
+                /*
+                 * Only push cards that are reasonably close.
+                 */
+                const maxDistance = 500;
+
+                if (distance > maxDistance) return;
+
+
+                /*
+                 * Stronger movement for nearby cards,
+                 * weaker movement for distant cards.
+                 */
+                const strength =
+                    Math.pow(
+                        1 - distance / maxDistance,
+                        1.5
+                    );
+
+
+                /*
+                 * Push horizontally and vertically.
+                 */
+                let moveX = 0;
+                let moveY = 0;
+
+
+                if (Math.abs(dx) > 5) {
+                    moveX =
+                        (dx / Math.abs(dx)) *
+                        38 *
+                        strength;
+                }
+
+
+                if (Math.abs(dy) > 5) {
+                    moveY =
+                        (dy / Math.abs(dy)) *
+                        24 *
+                        strength;
+                }
+
+
+                card.classList.add("tool-pushed");
+
+                card.style.transform =
+                    `translate(${moveX}px, ${moveY}px)`;
+            });
+
+        });
+
+
+        hoveredCard.addEventListener("mouseleave", () => {
+
+            resetCards();
+
+        });
+
+    });
+
+})();
+
+/* ── ORGANIC CATEGORY HOVER ── */
+(function () {
+
+    const tabBar = document.getElementById("tabsBar");
+
+    if (!tabBar) return;
+
+    const tabs = Array.from(
+        tabBar.querySelectorAll(".tab-btn")
+    );
+
+    if (window.matchMedia("(hover: none)").matches) return;
+
+
+    tabs.forEach(hoveredTab => {
+
+        hoveredTab.addEventListener("mouseenter", () => {
+
+            tabs.forEach(tab => {
+
+                tab.classList.remove("tab-hovered");
+
+                tab.style.transform = "";
+
+            });
+
+
+            hoveredTab.classList.add("tab-hovered");
+
+
+            const hx =
+                hoveredTab.offsetLeft +
+                hoveredTab.offsetWidth / 2;
+
+
+            tabs.forEach(tab => {
+
+                if (tab === hoveredTab) return;
+
+                const cx =
+                    tab.offsetLeft +
+                    tab.offsetWidth / 2;
+
+
+                const distance = cx - hx;
+
+                const absDistance = Math.abs(distance);
+
+
+                /*
+                 * Only affect nearby buttons.
+                 */
+                if (absDistance > 260) return;
+
+
+                /*
+                 * Nearby buttons move farther away.
+                 */
+                const strength =
+                    Math.pow(
+                        1 - absDistance / 260,
+                        1.5
+                    );
+
+
+                const move =
+                    distance > 0
+                        ? 18 * strength
+                        : -18 * strength;
+
+
+                tab.style.transform =
+                    `translateX(${move}px)`;
+            });
+
+        });
+
+
+        hoveredTab.addEventListener("mouseleave", () => {
+
+            tabs.forEach(tab => {
+
+                tab.classList.remove("tab-hovered");
+
+                tab.style.transform = "";
+
+            });
+
+        });
+
+    });
+
+})();
 </script>
 
 </body>
