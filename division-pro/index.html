@@ -15,168 +15,440 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Division Calculator</title>
+<title>Division Core · MK·02</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-  html, body {
+:root {
+  color-scheme: dark;
+
+  --void:        #04080b;
+  --void-2:      #060d12;
+  --panel:       #071319;
+  --panel-2:     #0a1a22;
+  --line:        #163540;
+  --line-soft:   #0e2530;
+  --cyan:        #4fe8ff;
+  --cyan-dim:    #1c8fa3;
+  --cyan-glow:   rgba(79, 232, 255, 0.35);
+  --amber:       #ffb020;
+  --amber-dim:   #8a5a12;
+  --amber-glow:  rgba(255, 176, 32, 0.30);
+  --text:        #cdeff5;
+  --text-dim:    #5f8a94;
+  --text-faint:  #3a5760;
+  --danger:      #ff5d5d;
+}
+
+* , *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100%;
-  background: #040b10; /* your dark background */
+  background: var(--void);
+}
+
+@supports (-webkit-touch-callout: none) {
+  body, .wrapper { background-color: var(--void) !important; }
+}
+
+body {
+  font-family: 'Rajdhani', Arial, sans-serif;
+  color: var(--text);
+  min-height: 100dvh;
+  margin: 0;
+  padding: 28px 16px 60px;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  position: relative;
   overflow-x: hidden;
+
+  background:
+    radial-gradient(ellipse 900px 500px at 50% -10%, rgba(79,232,255,0.07), transparent 60%),
+    linear-gradient(var(--void-2), var(--void-2)),
+    repeating-linear-gradient(0deg, rgba(79,232,255,0.035) 0px, rgba(79,232,255,0.035) 1px, transparent 1px, transparent 34px),
+    repeating-linear-gradient(90deg, rgba(79,232,255,0.035) 0px, rgba(79,232,255,0.035) 1px, transparent 1px, transparent 34px);
 }
 
-:root {
-  color-scheme: dark;
+/* ambient scanline sweep */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(79,232,255,0.05) 45%, rgba(79,232,255,0.09) 50%, rgba(79,232,255,0.05) 55%, transparent 100%);
+  background-size: 100% 260px;
+  animation: sweep 7s linear infinite;
+  mix-blend-mode: screen;
+  z-index: 1;
 }
 
-input,
-select,
-textarea {
-  background-color: #1b1b1b !important;
-  color: #ffffff !important;
+@keyframes sweep {
+  0%   { background-position: 0 -260px; }
+  100% { background-position: 0 100vh; }
+}
+
+input, select, textarea {
+  background-color: var(--panel-2) !important;
+  color: var(--cyan) !important;
   -webkit-appearance: none;
   appearance: none;
-  border-radius: 12px;
+  border-radius: 4px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 ::placeholder {
-  color: #aaaaaa !important;
+  color: var(--text-faint) !important;
   opacity: 1;
-}
-
-.card {
-  background: linear-gradient(135deg, #5a0f0f, #0b2a4a) !important;
-  color: #ffd6d6;
 }
 
 button {
   -webkit-tap-highlight-color: transparent;
   appearance: none;
+  font-family: 'Rajdhani', Arial, sans-serif;
 }
 
-@supports (-webkit-touch-callout: none) {
-  body,
-  .wrapper,
-  .card {
-    background-color: #040b10 !important;
-  }
-}
+/* ---------- LAYOUT ---------- */
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  background: #040b10;
-  color: rgb(255, 149, 149);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;       /* 🖥️ center on PC */
-
-  min-height: 100dvh;
-  margin: 0;
-
-  transition: background 0.3s, color 0.3s;
-}
-
-
-
-
-/* Wrapper */
 .wrapper {
   width: 100%;
-  max-width: 760px;
+  max-width: 780px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
+  gap: 26px;
+  position: relative;
+  z-index: 2;
 }
 
-.heading {
-  font-size: 26px;
-  font-weight: bold;
+.masthead {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   text-align: center;
-  margin: 0;
+}
+
+.eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--cyan-dim);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eyebrow::before, .eyebrow::after {
+  content: "";
+  width: 34px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim));
+}
+.eyebrow::after { background: linear-gradient(90deg, var(--cyan-dim), transparent); }
+
+.heading {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 30px;
+  letter-spacing: 3px;
+  margin: 2px 0 0;
+  color: var(--text);
+  text-shadow: 0 0 18px var(--cyan-glow), 0 0 2px rgba(255,255,255,0.4);
+}
+
+.status-line {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px 2px var(--cyan-glow);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
 }
 
 .container {
   display: flex;
-  gap: 20px;
+  gap: 22px;
   align-items: stretch;
   width: 100%;
   justify-content: center;
 }
 
+/* ---------- CONSOLE CARD (with corner brackets) ---------- */
 
 .card {
-  background: linear-gradient(135deg, #320606, #010408);
-  padding: 20px;
-  border-radius: 15px;
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(79,232,255,0.05), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
+  padding: 24px 20px 22px;
   width: 100%;
-  max-width: 360px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  max-width: 370px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.4),
+    0 18px 40px rgba(0,0,0,0.55),
+    inset 0 0 40px rgba(0,0,0,0.35);
 }
 
+.card::before, .card::after,
+.card .bracket-b1, .card .bracket-b2 {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
 
+.card::before {
+  top: -1px; left: -1px;
+  border-top: 2px solid var(--cyan);
+  border-left: 2px solid var(--cyan);
+}
 
+.card::after {
+  bottom: -1px; right: -1px;
+  border-bottom: 2px solid var(--cyan);
+  border-right: 2px solid var(--cyan);
+}
+
+.card .bracket-b1 {
+  top: -1px; right: -1px;
+  border-top: 2px solid var(--line);
+  border-right: 2px solid var(--line);
+}
+
+.card .bracket-b2 {
+  bottom: -1px; left: -1px;
+  border-bottom: 2px solid var(--line);
+  border-left: 2px solid var(--line);
+}
+
+.panel-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--cyan-dim);
+  text-transform: uppercase;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-label span.tag {
+  color: var(--text-faint);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.field-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin: 0 0 6px 2px;
+  display: block;
+}
 
 input {
   width: 100%;
-  padding: 14px;
-  margin-bottom: 14px;
-  border-radius: 10px;
-  border: 1px solid #060810;
+  padding: 13px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
   font-size: 17px;
-  text-align: center;
+  letter-spacing: 1px;
+  text-align: left;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-dim), 0 0 14px var(--cyan-glow);
+}
+
+/* ---------- BUTTONS ---------- */
 
 button {
   width: 100%;
-  padding: 10px 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 13px 12px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.2s, background 0.2s;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
 
-
-#calculateBtn,
-#resetBtn,
-#copyBtn,
-#historyBtn {
+#calculateBtn, #resetBtn, #copyBtn, #historyBtn {
   padding: 14px;
-  font-size: 16px;
-  border-radius: 12px;
+  font-size: 14px;
+}
+
+#calculateBtn {
+  background: linear-gradient(180deg, #0d3944, var(--panel-2));
+  color: var(--cyan);
+  border: 1px solid var(--cyan-dim);
+  box-shadow: 0 0 16px rgba(79,232,255,0.15), inset 0 0 12px rgba(79,232,255,0.06);
+}
+
+#calculateBtn:hover { box-shadow: 0 0 22px rgba(79,232,255,0.35), inset 0 0 12px rgba(79,232,255,0.1); }
+
+#resetBtn {
+  background: linear-gradient(180deg, #3a1c0c, var(--panel-2));
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+  display: none;
+  margin-top: 12px;
+  box-shadow: 0 0 16px rgba(255,176,32,0.12);
 }
 
 #copyBtn {
-  margin-top: 14px;
+  background: var(--panel-2);
+  color: var(--cyan);
+  border: 1px solid var(--line);
+  display: none;
+  margin-top: 16px;
 }
+#copyBtn:hover { border-color: var(--cyan-dim); }
 
+#historyBtn {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  display: none;
+  margin-top: 10px;
+}
+#historyBtn:hover { color: var(--text); border-color: var(--line-soft); }
 
-
-
-#calculateBtn { background: #007bff; }
-#resetBtn    { background: #ff4e4e; display: none; }
-#copyBtn     { background: #00a84f; display: none; }
-#historyBtn  { background: #6f42c1; display: none; }
+button:active { transform: scale(0.96); }
 
 #resultCard { display: none; }
 
-/* 🔢 Rounding buttons */
-.round-buttons button {
-  width: auto;
-  padding: 8px 6px;
-  font-size: 13px;
-  border-radius: 6px;
+/* ---------- REACTOR READOUT ---------- */
+
+.reactor {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  margin: 4px auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.reactor-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+}
+
+.reactor-ring.r1 {
+  animation: spin 18s linear infinite;
+  border-top-color: var(--cyan-dim);
+  border-right-color: var(--cyan-dim);
+}
+
+.reactor-ring.r2 {
+  inset: 14px;
+  animation: spin-rev 12s linear infinite;
+  border-style: dashed;
+  border-color: var(--line-soft);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin-rev { to { transform: rotate(-360deg); } }
+
+#resultValue {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--cyan);
+  text-shadow: 0 0 16px var(--cyan-glow);
+  word-break: break-word;
+  padding: 0 14px;
+  z-index: 2;
+}
+
+/* ---------- QUOTIENT & REMAINDER ---------- */
+
+.result-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+  margin-bottom: 18px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: var(--panel-2);
+  border: 1px solid var(--line-soft);
+  border-left: 2px solid var(--cyan-dim);
+  padding: 11px 14px;
+}
+
+.detail-row span {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.detail-row strong {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  color: var(--text);
+  word-break: break-word;
+  font-weight: 400;
+}
+
+/* ---------- ROUNDING CHIPS ---------- */
 
 .round-buttons {
   display: grid;
@@ -184,90 +456,141 @@ button {
   gap: 6px;
 }
 
+.round-buttons button {
+  width: auto;
+  padding: 9px 4px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  clip-path: none;
+}
 
 .round-buttons button:hover {
-  background: #666;
+  color: var(--cyan);
+  border-color: var(--cyan-dim);
 }
 
 .round-buttons button:last-child {
-  background: #8b0000; /* dark red */
+  color: var(--amber);
+  border-color: var(--amber-dim);
 }
 
 .round-buttons button:last-child:hover {
-  background: #a00000;
+  background: rgba(255,176,32,0.08);
 }
 
-.round-buttons button {
-  padding: 10px;
-  font-size: 14px;
-}
+/* ---------- MODALS ---------- */
 
-/* Modals */
 #warningBox, #historyBox {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(2,6,9,0.78);
   display: none;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(2px);
 }
 
 #warningContent, #historyContent {
-  background: #242222;
-  padding: 25px;
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--cyan-dim);
+  padding: 26px 22px;
   width: 320px;
   max-height: 70vh;
-  border-radius: 12px;
   text-align: center;
   overflow-y: auto;
+  box-shadow: 0 0 40px rgba(79,232,255,0.15), 0 20px 50px rgba(0,0,0,0.6);
 }
+
+#historyContent h3, .card h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--text);
+  text-transform: uppercase;
+  margin-top: 0;
+}
+
+#historyList {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#historyList li {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  border-left: 2px solid var(--cyan-dim);
+  background: var(--panel-2);
+  padding: 8px 10px;
+}
+
+.history-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  clip-path: none;
+  background: var(--panel-2);
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.history-close:hover { box-shadow: 0 0 12px var(--amber-glow); }
+
+.history-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.history-actions button { flex: 1; }
+
+.clear-history-btn {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid #5a1f1f;
+}
+.clear-history-btn:hover { background: rgba(255,93,93,0.08); }
+
+.close-history-btn {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+}
+.close-history-btn:hover { color: var(--text); }
 
 .close-btn {
-  color: #ff6b6b;          /* soft red */
-  font-weight: 600;
-  background: #3a1c1c;     /* dark red background */
+  color: var(--amber);
+  font-weight: 700;
+  background: var(--panel-2);
+  border: 1px solid var(--amber-dim);
   padding: 12px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
 }
 
-.heading {
-  margin-top: 15px;
-  margin-bottom: 14px;
-}
+/* ---------- MOBILE ---------- */
 
-.close-btn:hover {
-  background: #4a2222;
-  color: #ff8f8f;
-}
-
-
-
-
-/* 📱 Mobile */
 @media (max-width: 768px) {
-  body {
-    align-items: flex-start;
-    padding: 12px 10px;
-  }
-
-  .container {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .card {
-    width: 100%;
-    max-width: 360px;
-  }
+  body { align-items: flex-start; padding: 20px 12px 50px; }
+  .container { flex-direction: column; align-items: center; gap: 20px; }
+  .card { width: 100%; max-width: 370px; }
+  .heading { font-size: 24px; letter-spacing: 2px; }
 }
 
-
-
-
-/* 🔘 Button click animation */
 @keyframes pressBounce {
   0%   { transform: scale(1); }
   40%  { transform: scale(0.92); }
@@ -275,11 +598,7 @@ button {
   100% { transform: scale(1); }
 }
 
-.animate-btn {
-  animation: pressBounce 0.25s ease;
-}
-
-
+.animate-btn { animation: pressBounce 0.25s ease; }
 
 </style>
 </head>
@@ -287,60 +606,159 @@ button {
 <body>
 
 <div class="wrapper">
-  <h1 class="heading">Division-Pro</h1>
+
+  <div class="masthead">
+    <div class="eyebrow">Rameshverse Systems</div>
+    <h1 class="heading">Division Core</h1>
+    <div class="status-line"><span class="status-dot"></span> MK·02 &nbsp;·&nbsp; Quotient Engine Online</div>
+  </div>
 
   <div class="container">
 
     <div class="card">
-      <h3>Enter Values</h3>
-      <input id="value1" placeholder="Enter dividend" oninput="filterInput(this)">
-      <input id="value2" placeholder="Enter divisor" oninput="filterInput(this)">
-      <button id="calculateBtn" onclick="calculate()">Calculate</button>
-      <button id="resetBtn" onclick="resetAll()">Reset</button>
+      <span class="bracket-b1"></span><span class="bracket-b2"></span>
+
+      <h3 class="panel-label">Input Matrix <span class="tag">A ÷ B</span></h3>
+
+      <label class="field-label" for="value1">Dividend</label>
+      <input
+        id="value1"
+        placeholder="0.00"
+        oninput="filterInput(this)"
+      >
+
+      <label class="field-label" for="value2">Divisor</label>
+      <input
+        id="value2"
+        placeholder="0.00"
+        oninput="filterInput(this)"
+      >
+
+      <button
+        id="calculateBtn"
+        onclick="animateButton(this); calculate()"
+      >
+        Run Calculation
+      </button>
+
+      <button
+        id="resetBtn"
+        onclick="animateButton(this); resetAll()"
+      >
+        Reset Core
+      </button>
+
     </div>
+
 
     <div class="card" id="resultCard">
-      <h3>Result</h3>
+      <span class="bracket-b1"></span><span class="bracket-b2"></span>
 
-      <p id="decimal">Decimal:</p>
+      <h3 class="panel-label">Output Readout <span class="tag">RESULT</span></h3>
 
-      <!-- 🔢 NEW ROUND BUTTONS -->
+      <div class="reactor">
+        <div class="reactor-ring r1"></div>
+        <div class="reactor-ring r2"></div>
+        <div id="resultValue">—</div>
+      </div>
+
+      <div class="result-details">
+        <div class="detail-row">
+          <span>Quotient</span>
+          <strong id="quotient">—</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Remainder</span>
+          <strong id="remainder">—</strong>
+        </div>
+      </div>
+
+
+      <!-- ROUNDING BUTTONS -->
+
       <div class="round-buttons">
-  <button onclick="animateButton(this); roundDecimal(1)">1 dec</button>
-  <button onclick="animateButton(this); roundDecimal(2)">2 dec</button>
-  <button onclick="animateButton(this); roundDecimal(3)">3 dec</button>
-  <button onclick="animateButton(this); revertDecimal()">Revert</button>
-</div>
+
+        <button onclick="animateButton(this); roundDecimal(1)">1 dec</button>
+        <button onclick="animateButton(this); roundDecimal(2)">2 dec</button>
+        <button onclick="animateButton(this); roundDecimal(3)">3 dec</button>
+        <button onclick="animateButton(this); revertDecimal()">Revert</button>
+
+      </div>
 
 
-      <button id="copyBtn" onclick="animateButton(this); copyDecimal()">Copy Decimal</button>
+      <!-- COPY -->
+
+      <button
+        id="copyBtn"
+        onclick="animateButton(this); copyDecimal()"
+      >
+        Copy Result
+      </button>
 
 
-      <p id="quotient">Quotient:</p>
-      <p id="remainder">Remainder:</p>
+      <!-- HISTORY -->
 
-      <button id="historyBtn" onclick="openHistory()">History (Last 10)</button>
+      <button
+        id="historyBtn"
+        onclick="animateButton(this); openHistory()"
+      >
+        Log · Last 10
+      </button>
+
     </div>
 
   </div>
+
 </div>
+
+
+<!-- HISTORY MODAL -->
 
 <div id="historyBox">
+
   <div id="historyContent">
-    <h3>Calculation History</h3>
-    <ul id="historyList"></ul>
+
     <button
-      id="historyActionBtn"
-      class="close-btn"
-      onclick="handleHistoryAction()">
-      Clear History
+      class="history-close"
+      onclick="closeHistory()"
+      aria-label="Close history"
+    >
+      ×
     </button>
 
+    <h3>Calculation Log</h3>
+
+    <ul id="historyList"></ul>
+
+
+    <div class="history-actions">
+
+      <button
+        class="clear-history-btn"
+        onclick="clearHistory()"
+      >
+        Clear Log
+      </button>
+
+      <button
+        class="close-history-btn"
+        onclick="closeHistory()"
+      >
+        Close
+      </button>
+
+    </div>
+
   </div>
+
 </div>
 
+
 <script>
-/* ---------- DOM REFERENCES (MUST BE FIRST) ---------- */
+
+/* ---------- DOM REFERENCES ---------- */
+
 const value1 = document.getElementById("value1");
 const value2 = document.getElementById("value2");
 
@@ -351,34 +769,46 @@ const historyBtn = document.getElementById("historyBtn");
 
 const resultCard = document.getElementById("resultCard");
 
-const decimalEl = document.getElementById("decimal");
+const resultValueEl = document.getElementById("resultValue");
 const quotientEl = document.getElementById("quotient");
 const remainderEl = document.getElementById("remainder");
 
 const historyBox = document.getElementById("historyBox");
 const historyList = document.getElementById("historyList");
 
-let historyMode = "clear"; // "clear" | "closing"
-
 
 /* ---------- DATA ---------- */
+
 let historyData = [];
 let lastDecimalValue = null;
 
-/* ---------- FUNCTIONS ---------- */
+
+/* ---------- INPUT FILTER ---------- */
 
 function filterInput(el) {
+
   el.value = el.value.replace(/[^0-9.\-]/g, "");
+
 }
+
+
+/* ---------- BUTTON ANIMATION ---------- */
 
 function animateButton(btn) {
-  btn.classList.remove("animate-btn"); // reset
-  void btn.offsetWidth;                // reflow trick
+
+  btn.classList.remove("animate-btn");
+
+  void btn.offsetWidth;
+
   btn.classList.add("animate-btn");
+
 }
 
 
+/* ---------- CALCULATE ---------- */
+
 function calculate() {
+
   const aVal = value1.value.trim();
   const bVal = value2.value.trim();
 
@@ -387,95 +817,350 @@ function calculate() {
   const a = Number(aVal);
   const b = Number(bVal);
 
-  if (isNaN(a) || isNaN(b) || b === 0) return;
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b === 0) {
+    return;
+  }
+
+  value1.disabled = true;
+  value2.disabled = true;
+
+
+  /* Decimal result */
 
   const decimal = a / b;
+
   lastDecimalValue = decimal;
 
-  decimalEl.textContent = "Decimal: " + decimal;
-  quotientEl.textContent = "Quotient: " + Math.floor(decimal);
-  remainderEl.textContent = "Remainder: " + (a % b);
 
-  historyData.unshift(`${a} ÷ ${b} = ${decimal}`);
-  if (historyData.length > 10) historyData.pop();
+  /* Display result */
+
+  resultValueEl.textContent = decimal;
+
+
+  /* Quotient */
+
+  const quotient = Math.trunc(a / b);
+
+  quotientEl.textContent = quotient;
+
+
+  /* Exact floating-point-safe remainder */
+
+  const remainder = calculateExactRemainder(aVal, bVal);
+
+  remainderEl.textContent = remainder;
+
+
+  /* History */
+
+  historyData.unshift(
+    `${aVal} ÷ ${bVal} = ${decimal}`
+  );
+
+  if (historyData.length > 10) {
+    historyData.pop();
+  }
+
+
+  /* Show result */
 
   resultCard.style.display = "block";
+
   calculateBtn.style.display = "none";
+
   resetBtn.style.display = "block";
+
   copyBtn.style.display = "block";
+
   historyBtn.style.display = "block";
+
 }
+
+
+/* ---------- EXACT REMAINDER ---------- */
+
+/*
+   JavaScript Number arithmetic can produce results such as:
+
+   2.00000000000299245
+
+   for a mathematically exact remainder of 2.
+
+   This function converts the decimal inputs into scaled BigInts
+   and performs the remainder calculation without floating-point
+   rounding errors.
+*/
+
+function calculateExactRemainder(aString, bString) {
+
+  const a = parseDecimalToBigInt(aString);
+  const b = parseDecimalToBigInt(bString);
+
+
+  /* Make both numbers use the same decimal scale */
+
+  const scaleDifference = a.scale - b.scale;
+
+  let aInt = a.integer;
+  let bInt = b.integer;
+
+  if (scaleDifference > 0) {
+
+    bInt *= 10n ** BigInt(scaleDifference);
+
+  } else if (scaleDifference < 0) {
+
+    aInt *= 10n ** BigInt(-scaleDifference);
+
+  }
+
+
+  /* Exact remainder */
+
+  const remainderInt = aInt % bInt;
+
+  const commonScale = Math.max(a.scale, b.scale);
+
+
+  return formatScaledBigInt(
+    remainderInt,
+    commonScale
+  );
+
+}
+
+
+/* ---------- PARSE DECIMAL ---------- */
+
+function parseDecimalToBigInt(value) {
+
+  let negative = false;
+
+  if (value.startsWith("-")) {
+
+    negative = true;
+    value = value.slice(1);
+
+  }
+
+
+  const parts = value.split(".");
+
+  const wholePart = parts[0] || "0";
+  const decimalPart = parts[1] || "";
+
+  const scale = decimalPart.length;
+
+  const digits =
+    (wholePart + decimalPart).replace(/^0+(?=\d)/, "");
+
+
+  let integer = BigInt(digits || "0");
+
+
+  if (negative) {
+    integer = -integer;
+  }
+
+
+  return {
+    integer,
+    scale
+  };
+
+}
+
+
+/* ---------- FORMAT SCALED BIGINT ---------- */
+
+function formatScaledBigInt(integer, scale) {
+
+  if (integer === 0n) {
+    return "0";
+  }
+
+
+  const negative = integer < 0n;
+
+  let digits = (
+    negative
+      ? (-integer).toString()
+      : integer.toString()
+  );
+
+
+  if (scale === 0) {
+
+    return negative
+      ? "-" + digits
+      : digits;
+
+  }
+
+
+  if (digits.length <= scale) {
+
+    digits =
+      "0".repeat(scale - digits.length + 1)
+      + digits;
+
+  }
+
+
+  const position = digits.length - scale;
+
+  let result =
+    digits.slice(0, position)
+    + "."
+    + digits.slice(position);
+
+
+  /* Remove unnecessary trailing zeros */
+
+  result = result.replace(/\.?0+$/, "");
+
+
+  if (result === "") {
+    result = "0";
+  }
+
+
+  return negative
+    ? "-" + result
+    : result;
+
+}
+
+
+/* ---------- ROUNDING ---------- */
 
 function roundDecimal(n) {
+
   if (lastDecimalValue === null) return;
 
-  const rounded = roundSafe(lastDecimalValue, n);
-  decimalEl.textContent =
-    `Decimal (${n} dec): ${rounded}`;
+
+  const rounded = roundSafe(
+    lastDecimalValue,
+    n
+  );
+
+
+  resultValueEl.textContent = rounded;
+
 }
 
+
+/* ---------- REVERT ---------- */
 
 function revertDecimal() {
+
   if (lastDecimalValue === null) return;
-  decimalEl.textContent = "Decimal: " + lastDecimalValue.toString();
+
+  resultValueEl.textContent = lastDecimalValue.toString();
+
 }
 
 
+/* ---------- SAFE ROUND ---------- */
+
+function roundSafe(num, decimals) {
+
+  const factor = 10 ** decimals;
+
+  return Math.round(
+    (num + Number.EPSILON) * factor
+  ) / factor;
+
+}
+
+
+/* ---------- RESET ---------- */
+
 function resetAll() {
+
   value1.value = "";
   value2.value = "";
 
-  decimalEl.textContent = "Decimal:";
-  quotientEl.textContent = "Quotient:";
-  remainderEl.textContent = "Remainder:";
+  value1.disabled = false;
+  value2.disabled = false;
+
+
+  resultValueEl.textContent = "—";
+
+  quotientEl.textContent = "—";
+
+  remainderEl.textContent = "—";
+
+
+  lastDecimalValue = null;
+
 
   resultCard.style.display = "none";
+
   calculateBtn.style.display = "block";
+
   resetBtn.style.display = "none";
+
   copyBtn.style.display = "none";
+
   historyBtn.style.display = "none";
+
 }
+
+
+/* ---------- COPY RESULT ---------- */
 
 function copyDecimal() {
-  const val = decimalEl.textContent.replace(/.*:\s*/, "");
-  navigator.clipboard.writeText(val);
+
+  if (lastDecimalValue === null) return;
+
+  navigator.clipboard.writeText(
+    lastDecimalValue.toString()
+  );
+
 }
+
+
+/* ---------- OPEN HISTORY ---------- */
 
 function openHistory() {
-  historyList.innerHTML = historyData.length
-    ? historyData.map(v => `<li>${v}</li>`).join("")
-    : "<li>No history</li>";
 
-  historyMode = "clear";
-  const btn = document.getElementById("historyActionBtn");
-  btn.textContent = "Clear History";
+  historyList.innerHTML = historyData.length
+
+    ? historyData
+        .map(v => `<li>${v}</li>`)
+        .join("")
+
+    : "<li>No log entries</li>";
+
 
   historyBox.style.display = "flex";
+
 }
 
 
-function roundSafe(num, decimals) {
-  const factor = 10 ** decimals;
-  return Math.round((num + Number.EPSILON) * factor) / factor;
+/* ---------- CLOSE HISTORY ---------- */
+
+function closeHistory() {
+
+  historyBox.style.display = "none";
+
 }
 
-function handleHistoryAction() {
-  const btn = document.getElementById("historyActionBtn");
 
-  // Step 1: clear history
+/* ---------- CLEAR HISTORY ---------- */
+
+function clearHistory() {
+
   historyData = [];
-  historyList.innerHTML = "<li>History cleared</li>";
 
-  btn.textContent = "Closing…";
+  historyList.innerHTML =
+    "<li>Log cleared</li>";
 
-  // Step 2: brief delay, then close
-  setTimeout(() => {
-    historyBox.style.display = "none";
-  }, 700);
 }
-
 
 </script>
+
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
