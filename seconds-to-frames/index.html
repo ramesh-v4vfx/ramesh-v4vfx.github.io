@@ -12,204 +12,452 @@
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FPS to Frames Calculator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPS to Frames · MK·02</title>
 
-  <style>
-   body {
-  font-family: system-ui, sans-serif;
-  background: #0c0101;
-  color: #fff;
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+  color-scheme: dark;
+
+  --void:      #07070a;
+  --letterbox: #000000;
+  --panel:     #101014;
+  --panel-2:   #16161c;
+  --line:      #2a2a33;
+  --line-soft: #1c1c22;
+  --teal:      #35e0c9;
+  --teal-dim:  #1a7a6c;
+  --teal-glow: rgba(53, 224, 201, 0.30);
+  --orange:    #ff8a3d;
+  --orange-dim:#a2551f;
+  --orange-glow: rgba(255, 138, 61, 0.28);
+  --text:      #e9f3f1;
+  --text-dim:  #7d8a89;
+  --text-faint:#454d4c;
+}
+
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--void);
+}
+
+body {
+  font-family: 'Rajdhani', system-ui, sans-serif;
+  color: var(--text);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
-  padding: 14px;   /* ← ADD THIS */
+  padding: 46px 14px;
+  position: relative;
+  overflow-x: hidden;
+
+  background:
+    radial-gradient(ellipse 700px 420px at 50% 20%, rgba(53,224,201,0.06), transparent 65%),
+    var(--void);
 }
 
-* {
-  -webkit-tap-highlight-color: transparent;
+/* letterbox cinema bars */
+body::before, body::after {
+  content: "";
+  position: fixed;
+  left: 0; right: 0;
+  height: 34px;
+  background: var(--letterbox);
+  z-index: 5;
+  pointer-events: none;
+}
+body::before { top: 0; }
+body::after { bottom: 0; }
+
+/* film grain flicker */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: repeating-radial-gradient(circle at 20% 30%, #fff 0px, transparent 1px);
+  background-size: 3px 3px;
+  animation: flicker 0.4s steps(2) infinite;
 }
 
-
-
-    .calculator {
-      background: #181c3a;
-      padding: 24px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 280px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
-
-    h2 {
-      margin-bottom: 16px;
-      font-size: 18px;
-      text-align: center;
-    }
-
-    label {
-      font-size: 13px;
-      opacity: 0.8;
-    }
-
-    input,
-    select {
-      width: 100%;
-      height: 44px;
-      padding: 0 14px;
-      margin: 6px 0 14px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
-
-    .result {
-      text-align: center;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-
-    #frames {
-      font-weight: bold;
-      color: #4fd1ff;
-    }
-
-    /* remove number arrows */
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
-
-    .copy-btn {
-      margin-left: 8px;
-      padding: 4px 10px;
-      font-size: 12px;
-      border-radius: 6px;
-      border: none;
-      background: #2b6cff;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .copy-btn:hover {
-      background: #1f54cc;
-    }
-
-    .copy-btn.copied {
-      background: #22c55e;
-    }
-
-    @media (max-width: 480px) {
-
-  .calculator {
-    padding: 20px;
-  }
-
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  label {
-    font-size: 14px;
-  }
-
-  input,
-  select {
-    height: 48px;        /* better thumb tap */
-    font-size: 16px;    /* prevents iOS zoom */
-  }
-
-  .result {
-    font-size: 17px;
-  }
-
-  .copy-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
+@keyframes flicker {
+  0%   { opacity: 0.03; }
+  50%  { opacity: 0.07; }
+  100% { opacity: 0.04; }
 }
 
-  </style>
+/* ---------- CALCULATOR ---------- */
+
+.calculator {
+  position: relative;
+  background: linear-gradient(180deg, rgba(53,224,201,0.04), transparent 35%), var(--panel);
+  padding: 30px 30px 26px;
+  border: 1px solid var(--line);
+  width: 100%;
+  max-width: 320px;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.65),
+    inset 0 0 40px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+
+/* viewfinder corner brackets */
+.calculator::before, .calculator::after,
+.calculator .vf-b1, .calculator .vf-b2 {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+.calculator::before { top: -1px; left: -1px; border-top: 2px solid var(--teal); border-left: 2px solid var(--teal); }
+.calculator::after   { bottom: -1px; right: -1px; border-bottom: 2px solid var(--teal); border-right: 2px solid var(--teal); }
+.calculator .vf-b1    { top: -1px; right: -1px; border-top: 2px solid var(--line); border-right: 2px solid var(--line); }
+.calculator .vf-b2    { bottom: -1px; left: -1px; border-bottom: 2px solid var(--line); border-left: 2px solid var(--line); }
+
+/* sprocket rails */
+.sprockets {
+  position: absolute;
+  top: 12px; bottom: 12px;
+  width: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.sprockets.left { left: -7px; }
+.sprockets.right { right: -7px; }
+
+.sprockets span {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--void);
+  border: 1px solid var(--line);
+  display: block;
+}
+
+.eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--teal-dim);
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+.eyebrow::before, .eyebrow::after { content: ""; width: 22px; height: 1px; background: var(--teal-dim); }
+
+h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: 27px;
+  letter-spacing: 3px;
+  text-align: center;
+  margin: 0 0 6px;
+  color: var(--text);
+  text-shadow: 0 0 16px var(--teal-glow);
+}
+
+.status-line {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0 0 22px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 8px 2px var(--teal-glow);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 6px;
+}
+
+input, select {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  margin: 0 0 18px;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  outline: none;
+  font-size: 15px;
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--panel-2);
+  color: var(--teal);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input::placeholder { color: var(--text-faint); }
+
+input:focus, select:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 1px var(--teal-dim), 0 0 14px var(--teal-glow);
+}
+
+select { cursor: pointer; }
+select option { background: var(--panel-2); color: var(--teal); }
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* ---------- FRAME READOUT ---------- */
+
+.readout {
+  border: 1px solid var(--line-soft);
+  border-left: 2px solid var(--orange-dim);
+  background: var(--panel-2);
+  padding: 16px 16px 14px;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.readout-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.readout-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--orange);
+  text-shadow: 0 0 18px var(--orange-glow);
+  letter-spacing: 1px;
+}
+
+.readout-unit {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.copy-btn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 0;
+  border: 1px solid var(--teal-dim);
+  background: transparent;
+  color: var(--teal);
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.copy-btn:hover {
+  box-shadow: 0 0 14px var(--teal-glow);
+}
+
+.copy-btn.copied {
+  background: rgba(53, 224, 201, 0.12);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.copy-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.readout-value.limit-hit {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  color: #ff5d5d;
+  text-shadow: 0 0 14px rgba(255, 93, 93, 0.35);
+  text-transform: none;
+}
+
+.readout.limit-hit-border {
+  border-left-color: #ff5d5d;
+}
+
+.limit-hint {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: -12px 0 18px 2px;
+}
+
+@media (max-width: 480px) {
+  .calculator { padding: 26px 22px 22px; }
+  h2 { font-size: 23px; }
+  label { font-size: 11px; }
+  input, select { height: 48px; font-size: 16px; }
+  .readout-value { font-size: 30px; }
+}
+
+</style>
 </head>
 
 <body>
 
-  <div class="calculator">
-    <h2>FPS → Frames Calculator</h2>
+<div class="grain"></div>
 
-    <label>Duration (seconds)</label>
-    <input type="number" id="seconds" placeholder="Enter seconds" min="0" step="0.01">
+<div class="calculator">
+  <span class="vf-b1"></span><span class="vf-b2"></span>
+  <span class="sprockets left"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+  <span class="sprockets right"><span></span><span></span><span></span><span></span><span></span><span></span></span>
 
-    <label>Frame Rate (FPS)</label>
-    <select id="fps">
-      <option value="8">8</option>
-      <option value="12">12</option>
-      <option value="15">15</option>
-      <option value="23.976">23.976</option>
-      <option value="24" selected>24 (default)</option>
-      <option value="25">25</option>
-      <option value="29.97">29.97</option>
-      <option value="30">30</option>
-      <option value="60">60</option>
-      <option value="120">120</option>
-    </select>
+  <div class="eyebrow">Rameshverse Systems</div>
+  <h2>FPS &rarr; Frames</h2>
+  <div class="status-line"><span class="status-dot"></span> MK&middot;02 &nbsp;&middot;&nbsp; Frame Engine Online</div>
 
-    <div class="result">
-      Total Frames:
-      <span id="frames">0</span>
-      <button id="copyBtn" class="copy-btn">Copy</button>
-    </div>
+  <label for="seconds">Duration (seconds)</label>
+  <input type="number" id="seconds" placeholder="0.00" min="0" step="0.01">
+  <div class="limit-hint" id="limitHint">Max 1,000,000,000 frames</div>
+
+  <label for="fps">Frame Rate</label>
+  <select id="fps">
+    <option value="8">8 fps</option>
+    <option value="12">12 fps</option>
+    <option value="15">15 fps</option>
+    <option value="23.976">23.976 fps</option>
+    <option value="24" selected>24 fps (default)</option>
+    <option value="25">25 fps</option>
+    <option value="29.97">29.97 fps</option>
+    <option value="30">30 fps</option>
+    <option value="60">60 fps</option>
+    <option value="120">120 fps</option>
+  </select>
+
+  <div class="readout">
+    <div class="readout-label">Total Frames</div>
+    <div class="readout-value" id="frames">0</div>
+    <div class="readout-unit">frames exposed</div>
+    <button id="copyBtn" class="copy-btn">Copy Value</button>
   </div>
+</div>
 
-  <script>
-    const secondsInput = document.getElementById("seconds");
-    const fpsSelect = document.getElementById("fps");
-    const framesOutput = document.getElementById("frames");
-    const copyBtn = document.getElementById("copyBtn");
+<script>
+  const secondsInput = document.getElementById("seconds");
+  const fpsSelect = document.getElementById("fps");
+  const framesOutput = document.getElementById("frames");
+  const copyBtn = document.getElementById("copyBtn");
 
-    function calculateFrames() {
-      const seconds = parseFloat(secondsInput.value);
-      const fps = parseFloat(fpsSelect.value);
+  const MAX_SECONDS = 1000000000;
+  const limitHint = document.getElementById("limitHint");
 
-      if (isNaN(seconds) || seconds < 0) {
-        framesOutput.textContent = 0;
-        return;
-      }
+  const funnyMessages = [
+    "Whoa, that's more seconds than the sun has left. Try under 1,000,000,000.",
+    "Even a black hole would time out. Max is 1,000,000,000 seconds.",
+    "That's longer than most civilizations. Keep it under 1,000,000,000s.",
+    "The telecine gods say no. Cap it at 1,000,000,000 seconds.",
+    "Careful, you're breaking the space-time continuum. Max: 1,000,000,000s."
+  ];
 
-      const totalFrames = seconds * fps;
-      framesOutput.textContent = Math.round(totalFrames);
+  function updateHint() {
+    limitHint.textContent = "Max duration: " + MAX_SECONDS.toLocaleString() + " seconds";
+  }
+
+  function calculateFrames() {
+    const seconds = parseFloat(secondsInput.value);
+    const fps = parseFloat(fpsSelect.value);
+
+    if (isNaN(seconds) || seconds < 0) {
+      framesOutput.textContent = 0;
+      framesOutput.classList.remove("limit-hit");
+      copyBtn.disabled = false;
+      return;
     }
 
-    copyBtn.addEventListener("click", () => {
-      const value = framesOutput.textContent;
-      navigator.clipboard.writeText(value);
+    if (seconds > MAX_SECONDS) {
+      const msg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+      framesOutput.textContent = msg;
+      framesOutput.classList.add("limit-hit");
+      copyBtn.disabled = true;
+      return;
+    }
 
-      copyBtn.textContent = "Copied!";
-      copyBtn.classList.add("copied");
+    const totalFrames = Math.round(seconds * fps);
 
-      setTimeout(() => {
-        copyBtn.textContent = "Copy";
-        copyBtn.classList.remove("copied");
-      }, 500);
-    });
+    framesOutput.classList.remove("limit-hit");
+    copyBtn.disabled = false;
+    framesOutput.textContent = totalFrames;
+  }
 
-    secondsInput.addEventListener("input", calculateFrames);
-    fpsSelect.addEventListener("change", calculateFrames);
-  </script>
+  copyBtn.addEventListener("click", () => {
+    const value = framesOutput.textContent;
+    navigator.clipboard.writeText(value);
 
-  <script src="/libraries/config.js"></script>
-  <script src="/libraries/view-counter.js"></script>
+    copyBtn.textContent = "Copied!";
+    copyBtn.classList.add("copied");
+
+    setTimeout(() => {
+      copyBtn.textContent = "Copy Value";
+      copyBtn.classList.remove("copied");
+    }, 500);
+  });
+
+  secondsInput.addEventListener("input", calculateFrames);
+  fpsSelect.addEventListener("change", calculateFrames);
+  updateHint();
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
 
 </body>
 </html>
