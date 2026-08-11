@@ -19,241 +19,526 @@
 <meta name="description" content="Convert scientific notation to decimal and decimal to scientific notation instantly. Free online scientific ⇄ decimal converter for large numbers.">
 <meta name="keywords" content="scientific notation converter, decimal converter, exponential notation, number converter, scientific to decimal, decimal to scientific">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #eef1f5;
+  :root {
+    --bg: #0a0908;
+    --panel: #17140f;
+    --panel-2: #0e0c09;
+    --line: rgba(168,85,247,0.18);
+    --line-soft: rgba(168,85,247,0.09);
+    --violet: #a855f7;
+    --violet-dim: rgba(168,85,247,0.14);
+    --violet-soft: rgba(168,85,247,0.08);
+    --text: #f5efe4;
+    --text-dim: #8a8177;
+    --sans: 'Sora', system-ui, -apple-system, sans-serif;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
     margin: 0;
-    padding: 16px;
-}
+    font-family: var(--sans);
+    background:
+      repeating-linear-gradient(0deg, rgba(168,85,247,0.035) 0 1px, transparent 1px 32px),
+      repeating-linear-gradient(90deg, rgba(168,85,247,0.035) 0 1px, transparent 1px 32px),
+      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(168,85,247,0.10), transparent 62%),
+      var(--bg);
+    color: var(--text);
+    padding: 32px 16px;
+    display: flex;
+    justify-content: center;
+  }
 
-/* Card */
-.app {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    max-width: 420px;
-    margin: auto;
-}
+  .page { width: 100%; max-width: 420px; }
 
-h2 {
+  /* ---------- Header ---------- */
+  .brand-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 20px;
+    width: fit-content;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--violet);
+    border: 1px solid rgba(168,85,247,0.32);
+    background: rgba(168,85,247,0.06);
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+
+  .brand-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #6dffb0;
+    box-shadow: 0 0 6px 1px #6dffb0;
+  }
+
+  /* ---------- Signature mark: cycling power-of-ten ---------- */
+  .notation-mark {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
+    margin-bottom: 6px;
+    font-family: var(--mono);
+    color: var(--violet);
+    text-shadow: 0 0 18px rgba(168,85,247,0.45), 0 0 36px rgba(168,85,247,0.2);
+  }
+
+  .notation-mark .base {
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .notation-mark .exp {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-top: 2px;
+    min-width: 1.1ch;
     text-align: center;
-    margin-top: 5px;
-}
+    transition: opacity 0.25s ease;
+  }
 
-label {
+  h2 {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 1.25rem;
+    text-align: center;
+    margin: 4px 0 10px;
+  }
+
+  /* ---------- Card ---------- */
+  .app {
+    position: relative;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    padding: 24px 22px;
+    border-radius: 16px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(168,85,247,0.03) inset;
+    overflow: hidden;
+  }
+
+  .app::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -40%;
+    width: 40%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--violet), transparent);
+    animation: scan 6s linear infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes scan {
+    0% { left: -40%; }
+    100% { left: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app::before { animation: none; }
+  }
+
+  label {
     display: block;
     margin-top: 14px;
-}
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
 
-input {
+  label:first-of-type { margin-top: 0; }
+
+  input {
     width: 100%;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    box-sizing: border-box;
-}
+    margin-top: 7px;
+    padding: 0 14px;
+    height: 48px;
+    border-radius: 9px;
+    border: 1px solid var(--line-soft);
+    background: #0a0806;
+    color: var(--violet);
+    font-family: var(--mono);
+    font-size: 1.02rem;
+    text-shadow: 0 0 6px rgba(168,85,247,0.35);
+  }
 
-/* Button rows */
-.row {
+  input::placeholder { color: rgba(168,85,247,0.3); }
+
+  input:focus {
+    outline: none;
+    border-color: var(--violet);
+    box-shadow: 0 0 0 3px var(--violet-dim);
+  }
+
+  input[readonly] { cursor: default; }
+
+  .row {
     display: flex;
     gap: 10px;
     margin-top: 12px;
-}
+    align-items: stretch;
+  }
 
-/* Buttons */
-button {
+  .row input { margin-top: 0; flex: 1; min-width: 0; }
+
+  button {
     border: none;
-    border-radius: 6px;
-    padding: 14px;
-    color: white;
+    border-radius: 9px;
+    padding: 0 14px;
+    height: 48px;
+    color: var(--text);
     cursor: pointer;
-    font-size: 16px;
-}
+    font-size: 0.92rem;
+    font-family: var(--mono);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
 
-.convert {
+  button:active { transform: scale(0.97); }
+
+  /* ---------- Convert: immersive primary ---------- */
+  .convert-wrap {
     flex: 2;
-    background: #2ecc71;
-}
+    position: relative;
+    padding: 3px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #d8b4fe, var(--violet), #6b21a8);
+    background-size: 200% 200%;
+    animation: borderflow 6s ease infinite;
+  }
 
-.blue-btn {
+  @keyframes borderflow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .convert-wrap { animation: none; }
+  }
+
+  .convert {
+    width: 100%;
+    height: 100%;
+    min-height: 42px;
+    background: linear-gradient(180deg, #14110c, #0a0806);
+    color: var(--violet);
+    text-shadow: 0 0 8px rgba(168,85,247,0.6);
+    font-weight: 700;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .convert::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+  }
+
+  .convert-wrap:hover .convert::after { left: 130%; }
+
+  /* ---------- Secondary buttons ---------- */
+  .blue-btn, .red-btn {
     flex: 1;
-    background: #3498db;
-}
+    background: linear-gradient(180deg, rgba(168,85,247,0.08), rgba(168,85,247,0.02));
+    border: 1px solid rgba(168,85,247,0.28);
+    color: var(--violet);
+  }
 
-.red-btn {
-    flex: 1;
-    background: #e74c3c;
-}
+  .blue-btn:hover, .red-btn:hover {
+    border-color: var(--violet);
+    box-shadow: 0 0 14px rgba(168,85,247,0.25);
+  }
 
-/* MOBILE LAYOUT */
-@media (max-width: 480px) {
+  .red-btn {
+    background: linear-gradient(180deg, rgba(255,90,90,0.08), rgba(255,90,90,0.02));
+    border-color: rgba(255,90,90,0.32);
+    color: #ff6b6b;
+  }
 
-    .row {
-        flex-direction: column;
-    }
+  .red-btn:hover { border-color: #ff6b6b; box-shadow: 0 0 14px rgba(255,90,90,0.25); }
 
-    button {
-        width: 100%;
-    }
+  .copy-btn {
+    flex: 0 0 auto;
+    width: 84px;
+    background: linear-gradient(180deg, rgba(52,211,153,0.1), rgba(52,211,153,0.02));
+    border: 1px solid rgba(52,211,153,0.35);
+    color: #34d399;
+  }
 
-    input {
-        font-size: 16px;
-    }
+  .copy-btn:hover { border-color: #34d399; box-shadow: 0 0 14px rgba(52,211,153,0.25); }
 
-    .app {
-        padding: 18px;
-    }
-}
+  .copy-btn:disabled { opacity: 0.6; cursor: default; }
+
+  #errorMsg {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,90,90,0.35);
+    background: rgba(255,90,90,0.08);
+    color: #ff8080;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .row { flex-direction: column; }
+    .row input { width: 100%; }
+    button { width: 100%; }
+    .copy-btn { width: 100%; }
+    .app { padding: 20px 18px; }
+    .notation-mark .base { font-size: 2rem; }
+  }
 </style>
 </head>
 
 <body>
 
-<div class="app">
-    <h2>Scientific Notation ⇄ Decimal Converter ⚙️</h2>
+<div class="page">
+
+  <div class="notation-mark">
+    <span class="base">10</span><span class="exp" id="expCycle">0</span>
+  </div>
+
+  <h2>Scientific ⇄ Decimal Converter</h2>
+
+  <div class="brand-badge"><span class="dot"></span> Rameshverse Systems · MK·02</div>
+
+  <div class="app">
 
     <label>Enter Value</label>
-    <input id="inputValue" placeholder="Example: 1.2e5 or 120000">
+    <input id="inputValue" placeholder="Example: 1.2e5, -0.00042, or 120000" inputmode="decimal">
 
     <div class="row">
-        <button class="blue-btn" onclick="pasteValue()">Paste Value</button>
-        <button class="convert" onclick="convert()">Convert</button>
+      <button class="blue-btn" onclick="pasteValue()">Paste Value</button>
+      <div class="convert-wrap"><button class="convert" onclick="convert()">Convert</button></div>
     </div>
 
-<label>Decimal</label>
-<div class="row">
-    <input id="decimalResult" readonly>
-    <button id="copyDecimalBtn" class="blue-btn" onclick="copyDecimal()">Copy</button>
-</div>
+    <div id="errorMsg"></div>
 
-<label>Scientific</label>
-<div class="row">
-    <input id="scientificResult" readonly>
-    <button id="copyScientificBtn" class="blue-btn" onclick="copyScientific()">Copy</button>
-</div>
+    <label>Decimal</label>
+    <div class="row">
+      <input id="decimalResult" readonly>
+      <button id="copyDecimalBtn" class="copy-btn" onclick="copyDecimal()">Copy</button>
+    </div>
 
-<div id="copiedMsg" style="display:none; color:green; margin-top:8px;">
-    Copied!
-</div>
+    <label>Scientific</label>
+    <div class="row">
+      <input id="scientificResult" readonly>
+      <button id="copyScientificBtn" class="copy-btn" onclick="copyScientific()">Copy</button>
+    </div>
 
-<div class="row">
-    <button class="red-btn" onclick="resetApp()">Reset</button>
-</div>
+    <div class="row">
+      <button class="red-btn" onclick="resetApp()" style="flex:1;">Reset</button>
+    </div>
+
+  </div>
 </div>
 
 <script>
+/* ---------- Signature mark: cycling exponent ---------- */
+(function cycleExponent() {
+  const seq = ["0", "1", "2", "3", "-1", "-2", "-3", "6", "-6", "9", "-9"];
+  let i = 0;
+  const el = document.getElementById("expCycle");
+  setInterval(() => {
+    el.style.opacity = "0";
+    setTimeout(() => {
+      i = (i + 1) % seq.length;
+      el.textContent = seq[i];
+      el.style.opacity = "1";
+    }, 250);
+  }, 1600);
+})();
+
+/* ---------- Formatting helpers ---------- */
+
 function formatWithCommas(numStr) {
-    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// Adds thousands separators to the integer portion only, regardless of
+// whether the value has a fractional part (previously, any number with
+// a decimal point skipped comma formatting entirely — so "1234567.89"
+// rendered with no separators at all).
+function formatDecimalDisplay(decimalStr) {
+  const negative = decimalStr.startsWith("-");
+  const unsigned = negative ? decimalStr.slice(1) : decimalStr;
+  let [intPart, fracPart] = unsigned.split(".");
+  intPart = formatWithCommas(intPart);
+  return (negative ? "-" : "") + intPart + (fracPart !== undefined ? "." + fracPart : "");
+}
+
+/* ---------- Conversion core ----------
+   Both functions were rewritten. The original decimalToScientific only
+   worked for positive whole numbers with no leading zero — any input
+   containing a decimal point produced a mantissa with two decimal
+   points (e.g. "123.456" -> "1.23.456e+6"), and negative numbers were
+   silently mangled too, since the sign character was being counted as
+   a digit position. scientificToDecimal was missing negative-sign
+   support entirely ("-1.2e5" failed to parse). */
+
 function scientificToDecimal(str) {
-    const match = str.toLowerCase().match(/^([0-9.]+)e([+-]?\d+)$/);
-    if (!match) return null;
+  const match = str.trim().toLowerCase().match(/^([+-]?)(\d+(?:\.\d+)?)e([+-]?\d+)$/);
+  if (!match) return null;
 
-    let mantissa = match[1];
-    let exponent = parseInt(match[2]);
+  const sign = match[1] === "-" ? "-" : "";
+  const mantissa = match[2];
+  const exponent = parseInt(match[3], 10);
 
-    let [intPart, decPart = ""] = mantissa.split(".");
-    let digits = intPart + decPart;
+  const [intPart, decPart = ""] = mantissa.split(".");
+  const digits = intPart + decPart;
+  const decimalPos = intPart.length + exponent;
 
-    let decimalPos = intPart.length + exponent;
+  let result;
+  if (decimalPos <= 0) {
+    result = "0." + "0".repeat(Math.abs(decimalPos)) + digits;
+  } else if (decimalPos >= digits.length) {
+    result = digits + "0".repeat(decimalPos - digits.length);
+  } else {
+    result = digits.slice(0, decimalPos) + "." + digits.slice(decimalPos);
+  }
 
-    if (decimalPos <= 0) {
-        return "0." + "0".repeat(Math.abs(decimalPos)) + digits;
-    }
-
-    if (decimalPos >= digits.length) {
-        return digits + "0".repeat(decimalPos - digits.length);
-    }
-
-    return digits.slice(0, decimalPos) + "." + digits.slice(decimalPos);
+  return sign + result;
 }
 
 function decimalToScientific(str) {
-    str = str.replace(/^0+/, "");
+  let sign = "";
+  if (str.startsWith("-")) { sign = "-"; str = str.slice(1); }
+  else if (str.startsWith("+")) { str = str.slice(1); }
 
-    let exponent = str.length - 1;
-    let mantissa = str[0] + "." + str.slice(1);
+  let [intPart, fracPart = ""] = str.split(".");
+  intPart = intPart.replace(/^0+(?=\d)/, "");
 
-    // remove trailing zeros
-    mantissa = mantissa.replace(/\.?0+$/, "");
+  let digits, exponent;
 
-    return mantissa + "e+" + exponent;
+  if (intPart !== "" && intPart !== "0") {
+    digits = intPart + fracPart;
+    exponent = intPart.length - 1;
+  } else {
+    const firstNonZero = fracPart.search(/[1-9]/);
+    if (firstNonZero === -1) return "0e+0";
+    digits = fracPart.slice(firstNonZero);
+    exponent = -(firstNonZero + 1);
+  }
+
+  digits = digits.replace(/0+$/, "") || "0";
+  const mantissa = digits[0] + (digits.length > 1 ? "." + digits.slice(1) : "");
+  const expSign = exponent < 0 ? "-" : "+";
+
+  return sign + mantissa + "e" + expSign + Math.abs(exponent);
 }
 
+/* ---------- UI wiring ---------- */
+
+function showError(msg) {
+  const el = document.getElementById("errorMsg");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function hideError() {
+  document.getElementById("errorMsg").style.display = "none";
+}
 
 function convert() {
-    const input = document.getElementById("inputValue").value.trim();
+  const raw = document.getElementById("inputValue").value.trim();
 
-    if (!input) return;
+  if (!raw) {
+    showError("Enter a value to convert.");
+    return;
+  }
 
-    let decimal, scientific;
+  let decimal, scientific;
 
-    if (input.toLowerCase().includes("e")) {
-        decimal = scientificToDecimal(input);
-        scientific = input;
-    } else {
-        decimal = input.replace(/,/g, "");
-        scientific = decimalToScientific(decimal);
+  if (raw.toLowerCase().includes("e")) {
+    decimal = scientificToDecimal(raw);
+    if (decimal === null) {
+      showError("That doesn't look like valid scientific notation — try something like 1.2e5 or -4.2e-3.");
+      return;
     }
-
-    if (!decimal) return;
-
-    if (!decimal.includes(".")) {
-        decimal = formatWithCommas(decimal);
+    scientific = decimalToScientific(decimal); // normalize casing/formatting on round-trip
+  } else {
+    const cleaned = raw.replace(/,/g, "");
+    if (!/^[+-]?\d+(\.\d+)?$/.test(cleaned)) {
+      showError("Enter a valid number, e.g. 120000, -0.00042, or 1.2e5.");
+      return;
     }
+    decimal = cleaned.startsWith("+") ? cleaned.slice(1) : cleaned;
+    scientific = decimalToScientific(decimal);
+  }
 
-    document.getElementById("decimalResult").value = decimal;
-    document.getElementById("scientificResult").value = scientific;
+  hideError();
+  document.getElementById("decimalResult").value = formatDecimalDisplay(decimal);
+  document.getElementById("scientificResult").value = scientific;
 }
 
 async function pasteValue() {
+  try {
     const text = await navigator.clipboard.readText();
-    document.getElementById("inputValue").value = text;
-}
-
-function showCopied() {
-    const msg = document.getElementById("copiedMsg");
-    msg.style.display = "block";
-    setTimeout(() => msg.style.display = "none", 1200);
+    if (!text) return;
+    document.getElementById("inputValue").value = text.trim();
+  } catch (err) {
+    showError("Clipboard access blocked — paste manually with Ctrl+V instead.");
+  }
 }
 
 function flashButton(btn) {
-    const original = btn.textContent;
-    btn.textContent = "Copied!";
-    btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = "Copied!";
+  btn.disabled = true;
 
-    setTimeout(() => {
-        btn.textContent = original;
-        btn.disabled = false;
-    }, 1000);
+  setTimeout(() => {
+    btn.textContent = original;
+    btn.disabled = false;
+  }, 1000);
 }
 
 function copyDecimal() {
-    const value = document.getElementById("decimalResult").value;
-    const btn = document.getElementById("copyDecimalBtn");
-
-    navigator.clipboard.writeText(value);
-    flashButton(btn);
+  const value = document.getElementById("decimalResult").value;
+  if (!value) return;
+  navigator.clipboard.writeText(value);
+  flashButton(document.getElementById("copyDecimalBtn"));
 }
 
 function copyScientific() {
-    const value = document.getElementById("scientificResult").value;
-    const btn = document.getElementById("copyScientificBtn");
-
-    navigator.clipboard.writeText(value);
-    flashButton(btn);
+  const value = document.getElementById("scientificResult").value;
+  if (!value) return;
+  navigator.clipboard.writeText(value);
+  flashButton(document.getElementById("copyScientificBtn"));
 }
 
 function resetApp() {
-    document.getElementById("inputValue").value = "";
-    document.getElementById("decimalResult").value = "";
-    document.getElementById("scientificResult").value = "";
+  document.getElementById("inputValue").value = "";
+  document.getElementById("decimalResult").value = "";
+  document.getElementById("scientificResult").value = "";
+  hideError();
 }
+
+document.getElementById("inputValue").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") convert();
+});
 </script>
 
 <script src="/libraries/config.js"></script>
