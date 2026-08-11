@@ -16,155 +16,298 @@
 
 <title>Cosmic Calculator</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
+
+  :root {
+    --bg-panel: #0a0e1a;
+    --bg-panel-2: #0d1322;
+    --bg-well: #060911;
+    --accent-cyan: #4fd8ff;
+    --accent-cyan-dim: rgba(79, 216, 255, 0.35);
+    --accent-green: #39ff88;
+    --accent-red: #ff5f5f;
+    --border-line: rgba(79, 216, 255, 0.22);
+    --text-primary: #dbe6f5;
+    --text-dim: #6b84a3;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Orbitron', sans-serif;
+    --ui: 'Rajdhani', sans-serif;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
   body {
-    font-family: Arial, sans-serif;
-    background: #000000;
-    color: #e5e7eb;
+    font-family: var(--ui);
+    color: var(--text-primary);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-
-    /* Better iOS height handling */
-
     min-height: 100vh;
     min-height: 100dvh;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 20% 15%, rgba(79,120,216,0.10), transparent 55%),
+      radial-gradient(ellipse at 85% 80%, rgba(150,79,216,0.08), transparent 55%),
+      linear-gradient(180deg, #03040a 0%, #070b16 55%, #04060d 100%);
+  }
+
+  /* Twinkling starfield — populated by JS, sits behind everything */
+  .starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    animation-name: twinkle;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star { animation: none; opacity: 0.6; }
+    .eyebrow .dot { animation: none; }
   }
 
   .converter {
-    background: #180505;
-    padding: 25px;
-    border-radius: 12px;
+    background: linear-gradient(155deg, var(--bg-panel) 0%, var(--bg-panel-2) 100%);
+    border: 1px solid var(--border-line);
+    padding: 28px;
+    border-radius: 6px;
     width: 470px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    position: relative;
+    z-index: 1;
+    box-shadow:
+      0 0 0 1px rgba(79,216,255,0.04),
+      0 0 40px rgba(79,216,255,0.08),
+      0 25px 60px rgba(0,0,0,0.65);
   }
 
-h2 {
-  text-align: center;
-  margin: 0 0 32px;   /* 👈 key change */
-  font-size: 1.6rem;
-  letter-spacing: 0.3px;
-}
+  /* HUD corner brackets — signature element */
+  .converter::before,
+  .converter::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--accent-cyan);
+    border-style: solid;
+    opacity: 0.85;
+  }
+  .converter::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .converter::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+  }
+
+  .eyebrow .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 8px var(--accent-cyan);
+    animation: pulse 2.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  h2 {
+    font-family: var(--display);
+    text-align: center;
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    text-shadow: 0 0 18px rgba(79,216,255,0.25);
+  }
+
+  .version-tag {
+    display: block;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent-cyan);
+    opacity: 0.75;
+    margin: 0 0 26px;
+  }
 
   /* Vertical stack spacing */
-.converter > * {
-  margin-bottom: 12px;
-}
+  .converter > * { margin-bottom: 12px; }
 
-/* Reduce spacing between tightly related items */
-.value-input {
-  margin-bottom: 8px;
-}
+  .value-input { margin-bottom: 8px; }
+  select { margin-bottom: 14px; }
 
-select {
-  margin-bottom: 14px;
-}
-
-/* Convert = hero */
-.convert-btn {
-  font-size: 22px;
-  padding: 16px 24px;   /* ↓ from too tall */
-  border-radius: 12px;
-}
-
-.round-buttons button {
-  padding: 12px;
-  font-size: 15px;
-  opacity: 0.9;
-}
-
-.round-buttons button:hover {
-  opacity: 1;
-}
-
-.value-input:focus {
-  outline: none;
-}
-
-.value-input:focus {
-  border: 2px solid #38bdf8; /* cyan-blue highlight */
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
-  background: #020617; /* slightly darker for contrast */
-}
-
-.value-input {
-  transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
-
-
-
-
-/* Round buttons group */
-.round-buttons {
-  margin-bottom: 12px;
-}
-
-/* Result + Copy feel like one block */
-.result {
-  padding: 14px;
-  margin-top: 4px;
-}
-
-
-.copy-btn {
-  margin-bottom: 16px;
-}
-
-/* Bottom actions tighter */
-.action-row {
-  margin-top: 8px;
-}
-
+  .round-buttons button {
+    padding: 12px;
+    font-size: 14px;
+    opacity: 0.95;
+  }
+  .round-buttons button:hover { opacity: 1; }
 
   input, select, button {
     width: 100%;
     padding: 10px;
     margin-top: 0px;
-    border-radius: 6px;
+    border-radius: 4px;
     border: none;
     font-size: 14px;
+    font-family: var(--ui);
     box-sizing: border-box;
   }
 
   input, select {
-    background: #1e293b;
-    color: #fff;
+    background: var(--bg-well);
+    color: var(--text-primary);
+    border: 1px solid var(--border-line);
+  }
+
+  .value-input {
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
+    border: 1px solid var(--accent-cyan-dim);
+    box-shadow: 0 0 6px rgba(56, 189, 248, 0.15);
+    background: var(--bg-well);
+    transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .value-input:focus {
+    outline: none;
+    border: 1px solid var(--accent-cyan);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    background: #020617;
+  }
+
+  .value-input::-webkit-inner-spin-button,
+  .value-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .value-input, select {
+    height: 52px;
+    padding: 0 18px;
+    font-size: 17px;
+    line-height: 52px;
+  }
+
+  select {
+    font-family: var(--ui);
+    font-weight: 500;
   }
 
   button {
-    background: #ff5050;
-    color: #020617;
-    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
     cursor: pointer;
-    transition: transform 0.1s ease;
+    transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
   }
 
-  button:active {
-    transform: scale(0.97);
+  button:active { transform: scale(0.97); }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+  }
+
+  /* Primary action — hero button */
+  .convert-btn {
+    background: linear-gradient(135deg, var(--accent-cyan), #1fa9d6);
+    color: #01131a;
+    font-size: 20px;
+    padding: 18px 24px;
+    border-radius: 6px;
+    box-shadow: 0 0 22px rgba(79,216,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  .convert-btn:hover {
+    box-shadow: 0 0 32px rgba(79,216,255,0.6), inset 0 0 0 1px rgba(255,255,255,0.2);
   }
 
   .secondary-btn {
-    background: #5c1b1b;
-    color: #fff;
+    background: transparent;
+    border: 1px solid var(--border-line);
+    color: var(--text-primary);
+  }
+  .secondary-btn:hover {
+    background: rgba(79, 216, 255, 0.08);
+    border-color: var(--accent-cyan);
   }
 
-  .round-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
+  .round-buttons { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 12px; }
 
+  /* Result readout */
   .result {
-    margin-top: 15px;
+    margin-top: 4px;
     padding: 16px;
-    background: #020617;
-    border: 1px solid #334155;
-    border-radius: 6px;
+    background: linear-gradient(180deg, var(--bg-well), #0a0f1c);
+    border: 1px solid var(--border-line);
+    border-radius: 4px;
     text-align: center;
+    font-family: var(--mono);
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px rgba(79,216,255,0.45);
+    position: relative;
+    overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  }
+
+  .result::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.02) 0px,
+      rgba(255,255,255,0.02) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
   }
 
   .result.flash {
@@ -173,127 +316,114 @@ select {
     opacity: 0.85;
   }
 
+  .result.stale {
+    color: var(--text-dim);
+    text-shadow: none;
+  }
+
   .copy-btn {
-    background: #45ff51;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--accent-green), #1fcf68);
+    color: #02150a;
+    box-shadow: 0 0 16px rgba(57,255,136,0.3);
   }
+  .copy-btn:hover { box-shadow: 0 0 24px rgba(57,255,136,0.5); }
+  .copy-btn.copied { background: #16a34a; box-shadow: none; }
+  .copy-btn.copy-failed { background: var(--accent-red); box-shadow: none; color: #1a0505; }
 
-  .copy-btn.copied {
-    background: #16a34a;
-  }
-
-  .action-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
+  .action-row { display: flex; gap: 10px; margin-top: 8px; }
 
   .history {
     margin-top: 15px;
     display: none;
-    border-top: 1px solid #334155;
+    border-top: 1px solid var(--border-line);
     padding-top: 10px;
   }
 
+  .history-list {
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+  }
+
+  /* Themed scrollbar (Firefox + WebKit) */
+  .history-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-cyan-dim) var(--bg-well);
+  }
+  .history-list::-webkit-scrollbar { width: 6px; }
+  .history-list::-webkit-scrollbar-track { background: var(--bg-well); border-radius: 3px; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--accent-cyan-dim); border-radius: 3px; }
+  .history-list::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
   .history-item {
-    padding: 6px 8px;
-    background: #020617;
-    border: 1px solid #334155;
-    border-radius: 4px;
+    font-family: var(--mono);
+    padding: 8px 10px;
+    background: var(--bg-well);
+    border: 1px solid var(--border-line);
+    border-left: 2px solid var(--accent-cyan);
+    border-radius: 3px;
     margin-bottom: 6px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+  }
+  .history-item:hover { background: rgba(79, 216, 255, 0.08); }
+
+  .history-empty {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 10px 0;
   }
 
-  .history-item:hover {
-    background: #1e293b;
+  .clear-history-btn {
+    margin-top: 10px;
+    margin-bottom: 0;
+    background: transparent;
+    border: 1px solid rgba(255, 95, 95, 0.35);
+    color: var(--accent-red);
+    font-size: 12.5px;
+    padding: 9px;
+  }
+  .clear-history-btn:hover {
+    background: rgba(255, 95, 95, 0.08);
+    border-color: var(--accent-red);
   }
 
-.value-input {
-  border: 2px solid rgba(56, 189, 248, 0.35);
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.25);
-  background: #020617;
-  transition: 
-    border 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-}
-
-
-  .value-input::-webkit-inner-spin-button,
-  .value-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  /* ===== Mobile-friendly (no layout change) ===== */
+  @media (max-width: 480px) {
+    body { padding: 12px; align-items: flex-start; }
+    .converter { width: 100%; max-width: 100%; }
+    .round-buttons, .action-row { flex-direction: column; }
+    input, select, button { font-size: 16px; } /* prevents iOS zoom */
   }
-
-  .value-input,
-  select {
-    height: 52px;
-    padding: 0 20px;
-    font-size: 18px;
-    line-height: 52px;
-  }
-
-  /* ===== Mobile-friendly additions (NO layout change) ===== */
-
-/* Better iOS height handling */
-body {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-/* Remove mobile tap highlight */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-button.convert-btn,
-.converter > button:nth-of-type(2) {
-  font-size: 22px;
-  padding: 22px 26px;
-  width: 100%;
-}
-
-
-
-/* Mobile screen adjustments only */
-@media (max-width: 480px) {
-
-  body {
-    padding: 12px;
-    align-items: flex-start; /* prevents cut-off on small screens */
-  }
-
-  .converter {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .round-buttons,
-  .action-row {
-    flex-direction: column;
-  }
-
-  input,
-  select,
-  button {
-    font-size: 16px; /* prevents iOS zoom */
-  }
-}
 
 </style>
 </head>
 
 <body>
 
+<div class="starfield" id="starfield"></div>
+
 <div class="converter">
+
+  <div class="eyebrow"><span class="dot"></span>Rameshverse Systems &middot; MK&middot;02</div>
+
   <h2>🪐 Cosmic Calculator</h2>
+  <span class="version-tag">UNIT CONVERSION MODULE</span>
 
   <button class="secondary-btn" onclick="pasteValue()">Paste Value</button>
 
-  <input type="number" id="value" class="value-input" placeholder="Enter value">
+  <input type="number" id="value" class="value-input" placeholder="Enter value" aria-label="Value to convert">
 
   <!-- ✅ ORDER UPDATED EXACTLY AS REQUESTED -->
-  <select id="conversion">
+  <select id="conversion" aria-label="Conversion type">
     <option value="m-km">meters → km</option>
     <option value="km-m">km → meters</option>
 
@@ -316,14 +446,14 @@ button.convert-btn,
     <option value="pc-ly">parsec → light-year</option>
   </select>
 
-  <button onclick="convert()">Convert</button>
+  <button class="convert-btn" onclick="convert()">Convert</button>
 
   <div class="round-buttons">
     <button class="secondary-btn" onclick="roundResult(2)">Round: 2 digits</button>
     <button class="secondary-btn" onclick="roundResult(3)">Round: 3 digits</button>
   </div>
 
-  <div class="result" id="result">Result waiting...</div>
+  <div class="result" id="result" role="status" aria-live="polite">Result waiting...</div>
 
   <button class="copy-btn" id="copyBtn" onclick="copyMainResult()">Copy Result</button>
 
@@ -333,16 +463,40 @@ button.convert-btn,
   </div>
 
   <div class="history" id="historyBox">
-    <div id="historyList"></div>
+    <div class="history-list" id="historyList"></div>
+    <button class="secondary-btn clear-history-btn" onclick="clearHistory()">Clear History</button>
   </div>
 </div>
 
 <script>
+  // ---- Twinkling starfield ----
+  (function buildStarfield() {
+    const field = document.getElementById("starfield");
+    const STAR_COUNT = 70;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const star = document.createElement("span");
+      star.className = "star";
+      const size = (Math.random() * 1.6 + 0.6).toFixed(2);
+      star.style.width = size + "px";
+      star.style.height = size + "px";
+      star.style.top = (Math.random() * 100).toFixed(2) + "%";
+      star.style.left = (Math.random() * 100).toFixed(2) + "%";
+      star.style.animationDuration = (Math.random() * 3 + 2).toFixed(2) + "s";
+      star.style.animationDelay = (Math.random() * 5).toFixed(2) + "s";
+      frag.appendChild(star);
+    }
+    field.appendChild(frag);
+  })();
+
   function pasteValue() {
     navigator.clipboard.readText().then(text => {
       if (isNaN(text.trim())) return alert("Clipboard does not contain a valid number");
       document.getElementById("value").value = text.trim();
+      invalidateResult();
       flashResult();
+    }).catch(() => {
+      alert("Couldn't read the clipboard. Check that this page has clipboard permission.");
     });
   }
 
@@ -354,16 +508,39 @@ button.convert-btn,
   let history = [];
 
   function roundSafe(num, decimals) {
-  const factor = 10 ** decimals;
-  return Math.round((num + Number.EPSILON) * factor) / factor;
-}
-
+    const factor = 10 ** decimals;
+    return Math.round((num + Number.EPSILON) * factor) / factor;
+  }
 
   function flashResult() {
     const r = document.getElementById("result");
     r.classList.add("flash");
     setTimeout(() => r.classList.remove("flash"), 250);
   }
+
+  // Marks the current result as no longer trustworthy once the input
+  // changes, so "Round" can't silently operate on an outdated value.
+  function invalidateResult() {
+    lastResult = null;
+    const r = document.getElementById("result");
+    r.classList.remove("stale");
+  }
+
+  document.getElementById("value").addEventListener("input", () => {
+    const r = document.getElementById("result");
+    if (r.innerText !== "Result waiting...") {
+      lastResult = null;
+      r.classList.add("stale");
+    }
+  });
+
+  document.getElementById("conversion").addEventListener("change", () => {
+    const r = document.getElementById("result");
+    if (r.innerText !== "Result waiting...") {
+      lastResult = null;
+      r.classList.add("stale");
+    }
+  });
 
   function convert() {
     const value = parseFloat(document.getElementById("value").value);
@@ -390,33 +567,45 @@ button.convert-btn,
     }
 
     lastResult = result;
-    document.getElementById("result").innerText = cleanFloat(result);
+    const r = document.getElementById("result");
+    r.classList.remove("stale");
+    r.innerText = cleanFloat(result);
     flashResult();
     addToHistory(value, type, result);
   }
 
-function roundResult(d) {
-  if (lastResult === null) return;
-  const rounded = roundSafe(lastResult, d);
-  document.getElementById("result").innerText = rounded.toFixed(d);
-  flashResult();
-}
+  function roundResult(d) {
+    if (lastResult === null) return;
+    const rounded = roundSafe(lastResult, d);
+    const r = document.getElementById("result");
+    r.classList.remove("stale");
+    r.innerText = rounded.toFixed(d);
+    flashResult();
+  }
 
-function cleanFloat(num) {
-  // 15 significant digits is safe for IEEE-754 doubles
-  return Number(num.toPrecision(15));
-}
-
+  function cleanFloat(num) {
+    // 15 significant digits is safe for IEEE-754 doubles
+    return Number(num.toPrecision(15));
+  }
 
   function copyMainResult() {
     const btn = document.getElementById("copyBtn");
-    navigator.clipboard.writeText(document.getElementById("result").innerText);
-    btn.innerText = "Copied!";
-    btn.classList.add("copied");
-    setTimeout(() => {
-      btn.innerText = "Copy Result";
-      btn.classList.remove("copied");
-    }, 500);
+    const text = document.getElementById("result").innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.innerText = "Copied!";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.innerText = "Copy Result";
+        btn.classList.remove("copied");
+      }, 500);
+    }).catch(() => {
+      btn.innerText = "Copy Failed";
+      btn.classList.add("copy-failed");
+      setTimeout(() => {
+        btn.innerText = "Copy Result";
+        btn.classList.remove("copy-failed");
+      }, 1200);
+    });
   }
 
   function addToHistory(input, type, result) {
@@ -428,6 +617,15 @@ function cleanFloat(num) {
   function renderHistory() {
     const list = document.getElementById("historyList");
     list.innerHTML = "";
+
+    if (history.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "history-empty";
+      empty.innerText = "No conversions yet";
+      list.appendChild(empty);
+      return;
+    }
+
     history.forEach(item => {
       const div = document.createElement("div");
       div.className = "history-item";
@@ -444,11 +642,18 @@ function cleanFloat(num) {
     btn.innerText = box.style.display === "block" ? "Hide History" : "Show History";
   }
 
-  function resetAll() {
-    document.getElementById("value").value = "";
-    document.getElementById("result").innerText = "Result waiting...";
+  // Clears saved conversions only — separate from Reset, which just
+  // clears the current input/result.
+  function clearHistory() {
     history = [];
     renderHistory();
+  }
+
+  function resetAll() {
+    document.getElementById("value").value = "";
+    const r = document.getElementById("result");
+    r.innerText = "Result waiting...";
+    r.classList.remove("stale");
     lastResult = null;
   }
 </script>
