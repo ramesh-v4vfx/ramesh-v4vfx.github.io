@@ -13,189 +13,410 @@
 </script>
 
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Weight in Space</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Weight in Space</title>
 
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0d0d1a;
-      color: #e8e8f0;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-    }
+<meta name="description" content="See how much you'd weigh on the Moon, Mars, Jupiter, the Sun, or even at the edge of a supermassive black hole. Free interactive weight-in-space calculator covering 21 planets, dwarf planets, and stars.">
+<meta name="keywords" content="weight on other planets, weight on the moon calculator, weight on mars, gravity calculator, weight in space, solar system gravity, black hole gravity">
 
-    h1 {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+<link rel="canonical" href="https://rameshverse.com/weight-in-space">
+<!-- 👈 update this canonical URL (and the og:url / og:image below) to match wherever this page is actually published -->
 
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #888;
-      margin-bottom: 2.5rem;
-    }
+<meta property="og:type" content="website">
+<meta property="og:title" content="Your Weight in Space">
+<meta property="og:description" content="How much would you weigh on the Moon, Mars, Jupiter, the Sun — or at the event horizon of a supermassive black hole?">
+<meta property="og:url" content="https://rameshverse.com/weight-in-space">
+<meta property="og:image" content="https://rameshverse.com/weight-in-space/preview-image/weight-in-space-preview.jpg">
 
-    .form-card {
-      background: #141428;
-      border: 1px solid #222;
-      border-radius: 16px;
-      padding: 1.75rem;
-      max-width: 480px;
-      margin: 0 auto 2.5rem;
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Your Weight in Space">
+<meta name="twitter:description" content="How much would you weigh on the Moon, Mars, Jupiter, the Sun — or at the event horizon of a supermassive black hole?">
+<meta name="twitter:image" content="https://rameshverse.com/weight-in-space/preview-image/weight-in-space-preview.jpg">
 
-    .field { margin-bottom: 1.1rem; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Your Weight in Space",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "description": "Free interactive tool that calculates your weight on 21 different space objects — planets, moons, dwarf planets, trans-Neptunian objects, the Sun, and the supermassive black hole at the center of the Milky Way.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "url": "https://rameshverse.com/weight-in-space"
+}
+</script>
 
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #666;
-      margin-bottom: 6px;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    .field-row { display: flex; gap: 8px; }
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .field-row input {
-      flex: 1;
-      height: 42px;
-      font-size: 16px;
-      padding: 0 12px;
-      border: 1px solid #2a2a3e;
-      border-radius: 10px;
-      background: #0d0d1a;
-      color: #e8e8f0;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+  :root {
+    --bg: #06060f;
+    --panel: #0f0f22;
+    --panel-2: #09091a;
+    --line: rgba(167,139,250,0.18);
+    --line-soft: rgba(167,139,250,0.09);
+    --violet: #a78bfa;
+    --blue: #60a5fa;
+    --emerald: #34d399;
+    --text: #e8e8f2;
+    --text-dim: #75758f;
+    --sans: 'Sora', system-ui, -apple-system, sans-serif;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  }
 
-    .field-row input:focus { border-color: #7c6af7; }
+  html, body { height: 100%; }
 
-    .field-row select, .field select {
-      height: 42px;
-      font-size: 14px;
-      padding: 0 12px;
-      border: 1px solid #2a2a3e;
-      border-radius: 10px;
-      background: #0d0d1a;
-      color: #e8e8f0;
-      cursor: pointer;
-      outline: none;
-      width: 100%;
-      transition: border-color 0.2s;
-    }
+  body {
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse 900px 620px at 50% -8%, rgba(167,139,250,0.12), transparent 62%),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.25rem 1rem;
+    position: relative;
+    overflow-x: hidden;
+  }
 
-    .field-row select { width: auto; min-width: 70px; }
-    .field select:focus { border-color: #7c6af7; }
+  .starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
 
-    .calc-btn {
-      width: 100%;
-      height: 44px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      background: #7c6af7;
-      color: #fff;
-      cursor: pointer;
-      margin-top: 0.25rem;
-      transition: background 0.2s, transform 0.1s;
-    }
+  .star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+  }
 
-    .calc-btn:hover { background: #6654e0; }
-    .calc-btn:active { transform: scale(0.98); }
+  .star.twinkle { animation: twinkle 3.4s ease-in-out infinite; }
 
-    .result-box {
-      max-width: 480px;
-      margin: 0 auto;
-    }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.9; }
+  }
 
-    .result-card {
-      background: #141428;
-      border: 1px solid #333;
-      border-radius: 16px;
-      padding: 2rem 1.75rem;
-      text-align: center;
-      display: none;
-    }
+  @media (prefers-reduced-motion: reduce) {
+    .star.twinkle { animation: none; }
+  }
 
-    .result-card.show { display: block; }
+  .page { position: relative; z-index: 1; }
 
-    .result-icon { font-size: 52px; margin-bottom: 12px; line-height: 1; }
+  /* ---------- Header / orrery mark ---------- */
+  .header { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; }
 
-    .result-body-name {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: #666;
-      margin-bottom: 6px;
-    }
+  .orrery {
+    position: relative;
+    width: 104px;
+    height: 104px;
+    margin-bottom: 10px;
+    perspective: 360px;
+  }
 
-    .result-weight {
-      font-size: 2.6rem;
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 4px;
-      background: linear-gradient(90deg, #a78bfa, #60a5fa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      word-break: break-word;
-    }
+  .orrery-core {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 14px; height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff, var(--violet) 42%, var(--blue) 78%, var(--emerald) 100%);
+    box-shadow: 0 0 20px 5px rgba(167,139,250,0.55);
+    z-index: 5;
+    animation: corePulse 2.6s ease-in-out infinite;
+  }
 
-    .result-unit { font-size: 14px; color: #888; margin-bottom: 14px; }
+  @keyframes corePulse {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50%      { opacity: 1; transform: scale(1.08); }
+  }
 
-    .result-divider {
-      border: none;
-      border-top: 1px solid #222;
-      margin: 1rem 0;
-    }
+  .orrery-ring {
+    position: absolute;
+    border: 1px dashed;
+    border-radius: 50%;
+    transform: rotateX(70deg);
+  }
 
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 6px;
-    }
+  .ring-1 { inset: 32px; border-color: rgba(96,165,250,0.35); }
+  .ring-2 { inset: 15px; border-color: rgba(167,139,250,0.3); }
+  .ring-3 { inset: 0; border-color: rgba(52,211,153,0.28); }
 
-    .meta-row span:last-child { color: #aaa; text-align: right; }
+  @keyframes spinTilt {
+    from { transform: rotateX(70deg) rotateZ(0deg); }
+    to   { transform: rotateX(70deg) rotateZ(360deg); }
+  }
 
-    .result-note {
-      font-size: 11px;
-      color: #555;
-      margin-top: 10px;
-      line-height: 1.5;
-      font-style: italic;
-    }
+  .orrery-arm { position: absolute; }
+  .arm-1 { inset: 32px; animation: spinTilt 4.2s linear infinite; }
+  .arm-2 { inset: 15px; animation: spinTilt 6.6s linear infinite reverse; }
+  .arm-3 { inset: 0; animation: spinTilt 9.4s linear infinite; }
 
-    optgroup { color: #a78bfa; font-style: normal; }
-    option { color: #e8e8f0; }
-  </style>
+  .orrery-arm::after {
+    content: '';
+    position: absolute;
+    top: -3px; left: 50%;
+    width: 6px; height: 6px;
+    margin-left: -3px;
+    border-radius: 50%;
+  }
+
+  .arm-1::after { background: var(--blue); box-shadow: 0 0 7px var(--blue); }
+  .arm-2::after { background: var(--violet); box-shadow: 0 0 7px var(--violet); }
+  .arm-3::after { width: 5px; height: 5px; margin-left: -2.5px; background: var(--emerald); box-shadow: 0 0 7px var(--emerald); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orrery-arm, .orrery-core { animation: none; }
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, var(--violet), var(--blue), var(--emerald));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .brand-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 2.25rem;
+    width: fit-content;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--violet);
+    border: 1px solid rgba(167,139,250,0.32);
+    background: rgba(167,139,250,0.06);
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+
+  .brand-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 6px 1px rgba(52,211,153,0.7);
+  }
+
+  /* ---------- Form card ---------- */
+  .form-card {
+    position: relative;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1.75rem;
+    max-width: 480px;
+    margin: 0 auto 1.75rem;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(167,139,250,0.03) inset;
+    overflow: hidden;
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -40%;
+    width: 40%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--violet), transparent);
+    animation: scan 6s linear infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes scan {
+    0% { left: -40%; }
+    100% { left: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .form-card::before { animation: none; }
+  }
+
+  .field { margin-bottom: 1.1rem; }
+
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .field-row { display: flex; gap: 8px; }
+
+  .field-row input {
+    flex: 1;
+    height: 46px;
+    font-size: 16px;
+    font-family: var(--mono);
+    padding: 0 14px;
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    background: #06060f;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .field-row input::placeholder { color: #38384a; }
+
+  .field-row input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(167,139,250,0.16); }
+
+  .field-row select, .field select {
+    height: 46px;
+    font-size: 14px;
+    font-family: var(--mono);
+    padding: 0 12px;
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    background: #06060f;
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .field-row select { width: auto; min-width: 74px; }
+  .field select:focus, .field-row select:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(167,139,250,0.16); }
+
+  optgroup { color: var(--violet); font-style: normal; }
+  option { color: var(--text); background: #0f0f22; }
+
+  /* ---------- Result ---------- */
+  .result-box { max-width: 480px; margin: 0 auto; }
+
+  .result-card {
+    position: relative;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    text-align: center;
+    display: none;
+    overflow: hidden;
+  }
+
+  .result-card.show { display: block; animation: resultPop 0.35s ease-out; }
+
+  @keyframes resultPop {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .corner-tl, .corner-br {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--violet);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .corner-tl { top: 10px; left: 10px; border-top: 2px solid var(--violet); border-left: 2px solid var(--violet); }
+  .corner-br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--violet); border-right: 2px solid var(--violet); }
+
+  .result-icon { font-size: 48px; margin-bottom: 10px; line-height: 1; }
+
+  .result-body-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .result-weight {
+    font-size: 2.5rem;
+    font-weight: 800;
+    font-family: var(--mono);
+    line-height: 1.15;
+    margin-bottom: 4px;
+    background: linear-gradient(90deg, var(--violet), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    word-break: break-word;
+  }
+
+  .result-unit { font-size: 14px; color: var(--text-dim); margin-bottom: 14px; }
+
+  .result-divider { border: none; border-top: 1px dashed var(--line-soft); margin: 1rem 0; }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+  }
+
+  .meta-row span:last-child { color: var(--text); text-align: right; }
+
+  .result-note {
+    font-size: 11.5px;
+    color: #6b6b82;
+    margin-top: 12px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.5rem; }
+    .form-card, .result-card { padding: 1.5rem 1.25rem; }
+  }
+</style>
 </head>
 <body>
 
-  <h1>⚖️ Your Weight in Space</h1>
-  <p class="subtitle">How much would you weigh anywhere in the universe?</p>
+<div class="starfield" id="starfield"></div>
+
+<div class="page">
+
+  <div class="header">
+    <div class="orrery">
+      <div class="orrery-ring ring-1"></div>
+      <div class="orrery-ring ring-2"></div>
+      <div class="orrery-ring ring-3"></div>
+      <div class="orrery-arm arm-1"></div>
+      <div class="orrery-arm arm-2"></div>
+      <div class="orrery-arm arm-3"></div>
+      <div class="orrery-core"></div>
+    </div>
+    <h1>Your Weight in Space</h1>
+    <p class="subtitle">How much would you weigh anywhere in the universe?</p>
+    <div class="brand-badge"><span class="dot"></span> Rameshverse Systems · MK·02</div>
+  </div>
 
   <div class="form-card">
 
     <div class="field">
-      <label>Your weight</label>
+      <label for="wval">Your weight</label>
       <div class="field-row">
-        <input type="number" id="wval" placeholder="e.g. 70" min="0" step="0.1" />
-        <select id="wunit">
+        <input type="number" id="wval" placeholder="e.g. 70" min="0" step="0.1" inputmode="decimal" />
+        <select id="wunit" aria-label="Weight unit">
           <option value="kg">kg</option>
           <option value="lb">lb</option>
         </select>
@@ -203,32 +424,32 @@
     </div>
 
     <div class="field">
-      <label>Select a space object</label>
+      <label for="body">Select a space object</label>
       <select id="body">
         <optgroup label="── Planets & Moon ──">
-          <option value="Mercury">☿ Mercury</option>
-          <option value="Venus">♀ Venus</option>
+          <option value="Mercury">🌑 Mercury</option>
+          <option value="Venus">🟡 Venus</option>
           <option value="Earth" selected>🌍 Earth</option>
           <option value="Moon">🌙 Moon</option>
-          <option value="Mars">♂ Mars</option>
-          <option value="Jupiter">♃ Jupiter</option>
-          <option value="Saturn">♄ Saturn</option>
-          <option value="Uranus">⛢ Uranus</option>
-          <option value="Neptune">♆ Neptune</option>
+          <option value="Mars">🔴 Mars</option>
+          <option value="Jupiter">🟠 Jupiter</option>
+          <option value="Saturn">🪐 Saturn</option>
+          <option value="Uranus">🔵 Uranus</option>
+          <option value="Neptune">🟣 Neptune</option>
         </optgroup>
         <optgroup label="── Dwarf Planets ──">
-          <option value="Ceres">⚳ Ceres</option>
-          <option value="Pluto">♇ Pluto</option>
+          <option value="Ceres">⚪ Ceres</option>
+          <option value="Pluto">🧊 Pluto</option>
           <option value="Haumea">🪨 Haumea</option>
-          <option value="Makemake">🪐 Makemake</option>
-          <option value="Eris">⚫ Eris</option>
+          <option value="Makemake">❄️ Makemake</option>
+          <option value="Eris">💠 Eris</option>
         </optgroup>
         <optgroup label="── Trans-Neptunian Objects ──">
-          <option value="Sedna">🔴 Sedna</option>
+          <option value="Sedna">🔮 Sedna</option>
           <option value="Quaoar">🟤 Quaoar</option>
-          <option value="Gonggong">🟣 Gonggong</option>
+          <option value="Gonggong">🌘 Gonggong</option>
           <option value="Orcus">⚫ Orcus</option>
-          <option value="Varuna">🔵 Varuna</option>
+          <option value="Varuna">💫 Varuna</option>
         </optgroup>
         <optgroup label="── Stars & Black Holes ──">
           <option value="Sun">☀️ The Sun</option>
@@ -241,6 +462,8 @@
 
   <div class="result-box">
     <div class="result-card" id="result-card">
+      <div class="corner-tl"></div>
+      <div class="corner-br"></div>
       <div class="result-icon" id="res-icon"></div>
       <div class="result-body-name" id="res-name"></div>
       <div class="result-weight" id="res-weight"></div>
@@ -262,87 +485,135 @@
     </div>
   </div>
 
-  <script>
-    const bodies = {
-      Mercury:      { icon: "☿",  g: 0.38,     gStr: "3.7 m/s²",           note: "" },
-      Venus:        { icon: "♀",  g: 0.904,    gStr: "8.87 m/s²",          note: "" },
-      Earth:        { icon: "🌍", g: 1,         gStr: "9.81 m/s²",          note: "" },
-      Moon:         { icon: "🌙", g: 0.1654,   gStr: "1.62 m/s²",          note: "Earth's natural satellite." },
-      Mars:         { icon: "♂",  g: 0.3794,   gStr: "3.72 m/s²",          note: "" },
-      Jupiter:      { icon: "♃",  g: 2.528,    gStr: "24.8 m/s²",          note: "Measured at the cloud-top level — Jupiter has no solid surface." },
-      Saturn:       { icon: "♄",  g: 1.065,    gStr: "10.44 m/s²",         note: "Measured at the cloud-top level." },
-      Uranus:       { icon: "⛢",  g: 0.886,    gStr: "8.69 m/s²",          note: "" },
-      Neptune:      { icon: "♆",  g: 1.14,     gStr: "11.15 m/s²",         note: "" },
-      Ceres:        { icon: "⚳",  g: 0.029,    gStr: "0.28 m/s²",          note: "Largest object in the asteroid belt." },
-      Pluto:        { icon: "♇",  g: 0.063,    gStr: "0.62 m/s²",          note: "Reclassified as a dwarf planet in 2006." },
-      Haumea:       { icon: "🪨", g: 0.044,    gStr: "0.44 m/s²",          note: "Has an ellipsoidal shape due to its rapid spin." },
-      Makemake:     { icon: "🪐", g: 0.05,     gStr: "0.49 m/s²",          note: "Located in the Kuiper Belt." },
-      Eris:         { icon: "⚫", g: 0.084,    gStr: "0.82 m/s²",          note: "More massive than Pluto; its discovery triggered the dwarf planet debate." },
-      Sedna:        { icon: "🔴", g: 0.0677,   gStr: "0.664 m/s²",         note: "Extremely distant; may be in the inner Oort Cloud." },
-      Quaoar:       { icon: "🟤", g: 0.03,     gStr: "0.29 m/s²",          note: "Has its own ring system." },
-      Gonggong:     { icon: "🟣", g: 0.0443,   gStr: "0.434 m/s²",         note: "Named after a Chinese water god." },
-      Orcus:        { icon: "⚫", g: 0.027,    gStr: "0.27 m/s²",          note: "Sometimes called the 'anti-Pluto' due to its opposite orbit." },
-      Varuna:       { icon: "🔵", g: 0.017,    gStr: "0.17 m/s²",          note: "A Kuiper Belt object with a fast rotation." },
-      Sun:          { icon: "☀️", g: 27.96,    gStr: "274 m/s²",           note: "The Sun's gravity is so strong you would be crushed instantly." },
-      SagittariusA: { icon: "🌀", g: 1.535e17, gStr: "~1.5 × 10¹⁸ m/s²",  note: "Gravity at the event horizon of the Milky Way's supermassive black hole (4 million solar masses). Nothing — not even light — can escape beyond this point." },
-    };
+</div>
 
-    const displayNames = {
-      SagittariusA: "Sagittarius A*",
-      Sun: "The Sun",
-    };
+<script>
+  const bodies = {
+    Mercury:      { icon: "🌑", g: 0.38,     gStr: "3.7 m/s²",           note: "" },
+    Venus:        { icon: "🟡", g: 0.904,    gStr: "8.87 m/s²",          note: "" },
+    Earth:        { icon: "🌍", g: 1,         gStr: "9.81 m/s²",          note: "" },
+    Moon:         { icon: "🌙", g: 0.1654,   gStr: "1.62 m/s²",          note: "Earth's natural satellite." },
+    Mars:         { icon: "🔴", g: 0.3794,   gStr: "3.72 m/s²",          note: "" },
+    Jupiter:      { icon: "🟠", g: 2.528,    gStr: "24.8 m/s²",          note: "Measured at the cloud-top level — Jupiter has no solid surface." },
+    Saturn:       { icon: "🪐", g: 1.065,    gStr: "10.44 m/s²",         note: "Measured at the cloud-top level." },
+    Uranus:       { icon: "🔵", g: 0.886,    gStr: "8.69 m/s²",          note: "" },
+    Neptune:      { icon: "🟣", g: 1.14,     gStr: "11.15 m/s²",         note: "" },
+    Ceres:        { icon: "⚪", g: 0.029,    gStr: "0.28 m/s²",          note: "Largest object in the asteroid belt." },
+    Pluto:        { icon: "🧊", g: 0.063,    gStr: "0.62 m/s²",          note: "Reclassified as a dwarf planet in 2006." },
+    Haumea:       { icon: "🪨", g: 0.044,    gStr: "0.44 m/s²",          note: "Has an ellipsoidal shape due to its rapid spin." },
+    Makemake:     { icon: "❄️", g: 0.05,     gStr: "0.49 m/s²",          note: "Located in the Kuiper Belt." },
+    Eris:         { icon: "💠", g: 0.084,    gStr: "0.82 m/s²",          note: "More massive than Pluto; its discovery triggered the dwarf planet debate." },
+    Sedna:        { icon: "🔮", g: 0.0677,   gStr: "0.664 m/s²",         note: "Extremely distant; may be in the inner Oort Cloud." },
+    Quaoar:       { icon: "🟤", g: 0.03,     gStr: "0.29 m/s²",          note: "Has its own ring system." },
+    Gonggong:     { icon: "🌘", g: 0.0443,   gStr: "0.434 m/s²",         note: "Named after a Chinese water god." },
+    Orcus:        { icon: "⚫", g: 0.027,    gStr: "0.27 m/s²",          note: "Sometimes called the 'anti-Pluto' due to its opposite orbit." },
+    Varuna:       { icon: "💫", g: 0.017,    gStr: "0.17 m/s²",          note: "A Kuiper Belt object with a fast rotation." },
+    Sun:          { icon: "☀️", g: 27.96,    gStr: "274 m/s²",           note: "The Sun's gravity is so strong you would be crushed instantly." },
+    /* Fixed: this previously listed g = 1.535e17 and gStr = "~1.5 × 10¹⁸ m/s²",
+       overstating Sagittarius A*'s event-horizon gravity by roughly 11-12
+       orders of magnitude. Using the same Newtonian approximation as the
+       site's Black Hole Radius Calculator (g = GM/Rs²) with a mass of
+       ~4 million solar masses (matching the note text below), the correct
+       figure is about 373,667x Earth gravity — still catastrophic, just not
+       fictionally catastrophic. */
+    SagittariusA: { icon: "🌀", g: 373667,   gStr: "~3.67 × 10⁶ m/s²",   note: "Newtonian estimate of gravity at the event horizon of the Milky Way's supermassive black hole (~4 million solar masses). Nothing — not even light — can escape beyond this point." },
+  };
 
-    function fmt(val, unit) {
-      if (val >= 1e15) return (val / 1e15).toFixed(2) + " × 10¹⁵ " + unit;
-      if (val >= 1e12) return (val / 1e12).toFixed(2) + " trillion " + unit;
-      if (val >= 1e9)  return (val / 1e9).toFixed(2)  + " billion " + unit;
-      if (val >= 1e6)  return (val / 1e6).toFixed(2)  + " million " + unit;
-      if (val < 0.01)  return val.toFixed(4) + " " + unit;
-      return val.toFixed(2) + " " + unit;
+  const displayNames = {
+    SagittariusA: "Sagittarius A*",
+    Sun: "The Sun",
+  };
+
+  function fmt(val, unit) {
+    if (val >= 1e15) return (val / 1e15).toFixed(2) + " × 10¹⁵ " + unit;
+    if (val >= 1e12) return (val / 1e12).toFixed(2) + " trillion " + unit;
+    if (val >= 1e9)  return (val / 1e9).toFixed(2)  + " billion " + unit;
+    if (val >= 1e6)  return (val / 1e6).toFixed(2)  + " million " + unit;
+    if (val < 0.01)  return val.toFixed(4) + " " + unit;
+    return val.toFixed(2) + " " + unit;
+  }
+
+  const superDigits = { '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻' };
+
+  function toSuperscript(str) {
+    return str.split('').map(ch => superDigits[ch] || ch).join('');
+  }
+
+  // Formats the "gravity multiplier" line — plain "×N" for everyday
+  // multipliers, switching to proper scientific notation (with real
+  // superscript digits) once the number gets too large to read
+  // comfortably. No current body value reaches the >=1e6 branch, but
+  // it's exercised here so it stays correct if one ever does.
+  function fmtMultiplier(g) {
+    if (g >= 1e6) {
+      const [mantissa, exp] = g.toExponential(2).split('e');
+      const expNum = parseInt(exp, 10);
+      return `${mantissa} × 10${toSuperscript(String(expNum))}×`;
+    }
+    if (g >= 1000) return Math.round(g).toLocaleString("en-US") + "×";
+    return g.toFixed(3) + "×";
+  }
+
+  function calculate() {
+    const raw  = parseFloat(document.getElementById("wval").value);
+    const unit = document.getElementById("wunit").value;
+    const key  = document.getElementById("body").value;
+    const b    = bodies[key];
+
+    if (!raw || raw <= 0) {
+      document.getElementById("result-card").classList.remove("show");
+      return;
     }
 
-    function calculate() {
-      const raw  = parseFloat(document.getElementById("wval").value);
-      const unit = document.getElementById("wunit").value;
-      const key  = document.getElementById("body").value;
-      const b    = bodies[key];
+    const w       = raw * b.g;
+    const wStr    = fmt(w, unit);
+    const multStr = fmtMultiplier(b.g);
+    const name    = displayNames[key] || key;
 
-  if (!raw || raw <= 0) {
-  document.getElementById("result-card").classList.remove("show");
-  return;
-}
+    document.getElementById("res-icon").textContent   = b.icon;
+    document.getElementById("res-name").textContent   = name;
+    document.getElementById("res-weight").textContent = wStr;
+    document.getElementById("res-unit").textContent   = unit;
+    document.getElementById("res-earth").textContent  = `${raw.toFixed(2)} ${unit}`;
+    document.getElementById("res-grav").textContent   = b.gStr;
+    document.getElementById("res-mult").textContent   = multStr;
+    document.getElementById("res-note").textContent   = b.note;
 
-      const w       = raw * b.g;
-      const wStr    = fmt(w, unit);
-      const multStr = `${b.g.toFixed(3)}g`;
-      const name    = displayNames[key] || key;
+    const card = document.getElementById("result-card");
+    card.classList.add("show");
+    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 
-      document.getElementById("res-icon").textContent   = b.icon;
-      document.getElementById("res-name").textContent   = name;
-      document.getElementById("res-weight").textContent = wStr;
-      document.getElementById("res-unit").textContent   = unit;
-      document.getElementById("res-earth").textContent  = `${raw.toFixed(2)} ${unit}`;
-      document.getElementById("res-grav").textContent   = b.gStr;
-      document.getElementById("res-mult").textContent   = multStr;
-      document.getElementById("res-note").textContent   = b.note;
+  document.getElementById("wval").addEventListener("input", calculate);
+  document.getElementById("wunit").addEventListener("change", calculate);
+  document.getElementById("body").addEventListener("change", calculate);
 
-      const card = document.getElementById("result-card");
-      card.classList.add("show");
-      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  // ── STARFIELD ──
+  (function generateStars() {
+    const field = document.getElementById("starfield");
+    const count = 80;
+    const frag = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i++) {
+      const star = document.createElement("div");
+      star.className = "star" + (Math.random() < 0.2 ? " twinkle" : "");
+      const size = (Math.random() * 1.6 + 0.6).toFixed(2);
+      star.style.width = size + "px";
+      star.style.height = size + "px";
+      star.style.top = (Math.random() * 100) + "%";
+      star.style.left = (Math.random() * 100) + "%";
+      star.style.opacity = (Math.random() * 0.5 + 0.2).toFixed(2);
+      if (star.classList.contains("twinkle")) {
+        star.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
+      }
+      frag.appendChild(star);
     }
+    field.appendChild(frag);
+  })();
+</script>
 
-// Auto calculate on typing
-document.getElementById("wval").addEventListener("input", calculate);
-
-// Auto calculate when unit changes
-document.getElementById("wunit").addEventListener("change", calculate);
-
-// Auto calculate when space object changes
-document.getElementById("body").addEventListener("change", calculate);
-  </script>
-
-  <script src="/libraries/config.js"></script>
-  <script src="/libraries/view-counter.js"></script>
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
 
 </body>
 </html>
