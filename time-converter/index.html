@@ -32,114 +32,287 @@
 
 <title>Time Converter</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
   * { box-sizing: border-box; }
 
+  :root {
+    --bg-panel: #100a0a;
+    --bg-panel-2: #150d0d;
+    --bg-well: #0a0606;
+    --accent-amber: #ffb454;
+    --accent-amber-dim: rgba(255, 180, 84, 0.35);
+    --accent-cyan: #4fd8ff;
+    --accent-cyan-dim: rgba(79, 216, 255, 0.3);
+    --accent-red: #ff5f5f;
+    --border-line: rgba(255, 180, 84, 0.22);
+    --text-primary: #f2e8de;
+    --text-dim: #9a8a7d;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Orbitron', sans-serif;
+    --ui: 'Rajdhani', sans-serif;
+  }
+
+  html, body { height: 100%; margin: 0; }
+
   body {
-    margin: 0;
     min-height: 100dvh;
     padding: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #0f0101;
-    font-family: system-ui, sans-serif;
-    color: #fff;
+    font-family: var(--ui);
+    color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(255,180,84,0.08), transparent 55%),
+      radial-gradient(ellipse at 85% 80%, rgba(79,150,216,0.07), transparent 55%),
+      linear-gradient(180deg, #030202 0%, #0d0707 55%, #050303 100%);
+  }
+
+  /* Twinkling starfield */
+  .starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    animation-name: twinkle;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  }
+  @keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star { animation: none; opacity: 0.5; }
   }
 
   .card {
-    background: #161a35;
-    padding: 22px;
+    background: linear-gradient(155deg, var(--bg-panel) 0%, var(--bg-panel-2) 100%);
+    border: 1px solid var(--border-line);
+    padding: 26px;
     width: 100%;
     max-width: 430px;
-    border-radius: 14px;
-    box-shadow: 0 20px 40px rgba(0,0,0,.45);
+    border-radius: 6px;
+    position: relative;
+    z-index: 1;
+    box-shadow:
+      0 0 0 1px rgba(255,180,84,0.04),
+      0 0 40px rgba(255,180,84,0.07),
+      0 25px 60px rgba(0,0,0,0.65);
+  }
+
+  .card::before,
+  .card::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--accent-amber);
+    border-style: solid;
+    opacity: 0.85;
+  }
+  .card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .card::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0 0 10px;
   }
 
   h2 {
+    font-family: var(--display);
     text-align: center;
-    margin-bottom: 30px;
+    margin: 0 0 4px;
     font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 18px rgba(255,180,84,0.25);
+  }
+
+  .version-tag {
+    display: block;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent-amber);
+    opacity: 0.8;
+    margin: 0 0 24px;
   }
 
   input, select, button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-bottom: 10px;
-    border-radius: 8px;
+    border-radius: 6px;
     border: none;
-    font-size: 1rem;
+    font-size: 16px;
+    font-family: var(--ui);
   }
 
   input, select {
-    background: #0f1220;
-    color: #fff;
+    background: var(--bg-well);
+    color: var(--text-primary);
+    border: 1px solid var(--border-line);
   }
 
-  .row {
-    display: flex;
-    gap: 10px;
+  #value {
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
   }
+  #value:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-amber);
+    box-shadow: 0 0 0 3px rgba(255, 180, 84, 0.18);
+  }
+
+  button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent-amber);
+    outline-offset: 2px;
+  }
+
+  .row { display: flex; gap: 10px; }
 
   .result {
-    background: #0f1220;
+    background: linear-gradient(180deg, var(--bg-well), #0d0808);
+    border: 1px solid var(--border-line);
     padding: 12px;
-    border-radius: 8px;
+    border-radius: 6px;
     text-align: center;
+    font-family: var(--mono);
     font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     min-height: 46px;
     margin-bottom: 8px;
+    color: var(--accent-amber);
+    text-shadow: 0 0 10px rgba(255,180,84,0.4);
+    position: relative;
+    overflow: hidden;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
   }
 
-  .decimals {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
+  .result::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
   }
+
+  .result.stale {
+    color: var(--text-dim);
+    text-shadow: none;
+  }
+
+  .decimals { display: flex; gap: 8px; margin-bottom: 8px; }
 
   .decimals button {
     flex: 1;
-    background: #2b2f55;
+    background: transparent;
+    border: 1px solid var(--border-line);
+    color: var(--text-primary);
+    font-size: 14px;
   }
+  .decimals button:hover { background: rgba(255, 180, 84, 0.08); border-color: var(--accent-amber); }
 
   .decimals button.active {
-    background: #4f7cff;
+    background: var(--accent-amber);
+    border-color: var(--accent-amber);
+    color: #1a1005;
+    font-weight: 700;
   }
 
   button {
-    background: #ff4f58;
-    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
     cursor: pointer;
-    transition: transform 0.1s ease, opacity 0.1s ease;
+    transition: transform 0.1s ease, opacity 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  /* Primary action — Convert */
+  button:not(.secondary):not(.decimals button):not(.share-icon-btn) {
+    background: linear-gradient(135deg, var(--accent-amber), #e08a2c);
+    color: #1a1005;
+    box-shadow: 0 0 18px rgba(255,180,84,0.35), inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  button:not(.secondary):not(.decimals button):not(.share-icon-btn):hover {
+    box-shadow: 0 0 26px rgba(255,180,84,0.55), inset 0 0 0 1px rgba(255,255,255,0.2);
   }
 
   button.secondary {
-    background: #2b2f55;
+    background: transparent;
+    border: 1px solid var(--border-line);
+    color: var(--text-primary);
+    box-shadow: none;
   }
+  button.secondary:hover { background: rgba(255, 180, 84, 0.08); border-color: var(--accent-amber); }
 
-  button:active {
-    transform: scale(0.95);
-  }
+  button:active { transform: scale(0.96); }
+  button:hover { opacity: 1; }
 
-  button:hover {
-    opacity: 0.9;
-  }
+  .copy-btn.copied { background: #16a34a !important; color: #fff !important; }
+  .copy-btn.copy-failed { background: var(--accent-red) !important; color: #1a0505 !important; }
 
   .history {
     margin-top: 10px;
     font-size: 0.85rem;
     display: none;
+    max-height: 180px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
+
+  .history-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-amber-dim) var(--bg-well);
+  }
+  .history::-webkit-scrollbar { width: 6px; }
+  .history::-webkit-scrollbar-track { background: var(--bg-well); border-radius: 3px; }
+  .history::-webkit-scrollbar-thumb { background: var(--accent-amber-dim); border-radius: 3px; }
 
   .history h3 {
     margin: 6px 0;
     font-size: 0.9rem;
     opacity: 0.85;
+    font-family: var(--ui);
   }
 
   .history-item {
-    opacity: 0.75;
-    margin-bottom: 4px;
+    font-family: var(--mono);
+    opacity: 0.85;
+    margin-bottom: 6px;
+    padding: 6px 8px;
+    background: var(--bg-well);
+    border: 1px solid var(--border-line);
+    border-left: 2px solid var(--accent-amber);
+    border-radius: 4px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+  }
+  .history-item:hover { background: rgba(255, 180, 84, 0.08); opacity: 1; }
+  .history-item:focus-visible { outline: 2px solid var(--accent-amber); outline-offset: 2px; }
+
+  .history-empty {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 10px 0;
   }
 
   .note {
@@ -147,56 +320,37 @@
     font-size: 0.75rem;
     opacity: 0.6;
     margin-top: 8px;
+    font-family: var(--mono);
   }
 
   #clearHistoryBtn {
     margin-top: 10px;
-    background: #3a1c1c;
-    color: #ffb4b4;
+    background: transparent !important;
+    border: 1px solid rgba(255, 95, 95, 0.35) !important;
+    color: var(--accent-red) !important;
+    box-shadow: none !important;
   }
-
-  #clearHistoryBtn:hover {
-    background: #4a2222;
-  }
-
-  input, select, button {
-    font-size: 16px;
-    padding: 12px;
-  }
-
-  .history {
-    max-height: 180px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  #clearHistoryBtn:hover { background: rgba(255, 95, 95, 0.08) !important; border-color: var(--accent-red) !important; }
 
   /* SHARE PANEL */
   .share-panel {
     display: none;
-    background: #0f1220;
-    border-radius: 10px;
+    background: var(--bg-well);
+    border: 1px solid var(--border-line);
+    border-radius: 8px;
     padding: 12px;
     margin-bottom: 10px;
   }
-  .share-panel p {
-    margin: 0 0 10px;
-    font-size: 13px;
-    opacity: 0.7;
-    text-align: center;
-  }
-  .share-icons {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
+  .share-panel p { margin: 0 0 10px; font-size: 13px; opacity: 0.7; text-align: center; }
+  .share-icons { display: flex; gap: 6px; flex-wrap: wrap; }
   .share-icon-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    background: #2b2f55;
-    border: none;
-    border-radius: 10px;
+    background: #201412;
+    border: 1px solid var(--border-line) !important;
+    border-radius: 8px;
     padding: 10px 4px;
     cursor: pointer;
     font-size: 10px;
@@ -206,39 +360,54 @@
     transition: background 0.2s;
     margin-bottom: 0;
     width: auto;
+    box-shadow: none !important;
+    text-transform: none;
   }
   .share-icon-btn svg { width: 22px; height: 22px; }
-  .share-icon-btn:hover { background: #3a3f70; opacity: 1; }
+  .share-icon-btn:hover { background: #2c1b17; opacity: 1; }
   .share-icon-btn.copied { background: #14532d; }
+
+  .share-btn-trigger {
+    background: linear-gradient(135deg, #6d3fc7, #4c1d95) !important;
+    color: #fff !important;
+    margin-top: 2px;
+    box-shadow: 0 0 16px rgba(109,63,199,0.35) !important;
+  }
 
   @media (max-width: 600px) {
     .row { flex-direction: column; }
-    h2 { margin-bottom: 18px; }
+    h2 { margin-bottom: 4px; }
   }
 </style>
 </head>
 
 <body class="notranslate">
 
-<div class="card">
-  <h2>Time Converter</h2>
+<div class="starfield" id="starfield"></div>
 
-  <input type="number" id="value" placeholder="Enter value" step="any">
+<div class="card">
+
+  <div class="eyebrow">Rameshverse Systems &middot; MK&middot;02</div>
+
+  <h2>Time Converter</h2>
+  <span class="version-tag">TIME CONVERSION MODULE</span>
+
+  <input type="number" id="value" placeholder="Enter value" step="any" aria-label="Value to convert">
 
   <div class="row">
-    <select id="from">
+    <select id="from" aria-label="Convert from unit">
       <option value="ns">Nanoseconds (ns)</option>
       <option value="us">Microseconds (µs)</option>
       <option value="ms">Milliseconds (ms)</option>
-      <option value="sec">Seconds (s)</option>
+      <option value="sec" selected>Seconds (s)</option>
       <option value="min">Minutes</option>
       <option value="hr">Hours</option>
       <option value="day">Days</option>
       <option value="yr">Earth Years</option>
     </select>
 
-    <select id="to">
-      <option value="ns">Nanoseconds (ns)</option>
+    <select id="to" aria-label="Convert to unit">
+      <option value="ns" selected>Nanoseconds (ns)</option>
       <option value="us">Microseconds (µs)</option>
       <option value="ms">Milliseconds (ms)</option>
       <option value="sec">Seconds (s)</option>
@@ -249,7 +418,7 @@
     </select>
   </div>
 
-  <div class="result" id="result">—</div>
+  <div class="result" id="result" role="status" aria-live="polite">—</div>
 
   <div class="decimals">
     <button onclick="setDecimals(3)">3 dec</button>
@@ -262,7 +431,7 @@
   <button onclick="copyResult()" class="secondary" id="copyBtn">Copy</button>
   <button onclick="resetAll()" class="secondary">Reset</button>
 
-  <button onclick="toggleHistory()" class="secondary" id="historyToggle">Show history</button>
+  <button onclick="toggleHistory()" class="secondary" id="historyToggle" aria-expanded="false">Show history</button>
 
   <div class="history" id="historyPanel">
     <h3>Last 10 calculations</h3>
@@ -271,7 +440,7 @@
   </div>
 
   <!-- Share This App button + panel -->
-  <button onclick="toggleShare()" style="background:#4c1d95;margin-top:2px;">📤 Share This App</button>
+  <button onclick="toggleShare()" class="share-btn-trigger">📤 Share This App</button>
 
   <div class="share-panel" id="sharePanel">
     <p>Share this tool with friends:</p>
@@ -347,16 +516,47 @@
 </div>
 
 <script>
+  // ---- Twinkling starfield ----
+  (function buildStarfield() {
+    const field = document.getElementById("starfield");
+    const STAR_COUNT = 70;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const star = document.createElement("span");
+      star.className = "star";
+      const size = (Math.random() * 1.6 + 0.6).toFixed(2);
+      star.style.width = size + "px";
+      star.style.height = size + "px";
+      star.style.top = (Math.random() * 100).toFixed(2) + "%";
+      star.style.left = (Math.random() * 100).toFixed(2) + "%";
+      star.style.animationDuration = (Math.random() * 3 + 2).toFixed(2) + "s";
+      star.style.animationDelay = (Math.random() * 5).toFixed(2) + "s";
+      frag.appendChild(star);
+    }
+    field.appendChild(frag);
+  })();
+
   const resultBox = document.getElementById("result");
   const historyBox = document.getElementById("history");
   const historyPanel = document.getElementById("historyPanel");
   const historyToggle = document.getElementById("historyToggle");
   const copyBtn = document.getElementById("copyBtn");
   const decimalButtons = document.querySelectorAll(".decimals button");
+  const valueInput = document.getElementById("value");
+  const fromSelect = document.getElementById("from");
+  const toSelect = document.getElementById("to");
 
   const factors = {
     ns: 1e-9, us: 1e-6, ms: 1e-3, sec: 1,
     min: 60, hr: 3600, day: 86400, yr: 31556952
+  };
+
+  // Converting by dividing by a tiny factor (e.g. 1 / 1e-9) introduces
+  // floating-point error in JS (1 / 1e-9 = 999999999.9999999, not 1e9).
+  // Using these precomputed multipliers for the "to" side avoids that.
+  const invFactors = {
+    ns: 1e9, us: 1e6, ms: 1e3, sec: 1,
+    min: 1 / 60, hr: 1 / 3600, day: 1 / 86400, yr: 1 / 31556952
   };
 
   let rawResult = null;
@@ -365,17 +565,29 @@
   let history = [];
 
   function convert() {
-    const value = parseFloat(document.getElementById("value").value);
+    const value = parseFloat(valueInput.value);
     if (isNaN(value)) return;
-    const from = document.getElementById("from").value;
-    const to = document.getElementById("to").value;
-    rawResult = (value * factors[from]) / factors[to];
+    const from = fromSelect.value;
+    const to = toSelect.value;
+    rawResult = value * factors[from] * invFactors[to];
     decimals = null;
+    resultBox.classList.remove("stale");
     updateDecimalButtons();
     animateCounter(lastValue, rawResult);
     saveHistory(value, from, rawResult, to);
     lastValue = rawResult;
   }
+
+  // Marks the current result stale once inputs change, so the decimal
+  // rounding buttons can't silently operate on an outdated conversion.
+  function invalidateResult() {
+    if (resultBox.textContent === "—") return;
+    rawResult = null;
+    resultBox.classList.add("stale");
+  }
+  valueInput.addEventListener("input", invalidateResult);
+  fromSelect.addEventListener("change", invalidateResult);
+  toSelect.addEventListener("change", invalidateResult);
 
   function animateCounter(start, end) {
     const duration = 500;
@@ -395,11 +607,7 @@
 
   function clearHistory() {
     history = [];
-    historyBox.innerHTML = "<div class='history-item'>History cleared</div>";
-    setTimeout(() => {
-      historyPanel.style.display = "none";
-      historyToggle.textContent = "Show history";
-    }, 600);
+    renderHistory();
   }
 
   function setDecimals(n) {
@@ -427,23 +635,56 @@
 
   function copyResult() {
     if (resultBox.textContent === "—") return;
-    navigator.clipboard.writeText(resultBox.textContent);
-    copyBtn.textContent = "Copied!";
-    setTimeout(() => copyBtn.textContent = "Copy", 800);
+    navigator.clipboard.writeText(resultBox.textContent).then(() => {
+      copyBtn.textContent = "Copied!";
+      copyBtn.classList.add("copied");
+      setTimeout(() => { copyBtn.textContent = "Copy"; copyBtn.classList.remove("copied"); }, 800);
+    }).catch(() => {
+      copyBtn.textContent = "Copy Failed";
+      copyBtn.classList.add("copy-failed");
+      setTimeout(() => { copyBtn.textContent = "Copy"; copyBtn.classList.remove("copy-failed"); }, 1200);
+    });
   }
 
   function saveHistory(input, from, output, to) {
-    history.unshift(`${input} ${from} → ${format(output)} ${to}`);
+    history.unshift({ text: `${input} ${from} → ${format(output)} ${to}`, value: format(output) });
     history = history.slice(0, 10);
     renderHistory();
   }
 
   function renderHistory() {
     historyBox.innerHTML = "";
+
+    if (history.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "history-empty";
+      empty.innerText = "No conversions yet";
+      historyBox.appendChild(empty);
+      return;
+    }
+
     history.forEach(h => {
       const div = document.createElement("div");
       div.className = "history-item";
-      div.textContent = h;
+      div.textContent = h.text;
+      div.tabIndex = 0;
+      div.setAttribute("role", "button");
+      div.setAttribute("aria-label", `Copy result ${h.value}`);
+
+      const copyThis = () => {
+        navigator.clipboard.writeText(h.value).then(() => {
+          div.textContent = "Copied ✓";
+          setTimeout(() => { div.textContent = h.text; }, 700);
+        }).catch(() => {
+          div.textContent = "Copy failed";
+          setTimeout(() => { div.textContent = h.text; }, 900);
+        });
+      };
+
+      div.onclick = copyThis;
+      div.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copyThis(); }
+      };
       historyBox.appendChild(div);
     });
   }
@@ -452,21 +693,27 @@
     const visible = historyPanel.style.display === "block";
     historyPanel.style.display = visible ? "none" : "block";
     historyToggle.textContent = visible ? "Show history" : "Hide history";
+    historyToggle.setAttribute("aria-expanded", visible ? "false" : "true");
   }
 
+  // Reset clears the current input/result only — history is untouched.
+  // Use "Clear history" inside the history panel to remove saved entries.
   function resetAll() {
-    document.getElementById("value").value = "";
+    valueInput.value = "";
     resultBox.textContent = "—";
-    rawResult = null; decimals = null; lastValue = 0; history = [];
+    resultBox.classList.remove("stale");
+    rawResult = null;
+    decimals = null;
+    lastValue = 0;
     updateDecimalButtons();
-    renderHistory();
   }
 
-  // FIX: use integer-safe pow to avoid floating point drift in roundSafe
   function roundSafe(num, dec) {
     const factor = Math.round(Math.pow(10, dec)); // Math.round neutralises e.g. 10**7 = 9999999.99...
     return Math.round((num + Number.EPSILON) * factor) / factor;
   }
+
+  renderHistory();
 
   // SHARE LOGIC
   const APP_URL = window.location.href;
