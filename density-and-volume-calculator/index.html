@@ -17,425 +17,521 @@
 </script>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Density & Volume Calculator</title>
+<title>Density &amp; Volume Calculator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+  :root {
+    --bg: #070c10;
+    --panel: #10161d;
+    --panel-2: #0b1116;
+    --line: rgba(56,189,248,0.16);
+    --line-soft: rgba(56,189,248,0.08);
+    --cyan: #38bdf8;
+    --cyan-dim: rgba(56,189,248,0.14);
+    --copper: #ff9d5c;
+    --copper-dim: rgba(255,157,92,0.14);
+    --float-color: #38bdf8;
+    --neutral-color: #94a3b8;
+    --sink-color: #ff9d5c;
+    --text: #eaf3fa;
+    --text-dim: #7d8a99;
+    --sans: 'Sora', system-ui, -apple-system, sans-serif;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
   body {
-    font-family: system-ui, sans-serif;
-    background: #0f0f0f;
-    color: #eaeaea;
+    margin: 0;
+    font-family: var(--sans);
+    background:
+      repeating-linear-gradient(0deg, rgba(56,189,248,0.05) 0 1px, transparent 1px 34px),
+      repeating-linear-gradient(90deg, rgba(56,189,248,0.05) 0 1px, transparent 1px 34px),
+      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(56,189,248,0.10), transparent 62%),
+      var(--bg);
+    color: var(--text);
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;   /* fallback */
-  min-height: 100svh;  /* modern Safari */
-    padding: 12px 0;
-
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 32px 12px;
   }
 
-  .card {
-    background: #181818;
-    padding: 20px;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 380px;
-    margin: 16px;
+  .page { width: 100%; max-width: 400px; }
+
+  /* ---------- Header / beaker mark ---------- */
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .beaker-mark {
+    position: relative;
+    width: 66px;
+    height: 78px;
+    margin-bottom: 10px;
+  }
+
+  .beaker-glass {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(22% 0%, 78% 0%, 96% 100%, 4% 100%);
+    border: 1.5px solid rgba(56,189,248,0.45);
+    background: linear-gradient(180deg, rgba(56,189,248,0.04), rgba(56,189,248,0.01));
+    overflow: hidden;
+  }
+
+  .liquid {
+    position: absolute;
+    left: -2px; right: -2px; bottom: -2px;
+    height: 56%;
+    background: linear-gradient(180deg, rgba(56,189,248,0.55), rgba(56,189,248,0.8));
+    box-shadow: 0 -1px 0 rgba(180,230,255,0.5) inset;
+  }
+
+  .bubble {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: rgba(255,255,255,0.65);
+    border-radius: 50%;
+    bottom: 4px;
+    animation: rise 2.6s linear infinite;
+  }
+
+  .bubble.b1 { left: 30%; animation-delay: 0s; }
+  .bubble.b2 { left: 62%; animation-delay: 1.3s; }
+
+  @keyframes rise {
+    0%   { transform: translateY(0); opacity: 0.75; }
+    100% { transform: translateY(-38px); opacity: 0; }
+  }
+
+  .sample-cube {
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    width: 15px; height: 15px;
+    margin-left: -7.5px;
+    background: linear-gradient(135deg, var(--copper), #c4630f);
+    border-radius: 3px;
+    box-shadow: 0 0 9px rgba(255,157,92,0.55);
+    animation: bob 3.2s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(7px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bubble, .sample-cube { animation: none; }
   }
 
   h2 {
-    font-size: 22px;
-    margin-bottom: 24px;
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 1.3rem;
+    margin: 0;
     text-align: center;
+  }
+
+  .formula-tag {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* ---------- Card ---------- */
+  .card {
+    position: relative;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    padding: 24px 22px;
+    border-radius: 16px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(56,189,248,0.03) inset;
   }
 
   label {
     display: block;
-    margin-top: 10px;
-    font-size: 14px;
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
   }
 
-  input, select, button {
+  label:first-of-type { margin-top: 0; }
+
+  input, select, button { font-family: var(--sans); }
+
+  input, select {
     width: 100%;
-    margin-top: 6px;
-    padding: 8px;
-    border-radius: 6px;
-    border: none;
-    font-size: 14px;
+    margin-top: 7px;
+    padding: 0 12px;
+    height: 46px;
+    border-radius: 9px;
+    border: 1px solid var(--line-soft);
+    background: #060a0e;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: var(--mono);
   }
 
-  button {
-    background: #3b82f6;
-    color: white;
+  input::placeholder { color: #445263; }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px var(--cyan-dim);
+  }
+
+  select option { color: #000; background: #fff; }
+
+  .volume-group { display: flex; flex-direction: column; gap: 0; }
+
+  .btn-volume-inline {
+    margin-top: 8px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(56,189,248,0.32);
+    background: linear-gradient(180deg, rgba(56,189,248,0.09), rgba(56,189,248,0.02));
+    color: var(--cyan);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     cursor: pointer;
-    margin-top: 12px;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
   }
 
-  .secondary { background: #374151; }
-  .copy { background: #10b981; }
-
-  .result {
-    margin-top: 12px;
-    font-size: 14px;
+  .btn-volume-inline:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 14px rgba(56,189,248,0.25);
   }
 
-  /* Modal */
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    justify-content: center;
-    align-items: center;
+  /* ---------- Calculate button: immersive primary ---------- */
+  .calc-wrap {
+    position: relative;
+    padding: 3px;
+    border-radius: 13px;
+    margin-top: 22px;
+    background: linear-gradient(135deg, var(--cyan), var(--copper));
+    background-size: 200% 200%;
+    animation: borderflow 6s ease infinite;
+    box-shadow: 0 12px 28px rgba(56,189,248,0.18), 0 0 30px rgba(255,157,92,0.1);
   }
 
-  .modal-content {
-    background: #181818;
-    padding: 20px;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 320px;
-    margin: 16px;
+  @keyframes borderflow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
-  input, select {
-  font-size: 16px;
-}
-
-
-  /* Bigger primary buttons */
-.btn-large {
-  height: 52px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-
-.btn-volume {
-  height: 46px;
-  font-size: 15px;
-  margin-top: 0px;
-}
-
-
-input, select {
-  height: 35px;
-  box-sizing: border-box;
-}
-
-button {
-  box-sizing: border-box;
-}
-
-/* Distinct background for Volume Calculator */
-.modal-volume .modal-content {
-  background: #100202;   /* clearly different from main card */
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-/* RAW toggle button */
-.raw-toggle {
-  margin-top: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 999px;
-  background: transparent;
-  color: #94a3b8;
-  border: 1px solid rgba(255,255,255,0.15);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.raw-toggle:hover {
-  background: rgba(255,255,255,0.06);
-}
-
-.raw-toggle.active {
-  background: rgba(14,165,233,0.15);
-  color: #38bdf8;
-  border-color: rgba(56,189,248,0.4);
-}
-
-/* Volume input highlight 
-.volume-highlight {
-  box-shadow: 0 0 0 3px rgb(255, 84, 84);
-  background-color: rgb(67, 75, 230);
-  transition: box-shadow 2s ease, background-color 3s ease;
-}*/
-
-@keyframes volumePulse {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.04); }
-  100% { transform: scale(1); }
-}
-
-.volume-pulse {
-  animation: volumePulse 600ms ease-out;
-}
-
-#densityWrap {
-  margin-top: 24px;
-}
-
-#densityWrap b {
-  font-size: 15px;
-}
-
-
-button.secondary {
-  height: 44px;
-  font-size: 14px;
-  margin-top: 22px;
-}
-
-
-.raw-toggle {
-  margin-top: 14px;
-}
-
-.btn-large {
-  margin-top: 28px;
-}
-
-.btn-calc {
-  height: 60px;              /* bigger */
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  border-radius: 10px;
-  background: #7c1111;       /* strong primary */
-}
-
-.btn-calc:hover {
-  background: #a01818;
-}
-
-
-.volume-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0px; /* keeps it visually bonded */
-}
-
-.btn-volume-inline {
-  height: 38px;
-  font-size: 13px;
-  font-weight: 500;
-  background: #3745df;
-  opacity: 0.9;
-}
-
-.btn-volume-inline:hover {
-  opacity: 1;
-}
-
-@keyframes pressPop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(0.96); }
-  100% { transform: scale(1); }
-}
-
-.btn-calc.animate {
-  animation: pressPop 180ms ease-out;
-}
-
-@keyframes unitPop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(0.94); }
-  100% { transform: scale(1); }
-}
-
-.unit-animate {
-  animation: unitPop 160ms ease-out;
-}
-
-/* UNIT TOGGLE BUTTON */
-.btn-unit {
-  height: 44px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 12px;
-
-  background: #3b82f6;        /* blue */
-  color: #ffffff;
-
-  border: none;
-  cursor: pointer;
-
-  /* press depth */
-  box-shadow: 0 6px 0 #1e40af;
-
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
-}
-
-/* PRESS animation only */
-.btn-unit:active {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 #1e40af;
-}
-
-
-
-.toggle-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.toggle-row button {
-  flex: 1;                 /* equal width */
-  text-align: center;
-}
-
-/* Volume result emphasis */
-.volume-result {
-  margin-top: 18px;
-  padding: 14px 12px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
-  cursor: pointer;
-}
-
-.volume-value {
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.volume-hint {
-  margin-top: 6px;
-  font-size: 13px;
-  opacity: 0.75;
-}
-
-.btn-toggle {
-  height: 44px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 12px;
-  background: #3b82f6;              /* always blue */
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-  box-shadow: 0 6px 0 #1e40af;       /* cube depth */
-}
-
-.btn-toggle:active {
-  transform: translateY(4px);       /* press down */
-  box-shadow: 0 2px 0 #1e40af;       /* depth reduces */
-}
-
-
-
-.btn-toggle:hover {
-  background: rgb(156, 27, 27);
-}
-
-@media (max-width: 480px) {
-
-  h2 {
-    font-size: 17px;
-    margin-bottom: 20px;
-  }
-
-  label {
-    font-size: 13px;
-  }
-
-  input, select {
-    height: 42px;
-    font-size: 15px;
+  @media (prefers-reduced-motion: reduce) {
+    .calc-wrap { animation: none; }
   }
 
   .btn-calc {
-    height: 64px;
-    font-size: 18px;
+    position: relative;
+    width: 100%;
+    height: 56px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #0d1319, #080b0f);
+    color: var(--text);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    overflow: hidden;
   }
 
-  .btn-volume-inline {
-    height: 40px;
-    font-size: 14px;
+  .btn-calc::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
   }
+
+  .calc-wrap:hover .btn-calc::after { left: 130%; }
+
+  @keyframes pressPop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(0.96); }
+    100% { transform: scale(1); }
+  }
+
+  .btn-calc.animate { animation: pressPop 180ms ease-out; }
+
+  /* ---------- Result ---------- */
+  #densityWrap { margin-top: 20px; }
+
+  #densityOutput {
+    display: block;
+    cursor: pointer;
+    padding: 14px 14px;
+    border-radius: 10px;
+    background: #060a0e;
+    border: 1px solid var(--line-soft);
+    font-family: var(--mono);
+    text-align: center;
+    min-height: 20px;
+  }
+
+  #densityOutput b {
+    font-size: 1.15rem;
+    color: var(--cyan);
+    text-shadow: 0 0 12px rgba(56,189,248,0.3);
+  }
+
+  #densityOutput small { color: var(--text-dim); }
+
+  .buoyancy-tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+
+  .buoyancy-tag.floats { color: var(--float-color); border: 1px solid rgba(56,189,248,0.4); background: rgba(56,189,248,0.08); }
+  .buoyancy-tag.neutral { color: var(--neutral-color); border: 1px solid rgba(148,163,184,0.4); background: rgba(148,163,184,0.08); }
+  .buoyancy-tag.sinks { color: var(--sink-color); border: 1px solid rgba(255,157,92,0.4); background: rgba(255,157,92,0.08); }
 
   .toggle-row {
-    flex-direction: column;
-    gap: 12px;
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
   }
 
-  .toggle-row button {
-    width: 100%;
+  .btn-toggle {
+    flex: 1;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid var(--line-soft);
+    background: linear-gradient(180deg, rgba(56,189,248,0.06), rgba(56,189,248,0.015));
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   }
-}
-  
+
+  .btn-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .btn-toggle.active {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(56,189,248,0.14);
+    box-shadow: 0 0 12px rgba(56,189,248,0.25) inset;
+  }
+
+  @keyframes unitPop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(0.94); }
+    100% { transform: scale(1); }
+  }
+
+  .unit-animate { animation: unitPop 160ms ease-out; }
+
+  .copy {
+    width: 100%;
+    margin-top: 12px;
+    height: 44px;
+    border-radius: 9px;
+    border: 1px solid rgba(52,211,153,0.4);
+    background: rgba(52,211,153,0.08);
+    color: #34d399;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .copy:hover { background: rgba(52,211,153,0.16); }
+
+  /* ---------- Modal ---------- */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(3,6,9,0.72);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    z-index: 10;
+  }
+
+  .modal-content {
+    position: relative;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    padding: 24px 22px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line-soft);
+    background: rgba(56,189,248,0.06);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  .modal-content h2 { margin-bottom: 16px; }
+
+  .modal-content button:not(.modal-close) {
+    width: 100%;
+    height: 48px;
+    margin-top: 16px;
+    border-radius: 9px;
+    border: none;
+    background: linear-gradient(180deg, var(--cyan), #0ea5e9);
+    color: #041019;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .modal-content button:not(.modal-close):hover { filter: brightness(1.08); }
+
+  .result { margin-top: 12px; font-size: 14px; }
+
+  .volume-result {
+    margin-top: 4px;
+    padding: 14px 12px;
+    border-radius: 10px;
+    background: rgba(56,189,248,0.07);
+    border: 1px solid var(--line-soft);
+    cursor: pointer;
+  }
+
+  .volume-value {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cyan);
+    line-height: 1.3;
+  }
+
+  .volume-hint {
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  @keyframes volumePulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+
+  .volume-pulse { animation: volumePulse 600ms ease-out; }
+
+  @media (max-width: 480px) {
+    h2 { font-size: 1.15rem; }
+    .btn-calc { height: 58px; font-size: 1rem; }
+    .toggle-row { flex-direction: column; }
+  }
 </style>
 </head>
 
 <body>
 
-<!-- MAIN DENSITY CALCULATOR -->
-<div class="card">
-  <h2>Density & Volume Calculator 🧱🧊</h2>
+<div class="page">
 
-  <label>Mass (kg)</label>
-  <input type="text" id="mass" placeholder="Enter mass in kg" oninput="formatInput(this)">
+  <div class="header">
+    <div class="beaker-mark">
+      <div class="beaker-glass">
+        <div class="liquid">
+          <div class="bubble b1"></div>
+          <div class="bubble b2"></div>
+        </div>
+      </div>
+      <div class="sample-cube"></div>
+    </div>
+    <h2>Density &amp; Volume Calculator</h2>
+    <div class="formula-tag">&rho; = m / V</div>
+  </div>
 
-  <label>Volume (m³)</label>
+  <!-- MAIN DENSITY CALCULATOR -->
+  <div class="card">
 
-<div class="volume-group">
-  <input type="text" id="volume" placeholder="Enter volume or click volume calculator" oninput="formatInput(this)">
+    <label>Mass (kg)</label>
+    <input type="text" id="mass" placeholder="Enter mass in kg" inputmode="decimal"
+      oninput="sanitizeInput(this)" onblur="formatInput(this)">
 
- <button class="btn-volume-inline" onclick="openVolumeCalc()">
-  Open Volume Calculator
-</button>
+    <label>Volume (m&sup3;)</label>
+    <div class="volume-group">
+      <input type="text" id="volume" placeholder="Enter volume or calculate" inputmode="decimal"
+        oninput="sanitizeInput(this)" onblur="formatInput(this)">
+      <button class="btn-volume-inline" onclick="openVolumeCalc()">Open Volume Calculator</button>
+    </div>
 
-</div>
+    <div class="calc-wrap">
+      <button class="btn-calc" onclick="calculateDensity(this)">Calculate Density</button>
+    </div>
 
+    <div class="result" id="densityWrap">
+      <span id="densityOutput" onclick="copyDensity()"></span>
 
-<button class="btn-large btn-calc" onclick="calculateDensity(this)">
-  Calculate Density
-</button>
+      <div class="toggle-row">
+        <button id="unitBtn" class="btn-toggle" onclick="toggleUnit(this)" style="display:none;">kg/m&sup3; &harr; g/cm&sup3;</button>
+        <button id="rawBtn" class="btn-toggle" onclick="toggleRaw(event)" style="display:none;">Raw</button>
+      </div>
+    </div>
 
-  
-
- <div class="result" id="densityWrap">
-  <span id="densityOutput" onclick="copyDensity()" style="cursor:pointer"></span>
-  
-  
-<div class="toggle-row">
-  <button
-    id="unitBtn"
-    class="btn-toggle"
-    onclick="toggleUnit(this)"
-    style="display:none;">
-    kg/m³ ↔ g/cm³
-  </button>
-
-  <button
-    id="rawBtn"
-    class="btn-toggle"
-    onclick="toggleRaw(event)"
-    style="display:none;">
-    Raw
-  </button>
-</div>
-
-
-</div>
-
-
-  <button id="copyDensityBtn" class="copy" style="display:none" onclick="copyDensity()">Copy Result</button>
+    <button id="copyDensityBtn" class="copy" style="display:none" onclick="copyDensity()">Copy Result</button>
+  </div>
 </div>
 
 <!-- VOLUME CALCULATOR MODAL -->
-<div class="modal modal-volume" id="volumeModal">
-
+<div class="modal" id="volumeModal">
   <div class="modal-content">
+    <button class="modal-close" onclick="closeVolumeCalc()" aria-label="Close">&times;</button>
+
     <h2>Volume Calculator</h2>
 
     <label>Shape</label>
@@ -451,11 +547,8 @@ button.secondary {
 
     <button onclick="calculateVolume()">Calculate Volume</button>
 
-    <div class="result" id="volumeOutput" onclick="copyVolume()" style="cursor:pointer"></div>
-
-    <button id="copyVolumeBtn" class="copy" style="display:none" onclick="copyVolume()">Copy Volume</button>
-
-   </div>
+    <div class="result" id="volumeOutput" onclick="copyVolume()"></div>
+  </div>
 </div>
 
 <script>
@@ -463,32 +556,68 @@ let densitySI = null;        // kg/m³ (raw)
 let currentUnit = "kg/m3";
 let showRaw = false;
 
-let densityValueRaw = null;   // Number (true raw)
-
+let densityForCalc = null;   // Number
 
 let densityRawText = "";
 let densityRoundedText = "";
-let densityForCalc = null; // Number
 
+/* ---------- Plain-decimal formatting (never exponential) ---------- */
 
+function toPlainString(num) {
+  if (num === 0) return "0";
+  const negative = num < 0;
+  num = Math.abs(num);
 
+  const expStr = num.toExponential(14);
+  const [mantissa, expPart] = expStr.split('e');
+  const exp = parseInt(expPart, 10);
+  const digits = mantissa.replace('.', '');
 
+  let result;
+  if (exp >= 0) {
+    if (exp + 1 >= digits.length) {
+      result = digits + '0'.repeat(exp + 1 - digits.length);
+    } else {
+      const intPart = digits.slice(0, exp + 1);
+      const fracPart = digits.slice(exp + 1).replace(/0+$/, '');
+      result = fracPart.length ? intPart + '.' + fracPart : intPart;
+    }
+  } else {
+    const zeros = '0'.repeat(-exp - 1);
+    const fracPart = (zeros + digits).replace(/0+$/, '');
+    result = fracPart.length ? '0.' + fracPart : '0';
+  }
 
+  return (negative ? '-' : '') + result;
+}
+
+function roundSafe(num, decimals) {
+  const factor = 10 ** decimals;
+  return Math.round((num + Number.EPSILON) * factor) / factor;
+}
+
+/* ---------- Density ---------- */
 
 function calculateDensity(btn) {
-  // 🔘 click animation
   if (btn) {
-    btn.classList.remove("animate"); // reset if clicked fast
-    btn.offsetHeight;                // force reflow
+    btn.classList.remove("animate");
+    btn.offsetHeight;
     btn.classList.add("animate");
   }
 
-  const m = parseFloat(removeCommas(mass.value));
-  const v = parseFloat(removeCommas(volume.value));
+  const m = parseFloat(removeCommas(document.getElementById("mass").value));
+  const v = parseFloat(removeCommas(document.getElementById("volume").value));
 
-  if (!m || !v) {
-    densityOutput.innerText = "Enter mass and volume.";
+  const densityOutput = document.getElementById("densityOutput");
+  const rawBtn = document.getElementById("rawBtn");
+  const unitBtn = document.getElementById("unitBtn");
+  const copyDensityBtn = document.getElementById("copyDensityBtn");
+
+  if (!m || !v || m < 0 || v < 0) {
+    densityOutput.innerHTML = "<small>Enter a valid mass and volume (both greater than zero).</small>";
     rawBtn.style.display = "none";
+    unitBtn.style.display = "none";
+    copyDensityBtn.style.display = "none";
     return;
   }
 
@@ -497,201 +626,223 @@ function calculateDensity(btn) {
   densityForCalc = raw;
   densitySI = raw;
 
-  densityRawText = raw.toString();
-  densityRoundedText = roundSafe(raw, 3).toString();
+  densityRawText = toPlainString(raw);
+  densityRoundedText = toPlainString(roundSafe(raw, 3));
 
   currentUnit = "kg/m3";
   showRaw = false;
 
   renderDensity();
 
-   unitBtn.style.display = "block";
+  unitBtn.style.display = "block";
+  copyDensityBtn.style.display = "block";
 }
-
-
 
 function toggleUnit(btn) {
   if (densitySI === null) return;
 
-  // 🔘 animate button
   if (btn) {
     btn.classList.remove("unit-animate");
-    btn.offsetHeight; // force reflow
+    btn.offsetHeight;
     btn.classList.add("unit-animate");
   }
 
   currentUnit = currentUnit === "kg/m3" ? "g/cm3" : "kg/m3";
-  unitBtn.classList.toggle("active");
-
   renderDensity();
 }
-
 
 function toggleRaw(e) {
   e.stopPropagation();
   showRaw = !showRaw;
-
-  rawBtn.innerText = showRaw ? "Rounded" : "Raw";
   renderDensity();
 }
 
-
-
 function renderDensity() {
+  const densityOutput = document.getElementById("densityOutput");
+  const rawBtn = document.getElementById("rawBtn");
+  const unitBtn = document.getElementById("unitBtn");
+
   let valueText, unit, waterDensity;
 
   if (currentUnit === "kg/m3") {
     valueText = showRaw ? densityRawText : densityRoundedText;
-    unit = "kg/m³";
+    unit = "kg/m\u00B3";
     waterDensity = densityForCalc / 1000;
   } else {
     const raw = densityForCalc / 1000;
-    valueText = showRaw
-      ? raw.toString()
-      : roundSafe(raw, 3).toString();
-
-    unit = "g/cm³";
+    valueText = showRaw ? toPlainString(raw) : toPlainString(roundSafe(raw, 3));
+    unit = "g/cm\u00B3";
     waterDensity = raw;
   }
 
-  let waterText = "";
-  if (waterDensity < 1) waterText = "Floats in water 💧⬆️";
-  else if (waterDensity === 1) waterText = "Same as water 💧⚖️";
-  else waterText = "Sinks in water 💧⬇️";
+  let tagClass, tagText;
+  const EPS = 1e-9;
+  if (waterDensity < 1 - EPS) { tagClass = "floats"; tagText = "\u25B2 Floats in water"; }
+  else if (Math.abs(waterDensity - 1) <= EPS) { tagClass = "neutral"; tagText = "\u2248 Same as water"; }
+  else { tagClass = "sinks"; tagText = "\u25BC Sinks in water"; }
 
   densityOutput.innerHTML = `
-    <b>Density: ${formatDisplay(valueText, showRaw)} ${unit}</b>
-<br>
-    <small>${waterText}</small><br>
-    <small>(click to copy)</small>
+    <b>Density: ${formatDisplay(valueText, showRaw)} ${unit}</b><br>
+    <span class="buoyancy-tag ${tagClass}">${tagText}</span><br>
+    <small>(tap to copy)</small>
   `;
 
   rawBtn.style.display = "inline-block";
-  rawBtn.innerText = showRaw ? "show rounded (3-dec)" : "show raw value";
+  rawBtn.innerText = showRaw ? "Show Rounded (3dp)" : "Show Raw";
   rawBtn.classList.toggle("active", showRaw);
-
+  unitBtn.classList.toggle("active", currentUnit === "g/cm3");
 }
 
-
 function copyDensity() {
-  if (!densityForCalc) return;
+  if (densityForCalc === null) return;
 
-  const unit = currentUnit === "kg/m3" ? "kg/m³" : "g/cm³";
+  const unit = currentUnit === "kg/m3" ? "kg/m\u00B3" : "g/cm\u00B3";
   const text =
     currentUnit === "kg/m3"
       ? (showRaw ? densityRawText : densityRoundedText)
       : (showRaw
-          ? (densityForCalc / 1000).toString()
-          : roundSafe(densityForCalc / 1000, 3).toString());
+          ? toPlainString(densityForCalc / 1000)
+          : toPlainString(roundSafe(densityForCalc / 1000, 3)));
 
-
+  const densityOutput = document.getElementById("densityOutput");
   const originalHTML = densityOutput.innerHTML;
 
-  navigator.clipboard.writeText(
-  `${showRaw ? text : addCommas(text)} ${unit}`
-);
+  navigator.clipboard.writeText(`${showRaw ? text : addCommas(text)} ${unit}`);
 
-
-  densityOutput.innerHTML = `<small>Copied ✔️</small>`;
+  densityOutput.innerHTML = `<small>Copied \u2714\uFE0F</small>`;
   setTimeout(() => {
     densityOutput.innerHTML = originalHTML;
   }, 1000);
 }
 
+/* ---------- Input formatting ----------
+   Sanitizes on every keystroke (strips invalid characters instead of
+   silently leaving them in the field) but only re-inserts comma
+   grouping on blur — reformatting on every keystroke used to throw the
+   cursor to the end of the field while editing digits in the middle
+   of a number. */
 
+function sanitizeInput(el) {
+  const cursorPos = el.selectionStart;
+  const before = el.value;
 
+  let cleaned = before.replace(/,/g, "").replace(/[^\d.]/g, "");
 
+  // collapse to a single decimal point
+  const firstDot = cleaned.indexOf(".");
+  if (firstDot !== -1) {
+    cleaned = cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, "");
+  }
 
+  if (cleaned !== before) {
+    const diff = cleaned.length - before.length;
+    el.value = cleaned;
+    const newPos = Math.max(0, cursorPos + diff);
+    el.setSelectionRange(newPos, newPos);
+  }
+}
 
 function formatInput(el) {
   let raw = removeCommas(el.value);
-
-  // allow only numbers + decimal
-  if (!/^\d*\.?\d*$/.test(raw)) return;
+  if (!raw || raw === ".") return;
 
   let parts = raw.split(".");
-  parts[0] = addCommas(parts[0]);
-
+  parts[0] = addCommas(parts[0] || "0");
   el.value = parts.join(".");
 }
 
+/* ---------- Volume calculator ---------- */
 
-
-
-/* ---------- Volume ---------- */
 function openVolumeCalc() {
-  volumeModal.style.display = "flex";
+  document.getElementById("volumeModal").style.display = "flex";
 }
 
 function closeVolumeCalc() {
-  volumeModal.style.display = "none";
+  document.getElementById("volumeModal").style.display = "none";
 }
 
+document.getElementById("volumeModal").addEventListener("click", (e) => {
+  if (e.target.id === "volumeModal") closeVolumeCalc();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.getElementById("volumeModal").style.display === "flex") {
+    closeVolumeCalc();
+  }
+});
+
 function updateVolumeInputs() {
+  const shape = document.getElementById("shape").value;
   let html = "";
 
-  if (shape.value === "cube") {
-    html = `<label>Side (m)</label><input id="a" type="number">`;
+  if (shape === "cube") {
+    html = `<label>Side (m)</label><input id="a" type="number" min="0" step="any" inputmode="decimal">`;
   }
-
-  if (shape.value === "box") {
+  if (shape === "box") {
     html = `
-      <label>Length (m)</label><input id="l" type="number">
-      <label>Width (m)</label><input id="w" type="number">
-      <label>Height (m)</label><input id="h" type="number">
+      <label>Length (m)</label><input id="l" type="number" min="0" step="any" inputmode="decimal">
+      <label>Width (m)</label><input id="w" type="number" min="0" step="any" inputmode="decimal">
+      <label>Height (m)</label><input id="h" type="number" min="0" step="any" inputmode="decimal">
+    `;
+  }
+  if (shape === "sphere") {
+    html = `<label>Radius (m)</label><input id="r" type="number" min="0" step="any" inputmode="decimal">`;
+  }
+  if (shape === "cylinder") {
+    html = `
+      <label>Radius (m)</label><input id="r" type="number" min="0" step="any" inputmode="decimal">
+      <label>Height (m)</label><input id="h" type="number" min="0" step="any" inputmode="decimal">
     `;
   }
 
-  if (shape.value === "sphere") {
-    html = `<label>Radius (m)</label><input id="r" type="number">`;
-  }
-
-  if (shape.value === "cylinder") {
-    html = `
-      <label>Radius (m)</label><input id="r" type="number">
-      <label>Height (m)</label><input id="h" type="number">
-    `;
-  }
-
-  volumeInputs.innerHTML = html;
-  volumeOutput.innerText = "";
-  copyVolumeBtn.style.display = "none";
+  document.getElementById("volumeInputs").innerHTML = html;
+  document.getElementById("volumeOutput").innerHTML = "";
 }
 
 let lastVolumeValue = "";
 
-/* ---------- Volume ---------- */
 function calculateVolume() {
+  const shape = document.getElementById("shape").value;
+  const volumeOutput = document.getElementById("volumeOutput");
+
+  const val = (id) => parseFloat(document.getElementById(id)?.value);
   let V = 0;
+  let valid = true;
 
-  if (shape.value === "cube") V = a.value ** 3;
-  if (shape.value === "box") V = l.value * w.value * h.value;
-  if (shape.value === "sphere") V = (4/3) * Math.PI * r.value ** 3;
-  if (shape.value === "cylinder") V = Math.PI * r.value ** 2 * h.value;
+  if (shape === "cube") {
+    const a = val("a");
+    valid = a > 0;
+    V = a ** 3;
+  } else if (shape === "box") {
+    const l = val("l"), w = val("w"), h = val("h");
+    valid = l > 0 && w > 0 && h > 0;
+    V = l * w * h;
+  } else if (shape === "sphere") {
+    const r = val("r");
+    valid = r > 0;
+    V = (4 / 3) * Math.PI * r ** 3;
+  } else if (shape === "cylinder") {
+    const r = val("r"), h = val("h");
+    valid = r > 0 && h > 0;
+    V = Math.PI * r ** 2 * h;
+  } else {
+    valid = false;
+  }
 
-  if (!V) {
-    volumeOutput.innerText = "Enter valid dimensions.";
+  if (!valid || !V || !isFinite(V)) {
+    volumeOutput.innerHTML = "<small>Enter valid, positive dimensions.</small>";
     return;
   }
 
-  lastVolumeValue = roundSafe(V, 3).toString();
-
-
-
+  lastVolumeValue = toPlainString(roundSafe(V, 3));
   const displayVolume = addCommas(lastVolumeValue);
 
-volumeOutput.innerHTML = `
-  <div class="volume-result">
-    <div class="volume-value">
-      ${displayVolume} m³
+  volumeOutput.innerHTML = `
+    <div class="volume-result" onclick="copyVolume()">
+      <div class="volume-value">${displayVolume} m&sup3;</div>
+      <div class="volume-hint">Tap to copy &amp; update volume</div>
     </div>
-    <div class="volume-hint">
-      Tap to copy & update volume
-    </div>
-  </div>
-`;
-
-
+  `;
 }
 
 function copyVolume() {
@@ -702,28 +853,22 @@ function copyVolume() {
   const volumeInput = document.getElementById("volume");
   volumeInput.value = addCommas(lastVolumeValue);
 
-  // feedback message inside modal
-  volumeOutput.innerHTML = `<small>Volume updated ✔️</small>`;
+  document.getElementById("volumeOutput").innerHTML = `<small>Volume updated \u2714\uFE0F</small>`;
 
-  // close modal first
   setTimeout(() => {
     closeVolumeCalc();
 
-    // 🔔 highlight AFTER modal closes
-volumeInput.focus({ preventScroll: true });
-
-  volumeInput.classList.remove("volume-pulse"); // reset if already applied
-volumeInput.offsetHeight;                    // force reflow
-volumeInput.classList.add("volume-pulse");
-
-
+    volumeInput.focus({ preventScroll: true });
+    volumeInput.classList.remove("volume-pulse");
+    volumeInput.offsetHeight;
+    volumeInput.classList.add("volume-pulse");
   }, 700);
 }
 
-
+/* ---------- Shared helpers ---------- */
 
 function removeCommas(value) {
-  return value.replace(/,/g, "");
+  return (value || "").replace(/,/g, "");
 }
 
 function addCommas(value) {
@@ -731,18 +876,9 @@ function addCommas(value) {
 }
 
 function formatDisplay(value, isRaw) {
-  if (isRaw) return value;        // DO NOT format RAW
-  return addCommas(value);        // format only rounded
+  if (isRaw) return value;
+  return addCommas(value);
 }
-
-function roundSafe(num, decimals) {
-  const factor = 10 ** decimals;
-  return Math.round((num + Number.EPSILON) * factor) / factor;
-}
-
-
-
-
 </script>
 
 <script src="/libraries/config.js"></script>
