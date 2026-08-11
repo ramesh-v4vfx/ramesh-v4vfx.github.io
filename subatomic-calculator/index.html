@@ -15,476 +15,723 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<title>Microscopic Length Calculator</title>
+<title>Subatomic Calculator · Rameshverse MK·02</title>
 
 <style>
   * { box-sizing: border-box; }
 
+  :root {
+    --bg: #04050a;
+    --panel: #0a0e1c;
+    --panel-2: #0d1326;
+    --line: rgba(94,200,255,0.18);
+    --line-soft: rgba(94,200,255,0.09);
+    --electron: #5ec8ff;
+    --electron-dim: rgba(94,200,255,0.14);
+    --proton: #ff5d5d;
+    --proton-2: #ffb35c;
+    --proton-dim: rgba(255,93,93,0.14);
+    --photon: #ffcf5c;
+    --text: #ecf1fb;
+    --text-dim: #7d879e;
+    --sans: 'Sora', system-ui, -apple-system, sans-serif;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  }
+
   body {
     margin: 0;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #0f1220;
-    font-family: system-ui, sans-serif;
-    color: #fff;
+    padding: 34px 16px;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(94,200,255,0.10) 1px, transparent 1.4px) 0 0 / 26px 26px,
+      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(94,200,255,0.12), transparent 62%),
+      var(--bg);
+    font-family: var(--sans);
+    color: var(--text);
   }
 
+  .app { width: 100%; display: flex; justify-content: center; }
+
+  /* ---------- Header / atom mark ---------- */
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .atom {
+    position: relative;
+    width: 66px;
+    height: 66px;
+    perspective: 300px;
+    margin-bottom: 14px;
+  }
+
+  .atom .nucleus {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 9px; height: 9px;
+    margin: -4.5px 0 0 -4.5px;
+    background: var(--proton);
+    border-radius: 50%;
+    box-shadow: 0 0 12px 3px rgba(255,93,93,0.75);
+    z-index: 2;
+  }
+
+  .orbit {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--electron-dim);
+    border-top-color: var(--electron);
+    border-radius: 50%;
+  }
+
+  .orbit::after {
+    content: '';
+    position: absolute;
+    top: -3px; left: 50%;
+    width: 6px; height: 6px;
+    margin-left: -3px;
+    background: var(--photon);
+    border-radius: 50%;
+    box-shadow: 0 0 8px 1px var(--photon);
+  }
+
+  .orbit-1 { animation: spin1 3.2s linear infinite; }
+  .orbit-2 { animation: spin2 4.4s linear infinite; }
+  .orbit-3 { animation: spin3 5.6s linear infinite; }
+
+  @keyframes spin1 {
+    from { transform: rotateX(72deg) rotateZ(0deg); }
+    to   { transform: rotateX(72deg) rotateZ(360deg); }
+  }
+  @keyframes spin2 {
+    from { transform: rotateX(72deg) rotateY(60deg) rotateZ(0deg); }
+    to   { transform: rotateX(72deg) rotateY(60deg) rotateZ(360deg); }
+  }
+  @keyframes spin3 {
+    from { transform: rotateX(72deg) rotateY(-60deg) rotateZ(0deg); }
+    to   { transform: rotateX(72deg) rotateY(-60deg) rotateZ(360deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit-1, .orbit-2, .orbit-3, .convert-btn, .status-dot { animation: none !important; }
+  }
+
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    color: var(--electron);
+    text-transform: uppercase;
+    border: 1px solid var(--line);
+    background: rgba(94,200,255,0.05);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #6dffb0;
+    box-shadow: 0 0 6px 1px #6dffb0;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  h2 {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 1.55rem;
+    letter-spacing: 0.01em;
+    margin: 0;
+    text-align: center;
+  }
+
+  .version-chip {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--proton-2);
+    border: 1px solid rgba(255,179,92,0.4);
+    background: rgba(255,179,92,0.08);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .subtitle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Card ---------- */
   .card {
-    background: #161a35;
-    padding: 22px;
-    width: 500px;
-    border-radius: 14px;
-    box-shadow: 0 20px 40px rgba(0,0,0,.45);
+    position: relative;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line);
+    padding: 26px 22px 22px;
+    width: 480px;
+    max-width: 100%;
+    border-radius: 18px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(94,200,255,0.03) inset;
+    overflow: hidden;
   }
 
-  
-    h2 {
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 30px;
-  font-size: 1.3rem;
-}
-  
+  /* animated scan sweep along the top edge */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -40%;
+    width: 40%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--electron), transparent);
+    animation: scan 5s linear infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes scan {
+    0% { left: -40%; }
+    100% { left: 100%; }
+  }
+
+  /* corner reticle marks */
+  .corner-tl, .corner-tr, .corner-bl, .corner-br {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--electron);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .corner-tl { top: 12px; left: 12px; border-top: 2px solid var(--electron); border-left: 2px solid var(--electron); }
+  .corner-tr { top: 12px; right: 12px; border-top: 2px solid var(--electron); border-right: 2px solid var(--electron); }
+  .corner-bl { bottom: 12px; left: 12px; border-bottom: 2px solid var(--electron); border-left: 2px solid var(--electron); }
+  .corner-br { bottom: 12px; right: 12px; border-bottom: 2px solid var(--electron); border-right: 2px solid var(--electron); }
+
+  .field-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin: 0 0 5px 2px;
+  }
 
   input, select, button {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: none;
+    padding: 12px 13px;
+    margin-bottom: 12px;
+    border-radius: 9px;
+    border: 1px solid var(--line-soft);
     font-size: 1rem;
+    font-family: var(--sans);
   }
 
   input, select {
-    background: #0f1220;
-    color: #fff;
+    background: #060913;
+    color: var(--text);
+    min-width: 0;
   }
 
-  .row {
-    display: flex;
-    gap: 10px;
+  input:focus, select:focus, button:focus-visible {
+    outline: none;
+    border-color: var(--electron);
+    box-shadow: 0 0 0 3px var(--electron-dim);
   }
+
+  input[type="number"] { font-family: var(--mono); letter-spacing: 0.02em; }
+
+  /* ---------- Unit row (grid-locked to avoid mismatch) ---------- */
+  .unit-row {
+    display: grid;
+    grid-template-columns: 1fr 42px 1fr;
+    column-gap: 12px;
+    align-items: center;
+  }
+
+  .label-from { grid-column: 1; grid-row: 1; }
+  .label-to   { grid-column: 3; grid-row: 1; }
+  #from       { grid-column: 1; grid-row: 2; margin-bottom: 0; }
+  #to         { grid-column: 3; grid-row: 2; margin-bottom: 0; }
+
+  .arrow {
+    grid-column: 2; grid-row: 2;
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--electron);
+    text-shadow: 0 0 8px rgba(94,200,255,0.5);
+    user-select: none;
+    text-align: center;
+    align-self: center;
+    justify-self: center;
+  }
+
+  .result-wrap { margin: 16px 0 4px; }
 
   .result {
-    background: #0f1220;
-    padding: 12px;
-    border-radius: 8px;
+    position: relative;
+    background: #060913;
+    border: 1px solid var(--line);
+    padding: 20px 16px;
+    border-radius: 12px;
     text-align: center;
-    font-size: 1.2rem;
-    min-height: 46px;
-    margin-bottom: 8px;
-    margin-top: 6px;
+    min-height: 34px;
+    max-height: 130px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  .result::-webkit-scrollbar { width: 6px; }
+  .result::-webkit-scrollbar-track { background: transparent; }
+  .result::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
+  .result { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+
+  #resultValue {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    color: var(--electron);
+    text-shadow: 0 0 14px rgba(94,200,255,0.35);
   }
 
   .decimals {
     display: flex;
     gap: 8px;
-    margin-bottom: 8px;
+    margin: 14px 0 12px;
   }
 
   .decimals button {
     flex: 1;
-    background: #2b2f55;
+    background: linear-gradient(180deg, rgba(94,200,255,0.07), rgba(94,200,255,0.02));
+    border: 1px solid rgba(94,200,255,0.3);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   }
 
-.decimals button.active {
-  outline: 2px solid #ff4d4d;
-  outline-offset: 2px;
-}
+  .decimals button::before {
+    content: '\25C6';
+    font-size: 0.5rem;
+    color: var(--electron);
+    opacity: 0.75;
+  }
 
+  .decimals button.active {
+    border-color: var(--photon);
+    color: var(--photon);
+    background: linear-gradient(180deg, rgba(255,207,92,0.14), rgba(255,207,92,0.03));
+    box-shadow: 0 0 14px rgba(255,207,92,0.3), 0 0 10px rgba(255,207,92,0.2) inset;
+  }
+
+  .decimals button.active::before { color: var(--photon); }
+
+  .decimals button:hover:not(:disabled):not(.active) {
+    border-color: var(--electron);
+    color: var(--electron);
+    box-shadow: 0 0 12px rgba(94,200,255,0.28);
+  }
+
+  .decimals button:disabled,
+  button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
 
   button {
-    background: #4f7cff;
-    color: #fff;
+    background: var(--panel-2);
+    color: var(--text);
     cursor: pointer;
-    transition: transform 0.1s ease, opacity 0.1s ease;
+    transition: transform 0.1s ease, opacity 0.1s ease, filter 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    border: 1px solid var(--line-soft);
   }
 
   button.secondary {
-    background: #2b2f55;
+    background: linear-gradient(180deg, rgba(94,200,255,0.06), rgba(94,200,255,0.015));
+    border: 1px solid rgba(94,200,255,0.3);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   }
 
-  button:active {
-    transform: scale(0.95);
+  button.secondary::before {
+    content: '\25C6';
+    font-size: 0.5rem;
+    color: var(--electron);
+    opacity: 0.8;
   }
 
-  button:hover {
-  filter: brightness(1.12);
-  transform: translateY(-1px);
+  button.secondary:hover:not(:disabled) {
+    color: var(--electron);
+    border-color: var(--electron);
+    background: linear-gradient(180deg, rgba(94,200,255,0.14), rgba(94,200,255,0.04));
+    box-shadow: 0 0 16px rgba(94,200,255,0.3);
   }
 
-  .note {
-    text-align: center;
-    font-size: 0.75rem;
-    opacity: 0.6;
-    margin-top: 8px;
+  button:active:not(:disabled) { transform: scale(0.96); }
+  button:hover:not(:disabled) { filter: brightness(1.08); }
+
+  .paste-btn {
+    font-size: 0.82rem;
+    padding: 11px;
+    margin-bottom: 16px;
+  }
+
+  /* ---------- Convert button: immersive core piece ---------- */
+  .convert-wrap {
+    position: relative;
+    padding: 3px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, var(--electron), var(--proton), var(--photon));
+    background-size: 220% 220%;
+    animation: borderflow 6s ease infinite;
+    margin: 6px 0 18px;
+    box-shadow: 0 12px 30px rgba(255,93,93,0.25), 0 0 40px rgba(94,200,255,0.12);
+  }
+
+  @keyframes borderflow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
   .convert-btn {
-  font-size: 1.2rem;
-  padding: 22px;              /* double height */
-  margin-top: 10px;
-  margin-bottom: 25px;
-
-  background: #ff9999;        /* light red */
-  color: #3423ca;
-  font-weight: bold;
-
-  border-radius: 10px;
-
-  /* 3D raised effect */
-  box-shadow:
-    0 4px 0 #161010,          /* hard bottom edge */
-    0 8px 8px rgba(107, 144, 255, 0.45);
-
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
-}
-
-/* Press animation */
-.convert-btn:active {
-  transform: translateY(3px);
-  box-shadow:
-    0 2px 0 #e25555,
-    0 3px 12px rgba(255,107,107,0.35);
-}
-
-
-.convert-btn:active {
-  transform: scale(0.97);
-}
-
-.reset-btn {
-  margin-top: 0px;
-  opacity: 0.85;
-}
-
-.reset-btn:hover {
-  opacity: 1;
-}
-
-.convert-row {
-  align-items: center;
-}
-
-.arrow {
-  font-size: 1rem;
-  font-weight: 700;
-  opacity: 0.75;
-  user-select: none;
-  margin-top: 8px;
-}
-
-.paste-btn {
-  font-size: 0.9rem;
-  padding: 8px;
-  margin-bottom: 16px;
-  opacity: 0.9;
-}
-
-.paste-btn:active {
-  transform: scale(0.96);
-}
-
-.history {
-  margin-top: 16px;
-  font-size: 0.85rem;
-  opacity: 0.9;
-  max-height: 100px;
-  overflow-y: auto;
-  display: none; /* ← add this */
-}
-
-.history-title {
-  margin-bottom: 6px;
-  font-weight: 600;
-  opacity: 0.8;
-}
-
-.history-item {
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  cursor: default;
-}
-
-.history-item:last-child {
-  border-bottom: none;
-}
-
-@media (max-width: 480px) {
-
-  body {
-    justify-content: center;   /* center vertically */
-    align-items: center;       /* center horizontally */
-    padding: 14px;
-    min-height: 100vh;
-  }
-
-   .card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
     width: 100%;
-    max-width: 420px;
+    font-size: 1.05rem;
+    padding: 17px;
+    margin: 0;
+    background: linear-gradient(180deg, #0d1326, #0a0e1c);
+    color: var(--text);
+    font-weight: 700;
+    font-family: var(--sans);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
   }
 
-  h2 {
-    font-size: 1.15rem;
-    margin-bottom: 24px;
-  }
-
-  input, select, button {
-    font-size: 1rem;
-    padding: 12px; /* better tap targets */
-  }
-
-  .row {
-    flex-direction: column;
-  }
-
-  .convert-btn {
+  .convert-btn .btn-icon {
+    color: var(--photon);
+    text-shadow: 0 0 10px rgba(255,207,92,0.7);
     font-size: 1.1rem;
-    padding: 20px;
   }
 
-  .decimals {
-    gap: 6px;
+  .convert-btn::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
   }
+
+  .convert-wrap:hover .convert-btn::after { left: 130%; }
+
+  .convert-btn:active:not(:disabled) { transform: scale(0.98); }
+
+  .reset-btn { opacity: 0.85; }
+  .reset-btn:hover:not(:disabled) { opacity: 1; }
 
   .history {
-    max-height: 120px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line-soft);
+    font-size: 0.82rem;
+    max-height: 150px;
+    overflow-y: auto;
+    display: none;
   }
 
-  .row select {
-    margin-bottom: 6px;
+  .history-title {
+    margin-bottom: 8px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
   }
 
-  .row .arrow {
-    margin: 0px 0;
+  .history-item {
+    font-family: var(--mono);
+    color: var(--text-dim);
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(94,200,255,0.06);
   }
 
-   /* Remove extra gap between FROM and TO selects */
-  .row select:first-child {
-    margin-bottom: 0;
-  }
+  .history-item:last-child { border-bottom: none; }
 
-.arrow {
-  font-size: 30px;
-  font-weight: bold;
-}
-   
-}
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row button { margin-bottom: 12px; }
+
+  @media (max-width: 480px) {
+    .card { width: 100%; padding: 24px 16px 20px; }
+
+    h2 { font-size: 1.3rem; }
+
+    input, select, button { font-size: 1rem; padding: 12px; }
+
+    .unit-row {
+      grid-template-columns: 1fr;
+      row-gap: 6px;
+    }
+    .label-from { grid-column: 1; grid-row: 1; }
+    #from       { grid-column: 1; grid-row: 2; }
+    .arrow      { grid-column: 1; grid-row: 3; padding: 4px 0; transform: rotate(90deg); }
+    .label-to   { grid-column: 1; grid-row: 4; }
+    #to         { grid-column: 1; grid-row: 5; }
+
+    .convert-btn { font-size: 1rem; padding: 16px; }
+
+    .decimals { gap: 6px; }
+
+    .history { max-height: 160px; }
+  }
 </style>
-</head>
-
-<body>
 
 <div class="app">
-  <div class="card">
-  <h2>🔬 Microscopic Length Calculator</h2>
+  <div>
+    <div class="header">
+      <div class="atom">
+        <div class="orbit orbit-1"></div>
+        <div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div>
+        <div class="nucleus"></div>
+      </div>
 
-  <button onclick="pasteValue()" class="secondary paste-btn">
-  Paste value
-</button>
+      <div class="brand-badge">
+        <span class="status-dot"></span>
+        Rameshverse Systems
+      </div>
 
+      <div class="title-row">
+        <h2>Subatomic Calculator</h2>
+        <span class="version-chip">MK·02</span>
+      </div>
 
-  <input type="number" id="value" placeholder="Enter value" step="any">
+      <div class="subtitle">Length · Scale Converter</div>
+    </div>
 
-  <div class="row">
-    <!-- FROM -->
-    <select id="from" onchange="invalidateResult()">
-      <option value="m">Meter (m)</option>
-      <option value="ft">Feet (ft)</option>
-      <option value="dm">Decimeter (dm)</option>
-      <option value="in">Inch (in)</option>
-      <option value="cm">Centimeter (cm)</option>
-      <option value="mm">Millimeter (mm)</option>
-      <option value="um">Micrometer (µm)</option>
-      <option value="nm">Nanometer (nm)</option>
-      <option value="A">Ångström (Å)</option>
-      <option value="pm">Picometer (pm)</option>
-      <option value="fm">Femtometer (fm)</option>
-      <option value="am">Attometer (am)</option>
-      <option value="zm">Zeptometer (zm)</option>
-      <option value="ym">Yoctometer (ym)</option>
-    </select>
+    <div class="card">
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
 
-    <div class="arrow">→</div>
+      <button onclick="pasteValue()" class="secondary paste-btn">Paste value</button>
 
+      <div class="field-label">Value</div>
+      <input type="number" id="value" placeholder="Enter value" step="any">
 
-    <!-- TO -->
-    <select id="to" onchange="invalidateResult()">
-      <option value="m">Meter (m)</option>
-      <option value="ft">Feet (ft)</option>
-      <option value="dm">Decimeter (dm)</option>
-      <option value="in">Inch (in)</option>
-      <option value="cm">Centimeter (cm)</option>
-      <option value="mm">Millimeter (mm)</option>
-      <option value="um">Micrometer (µm)</option>
-      <option value="nm">Nanometer (nm)</option>
-      <option value="A">Ångström (Å)</option>
-      <option value="pm">Picometer (pm)</option>
-      <option value="fm">Femtometer (fm)</option>
-      <option value="am">Attometer (am)</option>
-      <option value="zm">Zeptometer (zm)</option>
-      <option value="ym">Yoctometer (ym)</option>
-    </select>
+      <div class="unit-row">
+        <div class="field-label label-from">From</div>
+        <div class="field-label label-to">To</div>
+
+        <select id="from" onchange="invalidateResult()">
+          <option value="m" selected>Meter (m)</option>
+          <option value="ft">Feet (ft)</option>
+          <option value="dm">Decimeter (dm)</option>
+          <option value="in">Inch (in)</option>
+          <option value="cm">Centimeter (cm)</option>
+          <option value="mm">Millimeter (mm)</option>
+          <option value="um">Micrometer (µm)</option>
+          <option value="nm">Nanometer (nm)</option>
+          <option value="A">Ångström (Å)</option>
+          <option value="pm">Picometer (pm)</option>
+          <option value="fm">Femtometer (fm)</option>
+          <option value="am">Attometer (am)</option>
+          <option value="zm">Zeptometer (zm)</option>
+          <option value="ym">Yoctometer (ym)</option>
+        </select>
+
+        <div class="arrow">→</div>
+
+        <select id="to" onchange="invalidateResult()">
+          <option value="m">Meter (m)</option>
+          <option value="ft">Feet (ft)</option>
+          <option value="dm">Decimeter (dm)</option>
+          <option value="in">Inch (in)</option>
+          <option value="cm">Centimeter (cm)</option>
+          <option value="mm">Millimeter (mm)</option>
+          <option value="um">Micrometer (µm)</option>
+          <option value="nm">Nanometer (nm)</option>
+          <option value="A">Ångström (Å)</option>
+          <option value="pm">Picometer (pm)</option>
+          <option value="fm">Femtometer (fm)</option>
+          <option value="am">Attometer (am)</option>
+          <option value="zm">Zeptometer (zm)</option>
+          <option value="ym" selected>Yoctometer (ym)</option>
+        </select>
+      </div>
+
+      <div class="result-wrap">
+        <div class="result">
+          <span id="resultValue">Result pending&hellip;</span>
+        </div>
+      </div>
+
+      <div class="convert-wrap">
+        <button onclick="convert()" class="convert-btn">
+          <span class="btn-icon">⚛</span> Convert
+        </button>
+      </div>
+
+      <div class="decimals">
+        <button onclick="setDecimals(3)" data-mode="3" id="dec3" disabled>3 dec</button>
+        <button onclick="setDecimals(2)" data-mode="2" id="dec2" disabled>2 dec</button>
+        <button onclick="setDecimals(1)" data-mode="1" id="dec1" disabled>1 dec</button>
+        <button onclick="revertDecimals()" class="secondary" data-mode="raw" id="decRaw" disabled>Raw</button>
+      </div>
+
+      <div class="btn-row">
+        <button onclick="copyResult()" class="secondary" id="copyBtn" disabled>Copy</button>
+        <button onclick="resetAll()" class="secondary reset-btn">Reset</button>
+      </div>
+
+      <div class="btn-row">
+        <button onclick="toggleHistory()" class="secondary" id="historyToggleBtn" disabled>Show History</button>
+        <button onclick="clearHistory()" class="secondary" id="clearHistoryBtn" style="display:none">Clear History</button>
+      </div>
+
+      <div class="history">
+        <div class="history-title">Last 15 calculations</div>
+        <div id="historyList"></div>
+      </div>
+    </div>
   </div>
-
-  
-
-  <div class="result" id="result">Result pending...</div>
-
-  <button onclick="convert()" class="convert-btn">Convert</button>
-
-  <!--<button onclick="showFullDecimal()" class="secondary">
-  Show full decimal
-</button> -->
-
-
-  <div class="decimals">
-    <button onclick="setDecimals(3)" data-mode="3">3 dec</button>
-    <button onclick="setDecimals(2)" data-mode="2">2 dec</button>
-    <button onclick="setDecimals(1)" data-mode="1">1 dec</button>
-    <button onclick="revertDecimals()" class="secondary" data-mode="raw">
-  Raw
-</button>
-  </div>
-
-  
-
-  <button onclick="copyResult()" class="secondary" id="copyBtn">Copy</button>
-
-  <button onclick="resetAll()" class="secondary reset-btn">
-  Reset
-</button>  
-
-<button onclick="toggleHistory()" class="secondary" id="historyToggleBtn" disabled>
-  Show History
-</button>
-
-<button onclick="clearHistory()" class="secondary" id="clearHistoryBtn" style="display:none">
-  Clear History
-</button>
-
-
-
-
-  <div class="history">
-  <div class="history-title">Last 15 calculations</div>
-  <div id="historyList"></div>
-</div>
-
 </div>
 
 <script>
 
   const historyList = document.getElementById("historyList");
   let history = [];
+  let historyVisible = false;
+  let hasResult = false;
 
   const historyToggleBtn = document.getElementById("historyToggleBtn");
   const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+  const historyDiv = document.querySelector(".history");
+  const decimalButtons = document.querySelectorAll(".decimals button");
+  const resultValueEl = document.getElementById("resultValue");
+  const copyBtn = document.getElementById("copyBtn");
 
+  const unitSymbols = {
+    m: "m", ft: "ft", dm: "dm", in: "in", cm: "cm", mm: "mm",
+    um: "µm", nm: "nm", A: "Å", pm: "pm", fm: "fm", am: "am", zm: "zm", ym: "ym"
+  };
+
+  const HISTORY_LIMIT = 15;
 
   function addToHistory(input, from, output, to) {
-  const entry = `${input} ${from} → ${output} ${to}`;
-  history.unshift(entry);
+    const entry = `${input} ${unitSymbols[from]} → ${output} ${unitSymbols[to]}`;
+    history.unshift(entry);
 
-  // Keep only last 15
-  if (history.length > 10) {
-    history.pop();
+    if (history.length > HISTORY_LIMIT) {
+      history.pop();
+    }
+
+    renderHistory();
+    updateHistoryUI();
   }
 
-  renderHistory();
-  updateHistoryUI();
+  function renderHistory() {
+    historyList.innerHTML = "";
+    history.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "history-item";
+      div.textContent = item;
+      historyList.appendChild(div);
+    });
+  }
 
-}
-
-function renderHistory() {
-  historyList.innerHTML = "";
-  history.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "history-item";
-    div.textContent = item;
-    historyList.appendChild(div);
-  });
-}
-
-
+  function setResultButtonsEnabled(enabled) {
+    copyBtn.disabled = !enabled;
+    decimalButtons.forEach(btn => btn.disabled = !enabled);
+  }
 
   function invalidateResult() {
-  resultBox.textContent = "Result pending...";
-  rawResult = null;
-  decimals = null;
+    resultValueEl.textContent = "Result pending\u2026";
+    rawResult = null;
+    decimals = null;
+    hasResult = false;
 
-  // Clear active decimal buttons
-  setActiveMode(null);
+    setActiveMode(null);
+    setResultButtonsEnabled(false);
 
-
-  // Reset copy button text
-  copyBtn.textContent = "Copy";
-}
-
+    copyBtn.textContent = "Copy";
+  }
 
   async function pasteValue() {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (!text) return;
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) return;
 
-    // Extract first valid number (handles "1,234.56 m" etc.)
-    const match = text.replace(/,/g, "").match(/-?\d+(\.\d+)?/);
-    if (!match) return;
+      const match = text.replace(/,/g, "").match(/-?\d+(\.\d+)?/);
+      if (!match) return;
 
-    const input = document.getElementById("value");
-    input.value = match[0];
-    input.focus();
-  } catch (err) {
-    alert("Clipboard access blocked. Use Ctrl+V instead.");
+      const input = document.getElementById("value");
+      input.value = match[0];
+      input.focus();
+    } catch (err) {
+      alert("Clipboard access blocked. Use Ctrl+V instead.");
+    }
   }
-}
-
 
   function resetAll() {
-  // Reset input
-  document.getElementById("value").value = "";
+    document.getElementById("value").value = "";
+    document.getElementById("from").value = "m";
+    document.getElementById("to").value = "ym";
 
-  // Reset dropdowns to default
-  document.getElementById("from").value = "m";
-  document.getElementById("to").value = "m";
-
-  // Reset result
-  resultBox.textContent = "Result pending...";
-
-  // Reset internal state
-  rawResult = null;
-  decimals = null;
-
-  // Clear active decimal buttons
-  setActiveMode(null);
-
-
-  // Reset copy button text
-  copyBtn.textContent = "Copy";
-}
-
-
-
-  /*function showFullDecimal() {
-  if (rawResult === null) return;
-
-  // Expand safely (limit digits to avoid lying precision)
-  let full = rawResult.toFixed(30);
-
-  // Trim trailing zeros
-  full = full.replace(/\.?0+$/, "");
-
-  resultBox.textContent = full;
-}*/
-
-  const resultBox = document.getElementById("result");
-  const copyBtn = document.getElementById("copyBtn");
-  const decimalButtons = document.querySelectorAll(".decimals button");
+    invalidateResult();
+  }
 
   const factors = {
     m: 1,
@@ -504,159 +751,181 @@ function renderHistory() {
   };
 
   const exactPowers = {
-  nm: 9,
-  pm: 12,
-  fm: 15,
-  am: 18,
-  zm: 21,
-  ym: 24,
-  A: 10
-};
-
+    nm: 9,
+    pm: 12,
+    fm: 15,
+    am: 18,
+    zm: 21,
+    ym: 24,
+    A: 10
+  };
 
   let rawResult = null;
   let decimals = null;
 
+  // ---------- Plain-decimal formatting helpers (never exponential) ----------
+
+  function toPlainString(num) {
+    if (num === 0) return "0";
+    const negative = num < 0;
+    num = Math.abs(num);
+
+    const expStr = num.toExponential(14); // 15 significant digits
+    const [mantissa, expPart] = expStr.split('e');
+    const exp = parseInt(expPart, 10);
+    const digits = mantissa.replace('.', '');
+
+    let result;
+    if (exp >= 0) {
+      if (exp + 1 >= digits.length) {
+        result = digits + '0'.repeat(exp + 1 - digits.length);
+      } else {
+        const intPart = digits.slice(0, exp + 1);
+        const fracPart = digits.slice(exp + 1).replace(/0+$/, '');
+        result = fracPart.length ? intPart + '.' + fracPart : intPart;
+      }
+    } else {
+      const zeros = '0'.repeat(-exp - 1);
+      const fracPart = (zeros + digits).replace(/0+$/, '');
+      result = fracPart.length ? '0.' + fracPart : '0';
+    }
+
+    return (negative ? '-' : '') + result;
+  }
+
+  function groupThousands(plainStr) {
+    const negative = plainStr.startsWith('-');
+    if (negative) plainStr = plainStr.slice(1);
+    let [intPart, fracPart] = plainStr.split('.');
+    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (negative ? '-' : '') + intPart + (fracPart ? '.' + fracPart : '');
+  }
+
+  function toFixedPlain(num, dp) {
+    const rounded = roundSafe(num, dp);
+    const plain = toPlainString(rounded);
+    let [intPart, fracPart = ''] = plain.split('.');
+    fracPart = fracPart.slice(0, dp).padEnd(dp, '0');
+    return dp > 0 ? intPart + '.' + fracPart : intPart;
+  }
+
+  function roundSafe(num, dp) {
+    const factor = 10 ** dp;
+    return Math.round((num + Number.EPSILON) * factor) / factor;
+  }
+
+  function cleanFloat(num) {
+    return Number(num.toPrecision(15));
+  }
+
+  // ---------------------------------------------------------------------
+
   function convert() {
-  const value = parseFloat(document.getElementById("value").value);
-  if (isNaN(value)) return;
+    const value = parseFloat(document.getElementById("value").value);
+    if (isNaN(value)) return;
 
-  const from = document.getElementById("from").value;
-  const to = document.getElementById("to").value;
+    const from = document.getElementById("from").value;
+    const to = document.getElementById("to").value;
 
-  let outputText;
+    let outputText;
+    let decimalsAvailable = true;
 
-  // --- EXACT INTEGER PATH (meter → tiny units) ---
-  if (from === "m" && exactPowers[to] !== undefined && Number.isInteger(value)) {
-    const big = BigInt(value) * (10n ** BigInt(exactPowers[to]));
-    outputText = big.toLocaleString("en-US");
+    // --- EXACT INTEGER PATH (meter → tiny units) ---
+    if (from === "m" && exactPowers[to] !== undefined && Number.isInteger(value)) {
+      const big = BigInt(value) * (10n ** BigInt(exactPowers[to]));
+      outputText = big.toLocaleString("en-US");
 
-    rawResult = null;
-    decimals = null;
+      rawResult = null;
+      decimals = null;
+      decimalsAvailable = false; // exact integers have no fractional precision to toggle
+    }
+    // --- NORMAL FLOAT PATH ---
+    else {
+      rawResult = (value * factors[from]) / factors[to];
+      decimals = null;
+      outputText = format(rawResult);
+    }
+
+    resultValueEl.textContent = outputText;
+    hasResult = true;
+
+    addToHistory(value, from, outputText, to);
+
+    copyBtn.disabled = false;
+    decimalButtons.forEach(btn => {
+      btn.disabled = !decimalsAvailable;
+    });
+
+    setActiveMode("raw");
   }
-  // --- NORMAL FLOAT PATH ---
-  else {
-    rawResult = (value * factors[from]) / factors[to];
-    decimals = null;
-    outputText = format(rawResult);
-  }
-
-  resultBox.textContent = outputText;
-  addToHistory(value, from, outputText, to);
-
-  // Default mode after every conversion
-  setActiveMode("raw");
-}
-
-
 
   function format(num) {
-  const abs = Math.abs(num);
-
-  const clean = cleanFloat(num);
-
-  if (abs > 0 && abs < 1e-12) {
-    return clean.toExponential(6);
+    const clean = cleanFloat(num);
+    if (decimals !== null) {
+      return groupThousands(toFixedPlain(clean, decimals));
+    }
+    return groupThousands(toPlainString(clean));
   }
 
-  if (decimals !== null) {
-    return clean.toFixed(decimals);
+  function setDecimals(n) {
+    if (rawResult === null) return;
+    decimals = n;
+    setActiveMode(String(n));
+    resultValueEl.textContent = groupThousands(toFixedPlain(rawResult, n));
   }
 
-  return clean.toLocaleString("en-US", {
-    maximumFractionDigits: 12
-  });
-}
+  function revertDecimals() {
+    if (rawResult === null) return;
+    decimals = null;
+    setActiveMode("raw");
+    resultValueEl.textContent = format(rawResult);
+  }
 
-function setDecimals(n) {
-  if (rawResult === null) return;
-  decimals = n;
-  setActiveMode(String(n));
-  resultBox.textContent = roundSafe(rawResult, n).toFixed(n);
-}
-
-
-  function roundSafe(num, decimals) {
-  const factor = 10 ** decimals;
-  return Math.round((num + Number.EPSILON) * factor) / factor;
-}
-
-function cleanFloat(num) {
-  return Number(num.toPrecision(15));
-}
-
-
-
-function revertDecimals() {
-  if (rawResult === null) return;
-  decimals = null;
-  setActiveMode("raw");
-  resultBox.textContent = format(rawResult);
-}
-
-
-function setActiveMode(mode) {
-  decimalButtons.forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.mode === mode);
-  });
-}
-
-
+  function setActiveMode(mode) {
+    decimalButtons.forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.mode === mode);
+    });
+  }
 
   function copyResult() {
-    if (resultBox.textContent === "—") return;
-    navigator.clipboard.writeText(resultBox.textContent);
+    if (!hasResult) return;
+    navigator.clipboard.writeText(resultValueEl.textContent);
     copyBtn.textContent = "Copied!";
     setTimeout(() => copyBtn.textContent = "Copy", 800);
   }
 
   function toggleHistory() {
-    const historyDiv = document.querySelector(".history");
+    historyVisible = !historyVisible;
+    historyDiv.style.display = historyVisible ? "block" : "none";
+    historyToggleBtn.textContent = historyVisible ? "Hide History" : "Show History";
+    updateHistoryUI();
+  }
 
-    if (historyDiv.style.display === "none") {
-      historyDiv.style.display = "block";
-      historyToggleBtn.textContent = "Hide History";
-    } else {
-      historyDiv.style.display = "none";
-      historyToggleBtn.textContent = "Show History";
-    }
+  function updateHistoryUI() {
+    const hasHistory = history.length > 0;
+
+    historyToggleBtn.disabled = !hasHistory;
+
+    clearHistoryBtn.style.display =
+      hasHistory && historyVisible ? "block" : "none";
+  }
+
+  function clearHistory() {
+    history = [];
+    renderHistory();
+
+    historyVisible = false;
+    historyDiv.style.display = "none";
+    historyToggleBtn.textContent = "Show History";
 
     updateHistoryUI();
   }
 
-
-function updateHistoryUI() {
-  const hasHistory = history.length > 0;
-  const historyDiv = document.querySelector(".history");
-
-  // Enable/disable Show History button
-  historyToggleBtn.disabled = !hasHistory;
-
-  // Show Clear History only when history is visible and not empty
-  clearHistoryBtn.style.display =
-    hasHistory && historyDiv.style.display === "block"
-      ? "block"
-      : "none";
-}
-
-function clearHistory() {
-  history = [];
-  renderHistory();
-
-  const historyDiv = document.querySelector(".history");
-  historyDiv.style.display = "none";
-
-  historyToggleBtn.textContent = "Show History";
-
-  updateHistoryUI();
-}
-
-
+  document.getElementById("value").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") convert();
+  });
 
 </script>
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
-
-</body>
-</html>
