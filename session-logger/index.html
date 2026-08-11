@@ -14,235 +14,476 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Session Logger</title>
+<title>Session Logger — Focus Timer & Productivity Tracker</title>
+
+<meta name="description" content="Free session logger and focus timer. Track work sessions with a live stopwatch, add a note for each session, review your full history, and see your total focused time today.">
+<meta name="keywords" content="session timer, focus timer, work session logger, productivity tracker, stopwatch app, time tracking tool, deep work timer">
+
+<link rel="canonical" href="https://rameshverse.com/session-logger">
+<!-- 👈 update this canonical URL (and the og:url / og:image below) to match wherever this page is actually published -->
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Session Logger — Focus Timer & Productivity Tracker">
+<meta property="og:description" content="Track work sessions with a live stopwatch, log a note for each one, and see your total focused time today.">
+<meta property="og:url" content="https://rameshverse.com/session-logger">
+<meta property="og:image" content="https://rameshverse.com/session-logger/preview-image/session-logger-preview.jpg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Session Logger — Focus Timer & Productivity Tracker">
+<meta name="twitter:description" content="Track work sessions with a live stopwatch, log a note for each one, and see your total focused time today.">
+<meta name="twitter:image" content="https://rameshverse.com/session-logger/preview-image/session-logger-preview.jpg">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Session Logger",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "description": "Free browser-based focus timer and session logger. Start, pause, and finish work sessions, attach a note to each one, and review session history including total time tracked today.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "url": "https://rameshverse.com/session-logger"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-/* =====================
-   BASE (DESKTOP)
-===================== */
-body {
-  margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: #050000;
-  font-family: system-ui, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-}
-
-/* FIREWORKS */
-#fireworks {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.app {
-  width: 100%;
-  max-width: 360px;
-  background: #1e1e2f;
-  padding: 24px;
-  border-radius: 18px;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-h2 {
-  margin: 0 0 12px;
-  font-size: 1.4rem;
-}
-
-#display {
-  font-size: 42px;
-  margin: 16px 0 20px;
-}
-
-/* BUTTON GROUPS (DESKTOP) */
-.buttons,
-.extra {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: #6a5acd;
-  color: #fff;
-  font-size: 14px;
-}
-
-button:hover { opacity: 0.9; }
-
-.hidden { display: none !important; }
-
-/* HISTORY */
-#historyPanel {
-  margin-top: 15px;
-  background: #141422;
-  border-radius: 12px;
-  padding: 12px;
-  font-size: 13px;
-}
-
-#historyHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-#historyList {
-  max-height: 150px;
-  overflow-y: auto;
-  list-style: none;
-  padding: 0;
-}
-
-#historyList li {
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #333;
-}
-
-/* CLEAR BUTTON */
-.clear-btn {
-  padding: 6px 10px;
-  font-size: 12px;
-  background: #3a3a55;
-  border-radius: 8px;
-  flex: none;
-}
-
-/* POPUP */
-.popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3;
-}
-
-.popup-box {
-  background: #222;
-  padding: 20px;
-  width: 300px;
-  border-radius: 14px;
-}
-
-textarea {
-  width: 100%;
-  height: 80px;
-  margin-top: 10px;
-  resize: none;
-  font-size: 16px;
-}
-
-/* BUTTON FEEDBACK */
-button {
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-}
-
-button:active {
-  transform: scale(0.96);
-}
-
-/* History button – teal / info */
-#historyBtn {
-  background: #14b8a6;        /* teal */
-  color: #042f2e;
-}
-
-#historyBtn:hover {
-  opacity: 0.9;
-}
-
-/* Today button – amber / highlight */
-#todayBtn {
-  background: #14b8a6;   
-  color: #042f2e;
-}
-
-#todayBtn:hover {
-  opacity: 0.9;
-}
-
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* =====================
-   MOBILE LAYOUT
-===================== */
-@media (max-width: 480px) {
-
-  body {
-    padding: 14px;
-    align-items: flex-start;
-      }
-
-  .app {
-    max-width: 420px;
-    width: 100%;
-    padding: 24px 20px 26px;
-    border-radius: 20px;
-    box-shadow: none;
-    margin-top: 10vh;   /* 👈 visually centered */
+  :root {
+    --bg: #05030f;
+    --panel: #12122a;
+    --panel-2: #0a0a1c;
+    --line: rgba(34,211,238,0.18);
+    --line-soft: rgba(34,211,238,0.09);
+    --cyan: #22d3ee;
+    --cyan-dim: rgba(34,211,238,0.14);
+    --magenta: #ec4899;
+    --violet: #8b5cf6;
+    --amber: #f59e0b;
+    --text: #f0eefc;
+    --text-dim: #8280a0;
+    --sans: 'Sora', system-ui, -apple-system, sans-serif;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
   }
 
-  h2 {
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(34,211,238,0.08) 1px, transparent 1.4px) 0 0 / 26px 26px,
+      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(139,92,246,0.14), transparent 62%),
+      var(--bg);
+    font-family: var(--sans);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text);
+    padding: 24px 16px;
+  }
+
+  #fireworks {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .page { position: relative; z-index: 1; width: 100%; max-width: 380px; }
+
+  /* ---------- Header ---------- */
+  .header { display: flex; flex-direction: column; align-items: center; margin-bottom: 18px; }
+
+  h1 {
+    font-family: var(--sans);
+    font-weight: 800;
     font-size: 1.5rem;
-    margin-bottom: 14px;
+    text-align: center;
+    margin: 0;
+  }
+
+  .subtitle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  .brand-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    width: fit-content;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+
+  .brand-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--magenta);
+    box-shadow: 0 0 6px 1px rgba(236,72,153,0.7);
+  }
+
+  /* ---------- App card ---------- */
+  .app {
+    position: relative;
+    width: 100%;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    padding: 26px 22px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(34,211,238,0.03) inset;
+    margin-top: 18px;
+    overflow: hidden;
+  }
+
+  .app::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -40%;
+    width: 40%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 6s linear infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes scan {
+    0% { left: -40%; }
+    100% { left: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app::before { animation: none; }
+  }
+
+  /* ---------- Timer ring ---------- */
+  .timer-ring {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    height: 130px;
+    margin: 4px auto 24px;
+    border-radius: 20px;
+    padding: 5px;
+    background: conic-gradient(from 0deg, rgba(34,211,238,0.25), rgba(139,92,246,0.25), rgba(236,72,153,0.25), rgba(34,211,238,0.25));
+    transition: background 0.4s ease;
+  }
+
+  .timer-ring.running {
+    background: conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--cyan));
+    animation: ringGlow 1.8s ease-in-out infinite;
+  }
+
+  .timer-ring.paused {
+    background: conic-gradient(from 0deg, var(--amber), #b45309, var(--amber));
+  }
+
+  @keyframes ringGlow {
+    0%, 100% { box-shadow: 0 0 18px 2px rgba(34,211,238,0.35); }
+    50%      { box-shadow: 0 0 32px 6px rgba(34,211,238,0.6); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timer-ring.running { animation: none; }
+  }
+
+  .timer-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    background: radial-gradient(circle, var(--panel-2), #060613);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.55);
+  }
+
+  .timer-ring.running .timer-inner {
+    animation: innerPulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes innerPulse {
+    0%, 100% { box-shadow: inset 0 0 30px rgba(34,211,238,0.15); }
+    50%      { box-shadow: inset 0 0 46px rgba(34,211,238,0.4); }
   }
 
   #display {
-    font-size: 3.2rem;
-    margin-bottom: 20px;
+    font-family: var(--mono);
+    font-size: 1.95rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    text-shadow: 0 0 16px rgba(34,211,238,0.35);
+    white-space: nowrap;
   }
 
-  /* STACK BUTTONS LIKE POMODORO APP */
-  .buttons,
-  .extra {
-    flex-direction: column;
-    gap: 12px;
+  .status-label {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .timer-ring.running .status-label { color: var(--cyan); }
+  .timer-ring.paused .status-label { color: var(--amber); }
+
+  /* ---------- Buttons ---------- */
+  .buttons, .extra {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 12px;
   }
 
   button {
-    font-size: 1.05rem;
-    padding: 16px;
-    border-radius: 14px;
+    flex: 1;
+    padding: 13px;
+    border: none;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease, border-color 0.15s ease, background 0.15s ease;
   }
 
+  button:active { transform: scale(0.96); }
+  .hidden { display: none !important; }
+
+  #start {
+    background: linear-gradient(180deg, rgba(34,211,238,0.16), rgba(34,211,238,0.05));
+    border: 1px solid rgba(34,211,238,0.4);
+    color: var(--cyan);
+  }
+  #start:hover { box-shadow: 0 0 16px rgba(34,211,238,0.3); }
+
+  #pause {
+    background: linear-gradient(180deg, rgba(245,158,11,0.16), rgba(245,158,11,0.05));
+    border: 1px solid rgba(245,158,11,0.4);
+    color: var(--amber);
+  }
+  #pause:hover { box-shadow: 0 0 16px rgba(245,158,11,0.3); }
+
+  #reset {
+    background: linear-gradient(135deg, var(--violet), var(--magenta));
+    border: none;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(236,72,153,0.28);
+  }
+  #reset:hover { filter: brightness(1.1); }
+
+  #historyBtn, #todayBtn {
+    background: linear-gradient(180deg, rgba(34,211,238,0.08), rgba(34,211,238,0.02));
+    border: 1px solid rgba(34,211,238,0.28);
+    color: var(--cyan);
+  }
+  #historyBtn:hover, #todayBtn:hover { box-shadow: 0 0 14px rgba(34,211,238,0.25); }
+
+  .clear-btn {
+    padding: 6px 10px;
+    font-size: 0.68rem;
+    background: rgba(236,72,153,0.1);
+    border: 1px solid rgba(236,72,153,0.35);
+    color: var(--magenta);
+    border-radius: 8px;
+    flex: none;
+  }
+  .clear-btn:hover { box-shadow: 0 0 12px rgba(236,72,153,0.25); }
+
+  /* ---------- History ---------- */
   #historyPanel {
-    margin-top: 18px;
+    margin-top: 15px;
+    background: #06060f;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 13px;
+    text-align: left;
   }
 
-  /* POPUP — KEYBOARD SAFE */
+  #historyHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  #historyHeader strong {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  #historyList {
+    max-height: 180px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  #historyList::-webkit-scrollbar { width: 6px; }
+  #historyList::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
+
+  #historyList li {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(34,211,238,0.12);
+    color: var(--text-dim);
+  }
+
+  #historyList li:last-child { border-bottom: none; margin-bottom: 0; }
+
+  #historyList li strong { color: var(--text); font-family: var(--mono); font-size: 0.82rem; }
+  #historyList li small { color: var(--text-dim); font-family: var(--mono); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    padding: 10px 0;
+  }
+
+  /* ---------- Popups (comment / today / confirm) ---------- */
   .popup {
-    align-items: flex-start;
-    padding-top: 14vh;
-    padding-left: 12px;
-    padding-right: 12px;
+    position: fixed;
+    inset: 0;
+    background: rgba(3,3,10,0.78);
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+    padding: 16px;
   }
 
   .popup-box {
-    width: 100%;
-    max-width: 420px;
+    position: relative;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    padding: 22px;
+    width: 320px;
+    max-width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    text-align: left;
   }
-}
+
+  .popup-box h3 {
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+  }
+
+  .popup-box .popup-sub {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 80px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    resize: none;
+    font-size: 15px;
+    font-family: var(--sans);
+    border-radius: 10px;
+    border: 1px solid var(--line-soft);
+    background: #06060f;
+    color: var(--text);
+    outline: none;
+  }
+
+  textarea:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-dim); }
+
+  #saveSession {
+    background: linear-gradient(135deg, var(--cyan), var(--violet));
+    color: #04101a;
+    border: none;
+  }
+
+  #cancelSession, .confirm-no, #closeToday {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line-soft);
+    color: var(--text-dim);
+  }
+  #cancelSession:hover, .confirm-no:hover, #closeToday:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .confirm-yes {
+    background: linear-gradient(135deg, var(--magenta), #be185d);
+    color: #fff;
+    border: none;
+  }
+
+  .today-summary-list {
+    margin-top: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .today-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed rgba(34,211,238,0.12);
+    font-size: 0.85rem;
+  }
+
+  .today-row:last-child { border-bottom: none; }
+  .today-row .t-comment { color: var(--text); flex: 1; }
+  .today-row .t-dur { color: var(--cyan); font-family: var(--mono); font-size: 0.8rem; white-space: nowrap; }
+
+  .today-total {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+  }
+
+  .today-total b { color: var(--cyan); }
+
+  @media (max-width: 480px) {
+    body { align-items: flex-start; padding-top: 40px; }
+    .buttons, .extra { flex-direction: column; }
+    button { font-size: 0.95rem; padding: 15px; }
+    .timer-ring { height: 110px; }
+    #display { font-size: 1.55rem; }
+    .popup { align-items: flex-start; padding-top: 14vh; }
+  }
 </style>
 </head>
 
@@ -250,38 +491,77 @@ button:active {
 
 <canvas id="fireworks"></canvas>
 
-<div class="app">
-  <h2>Start Session</h2>
-  <div id="display">00:00:00</div>
+<div class="page">
 
-  <div class="buttons">
-    <button id="start">Start</button>
-    <button id="pause">Pause</button>
-    <button id="reset">Reset & Save</button>
+  <div class="header">
+    <h1>Session Logger</h1>
+    <div class="subtitle">Track your focus sessions in real time</div>
+    <div class="brand-badge"><span class="dot"></span> Rameshverse Systems · MK·02</div>
   </div>
 
-  <div class="extra">
-    <button id="historyBtn">Show History</button>
-    <button id="todayBtn">Today</button>
-  </div>
+  <div class="app">
 
-  <div id="historyPanel" class="hidden">
-    <div id="historyHeader">
-      <strong>Session History</strong>
-      <button id="clearHistory" class="clear-btn">Clear</button>
+    <div class="timer-ring" id="timerRing">
+      <div class="timer-inner">
+        <div id="display">00:00:00</div>
+        <div class="status-label" id="statusLabel" aria-live="polite">Idle</div>
+      </div>
     </div>
-    <ul id="historyList"></ul>
+
+    <div class="buttons">
+      <button id="start">Start</button>
+      <button id="pause">Pause</button>
+      <button id="reset">Finish Session</button>
+    </div>
+
+    <div class="extra">
+      <button id="historyBtn">Show History</button>
+      <button id="todayBtn">Today</button>
+    </div>
+
+    <div id="historyPanel" class="hidden">
+      <div id="historyHeader">
+        <strong>Session History</strong>
+        <button id="clearHistory" class="clear-btn">Clear</button>
+      </div>
+      <ul id="historyList"></ul>
+    </div>
+
   </div>
 </div>
 
-<!-- POPUP -->
+<!-- COMMENT POPUP -->
 <div id="popup" class="popup hidden">
   <div class="popup-box">
     <h3>What did you do?</h3>
+    <div class="popup-sub" id="popupDuration"></div>
     <textarea id="commentInput" placeholder="Write here..."></textarea>
-    <div class="buttons">
+    <div class="buttons" style="margin-top:14px;">
       <button id="saveSession">Save</button>
       <button id="cancelSession">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TODAY SUMMARY POPUP -->
+<div id="todayPopup" class="popup hidden">
+  <div class="popup-box">
+    <h3>Today's Sessions</h3>
+    <div id="todayContent"></div>
+    <div class="buttons" style="margin-top:14px;">
+      <button id="closeToday">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLEAR HISTORY CONFIRM -->
+<div id="confirmPopup" class="popup hidden">
+  <div class="popup-box">
+    <h3>Clear all history?</h3>
+    <div class="popup-sub">This can't be undone.</div>
+    <div class="buttons" style="margin-top:14px;">
+      <button id="confirmYes" class="confirm-yes">Clear</button>
+      <button id="confirmNo" class="confirm-no">Cancel</button>
     </div>
   </div>
 </div>
@@ -291,18 +571,50 @@ button:active {
    UTILITIES
 ===================== */
 
+// Fixed: display now shows HH:MM:SS instead of MM:SS:centiseconds.
+// Centisecond precision is irrelevant for a work-session tracker, and the
+// original 10ms update interval (100 refreshes/sec) burned CPU/battery
+// for no practical benefit. Also, sessions can legitimately run for
+// hours, so hours need their own field instead of overflowing into a
+// 3+ digit "minutes" column.
+// Note: true microsecond precision isn't something JS timers or the
+// browser's repaint rate can meaningfully deliver — Date.now() itself is
+// millisecond-resolution. This shows milliseconds instead, which is the
+// finest precision that's actually real and gives that fast, energetic
+// readout feel.
 function formatTime(ms) {
-  const m = Math.floor(ms / 60000);
-  const s = Math.floor(ms / 1000) % 60;
-  const cs = Math.floor((ms % 1000) / 10);
-  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}:${String(cs).padStart(2,"0")}`;
+  const totalSeconds = Math.floor(ms / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  const millis = Math.floor(ms % 1000);
+  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}.${String(millis).padStart(3,"0")}`;
 }
 
 function formatDurationHM(ms) {
-  const totalMinutes = Math.floor(ms / 60000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if (hours > 0) parts.push(`${hours} hr`);
+  if (hours > 0 || minutes > 0) parts.push(`${minutes} min`);
+  parts.push(`${seconds} sec`);
+  return parts.join(" ");
+}
+
+// Fixed: the original day-grouping used date.toISOString().slice(0,10),
+// which is always UTC. For timezones ahead of UTC (like IST, UTC+5:30),
+// a session done late at night local time can fall on the *previous*
+// calendar day in UTC — so it could silently vanish from "Today" or get
+// filed under the wrong date in history. This uses the browser's local
+// date instead.
+function localDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 /* =====================
@@ -315,19 +627,43 @@ let timer = null;
 let sessionStartISO = null;
 
 const display = document.getElementById("display");
+const timerRing = document.getElementById("timerRing");
+const statusLabel = document.getElementById("statusLabel");
 
 function updateDisplay() {
   display.textContent = formatTime(elapsed);
+}
+
+function setState(state) {
+  timerRing.classList.remove("running", "paused");
+  if (state === "running") {
+    timerRing.classList.add("running");
+    statusLabel.textContent = "Running";
+  } else if (state === "paused") {
+    timerRing.classList.add("paused");
+    statusLabel.textContent = "Paused";
+  } else {
+    statusLabel.textContent = "Idle";
+  }
 }
 
 /* =====================
    STORAGE
 ===================== */
 
-let sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+let sessions = [];
+try {
+  sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+} catch (e) {
+  sessions = [];
+}
 
 function saveSessions() {
-  localStorage.setItem("sessions", JSON.stringify(sessions));
+  try {
+    localStorage.setItem("sessions", JSON.stringify(sessions));
+  } catch (e) {
+    // storage unavailable/full — session still works for this page view
+  }
 }
 
 /* =====================
@@ -336,49 +672,64 @@ function saveSessions() {
 
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && timer) {
-    // Tab became active again → resync time
     elapsed = Date.now() - startTime;
     updateDisplay();
   }
 });
 
-
 /* =====================
    BUTTONS
 ===================== */
+
+// `timer` holds the requestAnimationFrame id while running (non-null),
+// or null when stopped — same on/off semantics as before, just driven by
+// the display's actual refresh rate instead of a fixed setInterval, which
+// gives smooth millisecond updates without polling faster than anything
+// can actually be seen.
+function tick() {
+  elapsed = Date.now() - startTime;
+  updateDisplay();
+  timer = requestAnimationFrame(tick);
+}
 
 start.onclick = () => {
   if (timer) return;
   if (!sessionStartISO) sessionStartISO = new Date().toISOString();
 
   startTime = Date.now() - elapsed;
-  timer = setInterval(() => {
-    elapsed = Date.now() - startTime;
-    updateDisplay();
-  }, 10);
+  timer = requestAnimationFrame(tick);
+
+  setState("running");
 };
 
 pause.onclick = () => {
-  clearInterval(timer);
+  if (!timer) return;
+  cancelAnimationFrame(timer);
   timer = null;
+  setState("paused");
 };
 
 reset.onclick = () => {
   if (!elapsed) return;
 
-  /* STOP the stopwatch immediately */
-  clearInterval(timer);
-  timer = null;
+  // Fixed: this used to unconditionally recompute
+  // `elapsed = Date.now() - startTime`, even when the timer was already
+  // paused. Since startTime is only updated when the timer (re)starts,
+  // doing that math while paused silently added however long you'd been
+  // sitting paused into the saved session length. Now it only
+  // recalculates elapsed if the timer is actually running.
+  if (timer) {
+    elapsed = Date.now() - startTime;
+    cancelAnimationFrame(timer);
+  }
 
-  /* Freeze the current elapsed time */
-  elapsed = Date.now() - startTime;
+  timer = null;
   updateDisplay();
 
-  /* Open popup */
+  document.getElementById("popupDuration").textContent = `Duration: ${formatDurationHM(elapsed)}`;
   popup.classList.remove("hidden");
   commentInput.focus();
 };
-
 
 /* =====================
    SAVE SESSION
@@ -393,23 +744,28 @@ saveSession.onclick = () => {
     comment: commentInput.value || "No comment",
     startISO: sessionStartISO,
     endISO: end.toISOString(),
-    day: end.toISOString().slice(0,10)
+    day: localDateKey(end)
   });
 
   saveSessions();
   popup.classList.add("hidden");
   commentInput.value = "";
 
-  runFireworks(); // 🎆 celebration
+  runFireworks();
 
   elapsed = 0;
   sessionStartISO = null;
-  clearInterval(timer);
+  if (timer) cancelAnimationFrame(timer);
   timer = null;
   updateDisplay();
+  setState("idle");
 };
 
-cancelSession.onclick = () => popup.classList.add("hidden");
+cancelSession.onclick = () => {
+  popup.classList.add("hidden");
+  // Session stays paused at its frozen elapsed time — Start resumes it.
+  setState("paused");
+};
 
 /* =====================
    HISTORY
@@ -422,6 +778,11 @@ historyBtn.onclick = () => {
 };
 
 function renderHistory() {
+  if (!sessions.length) {
+    historyList.innerHTML = `<li class="empty-state" style="border:none;">No sessions logged yet.</li>`;
+    return;
+  }
+
   historyList.innerHTML = "";
   sessions.forEach(s => {
     const from = new Date(s.startISO).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -430,17 +791,31 @@ function renderHistory() {
     historyList.innerHTML += `
       <li>
         <strong>${from} → ${to}</strong><br>
-        ${s.comment}<br>
+        ${escapeHtml(s.comment)}<br>
         <small>Duration: ${formatDurationHM(s.ms)}</small>
       </li>`;
   });
 }
 
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 clearHistory.onclick = () => {
-  if (!confirm("Clear all history?")) return;
+  confirmPopup.classList.remove("hidden");
+};
+
+confirmYes.onclick = () => {
   sessions = [];
   saveSessions();
-  historyList.innerHTML = "";
+  renderHistory();
+  confirmPopup.classList.add("hidden");
+};
+
+confirmNo.onclick = () => {
+  confirmPopup.classList.add("hidden");
 };
 
 /* =====================
@@ -448,35 +823,36 @@ clearHistory.onclick = () => {
 ===================== */
 
 todayBtn.onclick = () => {
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDateKey(new Date());
   const todaySessions = sessions.filter(s => s.day === today);
 
+  const content = document.getElementById("todayContent");
+
   if (!todaySessions.length) {
-    alert("No sessions today.");
-    return;
+    content.innerHTML = `<p class="empty-state">No sessions logged today yet.</p>`;
+  } else {
+    let total = 0;
+    let rows = "";
+
+    todaySessions.forEach(s => {
+      total += s.ms;
+      rows += `
+        <div class="today-row">
+          <span class="t-comment">${escapeHtml(s.comment)}</span>
+          <span class="t-dur">${formatDurationHM(s.ms)}</span>
+        </div>`;
+    });
+
+    content.innerHTML = `
+      <div class="today-summary-list">${rows}</div>
+      <div class="today-total"><span>Total focused time</span><b>${formatDurationHM(total)}</b></div>
+    `;
   }
 
-  let total = 0;
-  let msg = "Today:\n\n";
-
-  todaySessions.forEach(s => {
-    total += s.ms;
-    msg += `• ${s.comment} (${formatDurationHM(s.ms)})\n`;
-  });
-
-  msg += `\nTotal: ${formatDurationHM(total)}`;
-  alert(msg);
+  todayPopup.classList.remove("hidden");
 };
 
-document.querySelectorAll("button").forEach(btn => {
-  btn.addEventListener("touchstart", () => {
-    btn.style.transform = "scale(0.95)";
-  });
-  btn.addEventListener("touchend", () => {
-    btn.style.transform = "";
-  });
-});
-
+closeToday.onclick = () => todayPopup.classList.add("hidden");
 
 /* =====================
    FIREWORKS 🎆
@@ -493,6 +869,7 @@ resizeFW();
 addEventListener("resize", resizeFW);
 
 let fireworks = [];
+const burstColors = ["#22d3ee", "#8b5cf6", "#ec4899", "#f0eefc"];
 
 function runFireworks(duration = 2500) {
   const start = Date.now();
@@ -509,7 +886,7 @@ function runFireworks(duration = 2500) {
           vx: (Math.random() - 0.5) * 6,
           vy: (Math.random() - 0.5) * 6,
           life: 60,
-          color: `hsl(${Math.random()*360},100%,60%)`
+          color: burstColors[Math.floor(Math.random() * burstColors.length)]
         });
       }
     }
