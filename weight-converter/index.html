@@ -19,114 +19,443 @@
 <title>Universal Weight Converter</title>
 
 <meta name="description"
-content="Free universal weight converter. Convert gram, kilogram, ounce, pound, troy ounce, carat, grain, stone and metric tonne instantly online.">
+content="Free universal weight and mass converter. Convert between gram, kilogram, milligram, microgram, ounce, pound, stone, troy ounce, carat, grain, and metric or imperial tons instantly, with full decimal precision.">
 
 <meta name="keywords"
-content="weight converter, gram to kg, kg to pound, ounce to gram, troy ounce converter, carat converter, unit converter">
+content="weight converter, mass converter, gram to kg, kg to pound, ounce to gram, troy ounce converter, carat converter, grain converter, stone converter, ton converter, unit converter">
+
+<link rel="canonical" href="https://rameshverse.com/weight-converter">
+<!-- 👈 update this canonical URL (and the og:url / og:image below) to match wherever this page is actually published -->
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Universal Weight Converter">
+<meta property="og:description" content="Convert between 14 weight and mass units instantly — metric, imperial, troy, and apothecary — with full decimal precision.">
+<meta property="og:url" content="https://rameshverse.com/weight-converter">
+<meta property="og:image" content="https://rameshverse.com/weight-converter/preview-image/weight-converter-preview.jpg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Universal Weight Converter">
+<meta name="twitter:description" content="Convert between 14 weight and mass units instantly — metric, imperial, troy, and apothecary — with full decimal precision.">
+<meta name="twitter:image" content="https://rameshverse.com/weight-converter/preview-image/weight-converter-preview.jpg">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Universal Weight Converter",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "description": "Free online tool to convert between 14 weight and mass units, including metric (gram, kilogram, tonne), imperial (ounce, pound, stone, ton), and troy/apothecary (troy ounce, troy pound, grain, carat) units.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "url": "https://rameshverse.com/weight-converter"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+  :root {
+    --bg: #070b0d;
+    --panel: #0f172a;
+    --panel-2: #070c14;
+    --line: rgba(52,211,153,0.16);
+    --line-soft: rgba(52,211,153,0.08);
+    --emerald: #34d399;
+    --emerald-dim: rgba(52,211,153,0.14);
+    --brass: #e8c477;
+    --brass-dark: #8a6423;
+    --text: #e7f2ec;
+    --text-dim: #7c8f88;
+    --sans: 'Sora', system-ui, -apple-system, sans-serif;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
   body {
-  font-family: system-ui, sans-serif;
-  background: #0f172a;
-  color: #e5e7eb;
-  margin: 0;
-  padding: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-}
+    font-family: var(--sans);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(52,211,153,0.08) 1px, transparent 1.4px) 0 0 / 26px 26px,
+      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(52,211,153,0.10), transparent 62%),
+      var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 32px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
 
-.app {
-  width: 100%;
-  max-width: 420px;
-  background: #020617;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.6);
-}
+  .page { width: 100%; max-width: 420px; }
 
-h2 {
-  text-align: center;
-  margin-bottom: 18px;
-  font-size: 20px;
-}
+  /* ---------- Header / balance scale mark ---------- */
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 18px;
+  }
 
-input, select {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-  margin-bottom: 12px;
-}
+  .scale-mark {
+    position: relative;
+    width: 110px;
+    height: 92px;
+    margin-bottom: 8px;
+  }
 
-.result {
-  background: #020617;
-  border: 1px solid #334155;
-  border-radius: 10px;
-  padding: 14px;
-  font-weight: 600;
-  text-align: left;
-  font-size: 18px;
-}
+  .scale-post {
+    position: absolute;
+    left: 50%; top: 28px; bottom: 6px;
+    width: 3px; margin-left: -1.5px;
+    background: linear-gradient(180deg, var(--brass), var(--brass-dark));
+  }
 
-button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: #1e293b;
-  color: white;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-}
+  .scale-base {
+    position: absolute;
+    left: 50%; bottom: 0;
+    width: 44px; height: 5px; margin-left: -22px;
+    background: linear-gradient(180deg, var(--brass), var(--brass-dark));
+    border-radius: 3px;
+  }
 
-button:active {
-  transform: scale(0.98);
-}
+  .scale-pivot {
+    position: absolute;
+    left: 50%; top: 24px;
+    width: 9px; height: 9px; margin-left: -4.5px;
+    border-radius: 50%;
+    background: var(--brass);
+    box-shadow: 0 0 8px rgba(232,196,119,0.6);
+    z-index: 3;
+  }
 
-button.copied {
-  background: #16a34a;
-}
+  .scale-beam {
+    position: absolute;
+    left: 50%; top: 27px;
+    width: 88px; height: 3px; margin-left: -44px;
+    background: linear-gradient(90deg, var(--brass-dark), var(--brass), var(--brass-dark));
+    border-radius: 2px;
+    transform-origin: 50% 50%;
+    animation: scaleTip 4.6s ease-in-out infinite;
+    z-index: 2;
+  }
 
-.note {
-  margin-top: 14px;
-  font-size: 12px;
-  opacity: 0.8;
-  text-align: center;
-  line-height: 1.4;
-}
+  @keyframes scaleTip {
+    0%, 100% { transform: rotate(-3.5deg); }
+    50%      { transform: rotate(3.5deg); }
+  }
 
-input, select, button, .result {
-  box-sizing: border-box;
-}
+  .scale-beam .string {
+    position: absolute;
+    top: 3px;
+    width: 1.5px; height: 13px;
+    background: rgba(232,196,119,0.55);
+  }
 
+  .scale-beam .string.l { left: 5px; }
+  .scale-beam .string.r { right: 5px; }
 
+  .scale-beam .pan {
+    position: absolute;
+    top: 15px;
+    width: 24px; height: 14px;
+    border: 1.5px solid rgba(232,196,119,0.7);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: rgba(232,196,119,0.08);
+  }
+
+  .scale-beam .pan.l { left: -6px; }
+  .scale-beam .pan.r { right: -6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scale-beam { animation: none; }
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 1.35rem;
+    text-align: center;
+    margin: 4px 0 0;
+  }
+
+  .brand-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 12px auto 0;
+    width: fit-content;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--emerald);
+    border: 1px solid rgba(52,211,153,0.32);
+    background: rgba(52,211,153,0.06);
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+
+  .brand-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--brass);
+    box-shadow: 0 0 6px 1px rgba(232,196,119,0.7);
+  }
+
+  /* ---------- Card ---------- */
+  .app {
+    position: relative;
+    width: 100%;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    padding: 22px 20px;
+    border-radius: 16px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(52,211,153,0.03) inset;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+
+  .app::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -40%;
+    width: 40%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--emerald), transparent);
+    animation: scan 6s linear infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes scan {
+    0% { left: -40%; }
+    100% { left: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app::before { animation: none; }
+  }
+
+  .corner-tl, .corner-br {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--emerald);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .corner-tl { top: 10px; left: 10px; border-top: 2px solid var(--emerald); border-left: 2px solid var(--emerald); }
+  .corner-br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--emerald); border-right: 2px solid var(--emerald); }
+
+  label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 0 14px;
+    height: 48px;
+    border-radius: 9px;
+    border: 1px solid var(--line-soft);
+    background: #050a0d;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: var(--mono);
+  }
+
+  input::placeholder { color: #3f5850; }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 3px var(--emerald-dim);
+  }
+
+  select option { color: #000; background: #fff; }
+
+  .unit-row {
+    display: flex;
+    flex-direction: column;
+    margin-top: 14px;
+  }
+
+  .swap-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 14px 0;
+  }
+
+  .swap-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(52,211,153,0.08);
+    color: var(--emerald);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+
+  .swap-btn:hover { border-color: var(--emerald); box-shadow: 0 0 12px rgba(52,211,153,0.3); }
+  .swap-btn:active { transform: scale(0.92) rotate(180deg); }
+  .swap-btn.spin { animation: swapSpin 0.4s ease; }
+
+  @keyframes swapSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(180deg); }
+  }
+
+  .result {
+    margin-top: 18px;
+    background: #050a0d;
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    padding: 16px 14px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .result:hover { border-color: var(--line); }
+
+  #resultValue {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--emerald);
+    text-shadow: 0 0 12px rgba(52,211,153,0.3);
+    word-break: break-all;
+  }
+
+  #resultUnit {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .result-hint {
+    margin-top: 6px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+
+  button.copy {
+    width: 100%;
+    margin-top: 12px;
+    height: 46px;
+    border-radius: 9px;
+    border: 1px solid rgba(52,211,153,0.35);
+    background: linear-gradient(180deg, rgba(52,211,153,0.1), rgba(52,211,153,0.02));
+    color: var(--emerald);
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+
+  button.copy:hover { box-shadow: 0 0 16px rgba(52,211,153,0.25); }
+  button.copy:active { transform: scale(0.98); }
+
+  button.copy.copied {
+    border-color: #34d399;
+    background: #16a34a;
+    color: #fff;
+  }
+
+  .note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px dashed var(--line-soft);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--text-dim);
+  }
+
+  .note b { color: var(--brass); }
+
+  @media (max-width: 480px) {
+    .app { padding: 20px 16px; }
+    h1 { font-size: 1.2rem; }
+  }
 </style>
 </head>
 
 <body>
 
-<div class="app">
-  <h2>⚖️ Universal Weight Converter</h2>
+<div class="page">
 
-  <input type="number" id="value" placeholder="Enter value">
+  <div class="header">
+    <div class="scale-mark">
+      <div class="scale-post"></div>
+      <div class="scale-base"></div>
+      <div class="scale-pivot"></div>
+      <div class="scale-beam">
+        <div class="string l"></div>
+        <div class="string r"></div>
+        <div class="pan l"></div>
+        <div class="pan r"></div>
+      </div>
+    </div>
+    <h1>Universal Weight Converter</h1>
+    <div class="brand-badge"><span class="dot"></span> Rameshverse Systems · MK·02</div>
+  </div>
 
-  <select id="fromUnit"></select>
-  <select id="toUnit"></select>
+  <div class="app">
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
 
-  <div class="result" id="result">0</div>
-  <button id="copyBtn">Copy</button>
+    <label for="value">Value</label>
+    <input type="number" id="value" placeholder="Enter value" inputmode="decimal">
 
-  <div class="note">
-    💡 Precious metals use <b>troy units</b><br>
-    (1 troy oz = 31.1035 g)
+    <div class="unit-row">
+      <label class="field-label" for="fromUnit">From</label>
+      <select id="fromUnit" aria-label="Convert from unit"></select>
+
+      <div class="swap-wrap">
+        <button class="swap-btn" id="swapBtn" type="button" aria-label="Swap units" title="Swap units">⇅</button>
+      </div>
+
+      <label class="field-label" for="toUnit">To</label>
+      <select id="toUnit" aria-label="Convert to unit"></select>
+    </div>
+
+    <div class="result" id="resultBox">
+      <span id="resultValue" aria-live="polite">0</span>
+      <span id="resultUnit"></span>
+      <div class="result-hint">Tap to copy</div>
+    </div>
+
+    <button id="copyBtn" class="copy" type="button">Copy Result</button>
+
+    <div class="note">
+      Precious metals use <b>troy units</b> — 1 troy oz = 31.1034768 g
+    </div>
   </div>
 </div>
-
 
 <script>
   // Base unit = gram
@@ -153,7 +482,9 @@ input, select, button, .result {
   const fromSelect = document.getElementById("fromUnit");
   const toSelect = document.getElementById("toUnit");
   const valueInput = document.getElementById("value");
-  const resultDiv = document.getElementById("result");
+  const resultValueEl = document.getElementById("resultValue");
+  const resultUnitEl = document.getElementById("resultUnit");
+  const swapBtn = document.getElementById("swapBtn");
 
   Object.keys(units).forEach(unit => {
     fromSelect.add(new Option(unit, unit));
@@ -163,50 +494,92 @@ input, select, button, .result {
   fromSelect.value = "Gram (g)";
   toSelect.value = "Kilogram (kg)";
 
-function round(value, decimals = 8) {
-  return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
-}
-
-function convert() {
-  const value = parseFloat(valueInput.value);
-  if (isNaN(value)) {
-    resultDiv.textContent = "0";
-    return;
+  // Extracts the short abbreviation from a label like "Kilogram (kg)" -> "kg"
+  function unitAbbrev(label) {
+    const match = label.match(/\(([^)]+)\)/);
+    return match ? match[1] : label;
   }
 
-  const grams = value * units[fromSelect.value];
-  const converted = grams / units[toSelect.value];
-  const rounded = round(converted, 8);
+  /* Fixed (round 2): the multiply/round/divide approach itself becomes
+     unsafe for large converted values — multiplying by 10^8 can push the
+     intermediate value past Number.MAX_SAFE_INTEGER (2^53), which is
+     exactly what produced "453,592,370.00000006" instead of an exact
+     453,592,370 when converting 1 lb to micrograms. The actual noise
+     already exists in the raw division (0.000001 isn't exactly
+     representable in binary floating point), so instead of trying to
+     round to a fixed decimal count, we clean the float to ~15 significant
+     digits (removing binary-division noise) and let toLocaleString's
+     maximumFractionDigits handle final display rounding safely. */
+  function cleanFloat(value) {
+    if (!isFinite(value) || value === 0) return value;
+    return Number(value.toPrecision(15));
+  }
 
-  resultDiv.textContent =
-    rounded.toLocaleString("en-US", {
+  function convert() {
+    const raw = valueInput.value;
+    const value = parseFloat(raw);
+
+    if (raw.trim() === "" || isNaN(value)) {
+      resultValueEl.textContent = "0";
+      resultUnitEl.textContent = unitAbbrev(toSelect.value);
+      return;
+    }
+
+    if (value < 0) {
+      resultValueEl.textContent = "Weight can't be negative.";
+      resultUnitEl.textContent = "";
+      return;
+    }
+
+    const grams = value * units[fromSelect.value];
+    const converted = grams / units[toSelect.value];
+    const cleaned = cleanFloat(converted);
+
+    resultValueEl.textContent = cleaned.toLocaleString("en-US", {
       maximumFractionDigits: 8
     });
-}
+    resultUnitEl.textContent = unitAbbrev(toSelect.value);
+  }
 
+  function swapUnits() {
+    const from = fromSelect.value;
+    fromSelect.value = toSelect.value;
+    toSelect.value = from;
 
+    swapBtn.classList.remove("spin");
+    swapBtn.offsetHeight; // force reflow so the animation can replay
+    swapBtn.classList.add("spin");
 
+    convert();
+  }
 
   valueInput.addEventListener("input", convert);
   fromSelect.addEventListener("change", convert);
   toSelect.addEventListener("change", convert);
+  swapBtn.addEventListener("click", swapUnits);
+
   const copyBtn = document.getElementById("copyBtn");
+  const resultBox = document.getElementById("resultBox");
 
-  copyBtn.addEventListener("click", () => {
-  navigator.clipboard.writeText(resultDiv.textContent);
+  function copyResult() {
+    const text = resultValueEl.textContent;
+    if (!text || text.includes("negative")) return;
 
-  copyBtn.textContent = "Copied ✓";
-  copyBtn.classList.add("copied");
+    navigator.clipboard.writeText(text);
 
-  setTimeout(() => {
-    copyBtn.textContent = "Copy";
-    copyBtn.classList.remove("copied");
-  }, 1200);
-});
+    copyBtn.textContent = "Copied ✓";
+    copyBtn.classList.add("copied");
 
+    setTimeout(() => {
+      copyBtn.textContent = "Copy Result";
+      copyBtn.classList.remove("copied");
+    }, 1200);
+  }
 
+  copyBtn.addEventListener("click", copyResult);
+  resultBox.addEventListener("click", copyResult);
 
-
+  convert();
 </script>
 
 <script src="/libraries/config.js"></script>
