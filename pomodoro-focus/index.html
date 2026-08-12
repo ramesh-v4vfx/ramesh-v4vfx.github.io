@@ -18,158 +18,460 @@
 <title>Advanced Pomodoro Timer</title>
 
 <style>
-  body {
-  font-family: system-ui, sans-serif;
-  background: #0b0000;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;   /* ← change */
-  padding: 12px;      /* ← add */
-}
+  :root {
+    --bg: #0a0807;
+    --card-bg-1: #1b160f;
+    --card-bg-2: #100c08;
+    --border: rgba(244,237,224,0.08);
+    --text: #f4ede0;
+    --text-dim: rgba(244,237,224,0.6);
+    --accent-work: #e2984f;
+    --accent-break: #49d3c0;
+    --danger: #e0503d;
+    --danger-bright: #ff6b52;
+  }
 
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 30% 10%, rgba(226,152,79,0.06), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 12px;
+  }
 
   .app {
-    background: #040724;
-    padding: 25px;
-    border-radius: 14px;
+    --accent: var(--accent-work);
+    background: linear-gradient(160deg, var(--card-bg-1), var(--card-bg-2));
+    padding: 26px 25px 22px;
+    border-radius: 20px;
     width: 100%;
-     max-width: 360px;
-    box-shadow: 0 20px 40px rgba(0,0,0,.4);
+    max-width: 360px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
     position: relative;
+    transition: box-shadow 0.4s ease;
   }
+
+  .app[data-mode="break"] { --accent: var(--accent-break); }
 
   .app > * {
     position: relative;
     z-index: 1;
   }
 
+  .badge {
+    display: block;
+    width: fit-content;
+    margin: 0 auto 10px;
+    padding: 4px 12px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    border-radius: 999px;
+    text-transform: uppercase;
+    transition: color 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+  }
+
   h2 {
     text-align: center;
-    margin-bottom: 10px;
+    margin: 0 0 2px;
+    font-size: 1.25rem;
+    letter-spacing: 0.4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  /* ---------- DIAL ---------- */
+  .dial {
+    width: 220px;
+    height: 220px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--accent) calc(var(--progress, 0) * 360deg),
+      rgba(244,237,224,0.06) 0deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  .dial-inner {
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 26%, #241d15, #0d0a07 72%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,.65), inset 0 -2px 10px rgba(255,255,255,0.03);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .dial.pulse {
+    animation: pulseDial 0.6s ease;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes pulseDial {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.045); }
+      100% { transform: scale(1); }
+    }
   }
 
   .timer {
-    font-size: 2.2rem;
+    font-size: 1.85rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+
+  .info {
     text-align: center;
-    margin: 15px 0;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ---------- STATS ---------- */
+  .stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat {
+    flex: 1;
+    background: rgba(244,237,224,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+
+  .stat span {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 
-  .info {
-    text-align: center;
-    font-size: 0.9rem;
-    opacity: 0.85;
+  .stat label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 2px;
   }
 
+  /* ---------- BUTTONS ---------- */
   button {
     width: 100%;
-    padding: 10px;
-    margin-top: 8px;
+    padding: 12px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    background: #4f6cff;
-    color: white;
     font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    transition: transform 0.15s ease, filter 0.15s ease, background 0.2s ease;
   }
 
-  button.secondary {
-    background: #2b2f55;
+  button:active { transform: translateY(1px); }
+
+  .btn-toggle {
+    background: var(--accent);
+    color: #17120c;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 35%, transparent);
   }
 
-  button.danger {
-    background: #7a1f1f;
+  .btn-toggle:hover { filter: brightness(1.08); }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
   }
 
-  .history {
-    margin-top: 15px;
-    max-height: 160px;
+  .btn-row button {
+    padding: 11px 6px;
+    font-size: 0.85rem;
+  }
+
+  .secondary {
+    background: rgba(244,237,224,0.06);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .secondary:hover {
+    background: rgba(244,237,224,0.1);
+  }
+
+  .secondary.open {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    color: var(--accent);
+  }
+
+  .link-danger {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--danger-bright);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 0 2px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .link-danger:hover { text-decoration: underline; }
+
+  /* ---------- HISTORY / TODAY PANELS ---------- */
+  .panel {
+    margin-top: 14px;
+    max-height: 190px;
     overflow-y: auto;
     font-size: 0.85rem;
     -webkit-overflow-scrolling: touch;
-
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
   }
 
-  .history div {
-    padding: 6px;
-    border-bottom: 1px solid #552a2a;
+  .panel[hidden] { display: none; }
+
+  .panel-row {
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-row .row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-row .date {
+    font-weight: 600;
+  }
+
+  .panel-row .meta {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+  }
+
+  .note-item {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    padding-left: 2px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .note-item .note-time {
+    flex-shrink: 0;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .note-item .note-text {
+    color: var(--text);
+  }
+
+  .panel-empty {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 10px 4px;
+    font-size: 0.82rem;
+  }
+
+  /* ---------- NOTE MODAL ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,4,3,0.72);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+  }
+
+  .modal-overlay[hidden] { display: none; }
+
+  .modal {
+    width: 100%;
+    max-width: 340px;
+    background: linear-gradient(160deg, var(--card-bg-1), var(--card-bg-2));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 20px 18px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.6);
+  }
+
+  .modal h3 {
+    margin: 0 0 4px;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
+  .modal-sub {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin: 0 0 14px;
+  }
+
+  .modal textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 70px;
+    background: rgba(244,237,224,0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .modal textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .modal-actions button {
+    padding: 11px;
   }
 
   @media (max-width: 480px) {
-
-  h2 {
-    font-size: 1.2rem;
+    h2 { font-size: 1.15rem; }
+    .dial { width: 190px; height: 190px; }
+    .timer { font-size: 1.7rem; }
+    .info { font-size: 0.85rem; }
+    .btn-toggle, .btn-row button:only-child { padding: 14px; font-size: 1.02rem; }
+    .panel { max-height: 160px; }
   }
-
-  .timer {
-    font-size: 2.6rem; /* bigger timer */
-  }
-
-  .info {
-    font-size: 0.95rem;
-  }
-
-  button {
-    padding: 14px;     /* better tap target */
-    font-size: 1.05rem;
-  }
-
-  .history {
-    max-height: 140px; /* avoids overflow */
-  }
-}
-
 </style>
 </head>
 
 <body>
-<div class="app">
+<div class="app" id="app" data-mode="work" style="--progress:0">
+  <span class="badge" id="modeBadge">Focus</span>
   <h2>Pomodoro Focus</h2>
+  <div class="subtitle">25 min focus · 5 min break</div>
 
-  <div class="timer" id="display">25:00.000</div>
+  <div class="dial" id="dial">
+    <div class="dial-inner">
+      <div class="timer" id="display">25:00.000</div>
+      <div class="info" id="status">Ready to focus</div>
+    </div>
+  </div>
 
-  <div class="info" id="status">Ready to focus</div>
-  <div class="info">Sessions: <span id="sessions">0</span></div>
-  <div class="info">Total Work: <span id="totalWork">0 min</span></div>
+  <div class="stats">
+    <div class="stat"><span id="sessions">0</span><label>Sessions today</label></div>
+    <div class="stat"><span id="totalWork">0 min</span><label>Total work</label></div>
+  </div>
 
-  <button onclick="startPomodoro()">Start</button>
-  <button class="secondary" onclick="stopTimer()">Stop</button>
-  <button class="secondary" onclick="showHistory()">History</button>
-  <button class="danger" onclick="deleteHistory()">Delete History</button>
+  <button class="btn-toggle" id="toggleBtn" onclick="toggleTimer()">▶ Start</button>
+  <div class="btn-row">
+    <button class="secondary" onclick="resetTimer()">↺ Reset</button>
+    <button class="secondary" id="todayBtn" onclick="togglePanel('today')">📅 Today</button>
+    <button class="secondary" id="historyBtn" onclick="togglePanel('history')">🕘 History</button>
+  </div>
 
-  <div class="history" id="history"></div>
+  <div class="panel" id="todayPanel" hidden></div>
+  <div class="panel" id="historyPanel" hidden></div>
+
+  <!-- Task note modal, shown automatically when a focus session ends.
+       Nested inside .app so it inherits the live --accent color (work/break). -->
+  <div class="modal-overlay" id="noteOverlay" hidden>
+    <div class="modal">
+      <h3>Session complete 🎉</h3>
+      <p class="modal-sub">What did you get done this session?</p>
+      <textarea id="noteInput" rows="3" placeholder="e.g. Drafted the intro section..."></textarea>
+      <div class="modal-actions">
+        <button class="secondary" onclick="skipNote()">Skip</button>
+        <button class="btn-toggle" onclick="saveNote()">Save</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
 /* ---------------- CONFIG ---------------- */
 const WORK_TIME = 25 * 60 * 1000;
 const BREAK_TIME = 5 * 60 * 1000;
+const TICK_MS = 100; // update frequency; setInterval (not rAF) so it keeps running when the tab is minimized
 
 /* ---------------- STATE ---------------- */
-let startTime = 0;
+let state = "idle";      // idle | running | paused
+let mode = "work";       // work | break
 let duration = WORK_TIME;
-let timerId;
-let mode = "work";
-let warned5 = false;
-let warned2 = false;
+let elapsedAtPause = 0;
+let startTime = 0;
+let intervalId = null;
+
 let sessionsToday = 0;
 let workMsToday = 0;
+let notesToday = [];
+let currentDayKey = null;
+let openPanel = null; // null | "today" | "history"
 
 /* ---------------- ELEMENTS ---------------- */
+const appEl = document.getElementById("app");
+const dialEl = document.getElementById("dial");
+const modeBadge = document.getElementById("modeBadge");
 const display = document.getElementById("display");
 const statusEl = document.getElementById("status");
 const sessionsEl = document.getElementById("sessions");
 const totalWorkEl = document.getElementById("totalWork");
-const historyEl = document.getElementById("history");
+const todayPanel = document.getElementById("todayPanel");
+const historyPanel = document.getElementById("historyPanel");
+const todayBtn = document.getElementById("todayBtn");
+const historyBtn = document.getElementById("historyBtn");
+const toggleBtn = document.getElementById("toggleBtn");
+const noteOverlay = document.getElementById("noteOverlay");
+const noteInput = document.getElementById("noteInput");
 
 /* ---------------- UTILS ---------------- */
 function format(ms) {
-  const totalSec = ms / 1000;
+  const totalSec = Math.max(ms, 0) / 1000;
   const min = Math.floor(totalSec / 60);
   const sec = Math.floor(totalSec % 60);
-  const micro = Math.floor(ms % 1000);
+  const micro = Math.floor(ms % 1000 < 0 ? 0 : ms % 1000);
   return `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}.${String(micro).padStart(3,"0")}`;
 }
 
@@ -179,85 +481,185 @@ function todayKey() {
   });
 }
 
+function timeNow() {
+  return new Date().toLocaleTimeString("en-GB", {
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+
+function setProgress(fraction) {
+  appEl.style.setProperty("--progress", Math.min(Math.max(fraction, 0), 1));
+}
+
+function setMode(newMode) {
+  mode = newMode;
+  appEl.dataset.mode = mode;
+  modeBadge.textContent = mode === "work" ? "Focus" : "Break";
+}
+
+function pulseDial() {
+  dialEl.classList.remove("pulse");
+  void dialEl.offsetWidth; // force reflow so the animation can retrigger
+  dialEl.classList.add("pulse");
+}
+
+/* ---------------- NOTIFICATIONS (no audio) ---------------- */
+function ensureNotificationPermission() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
+function sendNotification(title, body) {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "granted") {
+    try {
+      new Notification(title, { body, tag: "pomodoro" });
+    } catch (e) {
+      // some browsers (e.g. iOS Safari) don't support the constructor; fail silently
+    }
+  }
+}
+
 /* ---------------- STORAGE ---------------- */
 function loadToday() {
   const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
   const key = todayKey();
 
-  // new day → reset counters
-  if (key !== currentDayKey) {
-    currentDayKey = key;
-    sessionsToday = 0;
-    workMsToday = 0;
-    updateStats();
-    return;
-  }
+  currentDayKey = key;
 
   if (data[key]) {
-    sessionsToday = data[key].sessions;
-    workMsToday = data[key].workMs;
+    sessionsToday = data[key].sessions || 0;
+    workMsToday = data[key].workMs || 0;
+    notesToday = data[key].notes || []; // backward-compatible: older entries have no notes
   } else {
     sessionsToday = 0;
     workMsToday = 0;
+    notesToday = [];
   }
-}
 
+  updateStats();
+}
 
 function saveToday() {
   const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
   data[todayKey()] = {
     sessions: sessionsToday,
-    workMs: workMsToday
+    workMs: workMsToday,
+    notes: notesToday
   };
   localStorage.setItem("pomodoroLog", JSON.stringify(data));
 }
 
 /* ---------------- TIMER ---------------- */
-function startPomodoro() {
-  stopTimer();
-  mode = "work";
+function toggleTimer() {
+  if (state === "idle") {
+    ensureNotificationPermission();
+    setMode("work");
+    duration = WORK_TIME;
+    elapsedAtPause = 0;
+    beginRun();
+  } else if (state === "running") {
+    pauseRun();
+  } else if (state === "paused") {
+    beginRun();
+  }
+}
+
+function beginRun() {
+  state = "running";
+  startTime = Date.now() - elapsedAtPause;
+  statusEl.textContent = mode === "work" ? "Focus time" : "Break time";
+  toggleBtn.textContent = "⏸ Pause";
+  clearInterval(intervalId);
+  intervalId = setInterval(tick, TICK_MS);
+}
+
+function pauseRun() {
+  state = "paused";
+  elapsedAtPause = Date.now() - startTime;
+  clearInterval(intervalId);
+  statusEl.textContent = "Paused";
+  toggleBtn.textContent = "▶ Resume";
+}
+
+function resetTimer() {
+  clearInterval(intervalId);
+  state = "idle";
+  setMode("work");
   duration = WORK_TIME;
-  warned5 = warned2 = false;
-  startTime = performance.now();
-  statusEl.textContent = "Focus time";
-  timerId = requestAnimationFrame(update);
+  elapsedAtPause = 0;
+  display.textContent = format(WORK_TIME);
+  statusEl.textContent = "Ready to focus";
+  toggleBtn.textContent = "▶ Start";
+  setProgress(0);
 }
 
-function startBreak() {
-  stopTimer();
-  mode = "break";
-  duration = BREAK_TIME;
-  startTime = performance.now();
-  statusEl.textContent = "Break time";
-  timerId = requestAnimationFrame(update);
-}
-
-function stopTimer() {
-  cancelAnimationFrame(timerId);
-}
-
-function update(now) {
-  const elapsed = now - startTime;
+function tick() {
+  const elapsed = Date.now() - startTime;
   const remaining = duration - elapsed;
 
   if (remaining <= 0) {
     display.textContent = "00:00.000";
-    stopTimer();
+    setProgress(1);
+    clearInterval(intervalId);
+    pulseDial();
 
     if (mode === "work") {
       sessionsToday++;
       workMsToday += WORK_TIME;
       saveToday();
       updateStats();
-      startBreak();
+      if (openPanel === "today") renderToday();
+
+      sendNotification("Session complete", "Focus session finished — time for a 5 minute break.");
+      openNotePopup();
+
+      setMode("break");
+      duration = BREAK_TIME;
+      elapsedAtPause = 0;
+      beginRun();
     } else {
+      state = "idle";
+      setMode("work");
+      duration = WORK_TIME;
+      elapsedAtPause = 0;
+      display.textContent = format(WORK_TIME);
+      setProgress(0);
+      toggleBtn.textContent = "▶ Start";
       statusEl.textContent = "Ready for next session";
+      sendNotification("Break's over", "Ready when you are for the next focus session.");
     }
     return;
   }
 
   display.textContent = format(remaining);
-  timerId = requestAnimationFrame(update);
+  setProgress(elapsed / duration);
+}
+
+/* ---------------- TASK NOTE POPUP ---------------- */
+function openNotePopup() {
+  noteInput.value = "";
+  noteOverlay.hidden = false;
+  noteInput.focus();
+}
+
+function closeNotePopup() {
+  noteOverlay.hidden = true;
+}
+
+function saveNote() {
+  const text = noteInput.value.trim();
+  if (text) {
+    notesToday.push({ time: timeNow(), text });
+    saveToday();
+    if (openPanel === "today") renderToday();
+  }
+  closeNotePopup();
+}
+
+function skipNote() {
+  closeNotePopup();
 }
 
 /* ---------------- UI ---------------- */
@@ -269,22 +671,83 @@ function updateStats() {
   totalWorkEl.textContent = hrs > 0 ? `${hrs}h ${rem}m` : `${rem} min`;
 }
 
-function showHistory() {
-  historyEl.innerHTML = "";
-  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
+function togglePanel(which) {
+  if (openPanel === which) {
+    openPanel = null;
+  } else {
+    openPanel = which;
+  }
 
-  Object.keys(data).sort().reverse().forEach(date => {
-    const mins = Math.floor(data[date].workMs / 60000);
+  todayPanel.hidden = openPanel !== "today";
+  historyPanel.hidden = openPanel !== "history";
+  todayBtn.classList.toggle("open", openPanel === "today");
+  historyBtn.classList.toggle("open", openPanel === "history");
+
+  if (openPanel === "today") renderToday();
+  if (openPanel === "history") renderHistory();
+}
+
+function renderToday() {
+  const minsTotal = Math.floor(workMsToday / 60000);
+  const hrsTotal = Math.floor(minsTotal / 60);
+  const remTotal = minsTotal % 60;
+  const workedStr = hrsTotal > 0 ? `${hrsTotal}h ${remTotal}m` : `${remTotal}m`;
+
+  let notesHtml = "";
+  if (notesToday.length === 0) {
+    notesHtml = `<div class="panel-empty">No notes yet — they'll show up here after a completed focus session.</div>`;
+  } else {
+    notesHtml = notesToday.slice().reverse().map(n => `
+      <div class="note-item">
+        <span class="note-time">${n.time}</span>
+        <span class="note-text">${escapeHtml(n.text)}</span>
+      </div>
+    `).join("");
+  }
+
+  todayPanel.innerHTML = `
+    <div class="panel-row">
+      <div class="row-top">
+        <span class="date">${currentDayKey}</span>
+        <span class="meta">${workedStr} • ${sessionsToday} sessions</span>
+      </div>
+      ${notesHtml}
+    </div>
+  `;
+}
+
+function renderHistory() {
+  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
+  const dates = Object.keys(data).sort().reverse();
+
+  if (dates.length === 0) {
+    historyPanel.innerHTML = `<div class="panel-empty">No sessions recorded yet.</div>`;
+    return;
+  }
+
+  historyPanel.innerHTML = dates.map(date => {
+    const entry = data[date];
+    const mins = Math.floor(entry.workMs / 60000);
     const hrs = Math.floor(mins / 60);
     const rem = mins % 60;
+    const worked = hrs > 0 ? `${hrs}h ${rem}m` : `${rem}m`;
+    const noteCount = (entry.notes || []).length;
 
-    historyEl.innerHTML += `
-      <div>
-        <strong>${date}</strong><br>
-        Worked ${hrs > 0 ? hrs+"h " : ""}${rem}m • ${data[date].sessions} sessions
+    return `
+      <div class="panel-row">
+        <div class="row-top">
+          <span class="date">${date}</span>
+          <span class="meta">${worked} • ${entry.sessions} sessions${noteCount ? ` • ${noteCount} notes` : ""}</span>
+        </div>
       </div>
     `;
-  });
+  }).join("") + `<button class="link-danger" onclick="deleteHistory()">Delete all history</button>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 /* ---------------- DELETE HISTORY ---------------- */
@@ -297,17 +760,24 @@ function deleteHistory() {
   localStorage.removeItem("pomodoroLog");
   sessionsToday = 0;
   workMsToday = 0;
+  notesToday = [];
   updateStats();
-  historyEl.innerHTML = "";
+  if (openPanel === "today") renderToday();
+  renderHistory();
   statusEl.textContent = "History deleted";
 }
 
-setInterval(loadToday, 60000); // check date every minute
-
+// Re-check the date every minute in case the app is left open past midnight.
+// Only touches counters when the timer is idle, so an in-progress session is never reset.
+setInterval(() => {
+  if (state === "idle" && todayKey() !== currentDayKey) {
+    loadToday();
+  }
+}, 60000);
 
 /* ---------------- INIT ---------------- */
 loadToday();
-updateStats();
+resetTimer();
 </script>
 
 <script src="/libraries/config.js"></script>
