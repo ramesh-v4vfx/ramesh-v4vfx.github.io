@@ -52,7 +52,9 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 15% -10%, rgba(79,209,197,0.08), transparent 55%),
+    var(--bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
   padding: 16px;
@@ -64,12 +66,8 @@ body {
 }
 
   html {
-  height: 100%;
-}
-
-body {
-  min-height: 100vh;
-}
+    height: 100%;
+  }
 
   .app {
     width:100%;
@@ -97,24 +95,75 @@ body {
     margin-bottom:12px;
   }
 
+  /* ── EDITING BANNER ── */
+  .editing-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: rgba(79,209,197,0.08);
+    border: 1px solid rgba(79,209,197,0.3);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+
+  .editing-banner[hidden] { display: none; }
+
+  .editing-banner button {
+    flex: none;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .editing-banner button:hover { color: var(--text); }
+
   textarea {
   width:100%;
   min-height:260px;
+  max-height:560px;
   background:#0f172a;
   color:var(--text);
   border:1px solid var(--border);
   border-radius:8px;
-  padding:12px;
-  resize:vertical;
+  padding:14px;
+  resize:none;
+  overflow-y:hidden;
   font-size:0.95rem;
-  line-height:1.5;
+  line-height:1.6;
 
   -webkit-overflow-scrolling: touch;
   -webkit-appearance: none;
+  transition: border-color 0.15s ease;
 }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
 
   textarea::placeholder {
     color:var(--muted);
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  .counter {
+    font-size: 0.72rem;
+    color: var(--muted);
   }
 
   .actions {
@@ -122,6 +171,7 @@ body {
     gap:8px;
     margin-top:12px;
     flex-wrap:wrap;
+    align-items: center;
   }
 
   button {
@@ -131,82 +181,131 @@ body {
     padding:10px;
     cursor:pointer;
     font-size:0.85rem;
+    transition: filter 0.15s ease, transform 0.15s ease, background 0.15s ease;
   }
 
-  .primary { background:var(--accent); color:#042f2e; }
-  .secondary { background:#1f2937; color:var(--text); }
-  .danger { background:#3b1d1d; color:#ffdada; }
+  button:active { transform: translateY(1px); }
 
+  .primary { background:var(--accent); color:#042f2e; font-weight: 700; }
+  .primary:hover { filter: brightness(1.08); }
+  .secondary { background:#1f2937; color:var(--text); }
+  .secondary:hover { background:#28374a; }
+  .danger { background:#3b1d1d; color:#ffdada; }
+  .danger:hover { background:#4a2323; }
+
+  .save-toast {
+    flex: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    white-space: nowrap;
+  }
+
+  .save-toast.show { opacity: 1; }
+
+  /* ── HISTORY / SEARCH ── */
   .history h2 {
     font-size:1rem;
     margin:0 0 8px;
   }
 
+  .search-wrap {
+    margin-bottom: 10px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0f172a;
+    color: var(--text);
+    font-size: 0.82rem;
+    outline: none;
+  }
+
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: var(--accent); }
+
   .entry {
     display:flex;
     justify-content:space-between;
-    align-items:center;
+    align-items:flex-start;
     gap:8px;
-    padding:8px;
+    padding:9px 8px;
     border-radius:6px;
     border:1px solid var(--border);
     margin-bottom:6px;
     font-size:0.8rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .entry:hover {
+    border-color: rgba(79,209,197,0.4);
+    background: rgba(79,209,197,0.04);
+  }
+
+  .entry-main {
+    flex: 1;
+    min-width: 0;
   }
 
   .entry-date {
-    cursor:pointer;
     color:var(--muted);
-    flex:1;
+    font-size: 0.76rem;
   }
 
-  .entry-date:hover {
-    color:var(--text);
+  .entry:hover .entry-date { color:var(--text); }
+
+  .entry-edited-tag {
+    color: var(--accent);
+    font-weight: 600;
+    margin-left: 4px;
   }
 
-  .delete-entry {
-    background:none;
-    border:none;
-    color:var(--danger);
-    cursor:pointer;
-    font-size:0.8rem;
+  .entry-preview {
+    margin-top: 3px;
+    color: var(--text);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .entry-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .entry-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
-  padding: 4px 6px;
-}
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.72rem;
+    padding: 4px 6px;
+    flex: none;
+    border-radius: 6px;
+  }
 
-.entry-download {
-  color: #4fd1c5;
-}
-
-  .delete-entry:hover {
+  .entry-btn:hover {
+    background: rgba(255,255,255,0.06);
     text-decoration: underline;
   }
 
-  .entry-delete {
-  color: #ef4444;
-}
+  .entry-download { color: #4fd1c5; }
+  .entry-delete { color: #ef4444; }
 
-.entry-btn:hover {
-  text-decoration: underline;
-}
-
-.note {
+  .note {
     margin-top:10px;
     font-size:0.75rem;
     color:var(--muted);
   }
-
-  .entry-actions {
-  display: flex;
-  gap: 6px;
-  padding: 4px 6px;
-}
 
   @media (max-width:800px) {
     .app { grid-template-columns:1fr; }
@@ -214,36 +313,26 @@ body {
 
   @media (max-width: 600px) {
 
-  body {
-    padding: 10px;
-  }
+    body { padding: 10px; }
+    .card { padding: 14px; }
+    h1 { font-size: 1.2rem; }
+    .sub { font-size: 0.8rem; }
+    textarea { min-height: 220px; font-size: 0.95rem; }
+    .actions { gap: 10px; }
+    button { padding: 12px; font-size: 0.9rem; }
 
-  .card {
-    padding: 14px;
-  }
+    .entry {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
 
-  h1 {
-    font-size: 1.2rem;
+    .entry-actions {
+      justify-content: flex-end;
+      gap: 12px;
+      font-size: 0.8rem;
+    }
   }
-
-  .sub {
-    font-size: 0.8rem;
-  }
-
-  textarea {
-    min-height: 220px;
-    font-size: 0.95rem;
-  }
-
-  .actions {
-    gap: 10px;
-  }
-
-  button {
-    padding: 12px;
-    font-size: 0.9rem;
-  }
-}
 
 .hero {
   width: 100%;
@@ -266,41 +355,20 @@ body {
 }
 
 @media (max-width: 600px) {
-
-  .entry {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .entry-actions {
-    gap: 12px;
-    font-size: 0.8rem;
-  }
-
-  .entry-date {
-    font-size: 0.8rem;
-  }
-
-   .hero h1 {
-    font-size: 1.4rem;
-  }
+  .hero h1 { font-size: 1.4rem; }
 }
 
 /* ── SHARE BUTTON ── */
 .btn-share {
-  width: 100%;
-  margin-top: 14px;
-  padding: 14px;
-  font-size: 1rem;
+  padding: 10px;
+  font-size: 0.85rem;
   font-weight: 700;
-  border-radius: 14px;
+  border-radius: 8px;
   background: #4c1d95;
   color: #fff;
   cursor: pointer;
   border: none;
   transition: background 0.2s ease, transform 0.15s ease;
-  flex: unset;
 }
 
 .btn-share:hover { background: #5b21b6; }
@@ -366,20 +434,32 @@ body {
 
   <!-- Editor -->
   <div class="card">
+
+    <div class="editing-banner" id="editingBanner" hidden>
+      <span id="editingLabel">✏️ Editing a saved entry</span>
+      <button id="cancelEditBtn">Start new entry</button>
+    </div>
+
     <textarea id="text"
       placeholder="Write whatever's on your mind. Save for future reference"></textarea>
+
+    <div class="meta-row">
+      <span class="counter" id="counter">0 words · 0 characters</span>
+    </div>
 
     <div class="actions">
       <button id="saveBtn" class="primary">Save entry</button>
       <button id="clearBtn" class="danger">Clear all</button>
+      <button class="btn-share" onclick="toggleShare()">📤 Share</button>
+    </div>
+
+    <div class="meta-row" style="justify-content: flex-start; margin-top: 4px;">
+      <span class="save-toast" id="saveToast">✓ Saved</span>
     </div>
 
     <div class="note">
       Auto-saved locally • Nothing is uploaded • You're free to delete anytime
     </div>
-
-    <!-- Share Button -->
-    <button class="btn-share" onclick="toggleShare()">📤 Share This App</button>
 
     <!-- Share Panel -->
     <div class="share-panel" id="sharePanel">
@@ -455,6 +535,11 @@ body {
   <!-- History -->
   <div class="card history">
     <h2>Past entries</h2>
+
+    <div class="search-wrap">
+      <input id="searchEntries" placeholder="🔍 Search past entries..." />
+    </div>
+
     <div id="history"></div>
   </div>
 
@@ -466,32 +551,137 @@ document.addEventListener("DOMContentLoaded", () => {
   const STORAGE_KEY = "brainDumpEntries";
   const DRAFT_KEY = "brainDumpDraft";
 
+  const PROMPTS = [
+    "Write whatever's on your mind. Save for future reference",
+    "What's on your mind? Work, worries, random ideas — anything.",
+    "Just start typing. No structure needed.",
+    "Get it out of your head and onto the page.",
+    "What have you been avoiding thinking about?",
+    "Three things bugging you right now..."
+  ];
+
   const textarea = document.getElementById("text");
   const historyBox = document.getElementById("history");
+  const counterEl = document.getElementById("counter");
+  const searchInput = document.getElementById("searchEntries");
 
   const saveBtn = document.getElementById("saveBtn");
   const clearBtn = document.getElementById("clearBtn");
+  const saveToast = document.getElementById("saveToast");
+
+  const editingBanner = document.getElementById("editingBanner");
+  const editingLabel = document.getElementById("editingLabel");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+  let editingIndex = null; // index into the saved entries array, or null for a fresh entry
+  let searchTerm = "";
+  let toastTimer = null;
+
+  textarea.placeholder = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+
+  function getEntries() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  }
+
+  function setEntries(entries) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+
+  function autoGrow(el) {
+    el.style.height = "auto";
+    const h = Math.min(el.scrollHeight, 560);
+    el.style.height = h + "px";
+    el.style.overflowY = el.scrollHeight > 560 ? "auto" : "hidden";
+  }
+
+  function updateCounter() {
+    const text = textarea.value;
+    const words = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+    counterEl.textContent = `${words} word${words === 1 ? "" : "s"} · ${text.length} character${text.length === 1 ? "" : "s"}`;
+  }
+
+  function setEditingMode(index, dateLabel) {
+    editingIndex = index;
+    if (index === null) {
+      editingBanner.hidden = true;
+      saveBtn.textContent = "Save entry";
+    } else {
+      editingBanner.hidden = false;
+      editingLabel.textContent = `✏️ Editing entry from ${dateLabel}`;
+      saveBtn.textContent = "Update entry";
+    }
+  }
+
+  function loadEntryForEdit(index) {
+    const entries = getEntries();
+    const entry = entries[index];
+    if (!entry) return;
+
+    const currentDraft = textarea.value.trim();
+    if (currentDraft && currentDraft !== entry.text.trim() && editingIndex === null) {
+      if (!confirm("You have unsaved text in the editor. Loading this entry will replace it. Continue?")) return;
+    }
+
+    textarea.value = entry.text;
+    localStorage.setItem(DRAFT_KEY, entry.text);
+    setEditingMode(index, entry.date);
+    autoGrow(textarea);
+    updateCounter();
+    textarea.focus();
+    textarea.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function showToast() {
+    saveToast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => saveToast.classList.remove("show"), 1600);
+  }
 
   // Load draft
   textarea.value = localStorage.getItem(DRAFT_KEY) || "";
+  autoGrow(textarea);
+  updateCounter();
 
   textarea.addEventListener("input", () => {
     localStorage.setItem(DRAFT_KEY, textarea.value);
+    autoGrow(textarea);
+    updateCounter();
+  });
+
+  cancelEditBtn.addEventListener("click", () => {
+    textarea.value = "";
+    localStorage.removeItem(DRAFT_KEY);
+    setEditingMode(null);
+    autoGrow(textarea);
+    updateCounter();
+    textarea.focus();
   });
 
   saveBtn.addEventListener("click", () => {
     if (!textarea.value.trim()) return;
 
-    const entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    const entries = getEntries();
 
-    entries.unshift({
-      date: new Date().toLocaleString(),
-      text: textarea.value
-    });
+    if (editingIndex !== null && entries[editingIndex]) {
+      entries[editingIndex] = {
+        date: entries[editingIndex].date,
+        text: textarea.value,
+        editedAt: new Date().toLocaleString()
+      };
+    } else {
+      entries.unshift({
+        date: new Date().toLocaleString(),
+        text: textarea.value
+      });
+    }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    setEntries(entries);
     localStorage.removeItem(DRAFT_KEY);
     textarea.value = "";
+    setEditingMode(null);
+    autoGrow(textarea);
+    updateCounter();
+    showToast();
 
     renderHistory();
   });
@@ -501,27 +691,66 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(DRAFT_KEY);
     textarea.value = "";
+    setEditingMode(null);
+    autoGrow(textarea);
+    updateCounter();
     renderHistory();
   });
 
+  searchInput.addEventListener("input", () => {
+    searchTerm = searchInput.value.trim().toLowerCase();
+    renderHistory();
+  });
+
+  function safeFilename(str) {
+    return str.replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+  }
+
   function renderHistory() {
-    const entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    const allEntries = getEntries();
+
+    const visible = allEntries
+      .map((e, i) => ({ ...e, i }))
+      .filter(e => !searchTerm || e.text.toLowerCase().includes(searchTerm) || e.date.toLowerCase().includes(searchTerm));
+
     historyBox.innerHTML = "";
 
-    if (entries.length === 0) {
-      historyBox.innerHTML =
-        `<div class="note">No past entries stored yet.</div>`;
+    if (allEntries.length === 0) {
+      historyBox.innerHTML = `<div class="note">No past entries stored yet. Write something and hit Save.</div>`;
       return;
     }
 
-    entries.forEach((e, index) => {
+    if (visible.length === 0) {
+      historyBox.innerHTML = `<div class="note">No entries match "${searchInput.value}".</div>`;
+      return;
+    }
+
+    visible.forEach(e => {
+      const index = e.i;
+
       const row = document.createElement("div");
       row.className = "entry";
+      row.onclick = () => loadEntryForEdit(index);
+
+      const main = document.createElement("div");
+      main.className = "entry-main";
 
       const date = document.createElement("div");
       date.className = "entry-date";
       date.textContent = e.date;
-      date.onclick = () => textarea.value = e.text;
+      if (e.editedAt) {
+        const tag = document.createElement("span");
+        tag.className = "entry-edited-tag";
+        tag.textContent = "(edited)";
+        date.appendChild(tag);
+      }
+
+      const preview = document.createElement("div");
+      preview.className = "entry-preview";
+      preview.textContent = e.text;
+
+      main.appendChild(date);
+      main.appendChild(preview);
 
       const actions = document.createElement("div");
       actions.className = "entry-actions";
@@ -529,7 +758,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const downloadBtn = document.createElement("button");
       downloadBtn.className = "entry-btn entry-download";
       downloadBtn.textContent = "Download";
-      downloadBtn.onclick = () => {
+      downloadBtn.onclick = (evt) => {
+        evt.stopPropagation();
         const blob = new Blob(
           [`--- ${e.date} ---\n${e.text}\n`],
           { type: "text/plain" }
@@ -537,7 +767,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `brain-dump-${index + 1}.txt`;
+        a.download = `brain-dump-${safeFilename(e.date) || (index + 1)}.txt`;
         a.click();
         URL.revokeObjectURL(url);
       };
@@ -545,17 +775,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const deleteBtn = document.createElement("button");
       deleteBtn.className = "entry-btn entry-delete";
       deleteBtn.textContent = "Delete";
-      deleteBtn.onclick = () => {
+      deleteBtn.onclick = (evt) => {
+        evt.stopPropagation();
         if (!confirm("Delete this entry?")) return;
+        const entries = getEntries();
         entries.splice(index, 1);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        setEntries(entries);
+        if (editingIndex === index) setEditingMode(null);
         renderHistory();
       };
 
       actions.appendChild(downloadBtn);
       actions.appendChild(deleteBtn);
 
-      row.appendChild(date);
+      row.appendChild(main);
       row.appendChild(actions);
       historyBox.appendChild(row);
     });
