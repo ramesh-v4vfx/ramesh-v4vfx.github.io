@@ -43,15 +43,41 @@
     padding: 20px;
   }
 
+  html, body { height: 100%; }
+
   .app {
     position: relative;
     max-width: 520px;
+    width: 100%;
     margin: auto;
+    max-height: calc(100vh - 40px);
     background: linear-gradient(160deg, var(--card-1), var(--card-2));
-    padding: 22px 20px;
     border-radius: 16px;
     border: 1px solid var(--border);
     box-shadow: 0 24px 55px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .app-header {
+    flex: none;
+    padding: 22px 20px 0;
+  }
+
+  .app-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 20px 22px;
+    scrollbar-width: none;      /* Firefox */
+    -ms-overflow-style: none;   /* old Edge/IE */
+  }
+
+  .app-scroll::-webkit-scrollbar {
+    display: none;              /* Chrome, Safari, new Edge */
   }
 
   h1 {
@@ -118,31 +144,6 @@
   .ticket-divider::before { left: -10px; }
   .ticket-divider::after { right: -10px; }
 
-  /* ---------- CURRENCY CONVERTER CTA ---------- */
-  .tool-cta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    background: var(--accent-soft);
-    border: 1px solid rgba(255,179,71,0.32);
-    border-radius: 10px;
-    padding: 11px 13px;
-    margin-bottom: 16px;
-    font-size: 13px;
-    color: var(--text);
-    text-decoration: none;
-    transition: background 0.15s ease;
-  }
-
-  .tool-cta:hover { background: rgba(255,179,71,0.18); }
-
-  .tool-cta .arrow {
-    color: var(--accent);
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
   /* ---------- CATEGORIES / LIST ---------- */
   .category { margin-top: 16px; }
   .category:first-child { margin-top: 0; }
@@ -204,17 +205,23 @@
   }
 
   .task-link {
-    font-size: 10.5px;
-    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1006;
     text-decoration: none;
-    border: 1px solid rgba(255,179,71,0.4);
-    padding: 2px 7px;
+    background: linear-gradient(135deg, var(--accent), #ffd08a);
+    padding: 6px 12px;
     border-radius: 999px;
     white-space: nowrap;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255,179,71,0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
-  .task-link:hover { background: rgba(255,179,71,0.14); }
+  .task-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255,179,71,0.5);
+  }
 
   button.delete {
     background: none;
@@ -345,7 +352,9 @@
   /* ---------- Small screens ---------- */
   @media (max-width: 480px) {
     body { padding: 12px; }
-    .app { padding: 18px 16px; }
+    .app { max-height: calc(100vh - 24px); }
+    .app-header { padding: 18px 16px 0; }
+    .app-scroll { padding: 0 16px 18px; }
     h1 { font-size: 19px; }
 
     .add-task { flex-direction: column; gap: 8px; }
@@ -356,47 +365,47 @@
 
     li { padding: 12px 2px; }
     .hint { font-size: 12.5px; }
+    .ticket-divider { margin: 14px -16px; }
   }
 </style>
 </head>
 <body>
 
   <div class="app">
-    <h1>✈ International Travel Checklist</h1>
-    <div class="subtitle">Everything to sort before you fly</div>
+    <div class="app-header">
+      <h1>✈ International Travel Checklist</h1>
+      <div class="subtitle">Everything to sort before you fly</div>
 
-    <div class="progress-wrap">
-      <div class="progress-label">
-        <span>Trip readiness</span>
-        <span><strong id="progressCount">0/0</strong> done</span>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Trip readiness</span>
+          <span><strong id="progressCount">0/0</strong> done</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
       </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+
+      <div class="ticket-divider"></div>
+    </div>
+
+    <div class="app-scroll">
+      <div id="taskListWrap"></div>
+
+      <div class="add-task">
+        <input id="newTaskInput" type="text" placeholder="Add your own item…" />
+        <button id="addBtn">Add</button>
       </div>
-    </div>
 
-    <div class="ticket-divider"></div>
+      <div class="export-row">
+        <button id="downloadBtn" class="btn-export">⬇ Download checklist</button>
+        <button id="shareBtn" class="btn-share-checklist">📤 Share checklist</button>
+      </div>
+      <button id="resetBtn" class="btn-reset">🔄 Reset to default checklist</button>
 
-    <a class="tool-cta" href="https://rameshverse.com/currency-converter/" target="_blank" rel="noopener">
-      <span>💱 Need local currency figured out? Try the Currency Converter</span>
-      <span class="arrow">→</span>
-    </a>
-
-    <div id="taskListWrap"></div>
-
-    <div class="add-task">
-      <input id="newTaskInput" type="text" placeholder="Add your own item…" />
-      <button id="addBtn">Add</button>
-    </div>
-
-    <div class="export-row">
-      <button id="downloadBtn" class="btn-export">⬇ Download checklist</button>
-      <button id="shareBtn" class="btn-share-checklist">📤 Share checklist</button>
-    </div>
-    <button id="resetBtn" class="btn-reset">🔄 Reset to default checklist</button>
-
-    <div class="hint">
-      💡 Some countries require 6 months passport validity and proof of onward travel.
+      <div class="hint">
+        💡 Some countries require 6 months passport validity and proof of onward travel.
+      </div>
     </div>
   </div>
 
