@@ -33,7 +33,14 @@
   }
 
   body {
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(232,197,71,0.05), transparent 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='140'%3E%3Ccircle cx='20' cy='25' r='8' fill='none' stroke='rgba(232,197,71,0.12)' stroke-width='1.3'/%3E%3Ccircle cx='20' cy='25' r='4' fill='rgba(232,197,71,0.06)'/%3E%3Ccircle cx='72' cy='58' r='6' fill='none' stroke='rgba(232,197,71,0.1)' stroke-width='1.1'/%3E%3Ccircle cx='72' cy='58' r='3' fill='rgba(232,197,71,0.05)'/%3E%3Ccircle cx='132' cy='30' r='10' fill='none' stroke='rgba(232,197,71,0.12)' stroke-width='1.4'/%3E%3Ccircle cx='132' cy='30' r='5' fill='rgba(232,197,71,0.06)'/%3E%3Ccircle cx='172' cy='92' r='7' fill='none' stroke='rgba(232,197,71,0.1)' stroke-width='1.2'/%3E%3Ccircle cx='172' cy='92' r='3.5' fill='rgba(232,197,71,0.05)'/%3E%3Ccircle cx='48' cy='114' r='9' fill='none' stroke='rgba(232,197,71,0.11)' stroke-width='1.3'/%3E%3Ccircle cx='48' cy='114' r='4.5' fill='rgba(232,197,71,0.05)'/%3E%3Ccircle cx='152' cy='125' r='5' fill='none' stroke='rgba(232,197,71,0.09)' stroke-width='1'/%3E%3Ccircle cx='152' cy='125' r='2.5' fill='rgba(232,197,71,0.05)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Cg transform='translate(8,14) rotate(-8)'%3E%3Crect x='0' y='0' width='30' height='18' rx='2' fill='none' stroke='rgba(232,197,71,0.11)' stroke-width='1.1'/%3E%3Ccircle cx='15' cy='9' r='4.5' fill='none' stroke='rgba(232,197,71,0.09)' stroke-width='0.8'/%3E%3C/g%3E%3Cg transform='translate(68,52) rotate(12)'%3E%3Crect x='0' y='0' width='26' height='16' rx='2' fill='none' stroke='rgba(232,197,71,0.1)' stroke-width='1'/%3E%3Ccircle cx='13' cy='8' r='4' fill='none' stroke='rgba(232,197,71,0.08)' stroke-width='0.7'/%3E%3C/g%3E%3Cg transform='translate(98,8) rotate(6)'%3E%3Crect x='0' y='0' width='22' height='14' rx='2' fill='none' stroke='rgba(232,197,71,0.09)' stroke-width='0.9'/%3E%3Ccircle cx='11' cy='7' r='3.3' fill='none' stroke='rgba(232,197,71,0.07)' stroke-width='0.6'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat, repeat, repeat;
+    background-position: top center, 0 0, 35px 18px;
+    background-size: auto, 200px 140px, 150px 100px;
     color: var(--text);
     font-family: 'Outfit', sans-serif;
     font-weight: 400;
@@ -74,6 +81,8 @@
     border-radius: var(--radius);
     padding: 24px 20px;
     margin-bottom: 16px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    transition: border-color 0.2s ease;
   }
 
   .card-title {
@@ -102,6 +111,14 @@
     font-size: 14px;
     color: var(--muted);
     font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-icon {
+    font-size: 12px;
+    opacity: 0.8;
   }
 
   .field-value {
@@ -224,6 +241,7 @@
     border: 1px solid var(--border);
     position: relative;
     overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
   }
 
   .result-tile.featured {
@@ -273,30 +291,21 @@
   }
 
   .breakdown-bar {
-    height: 8px;
+    display: flex;
+    height: 10px;
     border-radius: 99px;
     background: var(--surface2);
     overflow: hidden;
     margin-bottom: 10px;
   }
 
-  .bar-fill {
+  .bar-segment {
     height: 100%;
-    border-radius: 99px;
-    background: var(--accent);
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
   }
 
-  .bar-fill::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 60%;
-    height: 100%;
-    background: var(--accent3);
-    border-radius: 99px;
-  }
+  .bar-segment.principal { background: var(--accent); }
+  .bar-segment.interest { background: var(--accent3); }
 
   .legend {
     display: flex;
@@ -356,25 +365,24 @@
 
   <div class="field">
     <div class="field-header">
-      <span class="field-label">Principal amount</span>
-      <span class="field-value" id="principalDisplay">₹5,00,000</span>
+      <span class="field-label"><span class="field-icon">💰</span>Principal amount</span>
+      <span class="field-value" id="principalDisplay">5,00,000</span>
     </div>
     <div class="range-track-wrapper">
       <input type="range" id="principalRange" min="10000" max="10000000" step="10000" value="500000">
     </div>
     <div class="range-limits">
-      <span class="range-limit">₹10K</span>
-      <span class="range-limit">₹1Cr</span>
+      <span class="range-limit" id="principalMinLabel">10K</span>
+      <span class="range-limit" id="principalMaxLabel">1Cr</span>
     </div>
     <div class="number-input-row">
       <input type="number" class="num-input" id="principalInput" min="10000" max="10000000" value="500000" placeholder="Amount">
-      <span class="unit-badge">₹ INR</span>
     </div>
   </div>
 
   <div class="field">
     <div class="field-header">
-      <span class="field-label">Annual interest rate</span>
+      <span class="field-label"><span class="field-icon">%</span>Annual interest rate</span>
       <span class="field-value" id="rateDisplay">8.5 <span>% p.a.</span></span>
     </div>
     <div class="range-track-wrapper">
@@ -392,7 +400,7 @@
 
   <div class="field">
     <div class="field-header">
-      <span class="field-label">Loan tenure</span>
+      <span class="field-label"><span class="field-icon">📅</span>Loan tenure</span>
       <span class="field-value" id="tenureDisplay">5 <span>years</span></span>
     </div>
     <div class="range-track-wrapper">
@@ -412,17 +420,17 @@
 <div class="results-grid">
   <div class="result-tile featured">
     <p class="tile-label">Monthly EMI</p>
-    <p class="tile-value" id="emiResult">₹0</p>
+    <p class="tile-value" id="emiResult">0</p>
     <p class="tile-sub" id="emiSub">per month for 60 months</p>
   </div>
   <div class="result-tile interest">
     <p class="tile-label">Total interest</p>
-    <p class="tile-value" id="interestResult">₹0</p>
+    <p class="tile-value" id="interestResult">0</p>
     <p class="tile-sub" id="interestPercent">0% of principal</p>
   </div>
   <div class="result-tile total">
     <p class="tile-label">Total payable</p>
-    <p class="tile-value" id="totalResult">₹0</p>
+    <p class="tile-value" id="totalResult">0</p>
     <p class="tile-sub">principal + interest</p>
   </div>
 </div>
@@ -430,7 +438,8 @@
 <div class="card" id="breakdownCard">
   <p class="card-title">Cost breakdown</p>
   <div class="breakdown-bar">
-    <div class="bar-fill" id="breakdownBar" style="width: 60%;"></div>
+    <div class="bar-segment principal" id="barPrincipal" style="width: 60%;"></div>
+    <div class="bar-segment interest" id="barInterest" style="width: 40%;"></div>
   </div>
   <div class="legend">
     <div class="legend-item">
@@ -449,13 +458,18 @@
 <footer>All calculations use standard reducing-balance method · Indicative only</footer>
 
 <script>
-  // --- Precise arithmetic helpers (avoid floating-point drift) ---
+  // --- Locale detection: numbers are formatted for the viewer's own region,
+  // but no currency symbol is shown, since the app never converts currencies —
+  // whatever units you enter in are the units you get back out.
+  const userLocale = (navigator.languages && navigator.languages[0]) || navigator.language || 'en-US';
+  const isIndianLocale = /-in$/i.test(userLocale) || /^hi\b/i.test(userLocale);
+
   function round2(n) { return Math.round(n * 100) / 100; }
   function roundToInt(n) { return Math.round(n); }
 
-  function formatINR(n) {
+  function formatNumber(n) {
     n = round2(n);
-    return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return n.toLocaleString(userLocale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   }
 
   function calcEMI(P, annualRate, years) {
@@ -517,9 +531,14 @@
   }
 
   function principalFmt(v) {
-    if (v >= 1e7) return '₹' + (v/1e7).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
-    if (v >= 1e5) return '₹' + (v/1e5).toFixed(1).replace(/\.?0+$/, '') + ' L';
-    return '₹' + roundToInt(v).toLocaleString('en-IN');
+    if (isIndianLocale) {
+      if (v >= 1e7) return (v / 1e7).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
+      if (v >= 1e5) return (v / 1e5).toFixed(1).replace(/\.?0+$/, '') + ' L';
+      return roundToInt(v).toLocaleString(userLocale);
+    }
+    if (v >= 1e6) return (v / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M';
+    if (v >= 1e3) return (v / 1e3).toFixed(1).replace(/\.?0+$/, '') + 'K';
+    return roundToInt(v).toLocaleString(userLocale);
   }
   function rateFmt(v) { return parseFloat(v).toFixed(1) + ' <span>% p.a.</span>'; }
   function tenureFmt(v) { return Math.round(v) + ' <span>' + (Math.round(v) === 1 ? 'year' : 'years') + '</span>'; }
@@ -552,17 +571,18 @@
     const totalPayable = round2(emi * months);
     const correctedInterest = round2(totalPayable - P);
 
-    document.getElementById('emiResult').textContent = formatINR(emi);
+    document.getElementById('emiResult').textContent = formatNumber(emi);
     document.getElementById('emiSub').textContent = `per month for ${months} months`;
-    document.getElementById('interestResult').textContent = formatINR(correctedInterest);
+    document.getElementById('interestResult').textContent = formatNumber(correctedInterest);
     const ipct = round2(correctedInterest / P * 100);
     document.getElementById('interestPercent').textContent = ipct.toFixed(1) + '% of principal';
-    document.getElementById('totalResult').textContent = formatINR(totalPayable);
+    document.getElementById('totalResult').textContent = formatNumber(totalPayable);
 
-    // breakdown bar
+    // breakdown bar — principal and interest segments now always sum to 100% of the track
     const principalPct = round2(P / totalPayable * 100);
     const intPct = round2(100 - principalPct);
-    document.getElementById('breakdownBar').style.width = principalPct + '%';
+    document.getElementById('barPrincipal').style.width = principalPct + '%';
+    document.getElementById('barInterest').style.width = intPct + '%';
     document.getElementById('principalPct').textContent = principalPct.toFixed(1) + '%';
     document.getElementById('interestPct').textContent = intPct.toFixed(1) + '%';
 
@@ -572,6 +592,12 @@
   linkInputs('principalRange', 'principalInput', 'principalDisplay', principalFmt, update);
   linkInputs('rateRange', 'rateInput', 'rateDisplay', rateFmt, update);
   linkInputs('tenureRange', 'tenureInput', 'tenureDisplay', tenureFmt, update);
+
+  // Set the range endpoint labels and initial slider readouts to match the
+  // viewer's detected locale (e.g. "1L"/"1Cr" in India, "10K"/"10M" elsewhere).
+  document.getElementById('principalMinLabel').textContent = principalFmt(10000);
+  document.getElementById('principalMaxLabel').textContent = principalFmt(10000000);
+  document.getElementById('principalDisplay').textContent = principalFmt(parseFloat(document.getElementById('principalInput').value));
 
   update();
 </script>
