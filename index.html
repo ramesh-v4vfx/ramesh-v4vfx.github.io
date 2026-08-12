@@ -23,10 +23,15 @@
 <meta name="theme-color" content="#0e0101">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
   *, *::before, *::after { box-sizing: border-box; }
 
-  h1 { color: #ea6d6d; }
+  h1 { color: #ff2b2b; }
 
  .search-wrap {
     display: flex;
@@ -36,16 +41,15 @@
     max-width: 640px;
     padding: 14px 14px;
     border-radius: 12px;
-    background: #1f0303;
-    border: 2px solid rgba(255,255,255,0.35);
+    background: linear-gradient(180deg, #19181a, #0b0a0b);
+    border: 1.5px solid rgba(255,43,43,0.3);
 
     position: relative;
     overflow: visible;
 
     box-shadow:
         0 6px 18px rgba(0,0,0,.45),
-        0 0 18px rgba(106,169,255,.18),
-        inset 0 0 0 1px rgba(255,255,255,.04);
+        inset 0 0 0 1px rgba(255,43,43,.1);
 
     transition:
         box-shadow .25s ease,
@@ -68,17 +72,14 @@
 /* The moving glow */
 
 .search-wrap:hover {
-    transform: translateY(-3px) scale(1.02);
-
-    border-color: #6aa9ff;
+    border-color: #ff2b2b;
 
     box-shadow:
-        0 0 0 3px rgba(106,169,255,.18),
-        0 0 25px rgba(106,169,255,.55),
+        0 0 0 3px rgba(255,43,43,.18),
+        0 0 25px rgba(255,43,43,.4),
         0 8px 30px rgba(0,0,0,.55);
 
     transition:
-        transform .25s ease,
         box-shadow .25s ease,
         border-color .25s ease;
 }
@@ -89,7 +90,9 @@
     border: none;
     outline: none;
     box-shadow: none;
-    color: #ff0000;
+    color: #ff3b3b;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    text-shadow: 0 0 6px rgba(255,43,43,0.4);
     font-size: 15px;
   }
 
@@ -220,10 +223,12 @@
   }
 
   .hero-channel {
+    font-family: 'Space Mono', 'Courier New', monospace;
     font-size: 0.72rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #ea6d6d;
+    color: #ff2b2b;
+    text-shadow: 0 0 8px rgba(255,43,43,0.6);
     margin-bottom: 4px;
     font-weight: bold;
   }
@@ -233,7 +238,7 @@
     font-weight: bold;
     color: #fff;
     margin: 0 0 6px;
-    text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8), 0 0 26px rgba(255,43,43,0.25);
     line-height: 1.2;
   }
 
@@ -249,20 +254,24 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(234,109,109,0.85);
-    color: #fff;
+    background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+    color: #ff2b2b;
+    text-shadow: 0 0 8px rgba(255,43,43,0.6);
     border: none;
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.4);
     border-radius: 6px;
     padding: 7px 16px;
-    font-size: 0.82rem;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.78rem;
     font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     cursor: pointer;
     text-decoration: none;
-    letter-spacing: 0.04em;
-    transition: background 0.2s;
+    transition: box-shadow 0.2s ease;
     backdrop-filter: blur(4px);
   }
-  .hero-cta:hover { background: rgba(234,109,109,1); }
+  .hero-cta:hover { box-shadow: inset 0 0 0 1px rgba(255,43,43,0.75), 0 0 16px rgba(255,43,43,0.35); }
 
   /* Slide dots */
   .hero-dots {
@@ -287,7 +296,8 @@
   }
 
   .hero-dot.active {
-    background: #ea6d6d;
+    background: #ff2b2b;
+    box-shadow: 0 0 8px rgba(255,43,43,0.7);
     transform: scale(1.3);
   }
 
@@ -297,13 +307,12 @@
     top: 0;
     left: 0;
     height: 3px;
-    background: #ea6d6d;
+    background: #ff2b2b;
     z-index: 5;
     width: 0%;
     transition: width linear;
-    box-shadow: 0 0 8px rgba(234,109,109,0.7);
+    box-shadow: 0 0 8px rgba(255,43,43,0.7);
   }
-
 
 
 .hero-close {
@@ -330,6 +339,8 @@
 
 .hero-close:hover{
     background: rgba(0,0,0,.8);
+    box-shadow: 0 0 0 1px rgba(255,43,43,.5), 0 0 14px rgba(255,43,43,.35);
+    color: #ff2b2b;
 }
 
   /* ── STICKY SEARCH + TABS WRAPPER ── */
@@ -350,11 +361,11 @@
   }
 
   .search-wrap:focus-within {
-    border-color: #6aa9ff;
-    box-shadow: 0 0 0 4px rgba(106,169,255,.25), 0 8px 22px rgb(60,82,246);
+    border-color: #ff2b2b;
+    box-shadow: 0 0 0 4px rgba(255,43,43,.22), 0 0 20px rgba(255,43,43,.4), 0 8px 22px rgba(0,0,0,.5);
   }
 
-  .site-search input::placeholder { color: rgba(229,231,235,.45); }
+  .site-search input::placeholder { color: rgba(255,43,43,0.8); }
 
   /* ── TABS ── */
   .tabs-bar {
@@ -366,12 +377,16 @@
   }
 
 .tab-btn {
-    background: #1f0303;
-    border: 1.5px solid rgba(255,255,255,0.18);
-    color: rgba(255,255,255,0.65);
-    border-radius: 20px;
-    padding: 5px 14px;
-    font-size: 0.82rem;
+    background: rgba(255,255,255,0.03);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.18);
+    border: none;
+    color: #9a9599;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     cursor: pointer;
     white-space: nowrap;
 
@@ -381,36 +396,31 @@
     transition:
         transform .35s cubic-bezier(.22,.61,.36,1),
         background .3s ease,
-        border-color .3s ease,
-        color .3s ease,
-        box-shadow .35s ease;
+        box-shadow .3s ease,
+        color .3s ease;
 
     will-change: transform;
 }
 
 .tab-btn:hover {
-    background: linear-gradient(
-        135deg,
-        #7c1a1a,
-        #3d0808
-    );
+    background: rgba(255,43,43,0.1);
+    color: #ff2b2b;
+    text-shadow: 0 0 6px rgba(255,43,43,0.6);
 
-    color: #fff;
-    border-color: #ea6d6d;
-
-    transform: translateY(-5px) scale(1.15);
+    transform: translateY(-3px) scale(1.08);
 
     box-shadow:
-        0 0 18px rgba(234,109,109,.75),
-        0 0 35px rgba(234,109,109,.35);
+        inset 0 0 0 1px rgba(255,43,43,0.5),
+        0 0 18px rgba(255,43,43,.4);
 
     z-index: 20;
 }
 
   .tab-btn.active {
-    background: #7c1a1a;
-    border-color: #ea6d6d;
-    color: #fff;
+    background: rgba(255,43,43,0.18);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 0 2px rgba(255,43,43,0.25);
+    color: #ff2b2b;
+    text-shadow: 0 0 8px rgba(255,43,43,0.6);
     font-weight: bold;
   }
 
@@ -424,8 +434,8 @@
     top: 465px;
     z-index: 1001;
 
-    background: #260101;
-    border: 1px solid rgba(255, 110, 110, 0.3);
+    background: linear-gradient(180deg, #1b1b1d, #0c0c0d);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.25), 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.6);
     border-radius: 12px;
     padding: 14px;
 
@@ -439,12 +449,15 @@
 
 .popular-tools h2 {
   margin: 0 0 12px;
-  font-size: 1.05rem;
-  color: #ea6d6d;
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 8px rgba(255,43,43,0.5);
   font-weight: 700;
-  letter-spacing: 0.02em;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.12);
+  border-bottom: 1px solid rgba(255,43,43,0.18);
 }
 
 #popularToolsList {
@@ -456,10 +469,11 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 9px 4px;
-    color: #fff;
+    padding: 9px 6px;
+    color: #f3f0fb;
+    font-family: 'Space Mono', 'Courier New', monospace;
     text-decoration: none;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,43,43,0.1);
     border-radius: 6px;
 
     transition:
@@ -472,14 +486,15 @@
 }
 
 .popular-tool-item:hover {
-    background: rgba(234,109,109,0.12);
-    color: #ea6d6d;
+    background: rgba(255,43,43,0.1);
+    color: #ff2b2b;
+    text-shadow: 0 0 6px rgba(255,43,43,0.5);
 
     transform: scale(1.025);
 
     box-shadow:
-        0 0 18px rgba(234,109,109,0.35),
-        0 0 0 1px rgba(234,109,109,0.25);
+        0 0 18px rgba(255,43,43,0.3),
+        inset 0 0 0 1px rgba(255,43,43,0.4);
 
     z-index: 2;
 }
@@ -489,16 +504,16 @@
 }
 
 .popular-rank {
-  width: 22px;
+  width: 20px;
   flex-shrink: 0;
   font-weight: 700;
-  color: #ea6d6d;
+  color: #ff2b2b;
   text-align: center;
 }
 
 .popular-name {
   flex: 1;
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -506,66 +521,46 @@
 
 .popular-views {
   flex-shrink: 0;
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.55);
+  font-size: 0.68rem;
+  color: rgba(255,43,43,1);
   white-space: nowrap;
-}
-
-.popular-tool-item:last-child {
-  border-bottom: none;
-}
-
-.popular-tool-item:hover {
-    background: rgba(234,109,109,0.12);
-    color: #ea6d6d;
-
-    transform: scale(1.025);
-
-    box-shadow:
-        0 0 18px rgba(234,109,109,0.35),
-        0 0 0 1px rgba(234,109,109,0.25);
-
-    z-index: 2;
-}
-
-.popular-rank {
-  width: 20px;
-  flex-shrink: 0;
-  font-weight: 700;
-  color: #ea6d6d;
-}
-
-.popular-name {
-  flex: 1;
-  font-size: 0.85rem;
-  line-height: 1.2;
-}
-
-.popular-views {
-  flex-shrink: 0;
-  font-size: 0.72rem;
-  color: #aaa;
 }
   /* ── TOOLS GRID ── */
   .tools {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 30px 12px 12px;
+    padding: 0px 12px 12px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     row-gap: 0px;
-    column-gap: 25px;
+    column-gap: 34px;
     align-items: start;
     justify-content: start;
     min-height: 60vh;
+
+    counter-reset: toolid;
+
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 34px 34px;
 }
 
   .tool {
-    margin-top: 20px;
+    margin-top: 28px;
     max-width: 280px;
     height: 180px;
-    background: #161a35;
-    border-radius: 14px;
+    background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,43,43,0.035) 0px,
+          rgba(255,43,43,0.035) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        linear-gradient(180deg, #1b1b1d, #0c0c0d);
+    border: 1px solid rgba(255,43,43,0.16);
+    border-radius: 16px;
     padding: 14px 16px;
     text-decoration: none;
     color: #fff;
@@ -579,6 +574,8 @@
     gap: 4px;
     overflow: hidden;
 
+    counter-increment: toolid;
+
     position: relative;
     z-index: 1;
 
@@ -588,22 +585,160 @@
      */
     transition:
         transform .35s cubic-bezier(.22,.61,.36,1),
-        box-shadow .35s ease,
-        background .35s ease;
+        background .35s ease,
+        border-color .35s ease;
 
     will-change: transform;
 }
 
+.tool:hover,
+.tool.tool-hovered {
+    border-color: var(--accent, #ff2b2b);
+}
+
+/* HUD corner marks — same technique used on the tool pages themselves
+   (four small elements with two borders each), colored per category */
+.hud-corner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: 2;
+    pointer-events: none;
+    opacity: .65;
+    filter: drop-shadow(0 0 2px var(--accent, #ff2b2b));
+    transition: opacity .3s ease, filter .3s ease;
+}
+.hud-corner.tl { top: 10px; left: 10px;    border-top: 2px solid var(--accent, #ff2b2b); border-left: 2px solid var(--accent, #ff2b2b); }
+.hud-corner.tr { top: 10px; right: 10px;   border-top: 2px solid var(--accent, #ff2b2b); border-right: 2px solid var(--accent, #ff2b2b); }
+.hud-corner.bl { bottom: 10px; left: 10px; border-bottom: 2px solid var(--accent, #ff2b2b); border-left: 2px solid var(--accent, #ff2b2b); }
+.hud-corner.br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--accent, #ff2b2b); border-right: 2px solid var(--accent, #ff2b2b); }
+
+.tool:hover .hud-corner,
+.tool.tool-hovered .hud-corner {
+    opacity: 1;
+    animation: hudCornerPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes hudCornerPulse {
+    0%, 100% { filter: drop-shadow(0 0 3px var(--accent, #ff2b2b)); }
+    50%      { filter: drop-shadow(0 0 10px var(--accent, #ff2b2b)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tool:hover .hud-corner,
+    .tool.tool-hovered .hud-corner { animation: none; }
+}
+
+/* Subtle glow — a gentle red presence around the card while hovered */
+.tool:hover,
+.tool.tool-hovered {
+    animation: hudAlarmPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes hudAlarmPulse {
+    0%, 100% {
+        box-shadow:
+            0 10px 25px rgba(0,0,0,.4),
+            0 0 14px rgba(255,43,43,.3),
+            0 0 0 1px var(--accent, #ff2b2b);
+    }
+    50% {
+        box-shadow:
+            0 10px 25px rgba(0,0,0,.4),
+            0 0 26px rgba(255,43,43,.5),
+            0 0 0 1px var(--accent, #ff2b2b);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tool:hover,
+    .tool.tool-hovered { animation: none; }
+}
+
+/* Scanline flicker — several thin lines, jittering unevenly rather
+   than one line sweeping predictably in one direction */
+.tool::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        var(--accent, #ff2b2b) 0px,
+        var(--accent, #ff2b2b) 1px,
+        transparent 1px,
+        transparent 5px
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity .3s ease;
+}
+
+.tool:hover::before,
+.tool.tool-hovered::before {
+    opacity: .1;
+    animation: hudScanlines 1.7s steps(9) infinite alternate;
+}
+
+@keyframes hudScanlines {
+    from { background-position: 0 0; }
+    to   { background-position: 0 70px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tool:hover::before,
+    .tool.tool-hovered::before { animation: none; opacity: 0; }
+}
+
+/* Sequential unit ID, stamped like a systems manifest entry */
+.tool::after {
+    content: "N·" counter(toolid, decimal-leading-zero);
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    z-index: 2;
+    pointer-events: none;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    color: var(--accent, #ff2b2b);
+    opacity: .45;
+    transition: opacity .3s ease;
+}
+
+.tool:hover::after,
+.tool.tool-hovered::after {
+    opacity: .9;
+}
+
+.tool-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.tool-tag {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent, #ff2b2b);
+    opacity: .8;
+}
+
 .tool:active {
     transform: scale(.98);
-    background: #222766;
+    background: #2a2a2c;
 }
 
 .tool h3 {
     margin: 0;
-    font-size: clamp(1rem, 2.6vw, 1.15rem);
-    line-height: 1.3;
-    color: #fc7676;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: clamp(0.92rem, 2.4vw, 1.05rem);
+    line-height: 1.35;
+    color: #ff3b3b;
+    text-shadow: 0 0 8px rgba(255,43,43,0.5);
 
     transition:
         font-size .35s ease,
@@ -612,8 +747,9 @@
 
 .tool p {
     margin: 0;
-    opacity: .7;
-    font-size: clamp(.85rem, 2.2vw, .95rem);
+    font-family: 'Space Mono', 'Courier New', monospace;
+    opacity: .65;
+    font-size: clamp(.72rem, 1.9vw, .82rem);
     line-height: 1.3;
 
     transition:
@@ -622,27 +758,33 @@
 }
 
 /* The card being hovered */
+.tool:hover,
 .tool.tool-hovered {
-    transform: scale(1.01);
+    transform: scale(1.08);
+    transform-origin: center center;
 
-    background: linear-gradient(
-        180deg,
-        #1c2460,
-        #171f45
-    );
+    background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,43,43,0.045) 0px,
+          rgba(255,43,43,0.045) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        linear-gradient(180deg, #222224, #101011);
 
-    box-shadow:
-        0 0 30px rgba(247,16,16,.75),
-        0 0 0 1px rgba(72,17,17,.9);
+    border-color: var(--accent, rgba(255,43,43,.6));
 
     z-index: 20;
 }
 
+.tool:hover h3,
 .tool.tool-hovered h3 {
     font-size: 1.25rem;
     line-height: 1.35;
 }
 
+.tool:hover p,
 .tool.tool-hovered p {
     font-size: 1.05rem;
     line-height: 1.35;
@@ -657,42 +799,111 @@
 }
   footer {
     text-align: center;
-    padding: 0px 20px 0px;
-    opacity: 0.5;
-    font-size: 0.85rem;
+    padding: 32px 20px 24px;
+    margin-top: 20px;
+    border-top: 1px solid rgba(255,43,43,0.15);
+    font-family: 'Space Mono', 'Courier New', monospace;
+    color: rgba(255,43,43,.55);
+    opacity: 1;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
   }
 
-  footer a:hover { opacity: 0.8; text-decoration: underline; }
+  footer a {
+    color: #ff2b2b;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,43,43,0.3);
+    padding-bottom: 1px;
+    transition: text-shadow .2s ease, border-color .2s ease;
+  }
+
+  footer a:hover { text-shadow: 0 0 8px rgba(255,43,43,.7); border-color: #ff2b2b; }
 
   .tool:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 3px; }
 
   /* ── SHARE BAR ── */
   .share-bar {
-    margin: 0px auto 0px;
-    max-width: 420px;
+    margin: 28px auto 0;
+    max-width: 620px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 14px;
     background: none;
     border: none;
     box-shadow: none;
   }
 
-  .share-label { font-size: 0.75rem; opacity: 0.45; margin-right: 6px; }
-
-  .share-bar button {
-    background: transparent;
-    border: none;
-    padding: 4px;
-    font-size: 1.05rem;
-    cursor: pointer;
-    opacity: 0.75;
-    transition: opacity .15s ease, transform .15s ease;
+  .share-label {
+    flex-basis: 100%;
+    text-align: center;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-bottom: 4px;
   }
 
-  .share-bar button:hover  { opacity: 1; transform: translateY(-2px); }
-  .share-bar button:active { transform: scale(0.95); }
+  .share-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: 54px;
+  }
+
+  .share-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    background: #eceff1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 14px rgba(0,0,0,.35);
+    transition:
+      transform .2s cubic-bezier(.22,.61,.36,1),
+      box-shadow .2s ease;
+  }
+
+  .share-item:hover .share-icon {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(255,43,43,.35);
+  }
+
+  .share-item:active .share-icon { transform: translateY(0) scale(0.95); }
+
+  .share-item:focus-visible .share-icon {
+    outline: 2px solid #6aa9ff;
+    outline-offset: 2px;
+  }
+
+  .share-item .share-text {
+    font-size: 0.64rem;
+    color: rgba(255,255,255,0.75);
+    white-space: nowrap;
+  }
+
+  .share-icon .fa-whatsapp     { color: #25D366; }
+  .share-icon .fa-facebook     { color: #1877F2; }
+  .share-icon .fa-facebook-messenger { color: #6C5CE7; }
+  .share-icon .fa-instagram    { color: #E1306C; }
+  .share-icon .fa-x-twitter    { color: #111111; }
+  .share-icon .fa-telegram     { color: #229ED9; }
+  .share-icon .fa-link         { color: #666666; }
+
+  @media (max-width: 600px) {
+    .share-item { width: 46px; }
+    .share-icon { width: 36px; height: 36px; font-size: 0.95rem; border-radius: 9px; }
+    .share-item .share-text { font-size: 0.58rem; }
+  }
 
   /* ── NO RESULTS ── */
   .no-results {
@@ -726,6 +937,8 @@
 
 .hero-nav:hover{
     background:rgba(0,0,0,.7);
+    box-shadow: 0 0 0 1px rgba(255,43,43,.5), 0 0 16px rgba(255,43,43,.4);
+    color: #ff2b2b;
     transform:translateY(-50%) scale(1.08);
 }
 
@@ -739,9 +952,7 @@
 
 @media (max-width: 1200px) {
   .popular-tools {
-    position: static;
-    width: 300px;
-    margin: 30px auto;
+    display: none;
   }
 }
 
@@ -755,6 +966,11 @@
     .site-search input { max-width: 92%; }
     .tools { justify-items: center; }
     .tool { width: 100%; max-width: 90%; height: 64px; padding: 10px 14px; }
+    .hud-corner { width: 11px; height: 11px; }
+    .hud-corner.tl, .hud-corner.tr { top: 7px; }
+    .hud-corner.bl, .hud-corner.br { bottom: 7px; }
+    .hud-corner.tl, .hud-corner.bl { left: 7px; }
+    .hud-corner.tr, .hud-corner.br { right: 7px; }
     .tool h3 { font-size: 0.95rem; line-height: 1.2; }
     .tool p   { font-size: 0.78rem; line-height: 1.2; }
     .tool-country { grid-column: span 1; justify-content: space-between; }
@@ -763,18 +979,183 @@
   }
 
   @media (hover: none) {
-    .tool:hover {
-      height: 80px !important;
-      background: #161a35 !important;
-      box-shadow: 0 10px 25px rgba(0,0,0,.4) !important;
-      transform: none !important;
-    }
     .tool:hover h3, .tool:hover p { font-size: inherit !important; line-height: inherit !important; }
-    .tool:active { background: #1c2150; transform: scale(0.98); }
+    .tool:active { background: #2a2a2c; transform: scale(0.98); }
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SYSTEMS LAYER — starfield, boot sequence, HUD telemetry
+     Ties the homepage to the Rameshverse Systems · MK branding
+     used across the tool suite.
+     ══════════════════════════════════════════════════════ */
+
+  .hud-mono {
+    font-family: 'Space Mono', 'Courier New', monospace;
+  }
+
+  /* ── Ambient starfield (fixed, behind everything) ── */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    background: #0e0101;
+  }
+
+  /* Site content sits above the starfield */
+  .hero, .sticky-top, .tools, .share-bar, footer {
+    position: relative;
+    z-index: 1;
+  }
+
+  .popular-tools { z-index: 1; }
+
+  /* ── Boot sequence overlay ── */
+  #bootOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #0e0101;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    transition: opacity .6s ease, visibility .6s ease;
+  }
+
+  #bootOverlay.boot-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .boot-mark {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: clamp(1.4rem, 5vw, 2.4rem);
+    letter-spacing: 0.28em;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 0 18px rgba(255,43,43,.65);
+    animation: bootFlicker 1.8s steps(1) forwards;
+  }
+
+  .boot-sub {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #ff2b2b;
+    opacity: 0;
+    animation: bootFadeIn .5s ease forwards .9s;
+  }
+
+  .boot-bar {
+    width: min(240px, 60vw);
+    height: 2px;
+    background: rgba(255,255,255,0.12);
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .boot-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #ff2b2b;
+    box-shadow: 0 0 10px rgba(255,43,43,.8);
+    animation: bootLoad 1.4s ease forwards .35s;
+  }
+
+  @keyframes bootFlicker {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    12%  { opacity: 0.2; }
+    16%  { opacity: 1; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes bootFadeIn {
+    to { opacity: 0.85; }
+  }
+
+  @keyframes bootLoad {
+    to { width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #bootOverlay { display: none !important; }
+    .boot-mark, .boot-sub, .boot-bar-fill { animation: none !important; }
+  }
+
+  /* ── HUD telemetry readout, sits quietly in the search row ── */
+  .hud-strip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px 10px;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,43,43,0.75);
+  }
+
+  .hud-strip .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ff2b2b;
+    box-shadow: 0 0 6px rgba(255,43,43,.9);
+    animation: hudPulse 2.4s ease-in-out infinite;
+  }
+
+  .hud-strip .divider {
+    opacity: 0.35;
+  }
+
+  @keyframes hudPulse {
+    0%, 100% { opacity: 0.4; }
+    50%      { opacity: 1; }
+  }
+
+  @media (max-width: 600px) {
+    .hud-strip { font-size: 0.58rem; gap: 7px; }
+  }
+
+  /* ── Scroll reveal for tool cards ── */
+  .tool {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  .tool.tool-revealed {
+    animation: toolReveal .55s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+
+  @keyframes toolReveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tool { opacity: 1; transform: none; }
+    .tool.tool-revealed { animation: none; }
   }
 </style>
 </head>
 <body>
+
+<!-- ══════════════ SYSTEMS BOOT OVERLAY ══════════════ -->
+<div id="bootOverlay" aria-hidden="true">
+  <div class="boot-mark">RAMESHVERSE</div>
+  <div class="boot-sub">SYSTEMS · MK·03 — INITIALIZING</div>
+  <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+</div>
+
+<!-- ══════════════ AMBIENT STARFIELD ══════════════ -->
+<canvas id="starfield" aria-hidden="true"></canvas>
 
 <!-- ══════════════ HERO SLIDESHOW ══════════════ -->
 <section class="hero" id="hero" aria-label="Featured videos from v4vfx">
@@ -792,22 +1173,6 @@
 <button class="hero-nav hero-next" id="heroNext" aria-label="Next slide">
     ❯
 </button>
-
-  <!--
-    ──────────────────────────────────────────────────────
-    HOW TO ADD YOUR VIDEO THUMBNAIL IMAGES:
-
-    Replace each src="..." below with your actual YouTube
-    thumbnail URLs or self-hosted image paths.
-
-    YouTube thumbnail URL format:
-      https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg
-    (replace VIDEO_ID with your actual video ID)
-
-    You can add or remove <div class="hero-slide"> blocks
-    to match however many videos you want to feature.
-    ──────────────────────────────────────────────────────
-  -->
 
   <!-- SLIDE 1 -->
 <div class="hero-slide active"
@@ -891,6 +1256,15 @@
       <span class="search-icon">🔍</span>
       <input type="search" id="searchInput" placeholder="Type or press / to search" oninput="handleSearch()" />
     </div>
+  </div>
+
+  <div class="hud-strip">
+    <span class="dot"></span>
+    <span id="hudClock">00:00:00 UTC</span>
+    <span class="divider">·</span>
+    <span id="hudCount">30 TOOLS ONLINE</span>
+    <span class="divider">·</span>
+    <span>SIGNAL STABLE</span>
   </div>
 
   <div class="tabs-bar" id="tabsBar">
@@ -1062,18 +1436,48 @@
 </section>
 
 <div class="share-bar">
-  <span class="share-label">Share</span>
-  <button onclick="shareWhatsApp()" title="WhatsApp">🟢</button>
-  <button onclick="shareFacebook()" title="Facebook">🔵</button>
-  <button onclick="shareX()" title="X">🐦</button>
-  <button onclick="shareDiscord()" title="Discord">💬</button>
+  <span class="share-label">Share RameshVerse with friends</span>
+
+  <button class="share-item" onclick="shareWhatsApp()" title="Share on WhatsApp">
+    <span class="share-icon"><i class="fa-brands fa-whatsapp"></i></span>
+    <span class="share-text">WhatsApp</span>
+  </button>
+
+  <button class="share-item" onclick="shareFacebook()" title="Share on Facebook">
+    <span class="share-icon"><i class="fa-brands fa-facebook"></i></span>
+    <span class="share-text">Facebook</span>
+  </button>
+
+  <button class="share-item" onclick="shareMessenger()" title="Share on Messenger">
+    <span class="share-icon"><i class="fa-brands fa-facebook-messenger"></i></span>
+    <span class="share-text">Messenger</span>
+  </button>
+
+  <button class="share-item" onclick="shareInstagram()" title="Share on Instagram">
+    <span class="share-icon"><i class="fa-brands fa-instagram"></i></span>
+    <span class="share-text">Instagram</span>
+  </button>
+
+  <button class="share-item" onclick="shareX()" title="Share on X">
+    <span class="share-icon"><i class="fa-brands fa-x-twitter"></i></span>
+    <span class="share-text">X (Twitter)</span>
+  </button>
+
+  <button class="share-item" onclick="shareTelegram()" title="Share on Telegram">
+    <span class="share-icon"><i class="fa-brands fa-telegram"></i></span>
+    <span class="share-text">Telegram</span>
+  </button>
+
+  <button class="share-item" onclick="copyShareLink()" title="Copy link">
+    <span class="share-icon"><i class="fa-solid fa-link"></i></span>
+    <span class="share-text">Copy Link</span>
+  </button>
 </div>
 
 <footer>
   <p>
-    © 2026 RameshVerse · Created by Ramesh Singh
-    <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener"
-       style="color:#ffffff; text-decoration:none;">▶️ YouTube Channel</a>
+    © <span id="footerYear">2026</span> RameshVerse · Built by Ramesh Singh ·
+    <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">▶️ YouTube Channel</a>
   </p>
 </footer>
 
@@ -1244,7 +1648,27 @@
   function shareWhatsApp() { window.open(`https://wa.me/?text=${siteText}%20${siteURL}`, "_blank"); }
   function shareFacebook() { window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteURL}`, "_blank"); }
   function shareX()        { window.open(`https://twitter.com/intent/tweet?text=${siteText}&url=${siteURL}`, "_blank"); }
-  function shareDiscord()  { navigator.clipboard.writeText(window.location.href); alert("Link copied! Paste it into Discord."); }
+  function shareTelegram() { window.open(`https://t.me/share/url?url=${siteURL}&text=${siteText}`, "_blank"); }
+
+  function shareMessenger() {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = `fb-messenger://share/?link=${siteURL}`;
+      setTimeout(() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteURL}`, "_blank"), 800);
+    } else {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteURL}`, "_blank");
+    }
+  }
+
+  function shareInstagram() {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied! Instagram doesn't support direct web sharing — paste it into your bio, story, or DM.");
+  }
+
+  function copyShareLink() {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied to clipboard!");
+  }
 
   // Load Most Popular Tools
 fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
@@ -1324,11 +1748,6 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
             hoveredCard.classList.add("tool-hovered");
 
 
-            /*
-             * Use the card's original grid position.
-             * This prevents the calculation from changing
-             * while cards are being transformed.
-             */
             const hx =
                 hoveredCard.offsetLeft +
                 hoveredCard.offsetWidth / 2;
@@ -1342,9 +1761,6 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
 
                 if (card === hoveredCard) return;
 
-                /*
-                 * Ignore hidden cards.
-                 */
                 if (
                     getComputedStyle(card).display === "none"
                 ) {
@@ -1368,18 +1784,11 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
                     Math.sqrt(dx * dx + dy * dy);
 
 
-                /*
-                 * Only push cards that are reasonably close.
-                 */
                 const maxDistance = 500;
 
                 if (distance > maxDistance) return;
 
 
-                /*
-                 * Stronger movement for nearby cards,
-                 * weaker movement for distant cards.
-                 */
                 const strength =
                     Math.pow(
                         1 - distance / maxDistance,
@@ -1387,9 +1796,6 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
                     );
 
 
-                /*
-                 * Push horizontally and vertically.
-                 */
                 let moveX = 0;
                 let moveY = 0;
 
@@ -1478,15 +1884,9 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
                 const absDistance = Math.abs(distance);
 
 
-                /*
-                 * Only affect nearby buttons.
-                 */
                 if (absDistance > 260) return;
 
 
-                /*
-                 * Nearby buttons move farther away.
-                 */
                 const strength =
                     Math.pow(
                         1 - absDistance / 260,
@@ -1521,6 +1921,220 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
 
     });
 
+})();
+
+/* ── SYSTEMS BOOT SEQUENCE ── */
+(function () {
+  const overlay = document.getElementById("bootOverlay");
+  if (!overlay) return;
+
+  const alreadyBooted = sessionStorage.getItem("rvBooted") === "1";
+  const skip = alreadyBooted || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (skip) {
+    overlay.classList.add("boot-hidden");
+    return;
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      overlay.classList.add("boot-hidden");
+      sessionStorage.setItem("rvBooted", "1");
+    }, 1500);
+  });
+
+  // Safety net in case load already fired
+  setTimeout(() => {
+    overlay.classList.add("boot-hidden");
+    sessionStorage.setItem("rvBooted", "1");
+  }, 3500);
+})();
+
+/* ── AMBIENT STARFIELD ── */
+(function () {
+  const canvas = document.getElementById("starfield");
+  if (!canvas) return;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ctx = canvas.getContext("2d");
+  let w, h, stars, shooting = [];
+
+  function resize() {
+    w = canvas.width  = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+
+  function buildStars() {
+    const count = Math.min(160, Math.floor((w * h) / 9000));
+    stars = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 1.3 + 0.2,
+      baseAlpha: Math.random() * 0.5 + 0.25,
+      twinkleSpeed: Math.random() * 0.015 + 0.004,
+      phase: Math.random() * Math.PI * 2
+    }));
+  }
+
+  let mx = 0, my = 0, tx = 0, ty = 0;
+  window.addEventListener("mousemove", e => {
+    tx = (e.clientX / w - 0.5) * 10;
+    ty = (e.clientY / h - 0.5) * 10;
+  });
+
+  function maybeSpawnShootingStar() {
+    if (Math.random() < 0.0025 && shooting.length < 2) {
+      const startX = Math.random() * w * 0.6;
+      shooting.push({
+        x: startX, y: -10,
+        vx: 6 + Math.random() * 3,
+        vy: 3 + Math.random() * 2,
+        life: 1
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+
+    mx += (tx - mx) * 0.02;
+    my += (ty - my) * 0.02;
+
+    ctx.fillStyle = "#0e0101";
+    ctx.fillRect(0, 0, w, h);
+
+    stars.forEach(s => {
+      s.phase += s.twinkleSpeed;
+      const alpha = s.baseAlpha + Math.sin(s.phase) * 0.25;
+      ctx.beginPath();
+      ctx.arc(s.x + mx, s.y + my, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${Math.max(0, alpha).toFixed(3)})`;
+      ctx.fill();
+    });
+
+    if (!reduceMotion) {
+      maybeSpawnShootingStar();
+      shooting.forEach(s => {
+        ctx.beginPath();
+        const grad = ctx.createLinearGradient(s.x, s.y, s.x - s.vx * 8, s.y - s.vy * 8);
+        grad.addColorStop(0, "rgba(255,255,255,0.9)");
+        grad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.4;
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(s.x - s.vx * 8, s.y - s.vy * 8);
+        ctx.stroke();
+        s.x += s.vx; s.y += s.vy; s.life -= 0.012;
+      });
+      shooting = shooting.filter(s => s.life > 0 && s.y < h + 20);
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  buildStars();
+  window.addEventListener("resize", () => { resize(); buildStars(); });
+
+  if (reduceMotion) {
+    draw(); // draws a single static frame each call, but shooting stars are skipped
+  } else {
+    draw();
+  }
+})();
+
+/* ── FOOTER YEAR ── */
+(function () {
+  const yearEl = document.getElementById("footerYear");
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+})();
+
+/* ── HUD TELEMETRY CLOCK ── */
+(function () {
+  const clockEl = document.getElementById("hudClock");
+  const countEl = document.getElementById("hudCount");
+  if (countEl) {
+    const total = document.querySelectorAll(".tool").length;
+    countEl.textContent = total + " TOOLS ONLINE";
+  }
+  if (!clockEl) return;
+  function tick() {
+    const now = new Date();
+    const hh = String(now.getUTCHours()).padStart(2, "0");
+    const mm = String(now.getUTCMinutes()).padStart(2, "0");
+    const ss = String(now.getUTCSeconds()).padStart(2, "0");
+    clockEl.textContent = `${hh}:${mm}:${ss} UTC`;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ── SYSTEMS MODULE STYLING FOR TOOL CARDS ── */
+(function () {
+  const TERMINATOR_RED = "#ff2b2b";
+
+  const CATEGORY_LABELS = {
+    productivity: "PRODUCTIVITY",
+    calculator:   "CALCULATOR",
+    science:      "SCIENCE · SPACE",
+    finance:      "FINANCE",
+    geography:    "GEOGRAPHY"
+  };
+
+  document.querySelectorAll(".tool").forEach(tool => {
+    const firstCat = (tool.dataset.category || "").trim().split(/\s+/)[0];
+    const label = CATEGORY_LABELS[firstCat] || "TOOL";
+
+    tool.style.setProperty("--accent", TERMINATOR_RED);
+
+    if (!tool.querySelector(".hud-corner")) {
+      ["tl", "tr", "bl", "br"].forEach(pos => {
+        const corner = document.createElement("span");
+        corner.className = "hud-corner " + pos;
+        corner.setAttribute("aria-hidden", "true");
+        tool.appendChild(corner);
+      });
+    }
+
+    const h3 = tool.querySelector("h3");
+    if (h3 && !tool.querySelector(".tool-head")) {
+      const head = document.createElement("div");
+      head.className = "tool-head";
+
+      const tag = document.createElement("span");
+      tag.className = "tool-tag";
+      tag.textContent = label;
+
+      h3.parentNode.insertBefore(head, h3);
+      head.appendChild(tag);
+      head.appendChild(h3);
+    }
+  });
+})();
+
+/* ── SCROLL REVEAL FOR TOOL CARDS ── */
+(function () {
+  const cards = Array.from(document.querySelectorAll(".tool"));
+  if (!cards.length) return;
+
+  if (!("IntersectionObserver" in window)) {
+    cards.forEach(c => c.classList.add("tool-revealed"));
+    return;
+  }
+
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = cards.indexOf(entry.target);
+        const delay = Math.min(idx % 6, 6) * 45;
+        entry.target.style.animationDelay = delay + "ms";
+        entry.target.classList.add("tool-revealed");
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+
+  cards.forEach(c => io.observe(c));
 })();
 </script>
 
