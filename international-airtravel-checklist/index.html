@@ -12,190 +12,388 @@
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Travel Checklist</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Travel Checklist</title>
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+  :root {
+    --bg: #070c14;
+    --card-1: #101c2e;
+    --card-2: #0a1420;
+    --border: rgba(255,179,71,0.16);
+    --text: #eef3f8;
+    --text-dim: rgba(238,243,248,0.6);
+    --accent: #ffb347;
+    --accent-soft: rgba(255,179,71,0.12);
+    --green: #34d399;
+    --danger: #ef4444;
+    --danger-bright: #f87171;
+  }
 
-    .app {
-      max-width: 520px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    }
+  * { box-sizing: border-box; }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 6px;
-      border-bottom: 1px solid #eee;
-      gap: 8px;
-    }
-
-    li.completed span {
-      text-decoration: line-through;
-      color: #999;
-    }
-
-    .left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-    }
-
-    button.delete {
-      background: none;
-      border: none;
-      color: #e74c3c;
-      font-size: 20px;
-      padding: 6px;
-      cursor: pointer;
-    }
-
-    .add-task {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .add-task input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    .add-task button {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 8px;
-      background: #007bff;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .left span {
-      line-height: 1.4;
-      word-break: break-word;
-    }
-
-    button {
-        font-size: 16px;
-      }
-
-    .hint {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #555;
-      background: #f1f3f5;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    /* Bigger touch targets */
-    input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-}
-
-/* ---------- Small screens ---------- */
-@media (max-width: 480px) {
   body {
-    padding: 12px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(255,179,71,0.06), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
   }
 
   .app {
-    padding: 16px;
-    border-radius: 10px;
+    position: relative;
+    max-width: 520px;
+    margin: auto;
+    background: linear-gradient(160deg, var(--card-1), var(--card-2));
+    padding: 22px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 55px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
   }
 
   h1 {
-    font-size: 20px;
+    text-align: center;
+    margin: 0 0 3px;
+    font-size: 21px;
+    letter-spacing: 0.2px;
   }
 
-  /* Stack add-task vertically */
-  .add-task {
-    flex-direction: column;
-    gap: 8px;
+  .subtitle {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
   }
 
-  .add-task input,
-  .add-task button {
-    width: 100%;
-    font-size: 16px;
+  /* ---------- PROGRESS ---------- */
+  .progress-wrap { margin-bottom: 4px; }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .progress-label strong { color: var(--accent); }
+
+  .progress-track {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #ffd08a);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  /* ---------- TICKET PERFORATION DIVIDER ---------- */
+  .ticket-divider {
+    position: relative;
+    height: 2px;
+    margin: 18px -20px;
+    background-image: repeating-linear-gradient(to right, rgba(255,255,255,0.2) 0 8px, transparent 8px 16px);
+  }
+
+  .ticket-divider::before,
+  .ticket-divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  .ticket-divider::before { left: -10px; }
+  .ticket-divider::after { right: -10px; }
+
+  /* ---------- CURRENCY CONVERTER CTA ---------- */
+  .tool-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(255,179,71,0.32);
+    border-radius: 10px;
+    padding: 11px 13px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--text);
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+
+  .tool-cta:hover { background: rgba(255,179,71,0.18); }
+
+  .tool-cta .arrow {
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ---------- CATEGORIES / LIST ---------- */
+  .category { margin-top: 16px; }
+  .category:first-child { margin-top: 0; }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .category-header .count {
+    color: var(--text-dim);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
   li {
-    padding: 12px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 2px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    gap: 8px;
   }
+
+  li:last-child { border-bottom: none; }
+
+  li.completed span.task-text {
+    text-decoration: line-through;
+    color: var(--text-dim);
+  }
+
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .left span.task-text {
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .task-link {
+    font-size: 10.5px;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid rgba(255,179,71,0.4);
+    padding: 2px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .task-link:hover { background: rgba(255,179,71,0.14); }
+
+  button.delete {
+    background: none;
+    border: none;
+    color: var(--danger-bright);
+    font-size: 18px;
+    padding: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  button.delete:hover { opacity: 0.75; }
+
+  /* Bigger touch targets, accent-colored checkbox */
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .empty-note {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 10px 4px;
+  }
+
+  /* ---------- ADD TASK ---------- */
+  .add-task {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .add-task input {
+    flex: 1;
+    padding: 11px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .add-task input::placeholder { color: var(--text-dim); }
+  .add-task input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+
+  button {
+    font-size: 16px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: filter 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  }
+
+  button:active { transform: translateY(1px); }
+
+  .add-task button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 9px;
+    background: var(--accent);
+    color: #1a1006;
+    font-weight: 700;
+  }
+
+  .add-task button:hover { filter: brightness(1.08); }
+
+  /* ---------- EXPORT / RESET ---------- */
+  .btn-export,
+  .btn-share-checklist,
+  .btn-reset {
+    margin-top: 10px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .export-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .export-row button {
+    margin-top: 10px;
+    flex: 1;
+  }
+
+  .btn-export {
+    background: rgba(52,211,153,0.12);
+    color: var(--green);
+    border: 1px solid rgba(52,211,153,0.4);
+  }
+
+  .btn-export:hover { background: rgba(52,211,153,0.2); }
+
+  .btn-share-checklist {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid rgba(255,179,71,0.4);
+  }
+
+  .btn-share-checklist:hover { background: rgba(255,179,71,0.2); }
+
+  .btn-reset {
+    background: rgba(239,68,68,0.1);
+    color: var(--danger-bright);
+    border: 1px solid rgba(239,68,68,0.35);
+  }
+
+  .btn-reset:hover { background: rgba(239,68,68,0.18); }
 
   .hint {
+    margin-top: 18px;
     font-size: 13px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    padding: 11px 12px;
+    border-radius: 9px;
   }
-}
 
-  </style>
+  /* ---------- Small screens ---------- */
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    .app { padding: 18px 16px; }
+    h1 { font-size: 19px; }
+
+    .add-task { flex-direction: column; gap: 8px; }
+    .add-task input,
+    .add-task button { width: 100%; font-size: 16px; }
+
+    .export-row { flex-direction: column; }
+
+    li { padding: 12px 2px; }
+    .hint { font-size: 12.5px; }
+  }
+</style>
 </head>
 <body>
 
   <div class="app">
     <h1>✈ International Travel Checklist</h1>
+    <div class="subtitle">Everything to sort before you fly</div>
 
-    <ul id="taskList"></ul>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Trip readiness</span>
+        <span><strong id="progressCount">0/0</strong> done</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="ticket-divider"></div>
+
+    <a class="tool-cta" href="https://rameshverse.com/currency-converter/" target="_blank" rel="noopener">
+      <span>💱 Need local currency figured out? Try the Currency Converter</span>
+      <span class="arrow">→</span>
+    </a>
+
+    <div id="taskListWrap"></div>
 
     <div class="add-task">
       <input id="newTaskInput" type="text" placeholder="Add your own item…" />
       <button id="addBtn">Add</button>
     </div>
 
-    <button id="downloadBtn" style="
-  margin-top: 14px;
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #28a745;
-  color: #fff;
-  cursor: pointer;
-">
-  📤 Export checklist
-</button>
-
-<button id="resetBtn" style="
-  margin-top: 10px;
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #dc3545;
-  color: #fff;
-  cursor: pointer;
-">
-  🔄 Reset to default checklist
-</button>
-
+    <div class="export-row">
+      <button id="downloadBtn" class="btn-export">⬇ Download checklist</button>
+      <button id="shareBtn" class="btn-share-checklist">📤 Share checklist</button>
+    </div>
+    <button id="resetBtn" class="btn-reset">🔄 Reset to default checklist</button>
 
     <div class="hint">
       💡 Some countries require 6 months passport validity and proof of onward travel.
@@ -203,44 +401,79 @@
   </div>
 
   <script>
-    const taskListEl = document.getElementById("taskList");
+    const taskListWrap = document.getElementById("taskListWrap");
     const newTaskInput = document.getElementById("newTaskInput");
     const addBtn = document.getElementById("addBtn");
+    const progressCount = document.getElementById("progressCount");
+    const progressFill = document.getElementById("progressFill");
 
     const STORAGE_KEY = "travelChecklist";
+    const CURRENCY_CONVERTER_URL = "https://rameshverse.com/currency-converter/";
+
+    const CATEGORY_ORDER = [
+      "Documents & Entry",
+      "Flights & Stay",
+      "Packing",
+      "Money & Cards",
+      "Connectivity",
+      "Insurance",
+      "Other"
+    ];
+
+    const CATEGORY_ICONS = {
+      "Documents & Entry": "📄",
+      "Flights & Stay": "✈️",
+      "Packing": "🧳",
+      "Money & Cards": "💳",
+      "Connectivity": "📶",
+      "Insurance": "🛡️",
+      "Other": "📝"
+    };
 
     const defaultTasks = [
-      "Passport validity check",
-      "Visa check",
-      "Check destination country rules for tourists",
-      "International Driving Permit (if you plan to drive)",
-      "Departure flight tickets",
-      "Return flight tickets",
-      "Hotel bookings",
-      "Weigh check-in bags",
-      "Weigh carry-on bags",
-      "Activate debit card for international use",
-      "Activate credit card for international use",
-      "Set international transaction limits",
-      "Enable international roaming on primary SIM (emergency use)",
-      "Travel insurance",
-      "Health insurance (international coverage)",
-      "Minimum required cash in local currency"
+      { text: "Passport validity check", category: "Documents & Entry" },
+      { text: "Visa check", category: "Documents & Entry" },
+      { text: "Check the destination country's immigration rules for tourists", category: "Documents & Entry" },
+      { text: "International Driving Permit (if you plan to drive)", category: "Documents & Entry" },
+      { text: "Printout and digital backup of essential documents", category: "Documents & Entry" },
+      { text: "Departure flight tickets", category: "Flights & Stay" },
+      { text: "Return flight tickets", category: "Flights & Stay" },
+      { text: "Hotel bookings", category: "Flights & Stay" },
+      { text: "Weigh check-in bags", category: "Packing" },
+      { text: "Weigh carry-on bags", category: "Packing" },
+      { text: "Activate debit card for international use", category: "Money & Cards" },
+      { text: "Activate credit card for international use", category: "Money & Cards" },
+      { text: "Set international transaction limits", category: "Money & Cards" },
+      {
+        text: "Minimum required cash in local currency",
+        category: "Money & Cards",
+        link: CURRENCY_CONVERTER_URL,
+        linkLabel: "Convert"
+      },
+      { text: "Enable international roaming on primary SIM (emergency use)", category: "Connectivity" },
+      { text: "Travel insurance", category: "Insurance" },
+      { text: "Health insurance (international coverage)", category: "Insurance" }
     ];
+
+    function buildDefaultTasks() {
+      return defaultTasks.map(t => ({
+        id: Date.now() + Math.random(),
+        text: t.text,
+        category: t.category,
+        link: t.link || null,
+        linkLabel: t.linkLabel || null,
+        completed: false
+      }));
+    }
 
     function loadTasks() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        // Backward-compatible: older saved tasks may not have a category field
+        return JSON.parse(saved).map(t => ({ category: "Other", link: null, linkLabel: null, ...t }));
       }
 
-      // first-time load
-      const initial = defaultTasks.map(text => ({
-        id: Date.now() + Math.random(),
-        text,
-        completed: false
-      }));
-
+      const initial = buildDefaultTasks();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
       return initial;
     }
@@ -251,159 +484,215 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
     }
 
+    function updateProgress() {
+      const total = tasks.length;
+      const done = tasks.filter(t => t.completed).length;
+      progressCount.textContent = `${done}/${total}`;
+      progressFill.style.width = total === 0 ? "0%" : `${Math.round((done / total) * 100)}%`;
+    }
+
     function renderTasks() {
-      taskListEl.innerHTML = "";
+      taskListWrap.innerHTML = "";
+      updateProgress();
 
-      tasks.forEach(task => {
-        const li = document.createElement("li");
-        if (task.completed) li.classList.add("completed");
+      if (tasks.length === 0) {
+        taskListWrap.innerHTML = `<div class="empty-note">No items yet — add your first one below.</div>`;
+        return;
+      }
 
-        const left = document.createElement("div");
-        left.className = "left";
+      CATEGORY_ORDER.forEach(category => {
+        const items = tasks.filter(t => (t.category || "Other") === category);
+        if (items.length === 0) return;
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = task.completed;
-        checkbox.style.minWidth = "20px"; // 👈 ADD THIS LINE
-        checkbox.addEventListener("change", () => {
-          task.completed = checkbox.checked;
-          saveTasks();
-          renderTasks();
+        const section = document.createElement("div");
+        section.className = "category";
+
+        const doneCount = items.filter(t => t.completed).length;
+
+        const header = document.createElement("div");
+        header.className = "category-header";
+        header.innerHTML = `
+          <span>${CATEGORY_ICONS[category] || "📝"} ${category}</span>
+          <span class="count">${doneCount}/${items.length}</span>
+        `;
+        section.appendChild(header);
+
+        const ul = document.createElement("ul");
+
+        items.forEach(task => {
+          const li = document.createElement("li");
+          if (task.completed) li.classList.add("completed");
+
+          const left = document.createElement("div");
+          left.className = "left";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = task.completed;
+          checkbox.addEventListener("change", () => {
+            task.completed = checkbox.checked;
+            saveTasks();
+            renderTasks();
+          });
+
+          const span = document.createElement("span");
+          span.className = "task-text";
+          span.textContent = task.text;
+
+          left.appendChild(checkbox);
+          left.appendChild(span);
+
+          if (task.link) {
+            const link = document.createElement("a");
+            link.className = "task-link";
+            link.href = task.link;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.textContent = (task.linkLabel || "Open") + " →";
+            left.appendChild(link);
+          }
+
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "✕";
+          delBtn.className = "delete";
+          delBtn.addEventListener("click", () => {
+            const confirmDelete = confirm("Are you sure you want to remove this checklist item?");
+            if (!confirmDelete) return;
+
+            tasks = tasks.filter(t => t.id !== task.id);
+            saveTasks();
+            renderTasks();
+          });
+
+          li.appendChild(left);
+          li.appendChild(delBtn);
+          ul.appendChild(li);
         });
 
-        const span = document.createElement("span");
-        span.textContent = task.text;
-
-        left.appendChild(checkbox);
-        left.appendChild(span);
-
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "✕";
-        delBtn.className = "delete";
-        delBtn.addEventListener("click", () => {
-        const confirmDelete = confirm(
-          "Are you sure you want to remove this checklist item?"
-        );
-
-        if (!confirmDelete) return;
-
-        tasks = tasks.filter(t => t.id !== task.id);
-        saveTasks();
-        renderTasks();
-      });
-
-
-        li.appendChild(left);
-        li.appendChild(delBtn);
-        taskListEl.appendChild(li);
+        section.appendChild(ul);
+        taskListWrap.appendChild(section);
       });
     }
 
-    addBtn.addEventListener("click", () => {
+    function addTask() {
       const text = newTaskInput.value.trim();
       if (!text) return;
 
       tasks.push({
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         text,
+        category: "Other",
+        link: null,
+        linkLabel: null,
         completed: false
       });
 
       newTaskInput.value = "";
       saveTasks();
       renderTasks();
+      newTaskInput.focus();
+    }
+
+    addBtn.addEventListener("click", addTask);
+
+    newTaskInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") addTask();
     });
 
-    const downloadBtn = document.getElementById("downloadBtn");
+    function buildChecklistText() {
+      let content = "International Air Travel Checklist\n\n";
 
-/*downloadBtn.addEventListener("click", () => {
-  if (tasks.length === 0) {
-    alert("Checklist is empty.");
-    return;
-  }
+      CATEGORY_ORDER.forEach(category => {
+        const items = tasks.filter(t => (t.category || "Other") === category);
+        if (items.length === 0) return;
 
-  let content = "International Air Travel Checklist\n\n";
-
-  tasks.forEach(task => {
-    const mark = task.completed ? "✔" : "⬜";
-    content += `${mark} ${task.text}\n`;
-  });
-
-  const blob = new Blob([content], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "international-air-travel-checklist.txt";
-  a.click();
-
-  URL.revokeObjectURL(url);
-});*/
-
-downloadBtn.addEventListener("click", async () => {
-  if (tasks.length === 0) {
-    alert("Checklist is empty.");
-    return;
-  }
-
-  let content = "International Air Travel Checklist\n\n";
-
-  tasks.forEach(task => {
-    const mark = task.completed ? "✔" : "⬜";
-    content += `${mark} ${task.text}\n`;
-  });
-
-  const blob = new Blob([content], {
-    type: "text/plain;charset=utf-8"
-  });
-
-  // ✅ Best for mobile: Share sheet
-  if (navigator.share) {
-    const file = new File(
-      [blob],
-      "international-air-travel-checklist.txt",
-      { type: "text/plain" }
-    );
-
-    try {
-      await navigator.share({
-        title: "International Travel Checklist",
-        text: "My international travel checklist",
-        files: [file]
+        content += `${category}\n`;
+        items.forEach(task => {
+          const mark = task.completed ? "✔" : "⬜";
+          content += `  ${mark} ${task.text}\n`;
+        });
+        content += "\n";
       });
-    } catch (err) {
-      // user cancelled share — do nothing
+
+      return content;
     }
-  } else {
-    // ✅ Fallback: open in new tab
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-});
 
+    const downloadBtn = document.getElementById("downloadBtn");
+    const shareBtn = document.getElementById("shareBtn");
 
-const resetBtn = document.getElementById("resetBtn");
+    downloadBtn.addEventListener("click", () => {
+      if (tasks.length === 0) {
+        alert("Checklist is empty.");
+        return;
+      }
 
-resetBtn.addEventListener("click", () => {
-  const confirmReset = confirm(
-    "Are you sure you want to reset the checklist?\n\nThis will remove all your changes and restore the default list."
-  );
+      const blob = new Blob([buildChecklistText()], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
 
-  if (!confirmReset) return;
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "international-air-travel-checklist.txt";
+      a.click();
 
-  // Recreate default checklist
-  tasks = defaultTasks.map(text => ({
-    id: Date.now() + Math.random(),
-    text,
-    completed: false
-  }));
+      URL.revokeObjectURL(url);
+    });
 
-  saveTasks();
-  renderTasks();
-});
+    shareBtn.addEventListener("click", async () => {
+      if (tasks.length === 0) {
+        alert("Checklist is empty.");
+        return;
+      }
 
+      const text = buildChecklistText();
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
 
+      // Best: native share sheet with the checklist as a file
+      if (navigator.share) {
+        const file = new File([blob], "international-air-travel-checklist.txt", { type: "text/plain" });
+
+        try {
+          if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+            throw new Error("file sharing unsupported");
+          }
+          await navigator.share({
+            title: "International Travel Checklist",
+            text: "My international travel checklist",
+            files: [file]
+          });
+          return;
+        } catch (err) {
+          // fall through to a text-only share, then to clipboard below
+          try {
+            await navigator.share({ title: "International Travel Checklist", text });
+            return;
+          } catch (err2) {
+            // user cancelled, or sharing text also failed — fall through
+          }
+        }
+      }
+
+      // Fallback: copy to clipboard for devices/browsers without the Web Share API
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Sharing isn't supported on this device/browser — the checklist was copied to your clipboard instead.");
+      } catch (err) {
+        alert("Sharing isn't supported here. Use Download checklist instead.");
+      }
+    });
+
+    const resetBtn = document.getElementById("resetBtn");
+
+    resetBtn.addEventListener("click", () => {
+      const confirmReset = confirm(
+        "Are you sure you want to reset the checklist?\n\nThis will remove all your changes and restore the default list."
+      );
+
+      if (!confirmReset) return;
+
+      tasks = buildDefaultTasks();
+      saveTasks();
+      renderTasks();
+    });
 
     renderTasks();
   </script>
