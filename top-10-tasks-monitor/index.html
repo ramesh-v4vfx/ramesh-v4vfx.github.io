@@ -32,46 +32,206 @@
   <title>Top 10 Things To Do</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: #0b0101; font-family: system-ui, sans-serif; color: #e5e7eb; }
-    .page { min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 16px; }
-    .app { width: 100%; max-width: 480px; background: #111827; padding: 20px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.5); }
-    h2 { text-align: center; margin: 0 0 14px; }
-    .top-actions { display: flex; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
-    button { padding: 8px 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; background: #1f2933; color: #e5e7eb; transition: transform .15s ease, background .2s ease; }
+
+    :root {
+      --bg: #0b0101;
+      --card: #111827;
+      --card-inner: #0b1220;
+      --border: rgba(255,255,255,0.06);
+      --text: #e5e7eb;
+      --text-dim: #9ca3af;
+      --pending: #4b5563;
+      --progress-color: #f59e0b;
+      --progress-bg-color: rgba(245,158,11,0.12);
+      --done: #22c55e;
+      --done-bg: rgba(34,197,94,0.12);
+      --danger: #7f1d1d;
+      --danger-bright: #ffb4b4;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 20% 0%, rgba(34,197,94,0.04), transparent 55%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='110'%3E%3Ctext x='12' y='28' font-size='9' font-family='Arial, sans-serif' fill='rgba(245,158,11,0.06)' transform='rotate(-10 12 28)'%3E%E2%96%B6%3C/text%3E%3Ctext x='68' y='58' font-size='10' font-family='Arial, sans-serif' fill='rgba(96,165,250,0.05)' transform='rotate(9 68 58)'%3E%E2%9C%8E%3C/text%3E%3Ctext x='112' y='22' font-size='9' font-family='Arial, sans-serif' fill='rgba(34,197,94,0.06)' transform='rotate(-6 112 22)'%3E%E2%9C%93%3C/text%3E%3Ctext x='38' y='88' font-size='8' font-family='Arial, sans-serif' fill='rgba(245,158,11,0.05)' transform='rotate(14 38 88)'%3E%E2%96%B6%3C/text%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='105' height='75'%3E%3Ctext x='18' y='22' font-size='7' font-family='Arial, sans-serif' fill='rgba(34,197,94,0.05)'%3E%E2%9C%93%3C/text%3E%3Ctext x='58' y='48' font-size='8' font-family='Arial, sans-serif' fill='rgba(96,165,250,0.04)' transform='rotate(-11 58 48)'%3E%E2%9C%8E%3C/text%3E%3Ctext x='82' y='16' font-size='7' font-family='Arial, sans-serif' fill='rgba(245,158,11,0.05)' transform='rotate(6 82 16)'%3E%E2%96%B6%3C/text%3E%3C/svg%3E");
+      background-repeat: no-repeat, repeat, repeat;
+      background-size: 100% 100%, 150px 110px, 105px 75px;
+      background-position: top center, 0 0, 33px 19px;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+    }
+
+    .page { min-height: 100vh; height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 16px; }
+
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      max-height: calc(100vh - 32px);
+      background: linear-gradient(160deg, var(--card), #0e1626);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 55px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .app-header { flex: none; padding: 22px 20px 0; }
+
+    .app-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding: 0 20px 22px;
+      scrollbar-width: none;      /* Firefox */
+      -ms-overflow-style: none;   /* old Edge/IE */
+    }
+
+    .app-scroll::-webkit-scrollbar {
+      display: none;              /* Chrome, Safari, new Edge */
+    }
+
+    h2 { text-align: center; margin: 0 0 4px; font-size: 1.3rem; }
+
+    .subtitle { text-align: center; font-size: 12.5px; color: var(--text-dim); margin-bottom: 16px; }
+
+    /* ---------- PROGRESS ---------- */
+    .progress-wrap { margin-bottom: 16px; }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .progress-label strong { color: var(--progress-color); }
+
+    .progress-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--progress-color), #fbbf24);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    .progress-fill.complete { background: linear-gradient(90deg, var(--done), #4ade80); }
+
+    .top-actions { display: flex; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
+
+    button {
+      padding: 9px 12px;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      background: #1f2933;
+      color: var(--text);
+      transition: transform .15s ease, background .2s ease, filter .15s ease;
+    }
+
     button:disabled { opacity: .4; cursor: not-allowed; }
-    button:active { transform: scale(.95); }
+    button:active:not(:disabled) { transform: scale(.96); }
+    button:hover:not(:disabled) { filter: brightness(1.1); }
+
     .primary { background: #14532d; }
-    .danger { background: #7f1d1d; }
-    .save { background: #374151; }
+    .danger { background: var(--danger); color: var(--danger-bright); }
+    .start { background: #374151; }
+    .started { background: var(--done) !important; color: #052e16; }
     .done { background: #14532d; }
     .edit { background: #1e3a8a; }
-    .saved { background: #14532d !important; }
-    .task { background: #0b1220; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+
+    /* ---------- TASK CARD ---------- */
+    .task {
+      background: var(--card-inner);
+      border-radius: 12px;
+      border-left: 4px solid var(--pending);
+      padding: 12px 12px 12px 10px;
+      margin-bottom: 10px;
+      transition: border-color 0.2s ease;
+    }
+
+    .task.in-progress { border-left-color: var(--progress-color); }
+    .task.completed { border-left-color: var(--done); }
+
     .row { display: flex; gap: 6px; align-items: center; }
-    input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #020617; color: #e5e7eb; font-size: 14px; }
-    .pending input { color: #ef4444; }
-    .completed input { color: #22c55e; text-decoration: line-through; }
-    .status { font-size: 12px; margin-top: 6px; opacity: .85; }
+
+    .task-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11.5px;
+      font-weight: 800;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .task.in-progress .task-num { background: var(--progress-bg-color); color: var(--progress-color); }
+    .task.completed .task-num { background: var(--done-bg); color: var(--done); }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: #020617;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s ease;
+    }
+
+    input[type="text"]:focus { outline: none; border-color: var(--progress-color); }
+    .pending input { color: var(--text); }
+    .in-progress input { color: #fde68a; }
+    .completed input { color: var(--done); text-decoration: line-through; }
+
+    .status { font-size: 12px; margin-top: 8px; opacity: .85; padding-left: 30px; }
+    .status.in-progress-text { color: var(--progress-color); }
+    .status.completed-text { color: var(--done); }
+
     .history { display: none; margin-top: 16px; }
-    .history-item { background: #020617; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; }
-    .history-item span { display: block; color: #22c55e; }
-    #clearHistory { margin-top: 10px; background: #3a1c1c; color: #ffb4b4; width: 100%; }
+    .history-item { background: var(--card-inner); border: 1px solid var(--border); padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; }
+    .history-item strong { display: block; margin-bottom: 4px; }
+    .history-item span { display: block; color: var(--done); padding: 2px 0; }
+    #clearHistory { margin-top: 10px; background: #3a1c1c; color: var(--danger-bright); width: 100%; }
     #clearHistory:hover { background: #4a2222; }
+
     .share-panel { display: none; background: #0f1220; border-radius: 10px; padding: 12px; margin-top: 8px; }
     .share-panel p { margin: 0 0 10px; font-size: 13px; opacity: .7; text-align: center; }
     .share-icons { display: flex; gap: 6px; flex-wrap: wrap; }
-    .share-icon-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #2b2f55; border: none; border-radius: 10px; padding: 10px 4px; cursor: pointer; font-size: 10px; color: #d1d5db; flex: 1; min-width: 50px; transition: background .2s; margin-bottom: 0; width: auto; }
+    .share-icon-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #2b2f55; border: none; border-radius: 10px; padding: 10px 4px; cursor: pointer; font-size: 10px; color: #d1d5db; flex: 1; min-width: 50px; transition: background .2s; margin-bottom: 0; width: auto; font-weight: 400; }
     .share-icon-btn svg { width: 22px; height: 22px; }
     .share-icon-btn:hover { background: #3a3f70; opacity: 1; }
     .share-icon-btn.copied { background: #14532d; }
+
     @media (max-width: 480px) {
       .app { padding: 16px; border-radius: 14px; }
       h2 { font-size: 1.2rem; }
       .top-actions button { flex: 1; }
       .row { flex-wrap: wrap; gap: 6px; }
       input[type="text"] { font-size: 16px; }
-      button { font-size: 14px; padding: 10px; }
-      .status { font-size: 12px; }
+      button { font-size: 13px; padding: 10px; }
+      .status { font-size: 12px; padding-left: 0; }
       #resetAll { font-size: 14px; padding: 12px; }
     }
   </style>
@@ -81,27 +241,41 @@
 <div class="page">
   <div class="app">
 
-    <h2>Top 10 Things To Do</h2>
+    <div class="app-header">
+      <h2>Top 10 Things To Do</h2>
+      <div class="subtitle">One focused list. Track it, time it, done.</div>
 
-    <div class="top-actions">
-      <button id="saveReset" class="primary" disabled>Save List &amp; Reset</button>
-      <button id="toggleHistory">Show/Hide History</button>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Today's progress</span>
+          <span><strong id="progressCount">0/10</strong> done</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button id="saveReset" class="primary" disabled>💾 Save List &amp; Reset</button>
+        <button id="toggleHistory">🕘 Show/Hide History</button>
+      </div>
     </div>
 
-    <div id="tasks"></div>
+    <div class="app-scroll">
+      <div id="tasks"></div>
 
-    <div class="history" id="history">
-      <div id="historyList"></div>
-      <button id="clearHistory" class="danger">Clear History</button>
-    </div>
+      <div class="history" id="history">
+        <div id="historyList"></div>
+        <button id="clearHistory" class="danger">Clear History</button>
+      </div>
 
-    <button id="resetAll" class="danger" style="margin-top:14px; width:100%;">Reset All (Fresh Start)</button>
+      <button id="resetAll" class="danger" style="margin-top:14px; width:100%;">🔄 Reset All (Fresh Start)</button>
 
-    <button onclick="toggleShare()" style="background:#4c1d95; margin-top:8px; width:100%;">&#128228; Share This App</button>
+      <button onclick="toggleShare()" style="background:#4c1d95; margin-top:8px; width:100%;">&#128228; Share This App</button>
 
-    <div class="share-panel" id="sharePanel">
-      <p>Share this tool with friends:</p>
-      <div class="share-icons">
+      <div class="share-panel" id="sharePanel">
+        <p>Share this tool with friends:</p>
+        <div class="share-icons">
 
         <!-- WhatsApp -->
         <button class="share-icon-btn" id="shareWhatsapp">
@@ -154,6 +328,7 @@
       </div>
     </div>
 
+    </div>
   </div>
 </div>
 
@@ -169,6 +344,8 @@
   const historyList     = document.getElementById('historyList');
   const clearHistoryBtn = document.getElementById('clearHistory');
   const resetAllBtn     = document.getElementById('resetAll');
+  const progressCountEl = document.getElementById('progressCount');
+  const progressFillEl  = document.getElementById('progressFill');
 
   function formatTime(ms) {
     const s = Math.floor(ms / 1000);
@@ -183,19 +360,33 @@
   function saveHistory(d)   { localStorage.setItem(historyKey, JSON.stringify(d)); }
   function allDone(tasks)   { return tasks.length === TOTAL && tasks.every(t => t && t.end); }
 
+  function updateProgress(tasks) {
+    const done = tasks.filter(t => t && t.end).length;
+    progressCountEl.textContent = `${done}/${TOTAL}`;
+    const pct = Math.round((done / TOTAL) * 100);
+    progressFillEl.style.width = pct + '%';
+    progressFillEl.classList.toggle('complete', done === TOTAL);
+  }
+
   function render() {
     tasksEl.innerHTML = '';
     const tasks = getToday();
+    updateProgress(tasks);
 
     for (let i = 0; i < TOTAL; i++) {
       const data = tasks[i] || { text: '', lastSavedText: '', start: null, end: null, saved: false };
       const done = data.end !== null;
+      const inProgress = !done && !!data.start;
 
       const task = document.createElement('div');
-      task.className = 'task ' + (done ? 'completed' : 'pending');
+      task.className = 'task ' + (done ? 'completed' : (inProgress ? 'in-progress' : 'pending'));
 
       const row = document.createElement('div');
       row.className = 'row';
+
+      const numBadge = document.createElement('div');
+      numBadge.className = 'task-num';
+      numBadge.textContent = i + 1;
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -203,35 +394,50 @@
       input.value = data.text;
       input.disabled = done;
 
-      const saveBtn = document.createElement('button');
-      saveBtn.textContent = data.saved ? 'Saved' : 'Save';
-      saveBtn.className = 'save';
-      saveBtn.disabled = done || data.saved || !input.value.trim() || input.value === data.lastSavedText;
-      if (data.saved) saveBtn.classList.add('saved');
+      const startBtn = document.createElement('button');
+      startBtn.textContent = data.saved ? '✓ Started' : '▶ Start';
+      startBtn.className = 'start' + (data.saved ? ' started' : '');
+      // Fixed: previously this also required the text to differ from the last-saved
+      // text, which left the button permanently disabled after clicking Edit without
+      // changing the wording. Now it only checks that there's actual text and the
+      // task isn't already running or complete.
+      startBtn.disabled = done || data.saved || !input.value.trim();
 
       const editBtn = document.createElement('button');
-      editBtn.textContent = 'Edit';
+      editBtn.textContent = '✎ Edit';
       editBtn.className = 'edit';
       editBtn.disabled = done;
 
       const doneBtn = document.createElement('button');
-      doneBtn.textContent = 'Done';
+      doneBtn.textContent = '✓ Done';
       doneBtn.className = 'done';
       doneBtn.disabled = !data.start || done;
 
-      row.append(input, saveBtn, editBtn, doneBtn);
+      row.append(numBadge, input, startBtn, editBtn, doneBtn);
 
       const status = document.createElement('div');
       status.className = 'status';
-      if (done)        status.textContent = 'Completed in ' + formatTime(data.end - data.start);
-      else if (data.start) status.textContent = 'In progress…';
-      else             status.textContent = 'Not started';
+      if (done) {
+        status.textContent = 'Completed in ' + formatTime(data.end - data.start);
+        status.classList.add('completed-text');
+      } else if (data.start) {
+        status.textContent = 'In progress…';
+        status.classList.add('in-progress-text');
+      } else {
+        status.textContent = 'Not started';
+      }
 
+      // Fixed: typed text is now saved to localStorage immediately as you type,
+      // not only once you click Start — previously, refreshing the page before
+      // clicking Start would silently discard whatever you'd just typed.
       input.addEventListener('input', () => {
-        saveBtn.disabled = done || data.saved || !input.value.trim() || input.value === data.lastSavedText;
+        data.text = input.value;
+        tasks[i] = data;
+        saveToday(tasks);
+        startBtn.disabled = done || data.saved || !input.value.trim();
       });
 
-      saveBtn.onclick = () => {
+      startBtn.onclick = () => {
         data.text = input.value;
         data.lastSavedText = input.value;
         data.start = Date.now();
@@ -244,9 +450,10 @@
       editBtn.onclick = () => {
         data.saved = false;
         data.start = null;
+        tasks[i] = data;
         saveToday(tasks);
         render();
-        input.focus();
+        document.querySelectorAll('input[type="text"]')[i]?.focus();
       };
 
       doneBtn.onclick = () => {
@@ -285,9 +492,9 @@
       const div = document.createElement('div');
       div.className = 'history-item';
       div.innerHTML = `<strong>${day.date}</strong>`;
-      day.tasks.forEach(t => {
+      day.tasks.forEach((t, idx) => {
         const span = document.createElement('span');
-        span.textContent = `• ${t.text} (${formatTime(t.end - t.start)})`;
+        span.textContent = `${idx + 1}. ${t.text} (${formatTime(t.end - t.start)})`;
         div.appendChild(span);
       });
       historyList.appendChild(div);
