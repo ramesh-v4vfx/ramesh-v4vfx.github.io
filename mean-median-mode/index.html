@@ -13,7 +13,7 @@
 </script>
 
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mean Median Mode Calculator</title>
 <style>
@@ -60,6 +60,8 @@
     margin: 0 auto;
 
     box-shadow: 0 24px 55px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+    overflow: hidden; /* belt-and-braces: nothing (e.g. a very long number)
+                          should be able to visually spill past the card edge */
   }
 
   h1 {
@@ -192,10 +194,13 @@
 
   .value {
     flex: 1;
+    min-width: 0; /* lets a flex child actually shrink/wrap instead of
+                      forcing the row wider than its container */
     text-align: left;
     font-variant-numeric: tabular-nums;
     font-size: 15px;
     word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
   .copy-btn {
@@ -214,9 +219,13 @@
 
   /* ---------- QUICK STATS STRIP ---------- */
   .quickstats {
+    /* Was a rigid 4-column grid, which left almost no room per box and let
+       long numbers (e.g. a std-dev computed from very large/spread-out
+       inputs) spill straight past the card edge. 2x2 gives each box
+       roughly double the width. */
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 6px;
     margin: 14px 0 4px;
   }
 
@@ -224,8 +233,10 @@
     background: rgba(231,236,245,0.03);
     border: 1px solid var(--border);
     border-radius: 9px;
-    padding: 7px 4px;
+    padding: 8px 6px;
     text-align: center;
+    min-width: 0; /* required for a grid child to actually shrink/wrap
+                     instead of overflowing its track */
   }
 
   .qstat span {
@@ -233,7 +244,14 @@
     font-size: 13px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
   }
+
+  /* Applied via JS when a value is long enough to otherwise crowd the box */
+  .qstat span.long { font-size: 10.5px; }
+  .qstat span.longer { font-size: 9px; }
 
   .qstat label {
     display: block;
@@ -241,7 +259,7 @@
     letter-spacing: 0.4px;
     text-transform: uppercase;
     color: var(--text-dim);
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   /* ---------- NUMBER LINE PLOT ---------- */
@@ -319,11 +337,20 @@
   .plot-scale {
     display: flex;
     justify-content: space-between;
+    gap: 8px;
     font-size: 10.5px;
     color: var(--text-dim);
     margin-top: 10px;
     font-variant-numeric: tabular-nums;
   }
+
+  .plot-scale span {
+    min-width: 0;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+  }
+
+  .plot-scale span:last-child { text-align: right; }
 
   .legend {
     display: flex;
@@ -429,12 +456,23 @@
     const numberline = document.getElementById("numberline");
     const plotScale = document.getElementById("plotScale");
 
-    // Rounds to a sane number of decimal places and strips trailing zeros,
-    // so results read as "3.33" instead of "3.3333333333333335".
+    // Rounds to a sane number of decimal places and adds thousands
+    // separators, so results read as "3.33" or "1,000,505,500" instead of
+    // "3.3333333333333335" or "1000000505500" (one long unbroken run of
+    // digits, which is what was overflowing the quick-stats boxes).
     function fmt(n) {
       if (!isFinite(n)) return "–";
       const rounded = Math.round(n * 10000) / 10000;
-      return rounded.toString();
+      return rounded.toLocaleString(undefined, { maximumFractionDigits: 4 });
+    }
+
+    // Shrinks a quick-stat's font size once its text gets long enough to
+    // crowd its box, instead of letting it overflow.
+    function fitQuickStat(el) {
+      const len = el.textContent.replace(/[^0-9]/g, "").length;
+      el.classList.remove("long", "longer");
+      if (len > 14) el.classList.add("longer");
+      else if (len > 9) el.classList.add("long");
     }
 
     function parseNumbers(raw) {
@@ -495,10 +533,18 @@
       document.getElementById("median").textContent = fmt(median);
       document.getElementById("mode").textContent = modes.length ? modes.map(fmt).join(", ") : "No mode";
 
-      document.getElementById("qCount").textContent = arr.length;
-      document.getElementById("qSum").textContent = fmt(sum);
-      document.getElementById("qRange").textContent = fmt(sorted[sorted.length - 1] - sorted[0]);
-      document.getElementById("qStd").textContent = fmt(std);
+      const qCount = document.getElementById("qCount");
+      const qSum = document.getElementById("qSum");
+      const qRange = document.getElementById("qRange");
+      const qStd = document.getElementById("qStd");
+
+      qCount.textContent = arr.length;
+      qSum.textContent = fmt(sum);
+      qRange.textContent = fmt(sorted[sorted.length - 1] - sorted[0]);
+      qStd.textContent = fmt(std);
+
+      [qCount, qSum, qRange, qStd].forEach(fitQuickStat);
+
       quickstats.hidden = false;
 
       renderPlot(sorted, mean, median, modes);
