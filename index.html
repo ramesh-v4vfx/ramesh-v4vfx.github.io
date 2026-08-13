@@ -953,7 +953,14 @@
 
 @media (max-width: 1200px) {
   .popular-tools {
-    display: none;
+    display: block !important;
+    position: relative !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    max-width: 92% !important;
+    margin: 20px auto 0 !important;
+    left: auto !important;
+    top: auto !important;
   }
 }
 
@@ -966,14 +973,22 @@
     .search-wrap { max-width: 90%; padding: 9px 12px; }
     .site-search input { max-width: 92%; }
     .tools { justify-items: center; }
-    .tool { width: 100%; max-width: 90%; height: 64px; padding: 10px 14px; }
+    .tool { width: 100%; max-width: 90%; height: auto; min-height: 76px; padding: 12px 14px; }
     .hud-corner { width: 11px; height: 11px; }
     .hud-corner.tl, .hud-corner.tr { top: 7px; }
     .hud-corner.bl, .hud-corner.br { bottom: 7px; }
     .hud-corner.tl, .hud-corner.bl { left: 7px; }
     .hud-corner.tr, .hud-corner.br { right: 7px; }
     .tool h3 { font-size: 0.95rem; line-height: 1.2; }
-    .tool p   { font-size: 0.78rem; line-height: 1.2; }
+    .tool p {
+      font-size: 0.78rem;
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .tool-country { grid-column: span 1; justify-content: space-between; }
     .tabs-bar { gap: 5px; padding: 0 8px 8px; }
     .tab-btn { font-size: 0.78rem; padding: 4px 11px; }
