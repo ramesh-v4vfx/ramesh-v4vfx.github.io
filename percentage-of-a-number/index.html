@@ -13,100 +13,196 @@
 </script>
 
 
-  <meta charset="UTF-8">
-  <title>Percentage Calculator</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    .calculator {
-      background: #020617;
-      padding: 24px;
-      border-radius: 16px;
-      width: 320px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    h2 {
-      text-align: center;
-      margin-bottom: 6px;
-    }
+  :root {
+    --bg: #0f172a;
+    --card: #020617;
+    --track: #1e293b;
+    --accent-a: #6366f1;
+    --accent-b: #a855f7;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --error: #f87171;
+    --field: #0b1220;
+    --field-border: #1e293b;
+  }
 
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #94a3b8;
-      margin-bottom: 20px;
-    }
+  * { box-sizing: border-box; }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(99,102,241,0.15), transparent 45%),
+      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
+      var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0;
+    padding: 16px;
+  }
 
-    label {
-      font-size: 14px;
-      color: #cbd5f5;
-    }
+  .calculator {
+    background: var(--card);
+    padding: 24px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(148,163,184,0.08);
+  }
 
-    input {
-      height: 52px;
-      padding: 0 14px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    text-align: center;
+    margin: 0 0 6px;
+    font-size: 21px;
+    font-weight: 600;
+  }
 
-    button {
-      width: 100%;
-      height: 54px;
-      font-size: 18px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      background: #6366f1;
-      color: white;
-    }
+  .subtitle {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
 
-    button:hover {
-      background: #4f46e5;
-    }
+  /* --- Signature element: proportion bar showing X% carved out of the value --- */
+  .proportion {
+    margin-bottom: 22px;
+  }
 
-    .result {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: 600;
-    }
+  .bar-track {
+    position: relative;
+    width: 100%;
+    height: 34px;
+    background: var(--track);
+    border-radius: 10px;
+    overflow: hidden;
+  }
 
-    .error {
-      color: #f87171;
-      font-size: 14px;
-    }
+  .bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+    border-radius: 10px 0 0 10px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
 
-    #rawBtn {
-  margin-top: 10px;
-  background: #1e293b;
-  font-size: 14px;
-}
+  .bar-fill.full {
+    border-radius: 10px;
+  }
 
-#rawBtn:hover {
-  background: #334155;
-}
+  .bar-caption {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
 
-  </style>
+  .bar-caption .value {
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    font-size: 13.5px;
+    color: #cbd5f5;
+  }
+
+  input {
+    width: 100%;
+    height: 50px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--field-border);
+    outline: none;
+    font-size: 16px;
+    background: var(--field);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
+  input:focus { border-color: var(--accent-a); }
+
+  button {
+    width: 100%;
+    height: 52px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    color: white;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button:active { transform: scale(0.98); }
+
+  #rawBtn {
+    margin-top: 10px;
+    background: var(--field);
+    border: 1px solid var(--field-border);
+    font-size: 13.5px;
+    font-weight: 500;
+    height: 42px;
+  }
+
+  #rawBtn:hover { background: #131c2e; }
+
+  .result {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 15.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    word-break: break-word;
+    min-height: 20px;
+  }
+
+  .error { color: var(--error); font-size: 14px; }
+
+  .about {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(148,163,184,0.12);
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .about strong { color: #cbd5f5; }
+
+  .about .example {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--field);
+    border-radius: 10px;
+    border: 1px solid var(--field-border);
+  }
+</style>
 </head>
 <body>
 
@@ -114,27 +210,44 @@
     <h2>％ Percent of a Number</h2>
     <div class="subtitle">Find X% of a number</div>
 
+    <div class="proportion">
+      <div class="bar-track">
+        <div class="bar-fill" id="barFill"></div>
+      </div>
+      <div class="bar-caption">
+        <span>0</span>
+        <span class="value" id="barValueLabel">—</span>
+        <span id="barTotalLabel">value</span>
+      </div>
+    </div>
+
     <div class="field">
       <label for="percent">Percentage (%)</label>
-      <input type="number" id="percent" placeholder="e.g. 10">
+      <input type="number" id="percent" inputmode="decimal" placeholder="e.g. 10">
     </div>
 
     <div class="field">
       <label for="value">Value</label>
-      <input type="number" id="value" placeholder="e.g. 500">
+      <input type="number" id="value" inputmode="decimal" placeholder="e.g. 500">
     </div>
 
     <button onclick="calculatePercent()">Calculate</button>
-    <button type="button" id="rawBtn" onclick="toggleRaw()">
-  Show raw value
-</button>
-
+    <button type="button" id="rawBtn" onclick="toggleRaw()">Show raw value</button>
 
     <div class="result" id="result"></div>
+
+    <div class="about">
+      <strong>What this does:</strong> it scales a number by a percentage — telling you how much X% actually comes out to when applied to a value.
+      <div class="example">
+        <strong>Example:</strong> a shop offers 15% off a ₹2,400 jacket. Percentage = 15, Value = 2400 → discount is <strong>₹360</strong>. Same idea works for tips, tax, interest, or commission on any amount.
+      </div>
+    </div>
   </div>
 
   <script>
   let lastRawValue = null;
+  let lastPercent = null;
+  let lastValue = null;
   let showRaw = false;
 
   function toggleRaw() {
@@ -147,19 +260,44 @@
     }
   }
 
+  function setBar(percent, value, raw) {
+    const barFill = document.getElementById("barFill");
+    const barValueLabel = document.getElementById("barValueLabel");
+    const barTotalLabel = document.getElementById("barTotalLabel");
+
+    const magnitude = Math.abs(value) || 1;
+    const filledFraction = Math.max(0, Math.min(1, Math.abs(raw) / magnitude));
+    const widthPct = filledFraction * 100;
+
+    barFill.style.width = widthPct + "%";
+    barFill.classList.toggle("full", widthPct >= 99.5);
+
+    const rawLabel = Number.isInteger(raw) ? raw.toString() : parseFloat(raw.toFixed(2)).toString();
+    const valueLabel = Number.isInteger(value) ? value.toString() : parseFloat(value.toFixed(2)).toString();
+
+    barValueLabel.textContent = rawLabel;
+    barTotalLabel.textContent = "of " + valueLabel;
+  }
+
   function calculatePercent() {
-    const percent = Number(document.getElementById("percent").value);
-    const value = Number(document.getElementById("value").value);
+    const percentInput = document.getElementById("percent");
+    const valueInput = document.getElementById("value");
+    const percent = Number(percentInput.value);
+    const value = Number(valueInput.value);
     const resultDiv = document.getElementById("result");
 
-    if (Number.isNaN(percent) || Number.isNaN(value)) {
+    if (percentInput.value.trim() === "" || valueInput.value.trim() === "" ||
+        Number.isNaN(percent) || Number.isNaN(value)) {
       resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
       return;
     }
 
     // exact raw calculation
     lastRawValue = (percent * value) / 100;
+    lastPercent = percent;
+    lastValue = value;
 
+    setBar(percent, value, lastRawValue);
     displayResult(lastRawValue);
   }
 
@@ -168,32 +306,32 @@
 
     if (showRaw) {
       // RAW MODE: no rounding, no formatting tricks
-      resultDiv.textContent =
-        `${document.getElementById("percent").value}% of ` +
-        `${document.getElementById("value").value} = ${raw}`;
+      resultDiv.textContent = `${lastPercent}% of ${lastValue} = ${raw}`;
       return;
     }
 
-    // NORMAL MODE (rounded / adaptive)
+    // NORMAL MODE (rounded / adaptive, no trailing zero clutter)
     let display;
 
     if (raw !== 0 && Math.abs(raw) < 0.001) {
-      display = raw.toFixed(6);
-    } else if (Number.isInteger(raw)) {
-      display = raw.toString();
+      display = parseFloat(raw.toFixed(6)).toString();
     } else {
-      display = raw.toFixed(3);
+      display = parseFloat(raw.toFixed(3)).toString();
     }
 
-    resultDiv.textContent =
-      `${document.getElementById("percent").value}% of ` +
-      `${document.getElementById("value").value} = ${display}`;
+    resultDiv.textContent = `${lastPercent}% of ${lastValue} = ${display}`;
   }
-</script>
+
+  // Allow Enter key from either field to trigger calculation
+  ["percent", "value"].forEach(id => {
+    document.getElementById(id).addEventListener("keydown", (e) => {
+      if (e.key === "Enter") calculatePercent();
+    });
+  });
+  </script>
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
-
 
 </body>
 </html>
