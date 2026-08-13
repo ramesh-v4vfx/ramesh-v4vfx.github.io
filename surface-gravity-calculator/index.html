@@ -56,9 +56,18 @@
     font-family: var(--sans);
     color: var(--text);
     overflow-x: hidden;
+    width: 100%;
   }
 
   .app { width: 100%; display: flex; justify-content: center; }
+
+  /* Wrapper now owns the real max width. Everything inside (header + card)
+     sizes relative to THIS, instead of the card forcing its own 480px and
+     dragging the wrapper wider than the phone screen. */
+  .app-inner {
+    width: 100%;
+    max-width: 480px;
+  }
 
   /* ---------- Header / gravity mark (Rameshverse Systems identity) ---------- */
   .header {
@@ -166,7 +175,8 @@
     letter-spacing: 0.01em;
     margin: 0;
     text-align: left;
-    max-width: 300px;
+    flex: 1;
+    min-width: 0;
   }
 
   /* ---------- Card ---------- */
@@ -175,8 +185,7 @@
     background: linear-gradient(180deg, var(--panel-2), var(--panel));
     border: 1px solid var(--line);
     padding: 26px 22px 22px;
-    width: 480px;
-    max-width: 100%;
+    width: 100%;
     border-radius: 18px;
     box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(94,200,255,0.03) inset;
     overflow: hidden;
@@ -342,6 +351,8 @@
     border: none;
     border-radius: 10px;
     overflow: hidden;
+    flex-wrap: wrap;
+    text-align: center;
   }
 
   .calculate-btn .btn-icon {
@@ -416,6 +427,7 @@
     overflow-x: hidden;
     word-break: break-all;
     flex: 1;
+    min-width: 0;
   }
 
   .result-text::-webkit-scrollbar { width: 6px; }
@@ -465,7 +477,8 @@
 
   .dec-toggle button {
     flex: 1;
-    padding: 10px;
+    min-width: 0;
+    padding: 10px 6px;
     font-family: var(--mono);
     font-size: 0.78rem;
     letter-spacing: 0.06em;
@@ -541,6 +554,7 @@
     color: var(--text-dim);
     padding: 6px 0;
     border-bottom: 1px solid rgba(94,200,255,0.06);
+    word-break: break-word;
   }
 
   #historyList li:last-child { border-bottom: none; }
@@ -559,20 +573,24 @@
   }
 
   @media (max-width: 480px) {
+    body { padding: 24px 12px; }
     .card { padding: 22px 16px 18px; }
-    h1 { font-size: 1.25rem; }
+    h1 { font-size: 1.15rem; }
+    .header { gap: 10px; }
     .field input { font-size: 1rem; padding: 13px; }
-    .calculate-btn { padding: 16px; font-size: 1rem; }
+    .calculate-btn { padding: 16px; font-size: 0.92rem; gap: 6px; }
     .reset-btn { padding: 14px; }
     .result-box { flex-direction: column; align-items: stretch; gap: 10px; }
     .copy-btn { width: 100%; }
     .history-header { flex-direction: column; gap: 8px; align-items: flex-start; }
     .clear-history-btn { width: 100%; }
+    .dec-toggle { gap: 6px; }
+    .dec-toggle button { font-size: 0.7rem; padding: 10px 4px; }
   }
 </style>
 
 <div class="app">
-  <div>
+  <div class="app-inner">
     <div class="header">
       <div class="grav-mark">
         <div class="field-line fl-1"></div>
