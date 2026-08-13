@@ -356,61 +356,61 @@ window.Rameshverse = {
             }
 
 
-            /* ---------- SMALL SCREENS ---------- */
+            /* ---------- MOBILE: TINY & THIN ----------
+               Desktop keeps the full label — plenty of room there.
+               On mobile, instead of moving the button or guessing at
+               each tool's header layout, just make it drastically
+               smaller: icon-only (dot + arrow, no text), a much
+               shorter/thinner bar, and a smaller notch to match — so
+               whatever footprint it has left is small enough to stay
+               out of the way in the corner. Position (top-left) is
+               untouched, same as desktop. */
 
-            @media (max-width: 480px) {
-
-                .rv-hud-home {
-
-                    top: max(10px, env(safe-area-inset-top));
-
-                    left: max(10px, env(safe-area-inset-left));
-
-                    min-height: 32px;
-
-                    padding:
-                        7px 10px 7px 24px;
-
-                    font-size: 10px;
-
-                    gap: 6px;
-                }
-
-                .rv-hud-sub {
-
-                    font-size: 8px;
-                }
-
-                .rv-hud-dot {
-
-                    width: 5px;
-                    height: 5px;
-                }
-
-                .rv-hud-arrow {
-
-                    width: 10px;
-                    height: 10px;
-                }
-            }
-
-
-            /* ---------- VERY NARROW SCREENS ----------
-               Collapse to just the status light + arrow so it never
-               competes for space with a page's own header controls
-               (e.g. Country Explorer's toolbar sits in this same
-               top-left region). */
-
-            @media (max-width: 360px) {
+            @media (max-width: 768px) {
 
                 .rv-hud-home {
 
-                    padding: 7px 10px 7px 22px;
+                    min-height: 24px;
+
+                    padding: 5px 9px 5px 15px;
+
+                    gap: 5px;
+
+                    clip-path: polygon(
+                        0 50%,
+                        13px 0,
+                        100% 0,
+                        100% 100%,
+                        13px 100%
+                    );
+                }
+
+                .rv-hud-fill {
+
+                    clip-path: polygon(
+                        0 50%,
+                        11.5px 0,
+                        100% 0,
+                        100% 100%,
+                        11.5px 100%
+                    );
                 }
 
                 .rv-hud-text {
 
                     display: none;
+                }
+
+                .rv-hud-dot {
+
+                    width: 4px;
+                    height: 4px;
+                }
+
+                .rv-hud-arrow {
+
+                    width: 9px;
+                    height: 9px;
                 }
             }
 
