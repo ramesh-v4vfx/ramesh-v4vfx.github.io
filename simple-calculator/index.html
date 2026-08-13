@@ -37,7 +37,7 @@
     --key-face-hi: #34383f;
     --key-shadow: #0c0d10;
     --text-primary: #e9edf1;
-    --text-muted: #6b7178;
+    --text-muted: #be3939;
     --text-faint: #454952;
   }
 
@@ -142,6 +142,18 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .screen:active {
+    box-shadow: 0 0 0 1px rgba(111,252,177,0.3) inset;
+  }
+
+  .screen.copied {
+    box-shadow: 0 0 0 1px rgba(111,252,177,0.55) inset, 0 0 22px rgba(111,252,177,0.18) inset;
   }
 
   .screen::before {
@@ -332,7 +344,7 @@
 
   <div class="case">
     <div class="screen-bezel">
-      <div class="screen">
+      <div class="screen" id="screen" title="Tap to copy">
         <div class="indicator-row">
           <div class="indicator-dot"></div>
           <span class="indicator-text">Ready</span>
@@ -374,11 +386,13 @@
   const currentOperandEl = document.getElementById('current-operand');
   const previousOperandEl = document.getElementById('previous-operand');
   const indicatorText = document.querySelector('.indicator-text');
+  const screenEl = document.getElementById('screen');
 
   let currentOperand = '0';
   let previousOperand = '';
   let operation = undefined;
   let shouldResetScreen = false;
+  let flashTimeout = null;
 
   const opSymbol = { '+': '+', '-': '−', '*': '×', '/': '÷', '%': '%' };
 
@@ -390,8 +404,9 @@
   }
 
   function flash(state) {
+    clearTimeout(flashTimeout);
     indicatorText.textContent = state;
-    setTimeout(() => { indicatorText.textContent = 'Ready'; }, 500);
+    flashTimeout = setTimeout(() => { indicatorText.textContent = 'Ready'; }, 700);
   }
 
   function appendNumber(number) {
@@ -451,6 +466,40 @@
     currentOperand = currentOperand.length === 1 ? '0' : currentOperand.slice(0, -1);
   }
 
+  function copyResult() {
+    const text = currentOperand;
+    if (!text || text === 'Error') return;
+
+    const onSuccess = () => {
+      flash('Copied');
+      screenEl.classList.add('copied');
+      setTimeout(() => screenEl.classList.remove('copied'), 300);
+    };
+    const onFail = () => {
+      flash('Copy failed');
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(onSuccess).catch(onFail);
+    } else {
+      // Fallback for non-secure contexts / older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        onSuccess();
+      } catch (err) {
+        onFail();
+      }
+      document.body.removeChild(textarea);
+    }
+  }
+
   document.querySelectorAll('[data-num]').forEach(button => {
     button.addEventListener('click', () => {
       appendNumber(button.getAttribute('data-num'));
@@ -479,6 +528,8 @@
     deleteLast();
     updateDisplay();
   });
+
+  screenEl.addEventListener('click', copyResult);
 
   window.addEventListener('keydown', (e) => {
     if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
