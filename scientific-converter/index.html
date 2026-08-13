@@ -174,6 +174,7 @@
     font-family: var(--mono);
     font-size: 1.02rem;
     text-shadow: 0 0 6px rgba(168,85,247,0.35);
+    transition: font-size 0.15s ease;
   }
 
   input::placeholder { color: rgba(168,85,247,0.3); }
@@ -183,6 +184,45 @@
     border-color: var(--violet);
     box-shadow: 0 0 0 3px var(--violet-dim);
   }
+
+  /* ---------- Result boxes ----------
+     These used to be `<input readonly>`, but a single-line input can
+     never wrap — a 40+ digit decimal result just scrolled off past the
+     visible edge with no way to see the rest, and the box height stayed
+     pinned at 48px on mobile no matter how long the value got. Swapped
+     to a wrapping box that grows to fit its content instead. */
+  .result-box {
+    width: 100%;
+    margin-top: 7px;
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--line-soft);
+    background: #0a0806;
+    color: var(--violet);
+    font-family: var(--mono);
+    font-size: 1.02rem;
+    line-height: 1.35;
+    text-shadow: 0 0 6px rgba(168,85,247,0.35);
+    display: flex;
+    align-items: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    user-select: text;
+    -webkit-user-select: text;
+    transition: font-size 0.15s ease;
+  }
+
+  .result-box:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(168,85,247,0.3);
+  }
+
+  /* Auto-shrink once a value gets long enough to crowd the box, so it
+     stays readable instead of just wrapping into a wall of text */
+  .result-box.long { font-size: 0.88rem; }
+  .result-box.longer { font-size: 0.74rem; }
 
   input[readonly] { cursor: default; }
 
@@ -194,6 +234,14 @@
   }
 
   .row input { margin-top: 0; flex: 1; min-width: 0; }
+
+  /* Result rows: box can grow taller than 48px as text wraps, so the
+     Copy button anchors to the top instead of stretching oddly tall */
+  .row.result-row {
+    align-items: flex-start;
+  }
+
+  .row.result-row .result-box { margin-top: 0; flex: 1; min-width: 0; }
 
   button {
     border: none;
@@ -309,6 +357,12 @@
     .copy-btn { width: 100%; }
     .app { padding: 20px 18px; }
     .notation-mark .base { font-size: 2rem; }
+
+    /* On mobile the row also stacks the copy button below the result
+       box instead of beside it, so give the row its default (stretch)
+       alignment back — the flex-start override was only needed to keep
+       a wide desktop row's button pinned to the top. */
+    .row.result-row { align-items: stretch; }
   }
 </style>
 </head>
@@ -338,14 +392,14 @@
     <div id="errorMsg"></div>
 
     <label>Decimal</label>
-    <div class="row">
-      <input id="decimalResult" readonly>
+    <div class="row result-row">
+      <div id="decimalResult" class="result-box" data-placeholder="—" tabindex="0"></div>
       <button id="copyDecimalBtn" class="copy-btn" onclick="copyDecimal()">Copy</button>
     </div>
 
     <label>Scientific</label>
-    <div class="row">
-      <input id="scientificResult" readonly>
+    <div class="row result-row">
+      <div id="scientificResult" class="result-box" data-placeholder="—" tabindex="0"></div>
       <button id="copyScientificBtn" class="copy-btn" onclick="copyScientific()">Copy</button>
     </div>
 
@@ -388,6 +442,25 @@ function formatDecimalDisplay(decimalStr) {
   let [intPart, fracPart] = unsigned.split(".");
   intPart = formatWithCommas(intPart);
   return (negative ? "-" : "") + intPart + (fracPart !== undefined ? "." + fracPart : "");
+}
+
+// Sets a result box's text and auto-shrinks its font once the value is
+// long enough to otherwise crowd (or on a single-line input, get cut
+// off past) the box.
+function setResultBox(el, text) {
+  el.textContent = text;
+  el.classList.remove("long", "longer");
+  const len = text.replace(/[^0-9]/g, "").length;
+  if (len > 30) el.classList.add("longer");
+  else if (len > 14) el.classList.add("long");
+}
+
+// Same idea for the live "Enter Value" input, which — being a real
+// single-line <input> — can't wrap, so shrinking the font is what keeps
+// a long typed/pasted number visible instead of scrolling out of view.
+function autosizeEntryInput(el) {
+  const len = el.value.replace(/[^0-9]/g, "").length;
+  el.style.fontSize = len > 30 ? "0.8rem" : len > 18 ? "0.9rem" : "1.02rem";
 }
 
 /* ---------- Conversion core ----------
@@ -490,15 +563,17 @@ function convert() {
   }
 
   hideError();
-  document.getElementById("decimalResult").value = formatDecimalDisplay(decimal);
-  document.getElementById("scientificResult").value = scientific;
+  setResultBox(document.getElementById("decimalResult"), formatDecimalDisplay(decimal));
+  setResultBox(document.getElementById("scientificResult"), scientific);
 }
 
 async function pasteValue() {
   try {
     const text = await navigator.clipboard.readText();
     if (!text) return;
-    document.getElementById("inputValue").value = text.trim();
+    const input = document.getElementById("inputValue");
+    input.value = text.trim();
+    autosizeEntryInput(input);
   } catch (err) {
     showError("Clipboard access blocked — paste manually with Ctrl+V instead.");
   }
@@ -516,29 +591,41 @@ function flashButton(btn) {
 }
 
 function copyDecimal() {
-  const value = document.getElementById("decimalResult").value;
+  const value = document.getElementById("decimalResult").textContent;
   if (!value) return;
   navigator.clipboard.writeText(value);
   flashButton(document.getElementById("copyDecimalBtn"));
 }
 
 function copyScientific() {
-  const value = document.getElementById("scientificResult").value;
+  const value = document.getElementById("scientificResult").textContent;
   if (!value) return;
   navigator.clipboard.writeText(value);
   flashButton(document.getElementById("copyScientificBtn"));
 }
 
 function resetApp() {
-  document.getElementById("inputValue").value = "";
-  document.getElementById("decimalResult").value = "";
-  document.getElementById("scientificResult").value = "";
+  const input = document.getElementById("inputValue");
+  input.value = "";
+  input.style.fontSize = "1.02rem";
+
+  const decimalBox = document.getElementById("decimalResult");
+  const scientificBox = document.getElementById("scientificResult");
+  decimalBox.textContent = "";
+  scientificBox.textContent = "";
+  decimalBox.classList.remove("long", "longer");
+  scientificBox.classList.remove("long", "longer");
+
   hideError();
 }
 
-document.getElementById("inputValue").addEventListener("keydown", (e) => {
+const inputValueEl = document.getElementById("inputValue");
+
+inputValueEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter") convert();
 });
+
+inputValueEl.addEventListener("input", () => autosizeEntryInput(inputValueEl));
 </script>
 
 <script src="/libraries/config.js"></script>
