@@ -14,102 +14,196 @@
 
 
   <meta charset="UTF-8">
-  <title>Percentage of Total Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Percentage of Total Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
-      /* Safari-safe viewport handling */
-      min-height: 100vh;
-      min-height: 100svh;
+  :root {
+    --bg: #0f172a;
+    --card: #020617;
+    --track: #1e293b;
+    --ring-a: #6366f1;
+    --ring-b: #a855f7;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --error: #f87171;
+    --field: #0b1220;
+    --field-border: #1e293b;
+  }
 
-      margin: 0;
-      padding: 16px;
-    }
+  * { box-sizing: border-box; }
 
-    .calculator {
-      background: #020617;
-      padding: 20px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:
+      radial-gradient(circle at 20% -10%, rgba(99,102,241,0.15), transparent 45%),
+      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
+      var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0;
+    padding: 16px;
+  }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 6px;
-      font-size: 22px;
-    }
+  .calculator {
+    background: var(--card);
+    padding: 24px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(148,163,184,0.08);
+  }
 
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #94a3b8;
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    text-align: center;
+    margin: 0 0 6px;
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
+  .subtitle {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
 
-    label {
-      font-size: 14px;
-      color: #cbd5f5;
-    }
+  /* --- Signature element: live donut ring showing part-of-whole --- */
+  .ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 22px;
+  }
 
-    input {
-      width: 100%;
-      height: 52px;
-      padding: 0 14px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+  .ring-inner {
+    position: relative;
+    width: 168px;
+    height: 168px;
+  }
 
-    button {
-      width: 100%;
-      height: 54px;
-      font-size: 18px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      background: #6366f1;
-      color: white;
-      margin-top: 6px;
-    }
+  .ring-inner svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 
-    button:active {
-      transform: scale(0.98);
-    }
+  .ring-track { fill: none; stroke: var(--track); stroke-width: 12; }
 
-    .result {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 1.4;
-      word-break: break-word;
-    }
+  .ring-fill {
+    fill: none;
+    stroke: url(#ringGradient);
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-dasharray: 439.8;
+    stroke-dashoffset: 439.8;
+    transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1);
+  }
 
-    .error {
-      color: #f87171;
-      font-size: 14px;
-    }
-  </style>
+  .ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .ring-caption {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    font-size: 13.5px;
+    color: #cbd5f5;
+  }
+
+  input {
+    width: 100%;
+    height: 50px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--field-border);
+    outline: none;
+    font-size: 16px;
+    background: var(--field);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
+  input:focus { border-color: var(--ring-a); }
+
+  button {
+    width: 100%;
+    height: 52px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--ring-a), var(--ring-b));
+    color: white;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button:active { transform: scale(0.98); }
+
+  .result {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 15.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    word-break: break-word;
+    min-height: 20px;
+  }
+
+  .error { color: var(--error); font-size: 14px; }
+
+  .about {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(148,163,184,0.12);
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .about strong { color: #cbd5f5; }
+
+  .about .example {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--field);
+    border-radius: 10px;
+    border: 1px solid var(--field-border);
+  }
+</style>
 </head>
 
 <body>
@@ -118,6 +212,25 @@
     <h2>🧮 Percentage of Total</h2>
     <div class="subtitle">
       Find what percent one value is of another
+    </div>
+
+    <div class="ring-wrap">
+      <div class="ring-inner">
+        <svg viewBox="0 0 160 160">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--ring-a)" />
+              <stop offset="100%" stop-color="var(--ring-b)" />
+            </linearGradient>
+          </defs>
+          <circle class="ring-track" cx="80" cy="80" r="70" />
+          <circle class="ring-fill" id="ringFill" cx="80" cy="80" r="70" />
+        </svg>
+        <div class="ring-label">
+          <div class="ring-value" id="ringValue">0%</div>
+          <div class="ring-caption">of total</div>
+        </div>
+      </div>
     </div>
 
     <div class="field">
@@ -143,41 +256,71 @@
     <button onclick="calculatePercentage()">Calculate</button>
 
     <div class="result" id="result"></div>
+
+    <div class="about">
+      <strong>What this does:</strong> it tells you what share the "part" is of the "total", expressed as a percentage — how much of a whole something represents.
+      <div class="example">
+        <strong>Example:</strong> you scored 42 marks out of a 60‑mark test. Part = 42, Total = 60 → <strong>70%</strong>. Same idea works for budgets spent, tasks completed, storage used, or votes received.
+      </div>
+    </div>
   </div>
 
   <script>
+    const CIRCUMFERENCE = 2 * Math.PI * 70; // 439.8
+
+    function setRing(percent) {
+      const ringFill = document.getElementById("ringFill");
+      const ringValue = document.getElementById("ringValue");
+      const clamped = Math.max(0, Math.min(100, percent));
+      const offset = CIRCUMFERENCE * (1 - clamped / 100);
+      ringFill.style.strokeDashoffset = offset;
+
+      let label = Number.isFinite(percent) ? percent : 0;
+      let labelText;
+      if (Number.isInteger(label)) {
+        labelText = label.toString();
+      } else {
+        labelText = parseFloat(label.toFixed(1)).toString();
+      }
+      ringValue.textContent = labelText + "%";
+    }
+
     function calculatePercentage() {
       const part = Number(document.getElementById("part").value);
       const total = Number(document.getElementById("total").value);
       const resultDiv = document.getElementById("result");
 
-      if (Number.isNaN(part) || Number.isNaN(total)) {
-        resultDiv.innerHTML =
-          "<span class='error'>Please enter both values</span>";
+      if (document.getElementById("part").value.trim() === "" ||
+          document.getElementById("total").value.trim() === "" ||
+          Number.isNaN(part) || Number.isNaN(total)) {
+        resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
         return;
       }
 
       if (total === 0) {
-        resultDiv.innerHTML =
-          "<span class='error'>Total cannot be zero</span>";
+        resultDiv.innerHTML = "<span class='error'>Total cannot be zero</span>";
         return;
       }
 
       const raw = (part / total) * 100;
 
       let display;
-      if (Number.isInteger(raw)) {
-        display = raw.toString();
-      } else if (raw !== 0 && Math.abs(raw) < 0.001) {
-        display = raw.toFixed(6);
+      if (raw !== 0 && Math.abs(raw) < 0.001) {
+        display = parseFloat(raw.toFixed(6)).toString();
       } else {
-        display = raw.toFixed(3);
+        display = parseFloat(raw.toFixed(3)).toString();
       }
 
-      display = display.replace(/\.?0+$/, "");
-
       resultDiv.textContent = `${part} out of ${total} = ${display}%`;
+      setRing(raw);
     }
+
+    // Allow Enter key from either field to trigger calculation
+    ["part", "total"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculatePercentage();
+      });
+    });
   </script>
 
   <script src="/libraries/config.js"></script>
