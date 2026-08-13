@@ -14,113 +14,255 @@
 
 
   <meta charset="UTF-8">
-  <title>Percentage Change Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Percentage Change Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100svh;
-      margin: 0;
-      padding: 16px;
-    }
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    .calculator {
-      background: #020617;
-      padding: 20px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+  :root {
+    --bg: #0f172a;
+    --card: #020617;
+    --track: #1e293b;
+    --accent-a: #6366f1;
+    --accent-b: #a855f7;
+    --up: #22c55e;
+    --down: #ef4444;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --error: #f87171;
+    --field: #0b1220;
+    --field-border: #1e293b;
+  }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 6px;
-      font-size: 22px;
-    }
+  * { box-sizing: border-box; }
 
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #94a3b8;
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(99,102,241,0.15), transparent 45%),
+      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
+      var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0;
+    padding: 16px;
+  }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
+  .calculator {
+    background: var(--card);
+    padding: 24px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(148,163,184,0.08);
+  }
 
-    label {
-      font-size: 14px;
-      color: #cbd5f5;
-    }
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    text-align: center;
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 600;
+  }
 
-    input {
-      height: 52px;
-      padding: 0 14px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      box-sizing: border-box;
-      width: 100%;
-    }
+  .subtitle {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+    line-height: 1.4;
+  }
 
-    button {
-      width: 100%;
-      height: 54px;
-      font-size: 18px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      background: #6366f1;
-      color: white;
-      margin-top: 6px;
-    }
+  /* --- Signature element: trend sparkline from old value to new, with a live badge --- */
+  .trend {
+    margin-bottom: 20px;
+  }
 
-    button:active {
-      transform: scale(0.98);
-    }
+  .trend-badge {
+    text-align: center;
+    margin-bottom: 10px;
+  }
 
-    .result {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 1.4;
-      word-break: break-word;
-    }
+  .trend-badge-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: var(--field);
+    border: 1px solid var(--field-border);
+    color: var(--text);
+  }
 
-    .positive {
-      color: #22c55e;
-    }
+  .trend-badge-inner .arrow { font-size: 13px; }
+  .trend-badge-inner.up { color: var(--up); border-color: rgba(34,197,94,0.35); }
+  .trend-badge-inner.down { color: var(--down); border-color: rgba(239,68,68,0.35); }
 
-    .negative {
-      color: #ef4444;
-    }
+  .trend-chart {
+    width: 100%;
+    height: 76px;
+    background: var(--field);
+    border: 1px solid var(--field-border);
+    border-radius: 12px;
+    padding: 6px 0;
+  }
 
-    .error {
-      color: #f87171;
-      font-size: 14px;
-    }
-  </style>
+  .trend-chart svg { width: 100%; height: 100%; display: block; }
+
+  #trendLine {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: d 0.4s ease;
+  }
+
+  #trendLine.up { stroke: var(--up); }
+  #trendLine.down { stroke: var(--down); }
+
+  #trendDotOld, #trendDotNew {
+    fill: var(--muted);
+    transition: cx 0.4s ease, cy 0.4s ease, fill 0.4s ease;
+  }
+
+  #trendDotNew.up { fill: var(--up); }
+  #trendDotNew.down { fill: var(--down); }
+
+  .trend-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    font-size: 13.5px;
+    color: #cbd5f5;
+  }
+
+  input {
+    width: 100%;
+    height: 50px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--field-border);
+    outline: none;
+    font-size: 16px;
+    background: var(--field);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
+  input:focus { border-color: var(--accent-a); }
+
+  button {
+    width: 100%;
+    height: 52px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    color: white;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button:active { transform: scale(0.98); }
+
+  #resetBtn {
+    margin-top: 10px;
+    background: var(--field);
+    border: 1px solid var(--field-border);
+    font-size: 13.5px;
+    font-weight: 500;
+    height: 42px;
+    color: var(--muted);
+  }
+
+  #resetBtn:hover { background: #131c2e; }
+
+  .result {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    word-break: break-word;
+    min-height: 22px;
+  }
+
+  .positive { color: var(--up); }
+  .negative { color: var(--down); }
+  .error { color: var(--error); font-size: 14px; font-weight: 500; }
+
+  .about {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(148,163,184,0.12);
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .about strong { color: #cbd5f5; }
+
+  .about .example {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--field);
+    border-radius: 10px;
+    border: 1px solid var(--field-border);
+  }
+</style>
 </head>
 
 <body>
 
   <div class="calculator">
-    <h2>📈 Percentage Change Calculator</h2>
+    <h2>📈 Percentage Change</h2>
     <div class="subtitle">Increase / Decrease (Stock Market)</div>
+
+    <div class="trend">
+      <div class="trend-badge">
+        <span class="trend-badge-inner" id="trendBadge">
+          <span class="arrow" id="trendArrow">→</span>
+          <span id="trendBadgeText">— % change</span>
+        </span>
+      </div>
+      <div class="trend-chart">
+        <svg viewBox="0 0 300 76" preserveAspectRatio="none">
+          <polyline id="trendLine" points="30,38 270,38" />
+          <circle id="trendDotOld" cx="30" cy="38" r="5" />
+          <circle id="trendDotNew" cx="270" cy="38" r="5" />
+        </svg>
+      </div>
+      <div class="trend-labels">
+        <span>Old</span>
+        <span>New</span>
+      </div>
+    </div>
 
     <div class="field">
       <label for="oldValue">Old Value (Buy / Previous)</label>
@@ -143,56 +285,126 @@
     </div>
 
     <button onclick="calculateChange()">Calculate</button>
+    <button type="button" id="resetBtn" onclick="resetCalculator()">Reset</button>
 
     <div class="result" id="result"></div>
+
+    <div class="about">
+      <strong>What this does:</strong> it tells you how much a value went up or down, as a percentage of where it started — the same math behind stock returns, price hikes, and growth rates.
+      <div class="example">
+        <strong>Example:</strong> you bought a stock at ₹100 and it's now trading at ₹135. Old Value = 100, New Value = 135 → <strong>+35% change</strong>. The same formula works for salary hikes, rent increases, or a drop in weight.
+      </div>
+    </div>
   </div>
 
   <script>
-    function calculateChange() {
-      const oldVal = Number(document.getElementById("oldValue").value);
-      const newVal = Number(document.getElementById("newValue").value);
-      const resultDiv = document.getElementById("result");
+    function updateTrend(oldVal, newVal, rounded) {
+      const trendLine = document.getElementById("trendLine");
+      const dotOld = document.getElementById("trendDotOld");
+      const dotNew = document.getElementById("trendDotNew");
+      const badge = document.getElementById("trendBadge");
+      const arrow = document.getElementById("trendArrow");
 
-      if (Number.isNaN(oldVal) || Number.isNaN(newVal)) {
-        resultDiv.innerHTML =
-          "<span class='error'>Please enter both values</span>";
+      const magnitude = Math.max(Math.abs(oldVal), Math.abs(newVal)) || 1;
+      const yFor = (v) => 66 - (Math.abs(v) / magnitude) * 56; // 10 (top) .. 66 (bottom)
+
+      const yOld = yFor(oldVal);
+      const yNew = yFor(newVal);
+
+      trendLine.setAttribute("points", `30,${yOld} 270,${yNew}`);
+      dotOld.setAttribute("cy", yOld);
+      dotNew.setAttribute("cy", yNew);
+
+      trendLine.classList.remove("up", "down");
+      dotNew.classList.remove("up", "down");
+      badge.classList.remove("up", "down");
+
+      if (rounded > 0) {
+        trendLine.classList.add("up");
+        dotNew.classList.add("up");
+        badge.classList.add("up");
+        arrow.textContent = "▲";
+      } else if (rounded < 0) {
+        trendLine.classList.add("down");
+        dotNew.classList.add("down");
+        badge.classList.add("down");
+        arrow.textContent = "▼";
+      } else {
+        arrow.textContent = "→";
+      }
+    }
+
+    function calculateChange() {
+      const oldInput = document.getElementById("oldValue");
+      const newInput = document.getElementById("newValue");
+      const oldVal = Number(oldInput.value);
+      const newVal = Number(newInput.value);
+      const resultDiv = document.getElementById("result");
+      const badgeText = document.getElementById("trendBadgeText");
+
+      if (oldInput.value.trim() === "" || newInput.value.trim() === "" ||
+          Number.isNaN(oldVal) || Number.isNaN(newVal)) {
+        resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
         return;
       }
 
       if (oldVal === 0) {
-        resultDiv.innerHTML =
-          "<span class='error'>Old value cannot be zero</span>";
+        resultDiv.innerHTML = "<span class='error'>Old value cannot be zero</span>";
         return;
       }
 
       const rawChange = ((newVal - oldVal) / oldVal) * 100;
-
       const rounded = Number(rawChange.toFixed(3));
-      const isInteger = Number.isInteger(rounded);
 
       const sign = rounded > 0 ? "+" : rounded < 0 ? "−" : "";
-      const value = isInteger
-        ? Math.abs(rounded).toString()
-        : Math.abs(rounded).toFixed(3);
+      const value = parseFloat(Math.abs(rounded).toFixed(3)).toString();
+      const label = `${sign}${value}% Change`;
 
-      const prefix = isInteger ? "" : "≈ ";
+      updateTrend(oldVal, newVal, rounded);
 
       if (rounded > 0) {
-        resultDiv.innerHTML =
-          `<span class="positive">${prefix}${sign}${value}% Change</span>`;
+        resultDiv.innerHTML = `<span class="positive">${label}</span>`;
       } else if (rounded < 0) {
-        resultDiv.innerHTML =
-          `<span class="negative">${prefix}${sign}${value}% Change</span>`;
+        resultDiv.innerHTML = `<span class="negative">${label}</span>`;
       } else {
-        resultDiv.innerHTML = `0% Change`;
+        resultDiv.textContent = "0% Change";
       }
+
+      badgeText.textContent = label;
     }
+
+    function resetCalculator() {
+      document.getElementById("oldValue").value = "";
+      document.getElementById("newValue").value = "";
+      document.getElementById("result").textContent = "";
+      document.getElementById("trendBadgeText").textContent = "— % change";
+      document.getElementById("trendArrow").textContent = "→";
+
+      const badge = document.getElementById("trendBadge");
+      const trendLine = document.getElementById("trendLine");
+      const dotNew = document.getElementById("trendDotNew");
+
+      badge.classList.remove("up", "down");
+      trendLine.classList.remove("up", "down");
+      dotNew.classList.remove("up", "down");
+
+      trendLine.setAttribute("points", "30,38 270,38");
+      document.getElementById("trendDotOld").setAttribute("cy", 38);
+      dotNew.setAttribute("cy", 38);
+
+      document.getElementById("oldValue").focus();
+    }
+
+    // Allow Enter key from either field to trigger calculation
+    ["oldValue", "newValue"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculateChange();
+      });
+    });
   </script>
 
   <script src="/libraries/config.js"></script>
   <script src="/libraries/view-counter.js"></script>
 
 </body>
-
-
 </html>
