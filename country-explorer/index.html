@@ -1,3 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+
+
 <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1763,9 +1778,6 @@ body.capturing .cert-text {
   }
 
   .header-row {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     gap: 6px;
   }
 
@@ -1782,9 +1794,30 @@ body.capturing .cert-text {
     white-space: nowrap;
   }
 
+  /* Row 1 (continent filter, search, action buttons, checkbox): wraps onto
+     multiple lines instead of scrolling horizontally. Previously this row
+     forced the search box to min-width:100% inside a no-wrap scroll
+     container, which shoved every other button off-screen to the right
+     with no visual cue they existed. */
+  .header-controls {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
   .search-wrap {
     flex: 1 1 100%;
     min-width: 100%;
+  }
+
+  /* Row 2 (sort buttons): still horizontally scrollable since there are
+     many of them, but now fades out on the right edge so it visibly
+     signals "more to scroll" instead of looking abruptly cut off. */
+  .header-sort {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, black 0%, black 88%, transparent 100%);
+            mask-image: linear-gradient(to right, black 0%, black 88%, transparent 100%);
   }
 
   /* 📱 MOBILE CARDS */
@@ -2412,12 +2445,21 @@ function focusCard(code) {
 
   if (!card) return;
 
+  // If this card is already focused, ignore the repeat tap instead of
+  // re-running the setup below (which used to append a second, then a
+  // third "Download" element each time you tapped the open card again).
+  if (focusedCard === card) return;
+
   focusedCard = card;
   document.body.classList.add("card-focus");
   card.classList.add("focused");
 
   // remove existing close button
   document.querySelector(".card-close-global")?.remove();
+
+  // remove any leftover download element from a previous focus, just in
+  // case (safety net alongside the early-return above)
+  document.querySelectorAll(".card-download-text").forEach(el => el.remove());
 
   // ===== CLOSE BUTTON =====
   const closeBtn = document.createElement("button");
@@ -2453,8 +2495,9 @@ function closeFocusedCard() {
 
   focusedCard.classList.remove("focused");
 
-  // 🧹 remove download button
-  focusedCard.querySelector(".card-download-text")?.remove();
+  // 🧹 remove download button(s) — query all in case more than one ever
+  // slipped through, so closing always leaves a clean slate
+  document.querySelectorAll(".card-download-text").forEach(el => el.remove());
 
 
   document.querySelector(".card-close-global")?.remove();
