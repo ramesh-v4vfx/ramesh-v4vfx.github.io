@@ -13,97 +13,257 @@
 </script>
 
   <meta charset="UTF-8">
-  <title>Percentage Difference Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Percentage Difference Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;     /* fallback */
-      min-height: 100svh;    /* modern mobile-safe */
-      margin: 0;
-      padding: 16px;
-    }
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    .calculator {
-      background: #020617;
-      padding: 20px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+  :root {
+    --bg: #0f172a;
+    --card: #020617;
+    --track: #1e293b;
+    --accent-a: #6366f1;
+    --accent-b: #a855f7;
+    --bar-a: #818cf8;
+    --bar-b: #c084fc;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --error: #f87171;
+    --field: #0b1220;
+    --field-border: #1e293b;
+  }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 16px;
-      font-size: 22px;
-    }
+  * { box-sizing: border-box; }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(99,102,241,0.15), transparent 45%),
+      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
+      var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0;
+    padding: 16px;
+  }
 
-    label {
-      font-size: 14px;
-      color: #cbd5f5;
-    }
+  .calculator {
+    background: var(--card);
+    padding: 24px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(148,163,184,0.08);
+  }
 
-    input {
-      width: 100%;
-      height: 52px;
-      padding: 0 14px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    text-align: center;
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 600;
+  }
 
-    button {
-      width: 100%;
-      height: 54px;
-      font-size: 18px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      background: #6366f1;
-      color: white;
-      margin-top: 6px;
-    }
+  .subtitle {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+    line-height: 1.4;
+  }
 
-    button:active {
-      transform: scale(0.98);
-    }
+  /* --- Signature element: two columns compared, gap bracket shows the % difference --- */
+  .compare {
+    margin-bottom: 20px;
+  }
 
-    .result {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 1.4;
-      word-break: break-word;
-    }
+  .bracket {
+    text-align: center;
+    margin-bottom: 6px;
+  }
 
-    .error {
-      color: #f87171;
-      font-size: 14px;
-    }
-  </style>
+  .bracket-value {
+    display: inline-block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--field);
+    border: 1px solid var(--field-border);
+  }
+
+  .columns {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 14px;
+  }
+
+  .col-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 64px;
+  }
+
+  .col-track {
+    width: 100%;
+    height: 88px;
+    display: flex;
+    align-items: flex-end;
+    background: var(--track);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .col-fill {
+    width: 100%;
+    height: 8%;
+    border-radius: 8px 8px 0 0;
+    transition: height 0.6s cubic-bezier(.4,0,.2,1);
+  }
+
+  .col-fill.a { background: linear-gradient(180deg, var(--bar-a), var(--accent-a)); }
+  .col-fill.b { background: linear-gradient(180deg, var(--bar-b), var(--accent-b)); }
+
+  .col-label {
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  .col-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    font-size: 13.5px;
+    color: #cbd5f5;
+  }
+
+  input {
+    width: 100%;
+    height: 50px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--field-border);
+    outline: none;
+    font-size: 16px;
+    background: var(--field);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
+  input:focus { border-color: var(--accent-a); }
+
+  button {
+    width: 100%;
+    height: 52px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    color: white;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button:active { transform: scale(0.98); }
+
+  #resetBtn {
+    margin-top: 10px;
+    background: var(--field);
+    border: 1px solid var(--field-border);
+    font-size: 13.5px;
+    font-weight: 500;
+    height: 42px;
+    color: var(--muted);
+  }
+
+  #resetBtn:hover { background: #131c2e; }
+
+  .result {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 15.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    word-break: break-word;
+    min-height: 20px;
+  }
+
+  .error { color: var(--error); font-size: 14px; }
+
+  .about {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(148,163,184,0.12);
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .about strong { color: #cbd5f5; }
+
+  .about .example {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--field);
+    border-radius: 10px;
+    border: 1px solid var(--field-border);
+  }
+</style>
 </head>
 
 <body>
 
   <div class="calculator">
-    <h2>📊 Percentage Difference Calculator</h2>
+    <h2>📊 Percentage Difference</h2>
+    <div class="subtitle">See how far apart two values are, relative to their average</div>
+
+    <div class="compare">
+      <div class="bracket">
+        <span class="bracket-value" id="bracketValue">— % difference</span>
+      </div>
+      <div class="columns">
+        <div class="col-wrap">
+          <div class="col-track">
+            <div class="col-fill a" id="colA"></div>
+          </div>
+          <div class="col-label">Value A</div>
+          <div class="col-value" id="colAValue">—</div>
+        </div>
+        <div class="col-wrap">
+          <div class="col-track">
+            <div class="col-fill b" id="colB"></div>
+          </div>
+          <div class="col-label">Value B</div>
+          <div class="col-value" id="colBValue">—</div>
+        </div>
+      </div>
+    </div>
 
     <div class="field">
       <label for="valueA">Value A</label>
@@ -126,45 +286,92 @@
     </div>
 
     <button onclick="calculateDifference()">Calculate</button>
+    <button type="button" id="resetBtn" onclick="resetCalculator()">Reset</button>
 
     <div class="result" id="result"></div>
+
+    <div class="about">
+      <strong>What this does:</strong> it measures how far apart two values are, as a percentage of their average — neither value is treated as the "base", so A vs B gives the same result as B vs A.
+      <div class="example">
+        <strong>Example:</strong> two shops quote ₹1,800 and ₹2,200 for the same item. Value A = 1800, Value B = 2200 → <strong>20% difference</strong>. Useful for comparing prices, quotes, or readings where neither number is the "original".
+      </div>
+    </div>
   </div>
 
   <script>
-    function round(num, decimals = 10) {
-      return Number(Math.round(num + "e" + decimals) + "e-" + decimals);
+    function updateColumns(a, b) {
+      const colA = document.getElementById("colA");
+      const colB = document.getElementById("colB");
+      const colAValue = document.getElementById("colAValue");
+      const colBValue = document.getElementById("colBValue");
+
+      const magnitude = Math.max(Math.abs(a), Math.abs(b)) || 1;
+      const heightA = Math.max(6, (Math.abs(a) / magnitude) * 100);
+      const heightB = Math.max(6, (Math.abs(b) / magnitude) * 100);
+
+      colA.style.height = heightA + "%";
+      colB.style.height = heightB + "%";
+
+      colAValue.textContent = a.toString();
+      colBValue.textContent = b.toString();
     }
 
     function calculateDifference() {
-      const a = Number(document.getElementById("valueA").value);
-      const b = Number(document.getElementById("valueB").value);
+      const aInput = document.getElementById("valueA");
+      const bInput = document.getElementById("valueB");
+      const a = Number(aInput.value);
+      const b = Number(bInput.value);
       const resultDiv = document.getElementById("result");
+      const bracketValue = document.getElementById("bracketValue");
 
-      if (Number.isNaN(a) || Number.isNaN(b)) {
-        resultDiv.innerHTML =
-          "<span class='error'>Please enter both values</span>";
+      if (aInput.value.trim() === "" || bInput.value.trim() === "" ||
+          Number.isNaN(a) || Number.isNaN(b)) {
+        resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
         return;
       }
+
+      updateColumns(a, b);
 
       if (a === 0 && b === 0) {
         resultDiv.textContent = "0% difference";
+        bracketValue.textContent = "0.00% difference";
         return;
       }
 
-      const difference = Math.abs(round(a - b));
-      const average = round((a + b) / 2);
+      const difference = Math.abs(a - b);
+      const average = (a + b) / 2;
 
       if (average === 0) {
-        resultDiv.textContent = "Undefined";
+        resultDiv.textContent = "Undefined (average is zero)";
+        bracketValue.textContent = "Undefined";
         return;
       }
 
-      const percentageDifference =
-        round((difference / average) * 100, 6);
+      const percentageDifference = (difference / average) * 100;
+      const label = `${percentageDifference.toFixed(2)}% difference`;
 
-      resultDiv.textContent =
-        `${percentageDifference.toFixed(2)}% difference`;
+      resultDiv.textContent = label;
+      bracketValue.textContent = label;
     }
+
+    function resetCalculator() {
+      document.getElementById("valueA").value = "";
+      document.getElementById("valueB").value = "";
+      document.getElementById("result").textContent = "";
+      document.getElementById("bracketValue").textContent = "— % difference";
+      document.getElementById("colA").style.height = "6%";
+      document.getElementById("colB").style.height = "6%";
+      document.getElementById("colAValue").textContent = "—";
+      document.getElementById("colBValue").textContent = "—";
+      document.getElementById("valueA").focus();
+    }
+
+    // Allow Enter key from either field to trigger calculation
+    ["valueA", "valueB"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculateDifference();
+      });
+    });
   </script>
 
   <script src="/libraries/config.js"></script>
