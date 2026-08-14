@@ -665,12 +665,39 @@
     animation: hudCornerPulse 1.6s ease-in-out infinite;
 }
 
-/* ── FEEDBACK BUTTON + MODAL ── */
-.feedback-fab {
+.feedback-fab-wrap {
   position: fixed;
   bottom: 22px;
   right: 22px;
   z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.feedback-fab-label {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 6px rgba(255,43,43,0.5);
+  background: rgba(0,0,0,.5);
+  padding: 2px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .feedback-fab-wrap { bottom: 16px; right: 16px; }
+  .feedback-fab-label { font-size: 0.54rem; padding: 2px 6px; }
+}
+
+/* ── FEEDBACK BUTTON + MODAL ── */
+.feedback-fab {
+  position: static; /* changed from fixed — wrapper positions it now */
   width: 54px;
   height: 54px;
   border-radius: 50%;
@@ -1760,6 +1787,35 @@
   </p>
 </footer>
 
+<!-- ══════════════ FEEDBACK FAB + MODAL ══════════════ -->
+<div class="feedback-fab-wrap">
+  <button type="button" class="feedback-fab" id="feedbackFab" aria-label="Send feedback">💬</button>
+  <span class="feedback-fab-label">Contact Ramesh</span>
+</div>
+
+<!-- ══════════════ FEEDBACK FAB + MODAL ══════════════ -->
+<button type="button" class="feedback-fab" id="feedbackFab" aria-label="Send feedback">💬</button>
+
+<div class="feedback-overlay" id="feedbackOverlay">
+  <div class="feedback-modal">
+    <button type="button" class="feedback-close" id="feedbackClose" aria-label="Close feedback form">×</button>
+    <h3>Report / Suggest</h3>
+    <p class="fb-sub">Found a bug or have an idea? Send it straight to us.</p>
+
+    <div class="fb-types" id="fbTypes">
+      <button type="button" class="fb-type-btn active" data-type="Bug Report">🐞 Bug</button>
+      <button type="button" class="fb-type-btn" data-type="Idea / Suggestion">💡 Idea</button>
+      <button type="button" class="fb-type-btn" data-type="Other">✉️ Other</button>
+    </div>
+
+    <textarea class="fb-textarea" id="fbMessage" placeholder="Describe the issue or your idea..."></textarea>
+
+    <button type="button" class="fb-send-btn" id="fbSendBtn">
+      <i class="fa-brands fa-whatsapp"></i> Send via WhatsApp
+    </button>
+  </div>
+</div>
+
 <script>
   /* ── HERO SLIDESHOW ── */
   (function() {const hero = document.getElementById("hero");
@@ -2501,28 +2557,7 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
 
 </script>
 
-<!-- ══════════════ FEEDBACK FAB + MODAL ══════════════ -->
-<button type="button" class="feedback-fab" id="feedbackFab" aria-label="Send feedback">💬</button>
 
-<div class="feedback-overlay" id="feedbackOverlay">
-  <div class="feedback-modal">
-    <button type="button" class="feedback-close" id="feedbackClose" aria-label="Close feedback form">×</button>
-    <h3>Report / Suggest</h3>
-    <p class="fb-sub">Found a bug or have an idea? Send it straight to us.</p>
-
-    <div class="fb-types" id="fbTypes">
-      <button type="button" class="fb-type-btn active" data-type="Bug Report">🐞 Bug</button>
-      <button type="button" class="fb-type-btn" data-type="Idea / Suggestion">💡 Idea</button>
-      <button type="button" class="fb-type-btn" data-type="Other">✉️ Other</button>
-    </div>
-
-    <textarea class="fb-textarea" id="fbMessage" placeholder="Describe the issue or your idea..."></textarea>
-
-    <button type="button" class="fb-send-btn" id="fbSendBtn">
-      <i class="fa-brands fa-whatsapp"></i> Send via WhatsApp
-    </button>
-  </div>
-</div>
 
 </body>
 
