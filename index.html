@@ -1787,35 +1787,6 @@
   </p>
 </footer>
 
-<!-- ══════════════ FEEDBACK FAB + MODAL ══════════════ -->
-<div class="feedback-fab-wrap">
-  <button type="button" class="feedback-fab" id="feedbackFab" aria-label="Send feedback">💬</button>
-  <span class="feedback-fab-label">Contact Ramesh</span>
-</div>
-
-<!-- ══════════════ FEEDBACK FAB + MODAL ══════════════ -->
-<button type="button" class="feedback-fab" id="feedbackFab" aria-label="Send feedback">💬</button>
-
-<div class="feedback-overlay" id="feedbackOverlay">
-  <div class="feedback-modal">
-    <button type="button" class="feedback-close" id="feedbackClose" aria-label="Close feedback form">×</button>
-    <h3>Report / Suggest</h3>
-    <p class="fb-sub">Found a bug or have an idea? Send it straight to us.</p>
-
-    <div class="fb-types" id="fbTypes">
-      <button type="button" class="fb-type-btn active" data-type="Bug Report">🐞 Bug</button>
-      <button type="button" class="fb-type-btn" data-type="Idea / Suggestion">💡 Idea</button>
-      <button type="button" class="fb-type-btn" data-type="Other">✉️ Other</button>
-    </div>
-
-    <textarea class="fb-textarea" id="fbMessage" placeholder="Describe the issue or your idea..."></textarea>
-
-    <button type="button" class="fb-send-btn" id="fbSendBtn">
-      <i class="fa-brands fa-whatsapp"></i> Send via WhatsApp
-    </button>
-  </div>
-</div>
-
 <script>
   /* ── HERO SLIDESHOW ── */
   (function() {const hero = document.getElementById("hero");
@@ -2499,67 +2470,6 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
   });
 })();
 
-/* ── FEEDBACK / CONTACT VIA WHATSAPP ── */
-(function () {
-  const WHATSAPP_NUMBER = "917307140542"; // ← replace with your number, country code, no + or spaces
-
-  const fab       = document.getElementById("feedbackFab");
-  const overlay   = document.getElementById("feedbackOverlay");
-  const closeBtn  = document.getElementById("feedbackClose");
-  const typeWrap  = document.getElementById("fbTypes");
-  const msgBox    = document.getElementById("fbMessage");
-  const sendBtn   = document.getElementById("fbSendBtn");
-
-  if (!fab || !overlay) return;
-
-  let selectedType = "Bug Report";
-
-  function openModal() {
-    overlay.classList.add("open");
-    setTimeout(() => msgBox.focus(), 50);
-  }
-
-  function closeModal() {
-    overlay.classList.remove("open");
-  }
-
-  fab.addEventListener("click", openModal);
-  closeBtn.addEventListener("click", closeModal);
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) closeModal();
-  });
-
-  typeWrap.querySelectorAll(".fb-type-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      typeWrap.querySelectorAll(".fb-type-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      selectedType = btn.dataset.type;
-    });
-  });
-
-  sendBtn.addEventListener("click", () => {
-    const message = msgBox.value.trim();
-    if (!message) {
-      msgBox.focus();
-      return;
-    }
-
-    const page = window.location.href;
-    const text = `RameshVerse Feedback\nType: ${selectedType}\nPage: ${page}\n\nMessage:\n${message}`;
-
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank");
-
-    msgBox.value = "";
-    closeModal();
-  });
-})();
-
 </script>
-
-
-
 </body>
-
-
 </html>
