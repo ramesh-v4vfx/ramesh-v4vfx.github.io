@@ -1042,6 +1042,10 @@
   }
 }
 
+.popular-tools.is-closed {
+  display: none !important;
+}
+
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     .hero { height: 62vw; min-height: 200px; }
@@ -2253,18 +2257,14 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
   if (!panel || !closeBtn) return;
 
   if (sessionStorage.getItem("popularToolsClosed") === "1") {
-    panel.style.display = "none";
+    panel.classList.add("is-closed");
     return;
   }
 
-  function closePanel(e) {
-    e.preventDefault();
-    panel.style.display = "none";
+  closeBtn.addEventListener("click", function () {
+    panel.classList.add("is-closed");
     sessionStorage.setItem("popularToolsClosed", "1");
-  }
-
-  closeBtn.addEventListener("click", closePanel);
-  closeBtn.addEventListener("touchend", closePanel, { passive: false });
+  });
 })();
 
 </script>
