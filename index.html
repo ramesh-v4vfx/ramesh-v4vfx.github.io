@@ -465,6 +465,33 @@
     top: 180px;
 }
 
+.popular-tools-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  color: #ff2b2b;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .2s, box-shadow .2s;
+}
+
+.popular-tools-close:hover {
+  background: rgba(0,0,0,.7);
+  box-shadow: 0 0 0 1px rgba(255,43,43,.5), 0 0 10px rgba(255,43,43,.4);
+}
+
 
 .popular-tools h2 {
   margin: 0 0 12px;
@@ -1346,6 +1373,7 @@
 
 <!-- MOST POPULAR TOOLS -->
 <aside class="popular-tools" id="popularTools">
+  <button type="button" class="popular-tools-close" id="popularToolsClose" aria-label="Hide most popular tools">×</button>
   <h2>🏆 Most Popular Tools</h2>
   <div id="popularToolsList"></div>
 </aside>
@@ -2217,6 +2245,28 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
 
   cards.forEach(c => io.observe(c));
 })();
+
+/* ── CLOSE MOST POPULAR TOOLS ── */
+(function () {
+  const panel = document.getElementById("popularTools");
+  const closeBtn = document.getElementById("popularToolsClose");
+  if (!panel || !closeBtn) return;
+
+  if (sessionStorage.getItem("popularToolsClosed") === "1") {
+    panel.style.display = "none";
+    return;
+  }
+
+  function closePanel(e) {
+    e.preventDefault();
+    panel.style.display = "none";
+    sessionStorage.setItem("popularToolsClosed", "1");
+  }
+
+  closeBtn.addEventListener("click", closePanel);
+  closeBtn.addEventListener("touchend", closePanel, { passive: false });
+})();
+
 </script>
 
 </body>
