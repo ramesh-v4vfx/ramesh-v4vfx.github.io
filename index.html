@@ -1789,8 +1789,8 @@
 
 <!-- FEEDBACK FAB -->
 <div class="feedback-fab-wrap">
-  <span class="feedback-fab-label">Feedback</span>
   <button class="feedback-fab" id="feedbackFabBtn" aria-label="Send feedback or report a bug">💬</button>
+  <span class="feedback-fab-label">Feedback</span>
 </div>
 
 <div class="feedback-overlay" id="feedbackOverlay">
@@ -2480,7 +2480,7 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
         obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+  }, { threshold: 0.12, rootMargin: "0px 0px 150px 0px" });
 
   cards.forEach(c => io.observe(c));
 })();
