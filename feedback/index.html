@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRANSMISSION LOG :: RameshVerse Feedback</title>
+
+<!--
+  ============================================================
+  SETUP (5 min, one time)
+  ============================================================
+  1. Go to https://console.firebase.google.com -> Add project
+     (name it anything, e.g. "rameshverse"). Analytics optional.
+  2. Inside the project: Build > Firestore Database > Create database
+     -> choose "Start in production mode" (we lock it down below).
+  3. Project settings (gear icon) > General > "Your apps" > click
+     the </> (Web) icon > register app (no hosting needed).
+     Firebase will show you a firebaseConfig object — copy it.
+  4. Paste that object into FIREBASE_CONFIG below, replacing the
+     placeholder.
+  5. Firestore > Rules tab, replace the default rules with:
+
+     rules_version = '2';
+     service cloud.firestore {
+       match /databases/{database}/documents {
+         match /feedback/{entryId} {
+           allow read: if true;
+           allow create: if request.resource.data.name is string
+             && request.resource.data.name.size() > 0
+             && request.resource.data.name.size() < 60
+             && request.resource.data.message is string
+             && request.resource.data.message.size() > 0
+             && request.resource.data.message.size() < 2000
+             && request.resource.data.category in ['bug','feature','feedback']
+             && request.resource.data.createdAt == request.time;
+           allow update, delete: if false;
+         }
+       }
+     }
+
+     This lets anyone read and post, but nobody can edit/delete
+     other people's entries, and it validates the shape of every
+     post server-side. Publish the rules.
+  6. Upload this file to rameshverse.com (as its own page, or embed
+     the <div id="rv-feedback-root"> + <script> block into an
+     existing page). Done — it's live for every visitor.
+
+  Free tier covers roughly 50K reads / 20K writes per day, which is
+  far more than a feedback board needs.
+  ============================================================
+-->
+
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#111315;
+    --panel-edge:#1e2226;
+    --red:#e21f1f;
+    --red-dim:#7a1414;
+    --text:#c8ccd0;
+    --text-dim:#6b7278;
+    --mono:'Space Mono', monospace;
+  }
+  @font-face{
+    font-family:'Space Mono';
+    src:local('Space Mono');
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      linear-gradient(rgba(226,31,31,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(226,31,31,0.03) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--text);
+    font-family:var(--mono);
+    padding:24px 16px 80px;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+
+  .hud-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    border-bottom:1px solid var(--panel-edge);
+    padding-bottom:12px;
+    margin-bottom:24px;
+  }
+  .hud-header h1{
+    font-size:15px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--red);
+    margin:0;
+  }
+  .hud-header .tag{
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:1px;
+  }
+
+  .panel{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    padding:20px;
+    margin-bottom:28px;
+  }
+  .panel::before,.panel::after,
+  .corner-tl,.corner-br{
+    content:'';
+    position:absolute;
+    width:10px;height:10px;
+    border-color:var(--red);
+    border-style:solid;
+  }
+  .panel::before{top:-1px;left:-1px;border-width:2px 0 0 2px;}
+  .panel::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;}
+
+  label{
+    display:block;
+    font-size:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:6px;
+    margin-top:16px;
+  }
+  label:first-of-type{margin-top:0;}
+
+  input[type=text], textarea, select{
+    width:100%;
+    background:#0d0f11;
+    border:1px solid var(--panel-edge);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:13px;
+    padding:10px 12px;
+    outline:none;
+  }
+  input[type=text]:focus, textarea:focus, select:focus{
+    border-color:var(--red-dim);
+  }
+  textarea{resize:vertical;min-height:80px;}
+  select{appearance:none;cursor:pointer;}
+
+  .cat-row{display:flex;gap:8px;margin-top:16px;}
+  .cat-btn{
+    flex:1;
+    background:#0d0f11;
+    border:1px solid var(--panel-edge);
+    color:var(--text-dim);
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:9px 4px;
+    cursor:pointer;
+  }
+  .cat-btn.active{
+    color:var(--red);
+    border-color:var(--red-dim);
+    background:rgba(226,31,31,0.08);
+  }
+
+  .submit-btn{
+    width:100%;
+    margin-top:20px;
+    background:var(--red);
+    border:none;
+    color:#0a0a0a;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:12px;
+    cursor:pointer;
+    transition:opacity .15s;
+  }
+  .submit-btn:hover{opacity:.85;}
+  .submit-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  .status-line{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-top:10px;
+    min-height:14px;
+  }
+  .status-line.ok{color:#3ecf6b;}
+  .status-line.err{color:var(--red);}
+
+  .log-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .log-header h2{
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:0;
+  }
+  .log-count{
+    font-size:11px;
+    color:var(--red);
+  }
+
+  .entry{
+    border:1px solid var(--panel-edge);
+    background:var(--panel);
+    padding:14px 16px;
+    margin-bottom:10px;
+  }
+  .entry-meta{
+    display:flex;
+    justify-content:space-between;
+    font-size:10px;
+    color:var(--text-dim);
+    letter-spacing:1px;
+    margin-bottom:8px;
+    text-transform:uppercase;
+  }
+  .entry-meta .name{color:var(--text);}
+  .badge{
+    display:inline-block;
+    padding:2px 6px;
+    border:1px solid;
+    font-size:9px;
+    letter-spacing:1px;
+  }
+  .badge.bug{color:var(--red);border-color:var(--red-dim);}
+  .badge.feature{color:#3e9ecf;border-color:#1e4a5e;}
+  .badge.feedback{color:#c9c93e;border-color:#5e5e1e;}
+  .entry-message{
+    font-size:13px;
+    line-height:1.5;
+    color:var(--text);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
+  .empty-state{
+    font-size:12px;
+    color:var(--text-dim);
+    text-align:center;
+    padding:30px 0;
+    letter-spacing:1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hud-header">
+    <h1>// Transmission Log</h1>
+    <span class="tag">RAMESHVERSE FEEDBACK CHANNEL</span>
+  </div>
+
+  <div class="panel">
+    <label for="rv-name">Callsign (your name)</label>
+    <input type="text" id="rv-name" maxlength="60" placeholder="e.g. Ramesh" autocomplete="name">
+
+    <label>Category</label>
+    <div class="cat-row">
+      <button type="button" class="cat-btn active" data-cat="bug">Bug</button>
+      <button type="button" class="cat-btn" data-cat="feature">Feature</button>
+      <button type="button" class="cat-btn" data-cat="feedback">Feedback</button>
+    </div>
+
+    <label for="rv-message">Message</label>
+    <textarea id="rv-message" maxlength="2000" placeholder="Describe the bug, idea, or feedback..."></textarea>
+
+    <button class="submit-btn" id="rv-submit">Transmit</button>
+    <div class="status-line" id="rv-status"></div>
+  </div>
+
+  <div class="log-header">
+    <h2>Incoming Transmissions</h2>
+    <span class="log-count" id="rv-count">--</span>
+  </div>
+
+  <div id="rv-feedback-root">
+    <div class="empty-state">Loading log...</div>
+  </div>
+</div>
+
+<!-- Firebase SDKs (modular v10, loaded from Google's CDN) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, query, orderBy, limit,
+    onSnapshot, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // ------------------------------------------------------------
+  // PASTE YOUR FIREBASE CONFIG HERE (see setup notes at top of file)
+  // ------------------------------------------------------------
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDD7T__rYYhAar9QknMYCX8Ob876ChAvPo",
+    authDomain: "rameshverse-hub.firebaseapp.com",
+    projectId: "rameshverse-hub",
+    storageBucket: "rameshverse-hub.firebasestorage.app",
+    messagingSenderId: "385147058247",
+    appId: "1:385147058247:web:990390fd9976d6e5d01962"
+  };
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db = getFirestore(app);
+  const feedbackRef = collection(db, "feedback");
+
+  // --- UI refs ---
+  const nameInput = document.getElementById('rv-name');
+  const msgInput = document.getElementById('rv-message');
+  const submitBtn = document.getElementById('rv-submit');
+  const statusLine = document.getElementById('rv-status');
+  const listRoot = document.getElementById('rv-feedback-root');
+  const countEl = document.getElementById('rv-count');
+  const catButtons = document.querySelectorAll('.cat-btn');
+
+  let activeCategory = 'bug';
+  catButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.cat;
+    });
+  });
+
+  function setStatus(text, type){
+    statusLine.textContent = text;
+    statusLine.className = 'status-line' + (type ? ' ' + type : '');
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function timeAgo(date){
+    if(!date) return 'just now';
+    const s = Math.floor((Date.now() - date.getTime())/1000);
+    if(s < 60) return 'just now';
+    if(s < 3600) return Math.floor(s/60)+'m ago';
+    if(s < 86400) return Math.floor(s/3600)+'h ago';
+    return Math.floor(s/86400)+'d ago';
+  }
+
+  submitBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    const message = msgInput.value.trim();
+
+    if(!name){ setStatus('ERROR: callsign required.', 'err'); nameInput.focus(); return; }
+    if(!message){ setStatus('ERROR: message required.', 'err'); msgInput.focus(); return; }
+    if(message.length > 2000){ setStatus('ERROR: message too long.', 'err'); return; }
+
+    submitBtn.disabled = true;
+    setStatus('Transmitting...');
+
+    try{
+      await addDoc(feedbackRef, {
+        name: name.slice(0,60),
+        message: message.slice(0,2000),
+        category: activeCategory,
+        createdAt: serverTimestamp()
+      });
+      msgInput.value = '';
+      setStatus('Transmission received. Thank you.', 'ok');
+    }catch(err){
+      console.error(err);
+      setStatus('ERROR: transmission failed. Try again.', 'err');
+    }finally{
+      submitBtn.disabled = false;
+    }
+  });
+
+  // --- Live-updating log, newest first, capped at 100 ---
+  const q = query(feedbackRef, orderBy('createdAt', 'desc'), limit(100));
+  onSnapshot(q, (snapshot) => {
+    countEl.textContent = snapshot.size;
+
+    if(snapshot.empty){
+      listRoot.innerHTML = '<div class="empty-state">No transmissions yet. Be the first.</div>';
+      return;
+    }
+
+    let html = '';
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      const ts = d.createdAt ? d.createdAt.toDate() : null;
+      const cat = ['bug','feature','feedback'].includes(d.category) ? d.category : 'feedback';
+      html += `
+        <div class="entry">
+          <div class="entry-meta">
+            <span class="name">${escapeHtml(d.name || 'anonymous')}</span>
+            <span><span class="badge ${cat}">${cat}</span> &nbsp; ${timeAgo(ts)}</span>
+          </div>
+          <div class="entry-message">${escapeHtml(d.message || '')}</div>
+        </div>`;
+    });
+    listRoot.innerHTML = html;
+  }, (err) => {
+    console.error(err);
+    listRoot.innerHTML = '<div class="empty-state">ERROR: could not load log. Check Firebase config.</div>';
+  });
+</script>
+
+</body>
+</html>

@@ -1787,6 +1787,38 @@
   </p>
 </footer>
 
+<!-- FEEDBACK FAB -->
+<div class="feedback-fab-wrap">
+  <span class="feedback-fab-label">Feedback</span>
+  <button class="feedback-fab" id="feedbackFabBtn" aria-label="Send feedback or report a bug">💬</button>
+</div>
+
+<div class="feedback-overlay" id="feedbackOverlay">
+  <div class="feedback-modal">
+    <button class="feedback-close" id="feedbackCloseBtn" aria-label="Close">×</button>
+    <h3>Transmission Log</h3>
+    <p class="fb-sub">Report a bug, request a feature, or leave feedback.</p>
+    <a href="/feedback/" target="_blank" rel="noopener"
+   style="display:inline-block;margin-bottom:14px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:0.04em;       text-transform:uppercase;color:#ff2b2b;text-decoration:none;border-bottom:1px solid rgba(255,43,43,0.3);padding-bottom:1px;">
+    View feedback log →
+    </a>
+
+    <input type="text" id="fbName" placeholder="Your name" maxlength="60"
+      style="width:100%;background:#0e0e0f;border:1px solid rgba(255,43,43,0.2);border-radius:8px;padding:10px 12px;color:#fff;font-family:'Space Mono',monospace;font-size:0.82rem;outline:none;box-sizing:border-box;margin-bottom:12px;">
+
+    <div class="fb-types">
+      <button type="button" class="fb-type-btn active" data-cat="bug">Bug</button>
+      <button type="button" class="fb-type-btn" data-cat="feature">Feature</button>
+      <button type="button" class="fb-type-btn" data-cat="feedback">Feedback</button>
+    </div>
+
+    <textarea class="fb-textarea" id="fbMessage" maxlength="2000" placeholder="Describe it here..."></textarea>
+
+    <button class="fb-send-btn" id="fbSendBtn">Send</button>
+    <div id="fbStatus" style="font-size:0.68rem;color:rgba(255,255,255,.5);margin-top:8px;min-height:14px;"></div>
+  </div>
+</div>
+
 <script>
   /* ── HERO SLIDESHOW ── */
   (function() {const hero = document.getElementById("hero");
@@ -2471,5 +2503,71 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
 })();
 
 </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDD7T__rYYhAar9QknMYCX8Ob876ChAvPo",
+    authDomain: "rameshverse-hub.firebaseapp.com",
+    projectId: "rameshverse-hub",
+    storageBucket: "rameshverse-hub.firebasestorage.app",
+    messagingSenderId: "385147058247",
+    appId: "1:385147058247:web:990390fd9976d6e5d01962"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const feedbackRef = collection(db, "feedback");
+
+  const fab = document.getElementById("feedbackFabBtn");
+  const overlay = document.getElementById("feedbackOverlay");
+  const closeBtn = document.getElementById("feedbackCloseBtn");
+  const sendBtn = document.getElementById("fbSendBtn");
+  const nameInput = document.getElementById("fbName");
+  const msgInput = document.getElementById("fbMessage");
+  const statusEl = document.getElementById("fbStatus");
+  const typeButtons = document.querySelectorAll(".fb-type-btn");
+
+  let activeCategory = "bug";
+  typeButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      typeButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeCategory = btn.dataset.cat;
+    });
+  });
+
+  fab.addEventListener("click", () => overlay.classList.add("open"));
+  closeBtn.addEventListener("click", () => overlay.classList.remove("open"));
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.classList.remove("open"); });
+
+  sendBtn.addEventListener("click", async () => {
+    const name = nameInput.value.trim();
+    const message = msgInput.value.trim();
+    if (!name) { statusEl.textContent = "Name required."; nameInput.focus(); return; }
+    if (!message) { statusEl.textContent = "Message required."; msgInput.focus(); return; }
+
+    sendBtn.disabled = true;
+    statusEl.textContent = "Sending...";
+    try {
+      await addDoc(feedbackRef, {
+        name: name.slice(0, 60),
+        message: message.slice(0, 2000),
+        category: activeCategory,
+        createdAt: serverTimestamp()
+      });
+      msgInput.value = "";
+      statusEl.textContent = "Sent. Thank you!";
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = "Failed to send. Try again.";
+    } finally {
+      sendBtn.disabled = false;
+    }
+  });
+</script>
+
 </body>
 </html>
