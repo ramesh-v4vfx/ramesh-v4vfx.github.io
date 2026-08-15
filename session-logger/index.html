@@ -630,6 +630,11 @@ const display = document.getElementById("display");
 const timerRing = document.getElementById("timerRing");
 const statusLabel = document.getElementById("statusLabel");
 
+// Badge API — lets the home screen icon show a dot while a session is running
+if ('setAppBadge' in navigator && 'Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
 function updateDisplay() {
   display.textContent = formatTime(elapsed);
 }
@@ -700,6 +705,7 @@ start.onclick = () => {
   timer = requestAnimationFrame(tick);
 
   setState("running");
+  if ('setAppBadge' in navigator) navigator.setAppBadge(1);
 };
 
 pause.onclick = () => {
@@ -707,6 +713,7 @@ pause.onclick = () => {
   cancelAnimationFrame(timer);
   timer = null;
   setState("paused");
+  if ('clearAppBadge' in navigator) navigator.clearAppBadge();
 };
 
 reset.onclick = () => {
@@ -759,12 +766,14 @@ saveSession.onclick = () => {
   timer = null;
   updateDisplay();
   setState("idle");
+  if ('clearAppBadge' in navigator) navigator.clearAppBadge();
 };
 
 cancelSession.onclick = () => {
   popup.classList.add("hidden");
   // Session stays paused at its frozen elapsed time — Start resumes it.
   setState("paused");
+  if ('clearAppBadge' in navigator) navigator.clearAppBadge();
 };
 
 /* =====================
