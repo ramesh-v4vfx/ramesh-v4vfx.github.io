@@ -1915,11 +1915,38 @@ body.capturing .cert-text {
 }
 
 .share-icon-btn.copied {
-  background: rgba(34,197,94,0.15);
-  border-color: rgba(34,197,94,0.4);
+    background: rgba(34,197,94,0.15);
+    border-color: rgba(34,197,94,0.4);
+  }
+}   /* ← this closes your existing @media (max-width: 768px) block */
+
+/* ---------------------------------------------------------
+   Local fix: center row 1 and row 2 as button groups, while
+   reserving enough left space to clear the fixed HUD "Return
+   Home" button injected by config.js. Scoped to this page —
+   config.js itself is untouched, so other tools are unaffected.
+   --------------------------------------------------------- */
+
+.header-controls,
+.header-sort {
+  justify-content: center;
+  padding-left: 190px;
+  box-sizing: border-box;
 }
+
+#shareToggleBtn {
+  margin-left: 0;
 }
-</style>
+
+@media (max-width: 768px) {
+  .header-controls,
+  .header-sort {
+    padding-left: 46px;
+    justify-content: flex-start;
+  }
+}
+
+</style>   <!-- your existing closing tag -->
 </head>
 
 <body>
