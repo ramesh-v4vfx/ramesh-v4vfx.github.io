@@ -1939,7 +1939,12 @@ body.capturing .cert-text {
 }
 
 @media (max-width: 768px) {
-  .header-controls,
+  .header-controls {
+    padding-left: 0;
+    justify-content: center;
+    row-gap: 10px;   /* ← adds vertical spacing between wrapped lines */
+  }
+
   .header-sort {
     padding-left: 46px;
     justify-content: flex-start;
