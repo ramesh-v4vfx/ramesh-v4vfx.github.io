@@ -250,6 +250,12 @@
     padding:30px 0;
     letter-spacing:1px;
   }
+
+  @media (max-width: 768px) {
+  body{
+    padding-top:56px;
+  }
+}
 </style>
 </head>
 <body>
@@ -408,6 +414,8 @@
     listRoot.innerHTML = '<div class="empty-state">ERROR: could not load log. Check Firebase config.</div>';
   });
 </script>
+
+<script src="/libraries/config.js"></script>
 
 </body>
 </html>
