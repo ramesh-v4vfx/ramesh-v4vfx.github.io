@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TARGET LOCK // RAMESHVERSE</title>
+<style>
+  :root {
+    --bg: #05070a;
+    --panel: #0a0d12;
+    --red: #ff2b2b;
+    --red-dim: #7a1616;
+    --text: #d7dde3;
+    --text-dim: #5c6672;
+    --green: #2bff8f;
+    --amber: #ffb62b;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    height:100%;
+    height:100dvh;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Mono', 'Courier New', monospace;
+    overflow:hidden;
+    overscroll-behavior:none;
+    touch-action:none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  #wrap {
+    position:relative;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(255,43,43,0.05), transparent 60%),
+      var(--bg);
+  }
+
+  #wrap::after {
+    content:"";
+    position:absolute; inset:0;
+    pointer-events:none;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.015) 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode:overlay;
+    z-index:5;
+  }
+
+  #stage {
+    position:relative;
+    width:100%;
+    height:100%;
+    max-width:1100px;
+    max-height:800px;
+  }
+
+  canvas {
+    display:block;
+    width:100%;
+    height:100%;
+    background:transparent;
+    cursor:none;
+  }
+
+  .corner {
+    position:absolute;
+    width:22px; height:22px;
+    border-color:var(--red);
+    opacity:0.85;
+    z-index:6;
+    pointer-events:none;
+  }
+  .corner.tl { top:8px; left:8px; border-top:2px solid; border-left:2px solid; }
+  .corner.tr { top:8px; right:8px; border-top:2px solid; border-right:2px solid; }
+  .corner.bl { bottom:8px; left:8px; border-bottom:2px solid; border-left:2px solid; }
+  .corner.br { bottom:8px; right:8px; border-bottom:2px solid; border-right:2px solid; }
+
+  #hud {
+    position:absolute;
+    top:16px; left:16px; right:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    z-index:6;
+    font-size:12px;
+    letter-spacing:1px;
+    pointer-events:none;
+  }
+
+  .hud-block { display:flex; flex-direction:column; gap:4px; }
+  .hud-label { color:var(--text-dim); font-size:10px; }
+  .hud-value { color:var(--red); font-size:17px; font-weight:700; }
+
+  #telemetry {
+    position:absolute;
+    top:16px; left:50%;
+    transform:translateX(-50%);
+    z-index:6;
+    display:flex;
+    gap:20px;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--text-dim);
+    pointer-events:none;
+    text-align:center;
+  }
+  #telemetry .t-item span { display:block; }
+  #telemetry .t-val { color:var(--green); font-size:14px; margin-top:2px; }
+
+  #feedback {
+    position:absolute;
+    top:40%; left:50%;
+    transform:translate(-50%,-50%);
+    z-index:6;
+    text-align:center;
+    pointer-events:none;
+    opacity:0;
+  }
+  #feedback .fb-title {
+    font-size:22px;
+    letter-spacing:3px;
+    font-weight:700;
+  }
+  #feedback .fb-sub {
+    margin-top:4px;
+    font-size:12px;
+    color:var(--text-dim);
+    letter-spacing:1px;
+  }
+
+  #center-msg {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    z-index:7;
+    display:none;
+    max-width:90%;
+  }
+  #center-msg h1 {
+    color:var(--red);
+    font-size:clamp(24px,5.5vw,46px);
+    letter-spacing:5px;
+    text-shadow:0 0 18px rgba(255,43,43,0.6);
+  }
+  #center-msg h1.success { color:var(--green); text-shadow:0 0 18px rgba(43,255,143,0.5); }
+  #center-msg p {
+    color:var(--text-dim);
+    margin-top:14px;
+    font-size:12px;
+    letter-spacing:1.5px;
+    line-height:1.6;
+  }
+  #center-msg .grade {
+    margin-top:16px;
+    font-size:38px;
+    letter-spacing:4px;
+    color:var(--green);
+    text-shadow:0 0 16px rgba(43,255,143,0.5);
+  }
+  #center-msg .btn {
+    margin-top:22px;
+    display:inline-block;
+    padding:10px 26px;
+    border:1px solid var(--red);
+    color:var(--red);
+    background:rgba(255,43,43,0.06);
+    letter-spacing:2px;
+    font-size:13px;
+    cursor:pointer;
+    font-family:inherit;
+    pointer-events:auto;
+  }
+  #center-msg .btn:active { background:rgba(255,43,43,0.2); }
+
+  #controls-hint {
+    position:absolute;
+    bottom:16px; left:50%;
+    transform:translateX(-50%);
+    font-size:10px;
+    color:var(--text-dim);
+    letter-spacing:1px;
+    z-index:6;
+    text-align:center;
+  }
+
+  #mute-btn {
+    position:absolute; top:54px; right:16px;
+    z-index:6; background:transparent; border:1px solid rgba(215,221,227,0.3);
+    color:var(--text-dim); font-family:inherit; font-size:13px;
+    width:32px; height:28px; pointer-events:auto; cursor:pointer;
+  }
+  #mute-btn.on { color:var(--red); border-color:var(--red); }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="game"></canvas>
+
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div id="hud">
+      <div class="hud-block">
+        <span class="hud-label">SCORE</span>
+        <span class="hud-value" id="score">0000</span>
+      </div>
+      <div class="hud-block" style="align-items:flex-end;">
+        <span class="hud-label">ROUND</span>
+        <span class="hud-value" id="round">1 / 10</span>
+      </div>
+    </div>
+
+    <div id="telemetry">
+      <div class="t-item">
+        <span class="hud-label">STREAK</span>
+        <span class="t-val" id="tele-streak">0</span>
+      </div>
+      <div class="t-item">
+        <span class="hud-label">BEST</span>
+        <span class="t-val" id="tele-best">&mdash;</span>
+      </div>
+      <div class="t-item">
+        <span class="hud-label">AVG ACC</span>
+        <span class="t-val" id="tele-avg">0%</span>
+      </div>
+    </div>
+
+    <div id="feedback">
+      <div class="fb-title" id="fb-title">PERFECT</div>
+      <div class="fb-sub" id="fb-sub">98% &middot; +142</div>
+    </div>
+
+    <button id="mute-btn">&#9834;</button>
+
+    <div id="center-msg">
+      <h1 id="msg-title">TARGET LOCK</h1>
+      <p id="msg-sub">CLICK / TAP WHEN THE CLOSING RING<br>MATCHES THE TARGET SIZE.<br>10 ROUNDS &middot; TIMING + PRECISION SCORED</p>
+      <div class="btn" id="start-btn">START</div>
+    </div>
+
+    <div id="controls-hint">CLICK / TAP TO FIRE &nbsp;&middot;&nbsp; TIMING + ACCURACY SCORED</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const stage = document.getElementById('stage');
+  const scoreEl = document.getElementById('score');
+  const roundEl = document.getElementById('round');
+  const teleStreak = document.getElementById('tele-streak');
+  const teleBest = document.getElementById('tele-best');
+  const teleAvg = document.getElementById('tele-avg');
+  const fbBlock = document.getElementById('feedback');
+  const fbTitle = document.getElementById('fb-title');
+  const fbSub = document.getElementById('fb-sub');
+  const centerMsg = document.getElementById('center-msg');
+  const msgTitle = document.getElementById('msg-title');
+  const msgSub = document.getElementById('msg-sub');
+  const startBtn = document.getElementById('start-btn');
+
+  let W, H, DPR;
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = stage.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const RED = '#ff2b2b';
+  const GREEN = '#2bff8f';
+  const AMBER = '#ffb62b';
+  const TEXT = '#d7dde3';
+
+  // ---- pointer / crosshair ----
+  let pointer = { x: -100, y: -100, active:false };
+  function setPointerFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    let cx, cy;
+    if (e.touches && e.touches.length){
+      cx = e.touches[0].clientX; cy = e.touches[0].clientY;
+    } else {
+      cx = e.clientX; cy = e.clientY;
+    }
+    pointer.x = cx - rect.left;
+    pointer.y = cy - rect.top;
+    pointer.active = true;
+  }
+  canvas.addEventListener('mousemove', setPointerFromEvent);
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); setPointerFromEvent(e); }, {passive:false});
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); setPointerFromEvent(e); handleFire(); }, {passive:false});
+  canvas.addEventListener('mousedown', e => { setPointerFromEvent(e); handleFire(); });
+
+  // ---- persistent state ----
+  let state = 'menu'; // menu | waiting | active | feedback | summary
+  let round = 0;
+  const TOTAL_ROUNDS = 10;
+  let score = 0;
+  let streak = 0;
+  let bestScore = 0;
+  let scoreHistory = [];
+  let target = null;
+  let roundStart = 0;
+  let roundDuration = 0;
+  let particles = [];
+  let feedbackTimer = 0;
+  let clock = 0;
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+
+  function addParticles(x,y,count,color,spread){
+    for (let i=0;i<count;i++){
+      const a = rand(0,Math.PI*2);
+      const s = rand(0.5, spread||3);
+      particles.push({ x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, life: rand(20,40), maxLife:40, color });
+    }
+  }
+
+  function updateHUD(){
+    scoreEl.textContent = String(Math.round(score)).padStart(4,'0');
+    roundEl.textContent = `${Math.min(round+1, TOTAL_ROUNDS)} / ${TOTAL_ROUNDS}`;
+    teleStreak.textContent = streak;
+    teleBest.textContent = bestScore > 0 ? Math.round(bestScore) + '%' : '\u2014';
+    const avg = scoreHistory.length ? (scoreHistory.reduce((a,b)=>a+b,0)/scoreHistory.length) : 0;
+    teleAvg.textContent = Math.round(avg) + '%';
+  }
+
+  function showMessage(title, sub, btnText, successClass, grade){
+    centerMsg.style.display = 'block';
+    msgTitle.textContent = title;
+    msgTitle.className = successClass ? 'success' : '';
+    msgSub.innerHTML = sub;
+    startBtn.textContent = btnText;
+    let g = document.getElementById('grade-el');
+    if (g) g.remove();
+    if (grade){
+      const div = document.createElement('div');
+      div.className = 'grade';
+      div.id = 'grade-el';
+      div.textContent = grade;
+      centerMsg.insertBefore(div, startBtn);
+    }
+  }
+  function hideMessage(){ centerMsg.style.display = 'none'; }
+
+  const targetRadiusBase = () => 16 * Math.min(W,H)/650;
+  const margin = () => 90 * Math.min(W,H)/650;
+
+  function spawnTarget(){
+    const tr = targetRadiusBase();
+    const m = Math.max(margin(), tr*3);
+    target = {
+      x: rand(m, W-m),
+      y: rand(m + 60, H-m),
+      radius: tr
+    };
+    roundDuration = Math.max(550, 1350 - round*70);
+    roundStart = performance.now();
+    state = 'active';
+  }
+
+  function nextRound(){
+    round++;
+    if (round >= TOTAL_ROUNDS){
+      finishRun();
+      return;
+    }
+    updateHUD();
+    spawnTarget();
+  }
+
+  function startRun(){
+    round = 0;
+    score = 0;
+    streak = 0;
+    bestScore = 0;
+    scoreHistory = [];
+    state = 'active';
+    updateHUD();
+    hideMessage();
+    spawnTarget();
+  }
+
+  function finishRun(){
+    state = 'summary';
+    const avg = scoreHistory.length ? (scoreHistory.reduce((a,b)=>a+b,0)/scoreHistory.length) : 0;
+    let grade = 'D';
+    if (avg >= 95) grade = 'S';
+    else if (avg >= 85) grade = 'A';
+    else if (avg >= 70) grade = 'B';
+    else if (avg >= 50) grade = 'C';
+    playFinalChime(grade);
+    showMessage(
+      'CALIBRATION COMPLETE',
+      `FINAL SCORE ${Math.round(score)}<br>AVG ACCURACY ${Math.round(avg)}% &middot; BEST STREAK ${maxStreak}`,
+      'RUN AGAIN',
+      true,
+      grade
+    );
+  }
+
+  let maxStreak = 0;
+
+  function showFeedback(title, sub, color){
+    fbTitle.textContent = title;
+    fbTitle.style.color = color;
+    fbSub.textContent = sub;
+    fbBlock.style.opacity = '1';
+    feedbackTimer = 55;
+  }
+
+  function handleFire(){
+    if (state !== 'active') return;
+    const now = performance.now();
+    const elapsed = now - roundStart;
+    const ringRadiusStart = 130 * Math.min(W,H)/650;
+    const t = Math.min(1, elapsed / roundDuration);
+    const ringRadiusNow = ringRadiusStart + (target.radius - ringRadiusStart) * t;
+
+    const dist = Math.hypot(pointer.x - target.x, pointer.y - target.y);
+    const missRadius = ringRadiusStart * 1.3;
+
+    if (dist > missRadius){
+      registerMiss('OFF TARGET');
+      return;
+    }
+
+    const timingErrorMs = Math.abs(elapsed - roundDuration);
+    const timingScore = clamp(100 - timingErrorMs/3.2, 0, 100);
+    const posScore = clamp(100 - (dist/target.radius)*35, 0, 100);
+    const combined = (timingScore*0.55 + posScore*0.45);
+
+    registerHit(combined, timingErrorMs);
+  }
+
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+  function registerHit(combined, timingErrorMs){
+    scoreHistory.push(combined);
+    streak++;
+    maxStreak = Math.max(maxStreak, streak);
+    bestScore = Math.max(bestScore, combined);
+    const gained = Math.round(combined * (1 + Math.min(streak,10)*0.05));
+    score += gained;
+
+    let tier, color;
+    if (combined >= 90){ tier='PERFECT'; color=GREEN; }
+    else if (combined >= 70){ tier='GOOD'; color=AMBER; }
+    else { tier='OK'; color=RED; }
+
+    addParticles(pointer.x, pointer.y, combined>=90?18:10, color, 3);
+    playHitSound(combined);
+    showFeedback(tier, `${Math.round(combined)}% \u00b7 +${gained}`, color);
+
+    updateHUD();
+    state = 'feedback';
+    setTimeout(() => {
+      fbBlock.style.opacity = '0';
+      nextRound();
+    }, 500);
+  }
+
+  function registerMiss(reason){
+    streak = 0;
+    scoreHistory.push(0);
+    playMissSound();
+    addParticles(pointer.x, pointer.y, 8, RED, 2);
+    showFeedback('MISS', reason, RED);
+    updateHUD();
+    state = 'feedback';
+    setTimeout(() => {
+      fbBlock.style.opacity = '0';
+      nextRound();
+    }, 500);
+  }
+
+  // auto-miss if the ring fully collapses with grace period and no click
+  function checkTimeout(){
+    if (state !== 'active') return;
+    const now = performance.now();
+    const elapsed = now - roundStart;
+    if (elapsed > roundDuration + 450){
+      registerMiss('TOO SLOW');
+    }
+  }
+
+  // ---- Audio (fully synthesized) ----
+  let audioCtx = null;
+  let masterGain, musicGain, sfxGain;
+  let musicStep = 0;
+  let muted = false;
+
+  const MUSIC_NOTES = [196, 220, 246.94, 220, 261.63, 220, 246.94, 196];
+
+  function playTone(freq, duration, type, dest, vol, delaySec){
+    if (!audioCtx) return;
+    const start = audioCtx.currentTime + (delaySec || 0);
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, start);
+    osc.connect(g);
+    g.connect(dest);
+    g.gain.linearRampToValueAtTime(vol, start + 0.015);
+    g.gain.linearRampToValueAtTime(0, start + duration);
+    osc.start(start);
+    osc.stop(start + duration + 0.05);
+  }
+
+  function scheduleMusicStep(){
+    const stepTime = 0.3;
+    if (audioCtx && !muted){
+      const freq = MUSIC_NOTES[musicStep % MUSIC_NOTES.length];
+      playTone(freq, stepTime*0.7, 'square', musicGain, 0.12);
+    }
+    musicStep++;
+    setTimeout(scheduleMusicStep, stepTime*1000);
+  }
+
+  function initAudio(){
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.5;
+    masterGain.connect(audioCtx.destination);
+
+    musicGain = audioCtx.createGain();
+    musicGain.gain.value = 0.16;
+    musicGain.connect(masterGain);
+
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = 0.45;
+    sfxGain.connect(masterGain);
+
+    scheduleMusicStep();
+  }
+
+  function playHitSound(combined){
+    if (!audioCtx || muted) return;
+    // pitch scales with accuracy: better hit = higher, brighter tone
+    const freq = 420 + combined * 6;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = combined >= 90 ? 'triangle' : 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq*1.5, now+0.08);
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now+0.18);
+    osc.connect(g); g.connect(sfxGain);
+    osc.start(now); osc.stop(now+0.2);
+    if (combined >= 90){
+      playTone(freq*1.5, 0.15, 'triangle', sfxGain, 0.25, 0.05);
+    }
+  }
+
+  function playMissSound(){
+    if (!audioCtx || muted) return;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now+0.25);
+    g.gain.setValueAtTime(0.25, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now+0.28);
+    osc.connect(g); g.connect(sfxGain);
+    osc.start(now); osc.stop(now+0.3);
+  }
+
+  function playFinalChime(grade){
+    if (!audioCtx || muted) return;
+    const good = grade === 'S' || grade === 'A';
+    const notes = good ? [523.25,659.25,783.99,1046.5] : [392,349.23,329.63];
+    notes.forEach((f,i) => playTone(f, 0.4, 'triangle', sfxGain, 0.5, i*0.1));
+  }
+
+  const muteBtn = document.getElementById('mute-btn');
+  function toggleMute(e){
+    if (e) e.preventDefault();
+    initAudio();
+    muted = !muted;
+    if (masterGain) masterGain.gain.setTargetAtTime(muted ? 0 : 0.5, audioCtx.currentTime, 0.05);
+    muteBtn.classList.toggle('on', !muted);
+    muteBtn.innerHTML = muted ? '&#9711;' : '&#9834;';
+  }
+  muteBtn.addEventListener('click', toggleMute);
+  muteBtn.addEventListener('touchstart', toggleMute, {passive:false});
+  muteBtn.classList.add('on');
+
+  function drawCrosshair(){
+    if (!pointer.active) return;
+    const near = target && state==='active' ? (Math.hypot(pointer.x-target.x, pointer.y-target.y) < target.radius*3) : false;
+    ctx.save();
+    ctx.strokeStyle = near ? GREEN : TEXT;
+    ctx.globalAlpha = 0.85;
+    ctx.lineWidth = 1.2;
+    const s = 12;
+    ctx.beginPath();
+    ctx.moveTo(pointer.x-s, pointer.y); ctx.lineTo(pointer.x-4, pointer.y);
+    ctx.moveTo(pointer.x+4, pointer.y); ctx.lineTo(pointer.x+s, pointer.y);
+    ctx.moveTo(pointer.x, pointer.y-s); ctx.lineTo(pointer.x, pointer.y-4);
+    ctx.moveTo(pointer.x, pointer.y+4); ctx.lineTo(pointer.x, pointer.y+s);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(pointer.x, pointer.y, 2, 0, Math.PI*2);
+    ctx.fillStyle = near ? GREEN : TEXT;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawTarget(){
+    if (!target || state !== 'active') return;
+    const now = performance.now();
+    const elapsed = now - roundStart;
+    const t = Math.min(1, elapsed / roundDuration);
+    const ringRadiusStart = 130 * Math.min(W,H)/650;
+    const ringRadiusNow = ringRadiusStart + (target.radius - ringRadiusStart) * t;
+
+    // outer closing ring
+    ctx.save();
+    ctx.strokeStyle = AMBER;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.arc(target.x, target.y, Math.max(ringRadiusNow, target.radius), 0, Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+
+    // target core
+    ctx.save();
+    ctx.strokeStyle = RED;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(target.x, target.y, target.radius, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(target.x - target.radius*1.6, target.y);
+    ctx.lineTo(target.x + target.radius*1.6, target.y);
+    ctx.moveTo(target.x, target.y - target.radius*1.6);
+    ctx.lineTo(target.x, target.y + target.radius*1.6);
+    ctx.strokeStyle = 'rgba(255,43,43,0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+
+    // caliper-style numeric readout (precision-tool nod)
+    ctx.save();
+    ctx.fillStyle = TEXT;
+    ctx.font = '11px monospace';
+    ctx.globalAlpha = 0.8;
+    ctx.fillText('\u00d8 ' + ringRadiusNow.toFixed(1) + 'px', target.x - 24, target.y - target.radius - 14);
+    ctx.restore();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    for (let i=0;i<starPositions.length;i++){
+      const s = starPositions[i];
+      ctx.globalAlpha = s.a;
+      ctx.fillRect(s.x*W, s.y*H, s.r, s.r);
+    }
+    ctx.globalAlpha = 1;
+
+    for (const p of particles){
+      ctx.globalAlpha = Math.max(p.life/p.maxLife, 0);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x-1.5,p.y-1.5,3,3);
+    }
+    ctx.globalAlpha = 1;
+
+    drawTarget();
+    drawCrosshair();
+  }
+
+  let starPositions = [];
+  function makeStars(){
+    starPositions = [];
+    for (let i=0;i<70;i++){
+      starPositions.push({x:Math.random(), y:Math.random(), r:Math.random()*1.4+0.4, a:Math.random()*0.5+0.15});
+    }
+  }
+  makeStars();
+
+  let lastTime = null;
+  function loop(ts){
+    if (lastTime === null) lastTime = ts;
+    const dt = Math.min((ts - lastTime)/16.67, 2.5);
+    lastTime = ts;
+
+    for (let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.x += p.vx*dt; p.y += p.vy*dt;
+      p.life -= dt;
+      if (p.life <= 0) particles.splice(i,1);
+    }
+
+    checkTimeout();
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  function handleStartBtn(e){
+    if (e) e.preventDefault();
+    initAudio();
+    resize();
+    startRun();
+  }
+  startBtn.addEventListener('click', handleStartBtn);
+  startBtn.addEventListener('touchstart', handleStartBtn, {passive:false});
+
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space' && centerMsg.style.display === 'block'){
+      e.preventDefault();
+      handleStartBtn(e);
+    }
+  });
+
+  showMessage(
+    'TARGET LOCK',
+    'CLICK / TAP WHEN THE CLOSING RING<br>MATCHES THE TARGET SIZE.<br>10 ROUNDS &middot; TIMING + PRECISION SCORED',
+    'START'
+  );
+})();
+</script>
+
+<script src="../../libraries/config.js"></script>
+<script src="../../libraries/view-counter.js"></script>
+</body>
+
+</html>

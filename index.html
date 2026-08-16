@@ -1575,6 +1575,7 @@
     <button class="tab-btn"        data-tab="science"      onclick="setTab(this)">🔬 Science & Space</button>
     <button class="tab-btn"        data-tab="finance"      onclick="setTab(this)">💰 Finance</button>
     <button class="tab-btn"        data-tab="geography"    onclick="setTab(this)">🌍 Geography</button>
+    <button class="tab-btn"        data-tab="games"        onclick="setTab(this)">🎮 Games</button>
   </div>
 </div>
 
@@ -1732,6 +1733,21 @@
     <h3>Simple Calculator 🧮</h3>
     <p>Perform quick calculations for your daily needs.</p>
   </a>
+
+  <a class="tool" href="/games/asteroid-hunter/" data-search="asteroid hunter game" data-category="games">
+  <h3>Asteroid Hunter 🎮☄️</h3>
+  <p>Blast through waves of asteroids in this arcade shooter.</p>
+</a>
+
+<a class="tool" href="/games/lunar-lander/" data-search="lunar lander game" data-category="games">
+  <h3>Lunar Lander 🎮🌕</h3>
+  <p>Guide your ship to a safe touchdown on the Moon.</p>
+</a>
+
+<a class="tool" href="/games/target-lock/" data-search="target lock game" data-category="games">
+  <h3>Target Lock 🎮🎯</h3>
+  <p>Lock onto moving targets before time runs out.</p>
+</a>
 
   <p class="no-results" id="noResults">No tools found. Try a different search or tab.</p>
 
@@ -2426,7 +2442,8 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
     calculator:   "CALCULATOR",
     science:      "SCIENCE · SPACE",
     finance:      "FINANCE",
-    geography:    "GEOGRAPHY"
+    geography:    "GEOGRAPHY",
+    games:        "GAMES"
   };
 
   document.querySelectorAll(".tool").forEach(tool => {
@@ -2568,6 +2585,7 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
     }
   });
 </script>
+
 
 </body>
 </html>

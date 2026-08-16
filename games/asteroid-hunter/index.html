@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ASTEROID HUNTER // RAMESHVERSE</title>
+<style>
+  :root {
+    --bg: #05070a;
+    --panel: #0a0d12;
+    --red: #ff2b2b;
+    --red-dim: #7a1616;
+    --text: #d7dde3;
+    --text-dim: #5c6672;
+    --green: #2bff8f;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    height:100%;
+    height:100dvh;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Mono', 'Courier New', monospace;
+    overflow:hidden;
+    overscroll-behavior:none;
+    touch-action:none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  #wrap {
+    position:relative;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(255,43,43,0.05), transparent 60%),
+      var(--bg);
+  }
+
+  /* scanlines */
+  #wrap::after {
+    content:"";
+    position:absolute; inset:0;
+    pointer-events:none;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.015) 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode:overlay;
+    z-index:5;
+  }
+
+  #stage {
+    position:relative;
+    width:100%;
+    height:100%;
+    max-width:1100px;
+    max-height:800px;
+  }
+
+  canvas {
+    display:block;
+    width:100%;
+    height:100%;
+    background:transparent;
+  }
+
+  /* HUD corners */
+  .corner {
+    position:absolute;
+    width:22px; height:22px;
+    border-color:var(--red);
+    opacity:0.85;
+    z-index:6;
+    pointer-events:none;
+  }
+  .corner.tl { top:8px; left:8px; border-top:2px solid; border-left:2px solid; }
+  .corner.tr { top:8px; right:8px; border-top:2px solid; border-right:2px solid; }
+  .corner.bl { bottom:8px; left:8px; border-bottom:2px solid; border-left:2px solid; }
+  .corner.br { bottom:8px; right:8px; border-bottom:2px solid; border-right:2px solid; }
+
+  #hud {
+    position:absolute;
+    top:16px; left:16px; right:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    z-index:6;
+    font-size:12px;
+    letter-spacing:1px;
+    pointer-events:none;
+  }
+
+  .hud-block { display:flex; flex-direction:column; gap:4px; }
+  .hud-label { color:var(--text-dim); font-size:10px; }
+  .hud-value { color:var(--red); font-size:18px; font-weight:700; }
+
+  .hud-lives { display:flex; gap:8px; margin-top:2px; }
+  .life-icon {
+    width:12px; height:16px;
+    background:var(--red);
+    clip-path: polygon(50% 0%, 100% 100%, 50% 75%, 0% 100%);
+    filter: drop-shadow(0 0 3px rgba(255,43,43,0.6));
+  }
+
+  #center-msg {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    z-index:7;
+    display:none;
+  }
+  #center-msg h1 {
+    color:var(--red);
+    font-size:clamp(28px,6vw,52px);
+    letter-spacing:6px;
+    text-shadow:0 0 18px rgba(255,43,43,0.6);
+  }
+  #center-msg p {
+    color:var(--text-dim);
+    margin-top:14px;
+    font-size:13px;
+    letter-spacing:2px;
+  }
+  #center-msg .btn {
+    margin-top:22px;
+    display:inline-block;
+    padding:10px 26px;
+    border:1px solid var(--red);
+    color:var(--red);
+    background:rgba(255,43,43,0.06);
+    letter-spacing:2px;
+    font-size:13px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  #center-msg .btn:active { background:rgba(255,43,43,0.2); }
+
+  #controls-hint {
+    position:absolute;
+    bottom:16px; left:50%;
+    transform:translateX(-50%);
+    font-size:10px;
+    color:var(--text-dim);
+    letter-spacing:1px;
+    z-index:6;
+    text-align:center;
+  }
+
+  #pause-btn {
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    z-index:6; background:transparent; border:1px solid var(--red);
+    color:var(--red); font-family:inherit; font-size:11px; letter-spacing:1px;
+    padding:5px 12px; pointer-events:auto; display:none;
+  }
+
+  #mute-btn {
+    position:absolute; top:52px; right:16px;
+    z-index:6; background:transparent; border:1px solid rgba(215,221,227,0.3);
+    color:var(--text-dim); font-family:inherit; font-size:13px;
+    width:32px; height:28px; pointer-events:auto; cursor:pointer;
+  }
+  #mute-btn.on { color:var(--red); border-color:var(--red); }
+
+  /* touch controls */
+  #touch-controls {
+    position:absolute;
+    bottom:0; left:0; right:0;
+    z-index:6;
+    display:none;
+    justify-content:space-between;
+    padding:18px;
+    pointer-events:none;
+  }
+  #touch-controls button {
+    pointer-events:auto;
+    width:58px; height:58px;
+    border-radius:50%;
+    border:1px solid var(--red);
+    background:rgba(10,13,18,0.7);
+    color:var(--red);
+    font-size:20px;
+    font-family:inherit;
+  }
+  .touch-left, .touch-right { display:flex; gap:12px; }
+
+  @media (max-width: 720px) {
+    #touch-controls { display:flex; }
+    #controls-hint { display:none; }
+    #pause-btn { display:block; }
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="game"></canvas>
+
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div id="hud">
+      <div class="hud-block">
+        <span class="hud-label">SCORE</span>
+        <span class="hud-value" id="score">0000</span>
+      </div>
+      <div class="hud-block" style="align-items:flex-end;">
+        <span class="hud-label">LIVES</span>
+        <div class="hud-lives" id="lives"></div>
+      </div>
+    </div>
+
+    <button id="pause-btn">II</button>
+    <button id="mute-btn">&#9834;</button>
+
+    <div id="center-msg">
+      <h1 id="msg-title">ASTEROID HUNTER</h1>
+      <p id="msg-sub">ARROW KEYS / WASD TO FLY &middot; SPACE TO FIRE</p>
+      <div class="btn" id="start-btn">START</div>
+    </div>
+
+    <div id="controls-hint">&larr; &uarr; &rarr; MOVE &nbsp;&middot;&nbsp; SPACE FIRE &nbsp;&middot;&nbsp; P PAUSE</div>
+
+    <div id="touch-controls">
+      <div class="touch-left">
+        <button id="btn-left">&#8630;</button>
+        <button id="btn-right">&#8631;</button>
+      </div>
+      <div class="touch-right">
+        <button id="btn-thrust">&#9650;</button>
+        <button id="btn-fire">&#9679;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const stage = document.getElementById('stage');
+  const scoreEl = document.getElementById('score');
+  const livesEl = document.getElementById('lives');
+  const centerMsg = document.getElementById('center-msg');
+  const msgTitle = document.getElementById('msg-title');
+  const msgSub = document.getElementById('msg-sub');
+  const startBtn = document.getElementById('start-btn');
+
+  let W, H, DPR;
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = stage.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const RED = '#ff2b2b';
+  const GREEN = '#2bff8f';
+  const TEXT = '#d7dde3';
+
+  const keys = {};
+  window.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code === 'Space') e.preventDefault();
+    if (e.code === 'Space' && !e.repeat && centerMsg.style.display === 'block'){
+      handleStartBtn(e);
+    }
+  });
+  window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+  function bindHold(id, code){
+    const el = document.getElementById(id);
+    const on = e => { e.preventDefault(); keys[code] = true; };
+    const off = e => { e.preventDefault(); keys[code] = false; };
+    el.addEventListener('touchstart', on, {passive:false});
+    el.addEventListener('touchend', off, {passive:false});
+    el.addEventListener('touchcancel', off, {passive:false});
+    el.addEventListener('mousedown', on);
+    el.addEventListener('mouseup', off);
+    el.addEventListener('mouseleave', off);
+  }
+  bindHold('btn-left', 'ArrowLeft');
+  bindHold('btn-right', 'ArrowRight');
+  bindHold('btn-thrust', 'ArrowUp');
+  bindHold('btn-fire', 'Space');
+
+  let ship = null;
+  let bullets = [];
+  let asteroids = [];
+  let particles = [];
+  let score = 0;
+  let lives = 3;
+  let state = 'menu';
+  let running = false;
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function wrap(pos){
+    if (pos.x < -30) pos.x = W + 30;
+    if (pos.x > W + 30) pos.x = -30;
+    if (pos.y < -30) pos.y = H + 30;
+    if (pos.y > H + 30) pos.y = -30;
+  }
+
+  function newShip(){
+    return {
+      x: W/2, y: H/2, vx:0, vy:0, angle: -Math.PI/2,
+      radius: 12, thrusting:false, invuln: 120
+    };
+  }
+
+  function makeAsteroid(x,y,size){
+    const speed = rand(0.4, 1.4) * (4 - size) * 0.6 + 0.3;
+    const ang = rand(0, Math.PI*2);
+    const verts = [];
+    const vCount = 10 + Math.floor(rand(0,4));
+    const baseR = size === 3 ? 42 : size === 2 ? 24 : 13;
+    for (let i=0;i<vCount;i++){
+      const a = (i/vCount) * Math.PI*2;
+      const r = baseR * rand(0.75, 1.15);
+      verts.push({a, r});
+    }
+    return {
+      x, y,
+      vx: Math.cos(ang)*speed, vy: Math.sin(ang)*speed,
+      radius: baseR, size, verts,
+      rot: rand(-0.02,0.02), angle:0
+    };
+  }
+
+  function spawnWave(n){
+    asteroids = [];
+    for (let i=0;i<n;i++){
+      let x,y;
+      do {
+        x = rand(0,W); y = rand(0,H);
+      } while (Math.hypot(x-W/2, y-H/2) < 150);
+      asteroids.push(makeAsteroid(x,y,3));
+    }
+  }
+
+  function addParticles(x,y,count,color){
+    for (let i=0;i<count;i++){
+      const a = rand(0,Math.PI*2);
+      const s = rand(0.5,3.5);
+      particles.push({
+        x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+        life: rand(20,40), maxLife: 40, color
+      });
+    }
+  }
+
+  let wave = 1;
+  function resetGame(){
+    ship = newShip();
+    bullets = [];
+    particles = [];
+    score = 0;
+    lives = 3;
+    wave = 1;
+    spawnWave(4);
+    updateHUD();
+  }
+
+  function updateHUD(){
+    scoreEl.textContent = String(score).padStart(4,'0');
+    livesEl.innerHTML = '';
+    for (let i=0;i<lives;i++){
+      const d = document.createElement('div');
+      d.className = 'life-icon';
+      livesEl.appendChild(d);
+    }
+  }
+
+  function showMessage(title, sub, btnText){
+    centerMsg.style.display = 'block';
+    msgTitle.textContent = title;
+    msgSub.textContent = sub;
+    startBtn.textContent = btnText;
+  }
+  function hideMessage(){ centerMsg.style.display = 'none'; }
+
+  function fire(){
+    if (bullets.length > 6) return;
+    bullets.push({
+      x: ship.x + Math.cos(ship.angle)*ship.radius,
+      y: ship.y + Math.sin(ship.angle)*ship.radius,
+      vx: Math.cos(ship.angle)*7 + ship.vx,
+      vy: Math.sin(ship.angle)*7 + ship.vy,
+      life: 60
+    });
+    playLaserSound();
+  }
+
+  // ---- Audio (fully synthesized, no external files) ----
+  let audioCtx = null;
+  let masterGain, musicGain, sfxGain;
+  let thrustOsc, thrustGain;
+  let musicStep = 0;
+  let muted = false;
+
+  const MUSIC_NOTES = [98, 116.54, 130.81, 98, 87.31, 98, 116.54, 110];
+
+  function playTone(freq, duration, type, dest, vol, delaySec){
+    if (!audioCtx) return;
+    const start = audioCtx.currentTime + (delaySec || 0);
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, start);
+    osc.connect(g);
+    g.connect(dest);
+    g.gain.linearRampToValueAtTime(vol, start + 0.02);
+    g.gain.linearRampToValueAtTime(0, start + duration);
+    osc.start(start);
+    osc.stop(start + duration + 0.05);
+  }
+
+  function scheduleMusicStep(){
+    const stepTime = 0.46;
+    if (audioCtx && !muted){
+      const freq = MUSIC_NOTES[musicStep % MUSIC_NOTES.length];
+      playTone(freq, stepTime*0.85, 'triangle', musicGain, 0.5);
+      if (musicStep % 4 === 0) playTone(freq/2, stepTime*3.6, 'sine', musicGain, 0.2);
+    }
+    musicStep++;
+    setTimeout(scheduleMusicStep, stepTime*1000);
+  }
+
+  function initAudio(){
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.5;
+    masterGain.connect(audioCtx.destination);
+
+    musicGain = audioCtx.createGain();
+    musicGain.gain.value = 0.15;
+    musicGain.connect(masterGain);
+
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = 0.4;
+    sfxGain.connect(masterGain);
+
+    thrustOsc = audioCtx.createOscillator();
+    thrustOsc.type = 'sawtooth';
+    thrustOsc.frequency.value = 60;
+    thrustGain = audioCtx.createGain();
+    thrustGain.gain.value = 0;
+    thrustOsc.connect(thrustGain);
+    thrustGain.connect(sfxGain);
+    thrustOsc.start();
+
+    scheduleMusicStep();
+  }
+
+  function setThrustSound(on){
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    thrustGain.gain.setTargetAtTime(on ? 0.12 : 0, now, on ? 0.05 : 0.08);
+  }
+
+  function playLaserSound(){
+    if (!audioCtx || muted) return;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(900, now);
+    osc.frequency.exponentialRampToValueAtTime(160, now + 0.12);
+    g.gain.setValueAtTime(0.25, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+    osc.connect(g);
+    g.connect(sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+
+  function playExplosion(big){
+    if (!audioCtx || muted) return;
+    const dur = big ? 0.55 : 0.3;
+    const bufferSize = audioCtx.sampleRate * dur;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * (1 - i/bufferSize);
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = big ? 900 : 1400;
+    const g = audioCtx.createGain();
+    g.gain.value = big ? 0.6 : 0.35;
+    noise.connect(filter);
+    filter.connect(g);
+    g.connect(sfxGain);
+    noise.start();
+  }
+
+  const muteBtn = document.getElementById('mute-btn');
+  function toggleMute(e){
+    if (e) e.preventDefault();
+    initAudio();
+    muted = !muted;
+    if (masterGain) masterGain.gain.setTargetAtTime(muted ? 0 : 0.5, audioCtx.currentTime, 0.05);
+    muteBtn.classList.toggle('on', !muted);
+    muteBtn.innerHTML = muted ? '&#9711;' : '&#9834;';
+  }
+  muteBtn.addEventListener('click', toggleMute);
+  muteBtn.addEventListener('touchstart', toggleMute, {passive:false});
+  muteBtn.classList.add('on');
+
+  let lastShot = 0;
+
+  function update(dt, t){
+    if (keys['ArrowLeft'] || keys['KeyA']) ship.angle -= 0.062 * dt;
+    if (keys['ArrowRight'] || keys['KeyD']) ship.angle += 0.062 * dt;
+    ship.thrusting = !!(keys['ArrowUp'] || keys['KeyW']);
+    setThrustSound(ship.thrusting);
+    if (ship.thrusting){
+      ship.vx += Math.cos(ship.angle) * 0.09 * dt;
+      ship.vy += Math.sin(ship.angle) * 0.09 * dt;
+      if (Math.random() < 0.6){
+        addParticles(
+          ship.x - Math.cos(ship.angle)*ship.radius,
+          ship.y - Math.sin(ship.angle)*ship.radius,
+          1, RED
+        );
+      }
+    }
+    ship.vx *= 0.99;
+    ship.vy *= 0.99;
+    ship.x += ship.vx * dt;
+    ship.y += ship.vy * dt;
+    wrap(ship);
+    if (ship.invuln > 0) ship.invuln -= dt;
+
+    if (keys['Space'] && t - lastShot > 220){
+      fire();
+      lastShot = t;
+    }
+
+    for (let i=bullets.length-1;i>=0;i--){
+      const b = bullets[i];
+      b.x += b.vx * dt; b.y += b.vy * dt;
+      b.life -= dt;
+      wrap(b);
+      if (b.life <= 0) bullets.splice(i,1);
+    }
+
+    for (const a of asteroids){
+      a.x += a.vx * dt; a.y += a.vy * dt;
+      a.angle += a.rot * dt;
+      wrap(a);
+    }
+
+    for (let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.x += p.vx*dt; p.y += p.vy*dt;
+      p.life -= dt;
+      if (p.life <= 0) particles.splice(i,1);
+    }
+
+    for (let i=asteroids.length-1;i>=0;i--){
+      const a = asteroids[i];
+      for (let j=bullets.length-1;j>=0;j--){
+        const b = bullets[j];
+        if (Math.hypot(a.x-b.x, a.y-b.y) < a.radius){
+          bullets.splice(j,1);
+          addParticles(a.x,a.y, 10, GREEN);
+          playExplosion(a.size === 3);
+          score += a.size === 3 ? 20 : a.size === 2 ? 50 : 100;
+          if (a.size > 1){
+            asteroids.push(makeAsteroid(a.x,a.y,a.size-1));
+            asteroids.push(makeAsteroid(a.x,a.y,a.size-1));
+          }
+          asteroids.splice(i,1);
+          updateHUD();
+          break;
+        }
+      }
+    }
+
+    if (ship.invuln <= 0){
+      for (const a of asteroids){
+        if (Math.hypot(a.x-ship.x, a.y-ship.y) < a.radius + ship.radius*0.6){
+          loseLife();
+          break;
+        }
+      }
+    }
+
+    if (asteroids.length === 0){
+      wave++;
+      spawnWave(Math.min(4+wave, 10));
+    }
+  }
+
+  function loseLife(){
+    addParticles(ship.x, ship.y, 26, RED);
+    playExplosion(true);
+    setThrustSound(false);
+    lives--;
+    updateHUD();
+    if (lives <= 0){
+      state = 'over';
+      running = false;
+      showMessage('GAME OVER', `FINAL SCORE ${score}`, 'RETRY');
+    } else {
+      ship = newShip();
+    }
+  }
+
+  function drawShip(){
+    ctx.save();
+    ctx.translate(ship.x, ship.y);
+    ctx.rotate(ship.angle);
+    const flicker = ship.invuln > 0 && Math.floor(ship.invuln/4)%2===0;
+    ctx.strokeStyle = flicker ? 'rgba(255,43,43,0.3)' : RED;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(14,0);
+    ctx.lineTo(-10,-9);
+    ctx.lineTo(-5,0);
+    ctx.lineTo(-10,9);
+    ctx.closePath();
+    ctx.stroke();
+    if (ship.thrusting){
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255,180,60,0.9)';
+      ctx.moveTo(-5,-4);
+      ctx.lineTo(-16 - Math.random()*6, 0);
+      ctx.lineTo(-5,4);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawAsteroid(a){
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    ctx.rotate(a.angle);
+    ctx.strokeStyle = TEXT;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    a.verts.forEach((v,i) => {
+      const x = Math.cos(v.a)*v.r;
+      const y = Math.sin(v.a)*v.r;
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    for (let i=0;i<starPositions.length;i++){
+      const s = starPositions[i];
+      ctx.globalAlpha = s.a;
+      ctx.fillRect(s.x*W, s.y*H, s.r, s.r);
+    }
+    ctx.globalAlpha = 1;
+
+    for (const p of particles){
+      ctx.globalAlpha = Math.max(p.life/p.maxLife, 0);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x-1.5,p.y-1.5,3,3);
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = TEXT;
+    for (const b of bullets){
+      ctx.beginPath();
+      ctx.arc(b.x,b.y,2,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    for (const a of asteroids) drawAsteroid(a);
+
+    if (state === 'playing' || state === 'over') drawShip();
+  }
+
+  let starPositions = [];
+  function makeStars(){
+    starPositions = [];
+    for (let i=0;i<80;i++){
+      starPositions.push({x:Math.random(), y:Math.random(), r:Math.random()*1.5+0.4, a:Math.random()*0.6+0.2});
+    }
+  }
+  makeStars();
+
+  let lastTime = null;
+  function loop(ts){
+    if (lastTime === null) lastTime = ts;
+    const dt = Math.min((ts - lastTime)/16.67, 2.5);
+    lastTime = ts;
+    if (running) update(dt, ts);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  function startGame(){
+    resize();
+    resetGame();
+    state = 'playing';
+    running = true;
+    hideMessage();
+  }
+
+  function handleStartBtn(e){
+    if (e) e.preventDefault();
+    initAudio();
+    if (state === 'playing' && !running){
+      // paused -> resume, do not reset
+      running = true;
+      hideMessage();
+    } else {
+      startGame();
+    }
+  }
+  startBtn.addEventListener('click', handleStartBtn);
+  startBtn.addEventListener('touchstart', handleStartBtn, {passive:false});
+
+  const pauseBtn = document.getElementById('pause-btn');
+  function togglePause(e){
+    if (e) e.preventDefault();
+    if (state !== 'playing') return;
+    if (running){
+      running = false;
+      setThrustSound(false);
+      showMessage('PAUSED', 'PRESS RESUME TO CONTINUE', 'RESUME');
+    } else {
+      running = true;
+      hideMessage();
+    }
+  }
+  pauseBtn.addEventListener('click', togglePause);
+  pauseBtn.addEventListener('touchstart', togglePause, {passive:false});
+
+  window.addEventListener('keydown', e => {
+    if (e.code === 'KeyP') togglePause();
+  });
+
+  state = 'menu';
+  showMessage('ASTEROID HUNTER', 'ARROW KEYS / WASD TO FLY \u00b7 SPACE TO FIRE', 'START');
+})();
+</script>
+<script src="../../libraries/config.js"></script>
+<script src="../../libraries/view-counter.js"></script>
+</body>
+</html>
