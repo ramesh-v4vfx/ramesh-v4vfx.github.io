@@ -67,7 +67,8 @@
     "gdp_year": 2022,
         
     "gdp_ppp_usd": 132000000,
-    "gdp_ppp_year": 2021    
+    "gdp_ppp_year": 2021,
+    "is_island": true    
   },
   {
     "iso_alpha2": "TV",
@@ -90,7 +91,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 68603000,
-    "gdp_ppp_year": 2023    
+    "gdp_ppp_year": 2023,
+    "is_island": true    
   },
   {
     "iso_alpha2": "SM",
@@ -159,7 +161,8 @@
     "gdp_year": 2019,
         
     "gdp_ppp_usd": 215000000,
-    "gdp_ppp_year": 2019    
+    "gdp_ppp_year": 2019,
+    "is_island": true    
   },
   {
     "iso_alpha2": "KN",
@@ -182,7 +185,8 @@
     "gdp_year": 2023,    
     
     "gdp_ppp_usd": 1800000000,
-    "gdp_ppp_year": 2023
+    "gdp_ppp_year": 2023,
+    "is_island": true
    },
     {
     "iso_alpha2": "MV",
@@ -205,7 +209,8 @@
     "gdp_year": 2024,
        
     "gdp_ppp_usd": 13867000000,
-    "gdp_ppp_year": 2024
+    "gdp_ppp_year": 2024,
+    "is_island": true
   },
   {
     "iso_alpha2": "MT",
@@ -228,7 +233,8 @@
     "gdp_year": 2024,
         
     "gdp_ppp_usd": 36870000000,
-    "gdp_ppp_year": 2024
+    "gdp_ppp_year": 2024,
+    "is_island": true
   },
   {
     "iso_alpha2": "GD",
@@ -251,7 +257,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 2300000000,
-    "gdp_ppp_year": 2023
+    "gdp_ppp_year": 2023,
+    "is_island": true
   },
   {
     "iso_alpha2": "VC",
@@ -274,7 +281,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 2000000000,
-    "gdp_ppp_year": 2023
+    "gdp_ppp_year": 2023,
+    "is_island": true
   },
     {
     "iso_alpha2": "BB",
@@ -297,7 +305,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 5436000000,
-    "gdp_ppp_year": 2023
+    "gdp_ppp_year": 2023,
+    "is_island": true
   },
   {
     "iso_alpha2": "AG",
@@ -320,7 +329,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 3300000000,
-    "gdp_ppp_year": 2025
+    "gdp_ppp_year": 2025,
+    "is_island": true
   },
     {
     "iso_alpha2": "SC",
@@ -343,7 +353,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 4175000000,
-    "gdp_ppp_year": 2023    
+    "gdp_ppp_year": 2023,
+    "is_island": true    
   },
     {
     "iso_alpha2": "PW",
@@ -366,7 +377,8 @@
     "gdp_year": 2024,
         
     "gdp_ppp_usd": 308000000,
-    "gdp_ppp_year": 2024    
+    "gdp_ppp_year": 2024,
+    "is_island": true    
   },
   {
     "iso_alpha2": "AD",
@@ -412,7 +424,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 3769000000,
-    "gdp_ppp_year": 2025    
+    "gdp_ppp_year": 2025,
+    "is_island": true    
   },
     {
     "iso_alpha2": "FM",
@@ -435,7 +448,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 451000000,
-    "gdp_ppp_year": 2025    
+    "gdp_ppp_year": 2025,
+    "is_island": true    
   },
     {
     "iso_alpha2": "SG",
@@ -458,7 +472,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 952600000000,
-    "gdp_ppp_year": 2025    
+    "gdp_ppp_year": 2025,
+    "is_island": true    
   },
     {
     "iso_alpha2": "TO",
@@ -481,7 +496,8 @@
     "gdp_year": 2019,
         
     "gdp_ppp_usd": 655000000,
-    "gdp_ppp_year": 2019    
+    "gdp_ppp_year": 2019,
+    "is_island": true    
   },
     {
     "iso_alpha2": "DM",
@@ -504,7 +520,8 @@
     "gdp_year": 2018,
         
     "gdp_ppp_usd": 688000000,
-    "gdp_ppp_year": 2018    
+    "gdp_ppp_year": 2018,
+    "is_island": true    
   },
     {
     "iso_alpha2": "BH",
@@ -527,7 +544,8 @@
     "gdp_year": 2024,
         
     "gdp_ppp_usd": 105600000,
-    "gdp_ppp_year": 2024    
+    "gdp_ppp_year": 2024,
+    "is_island": true    
   },
     {
     "iso_alpha2": "KI",
@@ -550,7 +568,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 297000000,
-    "gdp_ppp_year": 2023    
+    "gdp_ppp_year": 2023,
+    "is_island": true    
   },
     {
     "iso_alpha2": "ST",
@@ -573,7 +592,8 @@
     "gdp_year": 2024,
         
     "gdp_ppp_usd": 1000000000,
-    "gdp_ppp_year": 2024    
+    "gdp_ppp_year": 2024,
+    "is_island": true    
   },
     {
     "iso_alpha2": "KM",
@@ -588,7 +608,7 @@
     "population_year": 2024,
     "population_estimate": true,
 
-    "area_km2": 	2035,
+    "area_km2": 	2235,
 
     "currency": ["KMF"],
 
@@ -596,7 +616,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 3432000000,
-    "gdp_ppp_year": 2023    
+    "gdp_ppp_year": 2023,
+    "is_island": true    
   },
     {
     "iso_alpha2": "MU",
@@ -619,7 +640,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 42810000000,
-    "gdp_ppp_year": 2025    
+    "gdp_ppp_year": 2025,
+    "is_island": true    
   },
     {
     "iso_alpha2": "LU",
@@ -665,7 +687,8 @@
     "gdp_year": 2024,
         
     "gdp_ppp_usd": 1225000000,
-    "gdp_ppp_year": 2024    
+    "gdp_ppp_year": 2024,
+    "is_island": true    
   },
     {
     "iso_alpha2": "CV",
@@ -688,7 +711,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 5717000000,
-    "gdp_ppp_year": 2023    
+    "gdp_ppp_year": 2023,
+    "is_island": true    
   },
     {
     "iso_alpha2": "TT",
@@ -711,7 +735,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 43658000000,
-    "gdp_ppp_year": 2023    
+    "gdp_ppp_year": 2023,
+    "is_island": true    
   },
     {
     "iso_alpha2": "BN",
@@ -734,7 +759,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 43830000000,
-    "gdp_ppp_year": 2025    
+    "gdp_ppp_year": 2025,
+    "is_island": true    
   },
     {
     "iso_alpha2": "PS",
@@ -780,7 +806,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 61501000000,
-    "gdp_ppp_year": 2025   
+    "gdp_ppp_year": 2025,
+    "is_island": true   
   },
     {
     "iso_alpha2": "LB",
@@ -818,7 +845,7 @@
     "population_year": 2024,
     "population_estimate": true,
 
-    "area_km2": 10452,
+    "area_km2": 10991,
 
     "currency": ["LBP"],
 
@@ -826,7 +853,8 @@
     "gdp_year": 2024,
         
     "gdp_ppp_usd": 33775000000,
-    "gdp_ppp_year": 2024  
+    "gdp_ppp_year": 2024,
+    "is_island": true  
   },
     {
     "iso_alpha2": "GM",
@@ -895,7 +923,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 1002000000,
-    "gdp_ppp_year": 2023  
+    "gdp_ppp_year": 2023,
+    "is_island": true  
   },
     {
     "iso_alpha2": "ME",
@@ -933,7 +962,7 @@
     "population_year": 2023,
     "population_estimate": false,
 
-    "area_km2": 13943,
+    "area_km2": 13880,
 
     "currency": ["BSD"],
 
@@ -941,7 +970,8 @@
     "gdp_year": 2024,
         
     "gdp_ppp_usd": 18989000000,
-    "gdp_ppp_year": 2024  
+    "gdp_ppp_year": 2024,
+    "is_island": true  
   },
     {
     "iso_alpha2": "TL",
@@ -956,7 +986,7 @@
     "population_year": 2023,
     "population_estimate": true,
 
-    "area_km2": 14950,
+    "area_km2": 15007,
 
     "currency": ["USD", "Timor-Leste centavo"],
 
@@ -964,7 +994,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 6970000000,
-    "gdp_ppp_year": 2025  
+    "gdp_ppp_year": 2025,
+    "is_island": true  
   },
     {
     "iso_alpha2": "SZ",
@@ -1033,7 +1064,8 @@
     "gdp_year": 2023,
         
     "gdp_ppp_usd": 15152000000,
-    "gdp_ppp_year": 2023 
+    "gdp_ppp_year": 2023,
+    "is_island": true 
   },
     {
     "iso_alpha2": "SI",
@@ -1217,7 +1249,8 @@
     "gdp_year": 2025,
         
     "gdp_ppp_usd": 38200000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "is_island": true 
   },
     {
     "iso_alpha2": "BI",
@@ -1310,7 +1343,8 @@
 
     "iso_alpha2": "SB",
     "continent": "Oceania",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Armenia",
@@ -1454,7 +1488,8 @@
 
     "iso_alpha2": "TW",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Bhutan",
@@ -1574,7 +1609,8 @@
 
     "iso_alpha2": "DO",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Slovakia",
@@ -1766,7 +1802,8 @@
 
     "iso_alpha2": "LK",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Georgia",
@@ -1814,7 +1851,8 @@
 
     "iso_alpha2": "IE",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Sierra Leone",
@@ -2102,7 +2140,8 @@
 
     "iso_alpha2": "IS",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Guatemala",
@@ -2150,7 +2189,8 @@
 
     "iso_alpha2": "CU",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Bulgaria",
@@ -2774,7 +2814,8 @@
 
     "iso_alpha2": "GB",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Guinea",
@@ -2846,7 +2887,8 @@
 
     "iso_alpha2": "NZ",
     "continent": "Oceania",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Burkina Faso",
@@ -2918,7 +2960,8 @@
 
     "iso_alpha2": "PH",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Italy",
@@ -3158,7 +3201,8 @@
 
     "iso_alpha2": "JP",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Norway",
@@ -3334,7 +3378,7 @@
     
     "official_language": ["English", "Hiri Motu", "PNG Sign Language", "Tok Pisin"],
 
-    "area_km2": 450295,
+    "area_km2": 462840,
 
     "population": 11781559,
     "population_year": 2025,
@@ -3350,7 +3394,8 @@
 
     "iso_alpha2": "PG",
     "continent": "Oceania",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Cameroon",
@@ -3542,7 +3587,8 @@
 
     "iso_alpha2": "MG",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "is_island": true
   },
     {    
     "name": "Ukraine",
@@ -4310,7 +4356,8 @@
 
     "iso_alpha2": "ID",
     "continent": "Asia",
-    "continent_secondary": "Oceania"
+    "continent_secondary": "Oceania",
+    "is_island": true
   },
     {    
     "name": "Mexico",

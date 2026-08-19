@@ -1980,9 +1980,15 @@ body.capturing .cert-text {
     <button id="resetBtn" onclick="hardReset()">🔄 Reset All</button>
 
     <label class="check">
-      <input type="checkbox" id="transToggle"
-             onchange="toggleTranscontinental(this.checked)">
-      Transcontinental
+    <input type="checkbox" id="transToggle"
+          onchange="toggleTranscontinental(this.checked)">
+    Transcontinental
+  </label>
+
+    <label class="check">
+      <input type="checkbox" id="islandToggle"
+            onchange="toggleIsland(this.checked)">
+      Island Countries
     </label>
 
     </div>
@@ -2310,6 +2316,7 @@ let activeContinent = "";
 
 
 let transcontinentalOnly = false;
+let islandOnly = false;
 
 let sortKey = "name";        // name | population | area | gdp | gdppc
 let sortDirection = "asc"; 
@@ -3151,12 +3158,15 @@ function filterByContinent(continent) {
 function scopedCountries() {
   let list = [...countries];
 
-  // Apply transcontinental toggle first
   if (transcontinentalOnly) {
     list = list.filter(c => c.continent_secondary !== null);
   }
 
-  // Then apply continent filter
+  // 🏝️ NEW: island filter
+  if (islandOnly) {
+    list = list.filter(c => c.is_island === true);
+  }
+
   if (activeContinent) {
     list = list.filter(c =>
       c.continent === activeContinent ||
@@ -3165,6 +3175,16 @@ function scopedCountries() {
   }
 
   return list;
+}
+
+function toggleIsland(isOn) {
+  islandOnly = isOn;
+
+  document.getElementById("search").value = "";
+
+  sortKey = "name";
+  sortDirection = "asc";
+  sortBy("name");
 }
 
 
@@ -3204,12 +3224,14 @@ function resetView() {
   // Reset all state
   activeContinent = "";
   transcontinentalOnly = false;
+  islandOnly = false;
   sortKey = "name";
   sortDirection = "asc";
 
   // Reset UI
   document.getElementById("continentFilter").value = "";
   document.getElementById("transToggle").checked = false;
+  document.getElementById("islandToggle").checked = false;
   document.getElementById("search").value = "";
 
   // Clear ranks
