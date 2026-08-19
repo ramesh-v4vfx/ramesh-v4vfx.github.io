@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Know Your Sphere // MK·01 Calculator</title>
+<style>
+  :root{
+    --bg:#050607;
+    --panel:#0b0d0f;
+    --red:#ff2b2b;
+    --red-dim:#5c1414;
+    --text:#d9dde0;
+    --dim:#6b7378;
+    --green:#3dff8a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html, body{height:100%; overflow:hidden;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Mono', 'Courier New', monospace;
+    position:relative;
+  }
+  #stage{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  @font-face{
+    font-family:'Space Mono';
+    src:local('Space Mono');
+  }
+  /* starfield */
+  #stars{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+  /* scanlines */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.015) 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events:none;
+    z-index:1;
+  }
+
+  .frame{
+    position:relative;
+    width:100%;
+    max-width:560px;
+    margin:0 auto;
+    background:linear-gradient(180deg, rgba(15,17,19,0.95), rgba(8,9,10,0.98));
+    border:1px solid rgba(255,43,43,0.25);
+    padding:28px 26px 24px;
+    z-index:2;
+    box-shadow:0 0 40px rgba(255,43,43,0.06), inset 0 0 60px rgba(0,0,0,0.4);
+  }
+  .corner{
+    position:absolute; width:18px; height:18px;
+    border:2px solid var(--red);
+  }
+  .corner.tl{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .corner.tr{top:-1px; right:-1px; border-left:none; border-bottom:none;}
+  .corner.bl{bottom:-1px; left:-1px; border-right:none; border-top:none;}
+  .corner.br{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+
+  .telemetry{
+    display:flex; justify-content:space-between;
+    font-size:10px; letter-spacing:1px; color:var(--dim);
+    text-transform:uppercase; margin-bottom:14px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    padding-bottom:10px;
+  }
+  .telemetry span.live{color:var(--green);}
+  .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--green); margin-right:5px;
+    box-shadow:0 0 6px var(--green);
+    animation:pulse 1.6s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;} 50%{opacity:0.3;}
+  }
+
+  h1{
+    font-size:22px;
+    letter-spacing:3px;
+    color:#fff;
+    text-transform:uppercase;
+    margin-bottom:4px;
+    display:flex;
+    align-items:baseline;
+    gap:9px;
+  }
+  h1 span.accent{color:var(--red);}
+  h1 .badge{
+    font-size:9px;
+    letter-spacing:1.5px;
+    color:var(--dim);
+    border:1px solid rgba(255,255,255,0.15);
+    padding:2px 6px;
+    font-weight:normal;
+    text-transform:uppercase;
+    vertical-align:middle;
+  }
+  .subtitle{
+    font-size:11px;
+    color:var(--dim);
+    letter-spacing:1px;
+    margin-bottom:16px;
+    text-transform:uppercase;
+  }
+
+  .precision-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+    padding:8px 10px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.015);
+  }
+  .precision-row + .precision-row{
+    margin-top:-14px;
+    border-top:none;
+  }
+  .precision-label{
+    font-size:9.5px;
+    letter-spacing:1.5px;
+    color:var(--dim);
+    text-transform:uppercase;
+  }
+  .precision-toggle{
+    display:flex; gap:6px;
+  }
+  .prec-btn{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.15);
+    color:var(--dim);
+    font-family:inherit;
+    font-size:10px;
+    letter-spacing:1px;
+    padding:5px 12px;
+    cursor:pointer;
+    transition:all 0.15s;
+  }
+  .prec-btn:hover{border-color:var(--red); color:var(--text);}
+  .prec-btn.active{
+    border-color:var(--red);
+    background:rgba(255,43,43,0.12);
+    color:#fff;
+    box-shadow:0 0 8px rgba(255,43,43,0.2);
+  }
+
+  .switch{
+    position:relative;
+    display:inline-block;
+    width:36px;
+    height:18px;
+    cursor:pointer;
+  }
+  .switch input{
+    opacity:0; width:0; height:0; position:absolute;
+  }
+  .switch-track{
+    position:absolute; inset:0;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    transition:all 0.15s;
+  }
+  .switch-thumb{
+    position:absolute;
+    top:1px; left:1px;
+    width:14px; height:14px;
+    background:var(--dim);
+    transition:all 0.15s;
+  }
+  .switch input:checked + .switch-track{
+    border-color:var(--red);
+    background:rgba(255,43,43,0.12);
+    box-shadow:0 0 8px rgba(255,43,43,0.2);
+  }
+  .switch input:checked + .switch-track .switch-thumb{
+    transform:translateX(18px);
+    background:var(--red);
+    box-shadow:0 0 6px var(--red);
+  }
+
+  .field{
+    margin-bottom:14px;
+    position:relative;
+  }
+  .field label{
+    display:flex; justify-content:space-between;
+    font-size:10.5px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--dim);
+    margin-bottom:6px;
+  }
+  .field label .unit{color:var(--red); font-weight:bold;}
+  .field .input-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+    border:1px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.02);
+    transition:border-color 0.15s, box-shadow 0.15s;
+  }
+  .field .input-wrap::before{
+    content:"›";
+    color:var(--red);
+    padding:0 10px;
+    font-size:16px;
+    opacity:0.7;
+  }
+  .field input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:#fff;
+    font-family:'Space Mono','Courier New',monospace;
+    font-size:16px;
+    padding:12px 10px 12px 0;
+    letter-spacing:0.5px;
+  }
+  .field input::placeholder{color:#3a3f42;}
+  .field input::-webkit-outer-spin-button,
+  .field input::-webkit-inner-spin-button{
+    -webkit-appearance:none; margin:0;
+  }
+  .field input[type=number]{-moz-appearance:textfield;}
+  .field .input-wrap.active{
+    border-color:var(--red);
+    box-shadow:0 0 12px rgba(255,43,43,0.25);
+    background:rgba(255,43,43,0.03);
+  }
+  .field .input-wrap.active::before{color:var(--green);}
+  .field .clear-btn{
+    background:none; border:none; color:var(--dim);
+    cursor:pointer; padding:0 10px; font-size:14px;
+    opacity:0; transition:opacity 0.15s;
+  }
+  .field .input-wrap.active .clear-btn{opacity:1;}
+  .field .clear-btn:hover{color:var(--red);}
+
+  .raw-line{
+    font-size:9px;
+    letter-spacing:0.5px;
+    color:#4a5054;
+    margin-top:5px;
+    padding-left:2px;
+    min-height:11px;
+    font-family:'Space Mono','Courier New',monospace;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:none;
+  }
+  .raw-line.visible{display:block;}
+  .raw-line .raw-tag{color:var(--red); opacity:0.6;}
+  .raw-line.flagged{color:var(--green);}
+  .raw-line.flagged .raw-tag{color:var(--green); opacity:0.8;}
+
+  .field .copy-btn{
+    background:none; border:none; color:var(--dim);
+    cursor:pointer; padding:0 12px 0 2px; font-size:13px;
+    opacity:0; transition:opacity 0.15s, color 0.15s;
+  }
+  .field .input-wrap.active .copy-btn{opacity:0.7;}
+  .field .copy-btn:hover{color:var(--green); opacity:1;}
+  .field .copy-btn.copied{color:var(--green); opacity:1;}
+
+  .toast{
+    position:fixed;
+    bottom:24px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#0b0d0f;
+    border:1px solid var(--green);
+    color:var(--green);
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    padding:10px 18px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s, transform 0.2s;
+    z-index:10;
+    box-shadow:0 0 16px rgba(61,255,138,0.2);
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  .actions{
+    display:flex; gap:10px; margin-top:20px;
+  }
+  .btn-reset{
+    flex:1;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.15);
+    color:var(--dim);
+    padding:12px;
+    font-family:inherit;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:all 0.15s;
+  }
+  .btn-reset:hover{
+    border-color:var(--red);
+    color:var(--red);
+  }
+
+  .status-strip{
+    margin-top:20px;
+    padding-top:14px;
+    border-top:1px solid rgba(255,255,255,0.06);
+    display:flex;
+    justify-content:space-between;
+    font-size:9.5px;
+    color:#3a3f42;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div id="stage">
+<div class="frame">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="telemetry">
+    <span><span class="dot"></span><span class="live">RAMESHVERSE.ONLINE</span></span>
+    <span id="clock">00:00:00</span>
+  </div>
+
+  <h1>KNOW YOUR <span class="accent">SPHERE</span><span class="badge">MK·01</span></h1>
+  <div class="subtitle">// Radius · Diameter · Surface Area · Volume — auto-solve</div>
+
+  <div class="precision-row">
+    <span class="precision-label">Rounding Precision</span>
+    <div class="precision-toggle">
+      <button class="prec-btn" id="prec-2" onclick="setPrecision(2)">2 DEC</button>
+      <button class="prec-btn active" id="prec-3" onclick="setPrecision(3)">3 DEC</button>
+    </div>
+  </div>
+
+  <div class="precision-row">
+    <span class="precision-label">Show Raw</span>
+    <label class="switch">
+      <input type="checkbox" id="rawToggle" onchange="toggleRaw(this.checked)">
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+    </label>
+  </div>
+
+  <div class="field">
+    <label>Radius <span class="unit">r</span></label>
+    <div class="input-wrap" id="wrap-radius">
+      <input type="text" inputmode="decimal" id="radius" placeholder="ENTER VALUE" autocomplete="off">
+      <button class="copy-btn" onclick="copyField('radius')" title="Copy">⧉</button>
+      <button class="clear-btn" onclick="clearField('radius')">✕</button>
+    </div>
+    <div class="raw-line" id="raw-radius"></div>
+  </div>
+
+  <div class="field">
+    <label>Diameter <span class="unit">d</span></label>
+    <div class="input-wrap" id="wrap-diameter">
+      <input type="text" inputmode="decimal" id="diameter" placeholder="ENTER VALUE" autocomplete="off">
+      <button class="copy-btn" onclick="copyField('diameter')" title="Copy">⧉</button>
+      <button class="clear-btn" onclick="clearField('diameter')">✕</button>
+    </div>
+    <div class="raw-line" id="raw-diameter"></div>
+  </div>
+
+  <div class="field">
+    <label>Surface Area <span class="unit">SA = 4πr²</span></label>
+    <div class="input-wrap" id="wrap-surface">
+      <input type="text" inputmode="decimal" id="surface" placeholder="ENTER VALUE" autocomplete="off">
+      <button class="copy-btn" onclick="copyField('surface')" title="Copy">⧉</button>
+      <button class="clear-btn" onclick="clearField('surface')">✕</button>
+    </div>
+    <div class="raw-line" id="raw-surface"></div>
+  </div>
+
+  <div class="field">
+    <label>Volume <span class="unit">V = ⁴⁄₃πr³</span></label>
+    <div class="input-wrap" id="wrap-volume">
+      <input type="text" inputmode="decimal" id="volume" placeholder="ENTER VALUE" autocomplete="off">
+      <button class="copy-btn" onclick="copyField('volume')" title="Copy">⧉</button>
+      <button class="clear-btn" onclick="clearField('volume')">✕</button>
+    </div>
+    <div class="raw-line" id="raw-volume"></div>
+  </div>
+
+
+  <div class="actions">
+    <button class="btn-reset" onclick="resetAll()">⟲ RESET ALL</button>
+  </div>
+
+  <div class="status-strip">
+    <span id="statusLeft">AWAITING INPUT</span>
+    <span>SPHERE MK·01</span>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast">COPIED TO CLIPBOARD</div>
+
+<script>
+  // starfield background
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+  resize();
+  window.addEventListener('resize', resize);
+  const stars = Array.from({length:120}, ()=>({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:Math.random()*1.3+0.2,
+    s:Math.random()*0.5+0.1
+  }));
+  function drawStars(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='rgba(255,255,255,0.6)';
+    stars.forEach(st=>{
+      ctx.globalAlpha = 0.3 + Math.sin(Date.now()*0.001*st.s)*0.3+0.3;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  // clock
+  function updateClock(){
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB', {hour12:false});
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // sphere math
+  const fields = ['radius','diameter','surface','volume'];
+  const inputs = {};
+  fields.forEach(f => inputs[f] = document.getElementById(f));
+
+  let lastEdited = null;
+  let precision = 3;
+  let showRaw = false;
+
+  function toggleRaw(checked){
+    showRaw = checked;
+    fields.forEach(f=>{
+      document.getElementById('raw-'+f).classList.toggle('visible', showRaw);
+    });
+  }
+
+  function setPrecision(p){
+    precision = p;
+    document.getElementById('prec-2').classList.toggle('active', p===2);
+    document.getElementById('prec-3').classList.toggle('active', p===3);
+    // re-run calc from whichever field is currently active, if any
+    const activeField = fields.find(f => document.getElementById('wrap-'+f).classList.contains('active'));
+    if(activeField){
+      updateAll(activeField);
+    }
+  }
+
+  function stripCommas(str){
+    return String(str).replace(/,/g, '');
+  }
+
+  function addCommas(str){
+    if(str === '' || str === null || str === undefined) return '';
+    let s = String(str);
+    let neg = s.startsWith('-');
+    if(neg) s = s.slice(1);
+    let [intPart, dec] = s.split('.');
+    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    let result = (neg ? '-' : '') + intPart;
+    if(dec !== undefined) result += '.' + dec;
+    return result;
+  }
+
+  function copyField(field){
+    const raw = stripCommas(inputs[field].value);
+    if(raw === '' || isNaN(parseFloat(raw))) return;
+    const copyVal = parseFloat(raw).toFixed(precision);
+    navigator.clipboard.writeText(copyVal).then(()=>{
+      showToast(field.toUpperCase() + ' COPIED — ' + addCommas(copyVal));
+    }).catch(()=>{
+      // fallback
+      inputs[field].select();
+      document.execCommand('copy');
+      showToast(field.toUpperCase() + ' COPIED — ' + addCommas(copyVal));
+    });
+  }
+
+  let toastTimer;
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove('show'), 1600);
+  }
+
+  function fromRadius(r){
+    return {
+      radius: r,
+      diameter: 2*r,
+      surface: 4*Math.PI*r*r,
+      volume: (4/3)*Math.PI*r*r*r
+    };
+  }
+
+  function computeFrom(field, value){
+    let r;
+    const cleaned = stripCommas(value);
+    if(cleaned === '' || cleaned === null || isNaN(cleaned)){
+      return null;
+    }
+    const v = parseFloat(cleaned);
+    if(v < 0) return null;
+
+    switch(field){
+      case 'radius': r = v; break;
+      case 'diameter': r = v/2; break;
+      case 'surface': r = Math.sqrt(v/(4*Math.PI)); break;
+      case 'volume': r = Math.cbrt((3*v)/(4*Math.PI)); break;
+    }
+    return fromRadius(r);
+  }
+
+  function formatNum(n){
+    if(!isFinite(n)) return '';
+    if(Math.abs(n) >= 1e9 || (Math.abs(n) < 1e-6 && n !== 0)){
+      return n.toExponential(precision);
+    }
+    return addCommas(n.toFixed(precision));
+  }
+
+  function trimTrailingZeros(str){
+    if(str.indexOf('.') === -1) return str;
+    if(str.indexOf('e') !== -1 || str.indexOf('E') !== -1) return str;
+    str = str.replace(/0+$/, '');
+    str = str.replace(/\.$/, '');
+    return str;
+  }
+
+  function detectFloatDrift(rawStr){
+    if(rawStr.indexOf('.') === -1) return false;
+    const dec = rawStr.split('.')[1];
+    if(!dec) return false;
+    return /9{6,}\d?$/.test(dec) || /0{6,}\d?$/.test(dec);
+  }
+
+  function setRawLine(field, rawValue){
+    const el = document.getElementById('raw-'+field);
+    if(rawValue === null || rawValue === undefined || !isFinite(rawValue)){
+      el.textContent = '';
+      el.classList.remove('flagged');
+      return;
+    }
+    const rawStr = String(rawValue);
+    const drift = detectFloatDrift(rawStr);
+    el.classList.toggle('flagged', drift);
+    el.innerHTML = '<span class="raw-tag">RAW ›</span> ' + addCommas(rawStr) + (drift ? ' ⚠ FP-DRIFT' : '');
+  }
+  function clearRawLines(){
+    fields.forEach(f=>{
+      const el = document.getElementById('raw-'+f);
+      el.textContent = '';
+      el.classList.remove('flagged');
+    });
+  }
+
+  function setActive(field){
+    fields.forEach(f=>{
+      document.getElementById('wrap-'+f).classList.toggle('active', f===field);
+    });
+  }
+
+  function updateAll(sourceField){
+    const value = stripCommas(inputs[sourceField].value);
+    if(value === ''){
+      // if this was the only active field, clear status
+      const anyFilled = fields.some(f => inputs[f].value !== '');
+      if(!anyFilled){
+        document.getElementById('statusLeft').textContent = 'AWAITING INPUT';
+        setActive(null);
+        clearRawLines();
+      }
+      return;
+    }
+    const result = computeFrom(sourceField, value);
+    if(!result){
+      document.getElementById('statusLeft').textContent = 'INVALID INPUT — NEGATIVE VALUE REJECTED';
+      return;
+    }
+    setRawLine(sourceField, null);
+    fields.forEach(f=>{
+      if(f !== sourceField){
+        let display = formatNum(result[f]);
+        if(f === 'diameter') display = trimTrailingZeros(display);
+        inputs[f].value = display;
+        setRawLine(f, result[f]);
+      }
+    });
+    setActive(sourceField);
+    document.getElementById('statusLeft').textContent = 'SOLVED FROM ' + sourceField.toUpperCase();
+  }
+
+  fields.forEach(f=>{
+    inputs[f].addEventListener('input', (e)=>{
+      // allow only digits, one decimal point, and commas (typed commas ignored)
+      let v = e.target.value.replace(/[^0-9.]/g, '');
+      const dotIdx = v.indexOf('.');
+      if(dotIdx !== -1){
+        v = v.slice(0, dotIdx+1) + v.slice(dotIdx+1).replace(/\./g, '');
+      }
+      e.target.value = v;
+      updateAll(f);
+    });
+    inputs[f].addEventListener('focus', ()=>{
+      inputs[f].value = stripCommas(inputs[f].value);
+    });
+    inputs[f].addEventListener('blur', ()=>{
+      const raw = stripCommas(inputs[f].value);
+      if(raw !== '' && !isNaN(raw)){
+        inputs[f].value = addCommas(raw);
+      }
+    });
+  });
+
+  function clearField(field){
+    fields.forEach(f=>inputs[f].value = '');
+    setActive(null);
+    clearRawLines();
+    document.getElementById('statusLeft').textContent = 'AWAITING INPUT';
+    inputs[field].focus();
+  }
+
+  function resetAll(){
+    fields.forEach(f=>inputs[f].value = '');
+    setActive(null);
+    clearRawLines();
+    document.getElementById('statusLeft').textContent = 'AWAITING INPUT';
+  }
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+
+</body>
+</html>
