@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MK·PERIODIC // RameshVerse</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg:#060608;
+    --panel:#0d0d12;
+    --panel2:#101018;
+    --line:#232330;
+    --red:#ff2b2b;
+    --text:#e8e8ec;
+    --muted:#8a8a95;
+    --mono:'Space Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--mono);
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:500;
+    mix-blend-mode:overlay;
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
+    pointer-events:none;
+    z-index:499;
+  }
+
+  .wrap{
+    max-width:1560px;
+    margin:0 auto;
+    padding:16px 14px 40px;
+    position:relative;
+    z-index:1;
+  }
+
+  /* HUD header - compact single strip */
+  header{
+    border:1px solid var(--line);
+    background:linear-gradient(180deg, var(--panel), var(--panel2));
+    padding:10px 16px;
+    margin-bottom:12px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px 18px;
+  }
+  .corner{position:absolute; width:10px; height:10px; border:2px solid var(--red);}
+  .corner.tl{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .corner.tr{top:-1px; right:-1px; border-left:none; border-bottom:none;}
+  .corner.bl{bottom:-1px; left:-1px; border-right:none; border-top:none;}
+  .corner.br{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+
+  .brand{display:flex; align-items:baseline; gap:10px; flex-shrink:0;}
+  h1{
+    margin:0;
+    font-size:19px;
+    letter-spacing:1.5px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  h1 span{color:var(--red);}
+  .eyebrow{
+    color:var(--muted);
+    font-size:9.5px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  #search{
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:12px;
+    padding:7px 10px;
+    flex:1 1 200px;
+    min-width:160px;
+    max-width:500px;
+    outline:none;
+  }
+  #search:focus{border-color:var(--red);}
+  #search::placeholder{color:#55555f;}
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    flex-basis:100%;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    font-size:9px;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+    color:var(--muted);
+    padding:3px 7px;
+    border:1px solid var(--line);
+    cursor:pointer;
+    user-select:none;
+    background:var(--bg);
+    transition:border-color .15s, color .15s;
+  }
+  .legend-item:hover{color:var(--text); border-color:#3a3a48;}
+  .legend-item.active{color:var(--text); border-color:var(--red);}
+  .swatch{width:7px; height:7px; display:inline-block;}
+
+  @media (min-width:900px){
+    header{padding:12px 20px;}
+    .legend{flex-basis:auto; margin-left:auto; max-width:800px; justify-content:flex-end;}
+  }
+
+  /* table grid */
+  .table-scroll{
+    overflow-x:auto;
+    padding-bottom:14px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(18, minmax(50px, 1fr));
+    gap:3px;
+    min-width:980px;
+  }
+  .cell{
+    position:relative;
+    aspect-ratio:1/1;
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:4px 5px 5px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+    overflow:hidden;
+  }
+  .cell:hover{
+    transform:translateY(-2px);
+    border-color:var(--red);
+    box-shadow:0 0 0 1px var(--red), 0 6px 18px rgba(255,43,43,0.18);
+    z-index:2;
+  }
+  .cell .z{font-size:9px; color:var(--muted);}
+  .cell .sym{font-size:clamp(14px,1.7vw,20px); font-weight:700; line-height:1;}
+  .cell .nm{font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:0.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;}
+  .cell .tag{
+    position:absolute; left:0; top:0; bottom:0; width:3px;
+  }
+  .cell.dim{opacity:0.16; pointer-events:none;}
+  .cell.spacer{background:transparent; border:none; cursor:default;}
+  .cell.spacer:hover{transform:none; box-shadow:none; border:none;}
+  .cell.ph{
+    background:transparent;
+    border:1px dashed var(--line);
+    color:var(--muted);
+    font-size:9px;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    cursor:default;
+  }
+  .cell.ph:hover{transform:none; box-shadow:none; border-color:var(--line);}
+
+  .f-block-gap{grid-column:1/-1; height:6px;}
+
+  /* modal */
+  .modal-bg{
+    position:fixed; inset:0;
+    background:rgba(3,3,5,0.82);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    padding:20px;
+    backdrop-filter:blur(2px);
+  }
+  .modal-bg.open{display:flex;}
+  .modal{
+    width:100%;
+    max-width:560px;
+    background:linear-gradient(180deg, var(--panel), var(--panel2));
+    border:1px solid var(--line);
+    position:relative;
+    max-height:88vh;
+    overflow-y:auto;
+  }
+  .modal-inner{padding:26px 26px 22px;}
+  .modal .close{
+    position:absolute; top:14px; right:14px;
+    background:none; border:1px solid var(--line);
+    color:var(--muted);
+    width:28px; height:28px;
+    cursor:pointer;
+    font-family:var(--mono);
+    font-size:14px;
+    line-height:1;
+  }
+  .modal .close:hover{border-color:var(--red); color:var(--red);}
+
+  .m-top{display:flex; align-items:flex-start; gap:18px; margin-bottom:16px;}
+  .m-symbol{
+    width:74px; height:74px;
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-size:32px; font-weight:700;
+    flex-shrink:0;
+    position:relative;
+  }
+  .m-symbol .zz{position:absolute; top:4px; left:6px; font-size:9px; color:var(--muted); font-weight:400;}
+  .m-name{font-size:22px; font-weight:700; letter-spacing:1px; margin-bottom:4px;}
+  .m-cat{
+    display:inline-block;
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--red);
+  }
+
+  .m-stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:18px;
+  }
+  .stat{background:var(--bg); padding:9px 12px;}
+  .stat.wide{grid-column:1/-1;}
+  .stat .k{font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;}
+  .stat .v{font-size:13px; color:var(--text); word-break:break-word;}
+  .stat .v.mono{letter-spacing:0.5px;}
+
+  .m-section{
+    font-size:13px;
+    line-height:1.7;
+    color:#c8c8d0;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+    margin-top:14px;
+  }
+  .m-section:first-of-type{margin-top:0;}
+  .m-section .label{color:var(--red); font-size:10px; letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:7px;}
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:10px;
+    letter-spacing:1px;
+    margin-top:24px;
+    text-transform:uppercase;
+  }
+
+  @media (max-width:640px){
+    .modal-inner{padding:20px 18px 18px;}
+    .m-top{gap:12px;}
+    .m-symbol{width:60px; height:60px; font-size:26px;}
+    .m-stats{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="brand">
+      <h1>PERIODIC<span>·</span>TABLE</h1>
+      <span class="eyebrow">mk 01</span>
+    </div>
+    <input id="search" type="text" placeholder="Search by name, symbol, or atomic number...">
+    <div class="legend" id="legend"></div>
+  </header>
+
+  <div class="table-scroll">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <footer>MK·SERIES // rameshverse.com</footer>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="close" id="closeBtn">✕</button>
+    <div class="modal-inner" id="modalInner"></div>
+  </div>
+</div>
+
+<script>
+// [Z, symbol, name, mass, category, period, group, phase, block, discovered, source, uses, note, econfig]
+const ELEMENTS = [[1,"H","Hydrogen",1.008,"nonmetal",1,1,"gas","s","1766, Henry Cavendish","Rarely found free on Earth; almost all of it is locked up in water and hydrocarbons.","Ammonia and fertilizer production, oil refining, rocket fuel, fuel cells.","The most abundant element in the universe, powering stars through fusion.","1s1"],[2,"He","Helium",4.003,"noble-gas",1,18,"gas","s","1868, Janssen/Lockyer","Extracted from natural gas fields, where it collects from millennia of radioactive decay underground.","Cooling MRI magnets, filling balloons and airships, pressurizing rocket fuel tanks.","Boils at the lowest temperature of any element, just above absolute zero.","1s2"],[3,"Li","Lithium",6.94,"alkali-metal",2,1,"solid","s","1817, Johan August Arfwedson","Mined from spodumene ore or extracted from brine pools in salt flats like Chile's Atacama.","Rechargeable batteries for phones, laptops, and EVs; also mood-stabilizing medication.","Lightest metal, soft enough to cut with a kitchen knife.","[He] 2s1"],[4,"Be","Beryllium",9.012,"alkaline-earth",2,2,"solid","s","1798, Louis-Nicolas Vauquelin","Mined from the minerals beryl and bertrandite; emeralds and aquamarines are beryl gemstones.","Aerospace alloys, X-ray equipment windows, and non-sparking tools.","Its dust is highly toxic, making it dangerous to machine without precautions.","[He] 2s2"],[5,"B","Boron",10.81,"metalloid",2,13,"solid","p","1808, Gay-Lussac/Thenard","Found in borax and kernite deposits, mostly from dried-up lake beds in California and Turkey.","Borosilicate glass (Pyrex), fiberglass insulation, laundry detergents, semiconductor doping.","Named from the mineral borax, known since ancient Persia and Tibet.","[He] 2s2 2p1"],[6,"C","Carbon",12.01,"nonmetal",2,14,"solid","p","Ancient","Found free as graphite and diamond, and combined in coal, oil, limestone, and all living tissue.","Steelmaking, fuels, plastics, and the structural basis of every organic molecule.","Forms graphite, diamond, and graphene: three wildly different materials from one element.","[He] 2s2 2p2"],[7,"N","Nitrogen",14.01,"nonmetal",2,15,"gas","p","1772, Daniel Rutherford","Extracted directly from the air, which is 78% nitrogen gas.","Ammonia and fertilizer manufacturing, food packaging, cryogenic freezing.","Essential to amino acids and DNA; fixed into usable form industrially via the Haber process.","[He] 2s2 2p3"],[8,"O","Oxygen",16.0,"nonmetal",2,16,"gas","p","1774, Priestley/Scheele","Extracted from liquefied air; also the most abundant element in Earth's crust, bound in rock and water.","Medical respiration support, steelmaking, rocket propellant oxidizer.","Makes up about 21% of the atmosphere and nearly half of Earth's crust by mass.","[He] 2s2 2p4"],[9,"F","Fluorine",19.0,"halogen",2,17,"gas","p","1886, Henri Moissan","Extracted from the mineral fluorite (calcium fluoride) through electrolysis.","Toothpaste additive, Teflon coatings, refrigerant gases, uranium enrichment.","The most reactive and electronegative element on the entire table.","[He] 2s2 2p5"],[10,"Ne","Neon",20.18,"noble-gas",2,18,"gas","p","1898, Ramsay/Travers","Extracted in tiny amounts from liquefied air; extremely rare in Earth's atmosphere.","Neon signage, high-voltage indicators, cryogenic refrigeration.","Famous for the reddish-orange glow it emits in electrified glass tubes.","[He] 2s2 2p6"],[11,"Na","Sodium",22.99,"alkali-metal",3,1,"solid","s","1807, Humphry Davy","Obtained from rock salt (halite) deposits and by evaporating seawater.","Table salt, streetlights, soap manufacturing, and as a coolant in some nuclear reactors.","Reacts violently with water, releasing hydrogen gas and heat.","[Ne] 3s1"],[12,"Mg","Magnesium",24.31,"alkaline-earth",3,2,"solid","s","1755, Joseph Black","Extracted from seawater and from minerals like dolomite and magnesite.","Lightweight alloys for cars and phones, fireworks, and dietary supplements.","The central atom in chlorophyll, driving photosynthesis in every green plant.","[Ne] 3s2"],[13,"Al","Aluminium",26.98,"post-transition",3,13,"solid","p","1825, Hans Christian \u00d8rsted","Refined from bauxite ore, mined mainly in Australia, Guinea, and China.","Cans, foil, window frames, and aircraft bodies thanks to its light weight.","Most abundant metal in Earth's crust, yet was once pricier than gold before cheap extraction existed.","[Ne] 3s2 3p1"],[14,"Si","Silicon",28.09,"metalloid",3,14,"solid","p","1824, J\u00f6ns Jacob Berzelius","Extracted from silica (sand and quartz), the second most abundant element in Earth's crust.","Computer chips, solar panels, glass, and silicone rubber.","Foundation of the semiconductor industry; nearly every chip is silicon-based.","[Ne] 3s2 3p2"],[15,"P","Phosphorus",30.97,"nonmetal",3,15,"solid","p","1669, Hennig Brand","Mined from phosphate rock deposits, mostly in Morocco, China, and the U.S.","Fertilizers, matches, and as a key component of DNA and ATP energy transfer in the body.","White phosphorus glows faintly in the dark and can ignite spontaneously in air.","[Ne] 3s2 3p3"],[16,"S","Sulfur",32.06,"nonmetal",3,16,"solid","p","Ancient","Found as native deposits near volcanoes, and recovered from natural gas and oil refining.","Sulfuric acid production, rubber vulcanization, and fungicides.","Known since antiquity; gives skunks and rotten eggs their distinctive smell.","[Ne] 3s2 3p4"],[17,"Cl","Chlorine",35.45,"halogen",3,17,"gas","p","1774, Carl Wilhelm Scheele","Extracted by electrolysis of common salt (sodium chloride) brine.","Water and pool disinfection, PVC plastic manufacturing, bleach production.","A greenish-yellow toxic gas first used as a chemical weapon in World War I.","[Ne] 3s2 3p5"],[18,"Ar","Argon",39.95,"noble-gas",3,18,"gas","p","1894, Rayleigh/Ramsay","Extracted from liquefied air; the third most abundant gas in the atmosphere.","Filling incandescent and fluorescent bulbs, shielding gas for welding.","Chemically inert, forming almost no compounds under normal conditions.","[Ne] 3s2 3p6"],[19,"K","Potassium",39.1,"alkali-metal",4,1,"solid","s","1807, Humphry Davy","Mined from evaporite deposits like sylvite, left behind by ancient dried-up seas.","Fertilizers, and as a vital electrolyte in nerve and muscle function including heartbeat.","Reacts explosively with water, even more violently than sodium.","[Ar] 4s1"],[20,"Ca","Calcium",40.08,"alkaline-earth",4,2,"solid","s","1808, Humphry Davy","Abundant in limestone, chalk, and marble (calcium carbonate) worldwide.","Cement and construction, dietary supplements, and steel production.","Fifth most abundant element in Earth's crust; builds bones and teeth.","[Ar] 4s2"],[21,"Sc","Scandium",44.96,"transition-metal",4,3,"solid","d","1879, Lars Fredrik Nilson","Recovered in tiny amounts as a byproduct of processing other ores, mainly in China and Russia.","Aerospace alloys and high-intensity stadium and studio lighting.","Predicted by Mendeleev as 'eka-boron' years before it was actually discovered.","[Ar] 3d1 4s2"],[22,"Ti","Titanium",47.87,"transition-metal",4,4,"solid","d","1791, William Gregor","Extracted from the minerals ilmenite and rutile through the energy-intensive Kroll process.","Aircraft frames, medical implants, and the white pigment in most paints.","Strong, lightweight, and highly resistant to corrosion.","[Ar] 3d2 4s2"],[23,"V","Vanadium",50.94,"transition-metal",4,5,"solid","d","1801, Andr\u00e9s Manuel del R\u00edo","Recovered as a byproduct of processing iron ore, especially in China, Russia, and South Africa.","Hardening steel alloys for tools and jet engines; vanadium redox flow batteries for grid storage.","Named after a Norse goddess for the vivid colors of its compounds.","[Ar] 3d3 4s2"],[24,"Cr","Chromium",52.0,"transition-metal",4,6,"solid","d","1797, Louis Nicolas Vauquelin","Mined from chromite ore, mostly in South Africa, Kazakhstan, and India.","Stainless steel production, chrome plating, and vivid pigments from ruby red to emerald green.","Gives stainless steel its corrosion resistance and mirror-like shine.","[Ar] 3d5 4s1"],[25,"Mn","Manganese",54.94,"transition-metal",4,7,"solid","d","1774, Johan Gottlieb Gahn","Mined from manganese ore deposits, largely in South Africa, Australia, and Gabon.","Steelmaking to remove impurities and add strength; dry-cell batteries.","An essential dietary trace mineral involved in bone formation and metabolism.","[Ar] 3d5 4s2"],[26,"Fe","Iron",55.85,"transition-metal",4,8,"solid","d","Ancient","Mined from iron ore such as hematite and magnetite, found on every continent.","Steel production for construction, tools, and vehicles; hemoglobin in blood.","The backbone of the industrial world and the most-used metal on Earth by tonnage.","[Ar] 3d6 4s2"],[27,"Co","Cobalt",58.93,"transition-metal",4,9,"solid","d","1735, Georg Brandt","Mostly mined as a byproduct of copper and nickel mining, largely from the DR Congo.","Lithium-ion battery cathodes, powerful magnets, and radiotherapy sources.","Cobalt-60 is used to sterilize medical equipment and treat cancer with radiation.","[Ar] 3d7 4s2"],[28,"Ni","Nickel",58.69,"transition-metal",4,10,"solid","d","1751, Axel Fredrik Cronstedt","Mined from sulfide and laterite ores, chiefly in Indonesia, the Philippines, and Russia.","Stainless steel, coins, and rechargeable batteries.","Also present in meteorites, which is how ancient peoples first encountered it.","[Ar] 3d8 4s2"],[29,"Cu","Copper",63.55,"transition-metal",4,11,"solid","d","Ancient","Mined from copper ore deposits worldwide, notably in Chile, Peru, and the U.S.","Electrical wiring, plumbing pipes, and alloys like brass and bronze.","One of the few metals with a natural color other than silver or gray.","[Ar] 3d10 4s1"],[30,"Zn","Zinc",65.38,"transition-metal",4,12,"solid","d","Ancient","Mined from sphalerite ore, mostly in China, Peru, and Australia.","Galvanizing steel against rust, brass alloys, and dietary supplements for immunity.","An essential nutrient your body needs but cannot produce on its own.","[Ar] 3d10 4s2"],[31,"Ga","Gallium",69.72,"post-transition",4,13,"solid","p","1875, Paul-\u00c9mile Lecoq de Boisbaudran","Recovered as a byproduct of aluminium and zinc ore processing; rare in concentrated form.","LEDs and semiconductors (gallium arsenide, gallium nitride) in phones and electronics.","Melts just above room temperature, so it liquefies in your hand.","[Ar] 3d10 4s2 4p1"],[32,"Ge","Germanium",72.63,"metalloid",4,14,"solid","p","1886, Clemens Winkler","Recovered from zinc ore processing and coal fly ash; rarely found concentrated.","Fiber-optic cables, infrared optics, and early transistor technology.","Predicted by Mendeleev as 'eka-silicon' before its actual discovery.","[Ar] 3d10 4s2 4p2"],[33,"As","Arsenic",74.92,"metalloid",4,15,"solid","p","Ancient","Found in arsenopyrite and as a byproduct of copper and lead ore smelting.","Semiconductor doping (gallium arsenide) and historically in pesticides and pigments.","Notorious throughout history as an odorless, tasteless poison.","[Ar] 3d10 4s2 4p3"],[34,"Se","Selenium",78.97,"nonmetal",4,16,"solid","p","1817, J\u00f6ns Jacob Berzelius","Recovered as a byproduct of refining copper ores.","Antioxidant dietary supplements, glassmaking, and older photocopier and solar-cell technology.","Its electrical conductivity changes with light exposure.","[Ar] 3d10 4s2 4p4"],[35,"Br","Bromine",79.9,"halogen",4,17,"liquid","p","1826, Antoine Balard","Extracted from brine deposits and the Dead Sea, one of the richest natural sources.","Flame retardants, water treatment, and historically photographic film.","One of only two elements that are liquid at room temperature.","[Ar] 3d10 4s2 4p5"],[36,"Kr","Krypton",83.8,"noble-gas",4,18,"gas","p","1898, Ramsay/Travers","Extracted in trace amounts from liquefied air.","Energy-efficient fluorescent lighting and some high-speed camera flashes.","Chemically almost entirely inert, forming very few compounds.","[Ar] 3d10 4s2 4p6"],[37,"Rb","Rubidium",85.47,"alkali-metal",5,1,"solid","s","1861, Bunsen/Kirchhoff","Recovered as a byproduct of processing lithium ores like lepidolite.","Atomic clocks and specialized research glass.","Ignites spontaneously the moment it's exposed to air.","[Kr] 5s1"],[38,"Sr","Strontium",87.62,"alkaline-earth",5,2,"solid","s","1790, Adair Crawford","Mined from the minerals celestine and strontianite.","Fireworks (brilliant red flame color) and specialty glass for CRT screens.","Strontium-90, a radioactive isotope, is studied as a nuclear fallout indicator.","[Kr] 5s2"],[39,"Y","Yttrium",88.91,"transition-metal",5,3,"solid","d","1794, Johan Gadolin","Recovered from rare-earth ore deposits, especially in China.","Red phosphors in older TV screens and yttrium-aluminum-garnet (YAG) laser crystals.","Named after Ytterby, the Swedish village where it and three other elements were found.","[Kr] 4d1 5s2"],[40,"Zr","Zirconium",91.22,"transition-metal",5,4,"solid","d","1789, Martin Heinrich Klaproth","Extracted from zircon sand, mined mostly in Australia and South Africa.","Cladding for nuclear fuel rods and cubic zirconia gemstones.","Highly corrosion-resistant, which is why it's trusted inside nuclear reactors.","[Kr] 4d2 5s2"],[41,"Nb","Niobium",92.91,"transition-metal",5,5,"solid","d","1801, Charles Hatchett","Mined from pyrochlore ore, with Brazil supplying most of the world's output.","Superconducting magnets for MRI machines and particle accelerators.","Strengthens steel used in oil and gas pipelines.","[Kr] 4d4 5s1"],[42,"Mo","Molybdenum",95.95,"transition-metal",5,6,"solid","d","1778, Carl Wilhelm Scheele","Mined from molybdenite ore, chiefly in China, Chile, and the U.S.","Strengthening steel alloys for tools and aircraft parts.","An essential enzyme cofactor found in nearly all living organisms.","[Kr] 4d5 5s1"],[43,"Tc","Technetium",98,"transition-metal",5,7,"solid","d","1937, Perrier/Segr\u00e8","Not found naturally on Earth in meaningful amounts; produced artificially in nuclear reactors.","Its isotope Tc-99m is the most widely used radioactive tracer in medical imaging.","The first artificially produced element; no stable isotopes exist.","[Kr] 4d5 5s2"],[44,"Ru","Ruthenium",101.1,"transition-metal",5,8,"solid","d","1844, Karl Ernst Claus","Recovered as a byproduct of nickel and platinum ore refining.","Hardening electrical contacts and platinum alloys; some dye-sensitized solar cells.","One of the rarest platinum-group metals in Earth's crust.","[Kr] 4d7 5s1"],[45,"Rh","Rhodium",102.9,"transition-metal",5,9,"solid","d","1803, William Hyde Wollaston","Recovered as a byproduct of platinum and nickel ore processing, mainly in South Africa.","Catalytic converters that reduce vehicle emissions.","One of the rarest and most reflective metals, prized for mirror coatings.","[Kr] 4d8 5s1"],[46,"Pd","Palladium",106.4,"transition-metal",5,10,"solid","d","1802, William Hyde Wollaston","Recovered as a byproduct of nickel and platinum ore mining, chiefly in Russia and South Africa.","Catalytic converters and cross-coupling reactions used throughout pharmaceutical manufacturing.","Can absorb up to 900 times its own volume of hydrogen gas.","[Kr] 4d10"],[47,"Ag","Silver",107.9,"transition-metal",5,11,"solid","d","Ancient","Mined from argentite ore and as a byproduct of lead, copper, and gold mining.","Jewelry, coinage, electronics, and solar panel contacts.","The best electrical and thermal conductor of all metals.","[Kr] 4d10 5s1"],[48,"Cd","Cadmium",112.4,"transition-metal",5,12,"solid","d","1817, Stromeyer/Hermann","Recovered as a byproduct of zinc ore refining.","Once common in rechargeable NiCd batteries and pigments, now restricted due to toxicity.","Still used in some nuclear reactor control rods for its neutron-absorbing ability.","[Kr] 4d10 5s2"],[49,"In","Indium",114.8,"post-transition",5,13,"solid","p","1863, Reich/Richter","Recovered as a byproduct of zinc ore processing; genuinely scarce in usable form.","Indium tin oxide, the transparent conductive coating on touchscreens and flat-panel displays.","Named for the indigo line it produces in a spectroscope.","[Kr] 4d10 5s2 5p1"],[50,"Sn","Tin",118.7,"post-transition",5,14,"solid","p","Ancient","Mined from cassiterite ore, notably in China, Indonesia, and Myanmar.","Solder joints in electronics and coating steel cans against corrosion.","Used since the Bronze Age, alloyed with copper to make bronze.","[Kr] 4d10 5s2 5p2"],[51,"Sb","Antimony",121.8,"metalloid",5,15,"solid","p","Ancient","Mined from stibnite ore, mostly in China.","Flame retardants and lead-alloy batteries.","Its compounds were used as cosmetic eye makeup (kohl) in ancient Egypt.","[Kr] 4d10 5s2 5p3"],[52,"Te","Tellurium",127.6,"metalloid",5,16,"solid","p","1782, Franz-Joseph M\u00fcller von Reichenstein","Recovered as a byproduct of copper refining; one of the rarest stable elements on Earth.","Thin-film solar cells (cadmium telluride) and thermoelectric cooling devices.","Rarer in Earth's crust than gold or platinum.","[Kr] 4d10 5s2 5p4"],[53,"I","Iodine",126.9,"halogen",5,17,"solid","p","1811, Bernard Courtois","Extracted from natural brine deposits and seaweed, which concentrates it from seawater.","Iodized table salt for thyroid health, antiseptics, and medical contrast dyes.","Sublimes directly from solid to a striking violet vapor when heated.","[Kr] 4d10 5s2 5p5"],[54,"Xe","Xenon",131.3,"noble-gas",5,18,"gas","p","1898, Ramsay/Travers","Extracted in tiny amounts from liquefied air.","High-intensity camera flashes, car headlights, and propellant for spacecraft ion thrusters.","Used to propel NASA's Dawn probe across the solar system.","[Kr] 4d10 5s2 5p6"],[55,"Cs","Caesium",132.9,"alkali-metal",6,1,"solid","s","1860, Bunsen/Kirchhoff","Mined from the rare mineral pollucite, mostly in Canada.","Atomic clocks, which define the exact length of a second.","Melts just above room temperature and is the most reactive stable metal.","[Xe] 6s1"],[56,"Ba","Barium",137.3,"alkaline-earth",6,2,"solid","s","1808, Humphry Davy","Mined from barite ore, found on every continent.","Barium sulfate is swallowed as a contrast agent for X-ray imaging of the digestive tract.","Opaque to X-rays, which is exactly why it's used in medical scans.","[Xe] 6s2"],[57,"La","Lanthanum",138.9,"lanthanide",6,3,"solid","f","1839, Carl Gustaf Mosander","Recovered from rare-earth ore deposits like monazite and bastn\u00e4site.","Camera lenses and nickel-metal-hydride rechargeable batteries.","The first discovered lanthanide, giving the whole series its name.","[Xe] 5d1 6s2"],[58,"Ce","Cerium",140.1,"lanthanide",6,3,"solid","f","1803, Berzelius/Hisinger","The most abundant rare-earth element, recovered from monazite and bastn\u00e4site ores.","Glass polishing compounds, catalytic converters, and flints for lighters.","More common in Earth's crust than copper, despite being called a 'rare' earth.","[Xe] 4f1 5d1 6s2"],[59,"Pr","Praseodymium",140.9,"lanthanide",6,3,"solid","f","1885, Carl Auer von Welsbach","Recovered from rare-earth ore deposits alongside neodymium.","Strong permanent magnets and yellow-green welder's-goggle glass.","Its name means 'green twin' for the color of its salts.","[Xe] 4f3 6s2"],[60,"Nd","Neodymium",144.2,"lanthanide",6,3,"solid","f","1885, Carl Auer von Welsbach","Recovered from rare-earth ore deposits, mostly in China.","The strongest permanent magnets known, in headphones, hard drives, and wind turbines.","Essential to the compact motors inside electric vehicles.","[Xe] 4f4 6s2"],[61,"Pm","Promethium",145,"lanthanide",6,3,"solid","f","1945, Marinsky/Glendenin/Coryell","Occurs only in trace, fleeting amounts from uranium decay; produced artificially for use.","Luminous paint and small nuclear-powered batteries for remote instruments.","The only lanthanide with no stable isotopes at all.","[Xe] 4f5 6s2"],[62,"Sm","Samarium",150.4,"lanthanide",6,3,"solid","f","1879, Paul-\u00c9mile Lecoq de Boisbaudran","Recovered from monazite and bastn\u00e4site rare-earth ores.","Samarium-cobalt magnets that retain strength at high temperatures, used in aerospace motors.","Named after the mineral samarskite, itself named for a Russian mine official.","[Xe] 4f6 6s2"],[63,"Eu","Europium",152.0,"lanthanide",6,3,"solid","f","1901, Eug\u00e8ne-Anatole Demar\u00e7ay","Recovered in small amounts from rare-earth ore deposits.","Red and blue phosphors in older screens, and an anti-counterfeiting marker in banknotes.","Its glow under UV light is exploited to authenticate euro banknotes.","[Xe] 4f7 6s2"],[64,"Gd","Gadolinium",157.3,"lanthanide",6,3,"solid","f","1880, Jean Charles Galissard de Marignac","Recovered from rare-earth ore deposits like gadolinite and monazite.","Contrast agent for MRI scans and neutron radiography shielding.","Highly magnetic, one of the few elements that is ferromagnetic near room temperature.","[Xe] 4f7 5d1 6s2"],[65,"Tb","Terbium",158.9,"lanthanide",6,3,"solid","f","1843, Carl Gustaf Mosander","Recovered in small amounts from rare-earth ores.","Green phosphors for displays and Terfenol-D, which changes shape in magnetic fields.","One of the rarer and more expensive rare-earth elements.","[Xe] 4f9 6s2"],[66,"Dy","Dysprosium",162.5,"lanthanide",6,3,"solid","f","1886, Paul-\u00c9mile Lecoq de Boisbaudran","Recovered from rare-earth ore deposits, mostly in southern China.","Added to neodymium magnets to keep them working at high temperatures in EV motors and turbines.","Its name comes from Greek for 'hard to get,' reflecting how tough it was to isolate.","[Xe] 4f10 6s2"],[67,"Ho","Holmium",164.9,"lanthanide",6,3,"solid","f","1878, Marc Delafontaine/Jacques-Louis Soret","Recovered in trace amounts from rare-earth ores.","The strongest artificial magnetic fields and some medical lasers.","Has the highest magnetic strength of any element.","[Xe] 4f11 6s2"],[68,"Er","Erbium",167.3,"lanthanide",6,3,"solid","f","1843, Carl Gustaf Mosander","Recovered in small amounts from rare-earth ore deposits.","Doped into fiber-optic cables to amplify light signals across long-distance internet lines.","A key ingredient behind the infrastructure carrying global internet traffic.","[Xe] 4f12 6s2"],[69,"Tm","Thulium",168.9,"lanthanide",6,3,"solid","f","1879, Per Teodor Cleve","The rarest naturally occurring lanthanide, recovered in tiny amounts from rare-earth ores.","Portable X-ray devices and some surgical lasers.","Named after Thule, a mythical northern land.","[Xe] 4f13 6s2"],[70,"Yb","Ytterbium",173.0,"lanthanide",6,3,"solid","f","1878, Jean Charles Galissard de Marignac","Recovered in small amounts from rare-earth ore deposits.","Advanced atomic clocks even more precise than caesium clocks, and fiber laser doping.","One of four elements named after the village of Ytterby, Sweden.","[Xe] 4f14 6s2"],[71,"Lu","Lutetium",175.0,"lanthanide",6,3,"solid","f","1907, Georges Urbain","Recovered in tiny amounts as the least abundant lanthanide from rare-earth ores.","PET scan detector crystals and catalysts in petroleum refining.","The densest and hardest of all the lanthanides.","[Xe] 4f14 5d1 6s2"],[72,"Hf","Hafnium",178.5,"transition-metal",6,4,"solid","d","1923, Coster/Hevesy","Recovered as a byproduct of zirconium ore refining, since the two elements occur together.","Nuclear reactor control rods and high-performance semiconductor transistors.","Absorbs neutrons extremely well, the opposite property needed from its chemical twin zirconium.","[Xe] 4f14 5d2 6s2"],[73,"Ta","Tantalum",180.9,"transition-metal",6,5,"solid","d","1802, Anders Gustaf Ekeberg","Mined from coltan ore, notably in Central Africa and Australia.","Surgical implants and tiny high-capacitance capacitors inside smartphones.","Highly corrosion-resistant, even against most acids.","[Xe] 4f14 5d3 6s2"],[74,"W","Tungsten",183.8,"transition-metal",6,6,"solid","d","1783, Juan Jos\u00e9 and Fausto Elhuyar","Mined from wolframite and scheelite ores, chiefly in China.","Lightbulb filaments, welding electrodes, and armor-piercing ammunition.","Has the highest melting point of any metal, over 3,400\u00b0C.","[Xe] 4f14 5d4 6s2"],[75,"Re","Rhenium",186.2,"transition-metal",6,7,"solid","d","1925, Noddack/Tacke/Berg","Recovered as a byproduct of molybdenum ore processing; one of the scarcest elements.","Jet engine turbine blades that must withstand extreme heat.","One of the last stable elements to be discovered.","[Xe] 4f14 5d5 6s2"],[76,"Os","Osmium",190.2,"transition-metal",6,8,"solid","d","1803, Smithson Tennant","Recovered as a byproduct of platinum ore refining.","Fountain pen tips and durable electrical contacts.","The densest naturally occurring element known.","[Xe] 4f14 5d6 6s2"],[77,"Ir","Iridium",192.2,"transition-metal",6,9,"solid","d","1803, Smithson Tennant","Recovered as a byproduct of platinum and nickel ore refining; extremely scarce.","Spark plugs, crucibles for growing crystals, and specialized alloys.","A thin iridium layer found worldwide at the K-Pg boundary helped confirm the dinosaur-extinction asteroid impact.","[Xe] 4f14 5d7 6s2"],[78,"Pt","Platinum",195.1,"transition-metal",6,10,"solid","d","1735, Antonio de Ulloa","Mined from platinum ore deposits, mostly in South Africa and Russia.","Jewelry, catalytic converters, and laboratory equipment.","Rare, dense, and remarkably unreactive.","[Xe] 4f14 5d9 6s1"],[79,"Au","Gold",197.0,"transition-metal",6,11,"solid","d","Ancient","Mined from ore deposits and panned from riverbeds, historically prized worldwide.","Jewelry, coinage, and high-end electronics thanks to its excellent conductivity.","Resists tarnish so well that gold artifacts thousands of years old still gleam.","[Xe] 4f14 5d10 6s1"],[80,"Hg","Mercury",200.6,"transition-metal",6,12,"liquid","d","Ancient","Mined from cinnabar ore, historically in Spain and Italy.","Once common in thermometers and switches, now largely phased out due to toxicity.","The only metal that is liquid at room temperature.","[Xe] 4f14 5d10 6s2"],[81,"Tl","Thallium",204.4,"post-transition",6,13,"solid","p","1861, William Crookes","Recovered as a byproduct of smelting lead, zinc, and copper ores.","Sparingly used in specialized electronics and infrared optical devices.","Highly toxic, historically infamous as an almost untraceable poison.","[Xe] 4f14 5d10 6s2 6p1"],[82,"Pb","Lead",207.2,"post-transition",6,14,"solid","p","Ancient","Mined from galena ore, found across Australia, China, and the U.S.","Lead-acid batteries and radiation shielding.","Once widely used in paint, fuel, and solder before its toxicity was addressed.","[Xe] 4f14 5d10 6s2 6p2"],[83,"Bi","Bismuth",209.0,"post-transition",6,15,"solid","p","1753, Claude Fran\u00e7ois Geoffroy","Recovered as a byproduct of lead, copper, and tin ore refining.","Stomach medicines like Pepto-Bismol and as a non-toxic substitute for lead.","Forms striking rainbow-hued crystals when cooled slowly.","[Xe] 4f14 5d10 6s2 6p3"],[84,"Po","Polonium",209,"post-transition",6,16,"solid","p","1898, Marie and Pierre Curie","Occurs only in trace amounts in uranium ores; nearly all supply is produced artificially in reactors.","Historically used in antistatic brushes; otherwise mostly a research isotope.","Discovered and named by Marie Curie after her homeland, Poland.","[Xe] 4f14 5d10 6s2 6p4"],[85,"At","Astatine",210,"halogen",6,17,"solid","p","1940, Corson/MacKenzie/Segr\u00e8","The rarest naturally occurring element on Earth, present only in fleeting trace amounts.","Studied experimentally for targeted cancer radiotherapy.","At any given moment, only a few grams exist in the planet's entire crust.","[Xe] 4f14 5d10 6s2 6p5"],[86,"Rn","Radon",222,"noble-gas",6,18,"gas","p","1900, Friedrich Ernst Dorn","Forms naturally from the radioactive decay of uranium and thorium in soil and rock.","No significant commercial uses; monitored as an indoor air-quality health hazard.","Can seep from soil into basements, a leading cause of lung cancer after smoking.","[Xe] 4f14 5d10 6s2 6p6"],[87,"Fr","Francium",223,"alkali-metal",7,1,"solid","s","1939, Marguerite Perey","Occurs only fleetingly in uranium and thorium ore decay chains, never accumulating.","No practical applications; studied only for atomic physics research.","So radioactive and short-lived that visible quantities have never existed.","[Rn] 7s1"],[88,"Ra","Radium",226,"alkaline-earth",7,2,"solid","s","1898, Marie and Pierre Curie","Occurs in trace amounts wherever uranium ore is found.","Once used in glow-in-the-dark watch dial paint until its dangers were understood.","Poisoned many of the factory workers who once hand-painted watch dials with it.","[Rn] 7s2"],[89,"Ac","Actinium",227,"actinide",7,3,"solid","f","1899, Andr\u00e9-Louis Debierne","Occurs only in trace amounts within uranium ores; mostly produced artificially.","Experimental targeted alpha-particle cancer therapy.","Gives the entire actinide series its name and glows faintly blue in the dark.","[Rn] 6d1 7s2"],[90,"Th","Thorium",232.0,"actinide",7,3,"solid","f","1829, J\u00f6ns Jacob Berzelius","Mined from monazite sand deposits, more abundant in Earth's crust than uranium.","Studied as a potential safer nuclear fuel; once used in gas lantern mantles.","Named after Thor, the Norse god of thunder.","[Rn] 6d2 7s2"],[91,"Pa","Protactinium",231.0,"actinide",7,3,"solid","f","1913, Fajans/G\u00f6hring","Occurs only in trace amounts within uranium ores.","No significant practical uses outside of nuclear research.","Rare, dense, and highly radioactive.","[Rn] 5f2 6d1 7s2"],[92,"U","Uranium",238.0,"actinide",7,3,"solid","f","1789, Martin Heinrich Klaproth","Mined from uraninite ore, with Kazakhstan, Canada, and Australia as top producers.","Nuclear power plant fuel and, historically, nuclear weapons.","Naturally slightly radioactive and found in trace amounts in ordinary soil and rock.","[Rn] 5f3 6d1 7s2"],[93,"Np","Neptunium",237,"actinide",7,3,"solid","f","1940, McMillan/Abelson","Occurs only in trace amounts from uranium ore decay; produced artificially in reactors.","Mostly a research material; some potential future reactor fuel applications.","The first transuranium element ever synthesized, named after Neptune.","[Rn] 5f4 6d1 7s2"],[94,"Pu","Plutonium",244,"actinide",7,3,"solid","f","1940, Seaborg and team","Occurs only in trace natural amounts; produced in quantity inside nuclear reactors.","Nuclear weapons and reactor fuel; Pu-238 powers deep-space probes like Voyager.","Its decay heat has kept spacecraft powered for decades far from the sun.","[Rn] 5f6 7s2"],[95,"Am","Americium",243,"actinide",7,3,"solid","f","1944, Seaborg and team","Not found in nature; produced artificially in nuclear reactors.","Found in trace amounts inside household smoke detectors.","Its radiation ionizes air inside detectors to sense smoke particles.","[Rn] 5f7 7s2"],[96,"Cm","Curium",247,"actinide",7,3,"solid","f","1944, Seaborg and team","Not found in nature; produced artificially by bombarding plutonium with particles.","Power source for some space mission scientific instruments.","Named after Marie and Pierre Curie.","[Rn] 5f7 6d1 7s2"],[97,"Bk","Berkelium",247,"actinide",7,3,"solid","f","1949, Thompson/Ghiorso/Seaborg","Not found in nature; produced only in specialized nuclear laboratories.","Almost entirely used to synthesize even heavier elements in research.","Named after Berkeley, California, where it was first made.","[Rn] 5f9 7s2"],[98,"Cf","Californium",251,"actinide",7,3,"solid","f","1950, Thompson/Ghiorso/Street/Seaborg","Not found in nature; produced in nuclear reactors in microgram quantities.","Starting up nuclear reactors and portable metal detectors for oil exploration.","A strong neutron emitter, useful precisely because of that property.","[Rn] 5f10 7s2"],[99,"Es","Einsteinium",252,"actinide",7,3,"solid","f","1952, discovered in H-bomb debris","Not found in nature; first identified in the fallout of the first hydrogen bomb test.","Almost entirely confined to basic scientific research.","Named after Albert Einstein.","[Rn] 5f11 7s2"],[100,"Fm","Fermium",257,"actinide",7,3,"solid","f","1952, discovered in H-bomb debris","Not found in nature; produced by neutron bombardment in nuclear reactors.","Purely a research element with no commercial applications.","Named after physicist Enrico Fermi; the heaviest element producible in measurable quantities.","[Rn] 5f12 7s2"],[101,"Md","Mendelevium",258,"actinide",7,3,"solid","f","1955, Seaborg and team","Not found in nature; produced one atom at a time in particle accelerators.","No practical applications outside of nuclear physics research.","Named in honor of Dmitri Mendeleev, creator of the periodic table.","[Rn] 5f13 7s2"],[102,"No","Nobelium",259,"actinide",7,3,"solid","f","1958, Nobel Institute/Berkeley","Not found in nature; exists only briefly after synthesis in accelerators.","No practical applications; exists only for research purposes.","Named after Alfred Nobel; decays within minutes of being created.","[Rn] 5f14 7s2"],[103,"Lr","Lawrencium",266,"actinide",7,3,"solid","f","1961, Ghiorso and team","Not found in nature; synthesized atom by atom in particle accelerators.","No practical applications outside of nuclear research.","The final member of the actinide series, named after Ernest Lawrence.","[Rn] 5f14 7s2 7p1"],[104,"Rf","Rutherfordium",267,"transition-metal",7,4,"solid","d","1964/1969, Dubna/Berkeley","Not found in nature; produced only a few atoms at a time in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after physicist Ernest Rutherford.","[Rn] 5f14 6d2 7s2"],[105,"Db","Dubnium",268,"transition-metal",7,5,"solid","d","1968/1970, Dubna/Berkeley","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after Dubna, Russia, home of its co-discovering laboratory.","[Rn] 5f14 6d3 7s2"],[106,"Sg","Seaborgium",269,"transition-metal",7,6,"solid","d","1974, Berkeley","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after Glenn Seaborg while he was still alive, a rare and controversial honor.","[Rn] 5f14 6d4 7s2"],[107,"Bh","Bohrium",270,"transition-metal",7,7,"solid","d","1981, GSI Darmstadt","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after physicist Niels Bohr; decays within seconds of creation.","[Rn] 5f14 6d5 7s2"],[108,"Hs","Hassium",269,"transition-metal",7,8,"solid","d","1984, GSI Darmstadt","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after Hesse, the German state where its discovering lab is located.","[Rn] 5f14 6d6 7s2"],[109,"Mt","Meitnerium",278,"unknown",7,9,"solid","d","1982, GSI Darmstadt","Not found in nature; produced one atom at a time via particle collisions.","Purely a subject of nuclear chemistry research.","Named after physicist Lise Meitner, who helped explain nuclear fission.","[Rn] 5f14 6d7 7s2"],[110,"Ds","Darmstadtium",281,"unknown",7,10,"solid","d","1994, GSI Darmstadt","Not found in nature; synthesized by fusing nickel and lead nuclei.","Purely a subject of nuclear chemistry research.","Named after Darmstadt, Germany, where it was first synthesized.","[Rn] 5f14 6d8 7s2"],[111,"Rg","Roentgenium",282,"unknown",7,11,"solid","d","1994, GSI Darmstadt","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after Wilhelm R\u00f6ntgen, discoverer of X-rays.","[Rn] 5f14 6d9 7s2"],[112,"Cn","Copernicium",285,"unknown",7,12,"liquid","d","1996, GSI Darmstadt","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after astronomer Nicolaus Copernicus; predicted to be volatile enough to be liquid or gaseous.","[Rn] 5f14 6d10 7s2"],[113,"Nh","Nihonium",286,"unknown",7,13,"solid","p","2004, RIKEN Japan","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after Nihon, Japanese for Japan, the first element named by an Asian team.","[Rn] 5f14 6d10 7s2 7p1"],[114,"Fl","Flerovium",289,"unknown",7,14,"solid","p","1998, Dubna","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after physicist Georgy Flyorov; may share volatile properties with noble gases.","[Rn] 5f14 6d10 7s2 7p2"],[115,"Mc","Moscovium",290,"unknown",7,15,"solid","p","2003, Dubna","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after the Moscow region, home to its co-discovering institute.","[Rn] 5f14 6d10 7s2 7p3"],[116,"Lv","Livermorium",293,"unknown",7,16,"solid","p","2000, Dubna/Livermore","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after Lawrence Livermore National Laboratory in California.","[Rn] 5f14 6d10 7s2 7p4"],[117,"Ts","Tennessine",294,"unknown",7,17,"solid","p","2010, Dubna/Oak Ridge/Vanderbilt","Not found in nature; synthesized in particle accelerators.","Purely a subject of nuclear chemistry research.","Named after Tennessee, home to Oak Ridge National Laboratory.","[Rn] 5f14 6d10 7s2 7p5"],[118,"Og","Oganesson",294,"unknown",7,18,"solid","p","2002, Dubna","Not found in nature; synthesized in particle accelerators, one atom at a time.","Purely a subject of nuclear chemistry research.","Named after physicist Yuri Oganessian, one of the few elements named after a living person.","[Rn] 5f14 6d10 7s2 7p6"]];
+
+const CATS = {
+  "alkali-metal":      {label:"Alkali Metal",        color:"#ff8a65"},
+  "alkaline-earth":    {label:"Alkaline Earth",       color:"#ffca7a"},
+  "transition-metal":  {label:"Transition Metal",     color:"#7ec8e3"},
+  "post-transition":   {label:"Post-Transition Metal",color:"#8bd9b0"},
+  "metalloid":         {label:"Metalloid",            color:"#c9a0ff"},
+  "nonmetal":          {label:"Reactive Nonmetal",    color:"#b8e986"},
+  "halogen":           {label:"Halogen",              color:"#ffe66d"},
+  "noble-gas":         {label:"Noble Gas",            color:"#6de3ff"},
+  "lanthanide":        {label:"Lanthanide",           color:"#ff9ecf"},
+  "actinide":          {label:"Actinide",             color:"#ffb3b3"},
+  "unknown":           {label:"Unknown / Synthetic",  color:"#6b6b75"},
+};
+
+const grid = document.getElementById('grid');
+const legend = document.getElementById('legend');
+const modalBg = document.getElementById('modalBg');
+const modalInner = document.getElementById('modalInner');
+const searchInput = document.getElementById('search');
+
+let activeFilter = null;
+
+Object.entries(CATS).forEach(([key, def])=>{
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.dataset.cat = key;
+  item.innerHTML = `<span class="swatch" style="background:${def.color}"></span>${def.label}`;
+  item.addEventListener('click', ()=>{
+    activeFilter = activeFilter === key ? null : key;
+    document.querySelectorAll('.legend-item').forEach(el=>el.classList.toggle('active', el.dataset.cat===activeFilter));
+    render();
+  });
+  legend.appendChild(item);
+});
+
+function cellHTML(el){
+  const [Z,sym,name,mass,cat] = el;
+  const color = CATS[cat] ? CATS[cat].color : '#666';
+  return `<div class="tag" style="background:${color}"></div>
+    <div class="z">${Z}</div>
+    <div>
+      <div class="sym" style="color:${color}">${sym}</div>
+      <div class="nm">${name}</div>
+    </div>`;
+}
+
+function buildGrid(filterText){
+  grid.innerHTML = '';
+  const byPos = {};
+  ELEMENTS.forEach(el=>{
+    const [Z,sym,name,mass,cat,period,group] = el;
+    let col, row;
+    if(cat === 'lanthanide'){ col = 3 + (Z - 57); row = 9; }
+    else if(cat === 'actinide'){ col = 3 + (Z - 89); row = 10; }
+    else { col = group; row = period; }
+    byPos[row+'-'+col] = el;
+  });
+
+  const ft = (filterText||'').trim().toLowerCase();
+
+  for(let row=1; row<=10; row++){
+    if(row===8){ continue; }
+    for(let col=1; col<=18; col++){
+      const el = byPos[row+'-'+col];
+      const cell = document.createElement('div');
+
+      if(!el){
+        if(row===6 && col===3){
+          cell.className = 'cell ph';
+          cell.textContent = '57–71';
+        } else if(row===7 && col===3){
+          cell.className = 'cell ph';
+          cell.textContent = '89–103';
+        } else {
+          cell.className = 'cell spacer';
+        }
+        grid.appendChild(cell);
+        continue;
+      }
+
+      cell.className = 'cell';
+      cell.innerHTML = cellHTML(el);
+
+      const [Z,sym,name,mass,cat] = el;
+      let visible = true;
+      if(activeFilter && cat !== activeFilter) visible = false;
+      if(ft){
+        const match = String(Z)===ft || sym.toLowerCase().includes(ft) || name.toLowerCase().includes(ft);
+        if(!match) visible = false;
+      }
+      if(!visible) cell.classList.add('dim');
+
+      cell.addEventListener('click', ()=>openModal(el));
+      grid.appendChild(cell);
+    }
+    if(row===7){
+      const gap = document.createElement('div');
+      gap.className = 'f-block-gap';
+      grid.appendChild(gap);
+    }
+  }
+}
+
+function render(){
+  buildGrid(searchInput.value);
+}
+
+function openModal(el){
+  const [Z,sym,name,mass,cat,period,group,phase,block,discovered,source,uses,note,econfig] = el;
+  const def = CATS[cat];
+  const groupLabel = (cat==='lanthanide'||cat==='actinide') ? '—' : group;
+  modalInner.innerHTML = `
+    <div class="m-top">
+      <div class="m-symbol" style="border-color:${def.color}; color:${def.color}">
+        <span class="zz">${Z}</span>${sym}
+      </div>
+      <div>
+        <div class="m-name">${name}</div>
+        <div class="m-cat" style="color:${def.color}">${def.label}</div>
+      </div>
+    </div>
+    <div class="m-stats">
+      <div class="stat"><div class="k">Atomic Number</div><div class="v">${Z}</div></div>
+      <div class="stat"><div class="k">Atomic Mass</div><div class="v">${mass} u</div></div>
+      <div class="stat"><div class="k">Period / Group</div><div class="v">${period} / ${groupLabel}</div></div>
+      <div class="stat"><div class="k">Block</div><div class="v">${block}-block</div></div>
+      <div class="stat"><div class="k">Phase (STP)</div><div class="v" style="text-transform:capitalize">${phase}</div></div>
+      <div class="stat"><div class="k">Discovered</div><div class="v">${discovered}</div></div>
+      <div class="stat wide"><div class="k">Electron Configuration</div><div class="v mono">${econfig}</div></div>
+    </div>
+    <div class="m-section">
+      <span class="label">Main Source on Earth</span>
+      ${source}
+    </div>
+    <div class="m-section">
+      <span class="label">Primary Uses</span>
+      ${uses}
+    </div>
+    <div class="m-section">
+      <span class="label">Notes</span>
+      ${note}
+    </div>
+  `;
+  modalBg.classList.add('open');
+}
+
+document.getElementById('closeBtn').addEventListener('click', ()=>modalBg.classList.remove('open'));
+modalBg.addEventListener('click', (e)=>{ if(e.target===modalBg) modalBg.classList.remove('open'); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') modalBg.classList.remove('open'); });
+searchInput.addEventListener('input', render);
+
+render();
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+
+</body>
+</html>
