@@ -35,6 +35,7 @@
   --line:       #ddceac;
   --line-soft:  #e8dcbe;
   --shadow:     rgba(93, 72, 42, 0.14);
+  --entry-mark: #2f6fb0;
 }
 
 * , *::before, *::after { box-sizing: border-box; }
@@ -73,9 +74,20 @@ h1 {
   text-align: center;
   font-size: 13px;
   color: var(--ink-soft);
-  margin: 0 0 22px;
+  margin: 0 0 4px;
   letter-spacing: 0.3px;
 }
+
+.stats-line {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  margin: 0 0 22px;
+  letter-spacing: 0.4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-line b { color: var(--accent); font-weight: 600; }
 
 /* ---------- TOP UTILITY BAR ---------- */
 
@@ -105,6 +117,7 @@ h1 {
   padding: 14px 16px;
   margin-bottom: 14px;
   box-shadow: 0 4px 14px var(--shadow);
+  position: relative;
 }
 
 .panel-title {
@@ -123,7 +136,7 @@ h1 {
   align-items: center;
 }
 
-select, input[type="date"] {
+select {
   padding: 9px 12px;
   font-size: 15px;
   font-family: 'DM Sans', sans-serif;
@@ -131,6 +144,148 @@ select, input[type="date"] {
   border: 1px solid var(--line);
   background: var(--paper);
   color: var(--ink);
+}
+
+/* ---------- CUSTOM DATE PICKER ---------- */
+
+.date-picker-wrap { position: relative; }
+
+.date-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 14.5px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.date-btn .cal-icon { font-size: 14px; opacity: 0.7; }
+
+.calendar-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: 272px;
+  max-width: calc(100vw - 48px);
+  background: var(--paper-3);
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 12px 28px var(--shadow);
+}
+
+.calendar-popup[hidden] { display: none; }
+
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cal-month-label {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  letter-spacing: 0.2px;
+}
+
+.cal-nav-btn {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 12px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.cal-dow-row, .cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal-dow-row {
+  margin-bottom: 4px;
+}
+
+.cal-dow {
+  font-size: 10px;
+  text-align: center;
+  color: var(--ink-faint);
+  letter-spacing: 0.4px;
+  padding-bottom: 2px;
+}
+
+.cal-grid { gap: 3px; }
+
+.cal-day {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--ink);
+  user-select: none;
+}
+
+.cal-day:hover { background: var(--paper-2); }
+
+.cal-day.other-month { color: var(--ink-faint); opacity: 0.4; }
+
+.cal-day.today { box-shadow: inset 0 0 0 1px var(--accent); }
+
+.cal-day.selected {
+  background: var(--accent);
+  color: var(--paper-3);
+  font-weight: 600;
+}
+
+.cal-day.has-entry {
+  color: var(--entry-mark);
+  font-weight: 700;
+}
+
+.cal-day.has-entry::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--entry-mark);
+}
+
+.cal-day.selected.has-entry {
+  color: var(--paper-3);
+}
+
+.cal-day.selected.has-entry::after { background: var(--paper-3); }
+
+.cal-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-soft);
+  text-align: center;
+}
+
+.cal-today-link {
+  border: none;
+  background: none;
+  font-size: 11.5px;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  padding: 2px 6px;
 }
 
 textarea {
@@ -250,6 +405,7 @@ body.dark {
   --line:       #3a3223;
   --line-soft:  #322b1f;
   --shadow:     rgba(0, 0, 0, 0.35);
+  --entry-mark: #6fa8dc;
 }
 
 body.dark::before {
@@ -310,6 +466,8 @@ body.dark textarea {
 
   .voice-actions button { flex: 1; }
 
+  .calendar-popup { left: 50%; transform: translateX(-50%); }
+
 }
 
 </style>
@@ -325,11 +483,34 @@ body.dark textarea {
 
 <h1>My Calm Daily Diary</h1>
 <p class="subtitle">A quiet page for today's thoughts</p>
+<p class="stats-line" id="statsLine"></p>
 
 <div class="panel">
   <p class="panel-title">Today</p>
   <div class="top-bar">
-    <input type="date" id="datePicker">
+
+    <div class="date-picker-wrap">
+      <button type="button" class="date-btn" id="dateBtn">
+        <span class="cal-icon">📅</span>
+        <span id="dateBtnLabel">Select date</span>
+      </button>
+
+      <div class="calendar-popup" id="calendarPopup" hidden>
+        <div class="cal-header">
+          <button type="button" class="cal-nav-btn" id="calPrevMonth">◀</button>
+          <span class="cal-month-label" id="calMonthLabel"></span>
+          <button type="button" class="cal-nav-btn" id="calNextMonth">▶</button>
+        </div>
+        <div class="cal-dow-row">
+          <span class="cal-dow">S</span><span class="cal-dow">M</span><span class="cal-dow">T</span>
+          <span class="cal-dow">W</span><span class="cal-dow">T</span><span class="cal-dow">F</span><span class="cal-dow">S</span>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-footer">
+          <button type="button" class="cal-today-link" id="calTodayLink">Jump to today</button>
+        </div>
+      </div>
+    </div>
 
     <select id="mood">
       <option value="😊">😊 Happy</option>
@@ -338,8 +519,8 @@ body.dark textarea {
       <option value="🤯">🤯 Stressed</option>
     </select>
 
-    <button id="prevBtn">⬅ Previous</button>
-    <button id="nextBtn">Next ➡</button>
+    <button id="prevBtn" title="Previous entry">⬅ Previous</button>
+    <button id="nextBtn" title="Next entry">Next ➡</button>
   </div>
 </div>
 
@@ -395,7 +576,6 @@ body.dark textarea {
 <script>
 
 
-const datePicker = document.getElementById("datePicker");
 const diaryText = document.getElementById("diaryText");
 const moodSelect = document.getElementById("mood");
 const wordCount = document.getElementById("wordCount");
@@ -408,13 +588,34 @@ const backupBtn = document.getElementById("backupBtn");
 const restoreBtn = document.getElementById("restoreBtn");
 const restoreFile = document.getElementById("restoreFile");
 const deleteAllBtn = document.getElementById("deleteAllBtn");
+const statsLine = document.getElementById("statsLine");
 
-// Set today (viewer's local date)
-const today = new Date().toLocaleDateString("en-CA");
-datePicker.value = today;
+// ---------- Date helpers (all local-time-safe, no UTC round-trip) ----------
+
+function pad2(n) { return String(n).padStart(2, "0"); }
+
+function toKey(dateObj) {
+  return `${dateObj.getFullYear()}-${pad2(dateObj.getMonth() + 1)}-${pad2(dateObj.getDate())}`;
+}
+
+function parseKey(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatLong(key) {
+  return parseKey(key).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
+
+function formatShort(key) {
+  return parseKey(key).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+// currentDate is the single source of truth for "which day is open"
+let currentDate = toKey(new Date());
 
 // Load entry
-loadEntry(today);
+loadEntry(currentDate);
 
 function getDiaryDates() {
   return Object.keys(localStorage)
@@ -423,32 +624,58 @@ function getDiaryDates() {
     .sort();
 }
 
+function updateStatsLine() {
+  const dates = getDiaryDates();
+  if (dates.length === 0) {
+    statsLine.textContent = "No entries yet — today is a good day to start";
+    return;
+  }
+
+  // current streak: consecutive days ending at the most recent entry (or today)
+  const set = new Set(dates);
+  let streak = 0;
+  let cursor = set.has(toKey(new Date())) ? new Date() : parseKey(dates[dates.length - 1]);
+  while (set.has(toKey(cursor))) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  statsLine.innerHTML = `<b>${dates.length}</b> ${dates.length === 1 ? "entry" : "entries"} written · <b>${streak}</b> day streak`;
+}
+
+// BUG FIX: previously this only enabled Prev/Next when the *currently open*
+// date had an exact match in the saved entries. Opening any date without a
+// saved entry (e.g. today, before you've written anything) disabled both
+// buttons entirely, even if older/newer entries existed. Now it looks for
+// the nearest entry before/after the open date instead of requiring an
+// exact match.
+function findAdjacent(dates, date, direction) {
+  if (direction === "prev") {
+    const candidates = dates.filter(d => d < date);
+    return candidates.length ? candidates[candidates.length - 1] : null;
+  }
+  const candidates = dates.filter(d => d > date);
+  return candidates.length ? candidates[0] : null;
+}
+
 function updateNavigationButtons() {
   const dates = getDiaryDates();
   deleteAllBtn.disabled = dates.length === 0;
 
-  if (dates.length === 0) {
-    prevBtn.disabled = true;
-    nextBtn.disabled = true;
-    return;
-  }
+  const prevDate = findAdjacent(dates, currentDate, "prev");
+  const nextDate = findAdjacent(dates, currentDate, "next");
 
-  const index = dates.indexOf(datePicker.value);
+  prevBtn.disabled = !prevDate;
+  nextBtn.disabled = !nextDate;
 
-  // If current date isn't in the diary list
-  if (index === -1) {
-    prevBtn.disabled = true;
-    nextBtn.disabled = true;
-    return;
-  }
-
-  prevBtn.disabled = index === 0;
-  nextBtn.disabled = index === dates.length - 1;
+  prevBtn.title = prevDate ? `Go to ${formatShort(prevDate)}` : "No earlier entries";
+  nextBtn.title = nextDate ? `Go to ${formatShort(nextDate)}` : "No later entries";
 }
-
 
 // Load entry
 function loadEntry(date) {
+  currentDate = date;
+
   const data = JSON.parse(localStorage.getItem("diary-" + date)) || {
     text: "",
     mood: "😊"
@@ -456,8 +683,10 @@ function loadEntry(date) {
 
   diaryText.value = data.text;
   moodSelect.value = data.mood;
+  document.getElementById("dateBtnLabel").textContent = formatLong(date);
   updateWordCount();
   updateNavigationButtons();
+  updateStatsLine();
 }
 
 
@@ -471,11 +700,13 @@ function autoSave() {
       mood: moodSelect.value
     };
     localStorage.setItem(
-      "diary-" + datePicker.value,
+      "diary-" + currentDate,
       JSON.stringify(entry)
     );
     status.textContent = "Auto-saved ✔";
     updateNavigationButtons();
+    updateStatsLine();
+    if (!calendarPopup.hidden) renderCalendar();
   }, 400);
 }
 
@@ -515,12 +746,6 @@ diaryText.addEventListener("keydown", (e) => {
 
 moodSelect.addEventListener("change", autoSave);
 
-datePicker.addEventListener("change", () => {
-  loadEntry(datePicker.value);
-  updateNavigationButtons();
-  status.textContent = "Loaded";
-});
-
 const moodNames = {
     "😊": "Happy",
     "😐": "Neutral",
@@ -545,8 +770,6 @@ downloadDiaryBtn.addEventListener("click", () => {
 
     let y = 40;
 
-    let textY = y + 20;
-
 for (const date of dates) {
 
     if (y > 240) {
@@ -556,11 +779,7 @@ for (const date of dates) {
 
     const entry = JSON.parse(localStorage.getItem("diary-" + date));
 
-    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-    });
+    const formattedDate = formatLong(date);
 
     doc.setFont(undefined, "bold");
     doc.text("Date :", 20, y);
@@ -610,7 +829,7 @@ for (const date of dates) {
 // Download
 downloadBtn.addEventListener("click", () => {
 
-    const date = datePicker.value;
+    const date = currentDate;
 
     const data = JSON.parse(localStorage.getItem("diary-" + date)) || {
         text: "",
@@ -627,11 +846,7 @@ downloadBtn.addEventListener("click", () => {
 
     // Date & Mood
     doc.setFontSize(12);
-    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-});
+    const formattedDate = formatLong(date);
 
         // Date
       doc.setFont(undefined, "bold");
@@ -645,7 +860,7 @@ downloadBtn.addEventListener("click", () => {
       doc.text("Mood :", 20, 45);
 
       doc.setFont(undefined, "normal");
-      doc.text(moodNames[data.mood], 40, 45);
+      doc.text(moodNames[data.mood] || "—", 40, 45);
 
     // Horizontal separator
     doc.line(20, 50, 190, 50);
@@ -697,29 +912,19 @@ themeToggle.addEventListener("click", () => {
 });
 
 prevBtn.addEventListener("click", () => {
-  const dates = getDiaryDates();
-  const index = dates.indexOf(datePicker.value);
-
-  if (index > 0) {
-    const newDate = dates[index - 1];
-    datePicker.value = newDate;
-    loadEntry(newDate);
+  const target = findAdjacent(getDiaryDates(), currentDate, "prev");
+  if (target) {
+    loadEntry(target);
     status.textContent = "Loaded";
   }
 });
 
 nextBtn.addEventListener("click", () => {
-  if (nextBtn.disabled) return;
-
-  const dates = getDiaryDates();
-  const index = dates.indexOf(datePicker.value);
-
-  if (index === -1 || index >= dates.length - 1) return;
-
-  const newDate = dates[index + 1];
-  datePicker.value = newDate;
-  loadEntry(newDate);
-  status.textContent = "Loaded";
+  const target = findAdjacent(getDiaryDates(), currentDate, "next");
+  if (target) {
+    loadEntry(target);
+    status.textContent = "Loaded";
+  }
 });
 
 const synth = window.speechSynthesis;
@@ -795,7 +1000,7 @@ backupBtn.addEventListener("click", () => {
 
     const backup = {};
     const now = new Date();
-    const date = now.toLocaleDateString("en-CA");
+    const date = toKey(now);
     const time = now.toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit"
@@ -866,7 +1071,7 @@ for (const date of dates) {
 
 }
 
-loadEntry(datePicker.value);
+loadEntry(currentDate);
 
 updateNavigationButtons();
 
@@ -896,17 +1101,23 @@ restoreFile.addEventListener("change", () => {
 
     reader.onload = function () {
 
-        const backup = JSON.parse(reader.result);
+        let backup;
+        try {
+          backup = JSON.parse(reader.result);
+        } catch (err) {
+          alert("This file doesn't look like a valid diary backup.");
+          return;
+        }
 
         for (const key in backup) {
+          if (!/^diary-\d{4}-\d{2}-\d{2}$/.test(key)) continue;
+          localStorage.setItem(
+          key,
+          JSON.stringify(backup[key])
+          );
+        }
 
-        localStorage.setItem(
-        key,
-        JSON.stringify(backup[key])
-        );
-      }
-
-        loadEntry(datePicker.value);
+        loadEntry(currentDate);
 
         updateNavigationButtons();
 
@@ -921,6 +1132,112 @@ restoreFile.addEventListener("change", () => {
 
 });
 
+// ---------- Custom calendar ----------
+
+const dateBtn = document.getElementById("dateBtn");
+const calendarPopup = document.getElementById("calendarPopup");
+const calGrid = document.getElementById("calGrid");
+const calMonthLabel = document.getElementById("calMonthLabel");
+const calPrevMonth = document.getElementById("calPrevMonth");
+const calNextMonth = document.getElementById("calNextMonth");
+const calTodayLink = document.getElementById("calTodayLink");
+
+let calendarViewDate = parseKey(currentDate); // month currently shown
+
+function openCalendar() {
+  calendarViewDate = parseKey(currentDate);
+  renderCalendar();
+  calendarPopup.hidden = false;
+}
+
+function closeCalendar() {
+  calendarPopup.hidden = true;
+}
+
+dateBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (calendarPopup.hidden) openCalendar();
+  else closeCalendar();
+});
+
+document.addEventListener("click", (e) => {
+  if (!calendarPopup.hidden && !calendarPopup.contains(e.target) && e.target !== dateBtn) {
+    closeCalendar();
+  }
+});
+
+calPrevMonth.addEventListener("click", () => {
+  calendarViewDate.setMonth(calendarViewDate.getMonth() - 1);
+  renderCalendar();
+});
+
+calNextMonth.addEventListener("click", () => {
+  calendarViewDate.setMonth(calendarViewDate.getMonth() + 1);
+  renderCalendar();
+});
+
+calTodayLink.addEventListener("click", () => {
+  const t = toKey(new Date());
+  loadEntry(t);
+  closeCalendar();
+  status.textContent = "Loaded";
+});
+
+function renderCalendar() {
+  const year = calendarViewDate.getFullYear();
+  const month = calendarViewDate.getMonth();
+
+  calMonthLabel.textContent = calendarViewDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+
+  const entryDates = new Set(getDiaryDates());
+  const todayKey = toKey(new Date());
+
+  const firstOfMonth = new Date(year, month, 1);
+  const startOffset = firstOfMonth.getDay(); // 0 = Sunday
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  const cells = [];
+
+  // leading days from previous month
+  for (let i = startOffset - 1; i >= 0; i--) {
+    const d = daysInPrevMonth - i;
+    cells.push({ y: year, m: month - 1, d, otherMonth: true });
+  }
+  // days in current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ y: year, m: month, d, otherMonth: false });
+  }
+  // trailing days to complete the final week
+  let trailing = 1;
+  while (cells.length % 7 !== 0) {
+    cells.push({ y: year, m: month + 1, d: trailing++, otherMonth: true });
+  }
+
+  calGrid.innerHTML = "";
+
+  cells.forEach(cell => {
+    const dObj = new Date(cell.y, cell.m, cell.d);
+    const key = toKey(dObj);
+
+    const el = document.createElement("div");
+    el.className = "cal-day";
+    el.textContent = cell.d;
+
+    if (cell.otherMonth) el.classList.add("other-month");
+    if (key === todayKey) el.classList.add("today");
+    if (key === currentDate) el.classList.add("selected");
+    if (entryDates.has(key)) el.classList.add("has-entry");
+
+    el.addEventListener("click", () => {
+      loadEntry(key);
+      closeCalendar();
+      status.textContent = "Loaded";
+    });
+
+    calGrid.appendChild(el);
+  });
+}
 
 </script>
 
