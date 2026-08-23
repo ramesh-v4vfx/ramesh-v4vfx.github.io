@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAMESHVERSE·IMPACT // Asteroid Impact Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#ff2b2b;
+    --red-dim:#ff2b2b55;
+    --bg:#050608;
+    --panel:#0a0c10;
+    --text:#d8dde3;
+    --dim:#5a6270;
+    --amber:#ffb020;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;overflow-x:hidden;width:100%;}
+
+  #scanlines{position:fixed;inset:0;pointer-events:none;z-index:80;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;}
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:79;box-shadow: inset 0 0 180px rgba(0,0,0,0.85);}
+  .corner{position:fixed;width:26px;height:26px;border:2px solid var(--red);z-index:81;pointer-events:none;opacity:.85;}
+  .corner.tl{top:14px;left:14px;border-right:none;border-bottom:none;}
+  .corner.tr{top:14px;right:14px;border-left:none;border-bottom:none;}
+  .corner.bl{bottom:14px;left:14px;border-right:none;border-top:none;}
+  .corner.br{bottom:14px;right:14px;border-left:none;border-top:none;}
+
+  #topbar{padding:22px 40px 10px;}
+  #logo{font-weight:700;font-size:15px;letter-spacing:3px;color:var(--red);text-shadow:0 0 8px var(--red-dim);text-decoration:none;cursor:pointer;transition:.15s;display:inline-block;}
+  #logo:hover{text-shadow:0 0 14px var(--red-dim);}
+  #tagline{font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:4px;}
+
+  #layout{
+    display:grid;
+    grid-template-columns:340px 1fr;
+    gap:18px;
+    padding:18px 40px 60px;
+    max-width:1500px;
+    margin:0 auto;
+  }
+  @media(max-width:980px){
+    #layout{grid-template-columns:1fr;padding:14px 16px 60px;}
+  }
+
+  .panelbox{
+    background:rgba(10,12,16,0.75);
+    border:1px solid var(--red-dim);
+    backdrop-filter:blur(6px);
+  }
+  .panelbox .ph{
+    padding:10px 14px;border-bottom:1px solid var(--red-dim);
+    font-size:11px;letter-spacing:2px;color:var(--red);font-weight:700;
+  }
+  .panelbox .pb{padding:16px 14px;}
+
+  .field{margin-bottom:18px;}
+  .field label{display:flex;justify-content:space-between;font-size:10px;letter-spacing:1px;color:var(--dim);margin-bottom:8px;}
+  .field label b{color:var(--text);font-weight:400;}
+  .field label .val{color:var(--amber);}
+  input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:var(--dim);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--red);cursor:pointer;box-shadow:0 0 6px var(--red);border-radius:50%;}
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;background:var(--red);cursor:pointer;border:none;border-radius:50%;}
+
+  select{
+    width:100%;background:#0d0f14;border:1px solid var(--dim);color:var(--text);
+    font-family:'Space Mono',monospace;font-size:11px;padding:8px 10px;letter-spacing:1px;
+  }
+  select:focus{outline:none;border-color:var(--red);}
+
+  .preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+  .chip{
+    font-size:9px;letter-spacing:1px;padding:5px 8px;border:1px solid var(--dim);color:var(--dim);
+    cursor:pointer;transition:.15s;
+  }
+  .chip:hover, .chip.active{border-color:var(--red);color:var(--red);}
+
+  #detonate{
+    width:100%;padding:13px;background:rgba(255,43,43,0.08);border:1px solid var(--red);
+    color:var(--red);font-family:'Space Mono',monospace;font-weight:700;letter-spacing:3px;
+    font-size:12px;cursor:pointer;transition:.15s;margin-top:6px;
+  }
+  #detonate:hover{background:rgba(255,43,43,0.18);box-shadow:0 0 14px var(--red-dim);}
+  #detonate:disabled{opacity:.4;cursor:default;}
+
+  #mapwrap{position:relative;min-height:420px;}
+  #mapcanvas{width:100%;display:block;cursor:crosshair;background:#030405;}
+  #maphint{position:absolute;top:10px;left:10px;font-size:9px;color:var(--dim);letter-spacing:1px;background:rgba(5,6,8,0.6);padding:4px 8px;}
+  #coordreadout{position:absolute;bottom:10px;left:10px;font-size:9px;color:var(--amber);letter-spacing:1px;background:rgba(5,6,8,0.6);padding:4px 8px;}
+  #impact-hud{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);
+    font-size:26px;font-weight:700;letter-spacing:8px;color:#fff;
+    text-shadow:0 0 24px #fff, 0 0 50px var(--red);
+    opacity:0;pointer-events:none;transition:opacity .18s ease-out, transform .18s ease-out;
+  }
+  #impact-hud.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  @keyframes panelPulse{
+    0%{box-shadow:0 0 0 rgba(255,43,43,0);border-color:var(--red-dim);}
+    12%{box-shadow:0 0 45px 8px rgba(255,43,43,0.6);border-color:var(--red);}
+    100%{box-shadow:0 0 0 rgba(255,43,43,0);border-color:var(--red-dim);}
+  }
+  .impact-pulse{animation:panelPulse 0.9s ease-out;}
+
+  #results{margin-top:18px;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:520px){.stat-grid{grid-template-columns:1fr;}}
+  .stat{border:1px solid #ffffff14;padding:10px 12px;background:rgba(255,255,255,0.015);}
+  .stat .k{font-size:9px;color:var(--dim);letter-spacing:1px;margin-bottom:5px;}
+  .stat .v{font-size:16px;color:var(--red);font-weight:700;}
+  .stat .u{font-size:9px;color:var(--dim);}
+
+  #zones{margin-top:14px;}
+  .zone-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed #ffffff10;font-size:10.5px;}
+  .zone-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .zone-label{flex:1;color:var(--text);letter-spacing:.5px;}
+  .zone-radius{color:var(--dim);}
+
+  #cities-affected{margin-top:14px;}
+  #cities-affected .row{display:flex;justify-content:space-between;font-size:10.5px;padding:5px 0;border-bottom:1px dashed #ffffff10;}
+  #cities-affected .row .name{color:var(--text);}
+  #cities-affected .row .tier{font-size:9px;letter-spacing:1px;padding:2px 6px;}
+
+  #compare{margin-top:14px;font-size:10.5px;color:var(--dim);line-height:1.9;}
+  #compare b{color:var(--amber);}
+
+  .placeholder{color:var(--dim);font-size:11px;text-align:center;padding:30px 10px;letter-spacing:1px;}
+
+  #disclaimer{font-size:9px;color:var(--dim);letter-spacing:.5px;line-height:1.6;margin-top:16px;padding-top:12px;border-top:1px solid #ffffff10;}
+</style>
+</head>
+<body>
+
+<div id="scanlines"></div>
+<div id="vignette"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+<div id="topbar">
+  <a id="logo" href="/">‹ BACK TO RAMESHVERSE</a>
+  <div id="tagline">ASTEROID IMPACT SIMULATOR — ENERGY / CRATER / BLAST RADIUS ESTIMATOR</div>
+</div>
+
+<div id="layout">
+  <!-- LEFT: controls -->
+  <div class="panelbox">
+    <div class="ph">IMPACTOR PARAMETERS</div>
+    <div class="pb">
+
+      <div class="field">
+        <label>DIAMETER <span class="val" id="diam-val">150 m</span></label>
+        <input type="range" id="diam" min="1" max="4" step="0.001" value="2.176">
+        <div class="preset-row">
+          <div class="chip" data-diam="20">20m<br></div>
+          <div class="chip" data-diam="150">150m</div>
+          <div class="chip" data-diam="1000">1km</div>
+          <div class="chip" data-diam="10000">10km</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>VELOCITY <span class="val" id="vel-val">19 km/s</span></label>
+        <input type="range" id="vel" min="11" max="72" step="1" value="19">
+      </div>
+
+      <div class="field">
+        <label>IMPACT ANGLE <span class="val" id="angle-val">45°</span></label>
+        <input type="range" id="angle" min="10" max="90" step="1" value="45">
+      </div>
+
+      <div class="field">
+        <label>COMPOSITION</label>
+        <select id="comp">
+          <option value="3000">STONY (ordinary chondrite)</option>
+          <option value="7800">IRON-NICKEL</option>
+          <option value="1000">COMET (ice/dust)</option>
+          <option value="1500">CARBONACEOUS</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>IMPACT SITE <span class="val" id="site-val">—</span></label>
+        <select id="citysel">
+          <option value="">— click map or choose a city —</option>
+        </select>
+      </div>
+
+      <button id="detonate">SIMULATE IMPACT</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: map + results -->
+  <div>
+    <div class="panelbox">
+      <div class="ph">TARGET GRID</div>
+      <div class="pb" style="padding:0;">
+        <div id="mapwrap">
+          <canvas id="mapcanvas"></canvas>
+          <div id="maphint">CLICK MAP TO SET IMPACT COORDINATES</div>
+          <div id="coordreadout">LAT 0.00 · LON 0.00</div>
+          <div id="impact-hud">IMPACT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panelbox" id="results">
+      <div class="ph">IMPACT ANALYSIS</div>
+      <div class="pb" id="results-body">
+        <div class="placeholder">SET AN IMPACTOR AND TARGET, THEN RUN SIMULATION</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+// ---------------- CITY DATA (lat, lon) ----------------
+const CITIES = [
+  {name:"New York", lat:40.71, lon:-74.01},
+  {name:"Los Angeles", lat:34.05, lon:-118.24},
+  {name:"Chicago", lat:41.88, lon:-87.63},
+  {name:"Mexico City", lat:19.43, lon:-99.13},
+  {name:"São Paulo", lat:-23.55, lon:-46.63},
+  {name:"Buenos Aires", lat:-34.60, lon:-58.38},
+  {name:"London", lat:51.51, lon:-0.13},
+  {name:"Paris", lat:48.85, lon:2.35},
+  {name:"Berlin", lat:52.52, lon:13.40},
+  {name:"Moscow", lat:55.75, lon:37.62},
+  {name:"Cairo", lat:30.04, lon:31.24},
+  {name:"Lagos", lat:6.52, lon:3.38},
+  {name:"Nairobi", lat:-1.29, lon:36.82},
+  {name:"Johannesburg", lat:-26.20, lon:28.05},
+  {name:"Istanbul", lat:41.01, lon:28.98},
+  {name:"Dubai", lat:25.20, lon:55.27},
+  {name:"Mumbai", lat:19.08, lon:72.88},
+  {name:"New Delhi", lat:28.61, lon:77.21},
+  {name:"Ayodhya", lat:26.80, lon:82.20},
+  {name:"Karachi", lat:24.86, lon:67.01},
+  {name:"Dhaka", lat:23.81, lon:90.41},
+  {name:"Bangkok", lat:13.76, lon:100.50},
+  {name:"Singapore", lat:1.35, lon:103.82},
+  {name:"Jakarta", lat:-6.21, lon:106.85},
+  {name:"Beijing", lat:39.90, lon:116.41},
+  {name:"Shanghai", lat:31.23, lon:121.47},
+  {name:"Tokyo", lat:35.68, lon:139.65},
+  {name:"Seoul", lat:37.57, lon:126.98},
+  {name:"Sydney", lat:-33.87, lon:151.21},
+  {name:"Auckland", lat:-36.85, lon:174.76},
+  {name:"Honolulu", lat:21.31, lon:-157.86},
+  {name:"Reykjavik", lat:64.15, lon:-21.94},
+  {name:"Mid-Atlantic Ocean", lat:20.0, lon:-40.0},
+  {name:"Mid-Pacific Ocean", lat:10.0, lon:-160.0},
+  {name:"Central Sahara", lat:23.0, lon:13.0},
+  {name:"Siberia (remote)", lat:62.0, lon:100.0},
+];
+
+// ---------------- CANVAS / MAP SETUP ----------------
+const canvas = document.getElementById('mapcanvas');
+const ctx = canvas.getContext('2d');
+const mapwrap = document.getElementById('mapwrap');
+let W=0,H=0;
+
+function resizeCanvas(){
+  W = mapwrap.clientWidth;
+  H = Math.max(380, W*0.52);
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W+'px';
+  canvas.style.height = H+'px';
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  drawMap();
+}
+window.addEventListener('resize', resizeCanvas);
+
+function lonToX(lon){ return ((lon+180)/360)*W; }
+function latToY(lat){ return ((90-lat)/180)*H; }
+function xToLon(x){ return (x/W)*360-180; }
+function yToLat(y){ return 90-(y/H)*180; }
+
+let impactSite = null; // {lat, lon, name}
+let simResult = null;
+let shockAnimT = 0;
+let animating = false;
+let landPolygons = null; // array of rings of [lon,lat] once loaded
+
+// load real coastline data (topojson world atlas) so the grid isn't just empty space
+(function loadCoastlines(){
+  Promise.all([
+    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json').then(r=>r.json()),
+    new Promise((resolve,reject)=>{
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    })
+  ]).then(([topo])=>{
+    const geo = topojson.feature(topo, topo.objects.land);
+    const polys = [];
+    geo.features.forEach(f=>{
+      const g = f.geometry;
+      if(g.type==='Polygon') polys.push(g.coordinates);
+      else if(g.type==='MultiPolygon') g.coordinates.forEach(c=>polys.push(c));
+    });
+    landPolygons = polys;
+    drawMap();
+  }).catch(()=>{ /* offline fallback: keep grid-only view */ });
+})();
+
+function drawMap(){
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle = '#03040a';
+  ctx.fillRect(0,0,W,H);
+
+  // grid lines
+  ctx.strokeStyle = 'rgba(255,43,43,0.10)';
+  ctx.lineWidth = 1;
+  for(let lon=-180; lon<=180; lon+=30){
+    const x = lonToX(lon);
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+  }
+  for(let lat=-90; lat<=90; lat+=30){
+    const y = latToY(lat);
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  }
+  // equator + prime meridian emphasis
+  ctx.strokeStyle = 'rgba(255,43,43,0.25)';
+  ctx.beginPath(); ctx.moveTo(0,latToY(0)); ctx.lineTo(W,latToY(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(lonToX(0),0); ctx.lineTo(lonToX(0),H); ctx.stroke();
+
+  // coastlines
+  if(landPolygons){
+    ctx.fillStyle = 'rgba(255,43,43,0.055)';
+    ctx.strokeStyle = 'rgba(216,221,227,0.5)';
+    ctx.lineWidth = 1;
+    landPolygons.forEach(rings=>{
+      ctx.beginPath();
+      rings.forEach(ring=>{
+        ring.forEach(([lon,lat], i)=>{
+          const x = lonToX(lon), y = latToY(lat);
+          if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        });
+        ctx.closePath();
+      });
+      ctx.fill();
+      ctx.stroke();
+    });
+  }
+
+  // city dots
+  CITIES.forEach(c=>{
+    const x=lonToX(c.lon), y=latToY(c.lat);
+    ctx.fillStyle = 'rgba(216,221,227,0.55)';
+    ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill();
+  });
+
+  // impact zones (if simulated)
+  if(simResult && impactSite){
+    const ix = lonToX(impactSite.lon), iy = latToY(impactSite.lat);
+    const kmPerPxLon = (111.32*Math.cos(impactSite.lat*Math.PI/180)) / (W/360);
+    const kmPerPxLat = 111.32 / (H/180);
+    const kmPerPx = (kmPerPxLon+kmPerPxLat)/2;
+
+    // cascading shockwave: smaller zones (fireball) reach full size first,
+    // the wave visibly propagates outward to the larger damage rings
+    const totalZones = simResult.zones.length;
+    const staggerSpan = 0.45;
+    function zoneT(i){
+      if(!animating) return 1;
+      const startFrac = totalZones>1 ? (i/(totalZones-1))*staggerSpan : 0;
+      let lt = (shockAnimT - startFrac) / (1-startFrac);
+      lt = Math.max(0, Math.min(1, lt));
+      return 1 - Math.pow(1-lt, 3); // ease-out cubic
+    }
+
+    const zonesSorted = simResult.zones
+      .map((z,i)=>({...z, i}))
+      .sort((a,b)=>b.radiusKm-a.radiusKm);
+
+    zonesSorted.forEach(z=>{
+      const t = zoneT(z.i);
+      if(t<=0) return;
+      let rpx = (z.radiusKm / kmPerPx) * t;
+      if(rpx<0.5) return;
+      const edgeGlow = animating ? (1-t) : 0; // bright leading edge while still expanding
+      ctx.beginPath();
+      ctx.arc(ix,iy,rpx,0,Math.PI*2);
+      ctx.fillStyle = z.color + '22';
+      ctx.fill();
+      ctx.strokeStyle = z.color + 'aa';
+      ctx.lineWidth = 1.2 + edgeGlow*3.5;
+      ctx.shadowColor = z.color;
+      ctx.shadowBlur = edgeGlow*20;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    });
+
+    // flash-bang at the moment of detonation
+    if(animating && shockAnimT < 0.3){
+      const flashA = (1 - shockAnimT/0.3) * 0.6;
+      ctx.fillStyle = `rgba(255,255,255,${flashA})`;
+      ctx.fillRect(0,0,W,H);
+    }
+
+    // impact marker
+    ctx.strokeStyle = '#ff2b2b';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(ix-9,iy); ctx.lineTo(ix+9,iy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ix,iy-9); ctx.lineTo(ix,iy+9); ctx.stroke();
+    ctx.beginPath(); ctx.arc(ix,iy,5,0,Math.PI*2); ctx.strokeStyle='#ff2b2b'; ctx.stroke();
+  } else if(impactSite){
+    const ix = lonToX(impactSite.lon), iy = latToY(impactSite.lat);
+    ctx.strokeStyle = '#ffb020';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(ix-8,iy); ctx.lineTo(ix+8,iy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ix,iy-8); ctx.lineTo(ix,iy+8); ctx.stroke();
+  }
+}
+
+function animateShock(){
+  animating = true;
+  shockAnimT = 0;
+
+  const btn = document.getElementById('detonate');
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'SIMULATING...';
+
+  // border/glow pulse on the map panel
+  const panel = mapwrap.closest('.panelbox');
+  if(panel){
+    panel.classList.remove('impact-pulse');
+    void panel.offsetWidth; // restart animation
+    panel.classList.add('impact-pulse');
+  }
+
+  // brief "IMPACT" HUD flash
+  const hud = document.getElementById('impact-hud');
+  hud.classList.add('show');
+  setTimeout(()=>hud.classList.remove('show'), 550);
+
+  // decaying screen shake on the map viewport
+  const shakeDuration = 650;
+  const shakeStart = performance.now();
+  (function shakeStep(){
+    const elapsed = performance.now() - shakeStart;
+    if(elapsed < shakeDuration){
+      const amp = 10 * (1 - elapsed/shakeDuration);
+      const dx = (Math.random()-0.5)*amp, dy = (Math.random()-0.5)*amp;
+      mapwrap.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
+      requestAnimationFrame(shakeStep);
+    } else {
+      mapwrap.style.transform = '';
+    }
+  })();
+
+  function step(){
+    shockAnimT += 0.025;
+    if(shockAnimT>=1){
+      shockAnimT=1; drawMap(); animating=false;
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      return;
+    }
+    drawMap();
+    requestAnimationFrame(step);
+  }
+  step();
+}
+
+// map click -> set site
+canvas.addEventListener('click', e=>{
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX-rect.left, y = e.clientY-rect.top;
+  const lat = yToLat(y), lon = xToLon(x);
+  setSite(lat, lon, null);
+});
+
+document.getElementById('coordreadout').textContent = 'LAT 0.00 · LON 0.00';
+canvas.addEventListener('mousemove', e=>{
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX-rect.left, y = e.clientY-rect.top;
+  const lat = yToLat(y), lon = xToLon(x);
+  document.getElementById('coordreadout').textContent = `LAT ${lat.toFixed(2)} · LON ${lon.toFixed(2)}`;
+});
+
+function setSite(lat, lon, name, fromDropdown){
+  impactSite = {lat, lon, name: name || nearestCityLabel(lat,lon)};
+  document.getElementById('site-val').textContent = impactSite.name;
+  // keep the dropdown in sync: if this site didn't come from selecting an
+  // option (e.g. a map click), clear the dropdown so it doesn't show a stale city
+  if(!fromDropdown) citysel.value = '';
+  simResult = null;
+  document.getElementById('results-body').innerHTML = '<div class="placeholder">SET AN IMPACTOR AND TARGET, THEN RUN SIMULATION</div>';
+  drawMap();
+}
+
+function nearestCityLabel(lat,lon){
+  let best=null, bestD=Infinity;
+  CITIES.forEach(c=>{
+    const d = haversine(lat,lon,c.lat,c.lon);
+    if(d<bestD){bestD=d;best=c;}
+  });
+  if(bestD < 300) return `Near ${best.name}`;
+  return `${lat.toFixed(1)}°, ${lon.toFixed(1)}°`;
+}
+
+// populate city dropdown
+const citysel = document.getElementById('citysel');
+CITIES.forEach(c=>{
+  const opt = document.createElement('option');
+  opt.value = `${c.lat},${c.lon},${c.name}`;
+  opt.textContent = c.name;
+  citysel.appendChild(opt);
+});
+citysel.addEventListener('change', e=>{
+  if(!e.target.value) return;
+  const [lat,lon,name] = e.target.value.split(',');
+  setSite(parseFloat(lat), parseFloat(lon), name, true);
+});
+
+// ---------------- HAVERSINE ----------------
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371;
+  const dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ---------------- SLIDER WIRING ----------------
+// diameter uses log scale: slider 1-4 maps to 10^1..10^4 meters (10m to 10,000m)
+const diamSlider = document.getElementById('diam');
+const diamVal = document.getElementById('diam-val');
+function diamFromSlider(v){ return Math.round(Math.pow(10, v)); }
+function updateDiamLabel(){
+  const m = diamFromSlider(parseFloat(diamSlider.value));
+  diamVal.textContent = m>=1000 ? (m/1000).toFixed(m>=10000?0:1)+' km' : m+' m';
+}
+diamSlider.addEventListener('input', updateDiamLabel);
+updateDiamLabel();
+
+document.querySelectorAll('.chip[data-diam]').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    const m = parseFloat(chip.dataset.diam);
+    diamSlider.value = Math.log10(m);
+    updateDiamLabel();
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+
+const velSlider = document.getElementById('vel');
+const velVal = document.getElementById('vel-val');
+velSlider.addEventListener('input', ()=> velVal.textContent = velSlider.value + ' km/s');
+
+const angleSlider = document.getElementById('angle');
+const angleVal = document.getElementById('angle-val');
+angleSlider.addEventListener('input', ()=> angleVal.textContent = angleSlider.value + '°');
+
+// ---------------- PHYSICS ----------------
+function computeImpact(){
+  const diamM = diamFromSlider(parseFloat(diamSlider.value));
+  const velKmS = parseFloat(velSlider.value);
+  const angleDeg = parseFloat(angleSlider.value);
+  const density = parseFloat(document.getElementById('comp').value); // kg/m3
+
+  const radiusM = diamM/2;
+  const volume = (4/3)*Math.PI*Math.pow(radiusM,3);
+  const mass = volume*density; // kg
+  const velMS = velKmS*1000;
+  const energyJ = 0.5*mass*velMS*velMS;
+  const megatonsTNT = energyJ / 4.184e15;
+
+  // crater scaling (simplified Collins/Melosh gravity-scaling approximation)
+  const targetDensity = 2500; // avg crustal rock kg/m3
+  const g = 9.81;
+  const thetaRad = angleDeg*Math.PI/180;
+  const transientKm = 1.161 * Math.pow(density/targetDensity, 1/3) * Math.pow(diamM,0.78) * Math.pow(velMS,0.44) * Math.pow(g,-0.22) * Math.pow(Math.sin(thetaRad),1/3) / 1000;
+  const finalCraterKm = transientKm * 1.25;
+  const craterDepthKm = finalCraterKm * 0.15;
+
+  // seismic magnitude equivalent (Gutenberg-Richter energy relation)
+  const magnitude = (Math.log10(energyJ) - 4.8) / 1.5;
+
+  // blast zones — cube-root scaling from ~1MT reference radii (approximate, for education)
+  const scale = Math.cbrt(Math.max(megatonsTNT, 0.0000001));
+  const zones = [
+    {label:'FIREBALL / VAPORIZATION', radiusKm: 0.66*scale, color:'#ffffff'},
+    {label:'TOTAL DESTRUCTION (20 psi)', radiusKm: 2.0*scale, color:'#ff2b2b'},
+    {label:'SEVERE DAMAGE (5 psi)', radiusKm: 4.6*scale, color:'#ffb020'},
+    {label:'3RD-DEGREE BURNS', radiusKm: 6.5*scale, color:'#ff7a2b'},
+    {label:'WINDOWS SHATTER (1 psi)', radiusKm: 11.5*scale, color:'#ffe066'},
+    {label:'FELT / AUDIBLE', radiusKm: 30*scale, color:'#5a6270'},
+  ];
+
+  return {
+    diamM, velKmS, angleDeg, density, mass, energyJ, megatonsTNT,
+    finalCraterKm, craterDepthKm, magnitude, zones
+  };
+}
+
+// ---------------- RENDER RESULTS ----------------
+function fmtNum(n, digits=1){
+  if(n>=1e9) return (n/1e9).toFixed(digits)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(digits)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(digits)+'K';
+  if(n<1) return n.toFixed(3);
+  return n.toFixed(digits);
+}
+
+function comparisonText(r){
+  const hiroshimas = r.energyJ / 6.3e13; // ~15 kilotons
+  let sizeCompare;
+  if(r.diamM < 50) sizeCompare = "about the size of a house";
+  else if(r.diamM < 200) sizeCompare = "about the size of a football stadium";
+  else if(r.diamM < 1000) sizeCompare = "comparable to the asteroid that formed Meteor Crater, Arizona";
+  else if(r.diamM < 5000) sizeCompare = "in the range of the Chicxulub-class extinction impactor's smaller cousins";
+  else sizeCompare = "in the size class of the Chicxulub impactor that ended the age of dinosaurs";
+
+  return `An object this size (<b>${r.diamM>=1000?(r.diamM/1000).toFixed(1)+' km':r.diamM+' m'}</b>) is ${sizeCompare}. `+
+    `The impact releases energy equivalent to roughly <b>${fmtNum(hiroshimas,0)}</b> Hiroshima-sized bombs.`;
+}
+
+function renderResults(r){
+  const body = document.getElementById('results-body');
+  const zoneColors = {
+    'FIREBALL / VAPORIZATION':'#ffffff',
+  };
+  let zonesHtml = r.zones.map(z=>`
+    <div class="zone-row">
+      <div class="zone-dot" style="background:${z.color};box-shadow:0 0 6px ${z.color}"></div>
+      <div class="zone-label">${z.label}</div>
+      <div class="zone-radius">${z.radiusKm<1 ? (z.radiusKm*1000).toFixed(0)+' m' : fmtNum(z.radiusKm,1)+' km'} radius</div>
+    </div>
+  `).join('');
+
+  // affected cities
+  let citiesHtml = '';
+  if(impactSite){
+    const affected = CITIES
+      .map(c=>({...c, dist: haversine(impactSite.lat, impactSite.lon, c.lat, c.lon)}))
+      .filter(c=>c.dist <= Math.max(...r.zones.map(z=>z.radiusKm)) && c.dist>0.5)
+      .sort((a,b)=>a.dist-b.dist)
+      .slice(0,10);
+    if(affected.length){
+      citiesHtml = `<div class="ph" style="margin-top:14px;border:1px solid var(--red-dim);border-bottom:none;">CITIES WITHIN AFFECTED RADIUS</div><div id="cities-affected">` +
+        affected.map(c=>{
+          const tier = r.zones.find(z=>c.dist<=z.radiusKm) || r.zones[r.zones.length-1];
+          return `<div class="row"><span class="name">${c.name}</span><span class="tier" style="color:${tier.color}">${fmtNum(c.dist,0)} km — ${tier.label}</span></div>`;
+        }).join('') + `</div>`;
+    } else {
+      citiesHtml = `<div style="margin-top:14px;font-size:10.5px;color:var(--dim);">No major tracked cities fall within the affected radius.</div>`;
+    }
+  }
+
+  body.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat"><div class="k">IMPACT ENERGY</div><div class="v">${fmtNum(r.megatonsTNT,2)}</div><div class="u">megatons TNT equivalent</div></div>
+      <div class="stat"><div class="k">MASS</div><div class="v">${fmtNum(r.mass,2)}</div><div class="u">kilograms</div></div>
+      <div class="stat"><div class="k">FINAL CRATER</div><div class="v">${fmtNum(r.finalCraterKm,2)}</div><div class="u">km diameter</div></div>
+      <div class="stat"><div class="k">CRATER DEPTH</div><div class="v">${fmtNum(r.craterDepthKm,2)}</div><div class="u">km</div></div>
+      <div class="stat"><div class="k">SEISMIC EQUIV.</div><div class="v">M${r.magnitude>0?r.magnitude.toFixed(1):'—'}</div><div class="u">Richter-scale magnitude</div></div>
+      <div class="stat"><div class="k">IMPACT SITE</div><div class="v" style="font-size:12px;">${impactSite ? impactSite.name : '—'}</div><div class="u">${impactSite ? impactSite.lat.toFixed(1)+'°, '+impactSite.lon.toFixed(1)+'°' : ''}</div></div>
+    </div>
+
+    <div class="ph" style="margin-top:14px;border:1px solid var(--red-dim);border-bottom:none;">DAMAGE ZONES</div>
+    <div id="zones">${zonesHtml}</div>
+
+    ${citiesHtml}
+
+    <div id="compare">${comparisonText(r)}</div>
+
+    <div id="disclaimer">EDUCATIONAL ESTIMATE ONLY. Uses simplified gravity-scaling crater equations and cube-root blast scaling laws. Real outcomes vary with target geology, atmospheric entry / airburst altitude, and impact geometry.</div>
+  `;
+}
+
+// ---------------- DETONATE ----------------
+document.getElementById('detonate').addEventListener('click', ()=>{
+  if(!impactSite){
+    setSite(20.0, -40.0, 'Mid-Atlantic Ocean');
+  }
+  simResult = computeImpact();
+  renderResults(simResult);
+  animateShock();
+});
+
+// init
+resizeCanvas();
+
+})();
+</script>
+
+<script src="/libraries/view-counter.js"></script>
+
+</body>
+</html>
