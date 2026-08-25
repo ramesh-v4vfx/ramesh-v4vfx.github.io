@@ -21,7 +21,7 @@
   :root{
     --bg:#08090b; --panel:#0d0f12; --line:#22262b; --line-strong:#3a4046;
     --red:#ff2b2b; --red-dim:#8a1a1a; --green:#39d98a;
-    --text:#d9dde0; --text-dim:#71787e; --text-faint:#454b50;
+    --text:#d9dde0; --text-dim:#2bb0b5; --text-faint:#ff4747;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);}
@@ -57,6 +57,8 @@
   input[type=range]::-moz-range-thumb{width:12px; height:12px; background:var(--red); border-radius:0; cursor:pointer; border:1px solid #ffb3b3;}
   input[type=text], input[type=number]{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px;}
   input[type=text]:focus, input[type=number]:focus{outline:none; border-color:var(--red-dim);}
+  input[type=number]{-moz-appearance:textfield; cursor:ew-resize; touch-action:none;}
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
   select{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px;}
   select:focus{outline:none; border-color:var(--red-dim);}
   #starTypeSelect{width:180px; max-width:100%;}
@@ -92,8 +94,10 @@
   .stage{position:relative; border:1px solid var(--line); background:#000; height:620px; margin-bottom:14px; overflow:hidden;}
   .stage canvas{display:block;}
   .stage .tag{position:absolute; top:8px; left:10px; font-size:9px; letter-spacing:0.1em; color:var(--text-faint); z-index:4;}
+  .stage .not-to-scale{position:absolute; top:24px; left:10px; font-size:8px; letter-spacing:0.08em; color:var(--text-faint); opacity:0.7; z-index:4;}
   .stage .hzlabel{position:absolute; bottom:8px; left:10px; font-size:9px; color:var(--green); z-index:4;}
   .stage .drag-hint{position:absolute; bottom:8px; right:10px; font-size:8.5px; color:var(--text-faint); z-index:4;}
+  .stage .watermark{position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:8.5px; letter-spacing:0.1em; color:var(--text-faint); opacity:0.55; z-index:4; pointer-events:none;}
   .fs-btn{position:absolute; top:8px; right:10px; z-index:6; font-family:inherit; font-size:9px; letter-spacing:0.08em; color:var(--text-dim);
     background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; cursor:pointer;}
   .fs-btn:hover{border-color:var(--red-dim); color:var(--text);}
@@ -128,6 +132,17 @@
   table.planets .rm{cursor:pointer; color:var(--text-faint); border:1px solid var(--line); padding:3px 6px; background:none; font-family:inherit; font-size:10px;}
   table.planets .rm:hover{color:var(--red); border-color:var(--red-dim);}
   .empty{font-size:10px; color:var(--text-faint); padding:14px 4px;}
+
+  .brand-link{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:13px; letter-spacing:0.14em; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;}
+  .brand-link:hover{color:var(--red);}
+  .brand-link .arrow{color:var(--red);}
+  .leave-confirm{display:none; align-items:center; gap:10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim); margin-top:6px;}
+  .leave-confirm.show{display:flex;}
+  .leave-confirm button{font-family:inherit; font-size:9px; letter-spacing:0.08em; padding:4px 10px; cursor:pointer; background:transparent;}
+  .leave-confirm .yes-btn{color:var(--red); border:1px solid var(--red-dim);}
+  .leave-confirm .yes-btn:hover{background:rgba(255,43,43,0.1);}
+  .leave-confirm .no-btn{color:var(--text-dim); border:1px solid var(--line);}
+  .leave-confirm .no-btn:hover{color:var(--text); border-color:var(--line-strong);}
 </style>
 </head>
 <body>
@@ -137,7 +152,14 @@
   <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
 
   <div class="topbar">
-    <div class="brand">MK<span>·</span>FORGE</div>
+    <div>
+      <button class="brand-link" id="brandLink"><span class="arrow">←</span> RAMESHVERSE</button>
+      <div class="leave-confirm" id="leaveConfirm">
+        <span>Leave this tool and return to rameshverse.com?</span>
+        <button class="yes-btn" id="leaveYes">YES</button>
+        <button class="no-btn" id="leaveNo">NO</button>
+      </div>
+    </div>
     <div class="sub">STAR SYSTEM CREATOR // MULTI-STAR // HABITABLE-ZONE MODEL</div>
   </div>
   <div class="hr"></div>
@@ -169,15 +191,15 @@
       </div>
       <div class="field" style="margin-bottom:0;">
         <div class="k"><span>MASS (M☉)</span></div>
-        <input type="number" id="starMassInput" step="0.01" min="0.05">
+        <input type="number" id="starMassInput" step="0.01" min="0.05" max="100">
       </div>
       <div class="field" style="margin-bottom:0;">
         <div class="k"><span>RADIUS (R☉)</span></div>
-        <input type="number" id="starRadiusInput" step="0.01" min="0.05">
+        <input type="number" id="starRadiusInput" step="0.01" min="0.05" max="1500">
       </div>
       <div class="field" style="margin-bottom:0;">
         <div class="k"><span>TEMPERATURE (K)</span></div>
-        <input type="number" id="starTempInput" step="10" min="1000">
+        <input type="number" id="starTempInput" step="10" min="1000" max="2000000">
       </div>
       <div class="field" style="margin-bottom:0;">
         <div class="k"><span>LUMINOSITY</span></div>
@@ -202,8 +224,10 @@
     <div>
       <div class="stage" id="stage">
         <span class="tag" id="stageTag">SYSTEM VIEW</span>
+        <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
         <span class="hzlabel">■ HABITABLE ZONE</span>
         <span class="drag-hint" id="dragHint">drag to rotate · scroll to zoom</span>
+        <span class="watermark">rameshverse.com</span>
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
@@ -227,7 +251,7 @@
           </div>
           <div class="field pf-sm">
             <div class="k"><span>AXIS (AU)</span></div>
-            <input type="number" id="distNumber" step="0.001" min="0.015">
+            <input type="number" id="distNumber" step="0.001" min="0.015" max="10000">
           </div>
           <div class="field pf-sm">
             <div class="k"><span>ECC</span></div>
@@ -235,11 +259,11 @@
           </div>
           <div class="field pf-sm">
             <div class="k"><span>RADIUS (R⊕)</span></div>
-            <input type="number" id="radiusInput" step="0.05" min="0.05" value="1">
+            <input type="number" id="radiusInput" step="0.05" min="0.05" max="200" value="1">
           </div>
           <div class="field pf-sm">
             <div class="k"><span>MASS (M⊕)</span></div>
-            <input type="number" id="massInput" step="0.1" min="0.01" value="1">
+            <input type="number" id="massInput" step="0.1" min="0.01" max="5000" value="1">
           </div>
           <div class="field pf-sm">
             <div class="k"><span>PERIOD</span></div>
@@ -978,7 +1002,6 @@
       var og = new THREE.BufferGeometry().setFromPoints(pts);
       var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x394048, transparent:true, opacity:0.55}));
       group.add(line);
-      three.orbitLinesForCleanup = three.orbitLinesForCleanup || [];
 
       var size = planetVisualSize(p);
       var geo = new THREE.SphereGeometry(size, 20, 20);
@@ -1085,6 +1108,21 @@
 
   systemNameInput.addEventListener('input', function(){
     stageTag.textContent = systemNameInput.value.trim() || 'SYSTEM VIEW';
+  });
+
+  // ---- return to rameshverse ----
+  var brandLink = document.getElementById('brandLink');
+  var leaveConfirm = document.getElementById('leaveConfirm');
+  var leaveYes = document.getElementById('leaveYes');
+  var leaveNo = document.getElementById('leaveNo');
+  brandLink.addEventListener('click', function(){
+    leaveConfirm.classList.add('show');
+  });
+  leaveYes.addEventListener('click', function(){
+    window.location.href = 'https://rameshverse.com/';
+  });
+  leaveNo.addEventListener('click', function(){
+    leaveConfirm.classList.remove('show');
   });
 
   // ---- save / restore / reset ----
@@ -1197,6 +1235,50 @@
     speedMultiplier = parseFloat(speedSlider.value)/100;
     speedOut.textContent = speedMultiplier.toFixed(1) + '×';
   });
+
+  // ---- click-and-drag scrubbing for number fields (instead of native spin/scroll) ----
+  function enableDragScrub(input){
+    var dragging = false, moved = false, startX = 0, startVal = 0;
+    var min = input.hasAttribute('min') ? parseFloat(input.min) : null;
+    var max = input.hasAttribute('max') ? parseFloat(input.max) : null;
+    var step = parseFloat(input.step) || 1;
+    var decimals = (String(step).split('.')[1] || '').length;
+    var range = (min!==null && max!==null && isFinite(max-min)) ? (max-min) : null;
+
+    input.addEventListener('pointerdown', function(e){
+      dragging = true; moved = false;
+      startX = e.clientX;
+      startVal = parseFloat(input.value) || 0;
+      try{ input.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    input.addEventListener('pointermove', function(e){
+      if (!dragging) return;
+      var dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) < 3) return;
+      moved = true;
+      e.preventDefault();
+      var unitsPerPixel = range!==null ? (range/300) : (step*4);
+      var newVal = startVal + dx*unitsPerPixel;
+      if (min!==null) newVal = Math.max(min, newVal);
+      if (max!==null) newVal = Math.min(max, newVal);
+      newVal = Math.round(newVal/step)*step;
+      input.value = decimals ? newVal.toFixed(decimals) : String(newVal);
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+    });
+    function endDrag(e){
+      if (!dragging) return;
+      dragging = false;
+      if (moved){
+        input.dispatchEvent(new Event('change', {bubbles:true}));
+        input.blur();
+      }
+      moved = false;
+    }
+    input.addEventListener('pointerup', endDrag);
+    input.addEventListener('pointercancel', endDrag);
+    input.addEventListener('wheel', function(){ if (document.activeElement===input) input.blur(); }, {passive:true});
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[type=number]'), enableDragScrub);
 
   renderStarTypeSelect();
   renderTypeButtons();
