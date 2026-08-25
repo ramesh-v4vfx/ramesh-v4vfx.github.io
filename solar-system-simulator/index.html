@@ -34,8 +34,8 @@
     height:100%;
     width:100%;
   }
-  #canvas-wrap{position:fixed;inset:0;}
-  canvas{display:block;}
+  #canvas-wrap{position:fixed;inset:0;touch-action:none;}
+  canvas{display:block;touch-action:none;}
 
   /* scanlines */
   #scanlines{
@@ -83,9 +83,13 @@
   }
 
   /* bottom control bar */
-  #controls{
+  #controls-wrap{
     position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
     z-index:60;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    max-width:92vw;
+  }
+  #controls{
     display:flex;gap:10px;align-items:center;
     background:rgba(10,12,16,0.75);
     border:1px solid var(--red-dim);
@@ -93,7 +97,9 @@
     backdrop-filter:blur(6px);
     flex-wrap:wrap;
     justify-content:center;
-    max-width:92vw;
+  }
+  #panel-toggle{
+    font-size:9px;padding:4px 12px;
   }
   .btn{
     background:transparent;
@@ -112,6 +118,8 @@
   .btn.dwarf{border-style:dashed;color:var(--dim);opacity:.85;}
   .btn.dwarf:hover{color:var(--red);}
   .btn.dwarf.active{color:var(--red);}
+  #btn-reset{border-color:var(--red);color:var(--red);}
+  #btn-reset:hover{box-shadow:0 0 10px var(--red-dim);}
   #div-label{
     width:100%;text-align:center;font-size:9px;letter-spacing:2px;color:var(--dim);
     margin-top:2px;padding-top:6px;border-top:1px dashed #ffffff22;
@@ -169,6 +177,16 @@
     font-size:10px;color:var(--dim);letter-spacing:1px;z-index:56;
     text-align:center;
   }
+  #scale-note{
+    position:fixed;top:60px;left:40px;
+    font-size:9px;color:var(--dim);letter-spacing:1px;z-index:56;
+    opacity:.7;pointer-events:none;
+  }
+  #watermark{
+    position:fixed;bottom:8px;left:50%;transform:translateX(-50%);
+    font-size:9px;color:var(--dim);letter-spacing:2px;z-index:56;
+    opacity:.5;pointer-events:none;
+  }
   #loading{
     position:fixed;inset:0;z-index:100;background:var(--bg);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -189,6 +207,7 @@
     #logo{font-size:10px;letter-spacing:1px;}
     #clock{display:none;}
     #hint{display:none;}
+    #scale-note{top:52px;left:18px;}
   }
 </style>
 </head>
@@ -224,15 +243,20 @@
 <div id="reticle"><span class="tick top"></span><span class="tick bot"></span><span class="tick l"></span><span class="tick r"></span></div>
 
 <div id="hint">DRAG TO ROTATE · RIGHT-DRAG / 2-FINGER TO PAN · SCROLL TO ZOOM · CLICK A BODY TO LOCK TARGET</div>
+<div id="scale-note">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</div>
+<div id="watermark">rameshverse.com</div>
 
-<div id="controls">
-  <button class="btn" id="btn-sun">SUN</button>
-  <div id="planet-buttons" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;"></div>
-  <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="200" value="40"></div>
-  <button class="btn" id="btn-pause">PAUSE</button>
-  <button class="btn" id="btn-orbits">ORBITS: ON</button>
-  <button class="btn" id="btn-scale">SCALE: TRUE-ISH</button>
-  <button class="btn" id="btn-reset">RESET</button>
+<div id="controls-wrap">
+  <div id="controls">
+    <button class="btn" id="btn-sun">SUN</button>
+    <div id="planet-buttons" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;"></div>
+    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="200" value="40"></div>
+    <button class="btn" id="btn-pause">PAUSE</button>
+    <button class="btn" id="btn-orbits">ORBITS: ON</button>
+    <button class="btn active" id="btn-scale">SCALE: VISIBLE</button>
+    <button class="btn" id="btn-reset">RESET</button>
+  </div>
+  <button class="btn" id="panel-toggle">▾ HIDE PANEL</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -240,22 +264,24 @@
 (function(){
 
 // ---------- DATA (astronomically referenced, visually scaled for legibility) ----------
-// distance: AU (scaled), radius: km (log-compressed for display), period: Earth days
+// distance: AU (semi-major axis), radius: km, period: Earth days, ecc: orbital eccentricity, massKg: real mass
 const PLANETS = [
-  {name:"MERCURY", color:0x9c9c9c, distAU:0.39, radiusKm:2440, periodDays:88,   dayLenH:1408,  moons:0, desc:"Smallest planet. No atmosphere to speak of. Surface temps swing over 600°C between day and night."},
-  {name:"VENUS",   color:0xe8c27a, distAU:0.72, radiusKm:6052, periodDays:225,  dayLenH:5832,  moons:0, desc:"Hottest planet in the solar system due to a runaway greenhouse atmosphere of CO2. Rotates backwards."},
-  {name:"EARTH",   color:0x2b6fff, distAU:1.00, radiusKm:6371, periodDays:365,  dayLenH:24,    moons:1, desc:"Only known planet with liquid water oceans covering most of its surface and confirmed life."},
-  {name:"MARS",    color:0xc1440e, distAU:1.52, radiusKm:3390, periodDays:687,  dayLenH:24.6,  moons:2, desc:"The Red Planet. Home to Olympus Mons, the largest volcano in the solar system, and vast dust storms."},
-  {name:"JUPITER", color:0xd9b38c, distAU:5.20, radiusKm:69911,periodDays:4333, dayLenH:9.9,   moons:95, desc:"Largest planet. A gas giant with the Great Red Spot, a storm larger than Earth raging for centuries."},
-  {name:"SATURN",  color:0xead6a6, distAU:9.58, radiusKm:58232,periodDays:10759,dayLenH:10.7,  moons:146,desc:"Famous for its extensive ring system made of ice and rock. Less dense than water.", ring:true},
-  {name:"URANUS",  color:0x9fd8d8, distAU:19.2, radiusKm:25362,periodDays:30687,dayLenH:17.2,  moons:28, desc:"Ice giant that rotates on its side, likely due to an ancient massive impact. Faint ring system.", ring:true, ringThin:true},
-  {name:"NEPTUNE", color:0x3b5fd9, distAU:30.05,radiusKm:24622,periodDays:60190,dayLenH:16.1,  moons:16, desc:"Windiest planet, with supersonic storms. Farthest known planet from the Sun."},
-  {name:"CERES",   color:0x9a8f80, distAU:2.77, radiusKm:473,  periodDays:1682,  dayLenH:9.1,   moons:0, desc:"Largest object in the asteroid belt and the only dwarf planet in the inner solar system. Likely holds a subsurface ocean.", dwarf:true},
-  {name:"PLUTO",   color:0xc9b8a0, distAU:39.5, radiusKm:1188, periodDays:90560, dayLenH:153.3, moons:5, desc:"Best-known dwarf planet, reclassified from planet status in 2006. Shares a mutual orbit with its large moon Charon.", dwarf:true},
-  {name:"ERIS",    color:0xd8d4cc, distAU:68,   radiusKm:1163, periodDays:203830,dayLenH:25.9,  moons:1, desc:"A frozen, distant dwarf planet whose 2005 discovery triggered the debate that redefined what counts as a planet.", dwarf:true},
+  {name:"MERCURY", color:0x9c9c9c, distAU:0.39, radiusKm:2440, periodDays:88,   dayLenH:1408,  moons:0, ecc:0.2056, massKg:3.301e23, desc:"Smallest planet. No atmosphere to speak of. Surface temps swing over 600°C between day and night."},
+  {name:"VENUS",   color:0xe8c27a, distAU:0.72, radiusKm:6052, periodDays:225,  dayLenH:5832,  moons:0, ecc:0.0068, massKg:4.867e24, desc:"Hottest planet in the solar system due to a runaway greenhouse atmosphere of CO2. Rotates backwards."},
+  {name:"EARTH",   color:0x2b6fff, distAU:1.00, radiusKm:6371, periodDays:365,  dayLenH:24,    moons:1, ecc:0.0167, massKg:5.972e24, desc:"Only known planet with liquid water oceans covering most of its surface and confirmed life."},
+  {name:"MARS",    color:0xc1440e, distAU:1.52, radiusKm:3390, periodDays:687,  dayLenH:24.6,  moons:2, ecc:0.0934, massKg:6.417e23, desc:"The Red Planet. Home to Olympus Mons, the largest volcano in the solar system, and vast dust storms."},
+  {name:"JUPITER", color:0xd9b38c, distAU:5.20, radiusKm:69911,periodDays:4333, dayLenH:9.9,   moons:95, ecc:0.0489, massKg:1.898e27, desc:"Largest planet. A gas giant with the Great Red Spot, a storm larger than Earth raging for centuries."},
+  {name:"SATURN",  color:0xead6a6, distAU:9.58, radiusKm:58232,periodDays:10759,dayLenH:10.7,  moons:146,ecc:0.0565, massKg:5.683e26, desc:"Famous for its extensive ring system made of ice and rock. Less dense than water.", ring:true},
+  {name:"URANUS",  color:0x9fd8d8, distAU:19.2, radiusKm:25362,periodDays:30687,dayLenH:17.2,  moons:28, ecc:0.0457, massKg:8.681e25, desc:"Ice giant that rotates on its side, likely due to an ancient massive impact. Faint ring system.", ring:true, ringThin:true},
+  {name:"NEPTUNE", color:0x3b5fd9, distAU:30.05,radiusKm:24622,periodDays:60190,dayLenH:16.1,  moons:16, ecc:0.0113, massKg:1.024e26, desc:"Windiest planet, with supersonic storms. Farthest known planet from the Sun."},
+  {name:"CERES",   color:0x9a8f80, distAU:2.77, radiusKm:473,  periodDays:1682,  dayLenH:9.1,   moons:0, ecc:0.0758, massKg:9.38e20, dwarf:true, desc:"Largest object in the asteroid belt and the only IAU-recognized dwarf planet in the inner solar system. Likely holds a subsurface ocean."},
+  {name:"PLUTO",   color:0xc9b8a0, distAU:39.5, radiusKm:1188, periodDays:90560, dayLenH:153.3, moons:5, ecc:0.2488, massKg:1.303e22, dwarf:true, desc:"Best-known dwarf planet, reclassified from planet status in 2006. Shares a mutual orbit with its large moon Charon."},
+  {name:"HAUMEA",  color:0xdfe6ea, distAU:43.13,radiusKm:780,  periodDays:103410,dayLenH:3.915, moons:2, ecc:0.191,  massKg:4.006e21, dwarf:true, desc:"An extremely elongated, fast-spinning dwarf planet — a full day is under 4 hours, the fastest rotation of any known large solar system body. Wears a thin ring."},
+  {name:"MAKEMAKE",color:0xc9a37a, distAU:45.79,radiusKm:715,  periodDays:111845,dayLenH:22.48, moons:1, ecc:0.161,  massKg:3.1e21,  dwarf:true, desc:"A bright, reddish dwarf planet in the Kuiper Belt, discovered in 2005 shortly before Eris. Its single known moon is nicknamed MK 2."},
+  {name:"ERIS",    color:0xd8d4cc, distAU:68,   radiusKm:1163, periodDays:203830,dayLenH:25.9,  moons:1, ecc:0.4407, massKg:1.66e22, dwarf:true, desc:"A frozen, distant dwarf planet whose 2005 discovery triggered the debate that redefined what counts as a planet."},
 ];
 
-const SUN = {name:"SUN", radiusKm:696340, desc:"G-type main-sequence star. Contains 99.8% of the solar system's mass. Core temperature ~15 million °C."};
+const SUN = {name:"SUN", radiusKm:696340, massKg:1.989e30, desc:"G-type main-sequence star. Contains 99.8% of the solar system's mass. Core temperature ~15 million °C."};
 
 // ---------- SCALING ----------
 // Distance: spread out logarithmically-ish so inner planets aren't crushed against the sun
@@ -268,6 +294,32 @@ function distScale(au){
 }
 function radiusScaleTrue(km){ return Math.max(Math.pow(km, 0.42) * 0.09, 0.55); } // scene units, sun handled separately; floor keeps small dwarfs clickable
 function radiusScaleVisible(km){ return Math.max(Math.pow(km, 0.27) * 0.16, 1.15); } // flatter curve + higher floor so small/dwarf bodies are easy to see & click
+
+// ---------- KEPLER ORBITAL MECHANICS ----------
+// Static ellipse shape for orbit rings, parametrized directly by true anomaly:
+// r(nu) = a(1-e^2) / (1 + e*cos(nu))
+function ellipseRadiusAt(a, e, nu){
+  return a*(1-e*e) / (1 + e*Math.cos(nu));
+}
+// True motion: mean anomaly (advances linearly with time) -> eccentric anomaly (Newton's method)
+// -> true anomaly + radius. This makes bodies genuinely sweep faster near perihelion (Kepler's 2nd law)
+// instead of moving at a uniform angular rate.
+function solveKepler(meanAnomaly, e){
+  let E = meanAnomaly;
+  for(let i=0;i<6;i++){
+    E = E - (E - e*Math.sin(E) - meanAnomaly)/(1 - e*Math.cos(E));
+  }
+  const rOverA = 1 - e*Math.cos(E);
+  const trueAnom = 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2), Math.sqrt(1-e)*Math.cos(E/2));
+  return {rOverA, trueAnom};
+}
+function fmtMass(kg){
+  const exp = Math.floor(Math.log10(kg));
+  const mant = (kg/Math.pow(10,exp)).toFixed(2);
+  const supMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  const supExp = String(exp).split('').map(c=>supMap[c]||c).join('');
+  return mant + ' × 10' + supExp + ' kg';
+}
 
 // ---------- THREE SETUP ----------
 const wrap = document.getElementById('canvas-wrap');
@@ -338,12 +390,14 @@ PLANETS.forEach((p, i)=>{
   const dist = distScale(p.distAU);
   const rad = radiusScaleTrue(p.radiusKm);
 
-  // orbit ring
+  // orbit ring (true ellipse shape, using real eccentricity)
   const segments = 128;
   const ringPts = [];
+  const e = p.ecc || 0;
   for(let s=0;s<=segments;s++){
-    const a = (s/segments)*Math.PI*2;
-    ringPts.push(new THREE.Vector3(Math.cos(a)*dist, 0, Math.sin(a)*dist));
+    const nu = (s/segments)*Math.PI*2;
+    const r = ellipseRadiusAt(dist, e, nu);
+    ringPts.push(new THREE.Vector3(Math.cos(nu)*r, 0, Math.sin(nu)*r));
   }
   const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
   let ringLine;
@@ -381,8 +435,8 @@ PLANETS.forEach((p, i)=>{
   // label sprite (small dot handled via reticle in screen space instead)
   planetMeshes.push({
     mesh, ringMesh, data:p, dist,
-    angle: Math.random()*Math.PI*2,
-    speed: (1/Math.sqrt(p.distAU)) * 0.15, // Kepler-ish: closer = faster
+    angle: Math.random()*Math.PI*2, // mean anomaly, advances linearly with real time
+    meanMotion: (Math.PI*2) / p.periodDays, // radians per simulated day — tied directly to real orbital period
     rotSpeed: 0.01 + Math.random()*0.02
   });
 });
@@ -510,6 +564,7 @@ function selectSun(){
   panelBody.innerHTML = `
     <div class="row"><span class="k">TYPE</span><span class="v">G-TYPE STAR</span></div>
     <div class="row"><span class="k">RADIUS</span><span class="v">${fmt(SUN.radiusKm)} km</span></div>
+    <div class="row"><span class="k">MASS</span><span class="v">${fmtMass(SUN.massKg)}</span></div>
     <div class="row"><span class="k">MASS SHARE</span><span class="v">99.8%</span></div>
     <div id="panel-desc">${SUN.desc}</div>
   `;
@@ -524,7 +579,9 @@ function selectPlanet(i){
   panelBody.innerHTML = `
     <div class="row"><span class="k">TYPE</span><span class="v">${p.dwarf ? 'DWARF PLANET' : 'PLANET'}</span></div>
     <div class="row"><span class="k">DIST FROM SUN</span><span class="v">${p.distAU} AU</span></div>
+    <div class="row"><span class="k">ECCENTRICITY</span><span class="v">${p.ecc.toFixed(4)}</span></div>
     <div class="row"><span class="k">RADIUS</span><span class="v">${fmt(p.radiusKm)} km</span></div>
+    <div class="row"><span class="k">MASS</span><span class="v">${fmtMass(p.massKg)}</span></div>
     <div class="row"><span class="k">ORBITAL PERIOD</span><span class="v">${fmt(p.periodDays)} days</span></div>
     <div class="row"><span class="k">DAY LENGTH</span><span class="v">${fmt(Math.round(p.dayLenH))} hrs</span></div>
     <div class="row"><span class="k">MOONS</span><span class="v">${p.moons}</span></div>
@@ -600,16 +657,16 @@ document.getElementById('btn-reset').addEventListener('click', function(){
   orbitLines.forEach(l=>l.visible=true);
   document.getElementById('btn-orbits').textContent = 'ORBITS: ON';
 
-  // scale back to true-ish
-  if(scaleMode !== 'true'){
-    scaleMode = 'true';
-    applyRadiusScale(radiusScaleTrue);
-    document.getElementById('btn-scale').textContent = 'SCALE: TRUE-ISH';
-    document.getElementById('btn-scale').classList.remove('active');
+  // scale back to visible (the default)
+  if(scaleMode !== 'visible'){
+    scaleMode = 'visible';
+    applyRadiusScale(radiusScaleVisible);
+    document.getElementById('btn-scale').textContent = 'SCALE: VISIBLE';
+    document.getElementById('btn-scale').classList.add('active');
   }
 });
 
-let scaleMode = 'true'; // 'true' | 'visible'
+let scaleMode = 'visible'; // 'true' | 'visible'
 function applyRadiusScale(fn){
   planetMeshes.forEach(pm=>{
     const newRad = fn(pm.data.radiusKm);
@@ -623,12 +680,26 @@ function applyRadiusScale(fn){
     }
   });
 }
+applyRadiusScale(radiusScaleVisible); // apply the default visible scale on load
+
 document.getElementById('btn-scale').addEventListener('click', function(){
   scaleMode = scaleMode === 'true' ? 'visible' : 'true';
   applyRadiusScale(scaleMode === 'true' ? radiusScaleTrue : radiusScaleVisible);
   this.textContent = 'SCALE: ' + (scaleMode === 'true' ? 'TRUE-ISH' : 'VISIBLE');
   this.classList.toggle('active', scaleMode === 'visible');
 });
+
+// ---------- PANEL HIDE/SHOW ----------
+(function(){
+  const panelToggle = document.getElementById('panel-toggle');
+  const controlsPanel = document.getElementById('controls');
+  let hidden = false;
+  panelToggle.addEventListener('click', function(){
+    hidden = !hidden;
+    controlsPanel.style.display = hidden ? 'none' : 'flex';
+    panelToggle.textContent = hidden ? '▴ SHOW PANEL' : '▾ HIDE PANEL';
+  });
+})();
 
 // ---------- ANIMATE ----------
 const clock = new THREE.Clock();
@@ -639,10 +710,15 @@ function animate(){
   const dt = Math.min(clock.getDelta(), 0.05);
 
   if(!paused){
+    // simSpeed = simulated Earth-days advanced per real second, so relative
+    // planet speeds match Kepler's third law exactly (using real periodDays)
+    const simDaysThisFrame = dt * simSpeed;
     planetMeshes.forEach(pm=>{
-      pm.angle += dt * pm.speed * (simSpeed/40);
-      const x = Math.cos(pm.angle)*pm.dist;
-      const z = Math.sin(pm.angle)*pm.dist;
+      pm.angle += simDaysThisFrame * pm.meanMotion;
+      const {rOverA, trueAnom} = solveKepler(pm.angle % (Math.PI*2), pm.data.ecc||0);
+      const r = pm.dist * rOverA;
+      const x = Math.cos(trueAnom)*r;
+      const z = Math.sin(trueAnom)*r;
       pm.mesh.position.set(x,0,z);
       pm.mesh.rotation.y += dt*pm.rotSpeed*10;
       if(pm.ringMesh) pm.ringMesh.position.set(x,0,z);
