@@ -89,14 +89,14 @@ body::after {
   pointer-events: none;
   background: linear-gradient(180deg, transparent 0%, rgba(79,232,255,0.05) 45%, rgba(79,232,255,0.09) 50%, rgba(79,232,255,0.05) 55%, transparent 100%);
   background-size: 100% 260px;
-  animation: sweep 7s linear infinite;
+  animation: sweep 3s linear infinite;
   mix-blend-mode: screen;
   z-index: 1;
 }
 
 @keyframes sweep {
-  0%   { background-position: 0 -260px; }
-  100% { background-position: 0 100vh; }
+  0%   { background-position: 0 260px; }
+  100% { background-position: 0 0; }
 }
 
 input, select, textarea {
