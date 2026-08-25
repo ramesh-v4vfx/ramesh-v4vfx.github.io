@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rameshverse — star system creator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg:#08090b; --panel:#0d0f12; --line:#22262b; --line-strong:#3a4046;
+    --red:#ff2b2b; --red-dim:#8a1a1a; --green:#39d98a;
+    --text:#d9dde0; --text-dim:#71787e; --text-faint:#454b50;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{font-family:'Space Mono', ui-monospace, monospace; color:var(--text); padding:10px; -webkit-font-smoothing:antialiased;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  .frame{position:relative; border:1px solid var(--line);
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px), var(--panel);
+    padding:22px; max-width:none; width:100%; margin:0 auto;}
+  .corner{position:absolute; width:14px; height:14px;}
+  .corner.tl{top:-1px;left:-1px;border-top:2px solid var(--red);border-left:2px solid var(--red);}
+  .corner.tr{top:-1px;right:-1px;border-top:2px solid var(--red);border-right:2px solid var(--red);}
+  .corner.bl{bottom:-1px;left:-1px;border-bottom:2px solid var(--red);border-left:2px solid var(--red);}
+  .corner.br{bottom:-1px;right:-1px;border-bottom:2px solid var(--red);border-right:2px solid var(--red);}
+
+  .topbar{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;}
+  .brand{font-size:13px; letter-spacing:0.14em; font-weight:700;}
+  .brand span{color:var(--red);}
+  .sub{font-size:10px; letter-spacing:0.08em; color:var(--text-dim);}
+  .hr{height:1px; background:var(--line); margin:10px 0 14px;}
+  .sysname-row{display:flex; align-items:end; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
+
+  .grid{display:grid; grid-template-columns:1.55fr 1fr; gap:20px;}
+  @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
+
+  .panel-title{font-size:10px; letter-spacing:0.12em; color:var(--text-dim); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;}
+
+  .field{margin-bottom:8px;}
+  .field .k{font-size:9px; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:6px; display:flex; justify-content:space-between;}
+  .field .k b{color:var(--text);}
+  input[type=range]{-webkit-appearance:none; width:100%; height:2px; background:var(--line-strong); outline:none; margin:0;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:12px; height:12px; background:var(--red); border-radius:0; cursor:pointer; border:1px solid #ffb3b3;}
+  input[type=range]::-moz-range-thumb{width:12px; height:12px; background:var(--red); border-radius:0; cursor:pointer; border:1px solid #ffb3b3;}
+  input[type=text], input[type=number]{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px;}
+  input[type=text]:focus, input[type=number]:focus{outline:none; border-color:var(--red-dim);}
+  select{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px;}
+  select:focus{outline:none; border-color:var(--red-dim);}
+  #starTypeSelect{width:180px; max-width:100%;}
+
+  .planet-form-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;}
+  .planet-form-row .field{margin-bottom:0; flex:0 1 82px; min-width:58px;}
+  .planet-form-row .pf-name{flex:0 1 125px; min-width:95px;}
+  .planet-form-row .pf-star{flex:0 1 105px; min-width:85px;}
+  .planet-form-row .pf-sm{flex:0 1 74px; min-width:54px;}
+
+  .slider-with-num{display:grid; grid-template-columns:1fr 70px; gap:8px; align-items:center;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .star-fields{display:none;}
+  .lum-readout{font-size:13px; font-weight:700; color:var(--red); padding:7px 0;}
+  .mini-link{font-size:8.5px; color:var(--red-dim); text-decoration:none; letter-spacing:0.04em;}
+  .mini-link:hover{color:var(--red); text-decoration:underline;}
+  .star-editor-row{display:flex; flex-wrap:wrap; gap:14px; align-items:end; margin-bottom:10px;}
+  .star-editor-row .field{flex:0 1 130px; min-width:100px;}
+  .star-editor-row .sf-name{flex:0 1 170px; min-width:120px;}
+  .star-editor-row .sf-type{flex:0 1 180px; min-width:160px;}
+
+  .star-chip-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+  .star-chip{font-family:inherit; font-size:9.5px; letter-spacing:0.04em; color:var(--text-dim);
+    background:transparent; border:1px solid var(--line); padding:6px 10px 6px 10px; cursor:pointer; display:flex; align-items:center; gap:6px;}
+  .star-chip:hover{border-color:var(--red-dim); color:var(--text);}
+  .star-chip.active{border-color:var(--red); color:var(--red);}
+  .star-chip .rmstar{color:var(--text-faint); font-size:10px; padding:0 2px;}
+  .star-chip .rmstar:hover{color:var(--red);}
+  .add-star-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px dashed var(--line-strong); padding:6px 10px; cursor:pointer;}
+  .add-star-btn:hover{color:var(--text); border-color:var(--red-dim);}
+  .sys-status{font-size:9px; color:var(--text-faint); letter-spacing:0.04em;}
+
+  .stage{position:relative; border:1px solid var(--line); background:#000; height:620px; margin-bottom:14px; overflow:hidden;}
+  .stage canvas{display:block;}
+  .stage .tag{position:absolute; top:8px; left:10px; font-size:9px; letter-spacing:0.1em; color:var(--text-faint); z-index:4;}
+  .stage .hzlabel{position:absolute; bottom:8px; left:10px; font-size:9px; color:var(--green); z-index:4;}
+  .stage .drag-hint{position:absolute; bottom:8px; right:10px; font-size:8.5px; color:var(--text-faint); z-index:4;}
+  .fs-btn{position:absolute; top:8px; right:10px; z-index:6; font-family:inherit; font-size:9px; letter-spacing:0.08em; color:var(--text-dim);
+    background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; cursor:pointer;}
+  .fs-btn:hover{border-color:var(--red-dim); color:var(--text);}
+  .speed-ctrl{position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:8px;
+    background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);}
+  .speed-ctrl input[type=range]{width:90px;}
+  .speed-ctrl b{color:var(--red); min-width:32px;}
+  .stage.expanded{position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:9999; margin:0; border:none;}
+  #stage3d{position:absolute; inset:0; cursor:grab;}
+  #stage3d.dragging{cursor:grabbing;}
+  #stage3d canvas{width:100% !important; height:100% !important; display:block;}
+
+  .add-row{border:1px solid var(--line); padding:10px; margin-bottom:10px;}
+
+  .type-row{display:flex; gap:6px; flex-wrap:wrap;}
+  .type-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px solid var(--line); padding:6px 9px; cursor:pointer;}
+  .type-btn:hover{border-color:var(--red-dim); color:var(--text);}
+  .type-btn.active{border-color:var(--red); color:var(--red);}
+
+  .add-btn{width:100%; margin-top:4px; font-family:inherit; font-size:10px; letter-spacing:0.08em; color:var(--red);
+    background:transparent; border:1px solid var(--red-dim); padding:9px; cursor:pointer;}
+  .add-btn:hover{background:rgba(255,43,43,0.08);}
+  .rand-btn{margin-top:8px; color:var(--text-dim); border-color:var(--line);}
+  .rand-btn:hover{color:var(--text); border-color:var(--line-strong); background:rgba(255,255,255,0.03);}
+
+  table.planets{width:100%; border-collapse:collapse; font-size:9.5px;}
+  table.planets th{text-align:left; font-weight:400; color:var(--text-faint); letter-spacing:0.06em; font-size:8px; padding:6px 5px; border-bottom:1px solid var(--line);}
+  table.planets td{padding:7px 5px; border-bottom:1px solid var(--line); color:var(--text-dim); vertical-align:middle;}
+  table.planets tr:last-child td{border-bottom:none;}
+  table.planets td.name{color:var(--text);}
+  table.planets td.hz-yes{color:var(--green);}
+  table.planets .rm{cursor:pointer; color:var(--text-faint); border:1px solid var(--line); padding:3px 6px; background:none; font-family:inherit; font-size:10px;}
+  table.planets .rm:hover{color:var(--red); border-color:var(--red-dim);}
+  .empty{font-size:10px; color:var(--text-faint); padding:14px 4px;}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Star system creator: build a system with one or more stars, each with editable mass, radius, and temperature, and planets with editable semi-major axis, eccentricity, radius, mass, and type, all rendered in a rotatable 3D scene with real Kepler orbits and habitable-zone shading.</h2>
+
+<div class="frame">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <div class="topbar">
+    <div class="brand">MK<span>·</span>FORGE</div>
+    <div class="sub">STAR SYSTEM CREATOR // MULTI-STAR // HABITABLE-ZONE MODEL</div>
+  </div>
+  <div class="hr"></div>
+
+  <div class="sysname-row">
+    <div class="field" style="margin-bottom:0; max-width:420px; flex:1;">
+      <div class="k"><span>SYSTEM NAME</span></div>
+      <input type="text" id="systemName" placeholder="Unnamed System" maxlength="30">
+    </div>
+    <button class="add-star-btn" id="saveSystemBtn">💾 SAVE SYSTEM</button>
+    <button class="add-star-btn" id="restoreSystemBtn">📂 RESTORE SYSTEM</button>
+    <button class="add-star-btn" id="resetSystemBtn">↺ RESET SYSTEM</button>
+    <span class="sys-status" id="sysStatus"></span>
+    <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
+  </div>
+
+  <div class="panel-title" style="margin-top:8px;"><span>STARS</span><span id="starCount">1 star</span></div>
+  <div class="star-chip-row" id="starChipRow"></div>
+
+  <div class="add-row" id="starEditor">
+    <div class="star-editor-row">
+      <div class="field sf-name" style="margin-bottom:0;">
+        <div class="k"><span>STAR NAME</span></div>
+        <input type="text" id="starNameInput" placeholder="Primary" maxlength="18">
+      </div>
+      <div class="field sf-type" style="margin-bottom:0;">
+        <div class="k"><span>STAR TYPE</span></div>
+        <select id="starTypeSelect"></select>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <div class="k"><span>MASS (M☉)</span></div>
+        <input type="number" id="starMassInput" step="0.01" min="0.05">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <div class="k"><span>RADIUS (R☉)</span></div>
+        <input type="number" id="starRadiusInput" step="0.01" min="0.05">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <div class="k"><span>TEMPERATURE (K)</span></div>
+        <input type="number" id="starTempInput" step="10" min="1000">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <div class="k"><span>LUMINOSITY</span></div>
+        <div class="lum-readout" id="starLumOut" style="font-size:13px;">1.000 L☉</div>
+      </div>
+      <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
+        <div class="k"><span>DIST. FROM PRIMARY (AU)</span></div>
+        <input type="number" id="starOrbitNumber" step="0.001" min="0.015" max="10000">
+      </div>
+      <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
+        <div class="k"><span>ECCENTRICITY</span></div>
+        <input type="number" id="starEccNumber" step="0.001" min="0" max="0.9">
+      </div>
+      <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
+        <div class="k"><span>PERIOD AROUND PRIMARY</span></div>
+        <div class="lum-readout" id="starPeriodOut" style="font-size:11px;">1.00 yr</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="stage" id="stage">
+        <span class="tag" id="stageTag">SYSTEM VIEW</span>
+        <span class="hzlabel">■ HABITABLE ZONE</span>
+        <span class="drag-hint" id="dragHint">drag to rotate · scroll to zoom</span>
+        <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
+        <div class="speed-ctrl">
+          <span>SPEED</span>
+          <input type="range" id="speedSlider" min="0" max="500" value="100" step="5">
+          <b id="speedOut">1.0×</b>
+        </div>
+        <div id="stage3d"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="add-row">
+        <div class="planet-form-row">
+          <div class="field pf-name">
+            <div class="k"><span>PLANET NAME</span></div>
+            <input type="text" id="pName" placeholder="Unnamed-01" maxlength="18">
+          </div>
+          <div class="field pf-star" id="orbitsStarField" style="display:none;">
+            <div class="k"><span>ORBITS STAR</span></div>
+            <select id="orbitsStarSelect"></select>
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>AXIS (AU)</span></div>
+            <input type="number" id="distNumber" step="0.001" min="0.015">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>ECC</span></div>
+            <input type="number" id="eccNumber" step="0.001" min="0" max="0.9">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>RADIUS (R⊕)</span></div>
+            <input type="number" id="radiusInput" step="0.05" min="0.05" value="1">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>MASS (M⊕)</span></div>
+            <input type="number" id="massInput" step="0.1" min="0.01" value="1">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>PERIOD</span></div>
+            <div class="lum-readout" id="periodOut" style="font-size:11px;">1.00 yr</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="k"><span>PLANET TYPE</span></div>
+          <div class="type-row" id="typeRow"></div>
+        </div>
+        <button class="add-btn" id="addBtn">+ ADD PLANET TO SYSTEM</button>
+        <button class="add-btn rand-btn" id="cancelEditBtn" style="display:none;">✕ CANCEL EDIT</button>
+      </div>
+
+      <div class="panel-title"><span>SYSTEM MANIFEST</span><span id="planetCount">0 bodies</span></div>
+      <table class="planets" id="planetTable">
+        <tr><th>NAME</th><th id="starColHeader" style="display:none;">STAR</th><th>AU</th><th>PERIOD</th><th>ECC</th><th>R⊕</th><th>TYPE</th><th>T(K)</th><th>HZ</th><th></th></tr>
+      </table>
+      <div class="empty" id="emptyMsg">No planets yet — set a distance and type, then add one.</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var starTypePresets = [
+    {cls:'O', label:'O — blue giant', T:35000, M:25, R:8, group:'Main Sequence'},
+    {cls:'B', label:'B — blue-white', T:15000, M:8, R:4, group:'Main Sequence'},
+    {cls:'A', label:'A — white', T:8500, M:1.8, R:1.6, group:'Main Sequence'},
+    {cls:'F', label:'F — yellow-white', T:6500, M:1.25, R:1.15, group:'Main Sequence'},
+    {cls:'G', label:'G — sun-like', T:5778, M:1, R:1, group:'Main Sequence'},
+    {cls:'K', label:'K — orange dwarf', T:4500, M:0.7, R:0.85, group:'Main Sequence'},
+    {cls:'M', label:'M — red dwarf', T:3200, M:0.3, R:0.35, group:'Main Sequence'},
+    {cls:'WD', label:'White Dwarf — stellar remnant', T:15000, M:0.6, R:0.011, group:'Remnants & Exotics'},
+    {cls:'sdB', label:'Blue Subdwarf — stripped helium star', T:28000, M:0.47, R:0.2, group:'Remnants & Exotics'},
+    {cls:'PSR', label:'Pulsar — rotating neutron star', T:1000000, M:1.4, R:0.000014, group:'Remnants & Exotics'},
+    {cls:'BD*', label:'Blue Dwarf — theoretical, far-future red dwarf', T:9000, M:0.2, R:0.12, group:'Theoretical'}
+  ];
+
+  var planetTypes = [
+    {id:'rocky', label:'ROCKY', albedo:0.3, radiusRE:1, massME:1, hex:0x8a7a63, ringChance:0},
+    {id:'ice', label:'ICE GIANT', albedo:0.6, radiusRE:4, massME:14, hex:0x9fd6e8, ringChance:0.35},
+    {id:'gas', label:'GAS GIANT', albedo:0.5, radiusRE:11, massME:300, hex:0xe8c98a, ringChance:0.6},
+    {id:'dwarf', label:'DWARF', albedo:0.15, radiusRE:0.3, massME:0.05, hex:0x8a8a8a, ringChance:0}
+  ];
+
+  var NAME_PREFIXES = ['KX','HD','TR','VG','QN','LX','ZR','MK','PX','RN'];
+  function randomPlanetName(){
+    var p = NAME_PREFIXES[Math.floor(Math.random()*NAME_PREFIXES.length)];
+    return p + '-' + (100 + Math.floor(Math.random()*800));
+  }
+  function generateRing(type){ return Math.random() < type.ringChance; }
+
+  // ---- DOM refs ----
+  var systemNameInput = document.getElementById('systemName');
+  var stageTag = document.getElementById('stageTag');
+  var starChipRow = document.getElementById('starChipRow');
+  var starCountOut = document.getElementById('starCount');
+  var starNameInput = document.getElementById('starNameInput');
+  var starTypeSelect = document.getElementById('starTypeSelect');
+  var starMassInput = document.getElementById('starMassInput');
+  var starRadiusInput = document.getElementById('starRadiusInput');
+  var starTempInput = document.getElementById('starTempInput');
+  var starLumOut = document.getElementById('starLumOut');
+  var starOrbitFields = document.querySelectorAll('.star-orbit-field');
+  var starOrbitNumber = document.getElementById('starOrbitNumber');
+  var starEccNumber = document.getElementById('starEccNumber');
+
+  var typeRow = document.getElementById('typeRow');
+  var pNameInput = document.getElementById('pName');
+  var orbitsStarField = document.getElementById('orbitsStarField');
+  var orbitsStarSelect = document.getElementById('orbitsStarSelect');
+  var distNumber = document.getElementById('distNumber');
+  var eccNumber = document.getElementById('eccNumber');
+  var radiusInput = document.getElementById('radiusInput');
+  var massInput = document.getElementById('massInput');
+  var addBtn = document.getElementById('addBtn');
+  var cancelEditBtn = document.getElementById('cancelEditBtn');
+  var planetTable = document.getElementById('planetTable');
+  var starColHeader = document.getElementById('starColHeader');
+  var planetCount = document.getElementById('planetCount');
+  var emptyMsg = document.getElementById('emptyMsg');
+  var stage = document.getElementById('stage');
+  var stage3d = document.getElementById('stage3d');
+  var fsBtn = document.getElementById('fsBtn');
+
+  // ---- state ----
+  var AU_LO = Math.log10(0.015), AU_HI = Math.log10(60);
+
+  var stars = [ { name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 } ];
+  var editingStarIndex = 0;
+
+  var currentType = planetTypes[0];
+  var planets = [];
+  var nextNum = 1;
+  var editingIndex = null;
+  var t = 0;
+  var speedMultiplier = 1;
+
+  function starLuminosity(s){ return s.R*s.R*Math.pow(s.T/5778, 4); }
+  function hzBounds(L){ return { inner: Math.sqrt(L/1.1), outer: Math.sqrt(L/0.53) }; }
+  function eqTemp(L, dAU, albedo){ return 278.5 * Math.pow(L,0.25) * Math.pow(1-albedo,0.25) / Math.sqrt(dAU); }
+  var EARTH_MASSES_PER_SOLAR = 333000;
+  function planetMassSolar(p){ return p.massME / EARTH_MASSES_PER_SOLAR; }
+  function orbitalPeriodYears(aAU, totalMassSolar){ return Math.sqrt(Math.pow(aAU,3) / Math.max(totalMassSolar,0.0001)); }
+  function formatPeriod(years){
+    if (years < 1) return (years*365.25).toFixed(1) + ' d';
+    if (years < 1000) return years.toFixed(2) + ' yr';
+    return years.toFixed(0) + ' yr';
+  }
+
+  function tempToRGB(T){
+    var tt = T/100, r,g,b;
+    if (tt <= 66){ r = 255; g = 99.47*Math.log(tt)-161.12; }
+    else { r = 329.7*Math.pow(tt-60,-0.1332); g = 288.12*Math.pow(tt-60,-0.0755); }
+    if (tt >= 66) b = 255; else if (tt <= 19) b = 0; else b = 138.52*Math.log(tt-10)-305.04;
+    function c(x){ return Math.max(0,Math.min(255,x)); }
+    return [c(r),c(g),c(b)];
+  }
+
+  function auToUnits(au){
+    var v = (Math.log10(Math.max(au,0.015))-AU_LO)/(AU_HI-AU_LO);
+    return 0.7 + v*(6.2-0.7);
+  }
+
+  // real Kepler motion: mean anomaly -> eccentric anomaly (Newton) -> true anomaly + radius
+  // angular rate is tied to the true orbital period (a^3/totalMass), so mass genuinely affects motion
+  var ORBIT_SPEED = 0.26;
+  function keplerPos(obj, aUnits, periodYears){
+    var e = obj.ecc || 0;
+    var M = obj.angle + t*(ORBIT_SPEED/Math.max(periodYears,0.0001));
+    M = M % (Math.PI*2);
+    var E = M;
+    for (var i=0;i<6;i++){
+      E = E - (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E));
+    }
+    var r = aUnits*(1 - e*Math.cos(E));
+    var trueAnom = 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2), Math.sqrt(1-e)*Math.cos(E/2));
+    return { x:r*Math.cos(trueAnom), z:r*Math.sin(trueAnom) };
+  }
+
+  function planetVisualSize(p){
+    return 0.035 + Math.sqrt(Math.max(p.radiusRE,0.05))*0.045;
+  }
+
+  // ---- star editor ----
+  function syncStarEditorFromState(){
+    var s = stars[editingStarIndex];
+    starNameInput.value = s.name;
+    starMassInput.value = s.M;
+    starRadiusInput.value = s.R;
+    starTempInput.value = s.T;
+    starTypeSelect.value = s.cls;
+    starLumOut.textContent = starLuminosity(s).toFixed(3) + ' L☉';
+    var showOrbit = editingStarIndex!==0;
+    starOrbitFields.forEach(function(el){ el.style.display = showOrbit ? 'block' : 'none'; });
+    if (editingStarIndex!==0){
+      starOrbitNumber.value = s.au.toFixed(3);
+      starEccNumber.value = (s.ecc||0).toFixed(3);
+      updateStarPeriodPreview();
+    }
+  }
+
+  function renderStarTypeSelect(){
+    starTypeSelect.innerHTML = '';
+    var groups = {};
+    var groupOrder = [];
+    starTypePresets.forEach(function(preset){
+      if (!groups[preset.group]){ groups[preset.group] = []; groupOrder.push(preset.group); }
+      groups[preset.group].push(preset);
+    });
+    groupOrder.forEach(function(gname){
+      var og = document.createElement('optgroup');
+      og.label = gname;
+      groups[gname].forEach(function(preset){
+        var opt = document.createElement('option');
+        opt.value = preset.cls;
+        opt.textContent = preset.label;
+        og.appendChild(opt);
+      });
+      starTypeSelect.appendChild(og);
+    });
+  }
+
+  starTypeSelect.addEventListener('change', function(){
+    var preset = null;
+    for (var i=0;i<starTypePresets.length;i++){ if (starTypePresets[i].cls===starTypeSelect.value) preset = starTypePresets[i]; }
+    var s = stars[editingStarIndex];
+    s.cls = starTypeSelect.value;
+    if (preset){ s.M = preset.M; s.R = preset.R; s.T = preset.T; }
+    syncStarEditorFromState();
+    renderStarChips(); renderTable(); rebuildIfReady();
+  });
+
+  function onStarFieldChange(){
+    var s = stars[editingStarIndex];
+    s.name = starNameInput.value.trim() || ('Star ' + (editingStarIndex+1));
+    s.M = Math.max(0.05, parseFloat(starMassInput.value)||1);
+    s.R = Math.max(0.05, parseFloat(starRadiusInput.value)||1);
+    s.T = Math.max(1000, parseFloat(starTempInput.value)||5778);
+    starLumOut.textContent = starLuminosity(s).toFixed(3) + ' L☉';
+    renderStarChips(); renderTable(); rebuildIfReady();
+    updatePeriodPreview();
+    if (editingStarIndex!==0) updateStarPeriodPreview();
+  }
+  starNameInput.addEventListener('change', onStarFieldChange);
+  starMassInput.addEventListener('change', onStarFieldChange);
+  starRadiusInput.addEventListener('change', onStarFieldChange);
+  starTempInput.addEventListener('change', onStarFieldChange);
+
+  var starPeriodOut = document.getElementById('starPeriodOut');
+  function updateStarPeriodPreview(){
+    if (editingStarIndex===0) return;
+    var s = stars[editingStarIndex];
+    var totalMass = stars[0].M + s.M;
+    starPeriodOut.textContent = formatPeriod(orbitalPeriodYears(s.au, totalMass));
+  }
+
+  starOrbitNumber.addEventListener('change', function(){
+    var s = stars[editingStarIndex];
+    s.au = Math.min(10000, Math.max(0.015, parseFloat(starOrbitNumber.value)||1));
+    starOrbitNumber.value = s.au.toFixed(3);
+    updateStarPeriodPreview();
+    rebuildIfReady();
+  });
+  starEccNumber.addEventListener('change', function(){
+    var s = stars[editingStarIndex];
+    s.ecc = Math.max(0, Math.min(0.9, parseFloat(starEccNumber.value)||0));
+    starEccNumber.value = s.ecc.toFixed(3);
+    rebuildIfReady();
+  });
+
+  function renderStarChips(){
+    starChipRow.innerHTML = '';
+    stars.forEach(function(s, idx){
+      var chip = document.createElement('button');
+      chip.className = 'star-chip' + (idx===editingStarIndex?' active':'');
+      chip.innerHTML = '<span>'+s.name+' ('+s.cls+')</span>';
+      if (idx>0){
+        var rm = document.createElement('span');
+        rm.className = 'rmstar';
+        rm.textContent = '✕';
+        rm.addEventListener('click', function(ev){
+          ev.stopPropagation();
+          removeStar(idx);
+        });
+        chip.appendChild(rm);
+      }
+      chip.addEventListener('click', function(){
+        editingStarIndex = idx;
+        syncStarEditorFromState();
+        renderStarChips();
+      });
+      starChipRow.appendChild(chip);
+    });
+    var addBtn2 = document.createElement('button');
+    addBtn2.className = 'add-star-btn';
+    addBtn2.textContent = '+ ADD STAR';
+    addBtn2.addEventListener('click', addStar);
+    starChipRow.appendChild(addBtn2);
+    starCountOut.textContent = stars.length + (stars.length===1?' star':' stars');
+    updateOrbitsStarUI();
+  }
+
+  function addStar(){
+    var idx = stars.length;
+    stars.push({ name:'Star '+(idx+1), cls:'K', M:0.7, R:0.85, T:4500, au:20, ecc:0.05, angle:Math.random()*Math.PI*2 });
+    editingStarIndex = idx;
+    syncStarEditorFromState();
+    renderStarChips();
+    rebuildIfReady();
+  }
+
+  function removeStar(idx){
+    if (idx===0) return;
+    stars.splice(idx,1);
+    planets.forEach(function(p){
+      if (p.starIndex===idx) p.starIndex = 0;
+      else if (p.starIndex>idx) p.starIndex -= 1;
+    });
+    if (editingStarIndex>=stars.length) editingStarIndex = 0;
+    if (editingStarIndex===idx) editingStarIndex = 0;
+    syncStarEditorFromState();
+    renderStarChips();
+    renderTable();
+    rebuildIfReady();
+  }
+
+  function updateOrbitsStarUI(){
+    var multi = stars.length>1;
+    orbitsStarField.style.display = multi ? 'block' : 'none';
+    starColHeader.style.display = multi ? '' : 'none';
+    if (multi){
+      var prev = orbitsStarSelect.value;
+      orbitsStarSelect.innerHTML = '';
+      stars.forEach(function(s, idx){
+        var opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = s.name;
+        orbitsStarSelect.appendChild(opt);
+      });
+      if (prev!=='' && +prev < stars.length) orbitsStarSelect.value = prev;
+    }
+  }
+
+  // ---- planet type buttons ----
+  function renderTypeButtons(){
+    planetTypes.forEach(function(pt){
+      var b = document.createElement('button');
+      b.className = 'type-btn' + (pt===currentType?' active':'');
+      b.textContent = pt.label;
+      b.addEventListener('click', function(){
+        currentType = pt;
+        Array.prototype.forEach.call(typeRow.children, function(c){ c.classList.remove('active'); });
+        b.classList.add('active');
+        radiusInput.value = pt.radiusRE;
+        massInput.value = pt.massME;
+        updatePeriodPreview();
+      });
+      typeRow.appendChild(b);
+    });
+  }
+
+  // ---- planet form sync ----
+  var periodOut = document.getElementById('periodOut');
+  function currentFormPlanetMassSolar(){
+    return (Math.max(0.001, parseFloat(massInput.value)||currentType.massME)) / EARTH_MASSES_PER_SOLAR;
+  }
+  function updatePeriodPreview(){
+    var au = Math.max(0.015, parseFloat(distNumber.value)||1);
+    var starIdx = stars.length>1 ? (+orbitsStarSelect.value||0) : 0;
+    var star = stars[starIdx] || stars[0];
+    periodOut.textContent = formatPeriod(orbitalPeriodYears(au, star.M + currentFormPlanetMassSolar()));
+  }
+  distNumber.addEventListener('change', function(){
+    var au = Math.max(0.015, parseFloat(distNumber.value)||1);
+    distNumber.value = au.toFixed(3);
+    updatePeriodPreview();
+  });
+  eccNumber.addEventListener('change', function(){
+    var e = Math.max(0, Math.min(0.9, parseFloat(eccNumber.value)||0));
+    eccNumber.value = e.toFixed(3);
+  });
+  massInput.addEventListener('change', updatePeriodPreview);
+  orbitsStarSelect.addEventListener('change', updatePeriodPreview);
+
+  function resetForm(){
+    pNameInput.value = '';
+    distNumber.value = '1.000';
+    eccNumber.value = '0.000';
+    currentType = planetTypes[0];
+    radiusInput.value = currentType.radiusRE;
+    massInput.value = currentType.massME;
+    Array.prototype.forEach.call(typeRow.children, function(c,i){ c.classList.toggle('active', planetTypes[i]===currentType); });
+    if (stars.length>1) orbitsStarSelect.value = 0;
+    updatePeriodPreview();
+  }
+
+  function exitEditMode(){
+    editingIndex = null;
+    addBtn.textContent = '+ ADD PLANET TO SYSTEM';
+    cancelEditBtn.style.display = 'none';
+    resetForm();
+  }
+  cancelEditBtn.addEventListener('click', exitEditMode);
+
+  function readFormAsPlanet(){
+    var au = Math.max(0.015, parseFloat(distNumber.value)||1);
+    var ecc = Math.max(0, Math.min(0.9, parseFloat(eccNumber.value)||0));
+    var name = pNameInput.value.trim() || ('Unnamed-0'+nextNum);
+    var radiusRE = Math.max(0.05, parseFloat(radiusInput.value)||currentType.radiusRE);
+    var massME = Math.max(0.001, parseFloat(massInput.value)||currentType.massME);
+    var starIndex = stars.length>1 ? (+orbitsStarSelect.value||0) : 0;
+    return { name:name, au:au, ecc:ecc, type:currentType, radiusRE:radiusRE, massME:massME, starIndex:starIndex };
+  }
+
+  addBtn.addEventListener('click', function(){
+    var data = readFormAsPlanet();
+    if (editingIndex !== null){
+      var existing = planets[editingIndex];
+      data.angle = existing.angle;
+      data.hasRing = existing.hasRing;
+      planets[editingIndex] = data;
+      exitEditMode();
+    } else {
+      data.angle = Math.random()*Math.PI*2;
+      data.hasRing = generateRing(data.type);
+      planets.push(data);
+      nextNum++;
+      resetForm();
+    }
+    renderTable();
+    rebuildIfReady();
+  });
+
+  function loadPlanetIntoForm(idx){
+    var p = planets[idx];
+    editingIndex = idx;
+    pNameInput.value = p.name;
+    currentType = p.type;
+    Array.prototype.forEach.call(typeRow.children, function(c,i){ c.classList.toggle('active', planetTypes[i]===currentType); });
+    distNumber.value = p.au.toFixed(3);
+    eccNumber.value = (p.ecc||0).toFixed(3);
+    radiusInput.value = p.radiusRE;
+    massInput.value = p.massME;
+    if (stars.length>1) orbitsStarSelect.value = p.starIndex||0;
+    addBtn.textContent = '✓ UPDATE PLANET';
+    cancelEditBtn.style.display = 'block';
+    updatePeriodPreview();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function renderTable(){
+    var rows = planetTable.querySelectorAll('tr.data');
+    rows.forEach(function(r){ r.remove(); });
+    var multi = stars.length>1;
+
+    planets.forEach(function(p, idx){
+      var star = stars[p.starIndex] || stars[0];
+      var L = starLuminosity(star);
+      var hz = hzBounds(L);
+      var temp = eqTemp(L, p.au, p.type.albedo);
+      var period = orbitalPeriodYears(p.au, star.M + planetMassSolar(p));
+      var inHZ = p.au >= hz.inner && p.au <= hz.outer;
+      var tr = document.createElement('tr');
+      tr.className = 'data';
+      tr.innerHTML =
+        '<td class="name">'+p.name+'</td>'+
+        (multi ? '<td>'+star.name+'</td>' : '') +
+        '<td>'+p.au.toFixed(3)+'</td>'+
+        '<td>'+formatPeriod(period)+'</td>'+
+        '<td>'+(p.ecc||0).toFixed(2)+'</td>'+
+        '<td>'+p.radiusRE.toFixed(2)+'</td>'+
+        '<td>'+p.type.label+'</td>'+
+        '<td>'+Math.round(temp)+'</td>'+
+        '<td class="'+(inHZ?'hz-yes':'')+'">'+(inHZ?'YES':'—')+'</td>'+
+        '<td></td>';
+      var rmTd = tr.lastElementChild;
+      var editBtn = document.createElement('button');
+      editBtn.className = 'rm';
+      editBtn.textContent = '✎';
+      editBtn.title = 'Edit';
+      editBtn.addEventListener('click', function(){ loadPlanetIntoForm(idx); });
+      var rmBtn = document.createElement('button');
+      rmBtn.className = 'rm';
+      rmBtn.textContent = 'x';
+      rmBtn.addEventListener('click', function(){
+        if (editingIndex === idx) exitEditMode();
+        planets.splice(idx,1);
+        renderTable();
+        rebuildIfReady();
+      });
+      rmTd.appendChild(editBtn);
+      rmTd.appendChild(rmBtn);
+      planetTable.appendChild(tr);
+    });
+
+    planetCount.textContent = planets.length + (planets.length===1?' body':' bodies');
+    emptyMsg.style.display = planets.length ? 'none' : 'block';
+  }
+
+  // ---- three.js ----
+  var three = null;
+
+  function makeGlowTexture(){
+    var c = document.createElement('canvas'); c.width=128; c.height=128;
+    var g2 = c.getContext('2d');
+    var g = g2.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,1)');
+    g.addColorStop(0.2,'rgba(255,255,255,0.75)');
+    g.addColorStop(0.5,'rgba(255,255,255,0.22)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    g2.fillStyle = g; g2.fillRect(0,0,128,128);
+    return new THREE.CanvasTexture(c);
+  }
+  function makeHaloTexture(){
+    var c = document.createElement('canvas'); c.width=128; c.height=128;
+    var g2 = c.getContext('2d');
+    var g = g2.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,0.55)');
+    g.addColorStop(0.35,'rgba(255,255,255,0.16)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    g2.fillStyle = g; g2.fillRect(0,0,128,128);
+    return new THREE.CanvasTexture(c);
+  }
+  function makeNebulaTexture(tint){
+    var c = document.createElement('canvas'); c.width=512; c.height=512;
+    var g2 = c.getContext('2d');
+    var g = g2.createRadialGradient(256,256,0,256,256,256);
+    g.addColorStop(0, 'rgba('+tint+',0.28)');
+    g.addColorStop(0.5, 'rgba('+tint+',0.1)');
+    g.addColorStop(1, 'rgba('+tint+',0)');
+    g2.fillStyle = g; g2.fillRect(0,0,512,512);
+    return new THREE.CanvasTexture(c);
+  }
+  function makeStarTexture(){
+    var c = document.createElement('canvas'); c.width=512; c.height=256;
+    var tctx = c.getContext('2d');
+    tctx.fillStyle = '#fff3dc'; tctx.fillRect(0,0,512,256);
+    for (var i=0;i<110;i++){
+      var x = Math.random()*512, y = Math.random()*256, r = 18+Math.random()*46;
+      var v = 175 + Math.random()*80;
+      var g = tctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0.4)');
+      g.addColorStop(1,'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0)');
+      tctx.fillStyle = g; tctx.fillRect(x-r,y-r,r*2,r*2);
+    }
+    for (var j=0;j<6;j++){
+      var sx = Math.random()*512, sy = Math.random()*256, sr = 12+Math.random()*20;
+      var g3 = tctx.createRadialGradient(sx,sy,0,sx,sy,sr);
+      g3.addColorStop(0,'rgba(140,80,45,0.3)');
+      g3.addColorStop(1,'rgba(140,80,45,0)');
+      tctx.fillStyle = g3; tctx.fillRect(sx-sr,sy-sr,sr*2,sr*2);
+    }
+    var tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }
+  function makePlanetTexture(typeId, baseHex){
+    var c = document.createElement('canvas'); c.width=256; c.height=128;
+    var tctx = c.getContext('2d');
+    var base = new THREE.Color(baseHex);
+    var br = Math.round(base.r*255), bg = Math.round(base.g*255), bb = Math.round(base.b*255);
+    tctx.fillStyle = 'rgb('+br+','+bg+','+bb+')'; tctx.fillRect(0,0,256,128);
+    if (typeId==='gas' || typeId==='ice'){
+      var bands = 9;
+      for (var i=0;i<bands;i++){
+        var y = (i/bands)*128, h = 128/bands, shade = 0.75+Math.random()*0.5;
+        tctx.fillStyle = 'rgba('+Math.round(br*shade)+','+Math.round(bg*shade)+','+Math.round(bb*shade)+',0.55)';
+        tctx.fillRect(0,y,256,h);
+      }
+      for (var s=0;s<18;s++){
+        var sx = Math.random()*256, sy = Math.random()*128, sw = 20+Math.random()*50, sh = 3+Math.random()*6;
+        tctx.fillStyle = 'rgba(255,255,255,0.08)';
+        tctx.beginPath(); tctx.ellipse(sx,sy,sw,sh,0,0,Math.PI*2); tctx.fill();
+      }
+    } else {
+      for (var k=0;k<70;k++){
+        var x2 = Math.random()*256, y2 = Math.random()*128, r2 = 4+Math.random()*14, shade2 = 0.65+Math.random()*0.6;
+        tctx.fillStyle = 'rgba('+Math.round(br*shade2)+','+Math.round(bg*shade2)+','+Math.round(bb*shade2)+',0.5)';
+        tctx.beginPath(); tctx.arc(x2,y2,r2,0,Math.PI*2); tctx.fill();
+      }
+      if (typeId==='dwarf'){
+        for (var m=0;m<20;m++){
+          var cx = Math.random()*256, cy = Math.random()*128, cr = 2+Math.random()*5;
+          tctx.strokeStyle = 'rgba(0,0,0,0.25)'; tctx.lineWidth=1;
+          tctx.beginPath(); tctx.arc(cx,cy,cr,0,Math.PI*2); tctx.stroke();
+        }
+      }
+    }
+    var tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }
+  function makeRingTexture(baseHex){
+    var c = document.createElement('canvas'); c.width=256; c.height=16;
+    var rctx = c.getContext('2d');
+    var base = new THREE.Color(baseHex);
+    var br = Math.round(base.r*255), bg = Math.round(base.g*255), bb = Math.round(base.b*255);
+    for (var x=0;x<256;x++){
+      var a = 0.15+Math.random()*0.45;
+      rctx.fillStyle = 'rgba('+br+','+bg+','+bb+','+a+')';
+      rctx.fillRect(x,0,1,16);
+    }
+    return new THREE.CanvasTexture(c);
+  }
+  function makeTextSprite(text, sizePx){
+    var c = document.createElement('canvas'); c.width=160; c.height=40;
+    var tctx = c.getContext('2d');
+    tctx.font = (sizePx||20)+'px monospace';
+    tctx.fillStyle = 'rgba(200,210,215,0.85)';
+    tctx.textAlign = 'center';
+    tctx.fillText(text, 80, 26);
+    var tex = new THREE.CanvasTexture(c);
+    var mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthWrite:false});
+    var spr = new THREE.Sprite(mat);
+    spr.scale.set(1.1, 0.28, 1);
+    return spr;
+  }
+
+  function initThree(){
+    if (three) return;
+    var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+    stage3d.appendChild(renderer.domElement);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    var ambient = new THREE.AmbientLight(0x222226, 1.1);
+    scene.add(ambient);
+    var hemi = new THREE.HemisphereLight(0x2a3550, 0x05050a, 0.55);
+    scene.add(hemi);
+
+    var nebulaA = new THREE.Sprite(new THREE.SpriteMaterial({map:makeNebulaTexture('90,70,170'), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
+    nebulaA.scale.set(65,65,1); nebulaA.position.set(-18,10,-30); scene.add(nebulaA);
+    var nebulaB = new THREE.Sprite(new THREE.SpriteMaterial({map:makeNebulaTexture('60,110,150'), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
+    nebulaB.scale.set(50,50,1); nebulaB.position.set(22,-12,-32); scene.add(nebulaB);
+
+    var starField = (function(){
+      var geo = new THREE.BufferGeometry();
+      var count = 1100;
+      var pos = new Float32Array(count*3), col = new Float32Array(count*3);
+      for (var i=0;i<count;i++){
+        var r = 30+Math.random()*45, theta = Math.random()*Math.PI*2, phi = Math.acos((Math.random()*2)-1);
+        pos[i*3]=r*Math.sin(phi)*Math.cos(theta); pos[i*3+1]=r*Math.cos(phi); pos[i*3+2]=r*Math.sin(phi)*Math.sin(theta);
+        var tint = Math.random(), cr,cg,cb;
+        if (tint<0.15){ cr=0.65; cg=0.75; cb=1.0; } else if (tint<0.3){ cr=1.0; cg=0.9; cb=0.7; } else { cr=1; cg=1; cb=1; }
+        var b = 0.5+Math.random()*0.5;
+        col[i*3]=cr*b; col[i*3+1]=cg*b; col[i*3+2]=cb*b;
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+      geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+      var mat = new THREE.PointsMaterial({size:0.13, vertexColors:true, transparent:true, opacity:0.85, sizeAttenuation:true});
+      return new THREE.Points(geo, mat);
+    })();
+    scene.add(starField);
+
+    three = {
+      renderer:renderer, scene:scene, camera:camera,
+      starObjs:[], starOrbitLines:[],
+      planetMeshes:[], planetLabels:[], planetAtmos:[], planetRings:[],
+      azimuth:0.7, polar:1.05, radius:11, autoRotate:true,
+      dragging:false, lastX:0, lastY:0
+    };
+
+    stage3d.addEventListener('pointerdown', function(e){
+      three.dragging = true; three.autoRotate = false;
+      three.lastX = e.clientX; three.lastY = e.clientY;
+      stage3d.classList.add('dragging');
+    });
+    window.addEventListener('pointermove', function(e){
+      if (!three.dragging) return;
+      var dx = e.clientX - three.lastX, dy = e.clientY - three.lastY;
+      three.lastX = e.clientX; three.lastY = e.clientY;
+      three.azimuth -= dx*0.006;
+      three.polar -= dy*0.006;
+      three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
+    });
+    window.addEventListener('pointerup', function(){
+      three.dragging = false;
+      stage3d.classList.remove('dragging');
+    });
+    stage3d.addEventListener('wheel', function(e){
+      e.preventDefault();
+      three.radius += e.deltaY*0.01;
+      three.radius = Math.max(3, Math.min(32, three.radius));
+    }, {passive:false});
+  }
+
+  function clearGroup(list, scene){
+    list.forEach(function(o){ if (o) scene.remove(o); });
+  }
+
+  function rebuildSystem3D(){
+    if (!three) return;
+    var scene = three.scene;
+
+    three.starObjs.forEach(function(so){
+      scene.remove(so.group);
+    });
+    three.starOrbitLines.forEach(function(l){ scene.remove(l); });
+    three.planetMeshes.forEach(function(m){ if(m.parent) m.parent.remove(m); });
+    three.planetLabels.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
+    three.planetAtmos.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
+    three.planetRings.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
+    three.starObjs = []; three.starOrbitLines = [];
+    three.planetMeshes = []; three.planetLabels = []; three.planetAtmos = []; three.planetRings = [];
+
+    stars.forEach(function(s, idx){
+      var group = new THREE.Group();
+      scene.add(group);
+
+      var starRGB = tempToRGB(s.T);
+      var starColor = new THREE.Color(starRGB[0]/255, starRGB[1]/255, starRGB[2]/255);
+      var L = starLuminosity(s);
+      var starScale = 0.28 + Math.log10(Math.max(L,0.001)+1)*0.09;
+
+      var starGeo = new THREE.SphereGeometry(0.4, 28, 28);
+      var starMat = new THREE.MeshBasicMaterial({color:starColor, map:makeStarTexture()});
+      var starMesh = new THREE.Mesh(starGeo, starMat);
+      starMesh.scale.setScalar(starScale/0.4);
+      group.add(starMesh);
+
+      var glowInnerMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:starColor, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+      var glowInner = new THREE.Sprite(glowInnerMat);
+      glowInner.scale.set(starScale*4.6, starScale*4.6, 1);
+      group.add(glowInner);
+
+      var glowOuterMat = new THREE.SpriteMaterial({map:makeHaloTexture(), color:starColor, transparent:true, opacity:0.7, blending:THREE.AdditiveBlending, depthWrite:false});
+      var glowOuter = new THREE.Sprite(glowOuterMat);
+      glowOuter.scale.set(starScale*11, starScale*11, 1);
+      group.add(glowOuter);
+
+      var light = new THREE.PointLight(starColor, idx===0?2.6:1.6, 60, 1.6);
+      group.add(light);
+
+      var hz = hzBounds(L);
+      var rIn = auToUnits(Math.max(hz.inner,0.05)), rOut = auToUnits(Math.min(hz.outer,50));
+      var hzMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.1, side:THREE.DoubleSide}));
+      hzMesh.rotation.x = -Math.PI/2;
+      group.add(hzMesh);
+
+      var label = makeTextSprite(s.name, 22);
+      label.position.set(0, starScale/0.4*0.4 + 0.35, 0);
+      group.add(label);
+
+      three.starObjs.push({ group:group, mesh:starMesh, star:s });
+
+      if (idx>0){
+        var pts = [];
+        var a = auToUnits(s.au), e = s.ecc||0;
+        for (var i=0;i<=128;i++){
+          var ang = (i/128)*Math.PI*2;
+          var rr = a*(1-e*e)/(1+e*Math.cos(ang));
+          pts.push(new THREE.Vector3(rr*Math.cos(ang), 0, rr*Math.sin(ang)));
+        }
+        var og = new THREE.BufferGeometry().setFromPoints(pts);
+        var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x5a4038, transparent:true, opacity:0.5}));
+        scene.add(line);
+        three.starOrbitLines.push(line);
+      }
+    });
+
+    planets.forEach(function(p){
+      var starObj = three.starObjs[p.starIndex] || three.starObjs[0];
+      var group = starObj.group;
+
+      var a = auToUnits(p.au), e = p.ecc||0;
+      var pts = [];
+      for (var i=0;i<=128;i++){
+        var ang = (i/128)*Math.PI*2;
+        var rr = a*(1-e*e)/(1+e*Math.cos(ang));
+        pts.push(new THREE.Vector3(rr*Math.cos(ang), 0, rr*Math.sin(ang)));
+      }
+      var og = new THREE.BufferGeometry().setFromPoints(pts);
+      var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x394048, transparent:true, opacity:0.55}));
+      group.add(line);
+      three.orbitLinesForCleanup = three.orbitLinesForCleanup || [];
+
+      var size = planetVisualSize(p);
+      var geo = new THREE.SphereGeometry(size, 20, 20);
+      var mat = new THREE.MeshStandardMaterial({map:makePlanetTexture(p.type.id, p.type.hex), roughness:0.7, metalness:0.06});
+      var mesh = new THREE.Mesh(geo, mat);
+      group.add(mesh);
+      three.planetMeshes.push(mesh);
+      mesh.userData.planet = p;
+      mesh.userData.size = size;
+      mesh.userData.orbitLine = line;
+
+      var atmo = null;
+      if (p.type.id==='gas' || p.type.id==='ice'){
+        var atmoMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:p.type.hex, transparent:true, opacity:0.5, blending:THREE.AdditiveBlending, depthWrite:false});
+        atmo = new THREE.Sprite(atmoMat);
+        atmo.scale.set(size*4.2, size*4.2, 1);
+        group.add(atmo);
+      }
+      three.planetAtmos.push(atmo);
+
+      var ring = null;
+      if (p.hasRing){
+        var ringGeo = new THREE.RingGeometry(size*1.6, size*2.7, 48);
+        var ringMat = new THREE.MeshBasicMaterial({map:makeRingTexture(p.type.hex), transparent:true, opacity:0.85, side:THREE.DoubleSide});
+        ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = -Math.PI/2 + 0.35;
+        group.add(ring);
+      }
+      three.planetRings.push(ring);
+
+      var label = makeTextSprite(p.name);
+      group.add(label);
+      three.planetLabels.push(label);
+    });
+  }
+
+  function resizeThree(){
+    if (!three) return;
+    var w = stage.clientWidth, h = stage.clientHeight;
+    three.renderer.setSize(w,h);
+    three.camera.aspect = w/h;
+    three.camera.updateProjectionMatrix();
+  }
+
+  function update3D(){
+    if (!three) return;
+
+    three.starObjs.forEach(function(so, idx){
+      so.mesh.rotation.y += 0.0032*speedMultiplier;
+      if (idx===0){
+        so.group.position.set(0,0,0);
+      } else {
+        var a = auToUnits(so.star.au);
+        var starPeriod = orbitalPeriodYears(so.star.au, stars[0].M + so.star.M);
+        var pos = keplerPos(so.star, a, starPeriod);
+        so.group.position.set(pos.x, 0, pos.z);
+      }
+    });
+
+    if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
+    three.camera.position.set(
+      three.radius*Math.sin(three.polar)*Math.cos(three.azimuth),
+      three.radius*Math.cos(three.polar),
+      three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
+    );
+    three.camera.lookAt(0,0,0);
+
+    three.planetMeshes.forEach(function(mesh, idx){
+      var p = mesh.userData.planet;
+      var a = auToUnits(p.au);
+      var hostStar = stars[p.starIndex] || stars[0];
+      var period = orbitalPeriodYears(p.au, hostStar.M + planetMassSolar(p));
+      var pos = keplerPos(p, a, period);
+      mesh.position.set(pos.x, 0, pos.z);
+      mesh.rotation.y += 0.006*speedMultiplier;
+      var label = three.planetLabels[idx];
+      if (label) label.position.set(pos.x, mesh.userData.size + 0.22, pos.z);
+      var atmo = three.planetAtmos[idx];
+      if (atmo) atmo.position.set(pos.x, 0, pos.z);
+      var ring = three.planetRings[idx];
+      if (ring) ring.position.set(pos.x, 0, pos.z);
+    });
+
+    three.renderer.render(three.scene, three.camera);
+  }
+
+  function rebuildIfReady(){ if (three) rebuildSystem3D(); }
+  function setup3D(){ initThree(); resizeThree(); rebuildSystem3D(); }
+  window.addEventListener('resize', resizeThree);
+
+  var isExpanded = false;
+  function setExpanded(val){
+    isExpanded = val;
+    stage.classList.toggle('expanded', isExpanded);
+    fsBtn.textContent = isExpanded ? '⤢ RESTORE VIEW' : '⛶ FULLSCREEN';
+    document.body.style.overflow = isExpanded ? 'hidden' : '';
+    resizeThree();
+    requestAnimationFrame(resizeThree);
+  }
+  fsBtn.addEventListener('click', function(){ setExpanded(!isExpanded); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && isExpanded) setExpanded(false);
+  });
+
+  systemNameInput.addEventListener('input', function(){
+    stageTag.textContent = systemNameInput.value.trim() || 'SYSTEM VIEW';
+  });
+
+  // ---- save / restore / reset ----
+  var saveSystemBtn = document.getElementById('saveSystemBtn');
+  var restoreSystemBtn = document.getElementById('restoreSystemBtn');
+  var resetSystemBtn = document.getElementById('resetSystemBtn');
+  var restoreFileInput = document.getElementById('restoreFileInput');
+  var sysStatus = document.getElementById('sysStatus');
+  var sysStatusTimer = null;
+  function showSysStatus(msg){
+    sysStatus.textContent = msg;
+    clearTimeout(sysStatusTimer);
+    sysStatusTimer = setTimeout(function(){ sysStatus.textContent = ''; }, 3000);
+  }
+
+  function serializeSystem(){
+    return JSON.stringify({
+      version: 1,
+      systemName: systemNameInput.value.trim(),
+      stars: stars,
+      planets: planets.map(function(p){
+        return { name:p.name, au:p.au, ecc:p.ecc, typeId:p.type.id, radiusRE:p.radiusRE, massME:p.massME, angle:p.angle, hasRing:p.hasRing, starIndex:p.starIndex||0 };
+      })
+    }, null, 2);
+  }
+
+  function loadSystemFromData(data){
+    systemNameInput.value = data.systemName || '';
+    stageTag.textContent = data.systemName || 'SYSTEM VIEW';
+    stars = (data.stars && data.stars.length) ? data.stars : [{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }];
+    editingStarIndex = 0;
+    planets = (data.planets||[]).map(function(p){
+      var type = null;
+      for (var i=0;i<planetTypes.length;i++){ if (planetTypes[i].id===p.typeId) type = planetTypes[i]; }
+      if (!type) type = planetTypes[0];
+      return { name:p.name, au:p.au, ecc:p.ecc||0, type:type, radiusRE:p.radiusRE, massME:p.massME, angle:p.angle||0, hasRing:!!p.hasRing, starIndex:p.starIndex||0 };
+    });
+    exitEditMode();
+    syncStarEditorFromState();
+    renderStarChips();
+    renderTable();
+    rebuildIfReady();
+  }
+
+  saveSystemBtn.addEventListener('click', function(){
+    try{
+      var blob = new Blob([serializeSystem()], {type:'application/json'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = (systemNameInput.value.trim() || 'mk-forge-system').replace(/[^a-z0-9\-_]+/gi,'_') + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+      showSysStatus('Saved.');
+    } catch(err){
+      showSysStatus('Could not save: ' + err.message);
+    }
+  });
+
+  restoreSystemBtn.addEventListener('click', function(){
+    restoreFileInput.value = '';
+    restoreFileInput.click();
+  });
+  restoreFileInput.addEventListener('change', function(){
+    var file = restoreFileInput.files && restoreFileInput.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        loadSystemFromData(data);
+        showSysStatus('System restored.');
+      } catch(err){
+        showSysStatus('That file could not be read as a saved system.');
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  var resetArmed = false;
+  var resetArmTimer = null;
+  resetSystemBtn.addEventListener('click', function(){
+    if (!resetArmed){
+      resetArmed = true;
+      resetSystemBtn.textContent = '⚠ CLICK TO CONFIRM';
+      resetArmTimer = setTimeout(function(){
+        resetArmed = false;
+        resetSystemBtn.textContent = '↺ RESET SYSTEM';
+      }, 3000);
+      return;
+    }
+    clearTimeout(resetArmTimer);
+    resetArmed = false;
+    resetSystemBtn.textContent = '↺ RESET SYSTEM';
+    loadSystemFromData({ systemName:'', stars:[{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }], planets:[] });
+    showSysStatus('System reset.');
+  });
+
+  function loop(){
+    t += 0.016*speedMultiplier;
+    update3D();
+    requestAnimationFrame(loop);
+  }
+
+  var speedSlider = document.getElementById('speedSlider');
+  var speedOut = document.getElementById('speedOut');
+  speedSlider.addEventListener('input', function(){
+    speedMultiplier = parseFloat(speedSlider.value)/100;
+    speedOut.textContent = speedMultiplier.toFixed(1) + '×';
+  });
+
+  renderStarTypeSelect();
+  renderTypeButtons();
+  syncStarEditorFromState();
+  renderStarChips();
+  distNumber.value = '1.000';
+  radiusInput.value = currentType.radiusRE;
+  massInput.value = currentType.massME;
+  updatePeriodPreview();
+  renderTable();
+  setup3D();
+  requestAnimationFrame(loop);
+})();
+</script>
+
+<script src="/libraries/view-counter.js"></script>
+
+</body>
+</html>
