@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MK·COLLIDE — collision simulator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg:#08090b; --panel:#0d0f12; --line:#22262b; --line-strong:#3a4046;
+    --red:#ff2b2b; --red-dim:#8a1a1a; --green:#39d98a; --blue:#4a9eff;
+    --text:#d9dde0; --text-dim:#71787e; --text-faint:#454b50;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{font-family:'Space Mono', ui-monospace, monospace; color:var(--text); padding:10px; -webkit-font-smoothing:antialiased;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  .frame{position:relative; border:1px solid var(--line);
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px), var(--panel);
+    padding:22px; max-width:960px; width:100%; margin:0 auto;}
+  .corner{position:absolute; width:14px; height:14px;}
+  .corner.tl{top:-1px;left:-1px;border-top:2px solid var(--red);border-left:2px solid var(--red);}
+  .corner.tr{top:-1px;right:-1px;border-top:2px solid var(--red);border-right:2px solid var(--red);}
+  .corner.bl{bottom:-1px;left:-1px;border-bottom:2px solid var(--red);border-left:2px solid var(--red);}
+  .corner.br{bottom:-1px;right:-1px;border-bottom:2px solid var(--red);border-right:2px solid var(--red);}
+
+  .topbar{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;}
+  .brand-link{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:13px; letter-spacing:0.14em; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;}
+  .brand-link:hover{color:var(--red);}
+  .brand-link .arrow{color:var(--red);}
+  .leave-confirm{display:none; align-items:center; gap:10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim); margin-top:6px;}
+  .leave-confirm.show{display:flex;}
+  .leave-confirm button{font-family:inherit; font-size:9px; letter-spacing:0.08em; padding:4px 10px; cursor:pointer; background:transparent;}
+  .leave-confirm .yes-btn{color:var(--red); border:1px solid var(--red-dim);}
+  .leave-confirm .yes-btn:hover{background:rgba(255,43,43,0.1);}
+  .leave-confirm .no-btn{color:var(--text-dim); border:1px solid var(--line);}
+  .leave-confirm .no-btn:hover{color:var(--text); border-color:var(--line-strong);}
+  .sub{font-size:10px; letter-spacing:0.08em; color:var(--text-dim);}
+  .hr{height:1px; background:var(--line); margin:10px 0 14px;}
+
+  .panel-title{font-size:10px; letter-spacing:0.12em; color:var(--text-dim); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;}
+
+  .preset-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
+  .preset-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px dashed var(--line-strong); padding:6px 10px; cursor:pointer;}
+  .preset-btn:hover{color:var(--text); border-color:var(--red-dim);}
+
+  .objects-row{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px;}
+  @media (max-width:640px){ .objects-row{grid-template-columns:1fr;} }
+  .obj-card{border:1px solid var(--line); padding:14px;}
+  .obj-card.a{border-left:2px solid var(--blue);}
+  .obj-card.b{border-left:2px solid var(--red);}
+  .obj-title{font-size:11px; letter-spacing:0.12em; font-weight:700; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;}
+  .obj-card.a .obj-title{color:var(--blue);}
+  .obj-card.b .obj-title{color:var(--red);}
+
+  .type-row{display:flex; gap:6px; margin-bottom:10px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .type-btn{flex:1; font-family:inherit; font-size:9.5px; letter-spacing:0.06em; color:var(--text-dim); background:transparent; border:1px solid var(--line); padding:8px 6px; cursor:pointer;}
+  .type-btn:hover{border-color:var(--line-strong); color:var(--text);}
+  .type-btn.active{border-color:currentColor;}
+  .obj-card.a .type-btn.active{color:var(--blue); background:rgba(74,158,255,0.08);}
+  .obj-card.b .type-btn.active{color:var(--red); background:rgba(255,43,43,0.08);}
+
+  .field{margin-bottom:8px;}
+  .field .k{font-size:9px; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:6px; display:flex; justify-content:space-between;}
+  .field .k b{color:var(--text);}
+  input[type=number]{width:100%; font-family:inherit; font-size:12px; background:#000; border:1px solid var(--line); color:var(--text); padding:7px 8px;}
+  input[type=number]:focus{outline:none; border-color:var(--red-dim);}
+  input[type=number]{-moz-appearance:textfield; cursor:ew-resize; touch-action:none;}
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  input[type=number]:disabled{color:var(--text-faint); cursor:default; border-color:var(--line);}
+  .readonly-val{font-size:12px; color:var(--text-dim); background:#000; border:1px solid var(--line); padding:7px 8px;}
+
+  .run-btn{display:block; width:100%; margin-bottom:16px; font-family:inherit; font-size:12px; letter-spacing:0.14em; font-weight:700; color:var(--red);
+    background:transparent; border:1px solid var(--red); padding:13px; cursor:pointer;}
+  .run-btn:hover{background:rgba(255,43,43,0.1);}
+  .run-btn:disabled{opacity:0.4; cursor:default;}
+
+  .stage{position:relative; border:1px solid var(--line); background:#000; width:100%; height:640px; margin:0 0 16px; overflow:hidden;}
+  .stage canvas{display:block;}
+  .stage .tag{position:absolute; top:8px; left:10px; font-size:9px; letter-spacing:0.1em; color:var(--text-faint); z-index:4;}
+  .stage .not-to-scale{position:absolute; top:24px; left:10px; font-size:8px; letter-spacing:0.08em; color:var(--text-faint); opacity:0.7; z-index:4;}
+  .stage .watermark{position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:8.5px; letter-spacing:0.1em; color:var(--text-faint); opacity:0.55; z-index:4; pointer-events:none;}
+  .stage .drag-hint{position:absolute; bottom:8px; right:10px; font-size:8.5px; color:var(--text-faint); z-index:4;}
+  .fs-btn{position:absolute; top:8px; right:10px; z-index:6; font-family:inherit; font-size:9px; letter-spacing:0.08em; color:var(--text-dim);
+    background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; cursor:pointer;}
+  .fs-btn:hover{border-color:var(--red-dim); color:var(--text);}
+  .speed-ctrl{position:absolute; top:42px; right:10px; z-index:6; display:flex; align-items:center; gap:6px;
+    background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:5px 8px;}
+  .speed-ctrl span{font-size:7.5px; letter-spacing:0.06em; color:var(--text-dim);}
+  .speed-ctrl input[type=range]{width:64px;}
+  .stage.expanded{position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:9999; margin:0; border:none;}
+  #stage3d{position:absolute; inset:0; cursor:grab;}
+  #stage3d.dragging{cursor:grabbing;}
+  #stage3d canvas{width:100% !important; height:100% !important; display:block;}
+  .status-line{position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:5; font-size:11px; letter-spacing:0.1em; color:var(--red); text-align:center; display:none;}
+  .status-line.show{display:block;}
+
+  .results{border:1px solid var(--line); padding:16px; display:none;}
+  .results.show{display:block;}
+  .result-headline{font-size:14px; font-weight:700; color:var(--red); letter-spacing:0.08em; margin-bottom:4px;}
+  .result-sub{font-size:10.5px; color:var(--text-dim); margin-bottom:14px; line-height:1.6;}
+  .readout-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .readout{background:var(--panel); padding:10px 12px;}
+  .readout .k{font-size:9px; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:5px;}
+  .readout .v{font-size:14px; color:var(--text); font-weight:700;}
+  .readout .v small{font-size:10px; color:var(--text-dim); font-weight:400;}
+  .readout .v.hl{color:var(--red);}
+
+  .rand-btn{margin-top:8px; width:100%; font-family:inherit; font-size:10px; letter-spacing:0.08em; color:var(--text-dim);
+    background:transparent; border:1px solid var(--line); padding:9px; cursor:pointer;}
+  .rand-btn:hover{color:var(--text); border-color:var(--line-strong); background:rgba(255,255,255,0.03);}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Collision simulator: set the mass and, for stars, the radius of two objects (black hole or star), run the collision, and see the real physics outcome — black hole merger with gravitational-wave mass loss, tidal disruption event, or direct capture — rendered as a 3D inspiral animation.</h2>
+
+<div class="frame">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <div class="topbar">
+    <div>
+      <button class="brand-link" id="brandLink"><span class="arrow">←</span> RAMESHVERSE</button>
+      <div class="leave-confirm" id="leaveConfirm">
+        <span>Leave this tool and return to rameshverse.com?</span>
+        <button class="yes-btn" id="leaveYes">YES</button>
+        <button class="no-btn" id="leaveNo">NO</button>
+      </div>
+    </div>
+    <div class="sub">COLLISION SIMULATOR // BLACK HOLES &amp; STARS</div>
+  </div>
+  <div class="hr"></div>
+
+  <div class="panel-title"><span>QUICK PRESETS</span></div>
+  <div class="preset-row" id="presetRow"></div>
+
+  <div class="objects-row">
+    <div class="obj-card a">
+      <div class="obj-title"><span>OBJECT A</span></div>
+      <div class="type-row" id="typeRowA"></div>
+      <div class="two-col">
+        <div class="field">
+          <div class="k"><span>MASS (M☉)</span></div>
+          <input type="number" id="massA" step="0.1" min="0.01" max="10000000000" value="30">
+        </div>
+        <div class="field" id="radiusFieldA">
+          <div class="k"><span>RADIUS (R☉)</span></div>
+          <input type="number" id="radiusA" step="0.01" min="0.00001" max="2000" value="1">
+        </div>
+        <div class="field" id="schwarzFieldA" style="display:none;">
+          <div class="k"><span>SCHWARZSCHILD RADIUS</span></div>
+          <div class="readonly-val" id="schwarzOutA">— km</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="obj-card b">
+      <div class="obj-title"><span>OBJECT B</span></div>
+      <div class="type-row" id="typeRowB"></div>
+      <div class="two-col">
+        <div class="field">
+          <div class="k"><span>MASS (M☉)</span></div>
+          <input type="number" id="massB" step="0.1" min="0.01" max="10000000000" value="20">
+        </div>
+        <div class="field" id="radiusFieldB">
+          <div class="k"><span>RADIUS (R☉)</span></div>
+          <input type="number" id="radiusB" step="0.01" min="0.00001" max="2000" value="1">
+        </div>
+        <div class="field" id="schwarzFieldB" style="display:none;">
+          <div class="k"><span>SCHWARZSCHILD RADIUS</span></div>
+          <div class="readonly-val" id="schwarzOutB">— km</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-bottom:16px;">
+    <button class="run-btn" id="runBtn" style="margin-bottom:0; flex:1;">⚡ RUN COLLISION</button>
+    <button class="run-btn" id="resetBtn" style="margin-bottom:0; flex:0 0 140px; color:var(--red); border-color:var(--red);">↺ RESET</button>
+  </div>
+
+  <div class="panel-title"><span>RESULTS</span></div>
+  <div class="results" id="results">
+    <div class="result-headline" id="resultHeadline">—</div>
+    <div class="result-sub" id="resultSub">—</div>
+    <div class="readout-grid" id="readoutGrid"></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <span class="tag">COLLISION VIEW</span>
+    <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
+    <span class="status-line" id="statusLine"></span>
+    <span class="drag-hint" id="dragHint">drag to rotate · scroll to zoom</span>
+    <span class="watermark">rameshverse.com</span>
+    <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
+    <div class="speed-ctrl">
+      <span>SPEED</span>
+      <input type="range" id="speedSlider" min="20" max="300" value="100" step="10">
+    </div>
+    <div id="stage3d"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  // ---------- physical constants ----------
+  var G = 6.674e-11;        // m^3 kg^-1 s^-2
+  var C = 2.998e8;           // m/s
+  var MSUN = 1.989e30;        // kg
+  var RSUN_KM = 695700;       // km
+
+  function schwarzschildKm(massSolar){
+    var Mkg = massSolar * MSUN;
+    var rs_m = 2*G*Mkg/(C*C);
+    return rs_m/1000;
+  }
+  function fmtNum(n, maxDigits){
+    if (n===0) return '0';
+    var abs = Math.abs(n);
+    if (abs >= 1e6 || (abs < 1e-3 && abs>0)) return n.toExponential(2);
+    if (abs >= 1000) return Math.round(n).toLocaleString();
+    return n.toFixed(maxDigits===undefined?2:maxDigits);
+  }
+  function fmtMass(msun){
+    if (msun >= 1e6) return (msun/1e6).toFixed(2)+' M M☉';
+    if (msun >= 1000) return (msun/1000).toFixed(2)+' K M☉';
+    return fmtNum(msun,3) + ' M☉';
+  }
+
+  // ---------- DOM refs ----------
+  var massA = document.getElementById('massA'), radiusA = document.getElementById('radiusA');
+  var massB = document.getElementById('massB'), radiusB = document.getElementById('radiusB');
+  var radiusFieldA = document.getElementById('radiusFieldA'), schwarzFieldA = document.getElementById('schwarzFieldA'), schwarzOutA = document.getElementById('schwarzOutA');
+  var radiusFieldB = document.getElementById('radiusFieldB'), schwarzFieldB = document.getElementById('schwarzFieldB'), schwarzOutB = document.getElementById('schwarzOutB');
+  var typeRowA = document.getElementById('typeRowA'), typeRowB = document.getElementById('typeRowB');
+  var runBtn = document.getElementById('runBtn');
+  var stage = document.getElementById('stage'), stage3d = document.getElementById('stage3d');
+  var statusLine = document.getElementById('statusLine');
+  var fsBtn = document.getElementById('fsBtn');
+  var resultsEl = document.getElementById('results');
+  var resultHeadline = document.getElementById('resultHeadline');
+  var resultSub = document.getElementById('resultSub');
+  var readoutGrid = document.getElementById('readoutGrid');
+
+  var typeA = 'bh', typeB = 'bh';
+
+  function renderTypeRow(row, current, onSelect){
+    row.innerHTML = '';
+    [['bh','⬤ BLACK HOLE'],['star','☀ STAR']].forEach(function(pair){
+      var b = document.createElement('button');
+      b.className = 'type-btn' + (pair[0]===current?' active':'');
+      b.textContent = pair[1];
+      b.addEventListener('click', function(){ onSelect(pair[0]); });
+      row.appendChild(b);
+    });
+  }
+  function updateTypeUI(){
+    renderTypeRow(typeRowA, typeA, function(t){ typeA=t; updateTypeUI(); syncSchwarz(); });
+    renderTypeRow(typeRowB, typeB, function(t){ typeB=t; updateTypeUI(); syncSchwarz(); });
+    radiusFieldA.style.display = typeA==='star' ? 'block' : 'none';
+    schwarzFieldA.style.display = typeA==='bh' ? 'block' : 'none';
+    radiusFieldB.style.display = typeB==='star' ? 'block' : 'none';
+    schwarzFieldB.style.display = typeB==='bh' ? 'block' : 'none';
+  }
+  function syncSchwarz(){
+    if (typeA==='bh') schwarzOutA.textContent = fmtNum(schwarzschildKm(parseFloat(massA.value)||1),2) + ' km';
+    if (typeB==='bh') schwarzOutB.textContent = fmtNum(schwarzschildKm(parseFloat(massB.value)||1),2) + ' km';
+  }
+  massA.addEventListener('input', syncSchwarz);
+  massB.addEventListener('input', syncSchwarz);
+  massA.addEventListener('change', syncSchwarz);
+  massB.addEventListener('change', syncSchwarz);
+
+  // ---------- drag-scrub number inputs ----------
+  function enableDragScrub(input){
+    var dragging=false, moved=false, startX=0, startVal=0;
+    var min = input.hasAttribute('min')?parseFloat(input.min):null;
+    var max = input.hasAttribute('max')?parseFloat(input.max):null;
+    var step = parseFloat(input.step)||1;
+    var decimals = (String(step).split('.')[1]||'').length;
+    var range = (min!==null && max!==null && isFinite(max-min) && (max-min)<1e7) ? (max-min) : null;
+    input.addEventListener('pointerdown', function(e){
+      dragging=true; moved=false; startX=e.clientX; startVal=parseFloat(input.value)||0;
+      try{ input.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    input.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var dx = e.clientX-startX;
+      if(!moved && Math.abs(dx)<3) return;
+      moved=true; e.preventDefault();
+      var unitsPerPixel = range!==null ? (range/300) : (step*4);
+      var newVal = startVal + dx*unitsPerPixel;
+      if(min!==null) newVal = Math.max(min,newVal);
+      if(max!==null) newVal = Math.min(max,newVal);
+      newVal = Math.round(newVal/step)*step;
+      input.value = decimals ? newVal.toFixed(decimals) : String(newVal);
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    function endDrag(){
+      if(!dragging) return;
+      dragging=false;
+      if(moved){ input.dispatchEvent(new Event('change',{bubbles:true})); input.blur(); }
+      moved=false;
+    }
+    input.addEventListener('pointerup', endDrag);
+    input.addEventListener('pointercancel', endDrag);
+    input.addEventListener('wheel', function(){ if(document.activeElement===input) input.blur(); }, {passive:true});
+  }
+  [massA,radiusA,massB,radiusB].forEach(enableDragScrub);
+
+  // ---------- presets ----------
+  var PRESETS = [
+    {label:'GW150914 (36 + 29 M☉)', a:{type:'bh',mass:36}, b:{type:'bh',mass:29}},
+    {label:'Sgr A*-class TDE', a:{type:'bh',mass:4300000}, b:{type:'star',mass:1,radius:1}},
+    {label:'Stellar BH + Sun', a:{type:'bh',mass:10}, b:{type:'star',mass:1,radius:1}},
+    {label:'Equal-mass merger', a:{type:'bh',mass:25}, b:{type:'bh',mass:25}},
+    {label:'BH swallows red giant', a:{type:'bh',mass:8}, b:{type:'star',mass:1.2,radius:150}},
+    {label:'M87*-class direct capture', a:{type:'bh',mass:6500000000}, b:{type:'star',mass:1,radius:1}},
+    {label:'White dwarf merger (Type Ia progenitor)', a:{type:'star',mass:0.6,radius:0.0125}, b:{type:'star',mass:0.9,radius:0.008}},
+    {label:'Pulsar merger (kilonova-class)', a:{type:'star',mass:1.4,radius:0.0000158}, b:{type:'star',mass:1.35,radius:0.0000162}}
+  ];
+  var presetRow = document.getElementById('presetRow');
+  PRESETS.forEach(function(p){
+    var b = document.createElement('button');
+    b.className = 'preset-btn';
+    b.textContent = p.label;
+    b.addEventListener('click', function(){
+      typeA = p.a.type; typeB = p.b.type;
+      massA.value = p.a.mass; massB.value = p.b.mass;
+      if (p.a.radius) radiusA.value = p.a.radius;
+      if (p.b.radius) radiusB.value = p.b.radius;
+      updateTypeUI(); syncSchwarz();
+    });
+    presetRow.appendChild(b);
+  });
+
+  updateTypeUI(); syncSchwarz();
+
+  // ---------- return to rameshverse ----------
+  var brandLink = document.getElementById('brandLink');
+  var leaveConfirm = document.getElementById('leaveConfirm');
+  document.getElementById('leaveYes').addEventListener('click', function(){ window.location.href='https://rameshverse.com/'; });
+  document.getElementById('leaveNo').addEventListener('click', function(){ leaveConfirm.classList.remove('show'); });
+  brandLink.addEventListener('click', function(){ leaveConfirm.classList.add('show'); });
+
+  // ---------- three.js scene ----------
+  var three = null;
+  function makeGlowTexture(){
+    var c=document.createElement('canvas'); c.width=128;c.height=128;
+    var g2=c.getContext('2d');
+    var g=g2.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(0.2,'rgba(255,255,255,0.75)');
+    g.addColorStop(0.5,'rgba(255,255,255,0.22)'); g.addColorStop(1,'rgba(255,255,255,0)');
+    g2.fillStyle=g; g2.fillRect(0,0,128,128);
+    return new THREE.CanvasTexture(c);
+  }
+  function makeDiscTexture(innerFrac){
+    // square texture mapped onto RingGeometry's bounding-box UVs, so the gradient
+    // runs radially (hot near the inner edge, cooling outward) instead of around the ring
+    var size = 256, c=document.createElement('canvas'); c.width=size; c.height=size;
+    var ctx=c.getContext('2d');
+    var cx=size/2, cy=size/2, outerR=size/2;
+    var innerR = outerR*(innerFrac===undefined?0.4375:innerFrac);
+
+    var grad = ctx.createRadialGradient(cx,cy,innerR*0.85, cx,cy,outerR);
+    grad.addColorStop(0.00, 'rgba(255,250,235,0.95)');
+    grad.addColorStop(0.18, 'rgba(255,205,140,0.85)');
+    grad.addColorStop(0.45, 'rgba(255,140,60,0.55)');
+    grad.addColorStop(0.75, 'rgba(200,70,30,0.28)');
+    grad.addColorStop(1.00, 'rgba(120,30,20,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,size,size);
+
+    // turbulent streaks for texture, staying within the ring's radial band
+    for (var i=0;i<140;i++){
+      var ang = Math.random()*Math.PI*2;
+      var rr = innerR + Math.random()*(outerR-innerR);
+      var arcLen = 0.15 + Math.random()*0.5;
+      var w = 1.5 + Math.random()*3;
+      ctx.strokeStyle = 'rgba(255,'+(150+Math.random()*90|0)+','+(60+Math.random()*80|0)+','+(0.12+Math.random()*0.22)+')';
+      ctx.lineWidth = w;
+      ctx.beginPath();
+      ctx.arc(cx,cy,rr,ang,ang+arcLen);
+      ctx.stroke();
+    }
+
+    // subtle Doppler-beaming-style brightness bias: one side brighter (approaching material)
+    var biasGrad = ctx.createLinearGradient(0,0,size,0);
+    biasGrad.addColorStop(0,'rgba(255,255,255,0.18)');
+    biasGrad.addColorStop(0.5,'rgba(255,255,255,0)');
+    biasGrad.addColorStop(1,'rgba(0,0,0,0.12)');
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = biasGrad;
+    ctx.fillRect(0,0,size,size);
+    ctx.globalCompositeOperation = 'source-over';
+
+    // punch out the hole so the inner region stays transparent
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0,0,0,1)';
+    ctx.beginPath();
+    ctx.arc(cx,cy,innerR*0.82,0,Math.PI*2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    return new THREE.CanvasTexture(c);
+  }
+  function starBaseColor(radiusSolar){
+    // large radius reads as a cool, swollen giant (red/orange); small radius reads as
+    // a hot, compact star (white); around 1 R☉ lands near sun-like gold
+    var r = radiusSolar===undefined ? 1 : radiusSolar;
+    var t = (Math.log10(Math.max(r,0.0000001))+2) / 4; // ~0 at compact radii, 0.5 at sun-like, ~1 at giant radii
+    t = Math.max(0, Math.min(1, t));
+    function lerp(a,b,f){ return Math.round(a+(b-a)*f); }
+    var compact = [255,246,232], sunlike = [255,207,122], giant = [255,120,60];
+    var rgb;
+    if (t < 0.5){
+      var f = t/0.5;
+      rgb = [lerp(compact[0],sunlike[0],f), lerp(compact[1],sunlike[1],f), lerp(compact[2],sunlike[2],f)];
+    } else {
+      var f2 = (t-0.5)/0.5;
+      rgb = [lerp(sunlike[0],giant[0],f2), lerp(sunlike[1],giant[1],f2), lerp(sunlike[2],giant[2],f2)];
+    }
+    return rgb;
+  }
+  function makeStarTexture(radiusSolar){
+    var base = starBaseColor(radiusSolar);
+    var c=document.createElement('canvas'); c.width=512;c.height=256;
+    var tctx=c.getContext('2d');
+    tctx.fillStyle='rgb('+base[0]+','+base[1]+','+base[2]+')'; tctx.fillRect(0,0,512,256);
+    for(var i=0;i<110;i++){
+      var x=Math.random()*512,y=Math.random()*256,r=16+Math.random()*42;
+      var vf=0.6+Math.random()*0.4;
+      var vr=Math.round(base[0]*vf), vg=Math.round(base[1]*vf), vb=Math.round(base[2]*vf);
+      var g=tctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,'rgba('+vr+','+vg+','+vb+',0.65)');
+      g.addColorStop(1,'rgba('+vr+','+vg+','+vb+',0)');
+      tctx.fillStyle=g; tctx.fillRect(x-r,y-r,r*2,r*2);
+    }
+    for(var j=0;j<8;j++){
+      var sx=Math.random()*512, sy=Math.random()*256, sr=10+Math.random()*22;
+      var g2=tctx.createRadialGradient(sx,sy,0,sx,sy,sr);
+      g2.addColorStop(0,'rgba(160,70,30,0.35)');
+      g2.addColorStop(1,'rgba(160,70,30,0)');
+      tctx.fillStyle=g2; tctx.fillRect(sx-sr,sy-sr,sr*2,sr*2);
+    }
+    var tex=new THREE.CanvasTexture(c);
+    tex.wrapS=THREE.RepeatWrapping; tex.wrapT=THREE.RepeatWrapping;
+    return tex;
+  }
+
+  function initThree(){
+    if (three) return;
+    var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    stage3d.appendChild(renderer.domElement);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(48, 1, 0.05, 200);
+    var ambient = new THREE.AmbientLight(0x222226, 1.0);
+    scene.add(ambient);
+    var keyLight = new THREE.PointLight(0xfff2d8, 2.2, 100, 1.3);
+    keyLight.position.set(9, 7, 9);
+    scene.add(keyLight);
+    var fillLight = new THREE.PointLight(0x88aaff, 0.8, 100, 1.6);
+    fillLight.position.set(-8, -4, -8);
+    scene.add(fillLight);
+
+    var starField = (function(){
+      var geo = new THREE.BufferGeometry();
+      var count = 900;
+      var pos = new Float32Array(count*3);
+      for (var i=0;i<count;i++){
+        var r = 40+Math.random()*60, theta=Math.random()*Math.PI*2, phi=Math.acos((Math.random()*2)-1);
+        pos[i*3]=r*Math.sin(phi)*Math.cos(theta); pos[i*3+1]=r*Math.cos(phi); pos[i*3+2]=r*Math.sin(phi)*Math.sin(theta);
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+      var mat = new THREE.PointsMaterial({color:0xffffff, size:0.09, transparent:true, opacity:0.7});
+      return new THREE.Points(geo, mat);
+    })();
+    scene.add(starField);
+
+    three = {
+      renderer:renderer, scene:scene, camera:camera,
+      azimuth:0.6, polar:1.15, radius:16, autoRotate:true,
+      dragging:false, lastX:0, lastY:0,
+      objA:null, objB:null, particles:null, waveRings:[], idleSpinTargets:[]
+    };
+
+    stage3d.addEventListener('pointerdown', function(e){
+      three.dragging=true; three.autoRotate=false;
+      three.lastX=e.clientX; three.lastY=e.clientY;
+      stage3d.classList.add('dragging');
+    });
+    window.addEventListener('pointermove', function(e){
+      if(!three.dragging) return;
+      var dx=e.clientX-three.lastX, dy=e.clientY-three.lastY;
+      three.lastX=e.clientX; three.lastY=e.clientY;
+      three.azimuth -= dx*0.006; three.polar -= dy*0.006;
+      three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
+    });
+    window.addEventListener('pointerup', function(){ three.dragging=false; stage3d.classList.remove('dragging'); });
+    stage3d.addEventListener('wheel', function(e){
+      e.preventDefault();
+      three.radius += e.deltaY*0.01;
+      three.radius = Math.max(4, Math.min(60, three.radius));
+    }, {passive:false});
+  }
+
+  function makeBlackHoleMesh(visualSize){
+    var group = new THREE.Group();
+    var coreGeo = new THREE.SphereGeometry(visualSize*0.55, 24, 24);
+    var coreMat = new THREE.MeshBasicMaterial({color:0x000000});
+    var core = new THREE.Mesh(coreGeo, coreMat);
+    group.add(core);
+    var ringGeo = new THREE.RingGeometry(visualSize*0.7, visualSize*1.6, 48);
+    var ringMat = new THREE.MeshBasicMaterial({map:makeDiscTexture(), transparent:true, opacity:0.9, side:THREE.DoubleSide});
+    var ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = -Math.PI/2 + 0.35;
+    group.add(ring);
+    var glowMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:0xffb060, transparent:true, opacity:0.5, blending:THREE.AdditiveBlending, depthWrite:false});
+    var glow = new THREE.Sprite(glowMat);
+    glow.scale.set(visualSize*3, visualSize*3, 1);
+    group.add(glow);
+    return { group:group, core:core, ring:ring, glow:glow, visualSize:visualSize };
+  }
+  function makeStarMesh(visualSize, radiusSolar){
+    var base = starBaseColor(radiusSolar);
+    var baseColor = new THREE.Color(base[0]/255, base[1]/255, base[2]/255);
+    var group = new THREE.Group();
+    var geo = new THREE.SphereGeometry(visualSize, 32, 32);
+    var mat = new THREE.MeshStandardMaterial({map:makeStarTexture(radiusSolar), emissive:baseColor, emissiveIntensity:0.35, roughness:0.65, metalness:0.05});
+    var mesh = new THREE.Mesh(geo, mat);
+    group.add(mesh);
+    var glowMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:baseColor, transparent:true, opacity:0.5, blending:THREE.AdditiveBlending, depthWrite:false});
+    var glow = new THREE.Sprite(glowMat);
+    glow.scale.set(visualSize*3.5, visualSize*3.5, 1);
+    group.add(glow);
+    return { group:group, mesh:mesh, glow:glow, visualSize:visualSize };
+  }
+
+  function visualSizeFor(type, massSolar, radiusSolar){
+    // both types mapped through the SAME physical-size (km) -> visual-size function,
+    // so a black hole's horizon and a star's radius are genuinely comparable on screen
+    var km = type==='bh' ? schwarzschildKm(massSolar) : radiusSolar*RSUN_KM;
+    var v = 0.09 + Math.log10(km+1)*0.15;
+    return Math.max(0.09, Math.min(1.7, v));
+  }
+
+  function clearScene(){
+    if (!three) return;
+    [three.objA, three.objB].forEach(function(o){ if (o && o.group) three.scene.remove(o.group); });
+    if (three.particles && three.particles.points) three.scene.remove(three.particles.points);
+    if (three.mergedObj && three.mergedObj.group) three.scene.remove(three.mergedObj.group);
+    three.waveRings.forEach(function(r){ three.scene.remove(r.mesh); });
+    three.waveRings = [];
+    three.idleSpinTargets = [];
+    three.objA = null; three.objB = null; three.particles = null; three.mergedObj = null;
+  }
+
+  function resizeThree(){
+    if(!three) return;
+    var w=stage.clientWidth, h=stage.clientHeight;
+    three.renderer.setSize(w,h);
+    three.camera.aspect=w/h;
+    three.camera.updateProjectionMatrix();
+  }
+
+  var anim = null; // active animation state
+  var t = 0;
+  var speedMultiplier = 1;
+
+  function computeOutcome(){
+    var mA = Math.max(0.01, parseFloat(massA.value)||1);
+    var mB = Math.max(0.01, parseFloat(massB.value)||1);
+    var rA = Math.max(0.001, parseFloat(radiusA.value)||1);
+    var rB = Math.max(0.001, parseFloat(radiusB.value)||1);
+
+    if (typeA==='bh' && typeB==='bh'){
+      var eta = (mA*mB)/Math.pow(mA+mB,2);
+      var radiatedFrac = Math.min(0.06, 0.2*eta);
+      var finalMass = (mA+mB)*(1-radiatedFrac);
+      var rsA = schwarzschildKm(mA), rsB = schwarzschildKm(mB), rsFinal = schwarzschildKm(finalMass);
+      return {
+        kind:'bhbh',
+        headline:'BINARY BLACK HOLE MERGER',
+        sub:'Two event horizons spiral together and merge into one, radiating the difference in mass away as gravitational waves — the "ringdown" that observatories like LIGO detect directly as a chirp in spacetime itself.',
+        rows:[
+          ['SYMMETRIC MASS RATIO η', eta.toFixed(4), false],
+          ['ENERGY RADIATED', (radiatedFrac*100).toFixed(2)+'%', true],
+          ['MASS LOST TO GW', fmtMass((mA+mB)-finalMass), true],
+          ['FINAL BLACK HOLE MASS', fmtMass(finalMass), false],
+          ['A HORIZON RADIUS', fmtNum(rsA,2)+' km', false],
+          ['B HORIZON RADIUS', fmtNum(rsB,2)+' km', false],
+          ['FINAL HORIZON RADIUS', fmtNum(rsFinal,2)+' km', false]
+        ],
+        mA:mA, mB:mB, finalMass:finalMass
+      };
+    }
+
+    if ((typeA==='bh' && typeB==='star') || (typeA==='star' && typeB==='bh')){
+      var bhMass = typeA==='bh' ? mA : mB;
+      var starMass = typeA==='bh' ? mB : mA;
+      var starRadius = typeA==='bh' ? rB : rA;
+      var rs = schwarzschildKm(bhMass);
+      var rTidalKm = starRadius*RSUN_KM*Math.pow(bhMass/starMass, 1/3);
+      var isTDE = rTidalKm > rs;
+      var finalBH;
+      if (isTDE){
+        finalBH = bhMass + starMass*0.5;
+      } else {
+        finalBH = bhMass + starMass;
+      }
+      return {
+        kind: isTDE ? 'tde' : 'capture',
+        headline: isTDE ? 'TIDAL DISRUPTION EVENT' : 'DIRECT CAPTURE — NO DISRUPTION',
+        sub: isTDE
+          ? 'The tidal (Roche) radius is larger than the event horizon, so the star is stretched and shredded by tidal forces before it reaches the horizon. Roughly half the debris streams into an accretion disk; the rest is flung away, powering a bright flare.'
+          : 'The event horizon is larger than the tidal radius — for a black hole this massive relative to the star, the star falls in whole before tidal forces have a chance to tear it apart. No visible disruption flare; the star simply vanishes.',
+        rows:[
+          ['TIDAL RADIUS', fmtNum(rTidalKm,1)+' km', false],
+          ['HORIZON RADIUS', fmtNum(rs,2)+' km', false],
+          ['TIDAL / HORIZON RATIO', (rTidalKm/rs).toFixed(3), true],
+          [isTDE?'MASS ACCRETED':'MASS ADDED', fmtMass(isTDE?starMass*0.5:starMass), false],
+          ['FINAL BLACK HOLE MASS', fmtMass(finalBH), false]
+        ],
+        mA:mA, mB:mB, finalMass:finalBH, bhIsA: typeA==='bh'
+      };
+    }
+
+    // star + star
+    var ejectaFrac = 0.02;
+    var finalStarMass = (mA+mB)*(1-ejectaFrac);
+    var finalStarRadius = Math.pow(finalStarMass, 0.8);
+    return {
+      kind:'starstar',
+      headline:'STELLAR MERGER',
+      sub:'Two stars collide and merge into one larger, more massive star. A small fraction of the combined mass is ejected as debris during the impact; the rest settles into a single body.',
+      rows:[
+        ['COMBINED MASS (BEFORE)', fmtMass(mA+mB), false],
+        ['EJECTA', fmtMass((mA+mB)*ejectaFrac), true],
+        ['FINAL STAR MASS', fmtMass(finalStarMass), false],
+        ['EST. FINAL RADIUS', fmtNum(finalStarRadius,2)+' R☉', false]
+      ],
+      mA:mA, mB:mB, finalMass:finalStarMass
+    };
+  }
+
+  function showResults(outcome){
+    resultHeadline.textContent = outcome.headline;
+    resultSub.textContent = outcome.sub;
+    readoutGrid.innerHTML = '';
+    outcome.rows.forEach(function(row){
+      var div = document.createElement('div');
+      div.className = 'readout';
+      div.innerHTML = '<div class="k">'+row[0]+'</div><div class="v'+(row[2]?' hl':'')+'">'+row[1]+'</div>';
+      readoutGrid.appendChild(div);
+    });
+    resultsEl.classList.add('show');
+  }
+
+  function startAnimation(outcome){
+    clearScene();
+    var mA = outcome.mA, mB = outcome.mB;
+    var sizeA = typeA==='bh' ? visualSizeFor('bh', mA) : visualSizeFor('star', mA, parseFloat(radiusA.value)||1);
+    var sizeB = typeB==='bh' ? visualSizeFor('bh', mB) : visualSizeFor('star', mB, parseFloat(radiusB.value)||1);
+
+    three.objA = typeA==='bh' ? makeBlackHoleMesh(sizeA) : makeStarMesh(sizeA, parseFloat(radiusA.value)||1);
+    three.objB = typeB==='bh' ? makeBlackHoleMesh(sizeB) : makeStarMesh(sizeB, parseFloat(radiusB.value)||1);
+    three.scene.add(three.objA.group);
+    three.scene.add(three.objB.group);
+
+    var totalMass = mA+mB;
+    var wA = mB/totalMass, wB = mA/totalMass; // heavier body orbits closer to barycenter
+    var startRadius = 7.5;
+    var mergeThreshold = Math.max(0.25, (sizeA+sizeB)*0.5);
+    var targetDuration = 5.5; // seconds at 1.0x speed
+    // dr/dt = -shrinkK / r^2 : separation barely shrinks at first, then plunges rapidly —
+    // integrating gives r(t) = (r0^3 - 3*shrinkK*t)^(1/3), the qualitative shape of a
+    // gravitational-wave-driven inspiral (orbital decay accelerates as bodies get closer)
+    var shrinkK = Math.pow(startRadius,3) / (3*targetDuration);
+    // angular velocity ~ Kepler-like, scales up sharply as separation shrinks (the "chirp")
+    var angularK = 0.32 * Math.pow(startRadius, 1.5);
+
+    anim = {
+      outcome: outcome, wA:wA, wB:wB, startRadius:startRadius, mergeThreshold:mergeThreshold,
+      shrinkK:shrinkK, angularK:angularK,
+      separation: startRadius, theta: 0,
+      phase:'inspiral', mergeFired:false,
+      sizeA:sizeA, sizeB:sizeB
+    };
+    statusLine.textContent = 'INSPIRAL IN PROGRESS...';
+    statusLine.classList.add('show');
+    resultsEl.classList.remove('show');
+    runBtn.disabled = true;
+  }
+
+  function spawnWaveRing(color, opacity){
+    var geo = new THREE.RingGeometry(0.1, 0.16, 64);
+    var mat = new THREE.MeshBasicMaterial({color:color||0x4a9eff, transparent:true, opacity:opacity||0.6, side:THREE.DoubleSide});
+    var mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.x = -Math.PI/2;
+    three.scene.add(mesh);
+    three.waveRings.push({mesh:mesh, age:0});
+  }
+  function spawnFlash(pos, color){
+    var mat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:color||0xffddaa, transparent:true, opacity:1, blending:THREE.AdditiveBlending, depthWrite:false});
+    var spr = new THREE.Sprite(mat);
+    spr.position.copy(pos);
+    spr.scale.set(0.4,0.4,1);
+    three.scene.add(spr);
+    three.waveRings.push({mesh:spr, age:0, isFlash:true});
+  }
+
+  function spawnDebrisParticles(color, attractorPos, pullStrength){
+    var count = 400;
+    var geo = new THREE.BufferGeometry();
+    var pos = new Float32Array(count*3);
+    var list = [];
+    var att = attractorPos || new THREE.Vector3(0,0,0);
+    for (var i=0;i<count;i++){
+      var ang = Math.random()*Math.PI*2;
+      var r0 = 0.08+Math.random()*0.25;
+      var px = att.x+Math.cos(ang)*r0, py = att.y+(Math.random()-0.5)*0.15, pz = att.z+Math.sin(ang)*r0;
+      pos[i*3]=px; pos[i*3+1]=py; pos[i*3+2]=pz;
+      var speed = 1.0+Math.random()*2.0;
+      var tx=-Math.sin(ang), tz=Math.cos(ang); // tidal-stream-like: mostly tangential, some radial
+      var radialBias = Math.random()-0.35;
+      list.push({
+        x:px, y:py, z:pz,
+        vx:(tx*0.7+Math.cos(ang)*radialBias)*speed,
+        vy:(Math.random()-0.5)*0.3,
+        vz:(tz*0.7+Math.sin(ang)*radialBias)*speed,
+        consumed:false
+      });
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    var mat = new THREE.PointsMaterial({color:color||0xffaa55, size:0.09, transparent:true, opacity:0.9});
+    var pts = new THREE.Points(geo, mat);
+    three.scene.add(pts);
+    three.particles = { points:pts, list:list, age:0, geo:geo, attractor:att.clone(), pullStrength: pullStrength===undefined?2.2:pullStrength };
+  }
+
+  function updateAnimation(dt){
+    if (!anim) return;
+    if (anim.phase==='inspiral'){
+      var step = dt*speedMultiplier;
+      // integrate separation shrink and orbital angle using the accelerating-inspiral ODEs
+      var r = anim.separation;
+      var rSafe = Math.max(r, 0.08);
+      var dr = -(anim.shrinkK/Math.pow(rSafe,2)) * step;
+      var dTheta = (anim.angularK/Math.pow(rSafe,1.5)) * step;
+      anim.separation = Math.max(0.02, r + dr);
+      anim.theta += dTheta;
+
+      var radius = anim.separation;
+      var angle = anim.theta;
+      var xA = Math.cos(angle)*radius*anim.wA, zA = Math.sin(angle)*radius*anim.wA;
+      var xB = -Math.cos(angle)*radius*anim.wB, zB = -Math.sin(angle)*radius*anim.wB;
+      three.objA.group.position.set(xA,0,zA);
+      three.objB.group.position.set(xB,0,zB);
+      // spin faster as they close in too — tidal locking intensifies near merger
+      var spinRate = 1 + (anim.startRadius/radius)*0.15;
+      three.objA.group.rotation.y += dt*spinRate*speedMultiplier;
+      three.objB.group.rotation.y += dt*spinRate*speedMultiplier;
+
+      var progress = 1 - (anim.separation/anim.startRadius);
+      if (anim.outcome.kind==='tde' && progress>0.55){
+        var stretch = 1 + (progress-0.55)*3.2;
+        var starObj = (typeA==='star') ? three.objA : three.objB;
+        starObj.group.rotation.y = Math.PI/2 - angle;
+        starObj.group.scale.set(1/Math.sqrt(stretch), 1, stretch);
+      } else if ((anim.outcome.kind==='bhbh' || anim.outcome.kind==='starstar') && progress>0.6){
+        // mutual tidal deformation as both bodies close in on each other — each
+        // elongates toward its companion and squeezes perpendicular to that line
+        var mutualP = Math.min(1, (progress-0.6)/0.4);
+        var mutualStretch = 1 + mutualP*1.8;
+        three.objA.group.rotation.y = Math.PI/2 - angle;
+        three.objA.group.scale.set(1/Math.sqrt(mutualStretch), 1/Math.sqrt(mutualStretch), mutualStretch);
+        three.objB.group.rotation.y = Math.PI/2 - angle;
+        three.objB.group.scale.set(1/Math.sqrt(mutualStretch), 1/Math.sqrt(mutualStretch), mutualStretch);
+        if (anim.outcome.kind==='bhbh'){
+          // fade each black hole's own accretion disc as they close in — two discs
+          // clipping through each other right up to merger doesn't read right;
+          // the gas gets disrupted into the merge burst instead (see fireMergeEffect)
+          var discFade = Math.max(0, 1 - mutualP*1.4);
+          three.objA.ring.material.opacity = 0.9*discFade;
+          three.objB.ring.material.opacity = 0.9*discFade;
+        }
+      }
+
+      if (anim.separation <= anim.mergeThreshold && !anim.mergeFired){
+        anim.mergeFired = true;
+        anim.phase = 'merge';
+        anim.mergeElapsed = 0;
+        fireMergeEffect();
+      }
+    } else if (anim.phase==='merge'){
+      anim.mergeElapsed += dt*speedMultiplier;
+      three.waveRings.forEach(function(r){
+        r.age += dt*speedMultiplier;
+        var s = 1 + r.age*4;
+        r.mesh.scale.set(s,s,s);
+        r.mesh.material.opacity = Math.max(0, 0.6 - r.age*0.35);
+      });
+      three.waveRings = three.waveRings.filter(function(r){
+        if (r.mesh.material.opacity<=0.01){ three.scene.remove(r.mesh); return false; }
+        return true;
+      });
+      updateParticles(dt);
+
+      if (anim.mergeElapsed > 1.2){
+        anim.phase = 'idle';
+        statusLine.classList.remove('show');
+        showResults(anim.outcome);
+        runBtn.disabled = false;
+      }
+    } else if (anim.phase==='idle'){
+      // keep the aftermath alive indefinitely — surviving body keeps spinning, its
+      // accretion disk keeps turning, any un-consumed debris keeps drifting — until reset
+      updateParticles(dt);
+      three.idleSpinTargets.forEach(function(target){
+        target.obj.rotation[target.axis] += dt*target.rate*speedMultiplier;
+      });
+    }
+  }
+
+  function updateParticles(dt){
+    if (!three.particles) return;
+    var P = three.particles;
+    P.age += dt*speedMultiplier;
+    var posAttr = P.geo.attributes.position;
+    var att = P.attractor;
+    for (var i=0;i<P.list.length;i++){
+      var pt = P.list[i];
+      if (!pt.consumed){
+        var dx=att.x-pt.x, dy=att.y-pt.y, dz=att.z-pt.z;
+        var distSq = dx*dx+dy*dy+dz*dz;
+        var dist = Math.sqrt(distSq);
+        if (dist < 0.1){
+          pt.consumed = true;
+          pt.x = 9999; pt.y = 9999; pt.z = 9999; // swallowed — parked off-scene
+        } else {
+          var accel = P.pullStrength/(distSq+0.05);
+          var inv = 1/dist;
+          pt.vx += dx*inv*accel*dt*speedMultiplier;
+          pt.vy += dy*inv*accel*dt*speedMultiplier;
+          pt.vz += dz*inv*accel*dt*speedMultiplier;
+          pt.x += pt.vx*dt*speedMultiplier;
+          pt.y += pt.vy*dt*speedMultiplier;
+          pt.z += pt.vz*dt*speedMultiplier;
+        }
+      }
+      posAttr.array[i*3]=pt.x; posAttr.array[i*3+1]=pt.y; posAttr.array[i*3+2]=pt.z;
+    }
+    posAttr.needsUpdate = true;
+    P.points.material.opacity = Math.max(0, 0.9 - P.age*0.06);
+  }
+
+  function fireMergeEffect(){
+    var outcome = anim.outcome;
+    if (outcome.kind==='bhbh'){
+      var mergePos = new THREE.Vector3(
+        (three.objA.group.position.x+three.objB.group.position.x)/2,
+        0,
+        (three.objA.group.position.z+three.objB.group.position.z)/2
+      );
+      three.objA.group.visible = false;
+      three.objB.group.visible = false;
+      var finalSize = visualSizeFor('bh', outcome.finalMass);
+      var merged = makeBlackHoleMesh(finalSize);
+      merged.group.position.copy(mergePos);
+      three.scene.add(merged.group);
+      three.mergedObj = merged;
+      // the two accretion discs don't survive the merger intact — their gas gets
+      // violently disrupted and scattered, which the new merged black hole will
+      // slowly regather into a fresh disc over the idle phase
+      spawnDebrisParticles(0xffb060, mergePos, 1.6);
+      spawnWaveRing();
+      setTimeout(function(){ if(three) spawnWaveRing(); }, 260);
+      setTimeout(function(){ if(three) spawnWaveRing(); }, 520);
+      statusLine.textContent = 'MERGER — GRAVITATIONAL WAVE BURST';
+      three.idleSpinTargets.push({obj: merged.ring, axis:'z', rate: 0.7});
+    } else if (outcome.kind==='tde'){
+      var starObj = (typeA==='star') ? three.objA : three.objB;
+      var bhObj = (typeA==='bh') ? three.objA : three.objB;
+      starObj.group.visible = false;
+      statusLine.textContent = 'TIDAL DISRUPTION — STAR SHREDDED';
+      three.idleSpinTargets.push({obj: bhObj.ring, axis:'z', rate: 0.9});
+    } else if (outcome.kind==='capture'){
+      var starObj2 = (typeA==='star') ? three.objA : three.objB;
+      var bhObj2 = (typeA==='bh') ? three.objA : three.objB;
+      starObj2.group.visible = false;
+      statusLine.textContent = 'STAR SWALLOWED WHOLE';
+      three.idleSpinTargets.push({obj: bhObj2.ring, axis:'z', rate: 0.5});
+    } else {
+      var loser = three.objB, keeper = three.objA;
+      loser.group.visible = false;
+      var finalStarRadiusSolar = Math.pow(outcome.finalMass, 0.8);
+      var finalSize2 = visualSizeFor('star', outcome.finalMass, finalStarRadiusSolar);
+      keeper.group.scale.set(finalSize2/anim.sizeA, finalSize2/anim.sizeA, finalSize2/anim.sizeA);
+      spawnDebrisParticles(0xfff0c8, keeper.group.position, 0.5);
+      statusLine.textContent = 'STARS MERGED';
+      three.idleSpinTargets.push({obj: keeper.mesh, axis:'y', rate: 0.4});
+    }
+  }
+
+  function update3D(dt){
+    if (!three) return;
+    updateAnimation(dt);
+    if (three.autoRotate && !three.dragging) three.azimuth += 0.0012;
+    three.camera.position.set(
+      three.radius*Math.sin(three.polar)*Math.cos(three.azimuth),
+      three.radius*Math.cos(three.polar),
+      three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
+    );
+    three.camera.lookAt(0,0,0);
+    three.renderer.render(three.scene, three.camera);
+  }
+
+  function loop(){
+    var now = performance.now();
+    var dt = Math.min(0.05, (now - (loop.last||now))/1000);
+    loop.last = now;
+    update3D(dt);
+    requestAnimationFrame(loop);
+  }
+
+  runBtn.addEventListener('click', function(){
+    var outcome = computeOutcome();
+    startAnimation(outcome);
+  });
+
+  var resetBtn = document.getElementById('resetBtn');
+  resetBtn.addEventListener('click', function(){
+    anim = null;
+    clearScene();
+    statusLine.classList.remove('show');
+    resultsEl.classList.remove('show');
+    runBtn.disabled = false;
+
+    typeA = 'bh'; typeB = 'bh';
+    massA.value = 30; massB.value = 20;
+    radiusA.value = 1; radiusB.value = 1;
+    updateTypeUI(); syncSchwarz();
+
+    speedSlider.value = 100;
+    speedMultiplier = 1;
+
+    if (three){
+      three.azimuth = 0.6; three.polar = 1.15; three.radius = 16;
+      three.autoRotate = true;
+    }
+  });
+
+  var speedSlider = document.getElementById('speedSlider');
+  speedSlider.addEventListener('input', function(){
+    speedMultiplier = parseFloat(speedSlider.value)/100;
+  });
+
+  var isExpanded = false;
+  function setExpanded(val){
+    isExpanded = val;
+    stage.classList.toggle('expanded', isExpanded);
+    fsBtn.textContent = isExpanded ? '⤢ RESTORE VIEW' : '⛶ FULLSCREEN';
+    document.body.style.overflow = isExpanded ? 'hidden' : '';
+    resizeThree();
+    requestAnimationFrame(resizeThree);
+  }
+  fsBtn.addEventListener('click', function(){ setExpanded(!isExpanded); });
+  document.addEventListener('keydown', function(e){ if (e.key==='Escape' && isExpanded) setExpanded(false); });
+  window.addEventListener('resize', resizeThree);
+
+  initThree();
+  resizeThree();
+  requestAnimationFrame(loop);
+})();
+</script>
+
+<script src="/libraries/view-counter.js"></script>
+
+</body>
+</html>
