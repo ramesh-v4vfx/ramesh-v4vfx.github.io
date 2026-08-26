@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<title>RV·SUPERNOVA — Stellar Death Simulator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --rv-bg:#050506;
+  --rv-panel:#0b0c0e;
+  --rv-red:#ff2b2b;
+  --rv-red-dim:rgba(255,43,43,0.35);
+  --rv-red-glow:rgba(255,43,43,0.55);
+  --rv-text:#d8dadd;
+  --rv-dim:#6b7076;
+  --rv-cyan:#4fd1ff;
+  --rv-green:#5cffa1;
+  --rv-gold:#ffcf6b;
+  --rv-purple:#c88bff;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--rv-bg);color:var(--rv-text);font-family:'Space Mono',monospace;}
+
+.wrap{ position:relative; max-width:1180px; margin:0 auto; padding:28px 20px 40px; }
+
+.scan{
+  pointer-events:none; position:fixed; inset:0;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode:overlay; z-index:50;
+}
+
+.back-link{
+  display:inline-block; font-size:11px; letter-spacing:0.14em; color:var(--rv-dim);
+  text-decoration:none; margin-bottom:14px; border:1px solid rgba(255,255,255,0.08);
+  padding:6px 10px; transition:color .15s, border-color .15s;
+}
+.back-link:hover{ color:var(--rv-red); border-color:var(--rv-red-dim); }
+
+header{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  border-bottom:1px solid var(--rv-red-dim); padding-bottom:14px; margin-bottom:22px; letter-spacing:0.08em;
+}
+.title-block h1{ font-size:26px; margin:0; color:var(--rv-red); text-shadow:0 0 14px var(--rv-red-glow); letter-spacing:0.12em; }
+.title-block .sub{ font-size:11px; color:var(--rv-dim); margin-top:4px; letter-spacing:0.18em;}
+.badge{ font-size:10px; color:var(--rv-dim); text-align:right; line-height:1.6; }
+.badge span{color:var(--rv-cyan);}
+
+.grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:20px; }
+@media(max-width:860px){ .grid{grid-template-columns:1fr;} }
+
+.panel{ position:relative; background:var(--rv-panel); border:1px solid var(--rv-red-dim); padding:16px; }
+.panel .bl,.panel .br,.panel .tl,.panel .tr{ content:""; position:absolute; width:12px; height:12px; }
+.panel .tl{ top:-1px; left:-1px; border-top:2px solid var(--rv-red); border-left:2px solid var(--rv-red);}
+.panel .tr{ top:-1px; right:-1px; border-top:2px solid var(--rv-red); border-right:2px solid var(--rv-red);}
+.panel .bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--rv-red); border-left:2px solid var(--rv-red);}
+.panel .br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--rv-red); border-right:2px solid var(--rv-red);}
+
+.panel-label{ font-size:11px; color:var(--rv-red); letter-spacing:0.2em; margin-bottom:10px; display:flex; justify-content:space-between; }
+.panel-label .dot{ width:7px;height:7px;border-radius:50%;background:var(--rv-green); box-shadow:0 0 8px var(--rv-green); display:inline-block; margin-right:6px; }
+
+canvas{ width:100%; display:block; background:#05050a; border:1px solid rgba(255,255,255,0.05); }
+
+.controls{ display:flex; flex-direction:column; gap:18px; }
+.ctrl-row{ display:flex; flex-direction:column; gap:6px; }
+.ctrl-row label{ font-size:11px; color:var(--rv-dim); letter-spacing:0.1em; display:flex; justify-content:space-between;}
+.ctrl-row label b{ color:var(--rv-text); font-weight:400; }
+input[type=range]{ -webkit-appearance:none; width:100%; height:2px; background:var(--rv-red-dim); outline:none; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; background:var(--rv-red); box-shadow:0 0 8px var(--rv-red-glow); cursor:pointer; border:none; }
+input[type=range]::-moz-range-thumb{ width:12px; height:12px; background:var(--rv-red); border:none; box-shadow:0 0 8px var(--rv-red-glow); cursor:pointer; }
+
+.btn-row{ display:flex; gap:10px; }
+button{
+  flex:1; background:#0d0e10; color:var(--rv-red); border:1px solid var(--rv-red-dim);
+  font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.12em; padding:10px 8px;
+  cursor:pointer; transition:background .15s, box-shadow .15s;
+}
+button:hover{ background:rgba(255,43,43,0.08); box-shadow:0 0 10px var(--rv-red-dim); }
+button:disabled{ opacity:0.35; cursor:default; box-shadow:none; }
+button.secondary{ color:var(--rv-dim); }
+
+.telemetry{ margin-top:6px; display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; }
+.tele-item{ border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; }
+.tele-item .k{ font-size:9px; color:var(--rv-dim); letter-spacing:0.14em;}
+.tele-item .v{ font-size:15px; color:var(--rv-cyan); margin-top:2px;}
+.tele-item .v.gold{ color:var(--rv-gold);}
+.tele-item .v.green{ color:var(--rv-green);}
+.tele-item .v.red{ color:var(--rv-red); text-shadow:0 0 10px var(--rv-red-glow);}
+.tele-item .v.purple{ color:var(--rv-purple);}
+
+.status-line{ margin-top:14px; padding:10px 12px; border:1px solid var(--rv-red-dim); font-size:11px; letter-spacing:0.08em; background:rgba(255,43,43,0.04); min-height:38px; }
+.status-line b{ color:var(--rv-red); }
+
+.mass-scale{ position:relative; height:34px; margin-top:4px; }
+.mass-scale .track{ position:absolute; top:14px; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--rv-cyan) 0%, var(--rv-cyan) 13%, var(--rv-gold) 13%, var(--rv-gold) 33%, var(--rv-purple) 33%, var(--rv-purple) 100%); opacity:0.5; }
+.mass-scale .lbl{ position:absolute; top:0; font-size:8px; color:var(--rv-dim); letter-spacing:0.05em; }
+
+.footer-note{ margin-top:18px; font-size:10px; color:var(--rv-dim); letter-spacing:0.06em; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+  <a href="https://rameshverse.com" class="back-link">← RAMESHVERSE</a>
+
+  <header>
+    <div class="title-block">
+      <h1>RV·SUPERNOVA</h1>
+      <div class="sub">STELLAR DEATH SIMULATOR — CORE COLLAPSE MODEL</div>
+    </div>
+    <div class="badge">RAMESHVERSE SCIENCE SUITE<br>MODULE <span>09</span> / STATUS <span>ONLINE</span></div>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+      <div class="panel-label"><span><span class="dot"></span>STELLAR COLLAPSE VIEW</span><span id="stageLbl">PRE-COLLAPSE</span></div>
+      <canvas id="sim" width="720" height="440"></canvas>
+    </div>
+
+    <div class="panel">
+      <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+      <div class="panel-label"><span><span class="dot"></span>PROGENITOR PARAMETERS</span></div>
+
+      <div class="controls">
+        <div class="ctrl-row">
+          <label>INITIAL MASS <b id="mLbl">15.0 M☉</b></label>
+          <input type="range" id="mSlider" min="0.8" max="60" value="15" step="0.1">
+          <div class="mass-scale">
+            <div class="track"></div>
+            <div class="lbl" style="left:0%">0.8</div>
+            <div class="lbl" style="left:12%">8</div>
+            <div class="lbl" style="left:32%">20</div>
+            <div class="lbl" style="left:98%">60 M☉</div>
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <label>ANIMATION SPEED <b id="speedLbl">1.0×</b></label>
+          <input type="range" id="speedSlider" min="0.2" max="4" value="1" step="0.1">
+        </div>
+
+        <div class="btn-row">
+          <button id="igniteBtn">IGNITE COLLAPSE</button>
+          <button id="resetBtn" class="secondary">RESET</button>
+        </div>
+
+        <div class="telemetry">
+          <div class="tele-item"><div class="k">PREDICTED OUTCOME</div><div class="v gold" id="outcomeV">--</div></div>
+          <div class="tele-item"><div class="k">REMNANT MASS</div><div class="v" id="remnantV">--</div></div>
+          <div class="tele-item"><div class="k">EXPLOSION ENERGY</div><div class="v red" id="energyV">--</div></div>
+          <div class="tele-item"><div class="k">SCHWARZSCHILD R.</div><div class="v purple" id="rsV">--</div></div>
+          <div class="tele-item"><div class="k">vs CHANDRASEKHAR (1.44 M☉)</div><div class="v green" id="chandraV">--</div></div>
+          <div class="tele-item"><div class="k">vs TOV LIMIT (~2.2 M☉)</div><div class="v" id="tovV">--</div></div>
+        </div>
+
+        <div class="status-line" id="statusLine">
+          <b>STANDBY —</b> set progenitor mass and press IGNITE COLLAPSE.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    ILLUSTRATIVE MODEL — mass boundaries (~8 M☉ white dwarf/supernova threshold, ~20 M☉ neutron star/black hole threshold)
+    and remnant masses follow standard stellar-evolution rules of thumb; real outcomes also depend on metallicity, rotation,
+    and fallback physics not modeled here. Collapse/explosion timing is dramatized, not to real timescale.
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('sim');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const cx = W/2, cy = H/2;
+
+const mSlider = document.getElementById('mSlider');
+const speedSlider = document.getElementById('speedSlider');
+const mLbl = document.getElementById('mLbl');
+const speedLbl = document.getElementById('speedLbl');
+const stageLbl = document.getElementById('stageLbl');
+const outcomeV = document.getElementById('outcomeV');
+const remnantV = document.getElementById('remnantV');
+const energyV = document.getElementById('energyV');
+const rsV = document.getElementById('rsV');
+const chandraV = document.getElementById('chandraV');
+const tovV = document.getElementById('tovV');
+const statusLine = document.getElementById('statusLine');
+const igniteBtn = document.getElementById('igniteBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+function computeOutcome(mass){
+  let outcome, remnantMass, hasExplosion, energyJ, color;
+  if(mass < 8){
+    outcome = 'WHITE DWARF';
+    remnantMass = Math.min(1.36, mass*0.55 + 0.15);
+    hasExplosion = false;
+    energyJ = 0;
+    color = '#eaf2ff';
+  } else if(mass < 20){
+    outcome = 'NEUTRON STAR';
+    remnantMass = 1.1 + (mass-8)*0.045;
+    hasExplosion = true;
+    energyJ = 1.0e44 + (mass-8)*0.03e44;
+    color = '#4fd1ff';
+  } else {
+    outcome = 'BLACK HOLE';
+    remnantMass = Math.min(mass*0.35, 3 + (mass-20)*0.25);
+    hasExplosion = mass < 40; // beyond this, treat as more direct/failed collapse
+    energyJ = hasExplosion ? 1.2e44 + (mass-20)*0.05e44 : 0.15e44;
+    color = '#c88bff';
+  }
+  const rs_km = 2.95 * remnantMass; // Schwarzschild radius, km, scales with Msun
+  return {outcome, remnantMass, hasExplosion, energyJ, color, rs_km};
+}
+
+function updateTelemetry(){
+  const mass = parseFloat(mSlider.value);
+  mLbl.textContent = mass.toFixed(1)+' M☉';
+  const r = computeOutcome(mass);
+  outcomeV.textContent = r.outcome;
+  remnantV.textContent = r.remnantMass.toFixed(2)+' M☉';
+  energyV.textContent = r.hasExplosion ? (r.energyJ).toExponential(2)+' J' : 'NO EXPLOSION';
+  rsV.textContent = r.outcome==='BLACK HOLE' ? r.rs_km.toFixed(1)+' km' : 'N/A';
+  chandraV.textContent = (r.remnantMass/1.44*100).toFixed(0)+'% OF LIMIT';
+  chandraV.className = 'v ' + (r.remnantMass < 1.44 ? 'green' : 'red');
+  tovV.textContent = r.outcome==='NEUTRON STAR' ? (r.remnantMass/2.2*100).toFixed(0)+'% OF LIMIT' : '—';
+  return r;
+}
+
+function maskTelemetry(){
+  outcomeV.textContent = '—';
+  outcomeV.className = 'v gold';
+  remnantV.textContent = '—';
+  energyV.textContent = '—';
+  rsV.textContent = '—';
+  chandraV.textContent = '—';
+  chandraV.className = 'v';
+  tovV.textContent = '—';
+}
+
+// ---- animation state machine ----
+let playing = false;
+let progress = 0; // 0..1
+let particles = [];
+let flashAlpha = 0;
+let currentOutcome = null;
+let revealed = false;
+
+function reset(){
+  playing = false;
+  progress = 0;
+  particles = [];
+  flashAlpha = 0;
+  currentOutcome = null;
+  revealed = false;
+  stageLbl.textContent = 'PRE-COLLAPSE';
+  statusLine.innerHTML = '<b>STANDBY —</b> set progenitor mass and press IGNITE COLLAPSE.';
+  igniteBtn.disabled = false;
+  mSlider.disabled = false;
+  maskTelemetry();
+}
+
+function ignite(){
+  currentOutcome = computeOutcome(parseFloat(mSlider.value)); // computed for physics only, not shown yet
+  playing = true;
+  progress = 0;
+  revealed = false;
+  particles = [];
+  maskTelemetry();
+  igniteBtn.disabled = true;
+  mSlider.disabled = true;
+  statusLine.innerHTML = '<b>IGNITING —</b> core fusion exhausted, gravitational collapse beginning.';
+}
+
+igniteBtn.addEventListener('click', ignite);
+resetBtn.addEventListener('click', reset);
+mSlider.addEventListener('input', ()=>{ if(!playing) maskTelemetry(); });
+
+function starColorForMass(mass){
+  if(mass<2) return '#ffcf6b';
+  if(mass<8) return '#ffe6a3';
+  if(mass<20) return '#cfe0ff';
+  return '#9fc4ff';
+}
+
+function drawPreCollapse(mass){
+  const r = 26 + Math.min(34, mass*0.7);
+  const g = ctx.createRadialGradient(cx-6,cy-6,2,cx,cy,r*2.2);
+  const col = starColorForMass(mass);
+  g.addColorStop(0, col);
+  g.addColorStop(0.5, col+'88');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,r*2.2,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
+
+  // gentle pulsing shimmer
+  const pulse = 1 + Math.sin(performance.now()/500)*0.02;
+  ctx.beginPath(); ctx.arc(cx,cy,r*pulse*1.05,0,Math.PI*2);
+  ctx.strokeStyle = col+'33'; ctx.lineWidth=2; ctx.stroke();
+}
+
+function drawFrame(){
+  ctx.clearRect(0,0,W,H);
+  const mass = parseFloat(mSlider.value);
+  const speed = parseFloat(speedSlider.value);
+  speedLbl.textContent = speed.toFixed(1)+'×';
+
+  if(!playing){
+    drawPreCollapse(mass);
+    requestAnimationFrame(drawFrame);
+    return;
+  }
+
+  progress += 0.0032*speed;
+  const r = currentOutcome;
+  const preR = 26 + Math.min(34, mass*0.7);
+
+  if(progress < 0.18){
+    // contraction phase
+    stageLbl.textContent = 'CORE COLLAPSE';
+    statusLine.innerHTML = '<b>COLLAPSING —</b> core density rising past electron-degeneracy support.';
+    const t = progress/0.18;
+    const rad = preR*(1-t*0.75);
+    const col = starColorForMass(mass);
+    ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.fillStyle = col; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,cy,rad*1.3,0,Math.PI*2);
+    ctx.strokeStyle = 'rgba(255,255,255,'+(0.25*(1-t))+')'; ctx.lineWidth=2; ctx.stroke();
+
+  } else if(progress < 0.30 && r.hasExplosion){
+    // bounce / flash
+    stageLbl.textContent = 'CORE BOUNCE';
+    statusLine.innerHTML = '<b>BOUNCE —</b> outer layers rebounding off the incompressible core.';
+    flashAlpha = Math.min(1, flashAlpha+0.08);
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.5);
+    g.addColorStop(0, `rgba(255,255,255,${flashAlpha})`);
+    g.addColorStop(0.3, `rgba(255,220,150,${flashAlpha*0.6})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+
+  } else if(progress < 0.30 && !r.hasExplosion){
+    // gentle nebula ejection start
+    stageLbl.textContent = 'SHELL EJECTION';
+    statusLine.innerHTML = '<b>EJECTING —</b> outer envelope drifting outward as gravity weakens.';
+    for(let i=0;i<2;i++){
+      particles.push({
+        ang: Math.random()*Math.PI*2, r: preR*0.4, speed: 0.4+Math.random()*0.3,
+        size: 1.5+Math.random()*1.5, alpha: 0.5, color: 'rgba(150,220,255,'
+      });
+    }
+
+  } else if(progress < 0.62){
+    // explosion / shell expansion phase
+    stageLbl.textContent = r.hasExplosion ? 'SUPERNOVA EXPANSION' : 'NEBULA EXPANSION';
+    statusLine.innerHTML = r.hasExplosion
+      ? '<b>EXPLODING —</b> shockwave ejecting outer layers at ~10,000+ km/s.'
+      : '<b>EXPANDING —</b> ejected shell drifting outward, remnant core exposed.';
+    flashAlpha = Math.max(0, flashAlpha-0.02);
+    if(flashAlpha>0){
+      const g = ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.5);
+      g.addColorStop(0, `rgba(255,255,255,${flashAlpha})`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    }
+    const spawnN = r.hasExplosion ? 6 : 1;
+    for(let i=0;i<spawnN;i++){
+      particles.push({
+        ang: Math.random()*Math.PI*2, r: 8,
+        speed: r.hasExplosion ? (2.5+Math.random()*2.5) : (0.5+Math.random()*0.4),
+        size: r.hasExplosion ? (1+Math.random()*2) : (1.5+Math.random()*1.5),
+        alpha: 1, color: r.hasExplosion ? 'rgba(255,'+(150+Math.random()*80|0)+',80,' : 'rgba(150,220,255,'
+      });
+    }
+    particles.forEach(p=>{
+      p.r += p.speed;
+      p.alpha -= 0.004;
+      const px = cx+Math.cos(p.ang)*p.r, py = cy+Math.sin(p.ang)*p.r;
+      if(p.alpha>0){ ctx.beginPath(); ctx.arc(px,py,p.size,0,Math.PI*2); ctx.fillStyle = p.color+Math.max(0,p.alpha)+')'; ctx.fill(); }
+    });
+    particles = particles.filter(p=>p.alpha>0);
+    drawRemnant(r, 0.4);
+
+  } else {
+    // remnant settled
+    if(!revealed){
+      updateTelemetry();
+      revealed = true;
+    }
+    stageLbl.textContent = r.outcome+' FORMED';
+    statusLine.innerHTML = '<b>REMNANT STABLE —</b> collapse complete: '+r.outcome+' ('+r.remnantMass.toFixed(2)+' M☉).';
+    particles.forEach(p=>{
+      p.r += p.speed*0.3;
+      p.alpha -= 0.002;
+      const px = cx+Math.cos(p.ang)*p.r, py = cy+Math.sin(p.ang)*p.r;
+      if(p.alpha>0){ ctx.beginPath(); ctx.arc(px,py,p.size,0,Math.PI*2); ctx.fillStyle = p.color+Math.max(0,p.alpha)+')'; ctx.fill(); }
+    });
+    particles = particles.filter(p=>p.alpha>0);
+    drawRemnant(r, 1);
+    igniteBtn.disabled = false;
+    mSlider.disabled = false;
+  }
+
+  requestAnimationFrame(drawFrame);
+}
+
+function drawRemnant(r, strength){
+  if(r.outcome==='WHITE DWARF'){
+    const rad = 6*strength;
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,rad*4);
+    g.addColorStop(0,'rgba(230,240,255,'+(0.9*strength)+')');
+    g.addColorStop(1,'rgba(230,240,255,0)');
+    ctx.beginPath(); ctx.arc(cx,cy,rad*4,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.fillStyle='#eaf2ff'; ctx.fill();
+  } else if(r.outcome==='NEUTRON STAR'){
+    const pulse = 1+Math.sin(performance.now()/120)*0.3;
+    const rad = 3.5*strength;
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(performance.now()/700);
+    ctx.strokeStyle = 'rgba(79,209,255,'+(0.5*strength)+')';
+    ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(-90,0); ctx.lineTo(90,0); ctx.stroke();
+    ctx.restore();
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,rad*6*pulse);
+    g.addColorStop(0,'rgba(200,240,255,'+(1*strength)+')');
+    g.addColorStop(1,'rgba(79,209,255,0)');
+    ctx.beginPath(); ctx.arc(cx,cy,rad*6*pulse,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.fillStyle='#eaffff'; ctx.fill();
+  } else { // BLACK HOLE
+    const rad = Math.max(4, Math.min(16, r.rs_km*0.4))*strength;
+    // accretion disk
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.scale(1,0.35);
+    const dg = ctx.createRadialGradient(0,0,rad*1.3,0,0,rad*4);
+    dg.addColorStop(0,'rgba(200,140,255,'+(0.7*strength)+')');
+    dg.addColorStop(1,'rgba(200,140,255,0)');
+    ctx.beginPath(); ctx.arc(0,0,rad*4,0,Math.PI*2); ctx.fillStyle=dg; ctx.fill();
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill();
+    ctx.strokeStyle = 'rgba(200,140,255,'+(0.6*strength)+')'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(cx,cy,rad*1.15,0,Math.PI*2); ctx.stroke();
+  }
+}
+
+maskTelemetry();
+requestAnimationFrame(drawFrame);
+</script>
+
+<script src="/libraries/view-counter.js"></script>
+
+</body>
+</html>
