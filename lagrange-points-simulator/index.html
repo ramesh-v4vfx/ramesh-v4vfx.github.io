@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<title>RV·LAGRANGE — Lagrange Point Visualizer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --rv-bg:#050506;
+  --rv-panel:#0b0c0e;
+  --rv-red:#ff2b2b;
+  --rv-red-dim:rgba(255,43,43,0.35);
+  --rv-red-glow:rgba(255,43,43,0.55);
+  --rv-text:#d8dadd;
+  --rv-dim:#6b7076;
+  --rv-cyan:#4fd1ff;
+  --rv-green:#5cffa1;
+  --rv-gold:#ffcf6b;
+  --rv-purple:#c88bff;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--rv-bg);color:var(--rv-text);font-family:'Space Mono',monospace;}
+
+.wrap{ position:relative; max-width:1180px; margin:0 auto; padding:28px 20px 40px; }
+
+.scan{
+  pointer-events:none; position:fixed; inset:0;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode:overlay; z-index:50;
+}
+
+.back-link{
+  display:inline-block; font-size:11px; letter-spacing:0.14em; color:var(--rv-dim);
+  text-decoration:none; margin-bottom:14px; border:1px solid rgba(255,255,255,0.08);
+  padding:6px 10px; transition:color .15s, border-color .15s;
+}
+.back-link:hover{ color:var(--rv-red); border-color:var(--rv-red-dim); }
+
+header{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  border-bottom:1px solid var(--rv-red-dim); padding-bottom:14px; margin-bottom:22px; letter-spacing:0.08em;
+}
+.title-block h1{ font-size:26px; margin:0; color:var(--rv-red); text-shadow:0 0 14px var(--rv-red-glow); letter-spacing:0.12em; }
+.title-block .sub{ font-size:11px; color:var(--rv-dim); margin-top:4px; letter-spacing:0.18em;}
+.badge{ font-size:10px; color:var(--rv-dim); text-align:right; line-height:1.6; }
+.badge span{color:var(--rv-cyan);}
+
+.grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:20px; }
+@media(max-width:860px){ .grid{grid-template-columns:1fr;} }
+
+.panel{ position:relative; background:var(--rv-panel); border:1px solid var(--rv-red-dim); padding:16px; }
+.panel .bl,.panel .br,.panel .tl,.panel .tr{ content:""; position:absolute; width:12px; height:12px; }
+.panel .tl{ top:-1px; left:-1px; border-top:2px solid var(--rv-red); border-left:2px solid var(--rv-red);}
+.panel .tr{ top:-1px; right:-1px; border-top:2px solid var(--rv-red); border-right:2px solid var(--rv-red);}
+.panel .bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--rv-red); border-left:2px solid var(--rv-red);}
+.panel .br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--rv-red); border-right:2px solid var(--rv-red);}
+
+.panel-label{ font-size:11px; color:var(--rv-red); letter-spacing:0.2em; margin-bottom:10px; display:flex; justify-content:space-between; }
+.panel-label .dot{ width:7px;height:7px;border-radius:50%;background:var(--rv-green); box-shadow:0 0 8px var(--rv-green); display:inline-block; margin-right:6px; }
+
+canvas{ width:100%; display:block; background:#05050a; border:1px solid rgba(255,255,255,0.05); }
+
+.canvas-wrap{ position:relative; }
+.speed-overlay{
+  position:absolute; left:14px; bottom:14px; z-index:5;
+  background:rgba(5,5,6,0.78); border:1px solid var(--rv-red-dim); backdrop-filter:blur(2px);
+  padding:6px 10px; width:150px; display:flex; align-items:center; gap:8px;
+}
+.speed-overlay .ff-icon{ color:var(--rv-cyan); font-size:13px; flex-shrink:0; line-height:1; }
+.speed-overlay input[type=range]{ -webkit-appearance:none; flex:1; height:2px; background:var(--rv-red-dim); outline:none; }
+.speed-overlay input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:11px; height:11px; background:var(--rv-cyan); box-shadow:0 0 8px rgba(79,209,255,0.6); cursor:pointer; border:none; }
+.speed-overlay input[type=range]::-moz-range-thumb{ width:11px; height:11px; background:var(--rv-cyan); border:none; box-shadow:0 0 8px rgba(79,209,255,0.6); cursor:pointer; }
+
+.zoom-inset{
+  position:absolute; right:14px; top:14px; z-index:5;
+  width:150px; height:110px; background:rgba(5,5,6,0.85); border:1px solid var(--rv-cyan);
+}
+.zoom-inset .zi-label{ position:absolute; top:3px; left:6px; font-size:8px; color:var(--rv-cyan); letter-spacing:0.08em; z-index:1; }
+
+.controls{ display:flex; flex-direction:column; gap:16px; }
+.ctrl-row{ display:flex; flex-direction:column; gap:6px; }
+.ctrl-row label{ font-size:11px; color:var(--rv-dim); letter-spacing:0.1em; display:flex; justify-content:space-between;}
+.ctrl-row label b{ color:var(--rv-text); font-weight:400; }
+input[type=range]{ -webkit-appearance:none; width:100%; height:2px; background:var(--rv-red-dim); outline:none; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; background:var(--rv-red); box-shadow:0 0 8px var(--rv-red-glow); cursor:pointer; border:none; }
+input[type=range]::-moz-range-thumb{ width:12px; height:12px; background:var(--rv-red); border:none; box-shadow:0 0 8px var(--rv-red-glow); cursor:pointer; }
+
+select{
+  background:#0d0e10; color:var(--rv-text); border:1px solid var(--rv-red-dim); font-family:'Space Mono',monospace;
+  font-size:12px; padding:7px 8px; width:100%; letter-spacing:0.05em;
+}
+
+.lp-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.lp-btn{
+  background:#0d0e10; color:var(--rv-cyan); border:1px solid var(--rv-red-dim); font-family:'Space Mono',monospace;
+  font-size:11px; padding:8px 2px; cursor:pointer; text-align:center; transition:background .15s, box-shadow .15s;
+}
+.lp-btn:hover{ background:rgba(79,209,255,0.08); box-shadow:0 0 8px rgba(79,209,255,0.25); }
+.lp-btn.active{ border-color:var(--rv-cyan); color:var(--rv-text); background:rgba(79,209,255,0.12); }
+
+button.clear-btn{
+  width:100%; background:#0d0e10; color:var(--rv-dim); border:1px solid var(--rv-red-dim);
+  font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.1em; padding:9px 8px; cursor:pointer;
+}
+button.clear-btn:hover{ color:var(--rv-red); box-shadow:0 0 8px var(--rv-red-dim); }
+
+.telemetry{ margin-top:2px; display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; }
+.tele-item{ border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; }
+.tele-item .k{ font-size:9px; color:var(--rv-dim); letter-spacing:0.14em;}
+.tele-item .v{ font-size:14px; color:var(--rv-cyan); margin-top:2px;}
+.tele-item .v.gold{ color:var(--rv-gold);}
+.tele-item .v.green{ color:var(--rv-green);}
+.tele-item .v.purple{ color:var(--rv-purple);}
+.tele-item .v.red{ color:var(--rv-red); }
+
+.status-line{ margin-top:6px; padding:10px 12px; border:1px solid var(--rv-red-dim); font-size:11px; letter-spacing:0.08em; background:rgba(255,43,43,0.04); }
+.status-line b{ color:var(--rv-red); }
+
+.footer-note{ margin-top:18px; font-size:10px; color:var(--rv-dim); letter-spacing:0.06em; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+  <a href="https://rameshverse.com" class="back-link">← RAMESHVERSE</a>
+
+  <header>
+    <div class="title-block">
+      <h1>RV·LAGRANGE</h1>
+      <div class="sub">CIRCULAR RESTRICTED THREE-BODY PROBLEM — L1–L5</div>
+    </div>
+    <div class="badge">RAMESHVERSE SCIENCE SUITE<br>MODULE <span>12</span> / STATUS <span>ONLINE</span></div>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+      <div class="panel-label"><span><span class="dot"></span>ROTATING FRAME — EFFECTIVE POTENTIAL</span><span id="stateLbl">--</span></div>
+      <div class="canvas-wrap">
+        <canvas id="sim" width="720" height="520"></canvas>
+        <div class="speed-overlay">
+          <span class="ff-icon">⏩</span>
+          <input type="range" id="speedSlider" min="0.2" max="100" value="1" step="0.1">
+        </div>
+        <div class="zoom-inset" id="zoomInset">
+          <div class="zi-label">ZOOM: L1 · m₂ · L2</div>
+          <canvas id="zoomCanvas" width="150" height="110" style="border:none;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+      <div class="panel-label"><span><span class="dot"></span>SYSTEM PARAMETERS</span></div>
+
+      <div class="controls">
+        <div class="ctrl-row">
+          <label>SYSTEM PRESET</label>
+          <select id="presetSelect">
+            <option value="custom">CUSTOM μ</option>
+            <option value="sunearth" selected>SUN – EARTH (μ = 3.00×10⁻⁶)</option>
+            <option value="sunjupiter">SUN – JUPITER (μ = 9.54×10⁻⁴)</option>
+            <option value="earthmoon">EARTH – MOON (μ = 0.0123)</option>
+            <option value="plutocharon">PLUTO – CHARON (μ = 0.1165)</option>
+          </select>
+        </div>
+        <div class="ctrl-row">
+          <label>MASS RATIO μ = m₂/(m₁+m₂) <b id="muLbl">3.006e-6</b></label>
+          <input type="range" id="muSlider" min="-6.3" max="-0.301" value="-5.5225" step="0.001">
+        </div>
+        <div class="ctrl-row">
+          <label>PLACE TEST MASS AT</label>
+          <div class="lp-grid" id="lpGrid">
+            <div class="lp-btn" data-lp="L1">L1</div>
+            <div class="lp-btn" data-lp="L2">L2</div>
+            <div class="lp-btn" data-lp="L3">L3</div>
+            <div class="lp-btn" data-lp="L4">L4</div>
+            <div class="lp-btn" data-lp="L5">L5</div>
+          </div>
+        </div>
+        <button class="clear-btn" id="clearBtn">CLEAR TEST MASS</button>
+
+        <div class="telemetry">
+          <div class="tele-item"><div class="k">L1 (x)</div><div class="v" id="l1V">--</div></div>
+          <div class="tele-item"><div class="k">L2 (x)</div><div class="v" id="l2V">--</div></div>
+          <div class="tele-item"><div class="k">L3 (x)</div><div class="v" id="l3V">--</div></div>
+          <div class="tele-item"><div class="k">L4 / L5 (x, ±y)</div><div class="v" id="l45V">--</div></div>
+          <div class="tele-item"><div class="k">L4/L5 STABILITY LIMIT</div><div class="v gold" id="stabLimV">μ &lt; 0.0385</div></div>
+          <div class="tele-item"><div class="k">L4/L5 STATUS AT THIS μ</div><div class="v" id="stabV">--</div></div>
+        </div>
+
+        <div class="status-line" id="statusLine">
+          <b>STANDBY —</b> choose a system, then place a test mass at any Lagrange point to test its stability.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    ILLUSTRATIVE MODEL — units are the standard CRTBP normalization (G=1, total mass=1, separation=1, orbital angular
+    velocity=1). L1/L2/L3 solved numerically (Newton–Raphson) from the effective-potential equilibrium condition; L4/L5
+    are exact equilateral-triangle points. Test-mass motion integrates the full rotating-frame equations of motion,
+    including the Coriolis term, via RK4 — this is a real (if idealized, planar, circular-orbit) dynamics simulation.
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('sim');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const cx = W/2, cy = H/2;
+
+const presetSelect = document.getElementById('presetSelect');
+const muSlider = document.getElementById('muSlider');
+const speedSlider = document.getElementById('speedSlider');
+const muLbl = document.getElementById('muLbl');
+const stateLbl = document.getElementById('stateLbl');
+const zoomCanvas = document.getElementById('zoomCanvas');
+const zctx = zoomCanvas.getContext('2d');
+const zoomInset = document.getElementById('zoomInset');
+const l1V = document.getElementById('l1V');
+const l2V = document.getElementById('l2V');
+const l3V = document.getElementById('l3V');
+const l45V = document.getElementById('l45V');
+const stabV = document.getElementById('stabV');
+const statusLine = document.getElementById('statusLine');
+const lpGrid = document.getElementById('lpGrid');
+const clearBtn = document.getElementById('clearBtn');
+
+const PRESETS = {
+  sunearth: 3.003e-6,
+  sunjupiter: 9.537e-4,
+  earthmoon: 0.01215,
+  plutocharon: 0.1165
+};
+function getMu(){ return Math.pow(10, parseFloat(muSlider.value)); }
+presetSelect.addEventListener('change', ()=>{
+  const v = presetSelect.value;
+  if(v!=='custom'){ muSlider.value = Math.log10(PRESETS[v]); }
+  recomputeLagrangePoints();
+  clearTest();
+});
+muSlider.addEventListener('input', ()=>{
+  presetSelect.value='custom';
+  recomputeLagrangePoints();
+});
+
+// --- solve collinear Lagrange points via Newton-Raphson ---
+function gFunc(x, mu){
+  const r1 = x+mu, r2 = x-1+mu;
+  return x - (1-mu)*r1/Math.pow(Math.abs(r1),3) - mu*r2/Math.pow(Math.abs(r2),3);
+}
+function newton(x0, mu){
+  let x = x0;
+  for(let i=0;i<60;i++){
+    const h = 1e-6;
+    const f = gFunc(x,mu);
+    const fp = (gFunc(x+h,mu)-gFunc(x-h,mu))/(2*h);
+    if(Math.abs(fp)<1e-14) break;
+    const xn = x - f/fp;
+    if(!isFinite(xn)) break;
+    x = xn;
+  }
+  return x;
+}
+
+let LP = {}; // current lagrange point positions {L1:{x,y},...}
+function recomputeLagrangePoints(){
+  const mu = getMu();
+  muLbl.textContent = mu < 0.001 ? mu.toExponential(3) : mu.toFixed(4);
+  const rh = Math.cbrt(mu/3);
+  const xL1 = newton((1-mu)-rh, mu);
+  const xL2 = newton((1-mu)+rh, mu);
+  const xL3 = newton(-1-5*mu/12, mu);
+  LP = {
+    L1:{x:xL1,y:0}, L2:{x:xL2,y:0}, L3:{x:xL3,y:0},
+    L4:{x:0.5-mu,y:Math.sqrt(3)/2}, L5:{x:0.5-mu,y:-Math.sqrt(3)/2}
+  };
+  l1V.textContent = xL1.toFixed(4);
+  l2V.textContent = xL2.toFixed(4);
+  l3V.textContent = xL3.toFixed(4);
+  l45V.textContent = (0.5-mu).toFixed(3)+', ±'+(Math.sqrt(3)/2).toFixed(3);
+
+  const stable = mu < 0.0385;
+  stabV.textContent = stable ? 'STABLE (μ < limit)' : 'UNSTABLE (μ > limit)';
+  stabV.className = 'v ' + (stable?'green':'red');
+}
+recomputeLagrangePoints();
+
+// --- test particle dynamics: full rotating-frame RK4 with Coriolis ---
+let test = null; // {x,y,vx,vy, trail:[]}
+let activeLP = null;
+
+function accel(mu, x, y, vx, vy){
+  const r1 = Math.hypot(x+mu, y);
+  const r2 = Math.hypot(x-1+mu, y);
+  const ax = 2*vy + x - (1-mu)*(x+mu)/Math.pow(r1,3) - mu*(x-1+mu)/Math.pow(r2,3);
+  const ay = -2*vx + y - (1-mu)*y/Math.pow(r1,3) - mu*y/Math.pow(r2,3);
+  return [ax,ay];
+}
+function rk4Step(mu, s, dt){
+  function deriv(st){
+    const [ax,ay] = accel(mu, st.x, st.y, st.vx, st.vy);
+    return {x:st.vx, y:st.vy, vx:ax, vy:ay};
+  }
+  const k1 = deriv(s);
+  const s2 = {x:s.x+k1.x*dt/2, y:s.y+k1.y*dt/2, vx:s.vx+k1.vx*dt/2, vy:s.vy+k1.vy*dt/2};
+  const k2 = deriv(s2);
+  const s3 = {x:s.x+k2.x*dt/2, y:s.y+k2.y*dt/2, vx:s.vx+k2.vx*dt/2, vy:s.vy+k2.vy*dt/2};
+  const k3 = deriv(s3);
+  const s4 = {x:s.x+k3.x*dt, y:s.y+k3.y*dt, vx:s.vx+k3.vx*dt, vy:s.vy+k3.vy*dt};
+  const k4 = deriv(s4);
+  return {
+    x: s.x + dt/6*(k1.x+2*k2.x+2*k3.x+k4.x),
+    y: s.y + dt/6*(k1.y+2*k2.y+2*k3.y+k4.y),
+    vx: s.vx + dt/6*(k1.vx+2*k2.vx+2*k3.vx+k4.vx),
+    vy: s.vy + dt/6*(k1.vy+2*k2.vy+2*k3.vy+k4.vy)
+  };
+}
+
+function placeTest(lpKey){
+  activeLP = lpKey;
+  document.querySelectorAll('.lp-btn').forEach(b=>b.classList.toggle('active', b.dataset.lp===lpKey));
+  const p = LP[lpKey];
+  const mu = getMu();
+  const isTriangular = (lpKey==='L4' || lpKey==='L5');
+  const rh = Math.cbrt(mu/3); // Hill radius — the natural length scale of the local dynamics
+  const eps = isTriangular ? 0.06*Math.sqrt(mu) : 0.4*rh;
+  // The CRTBP effective potential Omega(x,y) = 0.5(x^2+y^2) + (1-mu)/r1 + mu/r2 depends on y
+  // only through y^2 (since r1^2=(x+mu)^2+y^2, r2^2=(x-1+mu)^2+y^2), so Omega(x,y)=Omega(x,-y)
+  // exactly: the dynamics are mirror-symmetric across the Sun-Earth line. With zero initial
+  // velocity, mirroring the y-offset (dy -> -dy) between L4 and L5 therefore produces an exact
+  // mirror-image trajectory, not an approximation — this is a consequence of the equations of
+  // motion, not a tuning choice.
+  const ySign = p.y >= 0 ? 1 : -1;
+  test = {x:p.x+eps, y:p.y+eps*0.6*ySign, vx:0, vy:0, trail:[]};
+  statusLine.innerHTML = '<b>TRACKING —</b> test mass released near '+lpKey+' with a small perturbation.';
+}
+function clearTest(){
+  test = null; activeLP = null;
+  document.querySelectorAll('.lp-btn').forEach(b=>b.classList.remove('active'));
+  statusLine.innerHTML = '<b>STANDBY —</b> choose a system, then place a test mass at any Lagrange point to test its stability.';
+}
+lpGrid.querySelectorAll('.lp-btn').forEach(b=>b.addEventListener('click', ()=>placeTest(b.dataset.lp)));
+clearBtn.addEventListener('click', clearTest);
+
+// --- rendering ---
+const scalePx = 165; // px per unit separation distance
+function toPx(x,y){ return [cx + x*scalePx, cy - y*scalePx]; }
+
+function potential(mu,x,y){
+  const r1 = Math.hypot(x+mu,y), r2 = Math.hypot(x-1+mu,y);
+  return -(0.5*(x*x+y*y) + (1-mu)/Math.max(r1,0.02) + mu/Math.max(r2,0.02));
+}
+
+function drawPotentialField(mu){
+  const cell = 8;
+  let minP=Infinity, maxP=-Infinity;
+  const vals = [];
+  for(let px=0; px<W; px+=cell){
+    for(let py=0; py<H; py+=cell){
+      const x = (px-cx)/scalePx, y = -(py-cy)/scalePx;
+      const p = potential(mu,x,y);
+      vals.push([px,py,p]);
+      if(p<minP) minP=p; if(p>maxP) maxP=p;
+    }
+  }
+  vals.forEach(([px,py,p])=>{
+    const t = Math.max(0,Math.min(1,(p-minP)/(maxP-minP)));
+    const shade = Math.floor(8+t*22);
+    ctx.fillStyle = `rgb(${shade},${shade+2},${shade+6})`;
+    ctx.fillRect(px,py,cell,cell);
+  });
+}
+
+function drawFrame(){
+  const mu = getMu();
+  ctx.clearRect(0,0,W,H);
+  drawPotentialField(mu);
+
+  // co-rotating axis guide
+  ctx.strokeStyle='rgba(255,255,255,0.05)';
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+
+  // orbit circle of m2 around barycenter
+  ctx.strokeStyle='rgba(79,209,255,0.12)';
+  const [ox,oy] = toPx(1-mu,0);
+  ctx.beginPath(); ctx.arc(cx,cy,Math.hypot(ox-cx,oy-cy),0,Math.PI*2); ctx.stroke();
+
+  // bodies
+  const [m1x,m1y] = toPx(-mu,0);
+  const [m2x,m2y] = toPx(1-mu,0);
+  const r1px = Math.max(7, 16*(1-mu));
+  const r2px = Math.max(4, 16*mu*3);
+  let g1 = ctx.createRadialGradient(m1x-3,m1y-3,1,m1x,m1y,r1px*1.8);
+  g1.addColorStop(0,'#ffe6a3'); g1.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(m1x,m1y,r1px*1.8,0,Math.PI*2); ctx.fillStyle=g1; ctx.fill();
+  ctx.beginPath(); ctx.arc(m1x,m1y,r1px,0,Math.PI*2); ctx.fillStyle='#ffcf6b'; ctx.fill();
+  ctx.beginPath(); ctx.arc(m2x,m2y,r2px,0,Math.PI*2); ctx.fillStyle='#9fc4ff'; ctx.fill();
+
+  // Lagrange points
+  ctx.font='10px Space Mono';
+  Object.entries(LP).forEach(([k,p])=>{
+    const [px,py] = toPx(p.x,p.y);
+    ctx.beginPath(); ctx.arc(px,py,4,0,Math.PI*2);
+    ctx.strokeStyle = 'rgba(92,255,161,0.7)'; ctx.lineWidth=1.4; ctx.stroke();
+    ctx.fillStyle='rgba(92,255,161,0.85)';
+    ctx.fillText(k, px+7, py-5);
+  });
+
+  // test particle integration + trail
+  if(test){
+    const speed = parseFloat(speedSlider.value);
+    const baseDt = 0.01/6; // fixed, accurate step size regardless of speed
+    const substeps = Math.max(6, Math.min(400, Math.round(speed*6)));
+    for(let i=0;i<substeps;i++){
+      const ns = rk4Step(mu, test, baseDt);
+      test.x=ns.x; test.y=ns.y; test.vx=ns.vx; test.vy=ns.vy;
+    }
+    test.trail.push({x:test.x,y:test.y});
+    if(test.trail.length>500) test.trail.shift();
+
+    for(let i=1;i<test.trail.length;i++){
+      const age = i/test.trail.length; // 0 = oldest, 1 = newest
+      const [px1,py1] = toPx(test.trail[i-1].x, test.trail[i-1].y);
+      const [px2,py2] = toPx(test.trail[i].x, test.trail[i].y);
+      ctx.beginPath();
+      ctx.moveTo(px1,py1); ctx.lineTo(px2,py2);
+      ctx.strokeStyle = `rgba(255,207,107,${0.06+age*0.5})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    const [tpx,tpy] = toPx(test.x,test.y);
+    ctx.beginPath(); ctx.arc(tpx,tpy,3.5,0,Math.PI*2); ctx.fillStyle='#ffcf6b'; ctx.fill();
+
+    // stability read: distance drifting from origin LP over time
+    const dNow = Math.hypot(test.x-LP[activeLP].x, test.y-LP[activeLP].y);
+    stateLbl.textContent = activeLP + ' DRIFT: ' + dNow.toFixed(3);
+    if(dNow > 0.6 && !test.flagged){
+      test.flagged = true;
+      statusLine.innerHTML = '<b>DIVERGED —</b> test mass has drifted far from '+activeLP+' — unstable equilibrium.';
+    } else if(!test.flagged){
+      statusLine.innerHTML = '<b>TRACKING —</b> test mass near '+activeLP+', drift = '+dNow.toFixed(4)+'.';
+    }
+  } else {
+    stateLbl.textContent = 'NO TEST MASS';
+  }
+
+  drawZoomInset(mu);
+
+  requestAnimationFrame(drawFrame);
+}
+requestAnimationFrame(drawFrame);
+
+function drawZoomInset(mu){
+  const rh = Math.cbrt(mu/3);
+  const globalSepPx = rh*2*scalePx; // how far apart L1..L2 appear in the main view
+  if(globalSepPx > 34){ zoomInset.style.display='none'; return; }
+  zoomInset.style.display='block';
+
+  const ZW=150, ZH=110, zcx=ZW/2, zcy=ZH/2;
+  zctx.clearRect(0,0,ZW,ZH);
+  const zScale = (ZW*0.38) / (rh*1.6); // fit L1..L2 span with margin
+
+  function ztoPx(x,y){ return [zcx + (x-(1-mu))*zScale, zcy - y*zScale]; }
+
+  // m2 (Earth) — drawn first, underneath, but now clearly bigger than the gap
+  const [ex,ey] = ztoPx(1-mu,0);
+  zctx.beginPath(); zctx.arc(ex,ey,5,0,Math.PI*2); zctx.fillStyle='#9fc4ff'; zctx.fill();
+  zctx.fillStyle='rgba(159,196,255,0.85)'; zctx.font='8px Space Mono';
+  zctx.fillText('m₂', ex-6, ey+16);
+
+  ['L1','L2'].forEach(k=>{
+    const p = LP[k];
+    const [px,py] = ztoPx(p.x,p.y);
+    zctx.beginPath(); zctx.arc(px,py,4,0,Math.PI*2);
+    zctx.strokeStyle='rgba(92,255,161,0.8)'; zctx.lineWidth=1.3; zctx.stroke();
+    zctx.fillStyle='rgba(92,255,161,0.9)'; zctx.fillText(k, px-5, py-8);
+  });
+
+  // if a test particle is nearby, show it too
+  if(test){
+    const [tpx,tpy] = ztoPx(test.x,test.y);
+    if(tpx>-10&&tpx<ZW+10&&tpy>-10&&tpy<ZH+10){
+      zctx.beginPath(); zctx.arc(tpx,tpy,2.5,0,Math.PI*2); zctx.fillStyle='#ffcf6b'; zctx.fill();
+    }
+  }
+}
+</script>
+
+<script src="/libraries/view-counter.js"></script>
+
+</body>
+</html>
