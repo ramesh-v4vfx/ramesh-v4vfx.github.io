@@ -236,7 +236,8 @@
         <span class="drag-hint" id="dragHint">click a planet for a close look, try enhanced scale if too tiny</span>
         <span class="watermark">rameshverse.com</span>
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
-        <button class="fs-btn active" id="scaleToggleBtn" style="right:170px;">⊙ TRUE SCALE — CLICK FOR ENHANCED</button>        <div class="speed-ctrl">
+        <button class="fs-btn active" id="scaleToggleBtn" style="right:170px;">⊙ TRUE PLANET SCALE — CLICK FOR ENHANCED</button>
+        <div class="speed-ctrl">
           <span>SPEED</span>
           <input type="range" id="speedSlider" min="0" max="50" value="25" step="5">
           
@@ -1260,8 +1261,8 @@ three.camera.lookAt(three.lookTarget);
 scaleToggleBtn.addEventListener('click', function(){
   trueScaleMode = !trueScaleMode;
   scaleToggleBtn.textContent = trueScaleMode
-    ? '⊙ TRUE SCALE — CLICK FOR ENHANCED'
-    : '◎ ENHANCED SCALE — CLICK FOR TRUE';
+  ? '⊙ TRUE PLANET SCALE — CLICK FOR ENHANCED'
+  : '◎ ENHANCED SCALE — CLICK TO REVERT';
   scaleToggleBtn.classList.toggle('active', trueScaleMode);
   rebuildIfReady();
 });
