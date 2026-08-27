@@ -153,8 +153,8 @@ button.clear-btn:hover{ color:var(--rv-red); box-shadow:0 0 8px var(--rv-red-dim
       <div class="canvas-wrap">
         <canvas id="sim" width="720" height="520"></canvas>
         <div class="speed-overlay">
-          <span class="ff-icon">⏩</span>
-          <input type="range" id="speedSlider" min="0.2" max="100" value="1" step="0.1">
+          <span class="ff-icon">speed</span>
+          <input type="range" id="speedSlider" min="0.2" max="100" value="10" step="0.1">
         </div>
         <div class="zoom-inset" id="zoomInset">
           <div class="zi-label">ZOOM: L1 · m₂ · L2</div>
@@ -482,7 +482,7 @@ function drawZoomInset(mu){
   // m2 (Earth) — drawn first, underneath, but now clearly bigger than the gap
   const [ex,ey] = ztoPx(1-mu,0);
   zctx.beginPath(); zctx.arc(ex,ey,5,0,Math.PI*2); zctx.fillStyle='#9fc4ff'; zctx.fill();
-  zctx.fillStyle='rgba(159,196,255,0.85)'; zctx.font='8px Space Mono';
+  zctx.fillStyle='rgba(159,196,255,0.85)'; zctx.font='15px Space Mono';
   zctx.fillText('m₂', ex-6, ey+16);
 
   ['L1','L2'].forEach(k=>{
