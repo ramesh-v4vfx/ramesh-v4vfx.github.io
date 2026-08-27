@@ -44,6 +44,8 @@
   .hr{height:1px; background:var(--line); margin:10px 0 14px;}
   .sysname-row{display:flex; align-items:end; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
 
+  
+
   .grid{display:grid; grid-template-columns:1.55fr 1fr; gap:20px;}
   @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
 
@@ -109,6 +111,8 @@
   #stage3d{position:absolute; inset:0; cursor:grab;}
   #stage3d.dragging{cursor:grabbing;}
   #stage3d canvas{width:100% !important; height:100% !important; display:block;}
+
+  .fs-btn.active{border-color:var(--red); color:var(--red); background:rgba(255,43,43,0.12);}
 
   .add-row{border:1px solid var(--line); padding:10px; margin-bottom:10px;}
 
@@ -229,12 +233,12 @@
         <span class="tag" id="stageTag">SYSTEM VIEW</span>
         <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
         <span class="hzlabel">■ HABITABLE ZONE</span>
-        <span class="drag-hint" id="dragHint">drag to rotate · scroll to zoom</span>
+        <span class="drag-hint" id="dragHint">click a planet for a close look, try enhanced scale if too tiny</span>
         <span class="watermark">rameshverse.com</span>
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
-        <div class="speed-ctrl">
+        <button class="fs-btn active" id="scaleToggleBtn" style="right:170px;">⊙ TRUE SCALE — CLICK FOR ENHANCED</button>        <div class="speed-ctrl">
           <span>SPEED</span>
-          <input type="range" id="speedSlider" min="0" max="100" value="25" step="5">
+          <input type="range" id="speedSlider" min="0" max="50" value="25" step="5">
           
         </div>
         <div id="stage3d"></div>
@@ -411,12 +415,17 @@
     return { x:r*Math.cos(trueAnom), z:r*Math.sin(trueAnom) };
   }
 
-  var SUN_EARTH_RADII = 109.2; // Sun's radius ÷ Earth's radius — real-world reference
-function planetVisualSize(p, starR){
-  var trueRatio = p.radiusRE / (SUN_EARTH_RADII * Math.max(starR, 0.05));
-  var visSize = Math.pow(trueRatio, 0.3) * 0.115;
-  return Math.max(0.022, Math.min(0.45, visSize));
-}
+    var trueScaleMode = true; // default: exaggerated/visible mode
+    var SUN_EARTH_RADII = 109.2; // Sun's radius ÷ Earth's radius
+
+    function planetVisualSize(p, starVisualRadius, starR){
+      var trueRatio = p.radiusRE / (SUN_EARTH_RADII * Math.max(starR, 0.05));
+      if (trueScaleMode){
+        return Math.max(0.0008, starVisualRadius * trueRatio);
+      }
+      var visSize = Math.pow(trueRatio, 0.3) * 0.115;
+      return Math.max(0.022, Math.min(0.45, visSize));
+    }
 
   // ---- star editor ----
   function syncStarEditorFromState(){
@@ -875,7 +884,7 @@ function planetVisualSize(p, starR){
     stage3d.appendChild(renderer.domElement);
 
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    var camera = new THREE.PerspectiveCamera(45, 1, 0.001, 100);
     var ambient = new THREE.AmbientLight(0x222226, 1.1);
     scene.add(ambient);
     var hemi = new THREE.HemisphereLight(0x2a3550, 0x05050a, 0.55);
@@ -906,35 +915,61 @@ function planetVisualSize(p, starR){
     scene.add(starField);
 
     three = {
-      renderer:renderer, scene:scene, camera:camera,
-      starObjs:[], starOrbitLines:[],
-      planetMeshes:[], planetLabels:[], planetAtmos:[], planetRings:[],
-      azimuth:0.7, polar:1.05, radius:11, autoRotate:true,
-      dragging:false, lastX:0, lastY:0
-    };
+  renderer:renderer, scene:scene, camera:camera,
+  starObjs:[], starOrbitLines:[],
+  planetMeshes:[], planetLabels:[], planetAtmos:[], planetRings:[],
+  azimuth:0.7, polar:1.05, radius:11, savedRadius:11, autoRotate:true,
+  dragging:false, lastX:0, lastY:0,
+  clickStartX:0, clickStartY:0, hasMoved:false,
+  focusObj:null, lookTarget:new THREE.Vector3(0,0,0)
+};
+
+var raycaster = new THREE.Raycaster();
+var mouseNDC = new THREE.Vector2();
+function handleStageClick(e){
+  var rect = stage3d.getBoundingClientRect();
+  mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
+  mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(mouseNDC, three.camera);
+  var hits = raycaster.intersectObjects(three.planetMeshes);
+  if (hits.length){
+    three.focusObj = hits[0].object;
+    three.savedRadius = three.radius;
+    three.radius = Math.max(hits[0].object.userData.size*6, 0.015);
+  } else if (three.focusObj){
+    three.focusObj = null;
+    three.radius = three.savedRadius;
+  }
+}
 
     stage3d.addEventListener('pointerdown', function(e){
-      three.dragging = true; three.autoRotate = false;
-      three.lastX = e.clientX; three.lastY = e.clientY;
-      stage3d.classList.add('dragging');
-    });
-    window.addEventListener('pointermove', function(e){
-      if (!three.dragging) return;
-      var dx = e.clientX - three.lastX, dy = e.clientY - three.lastY;
-      three.lastX = e.clientX; three.lastY = e.clientY;
-      three.azimuth -= dx*0.006;
-      three.polar -= dy*0.006;
-      three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
-    });
-    window.addEventListener('pointerup', function(){
-      three.dragging = false;
-      stage3d.classList.remove('dragging');
-    });
+  three.dragging = true; three.autoRotate = false;
+  three.lastX = e.clientX; three.lastY = e.clientY;
+  three.clickStartX = e.clientX; three.clickStartY = e.clientY;
+  three.hasMoved = false;
+  stage3d.classList.add('dragging');
+});
+window.addEventListener('pointermove', function(e){
+  if (!three.dragging) return;
+  var dx = e.clientX - three.lastX, dy = e.clientY - three.lastY;
+  three.lastX = e.clientX; three.lastY = e.clientY;
+  if (Math.abs(e.clientX-three.clickStartX) > 4 || Math.abs(e.clientY-three.clickStartY) > 4) three.hasMoved = true;
+  three.azimuth -= dx*0.006;
+  three.polar -= dy*0.006;
+  three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
+});
+window.addEventListener('pointerup', function(e){
+  three.dragging = false;
+  stage3d.classList.remove('dragging');
+  if (!three.hasMoved) handleStageClick(e);
+});
+
     stage3d.addEventListener('wheel', function(e){
-      e.preventDefault();
-      three.radius += e.deltaY*0.01;
-      three.radius = Math.max(3, Math.min(32, three.radius));
-    }, {passive:false});
+  e.preventDefault();
+  var minR = three.focusObj ? 0.008 : 3;
+  three.radius += e.deltaY*(three.focusObj ? 0.0002 : 0.01);
+  three.radius = Math.max(minR, Math.min(32, three.radius));
+}, {passive:false});
   }
 
   function clearGroup(list, scene){
@@ -943,6 +978,7 @@ function planetVisualSize(p, starR){
 
   function rebuildSystem3D(){
     if (!three) return;
+    three.focusObj = null;
     var scene = three.scene;
 
     three.starObjs.forEach(function(so){
@@ -994,7 +1030,7 @@ function planetVisualSize(p, starR){
       label.position.set(0, starScale/0.4*0.4 + 0.35, 0);
       group.add(label);
 
-      three.starObjs.push({ group:group, mesh:starMesh, star:s });
+      three.starObjs.push({ group:group, mesh:starMesh, star:s, visualRadius:starScale });
 
       if (idx>0){
         var pts = [];
@@ -1026,7 +1062,7 @@ function planetVisualSize(p, starR){
       var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x394048, transparent:true, opacity:0.55}));
       group.add(line);
 
-      var size = planetVisualSize(p, starObj.star.R);
+      var size = planetVisualSize(p, starObj.visualRadius, starObj.star.R);
       var geo = new THREE.SphereGeometry(size, 20, 20);
       var mat = new THREE.MeshStandardMaterial({map:makePlanetTexture(p.type.id, p.type.hex), roughness:0.7, metalness:0.06});
       var mesh = new THREE.Mesh(geo, mat);
@@ -1086,13 +1122,19 @@ function planetVisualSize(p, starR){
       }
     });
 
-    if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
-    three.camera.position.set(
-      three.radius*Math.sin(three.polar)*Math.cos(three.azimuth),
-      three.radius*Math.cos(three.polar),
-      three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
-    );
-    three.camera.lookAt(0,0,0);
+    if (three.focusObj && three.focusObj.parent){
+  three.focusObj.getWorldPosition(three.lookTarget);
+} else {
+  three.lookTarget.set(0,0,0);
+}
+
+if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
+three.camera.position.set(
+  three.lookTarget.x + three.radius*Math.sin(three.polar)*Math.cos(three.azimuth),
+  three.lookTarget.y + three.radius*Math.cos(three.polar),
+  three.lookTarget.z + three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
+);
+three.camera.lookAt(three.lookTarget);
 
     three.planetMeshes.forEach(function(mesh, idx){
       var p = mesh.userData.planet;
@@ -1213,6 +1255,16 @@ function planetVisualSize(p, starR){
     restoreFileInput.value = '';
     restoreFileInput.click();
   });
+
+  var scaleToggleBtn = document.getElementById('scaleToggleBtn');
+scaleToggleBtn.addEventListener('click', function(){
+  trueScaleMode = !trueScaleMode;
+  scaleToggleBtn.textContent = trueScaleMode
+    ? '⊙ TRUE SCALE — CLICK FOR ENHANCED'
+    : '◎ ENHANCED SCALE — CLICK FOR TRUE';
+  scaleToggleBtn.classList.toggle('active', trueScaleMode);
+  rebuildIfReady();
+});
 
     // ---- presets ----
   var PRESETS = [
