@@ -169,6 +169,9 @@
       <div class="k"><span>SYSTEM NAME</span></div>
       <input type="text" id="systemName" placeholder="Unnamed System" maxlength="30">
     </div>
+    <select id="presetSelect" style="width:170px; max-width:100%;">
+      <option value="">— LOAD SYSTEM —</option>
+    </select>
     <button class="add-star-btn" id="saveSystemBtn">💾 SAVE SYSTEM</button>
     <button class="add-star-btn" id="restoreSystemBtn">📂 RESTORE SYSTEM</button>
     <button class="add-star-btn" id="resetSystemBtn">↺ RESET SYSTEM</button>
@@ -231,8 +234,8 @@
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
-          <input type="range" id="speedSlider" min="0" max="500" value="100" step="5">
-          <b id="speedOut">1.0×</b>
+          <input type="range" id="speedSlider" min="0" max="100" value="25" step="5">
+          
         </div>
         <div id="stage3d"></div>
       </div>
@@ -305,11 +308,13 @@
   ];
 
   var planetTypes = [
-    {id:'rocky', label:'ROCKY', albedo:0.3, radiusRE:1, massME:1, hex:0x8a7a63, ringChance:0},
-    {id:'ice', label:'ICE GIANT', albedo:0.6, radiusRE:4, massME:14, hex:0x9fd6e8, ringChance:0.35},
-    {id:'gas', label:'GAS GIANT', albedo:0.5, radiusRE:11, massME:300, hex:0xe8c98a, ringChance:0.6},
-    {id:'dwarf', label:'DWARF', albedo:0.15, radiusRE:0.3, massME:0.05, hex:0x8a8a8a, ringChance:0}
-  ];
+  {id:'rocky', label:'ROCKY', albedo:0.3, radiusRE:1, massME:1, hex:0x8a7a63, ringChance:0},
+  {id:'superearth', label:'SUPER-EARTH', albedo:0.3, radiusRE:1.6, massME:4, hex:0x9c8468, ringChance:0},
+  {id:'minineptune', label:'MINI-NEPTUNE', albedo:0.5, radiusRE:2.8, massME:9, hex:0xb8dce8, ringChance:0.15},
+  {id:'ice', label:'ICE GIANT', albedo:0.6, radiusRE:4, massME:14, hex:0x9fd6e8, ringChance:0.35},
+  {id:'gas', label:'GAS GIANT', albedo:0.5, radiusRE:11, massME:300, hex:0xe8c98a, ringChance:0.6},
+  {id:'dwarf', label:'DWARF', albedo:0.15, radiusRE:0.3, massME:0.05, hex:0x8a8a8a, ringChance:0}
+];
 
   var NAME_PREFIXES = ['KX','HD','TR','VG','QN','LX','ZR','MK','PX','RN'];
   function randomPlanetName(){
@@ -362,7 +367,7 @@
   var nextNum = 1;
   var editingIndex = null;
   var t = 0;
-  var speedMultiplier = 1;
+  var speedMultiplier = 0.25;
 
   function starLuminosity(s){ return s.R*s.R*Math.pow(s.T/5778, 4); }
   function hzBounds(L){ return { inner: Math.sqrt(L/1.1), outer: Math.sqrt(L/0.53) }; }
@@ -406,9 +411,12 @@
     return { x:r*Math.cos(trueAnom), z:r*Math.sin(trueAnom) };
   }
 
-  function planetVisualSize(p){
-    return 0.035 + Math.sqrt(Math.max(p.radiusRE,0.05))*0.045;
-  }
+  var SUN_EARTH_RADII = 109.2; // Sun's radius ÷ Earth's radius — real-world reference
+function planetVisualSize(p, starR){
+  var trueRatio = p.radiusRE / (SUN_EARTH_RADII * Math.max(starR, 0.05));
+  var visSize = Math.pow(trueRatio, 0.3) * 0.115;
+  return Math.max(0.022, Math.min(0.45, visSize));
+}
 
   // ---- star editor ----
   function syncStarEditorFromState(){
@@ -577,13 +585,11 @@
       b.className = 'type-btn' + (pt===currentType?' active':'');
       b.textContent = pt.label;
       b.addEventListener('click', function(){
-        currentType = pt;
-        Array.prototype.forEach.call(typeRow.children, function(c){ c.classList.remove('active'); });
-        b.classList.add('active');
-        radiusInput.value = pt.radiusRE;
-        massInput.value = pt.massME;
-        updatePeriodPreview();
-      });
+      currentType = pt;
+      Array.prototype.forEach.call(typeRow.children, function(c){ c.classList.remove('active'); });
+      b.classList.add('active');
+      updatePeriodPreview();
+    });
       typeRow.appendChild(b);
     });
   }
@@ -789,7 +795,7 @@
     var base = new THREE.Color(baseHex);
     var br = Math.round(base.r*255), bg = Math.round(base.g*255), bb = Math.round(base.b*255);
     tctx.fillStyle = 'rgb('+br+','+bg+','+bb+')'; tctx.fillRect(0,0,256,128);
-    if (typeId==='gas' || typeId==='ice'){
+    if (typeId==='gas' || typeId==='ice' || typeId==='minineptune'){
       var bands = 9;
       for (var i=0;i<bands;i++){
         var y = (i/bands)*128, h = 128/bands, shade = 0.75+Math.random()*0.5;
@@ -807,7 +813,7 @@
         tctx.fillStyle = 'rgba('+Math.round(br*shade2)+','+Math.round(bg*shade2)+','+Math.round(bb*shade2)+',0.5)';
         tctx.beginPath(); tctx.arc(x2,y2,r2,0,Math.PI*2); tctx.fill();
       }
-      if (typeId==='dwarf'){
+      if (typeId==='dwarf' || typeId==='superearth'){
         for (var m=0;m<20;m++){
           var cx = Math.random()*256, cy = Math.random()*128, cr = 2+Math.random()*5;
           tctx.strokeStyle = 'rgba(0,0,0,0.25)'; tctx.lineWidth=1;
@@ -819,18 +825,35 @@
     tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
     return tex;
   }
-  function makeRingTexture(baseHex){
-    var c = document.createElement('canvas'); c.width=256; c.height=16;
-    var rctx = c.getContext('2d');
-    var base = new THREE.Color(baseHex);
-    var br = Math.round(base.r*255), bg = Math.round(base.g*255), bb = Math.round(base.b*255);
-    for (var x=0;x<256;x++){
-      var a = 0.15+Math.random()*0.45;
-      rctx.fillStyle = 'rgba('+br+','+bg+','+bb+','+a+')';
-      rctx.fillRect(x,0,1,16);
-    }
-    return new THREE.CanvasTexture(c);
+
+  function fixRingUVs(geometry, innerRadius, outerRadius){
+  var pos = geometry.attributes.position;
+  var uv = geometry.attributes.uv;
+  var v3 = new THREE.Vector3();
+  for (var i=0; i<pos.count; i++){
+    v3.fromBufferAttribute(pos, i);
+    var r = Math.sqrt(v3.x*v3.x + v3.y*v3.y);
+    var theta = Math.atan2(v3.y, v3.x);
+    uv.setXY(i, (theta + Math.PI) / (Math.PI*2), (r - innerRadius) / (outerRadius - innerRadius));
   }
+  uv.needsUpdate = true;
+}
+
+  function makeRingTexture(baseHex){
+  var c = document.createElement('canvas'); c.width=16; c.height=256;
+  var rctx = c.getContext('2d');
+  var base = new THREE.Color(baseHex);
+  var br = Math.round(base.r*255), bg = Math.round(base.g*255), bb = Math.round(base.b*255);
+  for (var y=0;y<256;y++){
+    var a = 0.15+Math.random()*0.45;
+    rctx.fillStyle = 'rgba('+br+','+bg+','+bb+','+a+')';
+    rctx.fillRect(0,y,16,1);
+  }
+  var tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  return tex;
+}
+
   function makeTextSprite(text, sizePx){
     var c = document.createElement('canvas'); c.width=160; c.height=40;
     var tctx = c.getContext('2d');
@@ -1003,7 +1026,7 @@
       var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x394048, transparent:true, opacity:0.55}));
       group.add(line);
 
-      var size = planetVisualSize(p);
+      var size = planetVisualSize(p, starObj.star.R);
       var geo = new THREE.SphereGeometry(size, 20, 20);
       var mat = new THREE.MeshStandardMaterial({map:makePlanetTexture(p.type.id, p.type.hex), roughness:0.7, metalness:0.06});
       var mesh = new THREE.Mesh(geo, mat);
@@ -1024,7 +1047,9 @@
 
       var ring = null;
       if (p.hasRing){
-        var ringGeo = new THREE.RingGeometry(size*1.6, size*2.7, 48);
+        var ringInner = size*1.6, ringOuter = size*2.7;
+        var ringGeo = new THREE.RingGeometry(ringInner, ringOuter, 48);
+        fixRingUVs(ringGeo, ringInner, ringOuter);
         var ringMat = new THREE.MeshBasicMaterial({map:makeRingTexture(p.type.hex), transparent:true, opacity:0.85, side:THREE.DoubleSide});
         ring = new THREE.Mesh(ringGeo, ringMat);
         ring.rotation.x = -Math.PI/2 + 0.35;
@@ -1188,6 +1213,42 @@
     restoreFileInput.value = '';
     restoreFileInput.click();
   });
+
+    // ---- presets ----
+  var PRESETS = [
+    { label:'Kepler-11', file:'presets/kepler-11.json' }
+    // add more here as you build them, e.g.:
+    // { label:'TRAPPIST-1', file:'presets/trappist-1.json' },
+  ];
+
+  var presetSelect = document.getElementById('presetSelect');
+  PRESETS.forEach(function(p){
+    var opt = document.createElement('option');
+    opt.value = p.file;
+    opt.textContent = p.label;
+    presetSelect.appendChild(opt);
+  });
+
+  presetSelect.addEventListener('change', function(){
+    var file = presetSelect.value;
+    if (!file) return;
+    fetch(file)
+      .then(function(res){
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function(data){
+        loadSystemFromData(data);
+        showSysStatus('Loaded ' + (data.systemName || 'preset') + '.');
+      })
+      .catch(function(err){
+        showSysStatus('Could not load preset: ' + err.message);
+      })
+      .finally(function(){
+        presetSelect.value = '';
+      });
+  });
+
   restoreFileInput.addEventListener('change', function(){
     var file = restoreFileInput.files && restoreFileInput.files[0];
     if (!file) return;
@@ -1229,12 +1290,10 @@
     requestAnimationFrame(loop);
   }
 
-  var speedSlider = document.getElementById('speedSlider');
-  var speedOut = document.getElementById('speedOut');
-  speedSlider.addEventListener('input', function(){
-    speedMultiplier = parseFloat(speedSlider.value)/100;
-    speedOut.textContent = speedMultiplier.toFixed(1) + '×';
-  });
+     var speedSlider = document.getElementById('speedSlider');
+   speedSlider.addEventListener('input', function(){
+     speedMultiplier = parseFloat(speedSlider.value)/100;
+   });
 
   // ---- click-and-drag scrubbing for number fields (instead of native spin/scroll) ----
   function enableDragScrub(input){

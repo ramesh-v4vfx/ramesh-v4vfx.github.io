@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "systemName": "Kepler-11 System",
+  "stars": [
+    {
+      "name": "Kepler-11",
+      "cls": "G",
+      "M": 1.042,
+      "R": 1.021,
+      "T": 5836,
+      "au": 0,
+      "ecc": 0,
+      "angle": 0
+    }
+  ],
+  "planets": [
+    {
+      "name": "b",
+      "au": 0.091,
+      "ecc": 0.045,
+      "typeId": "superearth",
+      "radiusRE": 1.83,
+      "massME": 2.78,
+      "angle": 6.134412060445769,
+      "hasRing": false,
+      "starIndex": 0
+    },
+    {
+      "name": "c",
+      "au": 0.107,
+      "ecc": 0.026,
+      "typeId": "minineptune",
+      "radiusRE": 2.87,
+      "massME": 5,
+      "angle": 1.3554595497106248,
+      "hasRing": false,
+      "starIndex": 0
+    },
+    {
+      "name": "d",
+      "au": 0.155,
+      "ecc": 0.004,
+      "typeId": "ice",
+      "radiusRE": 3.12,
+      "massME": 14,
+      "angle": 6.124547378987822,
+      "hasRing": false,
+      "starIndex": 0
+    },
+    {
+      "name": "e",
+      "au": 0.195,
+      "ecc": 0.012,
+      "typeId": "ice",
+      "radiusRE": 4.19,
+      "massME": 14,
+      "angle": 5.484761804543316,
+      "hasRing": false,
+      "starIndex": 0
+    },
+    {
+      "name": "f",
+      "au": 0.25,
+      "ecc": 0.013,
+      "typeId": "rocky",
+      "radiusRE": 2.49,
+      "massME": 2.43,
+      "angle": 1.1100576704150782,
+      "hasRing": false,
+      "starIndex": 0
+    },
+    {
+      "name": "g",
+      "au": 0.466,
+      "ecc": 0.013,
+      "typeId": "ice",
+      "radiusRE": 3.33,
+      "massME": 25,
+      "angle": 4.683156578304202,
+      "hasRing": true,
+      "starIndex": 0
+    }
+  ]
+}
