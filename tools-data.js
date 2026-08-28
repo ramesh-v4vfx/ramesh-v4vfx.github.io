@@ -51,6 +51,7 @@ window.RameshverseTools = [
   { id: "asteroid-hunter",            name: "Asteroid Hunter 🎮☄️",                            url: "/games/asteroid-hunter/",               category: "games" },
   { id: "lunar-lander",               name: "Lunar Lander 🎮🌕",                                url: "/games/lunar-lander/",                  category: "games" },
   { id: "target-lock",                name: "Target Lock 🎮🎯",                                url: "/games/target-lock/",                   category: "games" },
-  { id: "sky-tonight",                name: "Sky Tonight",                                      url: "/sky-tonight/",                   category: "science" }
-
+  { id: "sky-tonight",                name: "Sky Tonight",                                      url: "/sky-tonight/",                   category: "science" },
+  { id: "planets-positions-now",      name: "Planets Positions Now",                            url: "/sky-tonight/",                   category: "science" },
+  { id: "sky-at-birth",      name: "Sky at Birth",                                              url: "/sky-at-birth/",                   category: "science" }
 ];

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YOUR SKY AT BIRTH // RV·NATALSKY</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.js"></script>
+<style>
+  :root{
+    --bg:#050505; --panel:#0b0b0b; --line:#241414;
+    --red:#ff2b2b; --red-dim:#7a1414;
+    --text:#e8e2e2; --text-dim:#8a7a7a;
+    --font:'Space Mono', monospace;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
+  body{min-height:100vh; padding:20px 16px 50px; position:relative;}
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; z-index:50;
+  }
+  .wrap{max-width:820px; margin:0 auto; position:relative;}
+  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px;}
+  .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
+  .back-link:hover{color:var(--red);}
+  .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  h1{font-size:20px; letter-spacing:4px; font-weight:700;}
+  h1 span{color:var(--red);}
+  .clock{font-size:11px; color:var(--text-dim); text-align:right; letter-spacing:1px;}
+
+  .panel{position:relative; background:var(--panel); border:1px solid var(--line); padding:18px; margin-bottom:14px;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{content:""; position:absolute; width:10px; height:10px; border-color:var(--red-dim); border-style:solid;}
+  .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
+  .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
+  .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+  .label{font-size:10px; letter-spacing:2px; color:var(--text-dim); margin-bottom:8px;}
+
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media(max-width:520px){.form-grid{grid-template-columns:1fr;}}
+  .field label{display:block; font-size:9px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:5px;}
+  input{width:100%; background:#0f0a0a; border:1px solid var(--line); color:var(--text); font-family:var(--font); font-size:12px; padding:9px 10px;}
+  input:focus{outline:1px solid var(--red-dim);}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+  button{background:transparent; border:1px solid var(--red-dim); color:var(--red); font-family:var(--font); font-size:11px; letter-spacing:1.5px; padding:10px 16px; cursor:pointer; transition:all .15s;}
+  button:hover{background:var(--red-dim); color:var(--text);}
+
+  #posterWrap{display:flex; justify-content:center; padding:10px 0;}
+  #skySvgHost{width:100%; max-width:520px;}
+  .poster-caption{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:10px;}
+  .poster-title{text-align:center; font-size:13px; letter-spacing:2px; margin-bottom:4px; color:var(--text);}
+  .poster-sub{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-bottom:14px;}
+
+  .info-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px;}
+  @media(max-width:520px){.info-grid{grid-template-columns:1fr;}}
+  .info-item .k{font-size:9px; color:var(--text-dim); letter-spacing:1.5px; margin-bottom:3px;}
+  .info-item .v{font-size:13px; font-weight:700;}
+  .zodiac-badge{display:inline-block; margin-top:14px; padding:8px 16px; border:1px solid var(--red-dim); font-size:12px; letter-spacing:2px; color:var(--red);}
+
+  .hidden{display:none;}
+  footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
+      <div class="brand">RAMESHVERSE // RV·NATALSKY</div>
+      <h1>YOUR SKY <span>AT BIRTH</span></h1>
+    </div>
+    <div class="clock" id="clockDisplay">--:--:--</div>
+  </header>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+    <div class="label">BIRTH DETAILS</div>
+    <div class="form-grid">
+      <div class="field"><label>DATE</label><input type="date" id="dobDate"></div>
+      <div class="field"><label>TIME (LOCAL, 24H)</label><input type="time" id="dobTime" value="12:00"></div>
+      <div class="field"><label>UTC OFFSET (e.g. 5.5 for India)</label><input type="number" id="tzOffset" step="0.25" value="0"></div>
+      <div class="field"><label>LATITUDE</label><input type="text" id="latInput" placeholder="e.g. 26.77"></div>
+      <div class="field"><label>LONGITUDE</label><input type="text" id="lonInput" placeholder="e.g. 82.16"></div>
+    </div>
+    <div class="btnrow">
+      <button id="geoBtn">USE MY CURRENT LOCATION</button>
+      <button id="genBtn">GENERATE MY SKY</button>
+    </div>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="panel">
+      <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+      <div class="poster-title" id="posterTitle">—</div>
+      <div class="poster-sub" id="posterSub">—</div>
+      <div id="posterWrap"><div id="skySvgHost"></div></div>
+      <div class="poster-caption">N UP · E RIGHT · EDGE = HORIZON · CENTER = OVERHEAD</div>
+      <div class="btnrow" style="justify-content:center;">
+        <button id="downloadBtn">DOWNLOAD POSTER (SVG)</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+      <div class="label">CELESTIAL POSITIONS</div>
+      <div class="info-grid" id="bodyInfo"></div>
+      <div style="text-align:center;"><span class="zodiac-badge" id="zodiacBadge">—</span></div>
+    </div>
+  </div>
+
+  <footer>APPROXIMATE POSITIONS (CIRCULAR ORBIT MODEL) · RAMESHVERSE.COM</footer>
+</div>
+
+<script>
+setInterval(()=>{
+  document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('en-US',{hour12:false});
+},1000);
+
+document.getElementById('dobDate').valueAsDate = new Date(new Date().getFullYear()-25, 0, 1);
+document.getElementById('tzOffset').value = -(new Date().getTimezoneOffset()/60);
+
+document.getElementById('geoBtn').addEventListener('click', ()=>{
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('latInput').value = pos.coords.latitude.toFixed(4);
+    document.getElementById('lonInput').value = pos.coords.longitude.toFixed(4);
+  });
+});
+
+// --- bright star catalog: [name, RA hours, Dec deg, magnitude] ---
+const stars = [
+['Sirius',6.7525,-16.716,-1.46],['Canopus',6.3992,-52.696,-0.74],['Arcturus',14.2610,19.182,-0.05],
+['Rigil Kentaurus',14.6600,-60.833,-0.27],['Vega',18.6156,38.784,0.03],['Capella',5.2782,45.998,0.08],
+['Rigel',5.2423,-8.202,0.13],['Procyon',7.6550,5.225,0.34],['Betelgeuse',5.9195,7.407,0.42],
+['Achernar',1.6286,-57.237,0.46],['Hadar',14.0637,-60.373,0.61],['Altair',19.8464,8.868,0.76],
+['Aldebaran',4.5987,16.509,0.85],['Antares',16.4901,-26.432,0.96],['Spica',13.4199,-11.161,0.97],
+['Pollux',7.7553,28.026,1.14],['Fomalhaut',22.9608,-29.622,1.16],['Deneb',20.6905,45.280,1.25],
+['Mimosa',12.7953,-59.689,1.25],['Regulus',10.1395,11.967,1.35],['Adhara',6.9770,-28.972,1.50],
+['Castor',7.5766,31.888,1.58],['Shaula',17.5601,-37.104,1.62],['Bellatrix',5.4188,6.350,1.64],
+['Elnath',5.4382,28.607,1.65],['Miaplacidus',9.2199,-69.717,1.67],['Alnilam',5.6036,-1.202,1.69],
+['Alnitak',5.6793,-1.943,1.74],['Alioth',12.9005,55.960,1.76],['Dubhe',11.0621,61.751,1.79],
+['Mirfak',3.4054,49.861,1.79],['Wezen',7.1398,-26.393,1.83],['Sargas',17.6222,-42.998,1.86],
+['Kaus Australis',18.4028,-34.385,1.85],['Avior',8.3752,-59.510,1.86],['Alkaid',13.7923,49.313,1.85],
+['Menkalinan',5.9922,44.947,1.90],['Atria',16.8111,-69.028,1.91],['Alhena',6.6285,16.399,1.93],
+['Peacock',20.4275,-56.735,1.94],['Mirzam',6.3783,-17.956,1.98],['Polaris',2.5303,89.264,1.98],
+['Alphard',9.4599,-8.659,1.98],['Hamal',2.1196,23.462,2.00],['Diphda',0.7264,-17.987,2.04],
+['Nunki',18.9210,-26.297,2.05],['Menkent',14.1113,-36.370,2.06],['Mirach',1.1622,35.621,2.07],
+['Alpheratz',0.1398,29.090,2.06],['Rasalhague',17.5822,12.560,2.08],['Kochab',14.8451,74.155,2.07],
+['Saiph',5.7959,-9.670,2.09],['Denebola',11.8177,14.572,2.14],['Algol',3.1361,40.956,2.12],
+['Naos',8.0592,-40.003,2.21],['Almach',2.0649,42.330,2.26],['Muhlifain',12.6919,-48.960,2.20]
+];
+
+// --- five classical visible planets (circular orbit, J2000 epoch) ---
+const planetOrbits = [
+  {name:'MERCURY', a:0.387, T:87.969,   L0:252.25},
+  {name:'VENUS',   a:0.723, T:224.701,  L0:181.98},
+  {name:'EARTH',   a:1.000, T:365.256,  L0:100.47},
+  {name:'MARS',    a:1.524, T:686.980,  L0:355.45},
+  {name:'JUPITER', a:5.203, T:4332.589, L0:34.40},
+  {name:'SATURN',  a:9.537, T:10759.22, L0:50.08},
+];
+
+const zodiacNames = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+
+function deg2rad(d){return d*Math.PI/180;}
+function rad2deg(r){return r*180/Math.PI;}
+function norm360(d){ d = d % 360; return d < 0 ? d+360 : d; }
+
+function julianDate(utcDate){ return utcDate.getTime()/86400000 + 2440587.5; }
+
+function localSiderealTimeHours(jd, lonDeg){
+  const T = (jd - 2451545.0)/36525;
+  let gmst = 280.46061837 + 360.98564736629*(jd-2451545.0) + 0.000387933*T*T - (T*T*T)/38710000;
+  gmst = norm360(gmst);
+  const lst = norm360(gmst + lonDeg);
+  return lst/15;
+}
+
+function sunEcliptic(jd){
+  const n = jd - 2451545.0;
+  const L = norm360(280.460 + 0.9856474*n);
+  const g = norm360(357.528 + 0.9856003*n);
+  const gr = deg2rad(g);
+  const lambda = norm360(L + 1.915*Math.sin(gr) + 0.020*Math.sin(2*gr));
+  const eps = 23.439 - 0.0000004*n;
+  return {lambda, eps};
+}
+
+function eclipticToRaDec(lambdaDeg, epsDeg){
+  const lr = deg2rad(lambdaDeg), er = deg2rad(epsDeg);
+  let ra = rad2deg(Math.atan2(Math.cos(er)*Math.sin(lr), Math.cos(lr)));
+  ra = norm360(ra)/15; // hours
+  const dec = rad2deg(Math.asin(Math.sin(er)*Math.sin(lr)));
+  return {ra, dec};
+}
+
+function raDecToAltAz(raHours, decDeg, lstHours, latDeg){
+  let H = (lstHours - raHours)*15; // degrees
+  H = deg2rad(H);
+  const dec = deg2rad(decDeg), lat = deg2rad(latDeg);
+  const sinAlt = Math.sin(dec)*Math.sin(lat) + Math.cos(dec)*Math.cos(lat)*Math.cos(H);
+  const alt = Math.asin(Math.max(-1,Math.min(1,sinAlt)));
+  let cosA = (Math.sin(dec) - Math.sin(lat)*Math.sin(alt)) / (Math.cos(lat)*Math.cos(alt));
+  cosA = Math.max(-1, Math.min(1, cosA));
+  let A = rad2deg(Math.acos(cosA));
+  if(Math.sin(H) > 0) A = 360 - A;
+  return {alt: rad2deg(alt), az: A};
+}
+
+function planetHeliocentric(p, days){
+  const angle = deg2rad(norm360(p.L0 + (360/p.T)*days));
+  return {x: p.a*Math.cos(angle), y: p.a*Math.sin(angle)};
+}
+
+function moonPhaseName(phase){
+  if(phase < 0.03 || phase > 0.97) return 'New Moon';
+  if(phase < 0.22) return 'Waxing Crescent';
+  if(phase < 0.28) return 'First Quarter';
+  if(phase < 0.47) return 'Waxing Gibbous';
+  if(phase < 0.53) return 'Full Moon';
+  if(phase < 0.72) return 'Waning Gibbous';
+  if(phase < 0.78) return 'Last Quarter';
+  return 'Waning Crescent';
+}
+
+document.getElementById('genBtn').addEventListener('click', generateSky);
+
+function generateSky(){
+  const dateVal = document.getElementById('dobDate').value;
+  const timeVal = document.getElementById('dobTime').value || '12:00';
+  const tzOff = parseFloat(document.getElementById('tzOffset').value) || 0;
+  const lat = parseFloat(document.getElementById('latInput').value);
+  const lon = parseFloat(document.getElementById('lonInput').value);
+  if(!dateVal || isNaN(lat) || isNaN(lon)) return;
+
+  const [y,m,d] = dateVal.split('-').map(Number);
+  const [hh,mm] = timeVal.split(':').map(Number);
+  // convert local wall time to UTC using provided offset
+  const utcMs = Date.UTC(y, m-1, d, hh, mm) - tzOff*3600000;
+  const utcDate = new Date(utcMs);
+
+  const jd = julianDate(utcDate);
+  const lst = localSiderealTimeHours(jd, lon);
+
+  // Sun
+  const sunEc = sunEcliptic(jd);
+  const sunRaDec = eclipticToRaDec(sunEc.lambda, sunEc.eps);
+  const sunAltAz = raDecToAltAz(sunRaDec.ra, sunRaDec.dec, lst, lat);
+
+  // Zodiac from real ecliptic longitude
+  const zodiacIdx = Math.floor(norm360(sunEc.lambda)/30);
+  const zodiacName = zodiacNames[zodiacIdx];
+
+  // Moon via SunCalc (direct alt/az + phase)
+  const moonPos = SunCalc.getMoonPosition(utcDate, lat, lon);
+  const moonIllum = SunCalc.getMoonIllumination(utcDate);
+  const moonAltDeg = rad2deg(moonPos.altitude);
+  const moonAzDeg = norm360(rad2deg(moonPos.azimuth) + 180); // SunCalc az: 0=south; convert to 0=north
+
+  // Planets
+  const days = (jd - 2451545.0);
+  const earthPos = planetHeliocentric(planetOrbits.find(p=>p.name==='EARTH'), days);
+  const planetResults = [];
+  planetOrbits.forEach(p=>{
+    if(p.name === 'EARTH') return;
+    const pos = planetHeliocentric(p, days);
+    const gx = pos.x - earthPos.x, gy = pos.y - earthPos.y;
+    const lambda = norm360(rad2deg(Math.atan2(gy,gx)));
+    const raDec = eclipticToRaDec(lambda, sunEc.eps);
+    const altAz = raDecToAltAz(raDec.ra, raDec.dec, lst, lat);
+    planetResults.push({name:p.name, alt:altAz.alt, az:altAz.az});
+  });
+
+  // --- build SVG sky dome ---
+  const R = 240, C = 250;
+  let svgStars = '';
+  stars.forEach(s=>{
+    const [name, raH, decD, mag] = s;
+    const altAz = raDecToAltAz(raH, decD, lst, lat);
+    if(altAz.alt < 0) return;
+    const r = (90 - altAz.alt)/90 * R;
+    const azr = deg2rad(altAz.az);
+    const x = C + r*Math.sin(azr);
+    const yy = C - r*Math.cos(azr);
+    const size = Math.max(0.7, 3.1 - mag*0.42);
+    svgStars += `<circle cx="${x.toFixed(1)}" cy="${yy.toFixed(1)}" r="${size.toFixed(2)}" fill="#e8e2e2" opacity="${Math.max(0.35,1-mag*0.13).toFixed(2)}"/>`;
+  });
+
+  let svgBodies = '';
+  function bodyDot(alt, az, color, label, radius){
+    if(alt < 0) return '';
+    const r = (90-alt)/90*R;
+    const azr = deg2rad(az);
+    const x = C + r*Math.sin(azr), yy = C - r*Math.cos(azr);
+    return `<circle cx="${x.toFixed(1)}" cy="${yy.toFixed(1)}" r="${radius}" fill="${color}"/>
+      <text x="${x.toFixed(1)}" y="${(yy-radius-4).toFixed(1)}" fill="${color}" font-size="9" font-family="Space Mono, monospace" text-anchor="middle" letter-spacing="1">${label}</text>`;
+  }
+
+  svgBodies += bodyDot(sunAltAz.alt, sunAltAz.az, '#ffb62b', 'SUN', 7);
+  svgBodies += bodyDot(moonAltDeg, moonAzDeg, '#cfcfcf', 'MOON', 6);
+  const planetColors = {MERCURY:'#9a9a9a', VENUS:'#e6c27a', MARS:'#ff6b4a', JUPITER:'#d9a06b', SATURN:'#e0c98a'};
+  planetResults.forEach(p=>{
+    svgBodies += bodyDot(p.alt, p.az, planetColors[p.name] || '#ff2b2b', p.name.slice(0,3), 4);
+  });
+
+  const svg = `
+  <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; background:#020202;">
+    <circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="#3a1c1c" stroke-width="1.2"/>
+    <circle cx="${C}" cy="${C}" r="${R*0.66}" fill="none" stroke="#241414" stroke-width="0.6"/>
+    <circle cx="${C}" cy="${C}" r="${R*0.33}" fill="none" stroke="#241414" stroke-width="0.6"/>
+    <text x="${C}" y="${C-R-8}" fill="#7a1414" font-size="11" font-family="Space Mono, monospace" text-anchor="middle" letter-spacing="2">N</text>
+    <text x="${C}" y="${C+R+18}" fill="#7a1414" font-size="11" font-family="Space Mono, monospace" text-anchor="middle" letter-spacing="2">S</text>
+    <text x="${C+R+14}" y="${C+4}" fill="#7a1414" font-size="11" font-family="Space Mono, monospace" text-anchor="middle" letter-spacing="2">E</text>
+    <text x="${C-R-14}" y="${C+4}" fill="#7a1414" font-size="11" font-family="Space Mono, monospace" text-anchor="middle" letter-spacing="2">W</text>
+    ${svgStars}
+    ${svgBodies}
+  </svg>`;
+
+  document.getElementById('skySvgHost').innerHTML = svg;
+
+  const dateObj = new Date(y, m-1, d);
+  document.getElementById('posterTitle').textContent =
+    `THE SKY OVER ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+  document.getElementById('posterSub').textContent =
+    `${dateObj.toDateString()} · ${timeVal} LOCAL (UTC${tzOff>=0?'+':''}${tzOff})`;
+
+  // info grid
+  const info = document.getElementById('bodyInfo');
+  const phaseName = moonPhaseName(moonIllum.phase);
+  const illumPct = Math.round(moonIllum.fraction*100);
+  let rows = [
+    {k:'SUN ALTITUDE', v: sunAltAz.alt.toFixed(1)+'°'},
+    {k:'MOON PHASE', v: phaseName + ' (' + illumPct + '%)'},
+  ];
+  planetResults.forEach(p=>{
+    rows.push({k:p.name+' ALTITUDE', v: (p.alt>=0 ? p.alt.toFixed(1)+'° (visible)' : p.alt.toFixed(1)+'° (below horizon)')});
+  });
+  info.innerHTML = rows.map(r=>`<div class="info-item"><div class="k">${r.k}</div><div class="v">${r.v}</div></div>`).join('');
+  document.getElementById('zodiacBadge').textContent = `SUN SIGN: ${zodiacName.toUpperCase()}`;
+
+  document.getElementById('results').classList.remove('hidden');
+
+  window._lastSvg = svg;
+}
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  if(!window._lastSvg) return;
+  const blob = new Blob([window._lastSvg], {type:'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'your-sky-at-birth.svg';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
