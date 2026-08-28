@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKY TONIGHT // RV·BRIEFING</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.js"></script>
+<style>
+  :root{
+    --bg:#050505;
+    --panel:#0b0b0b;
+    --line:#241414;
+    --red:#ff2b2b;
+    --red-dim:#7a1414;
+    --text:#e8e2e2;
+    --text-dim:#8a7a7a;
+    --go:#2bff88;
+    --marginal:#ffb62b;
+    --nogo:#ff2b2b;
+    --font: 'Space Mono', monospace;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
+  body{
+    min-height:100vh;
+    padding:24px 16px 60px;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* scanlines */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,43,43,0.025) 0px,
+      rgba(255,43,43,0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events:none;
+    z-index:50;
+  }
+
+  .wrap{max-width:720px; margin:0 auto; position:relative;}
+
+  /* header */
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:20px;
+  }
+  .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  h1{
+    font-size:22px; letter-spacing:4px; font-weight:700; color:var(--text);
+    margin-top:4px;
+  }
+  h1 span{color:var(--red);}
+  .clock{font-size:11px; color:var(--text-dim); text-align:right; letter-spacing:1px;}
+
+  /* corner brackets on panels */
+  .panel{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:18px;
+    margin-bottom:16px;
+  }
+  .panel::before, .panel::after,
+  .panel .bl, .panel .br{
+    content:""; position:absolute; width:10px; height:10px;
+    border-color:var(--red-dim); border-style:solid;
+  }
+  .panel::before{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .panel::after{top:-1px; right:-1px; border-width:1px 1px 0 0;}
+  .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
+  .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+
+  .label{font-size:10px; letter-spacing:2px; color:var(--text-dim); margin-bottom:8px;}
+
+  /* location bar */
+  .locbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  input{
+    background:#0f0a0a; border:1px solid var(--line); color:var(--text);
+    font-family:var(--font); font-size:12px; padding:9px 10px; flex:1; min-width:100px;
+  }
+  input:focus{outline:1px solid var(--red-dim);}
+  button{
+    background:transparent; border:1px solid var(--red-dim); color:var(--red);
+    font-family:var(--font); font-size:11px; letter-spacing:1.5px; padding:9px 14px;
+    cursor:pointer; transition:all .15s;
+  }
+  button:hover{background:var(--red-dim); color:var(--text);}
+  button:disabled{opacity:.4; cursor:default;}
+  .loc-status{font-size:11px; color:var(--text-dim); margin-top:8px; letter-spacing:.5px;}
+
+  /* headline score */
+  .score-panel{text-align:center; padding:28px 18px;}
+  .score-word{
+    font-size:34px; letter-spacing:6px; font-weight:700; margin:6px 0 10px;
+  }
+  .score-word.go{color:var(--go);}
+  .score-word.marginal{color:var(--marginal);}
+  .score-word.nogo{color:var(--nogo);}
+  .score-reason{font-size:12px; color:var(--text-dim); max-width:480px; margin:0 auto; line-height:1.6;}
+
+  /* grid stats */
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media(max-width:520px){.grid{grid-template-columns:1fr;}}
+  .stat-value{font-size:20px; font-weight:700; color:var(--text); letter-spacing:1px;}
+  .stat-sub{font-size:11px; color:var(--text-dim); margin-top:6px; line-height:1.6;}
+  .moon-visual{
+    width:46px; height:46px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #e8e2e2, #444 70%);
+    display:inline-block; vertical-align:middle; margin-right:12px;
+    box-shadow:0 0 14px rgba(232,226,226,.15);
+  }
+
+  /* cloud strip */
+  .cloud-strip{display:flex; gap:3px; align-items:flex-end; height:60px; margin-top:10px;}
+  .cloud-bar{flex:1; background:var(--red-dim); position:relative; min-height:2px;}
+  .cloud-bar .hr{
+    position:absolute; bottom:-16px; left:0; right:0; text-align:center;
+    font-size:8px; color:var(--text-dim);
+  }
+  .cloud-legend{font-size:10px; color:var(--text-dim); margin-top:22px; letter-spacing:1px;}
+  .cloud-legend .sw{display:inline-block; width:9px; height:9px; margin-right:5px; vertical-align:middle;}
+  .cloud-legend .sw.low{background:#2bff88;}
+  .cloud-legend .sw.mod{background:#ffb62b;}
+  .cloud-legend .sw.heavy{background:#ff2b2b;}
+
+  /* callout */
+  .callout{border-color:var(--red-dim); background:linear-gradient(180deg, rgba(255,43,43,.06), transparent);}
+  .callout .label{color:var(--red);}
+  .callout p{font-size:13px; line-height:1.7; color:var(--text);}
+
+  footer{
+    text-align:center; font-size:10px; color:var(--text-dim);
+    letter-spacing:1.5px; margin-top:30px;
+  }
+  footer a{color:var(--red-dim); text-decoration:none;}
+
+  .hidden{display:none;}
+  .loader{font-size:12px; color:var(--red-dim); letter-spacing:2px; padding:20px 0; text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="brand">RAMESHVERSE // RV·BRIEFING</div>
+      <h1>SKY <span>TONIGHT</span></h1>
+    </div>
+    <div class="clock" id="clockDisplay">--:--:--</div>
+  </header>
+
+  <div class="panel">
+    <div class="bl"></div><div class="br"></div>
+    <div class="label">OBSERVATION POINT</div>
+    <div class="locbar">
+      <input id="latInput" type="text" placeholder="Latitude" />
+      <input id="lonInput" type="text" placeholder="Longitude" />
+      <button id="geoBtn">USE MY LOCATION</button>
+      <button id="goBtn">RUN BRIEFING</button>
+    </div>
+    <div class="loc-status" id="locStatus">Awaiting coordinates.</div>
+  </div>
+
+  <div id="loader" class="loader hidden">▸ PULLING TELEMETRY...</div>
+
+  <div id="results" class="hidden">
+
+    <div class="panel score-panel">
+      <div class="bl"></div><div class="br"></div>
+      <div class="label">TONIGHT'S VERDICT</div>
+      <div class="score-word" id="scoreWord">—</div>
+      <div class="score-reason" id="scoreReason"></div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="bl"></div><div class="br"></div>
+        <div class="label">MOON</div>
+        <div>
+          <span class="moon-visual" id="moonVisual"></span>
+          <span class="stat-value" id="moonPhaseText">—</span>
+        </div>
+        <div class="stat-sub" id="moonDetail"></div>
+      </div>
+
+      <div class="panel">
+        <div class="bl"></div><div class="br"></div>
+        <div class="label">VIEWING WINDOW</div>
+        <div class="stat-value" id="windowText">—</div>
+        <div class="stat-sub" id="windowDetail"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="bl"></div><div class="br"></div>
+      <div class="label">CLOUD COVER — NEXT 12H</div>
+      <div class="cloud-strip" id="cloudStrip"></div>
+      <div class="cloud-legend"><span class="sw low"></span>LOW &nbsp; <span class="sw mod"></span>MODERATE &nbsp; <span class="sw heavy"></span>HEAVY</div>
+    </div>
+
+    <div class="panel">
+      <div class="bl"></div><div class="br"></div>
+      <div class="label">METEOR ACTIVITY</div>
+      <div class="stat-value" id="meteorText">—</div>
+      <div class="stat-sub" id="meteorDetail"></div>
+    </div>
+
+    <div class="panel callout">
+      <div class="bl"></div><div class="br"></div>
+      <div class="label">DON'T MISS THIS</div>
+      <p id="calloutText">—</p>
+    </div>
+
+  </div>
+
+  <footer>DATA: OPEN-METEO · SUNCALC &nbsp;|&nbsp; RAMESHVERSE.COM</footer>
+</div>
+
+<script>
+setInterval(()=>{
+  document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('en-US',{hour12:false});
+},1000);
+
+const geoBtn = document.getElementById('geoBtn');
+const goBtn = document.getElementById('goBtn');
+const latInput = document.getElementById('latInput');
+const lonInput = document.getElementById('lonInput');
+const locStatus = document.getElementById('locStatus');
+const loader = document.getElementById('loader');
+const results = document.getElementById('results');
+
+geoBtn.addEventListener('click', ()=>{
+  if(!navigator.geolocation){
+    locStatus.textContent = 'Geolocation not supported. Enter coordinates manually.';
+    return;
+  }
+  locStatus.textContent = 'Requesting location...';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      latInput.value = pos.coords.latitude.toFixed(4);
+      lonInput.value = pos.coords.longitude.toFixed(4);
+      locStatus.textContent = 'Location acquired. Press RUN BRIEFING.';
+    },
+    err=>{
+      locStatus.textContent = 'Location denied or unavailable. Enter coordinates manually.';
+    }
+  );
+});
+
+goBtn.addEventListener('click', runBriefing);
+
+// ---- meteor shower static calendar (approx annual peak dates, month/day) ----
+const showers = [
+  {name:'Quadrantids', month:1, day:3},
+  {name:'Lyrids', month:4, day:22},
+  {name:'Eta Aquariids', month:5, day:5},
+  {name:'Perseids', month:8, day:12},
+  {name:'Orionids', month:10, day:21},
+  {name:'Leonids', month:11, day:17},
+  {name:'Geminids', month:12, day:14},
+  {name:'Ursids', month:12, day:22},
+];
+
+function nearestShower(now){
+  let best = null, bestDiff = Infinity;
+  for(let yearOffset=0; yearOffset<=1; yearOffset++){
+    for(const s of showers){
+      const d = new Date(now.getFullYear()+yearOffset, s.month-1, s.day);
+      const diffDays = Math.round((d - now) / 86400000);
+      if(diffDays >= -2 && diffDays < bestDiff){
+        bestDiff = diffDays;
+        best = {...s, diffDays, date:d};
+      }
+    }
+  }
+  return best;
+}
+
+function moonPhaseName(phase){
+  // phase: 0=new, 0.25=first quarter, 0.5=full, 0.75=last quarter
+  if(phase < 0.03 || phase > 0.97) return 'New Moon';
+  if(phase < 0.22) return 'Waxing Crescent';
+  if(phase < 0.28) return 'First Quarter';
+  if(phase < 0.47) return 'Waxing Gibbous';
+  if(phase < 0.53) return 'Full Moon';
+  if(phase < 0.72) return 'Waning Gibbous';
+  if(phase < 0.78) return 'Last Quarter';
+  return 'Waning Crescent';
+}
+
+function fmtTime(d){
+  if(!d || isNaN(d)) return '—';
+  return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+
+async function runBriefing(){
+  const lat = parseFloat(latInput.value);
+  const lon = parseFloat(lonInput.value);
+  if(isNaN(lat) || isNaN(lon)){
+    locStatus.textContent = 'Enter valid latitude/longitude first.';
+    return;
+  }
+  loader.classList.remove('hidden');
+  results.classList.add('hidden');
+  goBtn.disabled = true;
+
+  try{
+    const now = new Date();
+
+    // --- Moon ---
+    const moonIllum = SunCalc.getMoonIllumination(now);
+    const moonTimes = SunCalc.getMoonTimes(now, lat, lon);
+    const phaseName = moonPhaseName(moonIllum.phase);
+    const illumPct = Math.round(moonIllum.fraction * 100);
+
+    document.getElementById('moonPhaseText').textContent = phaseName;
+    document.getElementById('moonDetail').innerHTML =
+      `Illumination: ${illumPct}%<br>Rise: ${fmtTime(moonTimes.rise)} · Set: ${fmtTime(moonTimes.set)}`;
+
+    const moonVisual = document.getElementById('moonVisual');
+    const shadowOpacity = 1 - moonIllum.fraction;
+    moonVisual.style.background = `radial-gradient(circle at 35% 35%, #e8e2e2, rgba(20,20,20,${0.4+shadowOpacity*0.5}) 70%)`;
+
+    // --- Sun / twilight window ---
+    const sunTimes = SunCalc.getTimes(now, lat, lon);
+    document.getElementById('windowText').textContent =
+      `${fmtTime(sunTimes.dusk)} – ${fmtTime(sunTimes.nightEnd)}`;
+    document.getElementById('windowDetail').innerHTML =
+      `Sunset: ${fmtTime(sunTimes.sunset)}<br>True dark from: ${fmtTime(sunTimes.night)}`;
+
+    // --- Cloud cover via Open-Meteo ---
+    const wxRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=cloudcover&forecast_days=2&timezone=auto`);
+    const wx = await wxRes.json();
+
+    const nowHourIdx = wx.hourly.time.findIndex(t => new Date(t) >= now);
+    const next12 = wx.hourly.cloudcover.slice(nowHourIdx, nowHourIdx+12);
+    const next12Times = wx.hourly.time.slice(nowHourIdx, nowHourIdx+12);
+
+    const cloudStrip = document.getElementById('cloudStrip');
+    cloudStrip.innerHTML = '';
+    next12.forEach((val, i)=>{
+      const bar = document.createElement('div');
+      bar.className = 'cloud-bar';
+      bar.style.height = Math.max(val, 3) + '%';
+      let color = '#2bff88';
+      if(val > 60) color = '#ff2b2b';
+      else if(val > 25) color = '#ffb62b';
+      bar.style.background = color;
+      const hr = document.createElement('div');
+      hr.className = 'hr';
+      hr.textContent = new Date(next12Times[i]).getHours();
+      bar.appendChild(hr);
+      cloudStrip.appendChild(bar);
+    });
+
+    const avgCloud = next12.reduce((a,b)=>a+b,0) / next12.length;
+
+    // --- Meteor shower ---
+    const shower = nearestShower(now);
+    let meteorText, meteorDetail;
+    if(shower.diffDays <= 2 && shower.diffDays >= -2){
+      meteorText = `${shower.name} — ACTIVE NOW`;
+      meteorDetail = 'Peak visibility window. Check after midnight for best rates.';
+    } else {
+      meteorText = shower.name;
+      meteorDetail = `Peaks in ${shower.diffDays} day${shower.diffDays===1?'':'s'} (${shower.date.toDateString()})`;
+    }
+    document.getElementById('meteorText').textContent = meteorText;
+    document.getElementById('meteorDetail').textContent = meteorDetail;
+
+    // --- Score ---
+    let score, reason;
+    const cloudGood = avgCloud < 25;
+    const cloudBad = avgCloud > 60;
+    const moonGood = moonIllum.fraction < 0.3;
+    const moonBad = moonIllum.fraction > 0.7;
+
+    if(cloudBad){
+      score = 'nogo';
+      reason = `Average cloud cover tonight is ~${Math.round(avgCloud)}%. Sky is likely obscured for most of the viewing window.`;
+    } else if(cloudGood && moonGood){
+      score = 'go';
+      reason = `Clear skies (~${Math.round(avgCloud)}% cloud) and a dark, ${illumPct}% lit moon. Strong night for faint objects, Milky Way, and deep sky targets.`;
+    } else if(cloudGood && moonBad){
+      score = 'marginal';
+      reason = `Skies are clear (~${Math.round(avgCloud)}% cloud), but the moon is ${illumPct}% lit and will wash out faint targets. Good night for the Moon, planets, and bright stars instead.`;
+    } else {
+      score = 'marginal';
+      reason = `Partly cloudy conditions (~${Math.round(avgCloud)}%). Watch for gaps in the cloud cover during your viewing window.`;
+    }
+
+    const scoreWord = document.getElementById('scoreWord');
+    scoreWord.className = 'score-word ' + score;
+    scoreWord.textContent = score === 'go' ? 'GO' : score === 'marginal' ? 'MARGINAL' : 'NO-GO';
+    document.getElementById('scoreReason').textContent = reason;
+
+    // --- Callout ---
+    let callout;
+    if(shower.diffDays <= 2 && shower.diffDays >= -2 && !cloudBad){
+      callout = `${shower.name} is active tonight. Get away from city lights after midnight for the best chance of catching it — no equipment needed, just your eyes and patience.`;
+    } else if(phaseName === 'New Moon' && cloudGood){
+      callout = `New Moon tonight means the darkest skies of the month. If you've been waiting for a night to try faint deep-sky targets or the Milky Way, this is it.`;
+    } else if(phaseName === 'Full Moon'){
+      callout = `Full Moon tonight — faint objects will be washed out, but it's an excellent night to point a camera or binoculars at the Moon itself for surface detail.`;
+    } else {
+      callout = `Nothing exceptional flagged tonight beyond the standard conditions above — a good ordinary night to just look up.`;
+    }
+    document.getElementById('calloutText').textContent = callout;
+
+    locStatus.textContent = `Briefing generated for ${lat.toFixed(2)}, ${lon.toFixed(2)}.`;
+    results.classList.remove('hidden');
+
+  }catch(e){
+    locStatus.textContent = 'Failed to fetch data. Check your connection and try again.';
+    console.error(e);
+  }finally{
+    loader.classList.add('hidden');
+    goBtn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
