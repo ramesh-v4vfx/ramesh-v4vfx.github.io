@@ -34,7 +34,8 @@
     height:100%;
     width:100%;
   }
-  #canvas-wrap{position:fixed;inset:0;touch-action:none;}
+  #canvas-wrap{position:fixed;inset:0;touch-action:none;cursor:grab;}
+  #canvas-wrap.dragging{cursor:grabbing;}
   canvas{display:block;touch-action:none;}
 
   /* scanlines */
@@ -82,24 +83,28 @@
     font-size:12px;color:var(--dim);letter-spacing:2px;
   }
 
-  /* bottom control bar */
-  #controls-wrap{
-    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
-    z-index:60;
-    display:flex;flex-direction:column;align-items:center;gap:6px;
-    max-width:92vw;
+  /* top HUD body-select bar — no panel background, just floating buttons */
+  #top-controls{
+    position:fixed;top:52px;left:0;right:0;z-index:56;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    pointer-events:none;
+    padding:0 14px;
   }
-  #controls{
-    display:flex;gap:10px;align-items:center;
-    background:rgba(10,12,16,0.75);
-    border:1px solid var(--red-dim);
-    padding:10px 16px;
-    backdrop-filter:blur(6px);
-    flex-wrap:wrap;
-    justify-content:center;
+  #bodies-row{
+    display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;
+    max-width:100%;
+    pointer-events:auto;
+    padding-bottom:2px;
+    scrollbar-width:thin;
   }
-  #panel-toggle{
-    font-size:9px;padding:4px 12px;
+  #bodies-row::-webkit-scrollbar{height:3px;}
+  #bodies-row::-webkit-scrollbar-thumb{background:var(--red-dim);}
+  #bodies-row .btn{padding:6px 9px;font-size:9px;}
+  #planet-buttons{display:contents;}
+  #sim-row{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;
+    pointer-events:auto;
+    max-width:100%;
   }
   .btn{
     background:transparent;
@@ -120,10 +125,6 @@
   .btn.dwarf.active{color:var(--red);}
   #btn-reset{border-color:var(--red);color:var(--red);}
   #btn-reset:hover{box-shadow:0 0 10px var(--red-dim);}
-  #div-label{
-    width:100%;text-align:center;font-size:9px;letter-spacing:2px;color:var(--dim);
-    margin-top:2px;padding-top:6px;border-top:1px dashed #ffffff22;
-  }
 
   #speedwrap{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--dim);letter-spacing:1px;}
   #speed{-webkit-appearance:none;width:110px;height:2px;background:var(--dim);outline:none;}
@@ -178,9 +179,9 @@
     text-align:center;
   }
   #scale-note{
-    position:fixed;top:60px;left:40px;
+    position:fixed;bottom:20px;left:20px;
     font-size:9px;color:var(--dim);letter-spacing:1px;z-index:56;
-    opacity:.7;pointer-events:none;
+    opacity:.7;pointer-events:none;max-width:220px;
   }
   #watermark{
     position:fixed;bottom:8px;left:50%;transform:translateX(-50%);
@@ -207,7 +208,7 @@
     #logo{font-size:10px;letter-spacing:1px;}
     #clock{display:none;}
     #hint{display:none;}
-    #scale-note{top:52px;left:18px;}
+    #scale-note{bottom:16px;left:18px;}
   }
 </style>
 </head>
@@ -230,6 +231,20 @@
   <div id="clock" id="clock-el"></div>
 </div>
 
+<div id="top-controls">
+  <div id="bodies-row">
+    <button class="btn" id="btn-sun">SUN</button>
+    <div id="planet-buttons"></div>
+  </div>
+  <div id="sim-row">
+    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="40"></div>
+    <button class="btn active" id="btn-scale">⇄ SCALE: TRUE</button>
+    <button class="btn" id="btn-pause">PAUSE</button>
+    <button class="btn" id="btn-orbits">ORBITS: ON</button>
+    <button class="btn" id="btn-reset">RESET</button>
+  </div>
+</div>
+
 <div id="canvas-wrap"></div>
 
 <div id="panel">
@@ -243,21 +258,9 @@
 <div id="reticle"><span class="tick top"></span><span class="tick bot"></span><span class="tick l"></span><span class="tick r"></span></div>
 
 <div id="hint">DRAG TO ROTATE · RIGHT-DRAG / 2-FINGER TO PAN · SCROLL TO ZOOM · CLICK A BODY TO LOCK TARGET</div>
-<div id="scale-note">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</div>
+<div id="scale-note">TRUE PLANET SCALE — DISTANCES ARE STYLIZED</div>
 <div id="watermark">rameshverse.com</div>
 
-<div id="controls-wrap">
-  <div id="controls">
-    <button class="btn" id="btn-sun">SUN</button>
-    <div id="planet-buttons" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;"></div>
-    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="200" value="40"></div>
-    <button class="btn" id="btn-pause">PAUSE</button>
-    <button class="btn" id="btn-orbits">ORBITS: ON</button>
-    <button class="btn active" id="btn-scale">SCALE: VISIBLE</button>
-    <button class="btn" id="btn-reset">RESET</button>
-  </div>
-  <button class="btn" id="panel-toggle">▾ HIDE PANEL</button>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -292,8 +295,11 @@ function distScale(au){
   // beyond Neptune, compress log-wise so Pluto/Eris/Sedna are reachable & orderly
   return NEPTUNE_DIST + Math.log((au - NEPTUNE_AU) + 1) * 150;
 }
-function radiusScaleTrue(km){ return Math.max(Math.pow(km, 0.42) * 0.09, 0.55); } // scene units, sun handled separately; floor keeps small dwarfs clickable
 function radiusScaleVisible(km){ return Math.max(Math.pow(km, 0.27) * 0.16, 1.15); } // flatter curve + higher floor so small/dwarf bodies are easy to see & click
+// TRUE: sizes proportional to the Sun's real radius (9.5 scene units = 696,340 km) — no artificial compression.
+// This makes the gas giants look properly small next to the Sun and the terrestrial/dwarf worlds shrink to near-dots,
+// which is the actual, honest scale of the solar system.
+function radiusScaleTrue(km){ return Math.max((km/696340) * 9.5, 0.012); }
 
 // ---------- KEPLER ORBITAL MECHANICS ----------
 // Static ellipse shape for orbit rings, parametrized directly by true anomaly:
@@ -388,7 +394,7 @@ let orbitsVisible = true;
 
 PLANETS.forEach((p, i)=>{
   const dist = distScale(p.distAU);
-  const rad = radiusScaleTrue(p.radiusKm);
+  const rad = radiusScaleVisible(p.radiusKm);
 
   // orbit ring (true ellipse shape, using real eccentricity)
   const segments = 128;
@@ -442,7 +448,7 @@ PLANETS.forEach((p, i)=>{
 });
 
 // ---------- CAMERA CONTROLS (lightweight orbit control, no extra lib needed) ----------
-let camTheta = 0.9, camPhi = 1.0, camRadius = 340;
+let camTheta = 0.9, camPhi = 1.48, camRadius = 60;
 let targetTheta = camTheta, targetPhi = camPhi, targetRadius = camRadius;
 let camFocus = new THREE.Vector3(0,0,0);
 
@@ -478,8 +484,9 @@ renderer.domElement.addEventListener('pointerdown', e=>{
   } else {
     dragging=true; lastX=e.clientX; lastY=e.clientY;
   }
+  wrap.classList.add('dragging');
 });
-window.addEventListener('pointerup', ()=>{dragging=false; panning=false;});
+window.addEventListener('pointerup', ()=>{dragging=false; panning=false; wrap.classList.remove('dragging');});
 window.addEventListener('pointermove', e=>{
   if(panning){
     const dx = e.clientX-panLastX, dy = e.clientY-panLastY;
@@ -496,7 +503,7 @@ window.addEventListener('pointermove', e=>{
 renderer.domElement.addEventListener('wheel', e=>{
   e.preventDefault();
   targetRadius *= (1 + e.deltaY*0.001);
-  targetRadius = Math.max(14, Math.min(2600, targetRadius));
+  targetRadius = Math.max(0.6, Math.min(2600, targetRadius));
 },{passive:false});
 
 // touch: 1-finger rotate (handled by pointer events above), 2-finger pinch-zoom + pan
@@ -509,7 +516,7 @@ renderer.domElement.addEventListener('touchmove', e=>{
     const midX=(t0.clientX+t1.clientX)/2, midY=(t0.clientY+t1.clientY)/2;
     if(pinchStart!=null){
       targetRadius *= (pinchStart/d);
-      targetRadius = Math.max(14, Math.min(2600, targetRadius));
+      targetRadius = Math.max(0.6, Math.min(2600, targetRadius));
     }
     if(touchPanX!=null){
       if(lockedIndex!==null) deselect();
@@ -532,6 +539,7 @@ function onClick(e){
   mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
   mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouse, camera);
+  raycaster.params.Points.threshold = 0.5;
   const targets = [sunMesh, ...planetMeshes.map(p=>p.mesh)];
   const hits = raycaster.intersectObjects(targets);
   if(hits.length){
@@ -609,15 +617,7 @@ function highlightButtons(name){
 document.getElementById('btn-sun').dataset.name = 'SUN';
 document.getElementById('btn-sun').addEventListener('click', selectSun);
 const pbWrap = document.getElementById('planet-buttons');
-let dwarfLabelAdded = false;
 PLANETS.forEach((p,i)=>{
-  if(p.dwarf && !dwarfLabelAdded){
-    const lbl = document.createElement('div');
-    lbl.id = 'div-label';
-    lbl.textContent = 'DWARF PLANETS';
-    pbWrap.appendChild(lbl);
-    dwarfLabelAdded = true;
-  }
   const b = document.createElement('button');
   b.className = p.dwarf ? 'btn dwarf' : 'btn';
   b.textContent=p.name; b.dataset.name=p.name;
@@ -641,7 +641,7 @@ document.getElementById('btn-orbits').addEventListener('click', function(){
 });
 document.getElementById('btn-reset').addEventListener('click', function(){
   // camera back to default view
-  targetTheta = 0.9; targetPhi = 1.0; targetRadius = 340;
+  targetTheta = 0.9; targetPhi = 1.48; targetRadius = 60;
   camFocus.set(0,0,0);
   deselect();
 
@@ -657,16 +657,17 @@ document.getElementById('btn-reset').addEventListener('click', function(){
   orbitLines.forEach(l=>l.visible=true);
   document.getElementById('btn-orbits').textContent = 'ORBITS: ON';
 
-  // scale back to visible (the default)
-  if(scaleMode !== 'visible'){
-    scaleMode = 'visible';
-    applyRadiusScale(radiusScaleVisible);
-    document.getElementById('btn-scale').textContent = 'SCALE: VISIBLE';
+  // scale back to true (the default)
+  if(scaleMode !== 'true'){
+    scaleMode = 'true';
+    applyRadiusScale(radiusScaleTrue);
+    document.getElementById('btn-scale').textContent = '⇄ SCALE: TRUE';
     document.getElementById('btn-scale').classList.add('active');
+    document.getElementById('scale-note').textContent = 'TRUE PLANET SCALE — DISTANCES ARE STYLIZED';
   }
 });
 
-let scaleMode = 'visible'; // 'true' | 'visible'
+let scaleMode = 'true'; // 'visible' | 'true' — TRUE is the default
 function applyRadiusScale(fn){
   planetMeshes.forEach(pm=>{
     const newRad = fn(pm.data.radiusKm);
@@ -680,26 +681,17 @@ function applyRadiusScale(fn){
     }
   });
 }
-applyRadiusScale(radiusScaleVisible); // apply the default visible scale on load
+applyRadiusScale(radiusScaleTrue); // TRUE scale is now the default on load
 
 document.getElementById('btn-scale').addEventListener('click', function(){
   scaleMode = scaleMode === 'true' ? 'visible' : 'true';
   applyRadiusScale(scaleMode === 'true' ? radiusScaleTrue : radiusScaleVisible);
-  this.textContent = 'SCALE: ' + (scaleMode === 'true' ? 'TRUE-ISH' : 'VISIBLE');
-  this.classList.toggle('active', scaleMode === 'visible');
+  this.textContent = '⇄ SCALE: ' + (scaleMode === 'true' ? 'TRUE' : 'VISIBLE');
+  this.classList.toggle('active', scaleMode === 'true');
+  document.getElementById('scale-note').textContent = scaleMode === 'true'
+    ? 'TRUE PLANET SCALE — DISTANCES ARE STYLIZED'
+    : 'NOT TO SCALE — DISTANCES & SIZES ARE STYLIZED';
 });
-
-// ---------- PANEL HIDE/SHOW ----------
-(function(){
-  const panelToggle = document.getElementById('panel-toggle');
-  const controlsPanel = document.getElementById('controls');
-  let hidden = false;
-  panelToggle.addEventListener('click', function(){
-    hidden = !hidden;
-    controlsPanel.style.display = hidden ? 'none' : 'flex';
-    panelToggle.textContent = hidden ? '▴ SHOW PANEL' : '▾ HIDE PANEL';
-  });
-})();
 
 // ---------- ANIMATE ----------
 const clock = new THREE.Clock();
