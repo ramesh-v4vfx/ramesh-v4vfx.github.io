@@ -50,5 +50,7 @@ window.RameshverseTools = [
   { id: "periodic-table",             name: "Periodic Table ⚛️",                               url: "/periodic-table/",                      category: "science" },
   { id: "asteroid-hunter",            name: "Asteroid Hunter 🎮☄️",                            url: "/games/asteroid-hunter/",               category: "games" },
   { id: "lunar-lander",               name: "Lunar Lander 🎮🌕",                                url: "/games/lunar-lander/",                  category: "games" },
-  { id: "target-lock",                name: "Target Lock 🎮🎯",                                url: "/games/target-lock/",                   category: "games" }
+  { id: "target-lock",                name: "Target Lock 🎮🎯",                                url: "/games/target-lock/",                   category: "games" },
+  { id: "sky-tonight",                name: "Sky Tonight",                                      url: "/sky-tonight/",                   category: "science" }
+
 ];
