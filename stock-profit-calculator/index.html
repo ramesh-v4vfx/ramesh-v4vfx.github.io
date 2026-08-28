@@ -62,15 +62,15 @@ content="stock profit calculator, share profit calculator, investment profit cal
   html, body { height: 100%; }
 
   body {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(ellipse 900px 700px at 50% 20%, var(--bg-vignette), var(--bg-deep) 70%);
-    font-family: 'Space Grotesk', sans-serif;
-    padding: 40px 20px;
-    overflow-x: hidden;
-  }
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;   /* was: center */
+  justify-content: center;
+  background: radial-gradient(ellipse 900px 700px at 50% 20%, var(--bg-vignette), var(--bg-deep) 70%);
+  font-family: 'Space Grotesk', sans-serif;
+  padding: 60px 20px 40px;   /* was: 40px 20px */
+  overflow-x: hidden;
+}
 
   body::before {
     content: '';
@@ -540,6 +540,9 @@ content="stock profit calculator, share profit calculator, investment profit cal
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
+
+<script src="/tools-data.js"></script>
+<script src="/related-modules.js"></script>
 
 </body>
 </html>

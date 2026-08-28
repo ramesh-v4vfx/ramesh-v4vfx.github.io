@@ -85,10 +85,18 @@
         const style = document.createElement("style");
         style.textContent = `
             .rv-related {
+                display: block;
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                margin: 0 auto;
+                width: 100%;
+                box-sizing: border-box;
                 max-width: 1000px;
-                margin: 40px auto 0;
                 padding: 0 12px 12px;
                 font-family: 'Space Mono', 'Courier New', monospace;
+                clear: both;
             }
 
             .rv-related-header {
@@ -156,13 +164,68 @@
 
         document.head.appendChild(style);
 
-        // Insert before footer if present, else at end of body
-        const footer = document.querySelector("footer");
-        if (footer) {
-            footer.parentNode.insertBefore(wrap, footer);
-        } else {
-            document.body.appendChild(wrap);
+        // Guessing at the page's layout system (flex/grid/fixed) is too
+        // fragile across ~40 differently-built tool pages. Instead,
+        // measure where the visible content actually ends on screen and
+        // plant the block exactly below that point — works regardless
+        // of what layout technique the page uses.
+        function positionAtBottom() {
+            let maxBottom = 0;
+            Array.from(document.body.children).forEach(el => {
+                if (el === wrap) return;
+                if (getComputedStyle(el).display === "none") return;
+                const rect = el.getBoundingClientRect();
+                if (rect.height === 0) return;
+                if (rect.bottom > maxBottom) maxBottom = rect.bottom;
+            });
+
+            const docTop = window.scrollY || window.pageYOffset || 0;
+            const targetTop = maxBottom + docTop + 32;
+
+            // position/left/right/margin are already set by the .rv-related
+            // CSS class itself (applied before this element ever enters
+            // the DOM), so it's never treated as a flex/grid item — not
+            // even momentarily. Only the computed top offset changes here.
+            wrap.style.top = targetTop + "px";
+
+            // Browsers automatically extend page scroll to reach content
+            // positioned absolutely beyond the current flow — no need to
+            // stretch body's own height for that. (Forcing body's
+            // min-height here previously re-centered flex-centered cards
+            // lower on the page, since body{display:flex;align-items:
+            // center} centers within whatever height it's given.)
+            if (getComputedStyle(document.body).overflow === "hidden") {
+                document.body.style.overflow = "visible";
+            }
+            if (getComputedStyle(document.documentElement).overflow === "hidden") {
+                document.documentElement.style.overflowY = "auto";
+            }
         }
+
+        document.body.appendChild(wrap);
+        positionAtBottom();
+
+        // Canvas-based simulators sometimes resize/settle after initial
+        // paint (e.g. a three.js scene sizing itself on load). Re-measure
+        // shortly after and again on window load to correct for that.
+        window.addEventListener("load", positionAtBottom);
+        setTimeout(positionAtBottom, 800);
+        window.addEventListener("resize", positionAtBottom);
+
+        // Calculators often grow taller after the user hits "Calculate"
+        // (a result box appears). Watch the page for that and reposition
+        // — debounced so rapid changes don't trigger a reposition storm.
+        let repositionTimer = null;
+        const observer = new MutationObserver(() => {
+            clearTimeout(repositionTimer);
+            repositionTimer = setTimeout(positionAtBottom, 120);
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["style", "class"]
+        });
     }
 
     if (document.body) {
