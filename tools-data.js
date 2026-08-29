@@ -56,5 +56,6 @@ window.RameshverseTools = [
   { id: "light-speed-messenger",      name: "Light Speed Messenger",                            url: "/light-speed-messenger/",                   category: "science" },
   { id: "asteroid-watch-live",      name: "Asteroid Watch Live",                            url: "/asteroid-watch-live/",                   category: "science" },
   { id: "territory-explorer",      name: "Territory Explorer",                            url: "/territory-explorer/",                   category: "geography" },
-  { id: "antipode-finder",      name: "Antipode Finder",                            url: "/antipode-finder/",                       category: "geography" }
+  { id: "antipode-finder",      name: "Antipode Finder",                            url: "/antipode-finder/",                       category: "geography" },
+  { id: "earth-rotation-live",      name: "Earth Rotation Live",                            url: "/earth-rotation-live/",                       category: "science" }
 ];
