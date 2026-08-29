@@ -42,13 +42,6 @@ html,body{margin:0;padding:0;background:var(--rv-bg);color:var(--rv-text);font-f
   mix-blend-mode:overlay; z-index:50;
 }
 
-.back-link{
-  display:inline-block; font-size:11px; letter-spacing:0.14em; color:var(--rv-dim);
-  text-decoration:none; margin-bottom:14px; border:1px solid rgba(255,255,255,0.08);
-  padding:6px 10px; transition:color .15s, border-color .15s;
-}
-.back-link:hover{ color:var(--rv-red); border-color:var(--rv-red-dim); }
-
 header{
   display:flex; justify-content:space-between; align-items:flex-end;
   border-bottom:1px solid var(--rv-red-dim); padding-bottom:14px; margin-bottom:22px; letter-spacing:0.08em;
@@ -113,8 +106,6 @@ button.secondary{ color:var(--rv-dim); }
 <body>
 <div class="scan"></div>
 <div class="wrap">
-
-  <a href="https://rameshverse.com" class="back-link">← RAMESHVERSE</a>
 
   <header>
     <div class="title-block">
@@ -459,7 +450,9 @@ maskTelemetry();
 requestAnimationFrame(drawFrame);
 </script>
 
+<script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
 
 <script src="/tools-data.js"></script>
 <script src="/related-modules.js"></script>

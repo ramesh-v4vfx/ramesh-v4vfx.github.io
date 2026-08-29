@@ -39,16 +39,6 @@
   .corner.br{bottom:-1px;right:-1px;border-bottom:2px solid var(--red);border-right:2px solid var(--red);}
 
   .topbar{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;}
-  .brand-link{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:13px; letter-spacing:0.14em; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;}
-  .brand-link:hover{color:var(--red);}
-  .brand-link .arrow{color:var(--red);}
-  .leave-confirm{display:none; align-items:center; gap:10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim); margin-top:6px;}
-  .leave-confirm.show{display:flex;}
-  .leave-confirm button{font-family:inherit; font-size:9px; letter-spacing:0.08em; padding:4px 10px; cursor:pointer; background:transparent;}
-  .leave-confirm .yes-btn{color:var(--red); border:1px solid var(--red-dim);}
-  .leave-confirm .yes-btn:hover{background:rgba(255,43,43,0.1);}
-  .leave-confirm .no-btn{color:var(--text-dim); border:1px solid var(--line);}
-  .leave-confirm .no-btn:hover{color:var(--text); border-color:var(--line-strong);}
   .sub{font-size:10px; letter-spacing:0.08em; color:var(--text-dim);}
   .hr{height:1px; background:var(--line); margin:10px 0 14px;}
 
@@ -133,14 +123,7 @@
   <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
 
   <div class="topbar">
-    <div>
-      <button class="brand-link" id="brandLink"><span class="arrow">←</span> RAMESHVERSE</button>
-      <div class="leave-confirm" id="leaveConfirm">
-        <span>Leave this tool and return to rameshverse.com?</span>
-        <button class="yes-btn" id="leaveYes">YES</button>
-        <button class="no-btn" id="leaveNo">NO</button>
-      </div>
-    </div>
+    
     <div class="sub">COLLISION SIMULATOR // BLACK HOLES &amp; STARS</div>
   </div>
   <div class="hr"></div>
@@ -350,13 +333,6 @@
   });
 
   updateTypeUI(); syncSchwarz();
-
-  // ---------- return to rameshverse ----------
-  var brandLink = document.getElementById('brandLink');
-  var leaveConfirm = document.getElementById('leaveConfirm');
-  document.getElementById('leaveYes').addEventListener('click', function(){ window.location.href='https://rameshverse.com/'; });
-  document.getElementById('leaveNo').addEventListener('click', function(){ leaveConfirm.classList.remove('show'); });
-  brandLink.addEventListener('click', function(){ leaveConfirm.classList.add('show'); });
 
   // ---------- three.js scene ----------
   var three = null;
@@ -991,7 +967,9 @@
 })();
 </script>
 
+<script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
 
 <script src="/tools-data.js"></script>
 <script src="/related-modules.js"></script>
