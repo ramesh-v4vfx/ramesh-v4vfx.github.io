@@ -12,86 +12,169 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>EMI Calculator</title>
+<title>RV·EMI — EMI Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Mono:ital@1&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0f0e17;
-    --surface: #1a1927;
-    --surface2: #232235;
-    --border: rgba(255,255,255,0.08);
-    --accent: #e8c547;
-    --accent2: #5eead4;
-    --accent3: #f97066;
-    --text: #f0ece2;
-    --muted: #8a87a0;
-    --radius: 16px;
-    --radius-sm: 10px;
+    --bg: #08080b;
+    --surface: #101014;
+    --surface2: #16161c;
+    --border: rgba(255,43,43,0.18);
+    --border-soft: rgba(255,255,255,0.06);
+    --accent: #ff2b2b;
+    --accent-dim: rgba(255,43,43,0.35);
+    --accent2: #ffb92b;
+    --accent3: #2be0ff;
+    --text: #eceaf0;
+    --muted: #6b6b78;
+    --radius: 2px;
+    --radius-sm: 2px;
+    --mono: 'Space Mono', monospace;
   }
 
   body {
     background-color: var(--bg);
     background-image:
-      radial-gradient(circle at 50% 0%, rgba(232,197,71,0.05), transparent 60%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='140'%3E%3Ccircle cx='20' cy='25' r='8' fill='none' stroke='rgba(232,197,71,0.12)' stroke-width='1.3'/%3E%3Ccircle cx='20' cy='25' r='4' fill='rgba(232,197,71,0.06)'/%3E%3Ccircle cx='72' cy='58' r='6' fill='none' stroke='rgba(232,197,71,0.1)' stroke-width='1.1'/%3E%3Ccircle cx='72' cy='58' r='3' fill='rgba(232,197,71,0.05)'/%3E%3Ccircle cx='132' cy='30' r='10' fill='none' stroke='rgba(232,197,71,0.12)' stroke-width='1.4'/%3E%3Ccircle cx='132' cy='30' r='5' fill='rgba(232,197,71,0.06)'/%3E%3Ccircle cx='172' cy='92' r='7' fill='none' stroke='rgba(232,197,71,0.1)' stroke-width='1.2'/%3E%3Ccircle cx='172' cy='92' r='3.5' fill='rgba(232,197,71,0.05)'/%3E%3Ccircle cx='48' cy='114' r='9' fill='none' stroke='rgba(232,197,71,0.11)' stroke-width='1.3'/%3E%3Ccircle cx='48' cy='114' r='4.5' fill='rgba(232,197,71,0.05)'/%3E%3Ccircle cx='152' cy='125' r='5' fill='none' stroke='rgba(232,197,71,0.09)' stroke-width='1'/%3E%3Ccircle cx='152' cy='125' r='2.5' fill='rgba(232,197,71,0.05)'/%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Cg transform='translate(8,14) rotate(-8)'%3E%3Crect x='0' y='0' width='30' height='18' rx='2' fill='none' stroke='rgba(232,197,71,0.11)' stroke-width='1.1'/%3E%3Ccircle cx='15' cy='9' r='4.5' fill='none' stroke='rgba(232,197,71,0.09)' stroke-width='0.8'/%3E%3C/g%3E%3Cg transform='translate(68,52) rotate(12)'%3E%3Crect x='0' y='0' width='26' height='16' rx='2' fill='none' stroke='rgba(232,197,71,0.1)' stroke-width='1'/%3E%3Ccircle cx='13' cy='8' r='4' fill='none' stroke='rgba(232,197,71,0.08)' stroke-width='0.7'/%3E%3C/g%3E%3Cg transform='translate(98,8) rotate(6)'%3E%3Crect x='0' y='0' width='22' height='14' rx='2' fill='none' stroke='rgba(232,197,71,0.09)' stroke-width='0.9'/%3E%3Ccircle cx='11' cy='7' r='3.3' fill='none' stroke='rgba(232,197,71,0.07)' stroke-width='0.6'/%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: no-repeat, repeat, repeat;
-    background-position: top center, 0 0, 35px 18px;
-    background-size: auto, 200px 140px, 150px 100px;
+      linear-gradient(rgba(255,43,43,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,43,43,0.035) 1px, transparent 1px);
+    background-size: 28px 28px, 28px 28px;
+    background-position: center top;
     color: var(--text);
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--mono);
     font-weight: 400;
     min-height: 100vh;
     padding: 20px 16px 40px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* scanline sweep overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.015) 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    left: 0; right: 0;
+    height: 120px;
+    top: -120px;
+    pointer-events: none;
+    z-index: 998;
+    background: linear-gradient(to bottom, transparent, rgba(255,43,43,0.05), transparent);
+    animation: scanSweep 7s linear infinite;
+  }
+  @keyframes scanSweep {
+    0% { top: -120px; }
+    100% { top: 100vh; }
   }
 
   header {
     text-align: center;
-    margin-bottom: 32px;
-    padding-top: 12px;
+    margin-bottom: 28px;
+    padding-top: 4px;
+    position: relative;
+    z-index: 1;
   }
 
   .tagline {
-    font-size: 11px;
-    letter-spacing: 0.2em;
+    font-size: 10px;
+    letter-spacing: 0.3em;
     color: var(--accent);
     text-transform: uppercase;
     margin-bottom: 10px;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .tagline::before, .tagline::after {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--accent-dim);
   }
 
   h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(28px, 6vw, 42px);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(24px, 6vw, 34px);
     color: var(--text);
-    line-height: 1.1;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   h1 em {
-    font-style: italic;
+    font-style: normal;
     color: var(--accent);
+  }
+
+  .module-id {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
   }
 
   .card {
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-soft);
     border-radius: var(--radius);
     padding: 24px 20px;
     margin-bottom: 16px;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
-    transition: border-color 0.2s ease;
+    position: relative;
+    z-index: 1;
   }
+
+  /* HUD corner brackets */
+  .card::before, .card::after,
+  .result-tile::before, .result-tile::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: var(--accent);
+    border-style: solid;
+    border-width: 0;
+    opacity: 0.7;
+  }
+  .card::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+  .card::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
 
   .card-title {
     font-size: 11px;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     color: var(--muted);
     text-transform: uppercase;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '◤';
+    color: var(--accent);
+    font-size: 10px;
   }
 
   .field {
@@ -108,68 +191,75 @@
   }
 
   .field-label {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--muted);
     font-weight: 400;
     display: flex;
     align-items: center;
     gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .field-icon {
-    font-size: 12px;
-    opacity: 0.8;
+    font-size: 11px;
+    opacity: 0.6;
+    color: var(--accent);
   }
 
   .field-value {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
     font-size: 16px;
-    font-weight: 500;
-    color: var(--text);
+    font-weight: 700;
+    color: var(--accent);
   }
 
   .field-value span {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
     margin-left: 2px;
+    font-weight: 400;
   }
 
   input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 4px;
+    height: 3px;
     background: var(--surface2);
-    border-radius: 99px;
+    border-radius: 0;
     outline: none;
     cursor: pointer;
     position: relative;
+    border: 1px solid var(--border-soft);
   }
 
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 0;
     background: var(--accent);
     cursor: pointer;
-    border: 3px solid var(--bg);
-    box-shadow: 0 0 0 1px var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 8px rgba(255,43,43,0.5);
+    transform: rotate(45deg);
     transition: transform 0.15s;
   }
 
   input[type="range"]:active::-webkit-slider-thumb {
-    transform: scale(1.2);
+    transform: rotate(45deg) scale(1.25);
   }
 
   input[type="range"]::-moz-range-thumb {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    border-radius: 0;
     background: var(--accent);
     cursor: pointer;
-    border: 3px solid var(--bg);
+    border: 2px solid var(--bg);
+    transform: rotate(45deg);
   }
 
   .range-track-wrapper {
@@ -184,9 +274,10 @@
   }
 
   .range-limit {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
   }
 
   .number-input-row {
@@ -199,11 +290,11 @@
   .num-input {
     flex: 1;
     background: var(--surface2);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-soft);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
     font-size: 15px;
     outline: none;
     transition: border-color 0.2s;
@@ -218,13 +309,14 @@
 
   .unit-badge {
     background: var(--surface2);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-soft);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--muted);
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
     white-space: nowrap;
+    letter-spacing: 0.05em;
   }
 
   .results-grid {
@@ -232,71 +324,70 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
   }
 
   .result-tile {
     background: var(--surface2);
     border-radius: var(--radius-sm);
     padding: 16px 14px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-soft);
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: border-color 0.2s ease;
   }
 
   .result-tile.featured {
     grid-column: 1 / -1;
-    background: linear-gradient(135deg, #1e1c10 0%, #231f0e 100%);
-    border-color: rgba(232, 197, 71, 0.3);
+    background: linear-gradient(135deg, #150b0b 0%, #1a0c0c 100%);
+    border-color: rgba(255, 43, 43, 0.35);
   }
-
-  .result-tile::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px;
-    height: 100%;
-    border-radius: 2px 0 0 2px;
-  }
-
-  .result-tile.featured::before { background: var(--accent); }
-  .result-tile.interest::before { background: var(--accent3); }
-  .result-tile.total::before { background: var(--accent2); }
+  .result-tile::before { top: -1px; left: -1px; border-top-width: 1.5px; border-left-width: 1.5px; opacity: 0.5; }
+  .result-tile::after { bottom: -1px; right: -1px; border-bottom-width: 1.5px; border-right-width: 1.5px; opacity: 0.5; }
+  .result-tile.interest::before, .result-tile.interest::after { border-color: var(--accent2); }
+  .result-tile.total::before, .result-tile.total::after { border-color: var(--accent3); }
 
   .tile-label {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
     margin-bottom: 8px;
   }
 
   .tile-value {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(20px, 5vw, 26px);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(19px, 5vw, 25px);
     color: var(--text);
     line-height: 1;
   }
 
   .result-tile.featured .tile-value {
     color: var(--accent);
-    font-size: clamp(26px, 6vw, 36px);
+    font-size: clamp(25px, 6vw, 34px);
+    text-shadow: 0 0 16px rgba(255,43,43,0.35);
   }
+  .result-tile.interest .tile-value { color: var(--accent2); }
+  .result-tile.total .tile-value { color: var(--accent3); }
 
   .tile-sub {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
     margin-top: 4px;
+    letter-spacing: 0.03em;
   }
 
   .breakdown-bar {
     display: flex;
-    height: 10px;
-    border-radius: 99px;
+    height: 8px;
+    border-radius: 0;
     background: var(--surface2);
     overflow: hidden;
     margin-bottom: 10px;
+    border: 1px solid var(--border-soft);
   }
 
   .bar-segment {
@@ -305,7 +396,7 @@
   }
 
   .bar-segment.principal { background: var(--accent); }
-  .bar-segment.interest { background: var(--accent3); }
+  .bar-segment.interest { background: var(--accent2); }
 
   .legend {
     display: flex;
@@ -316,34 +407,39 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .legend-dot {
     width: 8px; height: 8px;
-    border-radius: 50%;
+    border-radius: 0;
+    transform: rotate(45deg);
   }
-
-
 
   .error-msg {
     display: none;
-    background: rgba(249, 112, 102, 0.1);
-    border: 1px solid rgba(249, 112, 102, 0.3);
+    background: rgba(255, 43, 43, 0.08);
+    border: 1px solid rgba(255, 43, 43, 0.4);
     border-radius: var(--radius-sm);
     padding: 12px 16px;
-    font-size: 13px;
-    color: var(--accent3);
+    font-size: 12px;
+    color: var(--accent);
     margin-bottom: 16px;
+    letter-spacing: 0.02em;
   }
 
   footer {
     text-align: center;
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
     margin-top: 20px;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+    position: relative;
+    z-index: 1;
   }
 
   @media (min-width: 480px) {
@@ -354,18 +450,19 @@
 <body>
 
 <header>
-  <p class="tagline">Loan Planner</p>
+  <p class="tagline">Loan Protocol</p>
   <h1>EMI <em>Calculator</em></h1>
+  <span class="module-id">RV·EMI</span>
 </header>
 
-<div class="error-msg" id="errorMsg">Please enter valid positive values for all fields.</div>
+<div class="error-msg" id="errorMsg">⚠ Please enter valid positive values for all fields.</div>
 
 <div class="card">
   <p class="card-title">Loan Details</p>
 
   <div class="field">
     <div class="field-header">
-      <span class="field-label"><span class="field-icon">💰</span>Principal amount</span>
+      <span class="field-label"><span class="field-icon">◆</span>Principal amount</span>
       <span class="field-value" id="principalDisplay">5,00,000</span>
     </div>
     <div class="range-track-wrapper">
@@ -382,7 +479,7 @@
 
   <div class="field">
     <div class="field-header">
-      <span class="field-label"><span class="field-icon">%</span>Annual interest rate</span>
+      <span class="field-label"><span class="field-icon">◆</span>Annual interest rate</span>
       <span class="field-value" id="rateDisplay">8.5 <span>% p.a.</span></span>
     </div>
     <div class="range-track-wrapper">
@@ -400,7 +497,7 @@
 
   <div class="field">
     <div class="field-header">
-      <span class="field-label"><span class="field-icon">📅</span>Loan tenure</span>
+      <span class="field-label"><span class="field-icon">◆</span>Loan tenure</span>
       <span class="field-value" id="tenureDisplay">5 <span>years</span></span>
     </div>
     <div class="range-track-wrapper">
@@ -447,15 +544,13 @@
       <span>Principal <strong id="principalPct" style="color:var(--text);">—</strong></span>
     </div>
     <div class="legend-item">
-      <div class="legend-dot" style="background: var(--accent3);"></div>
+      <div class="legend-dot" style="background: var(--accent2);"></div>
       <span>Interest <strong id="interestPct" style="color:var(--text);">—</strong></span>
     </div>
   </div>
 </div>
 
-
-
-<footer>All calculations use standard reducing-balance method · Indicative only</footer>
+<footer>ALL CALCULATIONS USE STANDARD REDUCING-BALANCE METHOD · INDICATIVE ONLY</footer>
 
 <script>
   // --- Locale detection: numbers are formatted for the viewer's own region,

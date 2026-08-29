@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LIVE ASTEROID WATCH // RV·NEOWATCH</title>
@@ -8,11 +19,11 @@
   :root{
     --bg:#050505; --panel:#0b0b0b; --line:#241414;
     --red:#ff2b2b; --red-dim:#7a1414;
-    --text:#e8e2e2; --text-dim:#8a7a7a;
+    --text:#f5f5f5; --text-dim:#ca5656;
     --go:#2bff88; --warn:#ffb62b;
-    --font:'Space Mono', monospace;
+    --font:'IBM Plex Mono', monospace;
   }
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
   body{min-height:100vh; padding:20px 16px 50px; position:relative;}
@@ -36,7 +47,7 @@
   .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
   .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
   .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
-  .label{font-size:10px; letter-spacing:2px; color:var(--text-dim); margin-bottom:8px;}
+  .label{font-size:11px; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;}
 
   .apikey-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
   input{background:#0f0a0a; border:1px solid var(--line); color:var(--text); font-family:var(--font); font-size:12px; padding:9px 10px; flex:1; min-width:140px;}
@@ -49,7 +60,7 @@
 
   .summary-strip{display:flex; gap:14px; flex-wrap:wrap; justify-content:space-around; text-align:center;}
   .summary-item .n{font-size:24px; font-weight:700;}
-  .summary-item .l{font-size:9px; color:var(--text-dim); letter-spacing:1.5px; margin-top:4px;}
+  .summary-item .l{font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-top:4px;}
   .summary-item.hazard .n{color:var(--red);}
 
   .filter-row{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
@@ -59,41 +70,35 @@
   .neo-card{position:relative; background:var(--panel); border:1px solid var(--line); padding:16px; margin-bottom:10px;}
   .neo-card.hazard{border-color:var(--red-dim);}
   .neo-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
-  .neo-name{font-size:14px; font-weight:700; letter-spacing:.5px;}
+  .neo-name{font-size:14px; font-weight:700; letter-spacing:.5px; color:#4ad4ff;}
   .neo-badge{font-size:9px; letter-spacing:1.5px; padding:4px 8px; border:1px solid var(--red-dim); color:var(--red); white-space:nowrap;}
   .neo-badge.safe{border-color:#1a3a2a; color:var(--go);}
   .neo-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px 16px;}
   @media(max-width:480px){.neo-grid{grid-template-columns:1fr;}}
-  .neo-item .k{font-size:8px; color:var(--text-dim); letter-spacing:1.5px; margin-bottom:2px;}
-  .neo-item .v{font-size:12px; font-weight:700;}
-  .neo-compare{font-size:10px; color:var(--text-dim); margin-top:10px; padding-top:10px; border-top:1px solid var(--line); line-height:1.6;}
+  .neo-item .k{font-size:10px; color:var(--text-dim); letter-spacing:0.5px; margin-bottom:3px;}
+  .neo-item .v{font-size:13px; font-weight:700;}
+  .neo-compare{font-size:12px; color:var(--text-dim); margin-top:10px; padding-top:10px; border-top:1px solid var(--line); line-height:1.7;}
   .neo-compare b{color:var(--text);}
 
   .loader{font-size:12px; color:var(--red-dim); letter-spacing:2px; padding:30px 0; text-align:center;}
   .errbox{font-size:11px; color:var(--warn); padding:14px; line-height:1.7;}
   .hidden{display:none;}
-  footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+  footer{text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:1px; margin-top:20px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div>
-      <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
       <div class="brand">RAMESHVERSE // RV·NEOWATCH</div>
       <h1>LIVE ASTEROID <span>WATCH</span></h1>
     </div>
     <div class="clock" id="clockDisplay">--:--:--</div>
   </header>
 
-  <div class="panel">
+  <div class="panel" style="text-align:center;">
     <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
-    <div class="label">NASA NEOWs API KEY</div>
-    <div class="apikey-row">
-      <input type="text" id="apiKeyInput" value="DEMO_KEY">
-      <button id="loadBtn">SCAN NEXT 7 DAYS</button>
-    </div>
-    <div class="apikey-note">DEMO_KEY works but is rate-limited (~30 requests/hour shared across all demo users). Get your own free key instantly at <a href="https://api.nasa.gov" target="_blank">api.nasa.gov</a> for reliable use on a live site.</div>
+    <button id="loadBtn" style="width:100%;">SCAN NEXT 7 DAYS</button>
   </div>
 
   <div id="loader" class="loader hidden">▸ QUERYING NASA NEAR-EARTH OBJECT DATABASE...</div>
@@ -147,7 +152,6 @@ let allNeos = [];
 document.getElementById('loadBtn').addEventListener('click', loadAsteroids);
 
 async function loadAsteroids(){
-  const key = document.getElementById('apiKeyInput').value.trim() || 'DEMO_KEY';
   const loader = document.getElementById('loader');
   const errbox = document.getElementById('errbox');
   const results = document.getElementById('results');
@@ -157,10 +161,8 @@ async function loadAsteroids(){
   document.getElementById('loadBtn').disabled = true;
 
   try{
-    const today = new Date();
-    const end = new Date();
-    end.setDate(end.getDate()+6);
-    const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${fmtDate(today)}&end_date=${fmtDate(end)}&api_key=${encodeURIComponent(key)}`;
+    // calls your own Cloudflare Worker — replace with your actual deployed URL
+    const url = `https://rameshverse-api.ramesh-rkvfx.workers.dev/api/asteroids`;
     const res = await fetch(url);
     if(!res.ok){
       const body = await res.json().catch(()=>({}));
@@ -195,7 +197,7 @@ async function loadAsteroids(){
     renderList('all');
     results.classList.remove('hidden');
   }catch(e){
-    errbox.textContent = 'Could not load asteroid data: ' + e.message + (key==='DEMO_KEY' ? ' (DEMO_KEY may be rate-limited — try again shortly or use your own free API key above.)' : '');
+    errbox.textContent = 'Could not load asteroid data: ' + e.message;
     errbox.classList.remove('hidden');
     console.error(e);
   }finally{
