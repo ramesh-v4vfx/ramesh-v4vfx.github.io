@@ -136,6 +136,8 @@
   }
   .fs-btn:hover{ background:var(--red); color:#0a0505; }
 
+  .fs-btn.reset-btn{ right:130px; }
+
   .loading{
     position:absolute;
     inset:0;
@@ -191,8 +193,11 @@
       <div><span class="lbl">STATUS</span> <span class="val">LIVE</span></div>
     </div>
     <button class="fs-btn" id="fsBtn">Fullscreen</button>
+    <button class="fs-btn reset-btn" id="resetBtn">Reset View</button>
     <div class="loading" id="loadingScreen"><span class="dot">●</span> LOADING EARTH TEXTURES...</div>
   </div>
+
+  <p class="caption">Credit: Earth day and cloud imagery by Reto Stöckli, NASA Earth Observatory, NASA Goddard Space Flight Center — enhancements by Robert Simmon. Night lights (Black Marble 2012): NASA Earth Observatory image by Robert Simmon, using Suomi NPP VIIRS data courtesy of Chris Elvidge, NOAA National Geophysical Data Center. Public domain.</p>
 
   <p class="caption">Day/night terminator is computed from the sun's real declination for today's date; the globe's spin is tied directly to your system clock, not a looped animation.</p>
 
@@ -285,7 +290,7 @@ scene.add(sunSprite);
 
 // ---------- textures ----------
 const loader = new THREE.TextureLoader();
-const TEX_BASE = 'https://threejs.org/examples/textures/planets/';
+const TEX_BASE = './textures/';
 
 function loadTex(name, srgb){
   const t = loader.load(TEX_BASE + name);
@@ -303,9 +308,32 @@ function markLoaded(){
   }
 }
 
-const dayTex = loadTex('earth_atmos_2048.jpg', true); dayTex.onUpdate = markLoaded;
-const nightTex = loadTex('earth_lights_2048.png', true);
-const cloudsTex = loadTex('earth_clouds_1024.png', false);
+const dayTex = loadTex('earth_day.jpg', true); dayTex.onUpdate = markLoaded;
+const nightTex = loadTex('earth_night.jpg', true);
+
+let cloudsTex = null;
+function loadCurvedCloudsTexture(url, onReady){
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const imgData = ctx.getImageData(0, 0, c.width, c.height);
+    const d = imgData.data;
+    for(let i = 0; i < d.length; i += 4){
+      const t = d[i] / 255;
+      const curved = Math.pow(t, 2.4); // pushes hazy midtones down, keeps bright cloud cores
+      const v = Math.round(curved * 255);
+      d[i] = d[i+1] = d[i+2] = v;
+    }
+    ctx.putImageData(imgData, 0, 0);
+    const tex = new THREE.CanvasTexture(c);
+    onReady(tex);
+  };
+  img.src = url;
+}
 
 // fallback: hide loading screen after a timeout regardless
 setTimeout(() => loadingScreen.classList.add('hide'), 3500);
@@ -349,15 +377,25 @@ const earthMesh = new THREE.Mesh(earthGeo, earthMat);
 scene.add(earthMesh);
 
 // ---------- clouds ----------
+// earth_clouds.jpg is a plain JPG (bright clouds on a dark background),
+// not a transparency PNG — using it as its own alphaMap works because
+// its brightness naturally maps to opacity: bright cloud = visible,
+// dark sky = transparent.
 const cloudGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.006, 96, 96);
-const cloudMat = new THREE.MeshLambertMaterial({
-  map: cloudsTex,
-  transparent: true,
-  opacity: 0.55,
-  depthWrite: false
+let cloudMesh;
+loadCurvedCloudsTexture(TEX_BASE + 'earth_clouds.jpg', (tex) => {
+  cloudsTex = tex;
+  const cloudMat = new THREE.MeshLambertMaterial({
+    map: cloudsTex,
+    alphaMap: cloudsTex,
+    transparent: true,
+    opacity: 1,
+    depthWrite: false
+  });
+  cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+  scene.add(cloudMesh);
+  markLoaded();
 });
-const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
-scene.add(cloudMesh);
 
 // ---------- atmosphere glow (fresnel rim) ----------
 const atmoGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.045, 96, 96);
@@ -414,7 +452,7 @@ function updateSunAndRotation(date){
   const utcH = getUtcDecimalHours(date);
   const fraction = utcH / 24;
   earthMesh.rotation.y = fraction * Math.PI * 2 + ROTATION_OFFSET;
-  cloudMesh.rotation.y = earthMesh.rotation.y + performance.now() * 0.000006;
+  if(cloudMesh) cloudMesh.rotation.y = earthMesh.rotation.y + performance.now() * 0.000006;
 
   // HUD readout
   const hh = String(date.getUTCHours()).padStart(2,'0');
@@ -440,7 +478,7 @@ function handleResize(){
 window.addEventListener('resize', handleResize);
 document.addEventListener('fullscreenchange', () => {
   setTimeout(handleResize, 50);
-  fsBtn.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
+  fsBtn.textContent = document.fullscreenElement ? 'Restore' : 'Fullscreen';
 });
 
 // ---------- fullscreen toggle ----------
@@ -452,6 +490,14 @@ fsBtn.addEventListener('click', () => {
   }
 });
 viewer.addEventListener('dblclick', () => fsBtn.click());
+
+const resetBtn = document.getElementById('resetBtn');
+const DEFAULT_CAMERA_POS = new THREE.Vector3(0, 0, 6.2);
+resetBtn.addEventListener('click', () => {
+  camera.position.copy(DEFAULT_CAMERA_POS);
+  controls.target.set(0, 0, 0);
+  controls.update();
+});
 
 // ---------- render loop ----------
 function animate(){

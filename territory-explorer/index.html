@@ -128,25 +128,40 @@
 
   /* Card grid */
   .grid{
-    display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:12px;
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;
+  }
+  @media (max-width:900px){
+    .grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+  @media (max-width:600px){
+    .grid{ grid-template-columns:1fr; }
   }
   .card{
     position:relative; background:var(--bg-panel); border:1px solid var(--line);
-    padding:14px 14px 12px; cursor:pointer; transition: border-color .15s ease, transform .1s ease;
+    overflow:hidden; cursor:pointer; transition: border-color .15s ease, transform .1s ease;
   }
   .card:hover{border-color:var(--line-bright);}
   .card.picked{border-color:var(--red);}
+  .card .flag-banner{
+    width:100%; aspect-ratio:3/2; object-fit:cover; display:block; background:var(--bg-panel-2);
+  }
+  .card .card-body{ padding:18px 20px 20px; }
+  .card h3{
+    font-size:20px; letter-spacing:0.01em; line-height:1.3;
+  }
+  .card h3 .iso{ color:var(--text-dimmer); font-size:14px; font-weight:400; margin-left:4px; }
   .card .status-tag{
-    font-size:9.5px; letter-spacing:0.1em; color:var(--red); text-transform:uppercase; opacity:0.85;
+    font-size:11.5px; letter-spacing:0.1em; color:var(--red); text-transform:uppercase; opacity:0.85;
+    margin-top:6px;
   }
-  .card h3{font-size:14.5px; margin-top:6px; letter-spacing:0.01em; line-height:1.3;}
-  .card .admin{font-size:11px; color:var(--text-dim); margin-top:4px;}
-  .card .stats{
-    margin-top:10px; display:flex; flex-direction:column; gap:3px; font-size:10.5px; color:var(--text-dimmer);
-  }
-  .card .stats span b{color:var(--text-dim); font-weight:400;}
   .card .region-tag{
-    font-size:9px; color:var(--text-dimmer); letter-spacing:0.08em; margin-top:3px;
+    font-size:10.5px; color:var(--text-dimmer); letter-spacing:0.08em; margin-top:3px;
+  }
+  .card .stat-line{
+    font-size:12.5px; color:var(--text); margin-top:9px; line-height:1.4;
+  }
+  .card .stat-line b{
+    color:var(--text-dim); font-weight:400;
   }
 
   /* Detail modal */
@@ -222,7 +237,7 @@
   </div>
   <h1>Territory Explorer</h1>
   <p class="subtitle">A field database of the world's non-sovereign territories — overseas territories, dependencies, crown possessions, special administrative regions, and other places that answer to a capital that isn't their own.</p>
-  <div class="telemetry" id="telemetry"></div>
+  <div class="telemetry" id="telemetry">LOADING DATA...</div>
 </header>
 
 <nav class="tabs">
@@ -274,96 +289,12 @@
 </div>
 
 <script>
-/* ---------------- DATA ---------------- */
-const TERRITORIES = [
-  // UK Overseas Territories
-  {name:"Bermuda", power:"United Kingdom", region:"North Atlantic", status:"British Overseas Territory", capital:"Hamilton", pop:"63,900", area:"54 km²", currency:"Bermudian dollar", note:"Britain's oldest remaining overseas territory, settled 1609. A major offshore financial and reinsurance hub; self-governing since 1968 with the UK retaining defense and foreign affairs.", continent:"North America", island:true, popNum:63900, areaNum:54, iso:"BM"},
-  {name:"Cayman Islands", power:"United Kingdom", region:"Caribbean", status:"British Overseas Territory", capital:"George Town", pop:"71,000", area:"264 km²", currency:"Cayman Islands dollar", note:"One of the world's largest offshore financial centers, with no direct taxation. Never had a sizeable indigenous population; settled largely by shipwreck survivors and turtle fishermen.", continent:"North America", island:true, popNum:71000, areaNum:264, iso:"KY"},
-  {name:"British Virgin Islands", power:"United Kingdom", region:"Caribbean", status:"British Overseas Territory", capital:"Road Town", pop:"31,000", area:"151 km²", currency:"US dollar", note:"Uses the US dollar despite being British. A leading jurisdiction for offshore company incorporation.", continent:"North America", island:true, popNum:31000, areaNum:151, iso:"VG"},
-  {name:"Turks and Caicos Islands", power:"United Kingdom", region:"Caribbean", status:"British Overseas Territory", capital:"Cockburn Town", pop:"46,000", area:"948 km²", currency:"US dollar", note:"Briefly a Canadian province proposal target multiple times over the 20th century; none succeeded.", continent:"North America", island:true, popNum:46000, areaNum:948, iso:"TC"},
-  {name:"Anguilla", power:"United Kingdom", region:"Caribbean", status:"British Overseas Territory", capital:"The Valley", pop:"15,800", area:"91 km²", currency:"East Caribbean dollar", note:"Seceded from a joint statehood with Saint Kitts and Nevis in 1967 specifically to remain British.", continent:"North America", island:true, popNum:15800, areaNum:91, iso:"AI"},
-  {name:"Montserrat", power:"United Kingdom", region:"Caribbean", status:"British Overseas Territory", capital:"Brades (de facto)", pop:"4,400", area:"102 km²", currency:"East Caribbean dollar", note:"Two-thirds of the island, including the former capital Plymouth, has been an exclusion zone since the Soufrière Hills volcano erupted in 1995.", continent:"North America", island:true, popNum:4400, areaNum:102, iso:"MS"},
-  {name:"Falkland Islands", power:"United Kingdom", region:"South Atlantic", status:"British Overseas Territory", capital:"Stanley", pop:"3,800", area:"12,173 km²", currency:"Falkland Islands pound", note:"Subject of the 1982 war with Argentina, which still claims the islands as the Islas Malvinas. Sheep farming and fishing licenses dominate the economy.", continent:"South America", island:true, popNum:3800, areaNum:12173, iso:"FK"},
-  {name:"South Georgia and the South Sandwich Islands", power:"United Kingdom", region:"South Atlantic", status:"British Overseas Territory", capital:"King Edward Point", pop:"~20 (research staff)", area:"3,903 km²", currency:"Falkland Islands pound", note:"No permanent civilian population; former whaling stations now abandoned. Also claimed by Argentina.", continent:"Antarctica", island:true, popNum:20, areaNum:3903, iso:"GS"},
-  {name:"Saint Helena, Ascension and Tristan da Cunha", power:"United Kingdom", region:"South Atlantic", status:"British Overseas Territory", capital:"Jamestown", pop:"~5,300", area:"394 km²", currency:"Saint Helena pound", note:"Napoleon's final place of exile and death. Tristan da Cunha, part of the same territory, is the most remote inhabited archipelago on Earth.", continent:"Africa", island:true, popNum:5300, areaNum:394, iso:"SH"},
-  {name:"Gibraltar", power:"United Kingdom", region:"Southern Europe", status:"British Overseas Territory", capital:"Gibraltar", pop:"32,700", area:"6.7 km²", currency:"Gibraltar pound", note:"Ceded by Spain in 1713; sits at the mouth of the Mediterranean. Spain continues to press sovereignty claims and border disputes persist.", continent:"Europe", island:false, popNum:32700, areaNum:7, iso:"GI"},
-  {name:"Pitcairn Islands", power:"United Kingdom", region:"South Pacific", status:"British Overseas Territory", capital:"Adamstown", pop:"~40", area:"47 km²", currency:"New Zealand dollar", note:"The least populous jurisdiction in the world, settled by HMS Bounty mutineers and their Tahitian companions in 1790.", continent:"Oceania", island:true, popNum:40, areaNum:47, iso:"PN"},
-  {name:"British Indian Ocean Territory", power:"United Kingdom", region:"Indian Ocean", status:"British Overseas Territory", capital:"Diego Garcia (admin.)", pop:"No permanent civilian population", area:"60 km²", currency:"US dollar", note:"Chagossian population was forcibly removed 1968–1973 to build a US military base on Diego Garcia. The UK agreed in 2024 to transfer sovereignty of the Chagos Archipelago to Mauritius while retaining the base.", continent:"Asia", island:true, popNum:0, areaNum:60, iso:"IO"},
-  {name:"British Antarctic Territory", power:"United Kingdom", region:"Antarctica", status:"British Overseas Territory", capital:"Rothera (admin.)", pop:"Seasonal research staff only", area:"1,709,400 km²", currency:"Falkland Islands pound", note:"Claimed sector overlaps with Argentine and Chilean claims. Sovereignty over any Antarctic territory is frozen under the Antarctic Treaty.", continent:"Antarctica", island:false, popNum:0, areaNum:1709400, iso:"AQ"},
-  {name:"Akrotiri and Dhekelia", power:"United Kingdom", region:"Eastern Mediterranean", status:"British Overseas Territory", capital:"Episkopi (admin.)", pop:"~15,700", area:"254 km²", currency:"Euro", note:"Two Sovereign Base Areas retained on Cyprus after 1960 independence, hosting RAF and army installations.", continent:"Asia", island:true, popNum:15700, areaNum:254, iso:"GB"},
-  {name:"Isle of Man", power:"United Kingdom", region:"British Isles", status:"Crown Dependency", capital:"Douglas", pop:"84,000", area:"572 km²", currency:"Manx pound (pegged to GBP)", note:"Not part of the UK; a self-governing Crown Dependency with its own parliament, the Tynwald, claimed as the world's oldest continuous legislature.", continent:"Europe", island:true, popNum:84000, areaNum:572, iso:"IM"},
-  {name:"Jersey", power:"United Kingdom", region:"British Isles", status:"Crown Dependency", capital:"Saint Helier", pop:"103,000", area:"119 km²", currency:"Jersey pound (pegged to GBP)", note:"Largest of the Channel Islands; a major offshore finance center closer to the French coast than to Britain.", continent:"Europe", island:true, popNum:103000, areaNum:119, iso:"JE"},
-  {name:"Guernsey", power:"United Kingdom", region:"British Isles", status:"Crown Dependency", capital:"Saint Peter Port", pop:"64,000", area:"78 km²", currency:"Guernsey pound (pegged to GBP)", note:"A bailiwick that also administers Alderney and Sark, the latter still governed under a form of feudal law until 2008.", continent:"Europe", island:true, popNum:64000, areaNum:78, iso:"GG"},
-
-  // France
-  {name:"French Guiana", power:"France", region:"South America", status:"Overseas Department/Region", capital:"Cayenne", pop:"301,000", area:"83,534 km²", currency:"Euro", note:"Legally as much a part of France as Paris; hosts the Guiana Space Centre, Europe's primary spaceport, chosen partly for its near-equatorial latitude.", continent:"South America", island:false, popNum:301000, areaNum:83534, iso:"GF"},
-  {name:"Guadeloupe", power:"France", region:"Caribbean", status:"Overseas Department/Region", capital:"Basse-Terre", pop:"384,000", area:"1,628 km²", currency:"Euro", note:"An archipelago shaped like a butterfly, split by a narrow mangrove channel between its two main wings.", continent:"North America", island:true, popNum:384000, areaNum:1628, iso:"GP"},
-  {name:"Martinique", power:"France", region:"Caribbean", status:"Overseas Department/Region", capital:"Fort-de-France", pop:"350,000", area:"1,128 km²", currency:"Euro", note:"Mount Pelée's 1902 eruption destroyed Saint-Pierre and killed nearly 30,000 people in minutes, one of the deadliest eruptions of the 20th century.", continent:"North America", island:true, popNum:350000, areaNum:1128, iso:"MQ"},
-  {name:"Réunion", power:"France", region:"Indian Ocean", status:"Overseas Department/Region", capital:"Saint-Denis", pop:"885,000", area:"2,512 km²", currency:"Euro", note:"Home to Piton de la Fournaise, one of the most active shield volcanoes on Earth, and gave its name to the coffee variety Bourbon.", continent:"Africa", island:true, popNum:885000, areaNum:2512, iso:"RE"},
-  {name:"Mayotte", power:"France", region:"Indian Ocean", status:"Overseas Department/Region", capital:"Mamoudzou", pop:"320,000", area:"374 km²", currency:"Euro", note:"Voted to remain French in 1974 and 1976 while the rest of the Comoro Islands became independent; the Comoros still claims it.", continent:"Africa", island:true, popNum:320000, areaNum:374, iso:"YT"},
-  {name:"French Polynesia", power:"France", region:"South Pacific", status:"Overseas Collectivity", capital:"Papeetē", pop:"280,000", area:"4,000 km²", currency:"CFP franc", note:"Includes Tahiti, Bora Bora, and the Moruroa atoll, site of French nuclear testing between 1966 and 1996.", continent:"Oceania", island:true, popNum:280000, areaNum:4000, iso:"PF"},
-  {name:"New Caledonia", power:"France", region:"South Pacific", status:"Special Collectivity", capital:"Nouméa", pop:"271,000", area:"18,576 km²", currency:"CFP franc", note:"Holds roughly a quarter of the world's known nickel reserves; independence referendums in 2018–2021 all favored staying French, though turnout in the last was contested.", continent:"Oceania", island:true, popNum:271000, areaNum:18576, iso:"NC"},
-  {name:"Saint Barthélemy", power:"France", region:"Caribbean", status:"Overseas Collectivity", capital:"Gustavia", pop:"10,000", area:"21 km²", currency:"Euro", note:"Sold to Sweden in 1784, bought back by France in 1878; the only French Caribbean island with no minimum wage tax on high incomes, a legacy of its free-port history.", continent:"North America", island:true, popNum:10000, areaNum:21, iso:"BL"},
-  {name:"Saint Martin (French part)", power:"France", region:"Caribbean", status:"Overseas Collectivity", capital:"Marigot", pop:"32,000", area:"53 km²", currency:"Euro", note:"Shares one small island with Dutch Sint Maarten under an open, unfenced border in place since 1648.", continent:"North America", island:true, popNum:32000, areaNum:53, iso:"MF"},
-  {name:"Saint Pierre and Miquelon", power:"France", region:"North Atlantic", status:"Overseas Collectivity", capital:"Saint-Pierre", pop:"6,000", area:"242 km²", currency:"Euro", note:"France's last remaining territory in North America, just off Newfoundland — a fragment of the old colony of New France.", continent:"North America", island:true, popNum:6000, areaNum:242, iso:"PM"},
-  {name:"Wallis and Futuna", power:"France", region:"South Pacific", status:"Overseas Collectivity", capital:"Mata-Utu", pop:"11,600", area:"142 km²", currency:"CFP franc", note:"Still governed alongside three traditional monarchs (kings of Uvea, Sigave, and Alo) whose authority France formally recognizes.", continent:"Oceania", island:true, popNum:11600, areaNum:142, iso:"WF"},
-  {name:"French Southern and Antarctic Lands", power:"France", region:"Antarctica/Southern Ocean", status:"Overseas Territory", capital:"Port-aux-Français (admin.)", pop:"No permanent population", area:"439,672 km²", currency:"Euro", note:"A scattered set of sub-Antarctic islands (Kerguelen, Crozet, Amsterdam) plus a slice of Antarctica (Adélie Land), used mainly for scientific research.", continent:"Antarctica", island:true, popNum:0, areaNum:439672, iso:"TF"},
-  {name:"Clipperton Island", power:"France", region:"Eastern Pacific", status:"State Private Domain", capital:"— (uninhabited)", pop:"0", area:"6 km²", currency:"—", note:"An uninhabited coral atoll far off Mexico's coast, administered directly by the French government with no local population or council.", continent:"North America", island:true, popNum:0, areaNum:6, iso:"FR"},
-
-  // Netherlands
-  {name:"Aruba", power:"Netherlands", region:"Caribbean", status:"Constituent Country", capital:"Oranjestad", pop:"107,000", area:"180 km²", currency:"Aruban florin", note:"Seceded from the Netherlands Antilles in 1986 as a distinct constituent country within the Kingdom of the Netherlands.", continent:"North America", island:true, popNum:107000, areaNum:180, iso:"AW"},
-  {name:"Curaçao", power:"Netherlands", region:"Caribbean", status:"Constituent Country", capital:"Willemstad", pop:"148,000", area:"444 km²", currency:"Netherlands Antillean guilder", note:"Willemstad's colorful waterfront, the Handelskade, is a UNESCO World Heritage Site; the island became a separate country in 2010 when the Netherlands Antilles dissolved.", continent:"North America", island:true, popNum:148000, areaNum:444, iso:"CW"},
-  {name:"Sint Maarten", power:"Netherlands", region:"Caribbean", status:"Constituent Country", capital:"Philipsburg", pop:"44,000", area:"34 km²", currency:"Netherlands Antillean guilder", note:"Shares its island with French Saint-Martin; its airport approach over Maho Beach is famous for low-altitude jet landings.", continent:"North America", island:true, popNum:44000, areaNum:34, iso:"SX"},
-  {name:"Bonaire", power:"Netherlands", region:"Caribbean", status:"Special Municipality", capital:"Kralendijk", pop:"24,000", area:"294 km²", currency:"US dollar", note:"Unlike Aruba and Curaçao, Bonaire opted to become a special municipality directly part of the Netherlands proper rather than a separate country.", continent:"North America", island:true, popNum:24000, areaNum:294, iso:"BQ"},
-  {name:"Sint Eustatius", power:"Netherlands", region:"Caribbean", status:"Special Municipality", capital:"Oranjestad", pop:"3,200", area:"21 km²", currency:"US dollar", note:"Was the first foreign port to salute the flag of the newly independent United States in 1776, an event that nearly triggered a war with Britain.", continent:"North America", island:true, popNum:3200, areaNum:21, iso:"BQ"},
-  {name:"Saba", power:"Netherlands", region:"Caribbean", status:"Special Municipality", capital:"The Bottom", pop:"2,000", area:"13 km²", currency:"US dollar", note:"A single dormant volcano rising steeply from the sea; its tiny airport runway is among the shortest used by commercial aircraft anywhere.", continent:"North America", island:true, popNum:2000, areaNum:13, iso:"BQ"},
-
-  // United States
-  {name:"Puerto Rico", power:"United States", region:"Caribbean", status:"Unincorporated Territory", capital:"San Juan", pop:"3,200,000", area:"9,104 km²", currency:"US dollar", note:"Residents are US citizens but cannot vote in presidential elections and have no voting members of Congress. Statehood referendums have been held repeatedly without resolution.", continent:"North America", island:true, popNum:3200000, areaNum:9104, iso:"PR"},
-  {name:"Guam", power:"United States", region:"Western Pacific", status:"Unincorporated Territory", capital:"Hagåtña", pop:"170,000", area:"544 km²", currency:"US dollar", note:"Home to major US Air Force and Navy bases central to American strategy in the Pacific; residents are US citizens without a voting member of Congress.", continent:"Oceania", island:true, popNum:170000, areaNum:544, iso:"GU"},
-  {name:"US Virgin Islands", power:"United States", region:"Caribbean", status:"Unincorporated Territory", capital:"Charlotte Amalie", pop:"87,000", area:"347 km²", currency:"US dollar", note:"Purchased from Denmark in 1917 for $25 million, largely to keep the naval approaches to the Panama Canal out of German hands during WWI.", continent:"North America", island:true, popNum:87000, areaNum:347, iso:"VI"},
-  {name:"American Samoa", power:"United States", region:"South Pacific", status:"Unincorporated Territory", capital:"Pago Pago", pop:"43,000", area:"199 km²", currency:"US dollar", note:"Unlike other US territories, people born here are US nationals but not automatically US citizens at birth.", continent:"Oceania", island:true, popNum:43000, areaNum:199, iso:"AS"},
-  {name:"Northern Mariana Islands", power:"United States", region:"Western Pacific", status:"Commonwealth", capital:"Saipan", pop:"47,000", area:"464 km²", currency:"US dollar", note:"Voted to become a US commonwealth in the 1970s rather than join independent Guam or the Federated States of Micronesia.", continent:"Oceania", island:true, popNum:47000, areaNum:464, iso:"MP"},
-  {name:"United States Minor Outlying Islands", power:"United States", region:"Pacific/Caribbean", status:"Unincorporated Territory", capital:"— (mostly uninhabited)", pop:"Small military/wildlife staff only", area:"~34 km² combined", currency:"US dollar", note:"A grouped designation for scattered, mostly uninhabited islands including Wake, Midway, Johnston, and Baker/Howland — several disputed as guano-era claims.", continent:"Oceania", island:true, popNum:0, areaNum:34, iso:"UM"},
-
-  // Denmark
-  {name:"Greenland", power:"Denmark", region:"North Atlantic/Arctic", status:"Autonomous Territory", capital:"Nuuk", pop:"56,000", area:"2,166,086 km²", currency:"Danish krone", note:"The world's largest island; holds broad home rule since 2009 and could become independent by referendum, a prospect drawing renewed US interest in recent years.", continent:"North America", island:true, popNum:56000, areaNum:2166086, iso:"GL"},
-  {name:"Faroe Islands", power:"Denmark", region:"North Atlantic", status:"Autonomous Territory", capital:"Tórshavn", pop:"54,000", area:"1,393 km²", currency:"Faroese króna (pegged to DKK)", note:"Self-governing since 1948 and outside the EU even though Denmark is a member; salmon farming and fishing dominate the economy.", continent:"Europe", island:true, popNum:54000, areaNum:1393, iso:"FO"},
-
-  // Norway
-  {name:"Svalbard", power:"Norway", region:"Arctic", status:"Unincorporated Area/Territory", capital:"Longyearbyen", pop:"2,500", area:"61,022 km²", currency:"Norwegian krone", note:"Governed under the 1920 Svalbard Treaty, which lets other signatory nations' citizens live and work there visa-free; home to the Global Seed Vault.", continent:"Europe", island:true, popNum:2500, areaNum:61022, iso:"SJ"},
-  {name:"Jan Mayen", power:"Norway", region:"North Atlantic", status:"Unincorporated Area", capital:"— (no settlement)", pop:"~18 (staff)", area:"377 km²", currency:"Norwegian krone", note:"A volcanic island with no permanent civilian residents, staffed only by meteorological and military personnel.", continent:"Europe", island:true, popNum:18, areaNum:377, iso:"SJ"},
-  {name:"Bouvet Island", power:"Norway", region:"South Atlantic", status:"Dependency", capital:"— (uninhabited)", pop:"0", area:"49 km²", currency:"—", note:"Widely cited as the most remote island on Earth, over 1,600 km from the nearest land; an uninhabited nature reserve.", continent:"Antarctica", island:true, popNum:0, areaNum:49, iso:"BV"},
-  {name:"Peter I Island", power:"Norway", region:"Antarctica", status:"Dependency", capital:"— (uninhabited)", pop:"0", area:"156 km²", currency:"—", note:"An ice-covered volcanic island off Antarctica, visited so rarely that it was first landed on only in 1929.", continent:"Antarctica", island:true, popNum:0, areaNum:156, iso:"NO"},
-  {name:"Queen Maud Land", power:"Norway", region:"Antarctica", status:"Dependency", capital:"— (research stations)", pop:"Seasonal research staff only", area:"~2,700,000 km²", currency:"Norwegian krone", note:"Norway's Antarctic claim, like all others, is held in abeyance under the Antarctic Treaty System and not internationally exercised as sovereignty.", continent:"Antarctica", island:false, popNum:0, areaNum:2700000, iso:"NO"},
-
-  // New Zealand
-  {name:"Cook Islands", power:"New Zealand", region:"South Pacific", status:"Associated State (Free Association)", capital:"Avarua", pop:"15,000", area:"236 km²", currency:"New Zealand dollar", note:"Self-governing in free association with New Zealand since 1965; conducts its own foreign relations and has been admitted to some UN bodies.", continent:"Oceania", island:true, popNum:15000, areaNum:236, iso:"CK"},
-  {name:"Niue", power:"New Zealand", region:"South Pacific", status:"Associated State (Free Association)", capital:"Alofi", pop:"1,700", area:"261 km²", currency:"New Zealand dollar", note:"One of the world's largest coral islands by land area relative to its tiny population; among the least-visited countries/territories on Earth.", continent:"Oceania", island:true, popNum:1700, areaNum:261, iso:"NU"},
-  {name:"Tokelau", power:"New Zealand", region:"South Pacific", status:"Dependent Territory", capital:"— (no capital; rotates among atolls)", pop:"1,600", area:"12 km²", currency:"New Zealand dollar", note:"Rejected independence in referendums in 2006 and 2007, both falling just short of the required two-thirds majority.", continent:"Oceania", island:true, popNum:1600, areaNum:12, iso:"TK"},
-  {name:"Ross Dependency", power:"New Zealand", region:"Antarctica", status:"Dependency", capital:"Scott Base (admin.)", pop:"Seasonal research staff only", area:"~450,000 km²", currency:"New Zealand dollar", note:"New Zealand's Antarctic claim, home to Scott Base beside the American McMurdo Station.", continent:"Antarctica", island:false, popNum:0, areaNum:450000, iso:"NZ"},
-
-  // Australia
-  {name:"Norfolk Island", power:"Australia", region:"South Pacific", status:"External Territory", capital:"Kingston", pop:"1,750", area:"35 km²", currency:"Australian dollar", note:"Settled by descendants of the Bounty mutineers relocated from overcrowded Pitcairn in 1856; lost most of its self-governing autonomy in 2015.", continent:"Oceania", island:true, popNum:1750, areaNum:35, iso:"NF"},
-  {name:"Christmas Island", power:"Australia", region:"Indian Ocean", status:"External Territory", capital:"Flying Fish Cove", pop:"1,850", area:"135 km²", currency:"Australian dollar", note:"Famous for the annual mass migration of tens of millions of red land crabs across the island to the sea to breed.", continent:"Asia", island:true, popNum:1850, areaNum:135, iso:"CX"},
-  {name:"Cocos (Keeling) Islands", power:"Australia", region:"Indian Ocean", status:"External Territory", capital:"West Island", pop:"550", area:"14 km²", currency:"Australian dollar", note:"A ring of coral atolls governed by the Clunies-Ross family as a private fiefdom for over a century before Australia formally annexed them in 1955.", continent:"Asia", island:true, popNum:550, areaNum:14, iso:"CC"},
-  {name:"Ashmore and Cartier Islands", power:"Australia", region:"Timor Sea", status:"External Territory", capital:"— (uninhabited)", pop:"0", area:"5 km²", currency:"—", note:"Uninhabited reef islands important mainly for marking Australia's maritime boundary and exclusive economic zone with Indonesia.", continent:"Oceania", island:true, popNum:0, areaNum:5, iso:"AU"},
-  {name:"Australian Antarctic Territory", power:"Australia", region:"Antarctica", status:"External Territory", capital:"Casey/Davis/Mawson (research)", pop:"Seasonal research staff only", area:"5,896,500 km²", currency:"Australian dollar", note:"The largest of all Antarctic territorial claims by area, covering nearly 42% of the continent; recognized by few other states.", continent:"Antarctica", island:false, popNum:0, areaNum:5896500, iso:"AU"},
-  {name:"Coral Sea Islands", power:"Australia", region:"South Pacific", status:"External Territory", capital:"— (uninhabited, weather station)", pop:"~4 (weather staff)", area:"3 km²", currency:"—", note:"A scatter of small reefs and islets, mostly a nature reserve, with a single staffed automatic weather station on Willis Island.", continent:"Oceania", island:true, popNum:4, areaNum:3, iso:"AU"},
-  {name:"Heard Island and McDonald Islands", power:"Australia", region:"Southern Ocean", status:"External Territory", capital:"— (uninhabited)", pop:"0", area:"368 km²", currency:"—", note:"One of the few places on Earth with active volcanoes and glaciers together; so remote it's rarely visited even by researchers.", continent:"Antarctica", island:true, popNum:0, areaNum:368, iso:"HM"},
-  {name:"Jervis Bay Territory", power:"Australia", region:"Australia (mainland enclave)", status:"External Territory", capital:"— (administered by ACT law)", pop:"~330", area:"73 km²", currency:"Australian dollar", note:"Carved out to give the landlocked Australian Capital Territory a naval outlet to the sea; administered under ACT law rather than any state's.", continent:"Oceania", island:false, popNum:330, areaNum:73, iso:"AU"},
-
-  // China
-  {name:"Hong Kong", power:"China", region:"East Asia", status:"Special Administrative Region", capital:"— (city-state)", pop:"7,500,000", area:"1,114 km²", currency:"Hong Kong dollar", note:"Returned by Britain in 1997 under a 'one country, two systems' framework guaranteeing a separate legal and economic system until at least 2047.", continent:"Asia", island:false, popNum:7500000, areaNum:1114, iso:"HK"},
-  {name:"Macau", power:"China", region:"East Asia", status:"Special Administrative Region", capital:"— (city-state)", pop:"680,000", area:"33 km²", currency:"Macanese pataca", note:"Returned by Portugal in 1999 under the same 'one country, two systems' model; now the world's largest gambling market by revenue, well ahead of Las Vegas.", continent:"Asia", island:false, popNum:680000, areaNum:33, iso:"MO"},
-
-  // Finland
-  {name:"Åland Islands", power:"Finland", region:"Baltic Sea", status:"Autonomous Territory", capital:"Mariehamn", pop:"30,000", area:"1,580 km²", currency:"Euro", note:"Swedish-speaking and demilitarized under international treaties dating to 1856; Finland's only officially monolingual autonomous region.", continent:"Europe", island:true, popNum:30000, areaNum:1580, iso:"AX"},
-
-  // Spain
-  {name:"Ceuta", power:"Spain", region:"North Africa", status:"Autonomous City", capital:"— (city)", pop:"84,000", area:"19 km²", currency:"Euro", note:"A Spanish enclave on the Moroccan coast, giving Spain the EU's only land border with Africa; Morocco continues to claim it.", continent:"Africa", island:false, popNum:84000, areaNum:19, iso:"ES"},
-  {name:"Melilla", power:"Spain", region:"North Africa", status:"Autonomous City", capital:"— (city)", pop:"86,000", area:"12 km²", currency:"Euro", note:"Spain's other North African enclave, fortified with a heavily monitored border fence to control migration into the EU.", continent:"Africa", island:false, popNum:86000, areaNum:12, iso:"ES"},
-];
+/* ---------------- DATA ----------------
+   Territories are now loaded from /territory-explorer/data/territories.json
+   instead of being hardcoded here. Adjust TERRITORIES_URL if the file
+   lives at a different path on the site. */
+const TERRITORIES_URL = '/territory-explorer/data/territories.json';
+let TERRITORIES = [];
 
 /* ---------------- HELPERS ---------------- */
 function flagImg(iso, size){
@@ -489,13 +420,15 @@ function renderGrid(){
 
   grid.innerHTML = list.map(t=>`
     <div class="card ${compareList.includes(t.name)?'picked':''}" data-name="${t.name}">
-      <div class="status-tag">${t.status}</div>
-      <div class="region-tag">${t.region.toUpperCase()}</div>
-      <h3>${flagImg(t.iso)}${t.name}</h3>
-      <div class="admin">Administered by ${t.power}</div>
-      <div class="stats">
-        <span><b>Pop:</b> ${t.pop}</span>
-        <span><b>Area:</b> ${t.area}</span>
+      ${t.iso ? `<img class="flag-banner" src="https://flagcdn.com/w320/${t.iso.toLowerCase()}.png" alt="" loading="lazy">` : ''}
+      <div class="card-body">
+        <h3>${t.name}${t.iso ? `<span class="iso">(${t.iso})</span>` : ''}</h3>
+        <div class="status-tag">${t.status}</div>
+        <div class="region-tag">${t.region.toUpperCase()}</div>
+        <div class="stat-line"><b>Administered by:</b> ${t.power}</div>
+        <div class="stat-line"><b>Capital:</b> ${t.capital}</div>
+        <div class="stat-line"><b>Population:</b> ${t.pop}</div>
+        <div class="stat-line"><b>Area:</b> ${t.area}</div>
       </div>
     </div>
   `).join('');
@@ -606,7 +539,18 @@ function switchTab(tab){
   if(tab==='compare') renderCompareTable();
 }
 
-init();
+/* ---------------- LOAD DATA THEN INIT ---------------- */
+fetch(TERRITORIES_URL)
+  .then(r => r.json())
+  .then(data => {
+    TERRITORIES = data;
+    init();
+  })
+  .catch(() => {
+    document.getElementById('telemetry').textContent = 'FAILED TO LOAD TERRITORY DATA.';
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('emptyState').textContent = 'COULD NOT LOAD DATA — CHECK TERRITORIES_URL PATH.';
+  });
 </script>
 
 <script src="/libraries/config.js"></script>

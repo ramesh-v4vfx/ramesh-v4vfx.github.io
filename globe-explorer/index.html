@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Globe Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050303;
+    --bg2:#0d0606;
+    --red:#ff2b2b;
+    --red-dim:#5e1414;
+    --text:#e8e2e2;
+    --text-dim:#8a7a7a;
+    --line:#2a1616;
+    --cyan:#00e5ff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%; background:var(--bg);}
+  body{ color:var(--text); font-family:'Space Mono', monospace; overflow-x:hidden; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:26px 20px 60px; }
+
+  h1{
+    font-size:clamp(26px, 5vw, 40px);
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    font-weight:700;
+    line-height:1.05;
+  }
+  h1 .dot{ color:var(--red); }
+  .tagline{
+    color:var(--text-dim);
+    font-size:13px;
+    margin-top:8px;
+    margin-bottom:18px;
+    max-width:640px;
+    line-height:1.6;
+  }
+
+  .controls{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  input[type="text"]{
+    flex:1 1 260px;
+    background:var(--bg2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:inherit;
+    font-size:13px;
+    padding:12px 14px;
+  }
+  input[type="text"]:focus{ outline:none; border-color:var(--red); }
+  input[type="text"]::placeholder{ color:var(--text-dim); }
+  button{
+    background:transparent;
+    border:1px solid var(--red-dim);
+    color:var(--red);
+    font-family:inherit;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:12px 16px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  button:hover{ background:var(--red); color:#0a0505; }
+
+  .viewer{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/10;
+    background:#000;
+    border:1px solid var(--line);
+    overflow:hidden;
+  }
+  .viewer:fullscreen{ aspect-ratio:auto; border:none; }
+  #globeCanvas{ display:block; width:100%; height:100%; cursor:grab; touch-action:none; }
+  #globeCanvas.dragging{ cursor:grabbing; }
+
+  .corners span{
+    position:absolute; width:16px; height:16px;
+    border-color:var(--red); border-style:solid;
+    z-index:6; pointer-events:none; opacity:0.85;
+  }
+  .corners span:nth-child(1){ top:10px; left:10px; border-width:2px 0 0 2px; }
+  .corners span:nth-child(2){ top:10px; right:10px; border-width:2px 2px 0 0; }
+  .corners span:nth-child(3){ bottom:10px; left:10px; border-width:0 0 2px 2px; }
+  .corners span:nth-child(4){ bottom:10px; right:10px; border-width:0 2px 2px 0; }
+
+  .hud{
+    position:absolute; z-index:6;
+    font-size:10.5px; letter-spacing:0.06em; color:var(--text-dim);
+    pointer-events:none; line-height:1.7;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9);
+  }
+  .hud.top-left{ top:14px; left:34px; }
+  .hud.top-right{ top:14px; right:34px; text-align:right; }
+  .hud .lbl{ color:var(--red); }
+  .hud .val{ color:var(--text); }
+
+  .fs-btn{
+    position:absolute; bottom:16px; right:16px; z-index:7;
+    background:rgba(10,5,5,0.7);
+    border:1px solid var(--red-dim);
+    color:var(--red);
+    font-family:inherit; font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    padding:9px 14px; cursor:pointer; backdrop-filter:blur(2px);
+    transition:all .15s ease;
+  }
+  .fs-btn:hover{ background:var(--red); color:#0a0505; }
+
+  .loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    z-index:8; font-size:12px; letter-spacing:0.1em; color:var(--text-dim);
+    background:#050303; transition:opacity .4s ease;
+  }
+  .loading.hide{ opacity:0; pointer-events:none; }
+  .loading .dot{ color:var(--red); animation:blink 1s steps(1) infinite; margin-right:8px; }
+  @keyframes blink{ 50%{ opacity:0.2; } }
+
+  .info-card{
+    position:absolute;
+    bottom:16px; left:16px;
+    z-index:7;
+    width:260px;
+    max-width:calc(100% - 90px);
+    background:rgba(10,5,5,0.88);
+    border:1px solid var(--red-dim);
+    padding:16px;
+    backdrop-filter:blur(3px);
+    transform:translateY(12px);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .info-card.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .info-card .close{
+    position:absolute; top:8px; right:8px; z-index:2;
+    width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(10,5,5,0.85);
+    border:1px solid var(--red-dim);
+    border-radius:50%;
+    color:var(--text);
+    font-size:16px; line-height:1; cursor:pointer; padding:0;
+}
+.info-card .close:hover{ background:var(--red); color:#0a0505; border-color:var(--red); }
+  .info-card .flag{
+    width:100%;
+    aspect-ratio:3/2;
+    object-fit:cover;
+    border:1px solid var(--line); margin-bottom:10px; display:block;
+    background:var(--bg2);
+  }
+  .info-card .name{ font-size:16px; font-weight:700; margin-bottom:8px; letter-spacing:0.02em; }
+  .info-card .row{ font-size:11px; color:var(--text-dim); margin-bottom:4px; letter-spacing:0.03em; }
+  .info-card .row b{ color:var(--text); font-weight:700; }
+  .info-card .loading-fact{ font-size:11px; color:var(--text-dim); }
+
+  .caption{ margin-top:14px; font-size:11px; color:var(--text-dim); letter-spacing:0.04em; line-height:1.6; }
+  footer{ text-align:center; color:var(--text-dim); font-size:10px; letter-spacing:0.1em; margin-top:40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>GLOBE<span class="dot">·</span>EXPLORER</h1>
+  <p class="tagline">Spin the Earth by hand and click any country for a quick readout — capital, population, region, flag. Search jumps straight to a place.</p>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search a country...">
+    <button id="searchBtn">Go</button>
+  </div>
+
+  <div class="viewer" id="viewer">
+    <canvas id="globeCanvas"></canvas>
+    <div class="corners"><span></span><span></span><span></span><span></span></div>
+    <div class="hud top-left" id="hudLeft">
+      <div><span class="lbl">MODE</span> <span class="val">DRAG TO ROTATE</span></div>
+      <div><span class="lbl">SELECT</span> <span class="val" id="selectedVal">NONE</span></div>
+    </div>
+    <div class="hud top-right">
+      <div><span class="lbl">STATUS</span> <span class="val">LIVE</span></div>
+    </div>
+    <button class="fs-btn" id="fsBtn">Fullscreen</button>
+    <div class="info-card" id="infoCard">
+      <button class="close" id="infoClose">&times;</button>
+      <img class="flag" id="infoFlag" alt="">
+      <div class="name" id="infoName">—</div>
+      <div class="row" id="infoCapital"></div>
+      <div class="row" id="infoPopulation"></div>
+      <div class="row" id="infoRegion"></div>
+      <div class="row" id="infoArea"></div>
+      <div class="row" id="infoGdp"></div>
+    </div>
+    <div class="loading" id="loadingScreen"><span class="dot">●</span> LOADING WORLD DATA...</div>
+  </div>
+
+  <p class="caption">Credit: Earth imagery by Reto Stöckli, NASA Earth Observatory, NASA Goddard Space Flight Center — enhancements by Robert Simmon. Public domain.</p>
+
+  <p class="caption">Boundary data is simplified for speed, so a few countries that straddle the antimeridian (Russia, Fiji) may occasionally misidentify near their edges. Facts come from RameshVerse's own country and territory datasets — places like Greenland or Puerto Rico fall back to territory info automatically.</p>
+
+  <footer>GLOBE·EXPLORER — PART OF THE RAMESHVERSE SCIENCE SUITE</footer>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const canvas = document.getElementById('globeCanvas');
+const viewer = document.getElementById('viewer');
+const loadingScreen = document.getElementById('loadingScreen');
+const fsBtn = document.getElementById('fsBtn');
+const infoCard = document.getElementById('infoCard');
+const infoClose = document.getElementById('infoClose');
+const infoFlag = document.getElementById('infoFlag');
+const infoName = document.getElementById('infoName');
+const infoCapital = document.getElementById('infoCapital');
+const infoPopulation = document.getElementById('infoPopulation');
+const infoRegion = document.getElementById('infoRegion');
+const infoArea = document.getElementById('infoArea');
+const infoGdp = document.getElementById('infoGdp');
+const selectedVal = document.getElementById('selectedVal');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+
+const EARTH_RADIUS = 2;
+const BORDER_CANVAS_W = 2048, BORDER_CANVAS_H = 1024;
+
+// ---------- scene ----------
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
+camera.position.set(0, 0, 6.2);
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const light = new THREE.DirectionalLight(0xffffff, 2.4);
+light.position.set(4, 2, 5);
+scene.add(light);
+scene.add(new THREE.AmbientLight(0x445566, 0.7));
+
+function buildStarfield(){
+  const starCount = 5000;
+  const positions = new Float32Array(starCount * 3);
+  for(let i = 0; i < starCount; i++){
+    const r = 80 + Math.random() * 120;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos((Math.random() * 2) - 1);
+    positions[i*3]     = r * Math.sin(phi) * Math.cos(theta);
+    positions[i*3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    positions[i*3 + 2] = r * Math.cos(phi);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.35, sizeAttenuation: true, transparent: true, opacity: 0.85 });
+  return new THREE.Points(geo, mat);
+}
+scene.add(buildStarfield());
+
+const globeGroup = new THREE.Group();
+scene.add(globeGroup);
+
+// ---------- earth ----------
+const loader = new THREE.TextureLoader();
+const dayTex = loader.load('/earth-rotation-live/textures/earth_day.jpg', () => {
+  loadingScreen.classList.add('hide');
+});
+dayTex.colorSpace = THREE.SRGBColorSpace;
+setTimeout(() => loadingScreen.classList.add('hide'), 4000);
+
+const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, 96, 96);
+const earthMat = new THREE.MeshPhongMaterial({ map: dayTex, shininess: 5 });
+const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+globeGroup.add(earthMesh);
+
+// atmosphere glow
+const atmoGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.045, 96, 96);
+const atmoMat = new THREE.ShaderMaterial({
+  uniforms: { glowColor: { value: new THREE.Color(0x4fb8ff) } },
+  vertexShader: `varying vec3 vNormal; void main(){ vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `uniform vec3 glowColor; varying vec3 vNormal; void main(){ float i = pow(0.68 - dot(vNormal, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(glowColor, i * 0.9); }`,
+  side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+});
+scene.add(new THREE.Mesh(atmoGeo, atmoMat));
+
+// border/highlight overlay
+const borderCanvas = document.createElement('canvas');
+borderCanvas.width = BORDER_CANVAS_W;
+borderCanvas.height = BORDER_CANVAS_H;
+const bctx = borderCanvas.getContext('2d');
+const borderTex = new THREE.CanvasTexture(borderCanvas);
+const borderGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.003, 96, 96);
+const borderMat = new THREE.MeshBasicMaterial({ map: borderTex, transparent: true, depthWrite: false });
+const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+globeGroup.add(borderMesh);
+
+function lonLatToPx(lon, lat){
+  return [ (lon + 180) / 360 * BORDER_CANVAS_W, (90 - lat) / 180 * BORDER_CANVAS_H ];
+}
+
+function drawRing(ring){
+  bctx.beginPath();
+  ring.forEach((pt, i) => {
+    const [x, y] = lonLatToPx(pt[0], pt[1]);
+    if(i === 0) bctx.moveTo(x, y); else bctx.lineTo(x, y);
+  });
+  bctx.closePath();
+}
+
+function drawFeatureRings(feature, cb){
+  const geom = feature.geometry;
+  if(!geom) return;
+  if(geom.type === 'Polygon'){
+    geom.coordinates.forEach(ring => cb(ring));
+  } else if(geom.type === 'MultiPolygon'){
+    geom.coordinates.forEach(poly => poly.forEach(ring => cb(ring)));
+  }
+}
+
+let countryFeatures = [];
+let selectedFeature = null;
+
+function redrawBorders(){
+  bctx.clearRect(0, 0, BORDER_CANVAS_W, BORDER_CANVAS_H);
+  bctx.strokeStyle = 'rgba(255,120,120,0.35)';
+  bctx.lineWidth = 1;
+  countryFeatures.forEach(f => {
+    drawFeatureRings(f, ring => { drawRing(ring); bctx.stroke(); });
+  });
+  if(selectedFeature){
+    bctx.fillStyle = 'rgba(0,229,255,0.28)';
+    bctx.strokeStyle = 'rgba(0,229,255,0.95)';
+    bctx.lineWidth = 2;
+    const rings = [];
+    drawFeatureRings(selectedFeature, ring => rings.push(ring));
+    bctx.beginPath();
+    rings.forEach(ring => {
+      ring.forEach((pt, i) => {
+        const [x, y] = lonLatToPx(pt[0], pt[1]);
+        if(i === 0) bctx.moveTo(x, y); else bctx.lineTo(x, y);
+      });
+      bctx.closePath();
+    });
+    bctx.fill('evenodd');
+    rings.forEach(ring => { drawRing(ring); bctx.stroke(); });
+  }
+  borderTex.needsUpdate = true;
+}
+
+// ---------- capital marker ----------
+function latLonToVector3(lat, lon, radius){
+  const phi = (90 - lat) * Math.PI / 180;
+  const theta = (lon + 180) * Math.PI / 180;
+  return new THREE.Vector3(
+    -radius * Math.sin(phi) * Math.cos(theta),
+    radius * Math.cos(phi),
+    radius * Math.sin(phi) * Math.sin(theta)
+  );
+}
+
+function buildMarkerSprite(){
+  const size = 64;
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const grad = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  grad.addColorStop(0, 'rgba(0,229,255,1)');
+  grad.addColorStop(0.35, 'rgba(0,229,255,0.7)');
+  grad.addColorStop(1, 'rgba(0,229,255,0)');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,size,size);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(0.18, 0.18, 1);
+  return sprite;
+}
+const capitalMarker = buildMarkerSprite();
+capitalMarker.visible = false;
+globeGroup.add(capitalMarker);
+
+let markerPulse = 0;
+
+// ---------- point in polygon (even-odd across all rings, handles holes) ----------
+function pointInRing(lon, lat, ring){
+  let inside = false;
+  for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+    const xi = ring[i][0], yi = ring[i][1];
+    const xj = ring[j][0], yj = ring[j][1];
+    const intersect = ((yi > lat) !== (yj > lat)) &&
+      (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function findCountryAt(lon, lat){
+  for(const f of countryFeatures){
+    const geom = f.geometry;
+    if(!geom) continue;
+    let hit = false;
+    if(geom.type === 'Polygon'){
+      let inside = false;
+      geom.coordinates.forEach(ring => { if(pointInRing(lon, lat, ring)) inside = !inside; });
+      hit = inside;
+    } else if(geom.type === 'MultiPolygon'){
+      geom.coordinates.forEach(poly => {
+        let inside = false;
+        poly.forEach(ring => { if(pointInRing(lon, lat, ring)) inside = !inside; });
+        if(inside) hit = true;
+      });
+    }
+    if(hit) return f;
+  }
+  return null;
+}
+
+// ---------- country facts (RameshVerse's own dataset) ----------
+// Adjust this path if countries.json lives somewhere else on the site.
+const COUNTRY_DATA_URL = '/country-explorer/data/countries.json';
+let countryDataByName = new Map();
+
+// ---------- territory facts (fallback for non-sovereign places like Greenland) ----------
+const TERRITORY_DATA_URL = '/territory-explorer/data/territories.json';
+let territoryDataByName = new Map();
+
+function normalizeName(s){ return (s || '').toLowerCase().trim(); }
+
+fetch(COUNTRY_DATA_URL)
+  .then(r => r.json())
+  .then(list => {
+    list.forEach(c => countryDataByName.set(normalizeName(c.name), c));
+  })
+  .catch(() => { /* falls back gracefully — info card just shows "no data" */ });
+
+fetch(TERRITORY_DATA_URL)
+  .then(r => r.json())
+  .then(list => {
+    list.forEach(t => territoryDataByName.set(normalizeName(t.name), t));
+  })
+  .catch(() => { /* falls back gracefully — territories just show "no data" too */ });
+
+function lookupByName(map, name){
+  const key = normalizeName(name);
+  if(map.has(key)) return map.get(key);
+  for(const [k, v] of map){
+    if(k.includes(key) || key.includes(k)) return v;
+  }
+  return null;
+}
+
+function findCountryFacts(name){ return lookupByName(countryDataByName, name); }
+function findTerritoryFacts(name){ return lookupByName(territoryDataByName, name); }
+
+function flagUrlFor(iso2){
+  return iso2 ? `https://flagcdn.com/w320/${iso2.toLowerCase()}.png` : '';
+}
+
+function formatGdp(usd){
+  if(!usd) return null;
+  if(usd >= 1e12) return `$${(usd/1e12).toFixed(2)}T`;
+  if(usd >= 1e9) return `$${(usd/1e9).toFixed(1)}B`;
+  if(usd >= 1e6) return `$${(usd/1e6).toFixed(1)}M`;
+  return `$${usd.toLocaleString()}`;
+}
+
+function getFeatureCentroid(feature){
+  let cx = 0, cy = 0, n = 0;
+  drawFeatureRings(feature, ring => { ring.forEach(pt => { cx += pt[0]; cy += pt[1]; n++; }); });
+  return n > 0 ? { lon: cx / n, lat: cy / n } : null;
+}
+
+function buildDisplayFromCountry(facts){
+  const capitalStr = Array.isArray(facts.capital) ? facts.capital.join(', ') : (facts.capital || '—');
+  const popStr = facts.population ? facts.population.toLocaleString() : '—';
+  const popNote = facts.population_estimate ? ' (est.)' : '';
+  const continentStr = facts.continent_secondary ? `${facts.continent} / ${facts.continent_secondary}` : (facts.continent || '—');
+  const areaStr = facts.area_km2 ? `${facts.area_km2.toLocaleString()} km²` : '';
+  const gdp = formatGdp(facts.gdp_nominal_usd);
+  return {
+    capitalLine: `<b>Capital:</b> ${capitalStr}`,
+    populationLine: `<b>Population:</b> ${popStr}${popNote}${facts.population_year ? ' · ' + facts.population_year : ''}`,
+    regionLine: `<b>Continent:</b> ${continentStr}`,
+    areaLine: areaStr ? `<b>Area:</b> ${areaStr}` : '',
+    extraLine: gdp ? `<b>GDP:</b> ${gdp}${facts.gdp_year ? ' (' + facts.gdp_year + ')' : ''}` : '',
+    iso: facts.iso_alpha2
+  };
+}
+
+function buildDisplayFromTerritory(facts){
+  return {
+    capitalLine: `<b>Capital:</b> ${facts.capital || '—'}`,
+    populationLine: `<b>Population:</b> ${facts.pop || '—'}`,
+    regionLine: `<b>Administered by:</b> ${facts.power}${facts.status ? ' · ' + facts.status : ''}`,
+    areaLine: facts.area ? `<b>Area:</b> ${facts.area}` : '',
+    extraLine: facts.currency ? `<b>Currency:</b> ${facts.currency}` : '',
+    iso: facts.iso
+  };
+}
+
+function selectCountry(feature){
+  selectedFeature = feature;
+  redrawBorders();
+  const name = feature.properties.name || feature.properties.NAME || 'Unknown';
+  selectedVal.textContent = name.toUpperCase();
+
+  infoCard.classList.add('show');
+  infoName.textContent = name;
+  infoFlag.removeAttribute('src');
+  capitalMarker.visible = false;
+
+  let display = null;
+  const countryFacts = findCountryFacts(name);
+  if(countryFacts){
+    display = buildDisplayFromCountry(countryFacts);
+  } else {
+    const territoryFacts = findTerritoryFacts(name);
+    if(territoryFacts) display = buildDisplayFromTerritory(territoryFacts);
+  }
+
+  if(display){
+    infoCapital.innerHTML = display.capitalLine;
+    infoPopulation.innerHTML = display.populationLine;
+    infoRegion.innerHTML = display.regionLine;
+    infoArea.innerHTML = display.areaLine;
+    infoGdp.innerHTML = display.extraLine;
+    if(display.iso) infoFlag.src = flagUrlFor(display.iso);
+  } else {
+    infoCapital.textContent = 'No data on file for this place yet.';
+    infoPopulation.textContent = '';
+    infoRegion.textContent = '';
+    infoArea.textContent = '';
+    infoGdp.textContent = '';
+  }
+
+  const centroid = getFeatureCentroid(feature);
+  if(centroid){
+    capitalMarker.position.copy(latLonToVector3(centroid.lat, centroid.lon, EARTH_RADIUS * 1.02));
+    capitalMarker.visible = true;
+  }
+}
+
+infoClose.addEventListener('click', () => {
+  selectedFeature = null;
+  redrawBorders();
+  infoCard.classList.remove('show');
+  selectedVal.textContent = 'NONE';
+  capitalMarker.visible = false;
+});
+
+// ---------- load world boundaries ----------
+fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+  .then(r => r.json())
+  .then(geojson => {
+    countryFeatures = geojson.features.filter(f => f.geometry);
+    redrawBorders();
+    loadingScreen.classList.add('hide');
+  })
+  .catch(() => { loadingScreen.textContent = 'Failed to load world data.'; });
+
+// ---------- drag to rotate ----------
+let isDragging = false, moved = 0, prevX = 0, prevY = 0;
+let velX = 0, velY = 0;
+
+canvas.addEventListener('pointerdown', e => {
+  isDragging = true; moved = 0;
+  prevX = e.clientX; prevY = e.clientY;
+  canvas.setPointerCapture(e.pointerId);
+  canvas.classList.add('dragging');
+});
+canvas.addEventListener('pointermove', e => {
+  if(!isDragging) return;
+  const dx = e.clientX - prevX, dy = e.clientY - prevY;
+  moved += Math.abs(dx) + Math.abs(dy);
+  velY = dx * 0.005; velX = dy * 0.005;
+  globeGroup.rotation.y += velY;
+  globeGroup.rotation.x = THREE.MathUtils.clamp(globeGroup.rotation.x + velX, -1.3, 1.3);
+  prevX = e.clientX; prevY = e.clientY;
+});
+window.addEventListener('pointerup', e => {
+  if(!isDragging) return;
+  isDragging = false;
+  canvas.classList.remove('dragging');
+  if(moved < 6) handleClick(e);
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  camera.position.z = THREE.MathUtils.clamp(camera.position.z + e.deltaY * 0.003, 3.2, 12);
+}, { passive: false });
+
+const raycaster = new THREE.Raycaster();
+const mouseNDC = new THREE.Vector2();
+
+function handleClick(e){
+  const rect = canvas.getBoundingClientRect();
+  mouseNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouseNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouseNDC, camera);
+  const hits = raycaster.intersectObject(earthMesh);
+  if(!hits.length) return;
+  const local = earthMesh.worldToLocal(hits[0].point.clone());
+  const norm = local.clone().normalize();
+  const lat = 90 - THREE.MathUtils.radToDeg(Math.acos(THREE.MathUtils.clamp(norm.y, -1, 1)));
+  let lon = THREE.MathUtils.radToDeg(Math.atan2(norm.z, -norm.x)) - 180;
+  if(lon < -180) lon += 360;
+  if(lon > 180) lon -= 360;
+  const feature = findCountryAt(lon, lat);
+  if(feature) selectCountry(feature);
+}
+
+// ---------- search ----------
+function normalize(s){ return s.toLowerCase().trim(); }
+function doSearch(){
+  const q = normalize(searchInput.value);
+  if(!q) return;
+  const match = countryFeatures.find(f => normalize(f.properties.name || '').includes(q));
+  if(match){
+    selectCountry(match);
+    const centroid = getFeatureCentroid(match);
+    if(centroid){
+      globeGroup.rotation.y = THREE.MathUtils.degToRad(-(centroid.lon + 180));
+      globeGroup.rotation.x = 0;
+    }
+  }
+}
+searchBtn.addEventListener('click', doSearch);
+searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') doSearch(); });
+
+// ---------- resize / fullscreen ----------
+function handleResize(){
+  const w = viewer.clientWidth, h = viewer.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', handleResize);
+document.addEventListener('fullscreenchange', () => {
+  setTimeout(handleResize, 50);
+  fsBtn.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
+});
+fsBtn.addEventListener('click', () => {
+  if(!document.fullscreenElement) viewer.requestFullscreen().catch(() => {});
+  else document.exitFullscreen();
+});
+viewer.addEventListener('dblclick', () => fsBtn.click());
+
+// ---------- render loop ----------
+function animate(){
+  requestAnimationFrame(animate);
+  if(!isDragging){
+    velX *= 0.92; velY *= 0.92;
+    globeGroup.rotation.y += velY;
+    globeGroup.rotation.x = THREE.MathUtils.clamp(globeGroup.rotation.x + velX, -1.3, 1.3);
+    if(Math.abs(velY) < 0.0002 && Math.abs(velX) < 0.0002){
+      globeGroup.rotation.y += 0.0006; // gentle idle drift
+    }
+  }
+  markerPulse += 0.06;
+  if(capitalMarker.visible){
+    const s = 0.16 + Math.sin(markerPulse) * 0.04;
+    capitalMarker.scale.set(s, s, 1);
+  }
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
+
+<script src="/tools-data.js"></script>
+<script src="/related-modules.js"></script>
+
+</body>
+</html>
