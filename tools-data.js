@@ -55,5 +55,6 @@ window.RameshverseTools = [
   { id: "planets-positions-now",      name: "Planets Positions Now",                            url: "/sky-tonight/",                   category: "science" },
   { id: "sky-at-birth",      name: "Sky at Birth",                                              url: "/sky-at-birth/",                   category: "science" },
   { id: "light-speed-messenger",      name: "Light Speed Messenger",                            url: "/light-speed-messenger/",                   category: "science" },
-  { id: "asteroid-watch-live",      name: "Asteroid Watch Live",                            url: "/asteroid-watch-live/",                   category: "science" }
+  { id: "asteroid-watch-live",      name: "Asteroid Watch Live",                            url: "/asteroid-watch-live/",                   category: "science" },
+  { id: "territory-explorer",      name: "Territory Explorer",                            url: "/territory-explorer/",                   category: "geography" }
 ];
