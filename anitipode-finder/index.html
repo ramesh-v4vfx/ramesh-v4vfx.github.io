@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RV·ANTIPODE — Antipode Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0505;
+    --bg2:#120808;
+    --red:#ff2b2b;
+    --red-dim:#5e1414;
+    --text:#e8e2e2;
+    --text-dim:#8a7a7a;
+    --line:#2a1616;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Mono', monospace;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* scanline / grid texture */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,43,43,0.025) 0px, rgba(255,43,43,0.025) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:1;
+  }
+  .wrap{
+    position:relative;
+    z-index:2;
+    max-width:960px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+  a.back{
+    color:var(--text-dim);
+    text-decoration:none;
+    font-size:12px;
+    letter-spacing:0.1em;
+    display:inline-block;
+    margin-bottom:24px;
+    border-bottom:1px solid transparent;
+  }
+  a.back:hover{ color:var(--red); border-color:var(--red); }
+
+  .frame{
+    position:relative;
+    border:1px solid var(--line);
+    padding:24px;
+    margin-bottom:20px;
+    background:linear-gradient(180deg, var(--bg2), var(--bg));
+  }
+  .frame::before, .frame::after,
+  .corners span{
+    content:"";
+  }
+  .corners span{
+    position:absolute;
+    width:12px; height:12px;
+    border-color:var(--red);
+    border-style:solid;
+    z-index:3;
+  }
+  .corners span:nth-child(1){ top:-1px; left:-1px; border-width:2px 0 0 2px; }
+  .corners span:nth-child(2){ top:-1px; right:-1px; border-width:2px 2px 0 0; }
+  .corners span:nth-child(3){ bottom:-1px; left:-1px; border-width:0 0 2px 2px; }
+  .corners span:nth-child(4){ bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
+
+  h1{
+    font-size:clamp(28px, 5vw, 44px);
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    font-weight:700;
+    line-height:1.05;
+  }
+  h1 .dot{ color:var(--red); }
+  .tagline{
+    color:var(--text-dim);
+    font-size:13px;
+    margin-top:10px;
+    line-height:1.6;
+    max-width:620px;
+  }
+
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:20px;
+  }
+  input[type="text"]{
+    flex:1 1 260px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:inherit;
+    font-size:13px;
+    padding:12px 14px;
+    letter-spacing:0.02em;
+  }
+  input[type="text"]:focus{ outline:none; border-color:var(--red); }
+  input[type="text"]::placeholder{ color:var(--text-dim); }
+
+  button{
+    background:transparent;
+    border:1px solid var(--red-dim);
+    color:var(--red);
+    font-family:inherit;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:12px 16px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  button:hover{ background:var(--red); color:#0a0505; border-color:var(--red); }
+  button:disabled{ opacity:.4; cursor:default; }
+  button:disabled:hover{ background:transparent; color:var(--red); }
+
+  .hint{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-top:10px;
+    letter-spacing:0.03em;
+  }
+
+  .map-frame{
+    position:relative;
+    margin-top:22px;
+    border:1px solid var(--line);
+    overflow:hidden;
+    cursor:crosshair;
+    line-height:0;
+  }
+  .map-frame img{
+    display:block;
+    width:100%;
+    height:auto;
+    filter:grayscale(1) contrast(1.15) brightness(.55) sepia(1) hue-rotate(-50deg) saturate(2);
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+  .marker{
+    position:absolute;
+    width:16px; height:16px;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    z-index:5;
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  .marker.origin{ color:var(--red); filter:drop-shadow(0 0 6px var(--red)); }
+  .marker.antipode{ color:#00e5ff; filter:drop-shadow(0 0 6px #00e5ff); animation-delay:.3s; }
+  .marker svg{ width:100%; height:100%; display:block; }
+
+  @keyframes pulse{
+    0%, 100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+    50%{ opacity:.45; transform:translate(-50%,-50%) scale(1.25); }
+  }
+
+  .beam-line{
+    animation:beam 1.2s linear infinite;
+  }
+  @keyframes beam{
+    to{ stroke-dashoffset:-22; }
+  }
+  .link-line{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:4;
+  }
+
+  .status{
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:var(--text-dim);
+    margin-top:10px;
+    min-height:14px;
+  }
+
+  .readout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--line);
+    margin-top:20px;
+    border:1px solid var(--line);
+  }
+  @media (max-width:560px){
+    .readout{ grid-template-columns:1fr; }
+  }
+  .cell{
+    background:var(--bg);
+    padding:18px 16px;
+  }
+  .cell .label{
+    font-size:10px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  .cell.origin .label{ color:var(--red); }
+  .cell.antipode .label{ color:#5ec8ff; }
+  .cell .place{
+    font-size:15px;
+    font-weight:700;
+    line-height:1.4;
+    min-height:21px;
+  }
+  .cell .coords{
+    font-size:12px;
+    color:var(--text-dim);
+    margin-top:6px;
+  }
+  .cell .surface{
+    font-size:11px;
+    margin-top:8px;
+    letter-spacing:0.05em;
+  }
+  .surface.land{ color:#7fdc8a; }
+  .surface.ocean{ color:#5ec8ff; }
+
+  .facts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:1px;
+    background:var(--line);
+    margin-top:1px;
+    border:1px solid var(--line);
+    border-top:none;
+  }
+  .fact{
+    flex:1 1 220px;
+    background:var(--bg);
+    padding:16px;
+  }
+  .fact .num{
+    color:var(--red);
+    font-size:20px;
+    font-weight:700;
+  }
+  .fact .desc{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-top:4px;
+    letter-spacing:0.02em;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+    flex-wrap:wrap;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:10px;
+    letter-spacing:0.1em;
+    margin-top:40px;
+  }
+
+  canvas#shareCanvas{ display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="https://rameshverse.com">&larr; RAMESHVERSE</a>
+
+  <div class="frame">
+    <div class="corners"><span></span><span></span><span></span><span></span></div>
+    <h1>RV<span class="dot">·</span>ANTIPODE</h1>
+    <p class="tagline">Dig a hole straight through the Earth from anywhere, and this is where you'd come out. Search a place, use your location, or click the map.</p>
+
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search a city or place..." autocomplete="off">
+      <button id="searchBtn">Locate</button>
+      <button id="geoBtn">Use My Location</button>
+    </div>
+    <div class="status" id="statusLine">Ready. Click anywhere on the map to begin.</div>
+  </div>
+
+  <div class="map-frame" id="mapFrame">
+    <img id="worldMap" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg" alt="World map" draggable="false">
+    <svg class="link-line" id="linkLine"></svg>
+    <div class="marker origin" id="originMarker" style="display:none;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="0" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="19" x2="12" y2="24" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="19" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="1.5"/></svg>
+    </div>
+    <div class="marker antipode" id="antipodeMarker" style="display:none;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="cell origin">
+      <div class="label">Origin</div>
+      <div class="place" id="originPlace">—</div>
+      <div class="coords" id="originCoords">—</div>
+      <div class="surface" id="originSurface"></div>
+    </div>
+    <div class="cell antipode">
+      <div class="label">Antipode</div>
+      <div class="place" id="antipodePlace">—</div>
+      <div class="coords" id="antipodeCoords">—</div>
+      <div class="surface" id="antipodeSurface"></div>
+    </div>
+  </div>
+
+  <div class="facts">
+    <div class="fact">
+      <div class="num">12,742 km</div>
+      <div class="desc">Straight-line distance through the Earth's core to any antipode.</div>
+    </div>
+    <div class="fact">
+      <div class="num">20,015 km</div>
+      <div class="desc">Distance if you walked the surface instead — exactly half the globe.</div>
+    </div>
+    <div class="fact">
+      <div class="num">~29%</div>
+      <div class="desc">Share of Earth's land that has a land antipode. Most dry ground faces ocean.</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="shareBtn" disabled>Download Card</button>
+  </div>
+
+  <footer>RV·ANTIPODE — PART OF THE RAMESHVERSE SCIENCE SUITE</footer>
+</div>
+
+<canvas id="shareCanvas" width="1200" height="675"></canvas>
+
+<script>
+const mapFrame = document.getElementById('mapFrame');
+const worldMap = document.getElementById('worldMap');
+const originMarker = document.getElementById('originMarker');
+const antipodeMarker = document.getElementById('antipodeMarker');
+const linkLine = document.getElementById('linkLine');
+const statusLine = document.getElementById('statusLine');
+const shareBtn = document.getElementById('shareBtn');
+
+let current = null; // { lat, lon, antiLat, antiLon }
+
+function normLon(lon){
+  let l = lon;
+  while(l > 180) l -= 360;
+  while(l < -180) l += 360;
+  return l;
+}
+
+function toXY(lat, lon){
+  const w = mapFrame.clientWidth;
+  const h = mapFrame.clientHeight;
+  const x = ((lon + 180) / 360) * w;
+  const y = ((90 - lat) / 180) * h;
+  return {x, y};
+}
+
+function placeMarkers(lat, lon, antiLat, antiLon){
+  const w = mapFrame.clientWidth;
+  const h = mapFrame.clientHeight;
+  const o = toXY(lat, lon);
+  const a = toXY(antiLat, antiLon);
+
+  originMarker.style.left = o.x + 'px';
+  originMarker.style.top = o.y + 'px';
+  originMarker.style.display = 'block';
+
+  antipodeMarker.style.left = a.x + 'px';
+  antipodeMarker.style.top = a.y + 'px';
+  antipodeMarker.style.display = 'block';
+
+  linkLine.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  linkLine.innerHTML = `
+    <defs>
+      <filter id="lineGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2.2" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <line x1="${o.x}" y1="${o.y}" x2="${a.x}" y2="${a.y}" stroke="#00e5ff" stroke-width="1.4" stroke-dasharray="5 6" opacity="0.6" filter="url(#lineGlow)" class="beam-line"/>`;
+}
+
+function fmtCoord(lat, lon){
+  const ns = lat >= 0 ? 'N' : 'S';
+  const ew = lon >= 0 ? 'E' : 'W';
+  return `${Math.abs(lat).toFixed(3)}°${ns}, ${Math.abs(lon).toFixed(3)}°${ew}`;
+}
+
+async function reverseGeocode(lat, lon){
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=8&addressdetails=1`, {
+      headers: { 'Accept-Language': 'en' }
+    });
+    const data = await res.json();
+    if(data && data.display_name && (data.address && (data.address.country || data.address.state || data.address.ocean || data.address.sea))){
+      const a = data.address;
+      const name = a.city || a.town || a.village || a.county || a.state || a.country || data.display_name.split(',')[0];
+      const isLand = !!(a.country);
+      return { name: name, isLand: isLand, raw: data.display_name };
+    }
+    return { name: 'Open Water', isLand: false, raw: null };
+  }catch(e){
+    return { name: 'Unknown', isLand: null, raw: null };
+  }
+}
+
+async function locate(lat, lon){
+  lat = Math.max(-90, Math.min(90, lat));
+  lon = normLon(lon);
+  const antiLat = -lat;
+  const antiLon = normLon(lon + 180);
+
+  current = { lat, lon, antiLat, antiLon };
+
+  placeMarkers(lat, lon, antiLat, antiLon);
+
+  document.getElementById('originCoords').textContent = fmtCoord(lat, lon);
+  document.getElementById('antipodeCoords').textContent = fmtCoord(antiLat, antiLon);
+  document.getElementById('originPlace').textContent = 'Locating...';
+  document.getElementById('antipodePlace').textContent = 'Locating...';
+  document.getElementById('originSurface').textContent = '';
+  document.getElementById('antipodeSurface').textContent = '';
+  statusLine.textContent = 'Resolving place names...';
+  shareBtn.disabled = true;
+
+  const [originInfo, antiInfo] = await Promise.all([
+    reverseGeocode(lat, lon),
+    reverseGeocode(antiLat, antiLon)
+  ]);
+
+  document.getElementById('originPlace').textContent = originInfo.name;
+  document.getElementById('antipodePlace').textContent = antiInfo.name;
+
+  const os = document.getElementById('originSurface');
+  const as = document.getElementById('antipodeSurface');
+  if(originInfo.isLand === true){ os.textContent = 'LAND'; os.className = 'surface land'; }
+  else if(originInfo.isLand === false){ os.textContent = 'OCEAN'; os.className = 'surface ocean'; }
+  else { os.textContent = ''; }
+
+  if(antiInfo.isLand === true){ as.textContent = 'LAND'; as.className = 'surface land'; }
+  else if(antiInfo.isLand === false){ as.textContent = 'OCEAN'; as.className = 'surface ocean'; }
+  else { as.textContent = ''; }
+
+  current.originName = originInfo.name;
+  current.antiName = antiInfo.name;
+  current.originLand = originInfo.isLand;
+  current.antiLand = antiInfo.isLand;
+
+  statusLine.textContent = 'Done.';
+  shareBtn.disabled = false;
+}
+
+mapFrame.addEventListener('click', (e) => {
+  const rect = mapFrame.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const lon = (x / rect.width) * 360 - 180;
+  const lat = 90 - (y / rect.height) * 180;
+  locate(lat, lon);
+});
+
+document.getElementById('geoBtn').addEventListener('click', () => {
+  if(!navigator.geolocation){
+    statusLine.textContent = 'Geolocation not supported on this device.';
+    return;
+  }
+  statusLine.textContent = 'Requesting location...';
+  navigator.geolocation.getCurrentPosition(
+    (pos) => locate(pos.coords.latitude, pos.coords.longitude),
+    () => { statusLine.textContent = 'Location access denied.'; }
+  );
+});
+
+async function doSearch(){
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  statusLine.textContent = 'Searching...';
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`);
+    const data = await res.json();
+    if(data && data.length > 0){
+      locate(parseFloat(data[0].lat), parseFloat(data[0].lon));
+    }else{
+      statusLine.textContent = `No results for "${q}".`;
+    }
+  }catch(e){
+    statusLine.textContent = 'Search failed. Check your connection.';
+  }
+}
+
+document.getElementById('searchBtn').addEventListener('click', doSearch);
+document.getElementById('searchInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') doSearch();
+});
+
+window.addEventListener('resize', () => {
+  if(current) placeMarkers(current.lat, current.lon, current.antiLat, current.antiLon);
+});
+
+worldMap.addEventListener('load', () => {
+  if(current) placeMarkers(current.lat, current.lon, current.antiLat, current.antiLon);
+});
+
+// Shareable card generation
+shareBtn.addEventListener('click', () => {
+  if(!current) return;
+  const canvas = document.getElementById('shareCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  ctx.fillStyle = '#0a0505';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.strokeStyle = '#2a1616';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(20,20,W-40,H-40);
+
+  ctx.fillStyle = '#ff2b2b';
+  ctx.font = 'bold 34px monospace';
+  ctx.fillText('RV·ANTIPODE', 60, 90);
+
+  ctx.fillStyle = '#8a7a7a';
+  ctx.font = '16px monospace';
+  ctx.fillText('rameshverse.com', 60, 118);
+
+  ctx.fillStyle = '#e8e2e2';
+  ctx.font = 'bold 26px monospace';
+  ctx.fillText('ORIGIN', 60, 220);
+  ctx.fillStyle = '#ff2b2b';
+  ctx.font = 'bold 30px monospace';
+  ctx.fillText(current.originName || '—', 60, 260);
+  ctx.fillStyle = '#8a7a7a';
+  ctx.font = '16px monospace';
+  ctx.fillText(fmtCoord(current.lat, current.lon), 60, 290);
+
+  ctx.fillStyle = '#e8e2e2';
+  ctx.font = 'bold 26px monospace';
+  ctx.fillText('ANTIPODE', 60, 380);
+  ctx.fillStyle = '#5ec8ff';
+  ctx.font = 'bold 30px monospace';
+  ctx.fillText(current.antiName || '—', 60, 420);
+  ctx.fillStyle = '#8a7a7a';
+  ctx.font = '16px monospace';
+  ctx.fillText(fmtCoord(current.antiLat, current.antiLon), 60, 450);
+
+  ctx.fillStyle = '#e8e2e2';
+  ctx.font = '18px monospace';
+  ctx.fillText('12,742 KM STRAIGHT DOWN  ·  20,015 KM AROUND THE SURFACE', 60, 540);
+
+  const link = document.createElement('a');
+  link.download = `antipode-${(current.originName||'location').replace(/\s+/g,'-').toLowerCase()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
+
+
+<script src="/tools-data.js"></script>
+<script src="/related-modules.js"></script>
+
+</body>
+</html>

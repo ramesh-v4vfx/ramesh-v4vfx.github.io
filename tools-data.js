@@ -31,7 +31,6 @@ window.RameshverseTools = [
   { id: "pomodoro-focus",             name: "Pomodoro Focus",                             url: "/pomodoro-focus/",                      category: "productivity" },
   { id: "division-pro",               name: "Division Pro",                                 url: "/division-pro/",                        category: "calculator" },
   { id: "mean-median-mode",           name: "Mean · Median · Mode",                         url: "/mean-median-mode/",                    category: "calculator" },
-  { id: "seconds-to-frames",          name: "Seconds to Frames",                            url: "/seconds-to-frames/",                   category: "calculator" },
   { id: "brain-dump",                 name: "Brain Dump",                                 url: "/brain-dump/",                          category: "productivity" },
   { id: "daily-routine",              name: "Daily Routine",                                url: "/daily-routine/",                       category: "productivity" },
   { id: "travel-checklist",           name: "International Travel Checklist",             url: "/international-airtravel-checklist/",   category: "productivity" },
@@ -56,5 +55,6 @@ window.RameshverseTools = [
   { id: "sky-at-birth",      name: "Sky at Birth",                                              url: "/sky-at-birth/",                   category: "science" },
   { id: "light-speed-messenger",      name: "Light Speed Messenger",                            url: "/light-speed-messenger/",                   category: "science" },
   { id: "asteroid-watch-live",      name: "Asteroid Watch Live",                            url: "/asteroid-watch-live/",                   category: "science" },
-  { id: "territory-explorer",      name: "Territory Explorer",                            url: "/territory-explorer/",                   category: "geography" }
+  { id: "territory-explorer",      name: "Territory Explorer",                            url: "/territory-explorer/",                   category: "geography" },
+  { id: "antipode-finder",      name: "Antipode Finder",                            url: "/antipode-finder/",                       category: "geography" }
 ];
