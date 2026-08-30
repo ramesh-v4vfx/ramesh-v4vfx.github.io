@@ -15,7 +15,6 @@ window.RameshverseTools = [
   { id: "space-collision-simulator",  name: "Space Collision Simulator",                    url: "/space-collision-simulator/",           category: "science" },
   { id: "cosmic-calculator",          name: "Cosmic Calculator",                             url: "/cosmic-calculator/",                   category: "science" },
   { id: "exoplanet-detector",         name: "Exoplanet Detector Simulator",                 url: "/exoplanet-detector-simulator/",        category: "science" },
-  { id: "country-explorer",          name: "Country Explorer",                              url: "/country-explorer/",                    category: "geography" },
   { id: "asteroid-impact-simulator",  name: "Asteroid Impact Simulator",                    url: "/asteroid-impact-simulator/",           category: "science" },
   { id: "black-hole-simulator",       name: "Black Hole Simulator",                         url: "/black-hole-simulator/",                category: "science" },
   { id: "your-weight-in-space",       name: "Your Weight in Space",                         url: "/your-weight-in-space/",                category: "science" },
