@@ -321,7 +321,7 @@
   }
 
   /* Progress bar (thin red line at very top) */
-  .hero-progress {
+     .hero-progress {
     position: absolute;
     top: 0;
     left: 0;
@@ -361,6 +361,146 @@
     box-shadow: 0 0 0 1px rgba(255,43,43,.5), 0 0 14px rgba(255,43,43,.35);
     color: #ff2b2b;
 }
+
+/* ── HERO RADAR SWEEP ──
+     A soft diagonal band of light drifting across the hero every
+     ~7s. Subtle — reads as a HUD scan, not a distraction. */
+  .hero-sweep {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+  }
+    .hero-sweep::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -25%;
+    width: 22%;
+    height: 100%;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      rgba(255,43,43,0.10) 45%,
+      rgba(255,43,43,0.16) 50%,
+      rgba(255,43,43,0.10) 55%,
+      transparent 100%
+    );
+    filter: blur(2px);
+    animation: heroSweepMove var(--sweep-duration, 7500ms) linear forwards;
+  }
+  .hero-sweep.sweep-reset::before {
+    animation: none; /* JS toggles this to snap the sweep back and restart it in sync with each slide */
+  }
+  .hero-sweep.sweep-paused::before {
+    animation-play-state: paused; /* pauses in place on hover, same as the old progress bar did */
+  }
+  @keyframes heroSweepMove {
+    0%   { left: -25%; }
+    38%  { left: 115%; }
+    100% { left: 115%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-sweep::before { animation: none; display: none; }
+  }
+  @media (max-width: 600px) {
+    .hero-sweep::before { width: 34%; } /* reads better on narrow screens */
+  }
+
+
+  /* ── HUD STRIP — rotating third segment ──
+     Your existing .hud-strip stays as-is; this just styles the
+     swapped-in span so the text-change reads as a soft flicker
+     rather than a jump-cut. */
+  .hud-rotator {
+    display: inline-block;
+    min-width: 92px;
+    transition: opacity .35s ease;
+  }
+  .hud-rotator.hud-rotator-fade { opacity: 0; }
+
+
+  /* ── SYSTEM LOG TICKER ──
+     Fixed bottom-left, low-opacity terminal readout. Purely
+     ambient — cycles short fake status lines, echoing the boot
+     sequence / telemetry-strip language elsewhere on the page. */
+  #systemLogTicker {
+    position: fixed;
+    left: 14px;
+    bottom: 14px;
+    z-index: 400;
+    max-width: 260px;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.03em;
+    color: rgba(255,43,43,0.55);
+    background: rgba(0,0,0,0.35);
+    border-left: 2px solid rgba(255,43,43,0.35);
+    padding: 5px 10px;
+    border-radius: 0 4px 4px 0;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  #systemLogTicker.log-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (max-width: 700px) {
+    /* Keep clear of the feedback FAB on small screens */
+    #systemLogTicker { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #systemLogTicker { transition: none; }
+  }
+
+
+  /* ── TAB SWITCH — animated underline sweep ──
+     Fires a brief left-to-right underline "load" animation on
+     whichever tab becomes active, echoing the hero-progress bar
+     language used elsewhere on the page. */
+.tab-btn { position: relative; }
+.tab-btn::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    height: 2px;
+    width: 0%;
+    background: #ff2b2b;
+    box-shadow: 0 0 8px rgba(255,43,43,1), 0 0 14px rgba(255,43,43,.6);
+    opacity: 0;
+}
+.tab-btn.tab-just-activated::after {
+    animation: tabUnderlineSweep .7s ease forwards;
+}
+@keyframes tabUnderlineSweep {
+    0%   { width: 0%;   opacity: 1; }
+    55%  { width: 100%; opacity: 1; }
+    100% { width: 100%; opacity: 0; }
+}
+  @media (prefers-reduced-motion: reduce) {
+    .tab-btn.tab-just-activated::after { animation: none; width: 100%; }
+  }
+
+
+  /* ── POPULAR TOOLS — trending indicator ──
+     Small arrow appended next to a tool's view count when it has
+     gained views since your last visit (compared via localStorage,
+     so it's specific to each visitor's own browsing history). */
+  .popular-trend-up {
+    color: #4ade80;
+    margin-left: 4px;
+    font-size: 0.6rem;
+  }
+  .popular-trend-new {
+    color: #ff2b2b;
+    margin-left: 4px;
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+  }
 
   /* ── STICKY SEARCH + TABS WRAPPER ── */
   .sticky-top {
@@ -1514,6 +1654,8 @@
 
   <div class="hero-progress" id="heroProgress"></div>
 
+  <div class="hero-sweep" aria-hidden="true"></div>
+
   <button class="hero-close" id="heroClose" aria-label="Hide featured tools">
     ×
 </button>
@@ -2081,6 +2223,8 @@
   </div>
 </div>
 
+<div id="systemLogTicker" aria-hidden="true"></div>
+
 <script>
   /* ── HERO SLIDESHOW ── */
   (function() {const hero = document.getElementById("hero");
@@ -2109,10 +2253,19 @@
     const prevBtn = document.getElementById('heroPrev');
     const nextBtn = document.getElementById('heroNext');
 
-    const DURATION = 6000; // ms per slide
+    const DURATION = 7500; // ms per slide — matches the radar sweep's own cycle
+    const sweep = document.querySelector('.hero-sweep');
 
     let current = 0;
     let timer, progTimer, progStart;
+
+    function restartSweep() {
+      if (!sweep) return;
+      sweep.style.setProperty('--sweep-duration', DURATION + 'ms');
+      sweep.classList.add('sweep-reset');
+      void sweep.offsetWidth; // force reflow so the animation actually restarts
+      sweep.classList.remove('sweep-reset');
+    }
 
     // Build dots
     slides.forEach((_, i) => {
@@ -2170,7 +2323,22 @@
       progress.style.transition = 'width ' + DURATION + 'ms linear';
       progress.style.width = '100%';
 
-      timer = setTimeout(() => goTo(current + 1), DURATION);
+      restartSweep();
+      // No setTimeout here anymore — the sweep's own animationend event
+      // below is what actually advances the slide, so they can never
+      // drift apart from each other.
+    }
+
+    if (sweep) {
+      sweep.addEventListener('animationend', (e) => {
+        // Only react to the sweep's own animation finishing (not any
+        // other animation that might bubble up), and ignore it while
+        // hovered/paused — a paused animation never fires this anyway,
+        // but this guards against any edge case.
+        if (e.animationName !== 'heroSweepMove') return;
+        if (sweep.classList.contains('sweep-paused')) return;
+        goTo(current + 1);
+      });
     }
 
     updateInfo(0);
@@ -2178,21 +2346,230 @@
 
     // Pause on hover
     
-    hero.addEventListener('mouseenter', () => {
-      clearTimeout(timer);
-      clearInterval(progTimer);
+           hero.addEventListener('mouseenter', () => {
       const computed = parseFloat(getComputedStyle(progress).width);
       const total    = hero.offsetWidth;
       progress.style.transition = 'none';
       progress.style.width = ((computed / total) * 100).toFixed(1) + '%';
+      if (sweep) sweep.classList.add('sweep-paused');
     });
     hero.addEventListener('mouseleave', () => {
       const remaining = (1 - parseFloat(progress.style.width) / 100) * DURATION;
       progress.style.transition = 'width ' + remaining + 'ms linear';
       progress.style.width = '100%';
-      timer = setTimeout(() => goTo(current + 1), remaining);
+      if (sweep) sweep.classList.remove('sweep-paused');
+      // No setTimeout to re-schedule — CSS animation-play-state resumes
+      // exactly where it left off, and animationend fires naturally
+      // when the (paused-then-resumed) sweep actually finishes.
     });
   })();
+
+  /* ── HUD STRIP ROTATOR ──
+     Cycles the "SIGNAL STABLE" slot through a few live-feeling
+     readouts: signal status, current moon phase, and a light
+     rotation through your own tool count. Clock stays untouched. */
+  (function () {
+    const strip = document.querySelector('.hud-strip');
+    if (!strip) return;
+
+    // Find the last <span> in the strip (your static "SIGNAL STABLE")
+    // and swap it for a rotating one.
+    const spans = strip.querySelectorAll('span:not(.dot):not(.divider)');
+    const staticSignal = spans[spans.length - 1];
+    if (!staticSignal) return;
+
+    staticSignal.id = 'hudRotatorSlot';
+    staticSignal.classList.add('hud-rotator');
+
+    function moonPhaseLabel() {
+      // Simple synodic-month approximation — good enough for ambient flavor.
+      const synodic = 29.53058867;
+      const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14);
+      const now = Date.now();
+      const days = (now - knownNewMoon) / 86400000;
+      const phase = ((days % synodic) + synodic) % synodic;
+      const frac = phase / synodic;
+      if (frac < 0.03 || frac > 0.97) return "NEW MOON";
+      if (frac < 0.22) return "WAXING CRESCENT";
+      if (frac < 0.28) return "FIRST QUARTER";
+      if (frac < 0.47) return "WAXING GIBBOUS";
+      if (frac < 0.53) return "FULL MOON";
+      if (frac < 0.72) return "WANING GIBBOUS";
+      if (frac < 0.78) return "LAST QUARTER";
+      return "WANING CRESCENT";
+    }
+
+        function stardate() {
+      // Simple "stardate"-style readout: year + day-of-year fraction
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff = now - start;
+      const dayOfYear = Math.floor(diff / 86400000);
+      const fraction = ((now.getUTCHours() * 60 + now.getUTCMinutes()) / 1440 * 10).toFixed(1);
+      return `STARDATE ${now.getFullYear()}.${String(dayOfYear).padStart(3, '0')}.${fraction}`;
+    }
+
+    function uptimeLabel() {
+      // Time since this session started viewing the page
+      const started = window.__rvSessionStart || (window.__rvSessionStart = Date.now());
+      const secs = Math.floor((Date.now() - started) / 1000);
+      const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+      const ss = String(secs % 60).padStart(2, '0');
+      return `SESSION UPTIME ${mm}:${ss}`;
+    }
+
+    function dayNightLabel() {
+      const hour = new Date().getUTCHours();
+      return (hour >= 6 && hour < 18) ? "SOLAR DAY · UTC" : "SOLAR NIGHT · UTC";
+    }
+
+    const messages = [
+      () => "SIGNAL STABLE",
+      () => moonPhaseLabel(),
+      () => {
+        const n = document.querySelectorAll(".tool").length;
+        return n + " MODULES LOADED";
+      },
+      () => "ALL SYSTEMS NOMINAL",
+      () => stardate(),
+      () => uptimeLabel(),
+      () => dayNightLabel(),
+      () => "TELEMETRY LINK ACTIVE",
+      () => "NO ANOMALIES DETECTED"
+    ];
+
+    let i = 0;
+    const slot = document.getElementById('hudRotatorSlot');
+
+    function rotate() {
+      slot.classList.add('hud-rotator-fade');
+      setTimeout(() => {
+        i = (i + 1) % messages.length;
+        slot.textContent = messages[i]();
+        slot.classList.remove('hud-rotator-fade');
+      }, 350);
+    }
+
+    slot.textContent = messages[0]();
+    setInterval(rotate, 4500);
+  })();
+
+
+  /* ── SYSTEM LOG TICKER ──
+     Cycles short ambient status lines in the bottom-left corner.
+     Purely decorative — no real telemetry behind it. */
+  (function () {
+    const el = document.getElementById('systemLogTicker');
+    if (!el) return;
+
+    const lines = [
+      "[OK] orbital calc synced",
+      "[OK] tool cache warm",
+      "[OK] telemetry link nominal",
+      "[OK] starfield render 60fps",
+      "[OK] all modules responsive",
+      "[OK] search index ready"
+    ];
+
+    let i = 0;
+
+    function show(line) {
+      el.classList.remove('log-visible');
+      setTimeout(() => {
+        el.textContent = line;
+        el.classList.add('log-visible');
+      }, 250);
+    }
+
+    // First appearance, after a short delay so it doesn't compete
+    // with the boot sequence.
+    setTimeout(() => show(lines[0]), 2200);
+
+    setInterval(() => {
+      i = (i + 1) % lines.length;
+      show(lines[i]);
+    }, 6000);
+  })();
+
+
+  /* ── TAB UNDERLINE SWEEP ──
+     Hooks your existing setTab() by watching for the "active" class
+     change, so it works alongside your current tab logic without
+     modifying it. */
+  (function () {
+    const tabsBar = document.getElementById('tabsBar');
+    if (!tabsBar) return;
+
+    const tabs = Array.from(tabsBar.querySelectorAll('.tab-btn'));
+
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('tab-just-activated'));
+        // Small delay so the class re-triggers the CSS animation
+        // even if the same tab is clicked twice.
+        requestAnimationFrame(() => btn.classList.add('tab-just-activated'));
+      });
+    });
+  })();
+
+
+  /* ── POPULAR TOOLS TRENDING INDICATOR ──
+     Compares this load's view counts against the ones stored from
+     this visitor's last visit (localStorage) and marks tools that
+     gained views with a ▲. First-ever visit gets no arrows (nothing
+     to compare against yet). Paste this logic into your existing
+     "Load Most Popular Tools" fetch — replacing the .then(apps => {...})
+     body — or keep it as a second fetch if you'd rather not touch
+     that block. */
+  function renderPopularToolsWithTrend(apps) {
+    const STORAGE_KEY = 'rvPopularViewsSnapshot';
+    let previous = {};
+    try {
+      previous = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch (e) { previous = {}; }
+
+    const list = document.getElementById("popularToolsList");
+    if (!list) return;
+    list.innerHTML = '';
+
+    const snapshot = {};
+
+    apps.forEach((app, index) => {
+      snapshot[app.slug] = app.views;
+
+      const prevViews = previous[app.slug];
+      let trendHtml = '';
+      if (typeof prevViews === 'number') {
+        if (app.views > prevViews) {
+          trendHtml = '<span class="popular-trend-up">▲</span>';
+        }
+      } else {
+        trendHtml = '<span class="popular-trend-new">NEW</span>';
+      }
+
+      const link = document.createElement("a");
+      link.href = `/${app.slug}/`;
+      link.className = "popular-tool-item";
+      link.innerHTML = `
+        <span class="popular-rank">${index + 1}</span>
+        <span class="popular-name">${app.name}</span>
+        <span class="popular-views">👁 ${app.views}${trendHtml}</span>
+      `;
+      list.appendChild(link);
+    });
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    } catch (e) { /* storage unavailable — fail silently */ }
+  }
+
+  // If you'd rather not touch your existing fetch block, just call
+  // this instead of building the list manually there:
+  //
+  //   fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
+  //     .then(r => r.json())
+  //     .then(renderPopularToolsWithTrend)
+  //     .catch(err => console.error("Popular tools failed:", err));
 
   /* ── TOOLS FILTER ── */
   let activeTab   = "all";
@@ -2283,28 +2660,7 @@
   // Load Most Popular Tools
 fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
   .then(response => response.json())
-  .then(apps => {
-
-    const list = document.getElementById("popularToolsList");
-
-    apps.forEach((app, index) => {
-
-      const link = document.createElement("a");
-
-      link.href = `/${app.slug}/`;
-      link.className = "popular-tool-item";
-
-      link.innerHTML = `
-        <span class="popular-rank">${index + 1}</span>
-        <span class="popular-name">${app.name}</span>
-        <span class="popular-views">👁 ${app.views}</span>
-      `;
-
-      list.appendChild(link);
-
-    });
-
-  })
+  .then(renderPopularToolsWithTrend)
   .catch(error => {
     console.error("Popular tools failed:", error);
   });
