@@ -23,7 +23,8 @@
     --red:#ff2b2b;
     --red-dim:#5c1414;
     --text:#d9dde0;
-    --dim:#6b7378;
+    --dim:#868e93;
+    --dim-faint:#4a5054;
     --green:#3dff8a;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -89,7 +90,7 @@
 
   .telemetry{
     display:flex; justify-content:space-between;
-    font-size:10px; letter-spacing:1px; color:var(--dim);
+    font-size:10px; letter-spacing:1px; color:var(--dim-faint);
     text-transform:uppercase; margin-bottom:14px;
     border-bottom:1px solid rgba(255,255,255,0.06);
     padding-bottom:10px;
@@ -134,18 +135,20 @@
     text-transform:uppercase;
   }
 
-  .precision-row{
+  .settings-row{
     display:flex;
     align-items:center;
     justify-content:space-between;
-    margin-bottom:20px;
-    padding:8px 10px;
+    gap:14px;
+    margin-top:20px;
+    padding:10px 12px;
     border:1px solid rgba(255,255,255,0.08);
     background:rgba(255,255,255,0.015);
   }
-  .precision-row + .precision-row{
-    margin-top:-14px;
-    border-top:none;
+  .settings-group{
+    display:flex;
+    align-items:center;
+    gap:10px;
   }
   .precision-label{
     font-size:9.5px;
@@ -210,32 +213,38 @@
   }
 
   .field{
-    margin-bottom:14px;
+    margin-bottom:16px;
     position:relative;
   }
   .field label{
     display:flex; justify-content:space-between;
-    font-size:10.5px;
+    align-items:center;
+    font-size:11px;
     letter-spacing:1.5px;
     text-transform:uppercase;
-    color:var(--dim);
-    margin-bottom:6px;
+    color:#a7adb1;
+    margin-bottom:7px;
   }
   .field label .unit{color:var(--red); font-weight:bold;}
+  .field label .label-left{
+    display:flex; align-items:center; gap:8px;
+  }
+
   .field .input-wrap{
     position:relative;
     display:flex;
     align-items:center;
-    border:1px solid rgba(255,255,255,0.12);
-    background:rgba(255,255,255,0.02);
-    transition:border-color 0.15s, box-shadow 0.15s;
+    border:1px solid rgba(255,255,255,0.22);
+    background:rgba(255,255,255,0.035);
+    transition:border-color 0.15s, box-shadow 0.15s, background 0.15s;
   }
   .field .input-wrap::before{
     content:"›";
     color:var(--red);
     padding:0 10px;
-    font-size:16px;
-    opacity:0.7;
+    font-size:18px;
+    font-weight:bold;
+    opacity:1;
   }
   .field input{
     flex:1;
@@ -244,20 +253,25 @@
     outline:none;
     color:#fff;
     font-family:'Space Mono','Courier New',monospace;
-    font-size:16px;
-    padding:12px 10px 12px 0;
+    font-size:19px;
+    font-weight:700;
+    padding:16px 10px 16px 0;
     letter-spacing:0.5px;
   }
-  .field input::placeholder{color:#3a3f42;}
+  .field input::placeholder{color:#565d61; font-weight:400;}
   .field input::-webkit-outer-spin-button,
   .field input::-webkit-inner-spin-button{
     -webkit-appearance:none; margin:0;
   }
   .field input[type=number]{-moz-appearance:textfield;}
+
+  .field .input-wrap:hover{
+    border-color: rgba(255,43,43,0.55);
+  }
   .field .input-wrap.active{
     border-color:var(--red);
-    box-shadow:0 0 12px rgba(255,43,43,0.25);
-    background:rgba(255,43,43,0.03);
+    box-shadow:0 0 14px rgba(255,43,43,0.3);
+    background:rgba(255,43,43,0.05);
   }
   .field .input-wrap.active::before{color:var(--green);}
   .field .clear-btn{
@@ -288,10 +302,14 @@
 
   .field .copy-btn{
     background:none; border:none; color:var(--dim);
-    cursor:pointer; padding:0 12px 0 2px; font-size:13px;
-    opacity:0; transition:opacity 0.15s, color 0.15s;
+    cursor:pointer; padding:0 12px 0 2px;
+    display:flex; align-items:center; gap:4px;
+    font-family:inherit; font-size:9.5px; letter-spacing:1px;
+    text-transform:uppercase;
+    opacity:0.5; transition:opacity 0.15s, color 0.15s;
   }
-  .field .input-wrap.active .copy-btn{opacity:0.7;}
+  .field .copy-btn .copy-icon{font-size:13px;}
+  .field .input-wrap.active .copy-btn{opacity:0.8;}
   .field .copy-btn:hover{color:var(--green); opacity:1;}
   .field .copy-btn.copied{color:var(--green); opacity:1;}
 
@@ -370,27 +388,13 @@
   <h1>KNOW YOUR <span class="accent">SPHERE</span><span class="badge">MK·01</span></h1>
   <div class="subtitle">// Radius · Diameter · Surface Area · Volume — auto-solve</div>
 
-  <div class="precision-row">
-    <span class="precision-label">Rounding Precision</span>
-    <div class="precision-toggle">
-      <button class="prec-btn" id="prec-2" onclick="setPrecision(2)">2 DEC</button>
-      <button class="prec-btn active" id="prec-3" onclick="setPrecision(3)">3 DEC</button>
-    </div>
-  </div>
-
-  <div class="precision-row">
-    <span class="precision-label">Show Raw</span>
-    <label class="switch">
-      <input type="checkbox" id="rawToggle" onchange="toggleRaw(this.checked)">
-      <span class="switch-track"><span class="switch-thumb"></span></span>
-    </label>
-  </div>
-
   <div class="field">
-    <label>Radius <span class="unit">r</span></label>
+    <label>
+      <span class="label-left">Radius <span class="unit">r</span></span>
+    </label>
     <div class="input-wrap" id="wrap-radius">
       <input type="text" inputmode="decimal" id="radius" placeholder="ENTER VALUE" autocomplete="off">
-      <button class="copy-btn" onclick="copyField('radius')" title="Copy">⧉</button>
+      <button class="copy-btn" onclick="copyField('radius')" title="Copy"><span class="copy-icon">⧉</span>COPY</button>
       <button class="clear-btn" onclick="clearField('radius')">✕</button>
     </div>
     <div class="raw-line" id="raw-radius"></div>
@@ -400,7 +404,7 @@
     <label>Diameter <span class="unit">d</span></label>
     <div class="input-wrap" id="wrap-diameter">
       <input type="text" inputmode="decimal" id="diameter" placeholder="ENTER VALUE" autocomplete="off">
-      <button class="copy-btn" onclick="copyField('diameter')" title="Copy">⧉</button>
+      <button class="copy-btn" onclick="copyField('diameter')" title="Copy"><span class="copy-icon">⧉</span>COPY</button>
       <button class="clear-btn" onclick="clearField('diameter')">✕</button>
     </div>
     <div class="raw-line" id="raw-diameter"></div>
@@ -410,7 +414,7 @@
     <label>Surface Area <span class="unit">SA = 4πr²</span></label>
     <div class="input-wrap" id="wrap-surface">
       <input type="text" inputmode="decimal" id="surface" placeholder="ENTER VALUE" autocomplete="off">
-      <button class="copy-btn" onclick="copyField('surface')" title="Copy">⧉</button>
+      <button class="copy-btn" onclick="copyField('surface')" title="Copy"><span class="copy-icon">⧉</span>COPY</button>
       <button class="clear-btn" onclick="clearField('surface')">✕</button>
     </div>
     <div class="raw-line" id="raw-surface"></div>
@@ -420,12 +424,29 @@
     <label>Volume <span class="unit">V = ⁴⁄₃πr³</span></label>
     <div class="input-wrap" id="wrap-volume">
       <input type="text" inputmode="decimal" id="volume" placeholder="ENTER VALUE" autocomplete="off">
-      <button class="copy-btn" onclick="copyField('volume')" title="Copy">⧉</button>
+      <button class="copy-btn" onclick="copyField('volume')" title="Copy"><span class="copy-icon">⧉</span>COPY</button>
       <button class="clear-btn" onclick="clearField('volume')">✕</button>
     </div>
     <div class="raw-line" id="raw-volume"></div>
   </div>
 
+
+  <div class="settings-row">
+    <div class="settings-group">
+      <span class="precision-label">Precision</span>
+      <div class="precision-toggle">
+        <button class="prec-btn" id="prec-2" onclick="setPrecision(2)">2 DEC</button>
+        <button class="prec-btn active" id="prec-3" onclick="setPrecision(3)">3 DEC</button>
+      </div>
+    </div>
+    <div class="settings-group">
+      <span class="precision-label">Show Raw</span>
+      <label class="switch">
+        <input type="checkbox" id="rawToggle" onchange="toggleRaw(this.checked)">
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </label>
+    </div>
+  </div>
 
   <div class="actions">
     <button class="btn-reset" onclick="resetAll()">⟲ RESET ALL</button>
@@ -577,8 +598,12 @@
   function trimTrailingZeros(str){
     if(str.indexOf('.') === -1) return str;
     if(str.indexOf('e') !== -1 || str.indexOf('E') !== -1) return str;
-    str = str.replace(/0+$/, '');
-    str = str.replace(/\.$/, '');
+    // only collapse the decimal part if it is ALL zeros (a true whole number,
+    // e.g. "50.00" -> "50"). Keep meaningful rounding like "1.60" as-is.
+    const [intPart, decPart] = str.split('.');
+    if(/^0+$/.test(decPart)){
+      return intPart;
+    }
     return str;
   }
 
@@ -636,7 +661,7 @@
     fields.forEach(f=>{
       if(f !== sourceField){
         let display = formatNum(result[f]);
-        if(f === 'diameter') display = trimTrailingZeros(display);
+        display = trimTrailingZeros(display);
         inputs[f].value = display;
         setRawLine(f, result[f]);
       }
