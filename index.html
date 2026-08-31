@@ -1608,6 +1608,250 @@
     opacity: 0.35;
   }
 
+  /* ── SYSTEM DISTRIBUTION — HUD DONUT PANEL ──
+     Mirrors .popular-tools positioning/style but on the right side,
+     with a corner cut on the top-LEFT instead of top-right. */
+  .category-radar {
+    width: 300px;
+    position: absolute;
+    right: calc(25% - 400px);
+    top: 465px;
+    z-index: 1001;
+
+    background: linear-gradient(180deg, rgba(27, 29, 27, 0.75), rgba(12,12,13,0.75));
+    border: 1px solid rgba(255,43,43,0.25);
+    border-radius: 0;
+    padding: 16px 20px 14px 14px;
+
+    clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%, 0 22px);
+
+    box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+    backdrop-filter: blur(6px);
+
+    transition: top .45s ease;
+  }
+
+  .category-radar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, #ff2b2b, rgba(255,43,43,0.05));
+    box-shadow: 0 0 10px rgba(255,43,43,0.5);
+  }
+
+  .category-radar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(45deg, transparent 49%, rgba(255,43,43,0.55) 50%, transparent 51%);
+  }
+
+  .hero.hidden ~ .category-radar {
+    top: 180px;
+  }
+
+  .category-radar-close {
+    position: absolute;
+    top: 2px;
+    left: 28px;
+    width: 26px;
+    height: 26px;
+    border: 1px solid rgba(255,43,43,0.4);
+    border-radius: 0;
+    background: rgba(0,0,0,.5);
+    color: #ff2b2b;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background .2s, box-shadow .2s, transform .2s;
+  }
+
+  .category-radar-close:hover {
+    background: rgba(255,43,43,.15);
+    box-shadow: 0 0 12px rgba(255,43,43,.5);
+    transform: scale(1.08);
+  }
+
+  .category-radar h2 {
+    margin: 0 0 14px;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #ff2b2b;
+    text-shadow: 0 0 10px rgba(255,43,43,0.6);
+    font-weight: 700;
+    padding-bottom: 8px;
+    position: relative;
+    text-align: right;
+  }
+
+  .category-radar h2::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 40px;
+    height: 1px;
+    background: #ff2b2b;
+    box-shadow: 0 0 6px rgba(255,43,43,0.8);
+  }
+
+    .radar-note {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255,43,43,0.15);
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.6rem;
+    line-height: 1.4;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+  }
+
+  /* The donut itself: a conic-gradient ring with a masked-out center,
+     built by JS from your live category counts. */
+  .radar-donut-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .radar-donut {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    position: relative;
+    /* --donut-gradient set inline by JS */
+    background: conic-gradient(var(--donut-gradient, #ff2b2b 0deg 360deg));
+    box-shadow: 0 0 24px rgba(255,43,43,0.25), inset 0 0 0 1px rgba(255,43,43,0.3);
+    animation: donutSpinIn 1s ease-out;
+  }
+
+  @keyframes donutSpinIn {
+    from { transform: rotate(-90deg) scale(0.8); opacity: 0; }
+    to   { transform: rotate(0deg) scale(1); opacity: 1; }
+  }
+
+  .radar-donut::before {
+    content: "";
+    position: absolute;
+    inset: 18px;
+    border-radius: 50%;
+    background: #0f0f10;
+    box-shadow: inset 0 0 12px rgba(0,0,0,.6);
+  }
+
+  .radar-donut-center {
+    position: absolute;
+    inset: 18px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    pointer-events: none;
+  }
+
+  .radar-donut-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ff2b2b;
+    text-shadow: 0 0 10px rgba(255,43,43,0.7);
+    line-height: 1;
+  }
+
+  .radar-donut-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,43,43,0.6);
+    margin-top: 3px;
+  }
+
+  /* Legend — small color-coded rows, one per category */
+  #categoryRadarLegend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .radar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    color: #d8d5da;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.72rem;
+
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,43,43,0.12);
+    border-radius: 4px;
+
+    transition: background .25s ease, border-color .25s ease, transform .25s ease;
+  }
+
+  .radar-legend-item:hover {
+    background: rgba(255,43,43,0.1);
+    border-color: rgba(255,43,43,0.5);
+    transform: translateX(-2px);
+  }
+
+  .radar-legend-swatch {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  .radar-legend-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .radar-legend-count {
+    flex-shrink: 0;
+    color: rgba(255,43,43,0.85);
+    font-size: 0.66rem;
+  }
+
+  .category-radar.is-closed {
+    display: none !important;
+  }
+
+  /* Same responsive collapse as the popular-tools panel: stack below
+     the grid on narrower screens instead of floating beside it. */
+  @media (max-width: 1200px) {
+    .category-radar {
+      display: block !important;
+      position: relative !important;
+      z-index: 2 !important;
+      width: 100% !important;
+      max-width: 92% !important;
+      margin: 16px auto 0 !important;
+      right: auto !important;
+      top: auto !important;
+    }
+  }
+</style>
+
   @keyframes hudPulse {
     0%, 100% { opacity: 0.4; }
     50%      { opacity: 1; }
@@ -1879,6 +2123,25 @@
   <div id="popularToolsList"></div>
 </aside>
 
+<!-- ══════════════════════════════════════════════════════
+     2. HTML — paste right after your existing
+        <aside class="popular-tools" ...>...</aside> block
+     ══════════════════════════════════════════════════════ -->
+<aside class="category-radar" id="categoryRadar">
+  <button type="button" class="category-radar-close" id="categoryRadarClose" aria-label="Hide system distribution">×</button>
+  <h2>System Distribution</h2>
+  <div class="radar-donut-wrap">
+    <div class="radar-donut" id="radarDonut">
+      <div class="radar-donut-center">
+        <span class="radar-donut-count" id="radarDonutCount">0</span>
+        <span class="radar-donut-label">MODULES</span>
+      </div>
+    </div>
+  </div>
+    <div id="categoryRadarLegend"></div>
+  <p class="radar-note" id="categoryRadarNote"></p>
+</aside>
+
 <!-- TOOLS GRID -->
 <section class="tools" id="toolsGrid">
 
@@ -2117,7 +2380,7 @@
     <p>get radius, surface area, volume, diameter instantly</p>
   </a>
 
-  <a class="tool" href="/periodic-table/" data-search="periodic table" data-category="science calculator">
+  <a class="tool" href="/periodic-table/" data-search="periodic table" data-category="sciencer">
     <h3>Periodic Table</h3>
     <p>periodic table. click atom for details</p>
   </a>
@@ -3186,6 +3449,104 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
       sendBtn.disabled = false;
     }
   });
+
+  
+</script>
+
+<script>
+    /* ── SYSTEM DISTRIBUTION DONUT ──
+     Counts tools per category (using ALL category tags per tool, so
+     a "science calculator" tool counts toward both slices — matching
+     how the tab filter buttons work), then builds a conic-gradient
+     donut + legend from live data. */
+  (function () {
+    const donut = document.getElementById('radarDonut');
+    const countEl = document.getElementById('radarDonutCount');
+    const legend = document.getElementById('categoryRadarLegend');
+    if (!donut || !legend) return;
+
+    const CATEGORY_META = {
+      science:      { label: "Science & Space", color: "#ff2b2b" },
+      productivity: { label: "Productivity",     color: "#ff6b47" },
+      calculator:   { label: "Calculators",      color: "#e8455e" },
+      finance:      { label: "Finance",          color: "#c4306b" },
+      geography:    { label: "Geography",        color: "#ff9558" },
+      games:        { label: "Games",            color: "#8b2fc9" }
+    };
+
+    const counts = {};
+    let toolTotal = 0;   // unique tool count — shown in the donut center
+    let tagTotal = 0;    // sum of all category tags — used for slice sizing
+
+    document.querySelectorAll('.tool').forEach(tool => {
+      const catText = (tool.dataset.category || "").trim();
+      if (!catText) return;
+      toolTotal++;
+
+      catText.split(/\s+/).forEach(cat => {
+        counts[cat] = (counts[cat] || 0) + 1;
+        tagTotal++;
+      });
+    });
+
+    if (toolTotal === 0 || tagTotal === 0) return;
+
+    const order = ["science", "productivity", "calculator", "finance", "geography", "games"];
+    let angle = 0;
+    const stops = [];
+
+    order.forEach(key => {
+      const n = counts[key];
+      if (!n) return;
+      const meta = CATEGORY_META[key];
+      const slice = (n / tagTotal) * 360;
+      const from = angle;
+      const to = angle + slice;
+      stops.push(`${meta.color} ${from.toFixed(1)}deg ${to.toFixed(1)}deg`);
+      angle = to;
+
+      const row = document.createElement('div');
+      row.className = 'radar-legend-item';
+      row.innerHTML = `
+        <span class="radar-legend-swatch" style="background:${meta.color}; color:${meta.color};"></span>
+        <span class="radar-legend-name">${meta.label}</span>
+        <span class="radar-legend-count">${n}</span>
+      `;
+      legend.appendChild(row);
+    });
+
+        donut.style.setProperty('--donut-gradient', stops.join(', '));
+    countEl.textContent = toolTotal;
+
+    // Note explaining why slice counts can exceed the module total —
+    // only shown if at least one tool actually spans multiple
+    // categories, so it doesn't appear needlessly.
+    const noteEl = document.getElementById('categoryRadarNote');
+    const multiTagCount = Array.from(document.querySelectorAll('.tool'))
+      .filter(t => (t.dataset.category || '').trim().split(/\s+/).length > 1).length;
+
+        if (noteEl && multiTagCount > 0) {
+      noteEl.textContent = `Note: ${multiTagCount} module${multiTagCount === 1 ? '' : 's'} span multiple categories`;
+    }
+  })();
+  /* ── CLOSE SYSTEM DISTRIBUTION ──
+     Same session-persistence pattern as your existing popular-tools
+     close button. */
+  (function () {
+    const panel = document.getElementById('categoryRadar');
+    const closeBtn = document.getElementById('categoryRadarClose');
+    if (!panel || !closeBtn) return;
+
+    if (sessionStorage.getItem('categoryRadarClosed') === '1') {
+      panel.classList.add('is-closed');
+      return;
+    }
+
+    closeBtn.addEventListener('click', function () {
+      panel.classList.add('is-closed');
+      sessionStorage.setItem('categoryRadarClosed', '1');
+    });
+  })();
 </script>
 
 
