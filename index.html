@@ -762,6 +762,29 @@
   white-space: nowrap;
 }
 
+.popular-tools-expand {
+  display: none; /* JS reveals this only if there are more than 10 tools */
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,43,43,0.18);
+  border-radius: 4px;
+  color: rgba(255,43,43,0.75);
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.popular-tools-expand:hover {
+  background: rgba(255,43,43,0.1);
+  border-color: rgba(255,43,43,0.5);
+  color: #ff2b2b;
+}
+
   /* ── TOOLS GRID ── */
   .tools {
     max-width: 1000px;
@@ -2121,6 +2144,7 @@
   <button type="button" class="popular-tools-close" id="popularToolsClose" aria-label="Hide most popular tools">×</button>
   <h2>🏆 Most Popular Tools</h2>
   <div id="popularToolsList"></div>
+  <button type="button" class="popular-tools-expand" id="popularToolsExpand">▾ Show all</button>
 </aside>
 
 <!-- ══════════════════════════════════════════════════════
@@ -2784,6 +2808,9 @@
      "Load Most Popular Tools" fetch — replacing the .then(apps => {...})
      body — or keep it as a second fetch if you'd rather not touch
      that block. */
+    const POPULAR_TOOLS_CAP = 9;
+  let popularToolsExpanded = false;
+
   function renderPopularToolsWithTrend(apps) {
     const STORAGE_KEY = 'rvPopularViewsSnapshot';
     let previous = {};
@@ -2792,14 +2819,21 @@
     } catch (e) { previous = {}; }
 
     const list = document.getElementById("popularToolsList");
+    const expandBtn = document.getElementById("popularToolsExpand");
     if (!list) return;
     list.innerHTML = '';
 
     const snapshot = {};
+    // Always snapshot every app's views (for accurate trend comparison
+    // next visit), regardless of how many rows are currently shown.
+    apps.forEach(app => { snapshot[app.slug] = app.views; });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    } catch (e) { /* storage unavailable — fail silently */ }
 
-    apps.forEach((app, index) => {
-      snapshot[app.slug] = app.views;
+    const visibleApps = popularToolsExpanded ? apps : apps.slice(0, POPULAR_TOOLS_CAP);
 
+    visibleApps.forEach((app, index) => {
       const prevViews = previous[app.slug];
       let trendHtml = '';
       if (typeof prevViews === 'number') {
@@ -2821,9 +2855,20 @@
       list.appendChild(link);
     });
 
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    } catch (e) { /* storage unavailable — fail silently */ }
+    if (expandBtn) {
+      if (apps.length > POPULAR_TOOLS_CAP) {
+        expandBtn.style.display = 'block';
+        expandBtn.textContent = popularToolsExpanded
+        ? `▴ Show top ${POPULAR_TOOLS_CAP}`
+        : `▾ Show all (${apps.length})`;
+        expandBtn.onclick = () => {
+          popularToolsExpanded = !popularToolsExpanded;
+          renderPopularToolsWithTrend(apps);
+        };
+      } else {
+        expandBtn.style.display = 'none';
+      }
+    }
   }
 
   // If you'd rather not touch your existing fetch block, just call
@@ -3526,7 +3571,7 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
       .filter(t => (t.dataset.category || '').trim().split(/\s+/).length > 1).length;
 
         if (noteEl && multiTagCount > 0) {
-      noteEl.textContent = `Note: ${multiTagCount} module${multiTagCount === 1 ? '' : 's'} span multiple categories`;
+      noteEl.textContent = `Note: ${multiTagCount} module${multiTagCount === 1 ? '' : 's'} span multiple categories. Find categories below search bar and explore`;
     }
   })();
   /* ── CLOSE SYSTEM DISTRIBUTION ──
