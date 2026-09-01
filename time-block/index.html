@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Block Planner | RameshVerse</title>
+<meta name="description" content="Visual day planner and time blocking tool. Bblock out your schedule, spot gaps instantly, and plan your day.">
+<style>
+  :root{
+    --bg: #0a0a0c;
+    --bg-panel: #111114;
+    --line: #232327;
+    --red: #ff2b2b;
+    --red-dim: #7a1414;
+    --green: #23e07a;
+    --gray: #3a3a40;
+    --text: #e8e8ea;
+    --text-dim: #7a7a82;
+    --amber: #ffb020;
+    --blue: #3ea6ff;
+    --purple: #b06bff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Mono', 'Courier New', monospace;
+    min-height:100vh;
+    background-image:
+      linear-gradient(rgba(255,43,43,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,43,43,0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+    position:relative;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.012) 0px,
+      rgba(255,255,255,0.012) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events:none;
+    z-index:999;
+  }
+
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 80px;}
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  h1{font-size:22px; letter-spacing:2px; margin:0; font-weight:700;}
+  h1 span{color:var(--red);}
+  .subtitle{color:var(--text-dim); font-size:11px; margin-top:4px; letter-spacing:1px;}
+  .back-link{
+    font-size:11px; color:var(--text-dim); text-decoration:none;
+    border:1px solid var(--line); padding:6px 10px;
+    transition:border-color .15s, color .15s;
+  }
+  .back-link:hover{color:var(--red); border-color:var(--red);}
+
+  /* telemetry */
+  .telemetry{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:20px;
+  }
+  .tele-cell{background:var(--bg-panel); padding:14px 16px;}
+  .tele-label{font-size:9px; color:var(--text-dim); letter-spacing:1.5px; margin-bottom:6px;}
+  .tele-value{font-size:20px; font-weight:700; color:var(--text);}
+  .tele-value.warn{color:var(--red);}
+  .tele-value.ok{color:var(--green);}
+
+  /* add block form */
+  .add-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  input[type="text"], input[type="time"]{
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:inherit;
+    font-size:12px;
+    padding:10px 12px;
+    letter-spacing:0.5px;
+    outline:none;
+  }
+  input[type="text"]{flex:1; min-width:160px;}
+  input[type="time"]{width:110px;}
+  input[type="text"]:focus, input[type="time"]:focus{border-color:var(--red);}
+
+  select{
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:inherit;
+    font-size:12px;
+    padding:10px 12px;
+    outline:none;
+  }
+  select:focus{border-color:var(--red);}
+
+  button.primary{
+    background:var(--red);
+    border:1px solid var(--red);
+    color:#0a0a0c;
+    font-family:inherit;
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:1px;
+    padding:10px 18px;
+    cursor:pointer;
+    transition:opacity .15s;
+  }
+  button.primary:hover{opacity:0.85;}
+
+  .color-picker{
+    display:flex;
+    gap:6px;
+  }
+  .color-dot{
+    width:22px; height:22px;
+    border-radius:50%;
+    cursor:pointer;
+    border:2px solid transparent;
+  }
+  .color-dot.selected{border-color:var(--text);}
+
+  /* timeline */
+  .panel{border:1px solid var(--line); background:var(--bg-panel); margin-bottom:16px; padding:16px;}
+  .panel-title{font-size:11px; letter-spacing:1.5px; color:var(--text-dim);}
+  .panel-title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .day-nav{display:flex; gap:6px;}
+  .nav-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-family:inherit;
+    font-size:10px;
+    letter-spacing:1px;
+    padding:6px 10px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .nav-btn:hover{color:var(--text); border-color:var(--text-dim);}
+  .nav-btn.active{color:var(--red); border-color:var(--red);}
+
+  .timeline{
+    position:relative;
+    border-left:1px solid var(--line);
+  }
+  .hour-row{
+    position:relative;
+    height:52px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+  }
+  .hour-label{
+    width:56px;
+    flex-shrink:0;
+    font-size:10px;
+    color:var(--text-dim);
+    padding-top:4px;
+    padding-left:8px;
+  }
+  .hour-track{
+    flex:1;
+    position:relative;
+  }
+  .now-line{
+    position:absolute;
+    left:0; right:0;
+    height:2px;
+    background:var(--red);
+    z-index:5;
+    pointer-events:none;
+  }
+  .now-line::before{
+    content:"NOW";
+    position:absolute;
+    left:-4px; top:-16px;
+    font-size:8px;
+    color:var(--red);
+    letter-spacing:1px;
+  }
+
+  .block{
+    position:absolute;
+    left:4px; right:4px;
+    border-left:3px solid;
+    background:rgba(255,255,255,0.03);
+    padding:4px 8px;
+    font-size:10px;
+    overflow:hidden;
+    cursor:pointer;
+    z-index:2;
+    transition:filter .1s;
+  }
+  .block:hover{filter:brightness(1.3);}
+  .block .b-title{font-weight:700; letter-spacing:0.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .block .b-time{color:var(--text-dim); font-size:9px; margin-top:2px;}
+  .block .b-del{
+    position:absolute; top:2px; right:4px;
+    color:var(--text-dim);
+    font-size:11px;
+    cursor:pointer;
+    display:none;
+  }
+  .block:hover .b-del{display:block;}
+  .block .b-del:hover{color:var(--red);}
+
+  .color-popover{
+    position:absolute;
+    display:flex;
+    gap:6px;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    padding:8px;
+    z-index:20;
+    box-shadow:0 4px 16px rgba(0,0,0,0.5);
+  }
+  .color-popover .color-dot{
+    width:20px; height:20px;
+  }
+
+  .gap-flag{
+    position:absolute;
+    left:64px; right:8px;
+    background:rgba(255,43,43,0.06);
+    border-left:2px dashed var(--red-dim);
+    font-size:9px;
+    color:var(--text-dim);
+    padding:2px 6px;
+    pointer-events:none;
+    z-index:1;
+  }
+
+  .legend{
+    display:flex;
+    gap:14px;
+    font-size:10px;
+    color:var(--text-dim);
+    margin-top:16px;
+    flex-wrap:wrap;
+  }
+  .legend span{display:flex; align-items:center; gap:6px;}
+  .swatch{width:10px; height:10px; display:inline-block; border-radius:50%;}
+
+  .empty-note{
+    font-size:10px;
+    color:var(--text-dim);
+    text-align:center;
+    padding:10px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>RV<span>·</span>TIMEBLOCK</h1>
+      <div class="subtitle">VISUAL DAY PLANNER — MISSION SEGMENTS</div>
+    </div>
+    <a class="back-link" href="#" id="backLink">← RAMESHVERSE</a>
+  </header>
+
+  <div class="telemetry" id="telemetry"></div>
+
+  <div class="add-row">
+    <input type="text" id="blockTitle" placeholder="SEGMENT NAME (e.g. DEEP WORK)" maxlength="40">
+    <input type="time" id="blockStart">
+    <input type="time" id="blockEnd">
+    <div class="color-picker" id="colorPicker">
+      <div class="color-dot selected" data-color="#ff2b2b" style="background:#ff2b2b"></div>
+      <div class="color-dot" data-color="#3ea6ff" style="background:#3ea6ff"></div>
+      <div class="color-dot" data-color="#23e07a" style="background:#23e07a"></div>
+      <div class="color-dot" data-color="#ffb020" style="background:#ffb020"></div>
+      <div class="color-dot" data-color="#b06bff" style="background:#b06bff"></div>
+    </div>
+    <button class="primary" id="addBtn">ADD SEGMENT</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title-row">
+      <div class="panel-title" id="dayLabel">TODAY'S TIMELINE</div>
+      <div class="day-nav">
+        <button class="nav-btn" id="prevDayBtn">‹ PREV</button>
+        <button class="nav-btn" id="todayBtn">TODAY</button>
+        <button class="nav-btn" id="nextDayBtn">NEXT ›</button>
+      </div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+    <div class="empty-note" id="emptyNote" style="display:none;">NO SEGMENTS PLANNED — ADD ONE ABOVE TO BEGIN BLOCKING YOUR DAY.</div>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--red)"></i> your segment colors mark different focus areas</span>
+    <span><i class="swatch" style="background:rgba(255,43,43,0.3); border:1px dashed var(--red-dim)"></i> unblocked gap ≥ 30 min</span>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'rv_timeblock_data_v1';
+  const START_HOUR = 0;   // 12 AM
+  const END_HOUR = 24;    // midnight (next day)
+  const ROW_HEIGHT = 52;  // px per hour
+
+  function todayStr(d){
+    d = d || new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : { days: {} };
+    }catch(e){
+      return { days: {} };
+    }
+  }
+  function saveData(data){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch(e){ console.error('RV·TIMEBLOCK: storage write failed', e); }
+  }
+
+  let data = loadData();
+  let selectedColor = '#ff2b2b';
+  let currentDate = todayStr();
+  const BLOCK_COLORS = ['#ff2b2b', '#3ea6ff', '#23e07a', '#ffb020', '#b06bff'];
+
+  function shiftDateStr(dateStr, days){
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + days);
+    return todayStr(d);
+  }
+
+  function closeColorPopover(){
+    const existing = document.querySelector('.color-popover');
+    if(existing) existing.remove();
+  }
+
+  function updateBlockColor(sourceDate, id, color){
+    const blocks = getDayBlocks(sourceDate);
+    const block = blocks.find(function(b){ return b.id === id; });
+    if(!block) return;
+    block.color = color;
+    saveData(data);
+    renderAll();
+  }
+
+  function openColorPopover(blockEl, sourceDate, blockId){
+    closeColorPopover();
+    const pop = document.createElement('div');
+    pop.className = 'color-popover';
+    BLOCK_COLORS.forEach(function(c){
+      const dot = document.createElement('div');
+      dot.className = 'color-dot';
+      dot.style.background = c;
+      dot.addEventListener('click', function(e){
+        e.stopPropagation();
+        updateBlockColor(sourceDate, blockId, c);
+        closeColorPopover();
+      });
+      pop.appendChild(dot);
+    });
+    // position just below the block, within the timeline container
+    const container = document.getElementById('timeline');
+    const blockTop = parseFloat(blockEl.style.top) || 0;
+    const blockHeight = parseFloat(blockEl.style.height) || 18;
+    pop.style.top = (blockTop + blockHeight + 4) + 'px';
+    pop.style.left = '64px';
+    container.appendChild(pop);
+
+    // close when clicking elsewhere
+    setTimeout(function(){
+      document.addEventListener('click', closeColorPopover, { once: true });
+    }, 0);
+  }
+
+  function getDayBlocks(dateStr){
+    dateStr = dateStr || currentDate;
+    if(!data.days[dateStr]) data.days[dateStr] = [];
+    return data.days[dateStr];
+  }
+
+  function isOvernightBlock(b){
+    return timeToMinutes(b.end) <= timeToMinutes(b.start);
+  }
+
+  // Builds the list of visual "pieces" to render/measure for a given date.
+  // Own blocks starting today contribute a piece (full block, or start->24:00 if overnight).
+  // Overnight blocks that STARTED YESTERDAY contribute their 00:00->end tail piece today.
+  function getDisplayPieces(dateStr){
+    const pieces = [];
+    const own = getDayBlocks(dateStr);
+    own.forEach(function(b){
+      if(isOvernightBlock(b)){
+        pieces.push({ block: b, sourceDate: dateStr, pieceStart: b.start, pieceEnd: '24:00', showDelete: true, isTail: false });
+      } else {
+        pieces.push({ block: b, sourceDate: dateStr, pieceStart: b.start, pieceEnd: b.end, showDelete: true, isTail: false });
+      }
+    });
+    const prevDateStr = shiftDateStr(dateStr, -1);
+    const prevBlocks = data.days[prevDateStr] || [];
+    prevBlocks.forEach(function(b){
+      if(isOvernightBlock(b)){
+        pieces.push({ block: b, sourceDate: prevDateStr, pieceStart: '00:00', pieceEnd: b.end, showDelete: true, isTail: true });
+      }
+    });
+    return pieces;
+  }
+
+  function timeToMinutes(t){
+    const [h,m] = t.split(':').map(Number);
+    return h*60 + m;
+  }
+
+  function minutesToLabel(mins){
+    const h = Math.floor(mins/60);
+    const m = mins%60;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    let h12 = h % 12; if(h12 === 0) h12 = 12;
+    return h12 + (m > 0 ? ':' + String(m).padStart(2,'0') : '') + ampm;
+  }
+
+  function renderColorPicker(){
+    document.querySelectorAll('.color-dot').forEach(function(dot){
+      dot.addEventListener('click', function(){
+        document.querySelectorAll('.color-dot').forEach(function(d){ d.classList.remove('selected'); });
+        dot.classList.add('selected');
+        selectedColor = dot.dataset.color;
+      });
+    });
+  }
+
+  function addBlock(){
+    const titleInput = document.getElementById('blockTitle');
+    const startInput = document.getElementById('blockStart');
+    const endInput = document.getElementById('blockEnd');
+
+    const title = titleInput.value.trim();
+    const start = startInput.value;
+    const end = endInput.value;
+
+    if(!title || !start || !end) return;
+    if(start === end){
+      alert('Start and end time cannot be the same.');
+      return;
+    }
+    // end <= start is allowed: treated as an overnight block wrapping past midnight
+
+    const blocks = getDayBlocks(currentDate);
+    blocks.push({
+      id: 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      title: title.toUpperCase(),
+      start: start,
+      end: end,
+      color: selectedColor,
+      overnight: timeToMinutes(end) <= timeToMinutes(start)
+    });
+    blocks.sort(function(a,b){ return timeToMinutes(a.start) - timeToMinutes(b.start); });
+    saveData(data);
+
+    titleInput.value = '';
+    startInput.value = '';
+    endInput.value = '';
+    renderAll();
+  }
+
+  function deleteBlock(sourceDate, id){
+    const blocks = getDayBlocks(sourceDate);
+    data.days[sourceDate] = blocks.filter(function(b){ return b.id !== id; });
+    saveData(data);
+    renderAll();
+  }
+
+  function renderTelemetry(){
+    const el = document.getElementById('telemetry');
+    const pieces = getDisplayPieces(currentDate);
+    const ownBlocks = getDayBlocks(currentDate);
+
+    const totalMin = pieces.reduce(function(sum,p){
+      const s = timeToMinutes(p.pieceStart);
+      const e = p.pieceEnd === '24:00' ? 1440 : timeToMinutes(p.pieceEnd);
+      return sum + (e - s);
+    }, 0);
+
+    const dayWindowMin = (END_HOUR - START_HOUR) * 60;
+    const gapMin = Math.max(dayWindowMin - totalMin, 0);
+    const blockedPct = dayWindowMin > 0 ? Math.round((totalMin/dayWindowMin)*100) : 0;
+
+    el.innerHTML =
+      '<div class="tele-cell"><div class="tele-label">SEGMENTS PLANNED</div>' +
+        '<div class="tele-value">' + ownBlocks.length + '</div></div>' +
+      '<div class="tele-cell"><div class="tele-label">TIME BLOCKED</div>' +
+        '<div class="tele-value ok">' + Math.round(totalMin/60*10)/10 + 'H</div></div>' +
+      '<div class="tele-cell"><div class="tele-label">DAY COVERAGE</div>' +
+        '<div class="tele-value ' + (blockedPct < 40 ? 'warn' : 'ok') + '">' + blockedPct + '%</div></div>' +
+      '<div class="tele-cell"><div class="tele-label">UNBLOCKED GAP</div>' +
+        '<div class="tele-value">' + Math.round(gapMin/60*10)/10 + 'H</div></div>';
+  }
+
+  function renderTimeline(){
+    const container = document.getElementById('timeline');
+    const emptyNote = document.getElementById('emptyNote');
+    const pieces = getDisplayPieces(currentDate);
+
+    emptyNote.style.display = pieces.length === 0 ? 'block' : 'none';
+
+    let html = '';
+    for(let h = START_HOUR; h < END_HOUR; h++){
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      let h12 = h % 12; if(h12 === 0) h12 = 12;
+      html += '<div class="hour-row"><div class="hour-label">' + h12 + ampm + '</div><div class="hour-track"></div></div>';
+    }
+    container.innerHTML = html;
+    container.style.position = 'relative';
+
+    function minutesFromStart(t){
+      return timeToMinutes(t) - START_HOUR*60;
+    }
+    function pxFromMinutes(mins){
+      return (mins/60) * ROW_HEIGHT;
+    }
+
+    pieces.forEach(function(p){
+      const b = p.block;
+      const pieceEndMin = p.pieceEnd === '24:00' ? 1440 : timeToMinutes(p.pieceEnd);
+      const topPx = pxFromMinutes(minutesFromStart(p.pieceStart));
+      const heightPx = Math.max(pxFromMinutes(pieceEndMin - timeToMinutes(p.pieceStart)), 18);
+      const div = document.createElement('div');
+      div.className = 'block';
+      div.style.top = topPx + 'px';
+      div.style.height = heightPx + 'px';
+      div.style.left = '64px';
+      div.style.right = '8px';
+      div.style.borderLeftColor = b.color;
+      div.style.background = b.color + '1a';
+      div.style.pointerEvents = 'auto';
+      const isOvernight = isOvernightBlock(b);
+      const timeLabel = minutesToLabel(timeToMinutes(b.start)) + ' – ' + minutesToLabel(timeToMinutes(b.end)) +
+        (isOvernight ? (p.isTail ? ' (FROM PREV DAY)' : ' (+1D)') : '');
+      div.innerHTML =
+        '<div class="b-title">' + escapeHtml(b.title) + '</div>' +
+        '<div class="b-time">' + timeLabel + '</div>' +
+        (p.showDelete ? '<div class="b-del" data-del="' + p.sourceDate + '|' + b.id + '">✕</div>' : '');
+      div.addEventListener('click', function(e){
+        e.stopPropagation();
+        openColorPopover(div, p.sourceDate, b.id);
+      });
+      container.appendChild(div);
+    });
+
+    // gap detection (>=30 min unblocked between window start/end and between pieces)
+    const dayStart = START_HOUR*60, dayEnd = END_HOUR*60;
+    const intervals = pieces.map(function(p){
+      const s = timeToMinutes(p.pieceStart);
+      const e = p.pieceEnd === '24:00' ? 1440 : timeToMinutes(p.pieceEnd);
+      return [s, e];
+    });
+    intervals.sort(function(a,b){ return a[0]-b[0]; });
+    let cursor = dayStart;
+    const gaps = [];
+    intervals.forEach(function(iv){
+      const s = iv[0], e = iv[1];
+      if(s > cursor && (s-cursor) >= 30) gaps.push([cursor, s]);
+      cursor = Math.max(cursor, e);
+    });
+    if(dayEnd - cursor >= 30) gaps.push([cursor, dayEnd]);
+
+    gaps.forEach(function(g){
+      const topPx = pxFromMinutes(g[0]-dayStart);
+      const heightPx = pxFromMinutes(g[1]-g[0]);
+      const div = document.createElement('div');
+      div.className = 'gap-flag';
+      div.style.top = topPx + 'px';
+      div.style.height = heightPx + 'px';
+      div.textContent = Math.round((g[1]-g[0])/60*10)/10 + 'H OPEN';
+      container.appendChild(div);
+    });
+
+    // now-line — only show on the day actually being viewed if it's today
+    if(currentDate === todayStr()){
+      const now = new Date();
+      const nowMin = now.getHours()*60 + now.getMinutes();
+      if(nowMin >= dayStart && nowMin <= dayEnd){
+        const topPx = pxFromMinutes(nowMin - dayStart);
+        const div = document.createElement('div');
+        div.className = 'now-line';
+        div.style.top = topPx + 'px';
+        div.style.left = '64px';
+        container.appendChild(div);
+      }
+    }
+
+    container.querySelectorAll('[data-del]').forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        const parts = el.getAttribute('data-del').split('|');
+        deleteBlock(parts[0], parts[1]);
+      });
+    });
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function renderDayLabel(){
+    const el = document.getElementById('dayLabel');
+    const d = new Date(currentDate + 'T00:00:00');
+    const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+    const isToday = currentDate === todayStr();
+    const prefix = isToday ? "TODAY'S TIMELINE — " : '';
+    el.textContent = prefix + d.toLocaleDateString('en-US', opts).toUpperCase();
+
+    document.getElementById('todayBtn').classList.toggle('active', isToday);
+  }
+
+  function goToDate(dateStr){
+    currentDate = dateStr;
+    renderAll();
+  }
+
+  function renderAll(){
+    renderTelemetry();
+    renderTimeline();
+    renderDayLabel();
+  }
+
+  document.getElementById('addBtn').addEventListener('click', addBlock);
+  document.getElementById('backLink').addEventListener('click', function(e){
+    e.preventDefault();
+    window.location.href = 'https://rameshverse.com';
+  });
+  document.getElementById('prevDayBtn').addEventListener('click', function(){
+    goToDate(shiftDateStr(currentDate, -1));
+  });
+  document.getElementById('nextDayBtn').addEventListener('click', function(){
+    goToDate(shiftDateStr(currentDate, 1));
+  });
+  document.getElementById('todayBtn').addEventListener('click', function(){
+    goToDate(todayStr());
+  });
+
+  renderColorPicker();
+  renderAll();
+
+  // refresh now-line every minute
+  setInterval(renderTimeline, 60000);
+})();
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
+
+
+</body>
+</html>
