@@ -30,7 +30,8 @@
 
   .frame{position:relative; border:1px solid var(--line);
     background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px), var(--panel);
-    padding:22px; max-width:none; width:100%; margin:0 auto;}
+    padding:22px; max-width:none; width:100%; margin:0 auto;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5);}
   .corner{position:absolute; width:14px; height:14px;}
   .corner.tl{top:-1px;left:-1px;border-top:2px solid var(--red);border-left:2px solid var(--red);}
   .corner.tr{top:-1px;right:-1px;border-top:2px solid var(--red);border-right:2px solid var(--red);}
@@ -42,9 +43,24 @@
   .brand span{color:var(--red);}
   .sub{font-size:10px; letter-spacing:0.08em; color:var(--text-dim);}
   .hr{height:1px; background:var(--line); margin:10px 0 14px;}
-  .sysname-row{display:flex; align-items:end; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
 
-  
+  .sysname-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
+
+  /* ── LOAD SYSTEM — accented select, sized to its content ── */
+  #presetSelect{
+    width:210px;
+    max-width:60vw;
+    font-size:11px;
+    padding:6px 7px;
+    border:1px solid rgba(255,43,43,0.55);
+    background:#0c0d0f;
+    color:var(--text);
+    font-family:inherit;
+    box-shadow:0 0 10px rgba(255,43,43,0.15);
+    transition:box-shadow .2s ease, border-color .2s ease;
+  }
+  #presetSelect:hover{ border-color:var(--red); box-shadow:0 0 16px rgba(255,43,43,0.3); }
+  #presetSelect:focus{ outline:none; border-color:var(--red); box-shadow:0 0 18px rgba(255,43,43,0.38); }
 
   .grid{display:grid; grid-template-columns:1.55fr 1fr; gap:20px;}
   @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
@@ -54,15 +70,19 @@
   .field{margin-bottom:8px;}
   .field .k{font-size:9px; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:6px; display:flex; justify-content:space-between;}
   .field .k b{color:var(--text);}
+  .field-inline{display:flex; align-items:center; gap:8px;}
+  .field-inline .k{margin-bottom:0; white-space:nowrap; flex:0 0 auto;}
+  .field-inline input{flex:1; min-width:0;}
   input[type=range]{-webkit-appearance:none; width:100%; height:2px; background:var(--line-strong); outline:none; margin:0;}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:12px; height:12px; background:var(--red); border-radius:0; cursor:pointer; border:1px solid #ffb3b3;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:12px; height:12px; background:var(--red); border-radius:0; cursor:pointer; border:1px solid #ffb3b3; transition:box-shadow .15s ease;}
+  input[type=range]::-webkit-slider-thumb:hover{ box-shadow:0 0 8px rgba(255,43,43,0.6); }
   input[type=range]::-moz-range-thumb{width:12px; height:12px; background:var(--red); border-radius:0; cursor:pointer; border:1px solid #ffb3b3;}
-  input[type=text], input[type=number]{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px;}
-  input[type=text]:focus, input[type=number]:focus{outline:none; border-color:var(--red-dim);}
+  input[type=text], input[type=number]{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px; transition:border-color .2s ease, box-shadow .2s ease;}
+  input[type=text]:focus, input[type=number]:focus{outline:none; border-color:var(--red-dim); box-shadow:0 0 10px rgba(255,43,43,0.22);}
   input[type=number]{-moz-appearance:textfield;}
   input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
-  select{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px;}
-  select:focus{outline:none; border-color:var(--red-dim);}
+  select{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px; transition:border-color .2s ease, box-shadow .2s ease;}
+  select:focus{outline:none; border-color:var(--red-dim); box-shadow:0 0 10px rgba(255,43,43,0.22);}
   #starTypeSelect{width:180px; max-width:100%;}
 
   .planet-form-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;}
@@ -84,13 +104,14 @@
 
   .star-chip-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
   .star-chip{font-family:inherit; font-size:9.5px; letter-spacing:0.04em; color:var(--text-dim);
-    background:transparent; border:1px solid var(--line); padding:6px 10px 6px 10px; cursor:pointer; display:flex; align-items:center; gap:6px;}
-  .star-chip:hover{border-color:var(--red-dim); color:var(--text);}
-  .star-chip.active{border-color:var(--red); color:var(--red);}
+    background:transparent; border:1px solid var(--line); padding:6px 10px 6px 10px; cursor:pointer; display:flex; align-items:center; gap:6px;
+    transition:border-color .2s ease, color .2s ease, box-shadow .2s ease;}
+  .star-chip:hover{border-color:var(--red-dim); color:var(--text); box-shadow:0 0 10px rgba(255,43,43,0.12);}
+  .star-chip.active{border-color:var(--red); color:var(--red); box-shadow:0 0 12px rgba(255,43,43,0.22);}
   .star-chip .rmstar{color:var(--text-faint); font-size:10px; padding:0 2px;}
   .star-chip .rmstar:hover{color:var(--red);}
-  .add-star-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px dashed var(--line-strong); padding:6px 10px; cursor:pointer;}
-  .add-star-btn:hover{color:var(--text); border-color:var(--red-dim);}
+  .add-star-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px dashed var(--line-strong); padding:6px 10px; cursor:pointer; transition:color .2s ease, border-color .2s ease, box-shadow .2s ease;}
+  .add-star-btn:hover{color:var(--text); border-color:var(--red-dim); box-shadow:0 0 10px rgba(255,43,43,0.12);}
   .sys-status{font-size:9px; color:var(--text-faint); letter-spacing:0.04em;}
 
   .stage{position:relative; border:1px solid var(--line); background:#000; height:620px; margin-bottom:14px; overflow:hidden;}
@@ -101,8 +122,8 @@
   .stage .drag-hint{position:absolute; bottom:8px; right:10px; font-size:8.5px; color:var(--text-faint); z-index:4;}
   .stage .watermark{position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:8.5px; letter-spacing:0.1em; color:var(--text-faint); opacity:0.55; z-index:4; pointer-events:none;}
   .fs-btn{position:absolute; top:8px; right:10px; z-index:6; font-family:inherit; font-size:9px; letter-spacing:0.08em; color:var(--text-dim);
-    background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; cursor:pointer;}
-  .fs-btn:hover{border-color:var(--red-dim); color:var(--text);}
+    background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; cursor:pointer; transition:border-color .2s ease, color .2s ease, box-shadow .2s ease;}
+  .fs-btn:hover{border-color:var(--red-dim); color:var(--text); box-shadow:0 0 10px rgba(255,43,43,0.15);}
   .speed-ctrl{position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:8px;
     background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);}
   .speed-ctrl input[type=range]{width:90px;}
@@ -114,30 +135,39 @@
 
   .fs-btn.active{border-color:var(--red); color:var(--red); background:rgba(255,43,43,0.12);}
 
+  @media (max-width:700px){
+    .speed-ctrl{ top:8px; }
+    #fsBtn{ top:44px; right:8px; font-size:8px; padding:5px 8px; }
+    #scaleToggleBtn{ top:44px; right:auto !important; left:8px; font-size:8px; padding:5px 8px; max-width:150px; white-space:normal; line-height:1.3; text-align:left; }
+    .stage .tag{ top:82px; }
+    .stage .not-to-scale{ top:98px; }
+  }
+
   .add-row{border:1px solid var(--line); padding:10px; margin-bottom:10px;}
 
   .type-row{display:flex; gap:6px; flex-wrap:wrap;}
-  .type-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px solid var(--line); padding:6px 9px; cursor:pointer;}
-  .type-btn:hover{border-color:var(--red-dim); color:var(--text);}
-  .type-btn.active{border-color:var(--red); color:var(--red);}
+  .type-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px solid var(--line); padding:6px 9px; cursor:pointer; transition:border-color .2s ease, color .2s ease, box-shadow .2s ease;}
+  .type-btn:hover{border-color:var(--red-dim); color:var(--text); box-shadow:0 0 10px rgba(255,43,43,0.12);}
+  .type-btn.active{border-color:var(--red); color:var(--red); box-shadow:0 0 12px rgba(255,43,43,0.22);}
 
   .add-btn{width:100%; margin-top:4px; font-family:inherit; font-size:10px; letter-spacing:0.08em; color:var(--red);
-    background:transparent; border:1px solid var(--red-dim); padding:9px; cursor:pointer;}
-  .add-btn:hover{background:rgba(255,43,43,0.08);}
+    background:transparent; border:1px solid var(--red-dim); padding:9px; cursor:pointer; transition:background .2s ease, border-color .2s ease, box-shadow .2s ease;}
+  .add-btn:hover{background:rgba(255,43,43,0.08); border-color:var(--red); box-shadow:0 0 16px rgba(255,43,43,0.25);}
   .rand-btn{margin-top:8px; color:var(--text-dim); border-color:var(--line);}
-  .rand-btn:hover{color:var(--text); border-color:var(--line-strong); background:rgba(255,255,255,0.03);}
+  .rand-btn:hover{color:var(--text); border-color:var(--line-strong); background:rgba(255,255,255,0.03); box-shadow:none;}
 
   table.planets{width:100%; border-collapse:collapse; font-size:9.5px;}
   table.planets th{text-align:left; font-weight:400; color:var(--text-faint); letter-spacing:0.06em; font-size:8px; padding:6px 5px; border-bottom:1px solid var(--line);}
   table.planets td{padding:7px 5px; border-bottom:1px solid var(--line); color:var(--text-dim); vertical-align:middle;}
   table.planets tr:last-child td{border-bottom:none;}
+  table.planets tr.data:hover td{background:rgba(255,43,43,0.04);}
   table.planets td.name{color:var(--text);}
   table.planets td.hz-yes{color:var(--green);}
-  table.planets .rm{cursor:pointer; color:var(--text-faint); border:1px solid var(--line); padding:3px 6px; background:none; font-family:inherit; font-size:10px;}
+  table.planets .rm{cursor:pointer; color:var(--text-faint); border:1px solid var(--line); padding:3px 6px; background:none; font-family:inherit; font-size:10px; transition:color .2s ease, border-color .2s ease;}
   table.planets .rm:hover{color:var(--red); border-color:var(--red-dim);}
   .empty{font-size:10px; color:var(--text-faint); padding:14px 4px;}
 
-  .brand-link{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:13px; letter-spacing:0.14em; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;}
+  .brand-link{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:13px; letter-spacing:0.14em; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px; transition:color .2s ease;}
   .brand-link:hover{color:var(--red);}
   .brand-link .arrow{color:var(--red);}
   .leave-confirm{display:none; align-items:center; gap:10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim); margin-top:6px;}
@@ -169,16 +199,16 @@
   <div class="hr"></div>
 
   <div class="sysname-row">
-    <div class="field" style="margin-bottom:0; max-width:420px; flex:1;">
+    <div class="field field-inline" style="margin-bottom:0; max-width:420px; flex:1 1 260px;">
       <div class="k"><span>SYSTEM NAME</span></div>
       <input type="text" id="systemName" placeholder="Unnamed System" maxlength="30">
     </div>
-    <select id="presetSelect" style="width:170px; max-width:100%;">
-      <option value="">— LOAD SYSTEM —</option>
-    </select>
     <button class="add-star-btn" id="saveSystemBtn">💾 SAVE SYSTEM</button>
     <button class="add-star-btn" id="restoreSystemBtn">📂 RESTORE SYSTEM</button>
     <button class="add-star-btn" id="resetSystemBtn">↺ RESET SYSTEM</button>
+    <select id="presetSelect">
+      <option value="">— LOAD SYSTEM —</option>
+    </select>
     <span class="sys-status" id="sysStatus"></span>
     <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
   </div>
@@ -360,6 +390,12 @@
   var stage = document.getElementById('stage');
   var stage3d = document.getElementById('stage3d');
   var fsBtn = document.getElementById('fsBtn');
+  var notToScaleEl = document.querySelector('.not-to-scale');
+  function updateScaleLabel(){
+    notToScaleEl.textContent = trueScaleMode
+      ? 'NOT TO SCALE — DISTANCES ARE STYLIZED'
+      : 'NOT TO SCALE — DISTANCES & SIZES ARE STYLIZED';
+  }
 
   // ---- state ----
   var AU_LO = Math.log10(0.015), AU_HI = Math.log10(60);
@@ -885,7 +921,7 @@
     stage3d.appendChild(renderer.domElement);
 
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45, 1, 0.001, 100);
+    var camera = new THREE.PerspectiveCamera(45, 1, 0.001, 160);
     var ambient = new THREE.AmbientLight(0x222226, 1.1);
     scene.add(ambient);
     var hemi = new THREE.HemisphereLight(0x2a3550, 0x05050a, 0.55);
@@ -965,11 +1001,22 @@ window.addEventListener('pointerup', function(e){
   if (!three.hasMoved) handleStageClick(e);
 });
 
+    // Wider, smoother exponential zoom — scroll speed now scales with
+    // current distance, so it feels responsive whether you're
+    // surveying the whole system or examining a single planet.
     stage3d.addEventListener('wheel', function(e){
   e.preventDefault();
-  var minR = three.focusObj ? 0.008 : 3;
-  three.radius += e.deltaY*(three.focusObj ? 0.0002 : 0.01);
-  three.radius = Math.max(minR, Math.min(32, three.radius));
+  var factor = Math.pow(1.0018, e.deltaY);
+  var minR, maxR;
+  if (three.focusObj){
+    var s = three.focusObj.userData.size || 0.02;
+    minR = Math.max(0.003, s*0.3);
+    maxR = Math.max(s*90, 5);
+  } else {
+    minR = 1.2;
+    maxR = 70;
+  }
+  three.radius = Math.max(minR, Math.min(maxR, three.radius*factor));
 }, {passive:false});
   }
 
@@ -1264,6 +1311,7 @@ scaleToggleBtn.addEventListener('click', function(){
   ? '⊙ TRUE PLANET SCALE — CLICK FOR ENHANCED'
   : '◎ ENHANCED SCALE — CLICK TO REVERT';
   scaleToggleBtn.classList.toggle('active', trueScaleMode);
+  updateScaleLabel();
   rebuildIfReady();
 });
 
@@ -1399,6 +1447,7 @@ scaleToggleBtn.addEventListener('click', function(){
   radiusInput.value = currentType.radiusRE;
   massInput.value = currentType.massME;
   updatePeriodPreview();
+  updateScaleLabel();
   renderTable();
   setup3D();
   requestAnimationFrame(loop);

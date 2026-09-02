@@ -42,7 +42,14 @@
       linear-gradient(rgba(255,43,43,0.02) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,43,43,0.02) 1px, transparent 1px);
     background-size: 24px 24px;
+    background-position: 0 0, 0 0;
     position:relative;
+    overflow-x:hidden;
+    animation: gridDrift 50s linear infinite;
+  }
+  @keyframes gridDrift{
+    from{ background-position: 0 0, 0 0; }
+    to{ background-position: 240px 240px, 240px 240px; }
   }
   body::before{
     content:"";
@@ -57,12 +64,30 @@
     pointer-events:none;
     z-index:999;
   }
+  /* ── Ambient breathing glow — the "hypnotic" idle layer ── */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background: radial-gradient(circle at 50% 22%, rgba(255,43,43,0.10), transparent 55%);
+    animation: ambientBreathe 6s ease-in-out infinite;
+    pointer-events:none;
+    z-index:0;
+  }
+  @keyframes ambientBreathe{
+    0%,100%{ opacity:0.5; transform:scale(1); }
+    50%{ opacity:1; transform:scale(1.06); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    body{ animation:none; }
+    body::after{ animation:none; }
+  }
 
-  .wrap{max-width:820px;margin:0 auto;padding:28px 20px 80px;}
+  .wrap{max-width:820px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1;}
 
   header{
     display:flex;
-    justify-content:space-between;
+    justify-content:flex-start;
     align-items:flex-end;
     border-bottom:1px solid var(--line);
     padding-bottom:16px;
@@ -73,12 +98,6 @@
   h1{font-size:22px; letter-spacing:2px; margin:0; font-weight:700;}
   h1 span{color:var(--red);}
   .subtitle{color:var(--text-dim); font-size:11px; margin-top:4px; letter-spacing:1px;}
-  .back-link{
-    font-size:11px; color:var(--text-dim); text-decoration:none;
-    border:1px solid var(--line); padding:6px 10px;
-    transition:border-color .15s, color .15s;
-  }
-  .back-link:hover{color:var(--red); border-color:var(--red);}
 
   /* MAIN MISSION PANEL */
   .mission-panel{
@@ -89,8 +108,17 @@
     margin-bottom:20px;
     position:relative;
     overflow:hidden;
+    transition: border-color .3s ease, box-shadow .3s ease;
   }
-  .mission-panel.active{border-color:var(--red);}
+  .mission-panel.active{
+    border-color:var(--red);
+    box-shadow: 0 0 30px rgba(255,43,43,0.12), inset 0 0 40px rgba(255,43,43,0.04);
+    animation: panelBreathe 3.2s ease-in-out infinite;
+  }
+  @keyframes panelBreathe{
+    0%,100%{ box-shadow: 0 0 30px rgba(255,43,43,0.12), inset 0 0 40px rgba(255,43,43,0.04); }
+    50%{ box-shadow: 0 0 55px rgba(255,43,43,0.28), inset 0 0 55px rgba(255,43,43,0.08); }
+  }
   .mission-panel::after{
     content:"";
     position:absolute; top:0; left:0; right:0; height:2px;
@@ -107,6 +135,20 @@
     50%{transform:scaleX(1); transform-origin:left;}
     50.01%{transform-origin:right;}
     100%{transform:scaleX(0); transform-origin:right;}
+  }
+  /* ── Energetic start burst ── */
+  @keyframes panelBurst{
+    0%{ transform:scale(1); box-shadow:0 0 0 rgba(255,43,43,0); }
+    25%{ transform:scale(1.025); box-shadow:0 0 60px rgba(255,43,43,0.6), inset 0 0 60px rgba(255,43,43,0.15); }
+    55%{ transform:scale(0.99); }
+    100%{ transform:scale(1); }
+  }
+  .mission-panel.burst{
+    animation: panelBurst .55s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mission-panel.active{ animation:none; }
+    .mission-panel.burst{ animation:none; }
   }
 
   .status-line{
@@ -128,12 +170,64 @@
   }
   @keyframes blink{ 50%{opacity:0.3;} }
 
+  /* ── Rotating hypnotic ring behind the timer ── */
+  .timer-ring-wrap{
+    position:relative;
+    width:min(200px, 62vw);
+    height:min(200px, 62vw);
+    margin:0 auto 6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .timer-ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background: conic-gradient(from 0deg,
+      transparent 0deg, var(--red) 35deg, transparent 95deg,
+      transparent 245deg, var(--red) 305deg, transparent 360deg);
+    opacity:0.4;
+    filter: blur(0.5px);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+    animation: ringSpin 10s linear infinite;
+  }
+  .timer-ring-wrap.spin-fast .timer-ring{
+    animation: ringSpin 2.4s linear infinite;
+    opacity:0.75;
+  }
+  @keyframes ringSpin{ to{ transform:rotate(360deg); } }
+  @keyframes ringBurstSpin{
+    0%{ transform:rotate(0deg) scale(1); opacity:0.4; }
+    25%{ transform:rotate(220deg) scale(1.18); opacity:1; }
+    100%{ transform:rotate(720deg) scale(1); opacity:0.75; }
+  }
+  .timer-ring-wrap.burst .timer-ring{
+    animation: ringBurstSpin .8s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .timer-ring{ animation:none; }
+    .timer-ring-wrap.spin-fast .timer-ring{ animation:none; }
+    .timer-ring-wrap.burst .timer-ring{ animation:none; }
+  }
+
   .timer-display{
     font-size:56px;
     font-weight:700;
     letter-spacing:3px;
     margin-bottom:6px;
     font-variant-numeric:tabular-nums;
+    position:relative;
+    text-shadow: 0 0 10px rgba(255,43,43,0.25);
+    animation: textGlowPulse 3.4s ease-in-out infinite;
+  }
+  @keyframes textGlowPulse{
+    0%,100%{ text-shadow:0 0 10px rgba(255,43,43,0.22); }
+    50%{ text-shadow:0 0 26px rgba(255,43,43,0.55); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .timer-display{ animation:none; }
   }
   .timer-target{
     font-size:11px;
@@ -161,7 +255,7 @@
     transition:all .15s;
   }
   .dur-btn:hover{border-color:var(--text-dim); color:var(--text);}
-  .dur-btn.selected{border-color:var(--red); color:var(--red);}
+  .dur-btn.selected{border-color:var(--red); color:var(--red); box-shadow:0 0 12px rgba(255,43,43,0.25);}
   .dur-btn:disabled{opacity:0.35; cursor:not-allowed;}
 
   .control-row{
@@ -180,9 +274,10 @@
     letter-spacing:1.5px;
     padding:12px 28px;
     cursor:pointer;
-    transition:opacity .15s;
+    transition:opacity .15s, transform .15s, box-shadow .15s;
   }
-  button.primary:hover{opacity:0.85;}
+  button.primary:hover{opacity:0.85; transform:translateY(-1px); box-shadow:0 0 18px rgba(255,43,43,0.4);}
+  button.primary:active{transform:translateY(0) scale(0.97);}
   button.secondary{
     background:none;
     border:1px solid var(--line);
@@ -203,6 +298,26 @@
     letter-spacing:0.5px;
   }
   .interrupt-note b{color:var(--amber);}
+
+  /* ── Full-screen flash on session start ── */
+  .start-flash{
+    position:fixed; inset:0;
+    background: radial-gradient(circle at 50% 24%, rgba(255,43,43,0.5), transparent 60%);
+    opacity:0;
+    pointer-events:none;
+    z-index:998;
+  }
+  .start-flash.fire{
+    animation: flashFire .6s ease-out;
+  }
+  @keyframes flashFire{
+    0%{opacity:0;}
+    18%{opacity:1;}
+    100%{opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .start-flash.fire{ animation:none; }
+  }
 
   /* TELEMETRY */
   .telemetry{
@@ -260,6 +375,8 @@
 </style>
 </head>
 <body>
+<div class="start-flash" id="startFlash"></div>
+
 <div class="wrap">
 
   <header>
@@ -267,12 +384,15 @@
       <h1>RV<span>·</span>FOCUS</h1>
       <div class="subtitle">DEEP WORK SESSION TRACKER</div>
     </div>
-    <a class="back-link" href="#" id="backLink">← RAMESHVERSE</a>
   </header>
 
   <div class="mission-panel" id="missionPanel">
     <div class="status-line" id="statusLine"><span class="dot"></span>SYSTEM STANDBY</div>
-    <div class="timer-display" id="timerDisplay">25:00</div>
+
+    <div class="timer-ring-wrap" id="timerRingWrap">
+      <div class="timer-ring"></div>
+      <div class="timer-display" id="timerDisplay">25:00</div>
+    </div>
     <div class="timer-target" id="timerTarget">TARGET: 25 MIN SESSION</div>
 
     <div class="duration-select" id="durationSelect">
@@ -344,6 +464,7 @@
 
   const els = {
     missionPanel: document.getElementById('missionPanel'),
+    timerRingWrap: document.getElementById('timerRingWrap'),
     statusLine: document.getElementById('statusLine'),
     timerDisplay: document.getElementById('timerDisplay'),
     timerTarget: document.getElementById('timerTarget'),
@@ -351,6 +472,7 @@
     controlRow: document.getElementById('controlRow'),
     interruptNote: document.getElementById('interruptNote'),
     interruptCount: document.getElementById('interruptCount'),
+    startFlash: document.getElementById('startFlash'),
   };
 
   function fmt(sec){
@@ -374,14 +496,17 @@
       els.statusLine.className = 'status-line live';
       els.statusLine.innerHTML = '<span class="dot"></span>SESSION ACTIVE';
       els.missionPanel.classList.add('active');
+      els.timerRingWrap.classList.add('spin-fast');
     } else if(state === 'paused'){
       els.statusLine.className = 'status-line';
       els.statusLine.innerHTML = '<span class="dot"></span>SESSION PAUSED';
       els.missionPanel.classList.remove('active');
+      els.timerRingWrap.classList.remove('spin-fast');
     } else {
       els.statusLine.className = 'status-line';
       els.statusLine.innerHTML = '<span class="dot"></span>SYSTEM STANDBY';
       els.missionPanel.classList.remove('active');
+      els.timerRingWrap.classList.remove('spin-fast');
     }
 
     els.interruptNote.style.display = (state === 'idle') ? 'none' : 'block';
@@ -413,6 +538,17 @@
     }
   }
 
+  function triggerStartBurst(){
+    els.missionPanel.classList.add('burst');
+    els.timerRingWrap.classList.add('burst');
+    els.startFlash.classList.add('fire');
+    setTimeout(function(){
+      els.missionPanel.classList.remove('burst');
+      els.timerRingWrap.classList.remove('burst');
+      els.startFlash.classList.remove('fire');
+    }, 800);
+  }
+
   function startSession(){
     state = 'running';
     totalSeconds = selectedMin * 60;
@@ -421,6 +557,7 @@
     sessionStartTs = Date.now();
     tick();
     renderTimer();
+    triggerStartBurst();
   }
 
   function pauseSession(){
@@ -606,11 +743,6 @@
     renderChart();
     renderLog();
   }
-
-  document.getElementById('backLink').addEventListener('click', function(e){
-    e.preventDefault();
-    window.location.href = 'https://rameshverse.com';
-  });
 
   renderTimer();
   renderAll();

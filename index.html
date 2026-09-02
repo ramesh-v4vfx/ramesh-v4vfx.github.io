@@ -1883,23 +1883,21 @@
     .hud-strip { font-size: 0.58rem; gap: 7px; }
   }
 
-  /* ── Scroll reveal for tool cards ── */
+    /* ── Scroll reveal for tool cards ── */
   .tool {
     opacity: 0;
     transform: translateY(18px);
+    transition: opacity .55s cubic-bezier(.22,.61,.36,1),
+                transform .55s cubic-bezier(.22,.61,.36,1);
   }
 
-  .tool.tool-revealed {
-    animation: toolReveal .55s cubic-bezier(.22,.61,.36,1) forwards;
-  }
-
-  @keyframes toolReveal {
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .tool:where(.tool-revealed) {
+  opacity: 1;
+  transform: translateY(0);
+}
 
   @media (prefers-reduced-motion: reduce) {
-    .tool { opacity: 1; transform: none; }
-    .tool.tool-revealed { animation: none; }
+    .tool { opacity: 1; transform: none; transition: none; }
   }
 
   @media (max-width: 1200px) {
@@ -3437,7 +3435,7 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
       if (entry.isIntersecting) {
         const idx = cards.indexOf(entry.target);
         const delay = Math.min(idx % 6, 6) * 45;
-        entry.target.style.animationDelay = delay + "ms";
+        entry.target.style.transitionDelay = delay + "ms";
         entry.target.classList.add("tool-revealed");
         obs.unobserve(entry.target);
       }
