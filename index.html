@@ -1873,7 +1873,6 @@
       top: auto !important;
     }
   }
-</style>
 
   @keyframes hudPulse {
     0%, 100% { opacity: 0.4; }
@@ -1902,6 +1901,27 @@
     .tool { opacity: 1; transform: none; }
     .tool.tool-revealed { animation: none; }
   }
+
+  @media (max-width: 1200px) {
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero, .popular-tools, .category-radar,
+  .sticky-top, .tools, .share-bar, footer {
+    min-width: 0;   /* ← the actual fix: overrides the flex default */
+    width: 100%;
+  }
+
+  .hero            { order: 1; }
+  .popular-tools   { order: 2; }
+  .category-radar  { order: 3; }
+  .sticky-top      { order: 4; }
+  .tools           { order: 5; }
+  .share-bar       { order: 6; }
+  footer           { order: 7; }
+}
 </style>
 </head>
 <body>
