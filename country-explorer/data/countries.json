@@ -2,4706 +2,5097 @@
   {
     "iso_alpha2": "VA",
     "name": "Vatican City",
-    "capital": ["Vatican City"],
+    "capital": [
+      "Vatican City"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Latin", "Italian"],
-
+    "official_language": [
+      "Latin",
+      "Italian"
+    ],
     "population": 882,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 0.49,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": null,
-    "gdp_year": null,    
-
+    "gdp_year": null,
     "gdp_ppp_usd": 17763200,
-    "gdp_ppp_year": 2021
+    "gdp_ppp_year": 2021,
+    "capital_lat": 41.9029,
+    "capital_lon": 12.4534
   },
   {
     "iso_alpha2": "MC",
     "name": "Monaco",
-    "capital": ["Monaco"],
+    "capital": [
+      "Monaco"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["French"],
-
+    "official_language": [
+      "French"
+    ],
     "population": 38423,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 2.084,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 10434000000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 8924000000,
-    "gdp_ppp_year": 2024
-    
+    "gdp_ppp_year": 2024,
+    "capital_lat": 43.7384,
+    "capital_lon": 7.4246
   },
   {
     "iso_alpha2": "NR",
     "name": "Nauru",
-    "capital": ["Yaren"],
+    "capital": [
+      "Yaren"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Nauruan", "English"],
-
+    "official_language": [
+      "Nauruan",
+      "English"
+    ],
     "population": 11919,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 21,
-
-    "currency": ["AUD"],
-
+    "currency": [
+      "AUD"
+    ],
     "gdp_nominal_usd": 150000000,
     "gdp_year": 2022,
-        
     "gdp_ppp_usd": 132000000,
     "gdp_ppp_year": 2021,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": -0.5477,
+    "capital_lon": 166.9209
   },
   {
     "iso_alpha2": "TV",
     "name": "Tuvalu",
-    "capital": ["Funafuti"],
+    "capital": [
+      "Funafuti"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Tuvaluan", "English"],
-
+    "official_language": [
+      "Tuvaluan",
+      "English"
+    ],
     "population": 10643,
     "population_year": 2022,
     "population_estimate": false,
-
     "area_km2": 26.26,
-
-    "currency": ["AUD"],
-
+    "currency": [
+      "AUD"
+    ],
     "gdp_nominal_usd": 63000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 68603000,
     "gdp_ppp_year": 2023,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": -8.5211,
+    "capital_lon": 179.1983
   },
   {
     "iso_alpha2": "SM",
     "name": "San Marino",
-    "capital": ["City of San Marino"],
+    "capital": [
+      "City of San Marino"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Italian"],
-
+    "official_language": [
+      "Italian"
+    ],
     "population": 34132,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 61.19,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 2034000000,
     "gdp_year": 2024,
-       
     "gdp_ppp_usd": 2978000000,
-    "gdp_ppp_year": 2024    
+    "gdp_ppp_year": 2024,
+    "capital_lat": 43.9333,
+    "capital_lon": 12.4167
   },
   {
     "iso_alpha2": "LI",
     "name": "Liechtenstein",
-    "capital": ["Vaduz"],
+    "capital": [
+      "Vaduz"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["German"],
-
+    "official_language": [
+      "German"
+    ],
     "population": 41232,
     "population_year": 2023,
     "population_estimate": true,
-
-    "area_km2": 160.50,
-
-    "currency": ["CHF"],
-
+    "area_km2": 160.5,
+    "currency": [
+      "CHF"
+    ],
     "gdp_nominal_usd": 8288000000,
     "gdp_year": 2023,
-    
     "gdp_ppp_usd": 7172000000,
-    "gdp_ppp_year": 2024    
+    "gdp_ppp_year": 2024,
+    "capital_lat": 47.141,
+    "capital_lon": 9.5209
   },
-    {
+  {
     "iso_alpha2": "MH",
     "name": "Marshall Islands",
-    "capital": ["Majuro"],
+    "capital": [
+      "Majuro"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Marshallese", "English"],
-
+    "official_language": [
+      "Marshallese",
+      "English"
+    ],
     "population": 42418,
     "population_year": 2021,
     "population_estimate": false,
-
     "area_km2": 181.43,
-
-    "currency": ["USD"],
-
+    "currency": [
+      "USD"
+    ],
     "gdp_nominal_usd": 220000000,
     "gdp_year": 2019,
-        
     "gdp_ppp_usd": 215000000,
     "gdp_ppp_year": 2019,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 7.1164,
+    "capital_lon": 171.1858
   },
   {
     "iso_alpha2": "KN",
     "name": "Saint Kitts and Nevis",
-    "capital": ["Basseterre"],
+    "capital": [
+      "Basseterre"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 54338,
     "population_year": 2023,
     "population_estimate": false,
-
     "area_km2": 261,
-
-    "currency": ["XCD"],
-
+    "currency": [
+      "XCD"
+    ],
     "gdp_nominal_usd": 1000000000,
-    "gdp_year": 2023,    
-    
+    "gdp_year": 2023,
     "gdp_ppp_usd": 1800000000,
     "gdp_ppp_year": 2023,
-    "is_island": true
-   },
-    {
+    "is_island": true,
+    "capital_lat": 17.3026,
+    "capital_lon": -62.7177
+  },
+  {
     "iso_alpha2": "MV",
     "name": "Maldives",
-    "capital": ["Malé"],
+    "capital": [
+      "Malé"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Dhivehi"],
-
+    "official_language": [
+      "Dhivehi"
+    ],
     "population": 601269,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 298,
-
-    "currency": ["MVR"],
-
+    "currency": [
+      "MVR"
+    ],
     "gdp_nominal_usd": 6984000000,
     "gdp_year": 2024,
-       
     "gdp_ppp_usd": 13867000000,
     "gdp_ppp_year": 2024,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 4.1755,
+    "capital_lon": 73.5093
   },
   {
     "iso_alpha2": "MT",
     "name": "Malta",
-    "capital": ["Valletta"],
+    "capital": [
+      "Valletta"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Maltese", "English"],
-
+    "official_language": [
+      "Maltese",
+      "English"
+    ],
     "population": 519562,
     "population_year": 2021,
     "population_estimate": false,
-
     "area_km2": 316,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 22737000000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 36870000000,
     "gdp_ppp_year": 2024,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 35.8989,
+    "capital_lon": 14.5146
   },
   {
     "iso_alpha2": "GD",
     "name": "Grenada",
-    "capital": ["St. George's"],
+    "capital": [
+      "St. George's"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 114621,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 344,
-
-    "currency": ["XCD"],
-
+    "currency": [
+      "XCD"
+    ],
     "gdp_nominal_usd": 1300000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 2300000000,
     "gdp_ppp_year": 2023,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 12.0561,
+    "capital_lon": -61.7488
   },
   {
     "iso_alpha2": "VC",
     "name": "Saint Vincent and the Grenadines",
-    "capital": ["Kingstown"],
+    "capital": [
+      "Kingstown"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 110872,
     "population_year": 2022,
     "population_estimate": true,
-
     "area_km2": 389,
-
-    "currency": ["XCD"],
-
+    "currency": [
+      "XCD"
+    ],
     "gdp_nominal_usd": 1000000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 2000000000,
     "gdp_ppp_year": 2023,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 13.16,
+    "capital_lon": -61.2248
   },
-    {
+  {
     "iso_alpha2": "BB",
     "name": "Barbados",
-    "capital": ["Bridgetown"],
+    "capital": [
+      "Bridgetown"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 281998,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 439,
-
-    "currency": ["BBD"],
-
+    "currency": [
+      "BBD"
+    ],
     "gdp_nominal_usd": 6220000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 5436000000,
     "gdp_ppp_year": 2023,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 13.0975,
+    "capital_lon": -59.6167
   },
   {
     "iso_alpha2": "AG",
     "name": "Antigua and Barbuda",
-    "capital": ["St. John's"],
+    "capital": [
+      "St. John's"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 106365,
     "population_year": 2026,
     "population_estimate": true,
-
     "area_km2": 440,
-
-    "currency": ["XCD"],
-
+    "currency": [
+      "XCD"
+    ],
     "gdp_nominal_usd": 2370000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 3300000000,
     "gdp_ppp_year": 2025,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 17.1274,
+    "capital_lon": -61.8468
   },
-    {
+  {
     "iso_alpha2": "SC",
     "name": "Seychelles",
-    "capital": ["Victoria"],
+    "capital": [
+      "Victoria"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Seychellois Creole"],
-
+    "official_language": [
+      "Seychellois Creole"
+    ],
     "population": 121355,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 457,
-
-    "currency": ["SCR"],
-
+    "currency": [
+      "SCR"
+    ],
     "gdp_nominal_usd": 2085000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 4175000000,
     "gdp_ppp_year": 2023,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": -4.6191,
+    "capital_lon": 55.4513
   },
-    {
+  {
     "iso_alpha2": "PW",
     "name": "Palau",
-    "capital": ["Ngerulmud"],
+    "capital": [
+      "Ngerulmud"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Palauan", "English"],
-
+    "official_language": [
+      "Palauan",
+      "English"
+    ],
     "population": 17663,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 459,
-
-    "currency": ["USD"],
-
+    "currency": [
+      "USD"
+    ],
     "gdp_nominal_usd": 322000000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 308000000,
     "gdp_ppp_year": 2024,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 7.5006,
+    "capital_lon": 134.6242
   },
   {
     "iso_alpha2": "AD",
     "name": "Andorra",
-    "capital": ["Andorra la Vella"],
+    "capital": [
+      "Andorra la Vella"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Catalan"],
-
+    "official_language": [
+      "Catalan"
+    ],
     "population": 88941,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 467.63,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 3897000000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 6001000000,
-    "gdp_ppp_year": 2024    
+    "gdp_ppp_year": 2024,
+    "capital_lat": 42.5063,
+    "capital_lon": 1.5218
   },
-    {
+  {
     "iso_alpha2": "LC",
     "name": "Saint Lucia",
-    "capital": ["Castries"],
+    "capital": [
+      "Castries"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 184100,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 617,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 2715000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 3769000000,
     "gdp_ppp_year": 2025,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 14.0101,
+    "capital_lon": -60.9875
   },
-    {
+  {
     "iso_alpha2": "FM",
     "name": "Federated States of Micronesia",
-    "capital": ["Palikir"],
+    "capital": [
+      "Palikir"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 104468,
     "population_year": 2019,
     "population_estimate": true,
-
     "area_km2": 702,
-
-    "currency": ["USD"],
-
+    "currency": [
+      "USD"
+    ],
     "gdp_nominal_usd": 500000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 451000000,
     "gdp_ppp_year": 2025,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 6.9248,
+    "capital_lon": 158.1611
   },
-    {
+  {
     "iso_alpha2": "SG",
     "name": "Singapore",
-    "capital": ["Singapore"],
+    "capital": [
+      "Singapore"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["English", "Malay", "Mandarin", "Tamil"],
-
+    "official_language": [
+      "English",
+      "Malay",
+      "Mandarin",
+      "Tamil"
+    ],
     "population": 6110200,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 736.3,
-
-    "currency": ["SGD"],
-
+    "currency": [
+      "SGD"
+    ],
     "gdp_nominal_usd": 564700000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 952600000000,
     "gdp_ppp_year": 2025,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 1.3521,
+    "capital_lon": 103.8198
   },
-    {
+  {
     "iso_alpha2": "TO",
     "name": "Tonga",
-    "capital": ["Nukuʻalofa"],
+    "capital": [
+      "Nukuʻalofa"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Tongan", "English"],
-
+    "official_language": [
+      "Tongan",
+      "English"
+    ],
     "population": 100209,
     "population_year": 2021,
     "population_estimate": false,
-
     "area_km2": 748,
-
-    "currency": ["TOP"],
-
+    "currency": [
+      "TOP"
+    ],
     "gdp_nominal_usd": 493000000,
     "gdp_year": 2019,
-        
     "gdp_ppp_usd": 655000000,
     "gdp_ppp_year": 2019,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": -21.1393,
+    "capital_lon": -175.2049
   },
-    {
+  {
     "iso_alpha2": "DM",
     "name": "Dominica",
-    "capital": ["Roseau"],
+    "capital": [
+      "Roseau"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 72412,
     "population_year": 2021,
     "population_estimate": true,
-
     "area_km2": 750,
-
-    "currency": ["XCD"],
-
+    "currency": [
+      "XCD"
+    ],
     "gdp_nominal_usd": 485000000,
     "gdp_year": 2018,
-        
     "gdp_ppp_usd": 688000000,
     "gdp_ppp_year": 2018,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 15.3092,
+    "capital_lon": -61.3794
   },
-    {
+  {
     "iso_alpha2": "BH",
     "name": "Bahrain",
-    "capital": ["Manama"],
+    "capital": [
+      "Manama"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Arabic"],
-
+    "official_language": [
+      "Arabic"
+    ],
     "population": 1501635,
     "population_year": 2020,
     "population_estimate": false,
-
     "area_km2": 786.8,
-
-    "currency": ["BHD"],
-
+    "currency": [
+      "BHD"
+    ],
     "gdp_nominal_usd": 47800000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 105600000,
     "gdp_ppp_year": 2024,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 26.2285,
+    "capital_lon": 50.586
   },
-    {
+  {
     "iso_alpha2": "KI",
     "name": "Kiribati",
-    "capital": ["Tarawa"],
+    "capital": [
+      "Tarawa"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["English", "Gilbertese"],
-
+    "official_language": [
+      "English",
+      "Gilbertese"
+    ],
     "population": 119438,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 811.19,
-
-    "currency": ["AUD"],
-
+    "currency": [
+      "AUD"
+    ],
     "gdp_nominal_usd": 248000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 297000000,
     "gdp_ppp_year": 2023,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 1.3291,
+    "capital_lon": 172.9791
   },
-    {
+  {
     "iso_alpha2": "ST",
     "name": "São Tomé and Príncipe",
-    "capital": ["São Tomé"],
+    "capital": [
+      "São Tomé"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Portuguese"],
-
+    "official_language": [
+      "Portuguese"
+    ],
     "population": 220372,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 964,
-
-    "currency": ["STN"],
-
+    "currency": [
+      "STN"
+    ],
     "gdp_nominal_usd": 751000000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 1000000000,
     "gdp_ppp_year": 2024,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 0.3365,
+    "capital_lon": 6.7273
   },
-    {
+  {
     "iso_alpha2": "KM",
     "name": "Comoros",
-    "capital": ["Moroni"],
+    "capital": [
+      "Moroni"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Comorian", "French", "Arabic"],
-
+    "official_language": [
+      "Comorian",
+      "French",
+      "Arabic"
+    ],
     "population": 883075,
     "population_year": 2024,
     "population_estimate": true,
-
-    "area_km2": 	2235,
-
-    "currency": ["KMF"],
-
+    "area_km2": 2235,
+    "currency": [
+      "KMF"
+    ],
     "gdp_nominal_usd": 1364000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 3432000000,
     "gdp_ppp_year": 2023,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": -11.7042,
+    "capital_lon": 43.2551
   },
-    {
+  {
     "iso_alpha2": "MU",
     "name": "Mauritius",
-    "capital": ["Port Louis"],
+    "capital": [
+      "Port Louis"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["English", "French"],
-
+    "official_language": [
+      "English",
+      "French"
+    ],
     "population": 1235260,
     "population_year": 2022,
     "population_estimate": false,
-
     "area_km2": 2040,
-
-    "currency": ["MUR"],
-
+    "currency": [
+      "MUR"
+    ],
     "gdp_nominal_usd": 16515000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 42810000000,
     "gdp_ppp_year": 2025,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": -20.1609,
+    "capital_lon": 57.5012
   },
-    {
+  {
     "iso_alpha2": "LU",
     "name": "Luxembourg",
-    "capital": ["Luxembourg"],
+    "capital": [
+      "Luxembourg"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Luxembourgish", "German", "French"],
-
+    "official_language": [
+      "Luxembourgish",
+      "German",
+      "French"
+    ],
     "population": 690947,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 2586.4,
-
-    "currency": ["MUR"],
-
+    "currency": [
+      "MUR"
+    ],
     "gdp_nominal_usd": 96993000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 106505000000,
-    "gdp_ppp_year": 2025    
+    "gdp_ppp_year": 2025,
+    "capital_lat": 49.6116,
+    "capital_lon": 6.1319
   },
-    {
+  {
     "iso_alpha2": "WS",
     "name": "Samoa",
-    "capital": ["Apia"],
+    "capital": [
+      "Apia"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Samoan", "English"],
-
+    "official_language": [
+      "Samoan",
+      "English"
+    ],
     "population": 205557,
     "population_year": 2021,
     "population_estimate": false,
-
     "area_km2": 2831,
-
-    "currency": ["WST"],
-
+    "currency": [
+      "WST"
+    ],
     "gdp_nominal_usd": 908561000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 1225000000,
     "gdp_ppp_year": 2024,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": -13.8333,
+    "capital_lon": -171.7667
   },
-    {
+  {
     "iso_alpha2": "CV",
     "name": "Cape Verde",
-    "capital": ["Praia"],
+    "capital": [
+      "Praia"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Portuguese", "Cape Verdean Creole"],
-
+    "official_language": [
+      "Portuguese",
+      "Cape Verdean Creole"
+    ],
     "population": 491233,
     "population_year": 2021,
     "population_estimate": false,
-
     "area_km2": 4033,
-
-    "currency": ["CVE"],
-
+    "currency": [
+      "CVE"
+    ],
     "gdp_nominal_usd": 2598000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 5717000000,
     "gdp_ppp_year": 2023,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 14.9218,
+    "capital_lon": -23.5087
   },
-    {
+  {
     "iso_alpha2": "TT",
     "name": "Trinidad and Tobago",
-    "capital": ["Port of Spain"],
+    "capital": [
+      "Port of Spain"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 1512779,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 5131,
-
-    "currency": ["TTD"],
-
+    "currency": [
+      "TTD"
+    ],
     "gdp_nominal_usd": 27887000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 43658000000,
     "gdp_ppp_year": 2023,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 10.6549,
+    "capital_lon": -61.5019
   },
-    {
+  {
     "iso_alpha2": "BN",
     "name": "Brunei",
-    "capital": ["Bandar Seri Begawan"],
+    "capital": [
+      "Bandar Seri Begawan"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Malay"],
-
+    "official_language": [
+      "Malay"
+    ],
     "population": 466227,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 5765,
-
-    "currency": ["BND"],
-
+    "currency": [
+      "BND"
+    ],
     "gdp_nominal_usd": 16010000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 43830000000,
     "gdp_ppp_year": 2025,
-    "is_island": true    
+    "is_island": true,
+    "capital_lat": 4.9031,
+    "capital_lon": 114.9398
   },
-    {
+  {
     "iso_alpha2": "PS",
     "name": "Palestine",
-    "capital": ["Jerusalem", "Ramallah"],
+    "capital": [
+      "Jerusalem",
+      "Ramallah"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Arabic"],
-
+    "official_language": [
+      "Arabic"
+    ],
     "population": 5483450,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 6020,
-
-    "currency": ["Israeli new shekel", "Jordanian dinar", "Egyptian pound"],
-
+    "currency": [
+      "Israeli new shekel",
+      "Jordanian dinar",
+      "Egyptian pound"
+    ],
     "gdp_nominal_usd": 18109000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 36391000000,
-    "gdp_ppp_year": 2023    
+    "gdp_ppp_year": 2023,
+    "capital_lat": 31.7683,
+    "capital_lon": 35.2137
   },
-    {
+  {
     "iso_alpha2": "CY",
     "name": "Cyprus",
-    "capital": ["Nicosia"],
+    "capital": [
+      "Nicosia"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Greek", "Turkish"],
-
+    "official_language": [
+      "Greek",
+      "Turkish"
+    ],
     "population": 923272,
     "population_year": 2021,
     "population_estimate": false,
-
     "area_km2": 9251,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 39943000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 61501000000,
     "gdp_ppp_year": 2025,
-    "is_island": true   
+    "is_island": true,
+    "capital_lat": 35.1856,
+    "capital_lon": 33.3823
   },
-    {
+  {
     "iso_alpha2": "LB",
     "name": "Lebanon",
-    "capital": ["Beirut"],
+    "capital": [
+      "Beirut"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Arabic"],
-
+    "official_language": [
+      "Arabic"
+    ],
     "population": 5364482,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 10452,
-
-    "currency": ["LBP"],
-
+    "currency": [
+      "LBP"
+    ],
     "gdp_nominal_usd": 21780000000,
     "gdp_year": 2022,
-        
     "gdp_ppp_usd": 78233000000,
-    "gdp_ppp_year": 2022   
+    "gdp_ppp_year": 2022,
+    "capital_lat": 33.8938,
+    "capital_lon": 35.5018
   },
-    {
+  {
     "iso_alpha2": "JM",
     "name": "Jamaica",
-    "capital": ["Kingston"],
+    "capital": [
+      "Kingston"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 5364482,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 10991,
-
-    "currency": ["LBP"],
-
+    "currency": [
+      "LBP"
+    ],
     "gdp_nominal_usd": 20586000000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 33775000000,
     "gdp_ppp_year": 2024,
-    "is_island": true  
+    "is_island": true,
+    "capital_lat": 17.9714,
+    "capital_lon": -76.7936
   },
-    {
+  {
     "iso_alpha2": "GM",
     "name": "The Gambia",
-    "capital": ["Banjul"],
+    "capital": [
+      "Banjul"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 2422712,
     "population_year": 2024,
     "population_estimate": false,
-
     "area_km2": 11300,
-
-    "currency": ["GMD"],
-
+    "currency": [
+      "GMD"
+    ],
     "gdp_nominal_usd": 2388000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 7502000000,
-    "gdp_ppp_year": 2024  
+    "gdp_ppp_year": 2024,
+    "capital_lat": 13.4549,
+    "capital_lon": -16.579
   },
-    {
+  {
     "iso_alpha2": "QA",
     "name": "Qatar",
-    "capital": ["Doha"],
+    "capital": [
+      "Doha"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Arabic"],
-
+    "official_language": [
+      "Arabic"
+    ],
     "population": 3173024,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 11581,
-
-    "currency": ["QAR"],
-
+    "currency": [
+      "QAR"
+    ],
     "gdp_nominal_usd": 222780000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 378080000000,
-    "gdp_ppp_year": 2025  
+    "gdp_ppp_year": 2025,
+    "capital_lat": 25.2854,
+    "capital_lon": 51.531
   },
-    {
+  {
     "iso_alpha2": "VU",
     "name": "Vanuatu",
-    "capital": ["Port Vila"],
+    "capital": [
+      "Port Vila"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Bislama", "English", "French"],
-
+    "official_language": [
+      "Bislama",
+      "English",
+      "French"
+    ],
     "population": 335908,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 12189,
-
-    "currency": ["VUV"],
-
+    "currency": [
+      "VUV"
+    ],
     "gdp_nominal_usd": 1064000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 1002000000,
     "gdp_ppp_year": 2023,
-    "is_island": true  
+    "is_island": true,
+    "capital_lat": -17.7333,
+    "capital_lon": 168.3273
   },
-    {
+  {
     "iso_alpha2": "ME",
     "name": "Montenegro",
-    "capital": ["Podgorica"],
+    "capital": [
+      "Podgorica"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Montenegrin"],
-
+    "official_language": [
+      "Montenegrin"
+    ],
     "population": 623633,
     "population_year": 2023,
     "population_estimate": false,
-
     "area_km2": 13883,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 9350000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 21480000000,
-    "gdp_ppp_year": 2025  
+    "gdp_ppp_year": 2025,
+    "capital_lat": 42.4304,
+    "capital_lon": 19.2594
   },
-    {
+  {
     "iso_alpha2": "BS",
     "name": "The Bahamas",
-    "capital": ["Nassau"],
+    "capital": [
+      "Nassau"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 412628,
     "population_year": 2023,
     "population_estimate": false,
-
     "area_km2": 13880,
-
-    "currency": ["BSD"],
-
+    "currency": [
+      "BSD"
+    ],
     "gdp_nominal_usd": 14390000000,
     "gdp_year": 2024,
-        
     "gdp_ppp_usd": 18989000000,
     "gdp_ppp_year": 2024,
-    "is_island": true  
+    "is_island": true,
+    "capital_lat": 25.0343,
+    "capital_lon": -77.3963
   },
-    {
+  {
     "iso_alpha2": "TL",
     "name": "Timor-Leste",
-    "capital": ["Dili"],
+    "capital": [
+      "Dili"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Portuguese", "Tetum"],
-
-    "population": 1354662 ,
+    "official_language": [
+      "Portuguese",
+      "Tetum"
+    ],
+    "population": 1354662,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 15007,
-
-    "currency": ["USD", "Timor-Leste centavo"],
-
+    "currency": [
+      "USD",
+      "Timor-Leste centavo"
+    ],
     "gdp_nominal_usd": 2120000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 6970000000,
     "gdp_ppp_year": 2025,
-    "is_island": true  
+    "is_island": true,
+    "capital_lat": -8.5569,
+    "capital_lon": 125.5603
   },
-    {
+  {
     "iso_alpha2": "SZ",
     "name": "Eswatini",
-    "capital": ["Mbabane(e)", "Lobamba(l)"],
+    "capital": [
+      "Mbabane(e)",
+      "Lobamba(l)"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Swazi", "English"],
-
-    "population": 1236126 ,
+    "official_language": [
+      "Swazi",
+      "English"
+    ],
+    "population": 1236126,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 17364,
-
-    "currency": ["SZL", "ZAR"],
-
+    "currency": [
+      "SZL",
+      "ZAR"
+    ],
     "gdp_nominal_usd": 4648000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 13797000000,
-    "gdp_ppp_year": 2023  
+    "gdp_ppp_year": 2023,
+    "capital_lat": -26.3054,
+    "capital_lon": 31.1367
   },
-    {
+  {
     "iso_alpha2": "KW",
     "name": "Kuwait",
-    "capital": ["Kuwait City"],
+    "capital": [
+      "Kuwait City"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Arabic"],
-
+    "official_language": [
+      "Arabic"
+    ],
     "population": 4985716,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 17818,
-
-    "currency": ["KWD"],
-
+    "currency": [
+      "KWD"
+    ],
     "gdp_nominal_usd": 153100000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 260500000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": 29.3759,
+    "capital_lon": 47.9774
   },
-    {
+  {
     "iso_alpha2": "FJ",
     "name": "Fiji",
-    "capital": ["Suva"],
+    "capital": [
+      "Suva"
+    ],
     "continent": "Oceania",
     "continent_secondary": null,
-
-    "official_language": ["Fijian", "English", "Fiji Hindi", "Rotuman"],
-
+    "official_language": [
+      "Fijian",
+      "English",
+      "Fiji Hindi",
+      "Rotuman"
+    ],
     "population": 926276,
     "population_year": 2018,
     "population_estimate": true,
-
     "area_km2": 18274,
-
-    "currency": ["FJD"],
-
+    "currency": [
+      "FJD"
+    ],
     "gdp_nominal_usd": 5511000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 15152000000,
     "gdp_ppp_year": 2023,
-    "is_island": true 
+    "is_island": true,
+    "capital_lat": -18.1416,
+    "capital_lon": 178.4419
   },
-    {
+  {
     "iso_alpha2": "SI",
     "name": "Slovenia",
-    "capital": ["Ljubljana"],
+    "capital": [
+      "Ljubljana"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Slovene"],
-
+    "official_language": [
+      "Slovene"
+    ],
     "population": 2130850,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 20272,
-
-    "currency": ["EUR"],
-
+    "currency": [
+      "EUR"
+    ],
     "gdp_nominal_usd": 79222000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 122985000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": 46.0569,
+    "capital_lon": 14.5058
   },
-    {
+  {
     "iso_alpha2": "IL",
     "name": "Israel",
-    "capital": ["Jerusalem"],
+    "capital": [
+      "Jerusalem"
+    ],
     "continent": "Asia",
     "continent_secondary": null,
-
-    "official_language": ["Hebrew"],
-
+    "official_language": [
+      "Hebrew"
+    ],
     "population": 10147200,
     "population_year": 2026,
     "population_estimate": true,
-
     "area_km2": 22072,
-
-    "currency": ["ILS"],
-
+    "currency": [
+      "ILS"
+    ],
     "gdp_nominal_usd": 610750000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 567550000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": 31.7683,
+    "capital_lon": 35.2137
   },
-    {
+  {
     "iso_alpha2": "SV",
     "name": "El Salvador",
-    "capital": ["San Salvador"],
+    "capital": [
+      "San Salvador"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["Spanish"],
-
+    "official_language": [
+      "Spanish"
+    ],
     "population": 6029976,
     "population_year": 2024,
     "population_estimate": false,
-
     "area_km2": 21041,
-
-    "currency": ["USD"],
-
+    "currency": [
+      "USD"
+    ],
     "gdp_nominal_usd": 37843000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 88323000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": 13.6929,
+    "capital_lon": -89.2182
   },
-    {
+  {
     "iso_alpha2": "BZ",
     "name": "Belize",
-    "capital": ["Belmopan"],
+    "capital": [
+      "Belmopan"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["English"],
-
+    "official_language": [
+      "English"
+    ],
     "population": 397483,
     "population_year": 2022,
     "population_estimate": false,
-
     "area_km2": 22966,
-
-    "currency": ["BZD"],
-
+    "currency": [
+      "BZD"
+    ],
     "gdp_nominal_usd": 3488000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 6414000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": 17.251,
+    "capital_lon": -88.759
   },
-    {
+  {
     "iso_alpha2": "DJ",
     "name": "Djibouti",
-    "capital": ["Djibouti City"],
+    "capital": [
+      "Djibouti City"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Arabic", "French"],
-
+    "official_language": [
+      "Arabic",
+      "French"
+    ],
     "population": 1066809,
     "population_year": 2024,
     "population_estimate": false,
-
     "area_km2": 23200,
-
-    "currency": ["DJF"],
-
+    "currency": [
+      "DJF"
+    ],
     "gdp_nominal_usd": 3873000000,
     "gdp_year": 2023,
-        
     "gdp_ppp_usd": 7193000000,
-    "gdp_ppp_year": 2023 
+    "gdp_ppp_year": 2023,
+    "capital_lat": 11.5721,
+    "capital_lon": 43.1456
   },
-    {
+  {
     "iso_alpha2": "MK",
     "name": "North Macedonia",
-    "capital": ["Skopje"],
+    "capital": [
+      "Skopje"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Macedonian", "Albanian"],
-
+    "official_language": [
+      "Macedonian",
+      "Albanian"
+    ],
     "population": 1836713,
     "population_year": 2021,
     "population_estimate": false,
-
     "area_km2": 25436,
-
-    "currency": ["MKD"],
-
+    "currency": [
+      "MKD"
+    ],
     "gdp_nominal_usd": 17885000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 53345000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": 41.9981,
+    "capital_lon": 21.4254
   },
-    {
+  {
     "iso_alpha2": "RW",
     "name": "Rwanda",
-    "capital": ["Kigali"],
+    "capital": [
+      "Kigali"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Kinyarwanda", "English", "French", "Swahili"],
-
+    "official_language": [
+      "Kinyarwanda",
+      "English",
+      "French",
+      "Swahili"
+    ],
     "population": 14104969,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 26338,
-
-    "currency": ["RWF"],
-
+    "currency": [
+      "RWF"
+    ],
     "gdp_nominal_usd": 14789000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 58120000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": -1.9403,
+    "capital_lon": 29.8739
   },
-    {
+  {
     "iso_alpha2": "HT",
     "name": "Haiti",
-    "capital": ["Port-au-Prince"],
+    "capital": [
+      "Port-au-Prince"
+    ],
     "continent": "North America",
     "continent_secondary": null,
-
-    "official_language": ["Haitian Creole", "French"],
-
+    "official_language": [
+      "Haitian Creole",
+      "French"
+    ],
     "population": 11470261,
     "population_year": 2023,
     "population_estimate": true,
-
     "area_km2": 27700,
-
-    "currency": ["HTG"],
-
+    "currency": [
+      "HTG"
+    ],
     "gdp_nominal_usd": 33550000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 38200000000,
     "gdp_ppp_year": 2025,
-    "is_island": true 
+    "is_island": true,
+    "capital_lat": 18.5944,
+    "capital_lon": -72.3074
   },
-    {
+  {
     "iso_alpha2": "BI",
     "name": "Burundi",
-    "capital": ["Gitega"],
+    "capital": [
+      "Gitega"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Kirundi", "French", "English"],
-
+    "official_language": [
+      "Kirundi",
+      "French",
+      "English"
+    ],
     "population": 14151540,
     "population_year": 2024,
     "population_estimate": true,
-
     "area_km2": 27834,
-
-    "currency": ["BIF"],
-
+    "currency": [
+      "BIF"
+    ],
     "gdp_nominal_usd": 6750000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 13980000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": -3.4264,
+    "capital_lon": 29.9306
   },
-    {
+  {
     "iso_alpha2": "GQ",
     "name": "Equatorial Guinea",
-    "capital": ["Ciudad de la Paz"],
+    "capital": [
+      "Ciudad de la Paz"
+    ],
     "continent": "Africa",
     "continent_secondary": null,
-
-    "official_language": ["Spanish", "French", "Portuguese"],
-
+    "official_language": [
+      "Spanish",
+      "French",
+      "Portuguese"
+    ],
     "population": 1795834,
     "population_year": 2025,
     "population_estimate": true,
-
     "area_km2": 28050,
-
-    "currency": ["XAF"],
-
+    "currency": [
+      "XAF"
+    ],
     "gdp_nominal_usd": 12680000000,
     "gdp_year": 2025,
-        
     "gdp_ppp_usd": 33001000000,
-    "gdp_ppp_year": 2025 
+    "gdp_ppp_year": 2025,
+    "capital_lat": 1.8636,
+    "capital_lon": 9.7981
   },
-    {
+  {
     "iso_alpha2": "AL",
     "name": "Albania",
-    "capital": ["Tirana"],
+    "capital": [
+      "Tirana"
+    ],
     "continent": "Europe",
     "continent_secondary": null,
-
-    "official_language": ["Albanian"],
-
+    "official_language": [
+      "Albanian"
+    ],
     "population": 2402113,
     "population_year": 2023,
     "population_estimate": false,
-
     "area_km2": 28748,
-
-    "currency": ["ALL"],
-
+    "currency": [
+      "ALL"
+    ],
     "gdp_nominal_usd": 32410000000,
     "gdp_year": 2026,
-        
     "gdp_ppp_usd": 66290000000,
-    "gdp_ppp_year": 2026
+    "gdp_ppp_year": 2026,
+    "capital_lat": 41.3275,
+    "capital_lon": 19.8187
   },
-    {    
+  {
     "name": "Solomon Islands",
-    "capital": ["Honiara"],    
-
-    "official_language": ["English"],
-
+    "capital": [
+      "Honiara"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 28896,
-
     "population": 828857,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1680000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 1681000000,
-    "gdp_year": 2024,    
-
-    "currency": ["SBD"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "SBD"
+    ],
     "iso_alpha2": "SB",
     "continent": "Oceania",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": -9.4319,
+    "capital_lon": 159.9556
   },
-    {    
+  {
     "name": "Armenia",
-    "capital": ["Yerevan"],    
-
-    "official_language": ["Armenian"],
-
+    "capital": [
+      "Yerevan"
+    ],
+    "official_language": [
+      "Armenian"
+    ],
     "area_km2": 29743,
-
     "population": 3081100,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 74407000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 27859000000,
-    "gdp_year": 2025,    
-
-    "currency": ["AMD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "AMD"
+    ],
     "iso_alpha2": "AM",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 40.1792,
+    "capital_lon": 44.4991
   },
-    {    
+  {
     "name": "Lesotho",
-    "capital": ["Maseru"],    
-
-    "official_language": ["Sesotho", "English"],
-
+    "capital": [
+      "Maseru"
+    ],
+    "official_language": [
+      "Sesotho",
+      "English"
+    ],
     "area_km2": 30355,
-
     "population": 2210646,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 6915000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 2373000000,
-    "gdp_year": 2023,    
-
-    "currency": ["LSL", "ZAR"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "LSL",
+      "ZAR"
+    ],
     "iso_alpha2": "LS",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -29.3151,
+    "capital_lon": 27.4869
   },
-    {    
+  {
     "name": "Belgium",
-    "capital": ["City of Brussels"],    
-
-    "official_language": ["Dutch", "French", "German"],
-
+    "capital": [
+      "City of Brussels"
+    ],
+    "official_language": [
+      "Dutch",
+      "French",
+      "German"
+    ],
     "area_km2": 30689,
-
     "population": 11825551,
     "population_year": 2025,
     "population_estimate": false,
-
     "gdp_ppp_usd": 889833000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 689364000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "BE",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 50.8503,
+    "capital_lon": 4.3517
   },
-    {    
+  {
     "name": "Moldova",
-    "capital": ["Chișinău"],    
-
-    "official_language": ["Romanian"],
-
+    "capital": [
+      "Chișinău"
+    ],
+    "official_language": [
+      "Romanian"
+    ],
     "area_km2": 33843,
-
     "population": 2409207,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 46651000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 19620000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MDL"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MDL"
+    ],
     "iso_alpha2": "MD",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 47.0105,
+    "capital_lon": 28.8638
   },
-    {    
+  {
     "name": "Guinea-Bissau",
-    "capital": ["Bissau"],    
-
-    "official_language": ["Portuguese"],
-
+    "capital": [
+      "Bissau"
+    ],
+    "official_language": [
+      "Portuguese"
+    ],
     "area_km2": 36125,
-
     "population": 2080000,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 6620000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 2270000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "GW",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 11.8817,
+    "capital_lon": -15.6178
   },
-    {    
+  {
     "name": "Taiwan",
-    "capital": ["Taipei"],    
-
-    "official_language": ["Standard Chinese"],
-
+    "capital": [
+      "Taipei"
+    ],
+    "official_language": [
+      "Standard Chinese"
+    ],
     "area_km2": 36197,
-
     "population": 23829897,
     "population_year": 2020,
     "population_estimate": false,
-
     "gdp_ppp_usd": 1966000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 805000000,
-    "gdp_year": 2025,    
-
-    "currency": ["TWD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "TWD"
+    ],
     "iso_alpha2": "TW",
     "continent": "Asia",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 25.033,
+    "capital_lon": 121.5654
   },
-    {    
+  {
     "name": "Bhutan",
-    "capital": ["Thimphu"],    
-
-    "official_language": ["Dzongkha"],
-
+    "capital": [
+      "Thimphu"
+    ],
+    "official_language": [
+      "Dzongkha"
+    ],
     "area_km2": 38394,
-
     "population": 727145,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 14110000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 3420000000,
-    "gdp_year": 2025,    
-
-    "currency": ["BTN", "INR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "BTN",
+      "INR"
+    ],
     "iso_alpha2": "BT",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 27.4728,
+    "capital_lon": 89.639
   },
-    {    
+  {
     "name": "Switzerland",
-    "capital": ["Bern"],    
-
-    "official_language": ["German", "French", "Italian", "Romansh"],
-
+    "capital": [
+      "Bern"
+    ],
+    "official_language": [
+      "German",
+      "French",
+      "Italian",
+      "Romansh"
+    ],
     "area_km2": 41291,
-
     "population": 9060598,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 881083000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1003000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["CHF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "CHF"
+    ],
     "iso_alpha2": "CH",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 46.948,
+    "capital_lon": 7.4474
   },
-    {    
+  {
     "name": "Netherlands",
-    "capital": ["Amsterdam"],    
-
-    "official_language": ["Dutch"],
-
+    "capital": [
+      "Amsterdam"
+    ],
+    "official_language": [
+      "Dutch"
+    ],
     "area_km2": 41865,
-
     "population": 18044027,
     "population_year": 2025,
     "population_estimate": false,
-
     "gdp_ppp_usd": 1581000000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 1326000000000,
-    "gdp_year": 2026,    
-
-    "currency": ["EUR", "USD"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "EUR",
+      "USD"
+    ],
     "iso_alpha2": "NL",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 52.3676,
+    "capital_lon": 4.9041
   },
-    {    
+  {
     "name": "Estonia",
-    "capital": ["Tallinn"],    
-
-    "official_language": ["Estonian"],
-
+    "capital": [
+      "Tallinn"
+    ],
+    "official_language": [
+      "Estonian"
+    ],
     "area_km2": 45335,
-
     "population": 1362954,
     "population_year": 2026,
     "population_estimate": true,
-
     "gdp_ppp_usd": 68240000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 45000000000,
-    "gdp_year": 2026,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "EE",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 59.437,
+    "capital_lon": 24.7536
   },
-    {    
+  {
     "name": "Dominican Republic",
-    "capital": ["Santo Domingo"],    
-
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Santo Domingo"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 48671,
-
     "population": 11532151,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 334292000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 135545000000,
-    "gdp_year": 2025,    
-
-    "currency": ["DOP"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "DOP"
+    ],
     "iso_alpha2": "DO",
     "continent": "North America",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 18.4861,
+    "capital_lon": -69.9312
   },
-    {    
+  {
     "name": "Slovakia",
-    "capital": ["Bratislava"],    
-
-    "official_language": ["Slovak"],
-
+    "capital": [
+      "Bratislava"
+    ],
+    "official_language": [
+      "Slovak"
+    ],
     "area_km2": 49035,
-
     "population": 5449270,
     "population_year": 2021,
     "population_estimate": false,
-
     "gdp_ppp_usd": 256710000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 152480000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "SK",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 48.1486,
+    "capital_lon": 17.1077
   },
-    {    
+  {
     "name": "Costa Rica",
-    "capital": ["San José"],    
-
-    "official_language": ["Spanish", "Mekatelyu", "Bribri", "Patois"],
-
+    "capital": [
+      "San José"
+    ],
+    "official_language": [
+      "Spanish",
+      "Mekatelyu",
+      "Bribri",
+      "Patois"
+    ],
     "area_km2": 51179.92,
-
     "population": 5044197,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 169034000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 102591000000,
-    "gdp_year": 2025,    
-
-    "currency": ["CRC"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "CRC"
+    ],
     "iso_alpha2": "CR",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 9.9281,
+    "capital_lon": -84.0907
   },
-    {    
+  {
     "name": "Bosnia and Herzegovina",
-    "capital": ["Sarajevo"],    
-
-    "official_language": ["Bosnian", "Croatian", "Serbian"],
-
+    "capital": [
+      "Sarajevo"
+    ],
+    "official_language": [
+      "Bosnian",
+      "Croatian",
+      "Serbian"
+    ],
     "area_km2": 51209,
-
     "population": 3531159,
     "population_year": 2013,
     "population_estimate": false,
-
     "gdp_ppp_usd": 82230000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 36240000000,
-    "gdp_year": 2026,    
-
-    "currency": ["BAM"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "BAM"
+    ],
     "iso_alpha2": "BA",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 43.8563,
+    "capital_lon": 18.4131
   },
-    {    
+  {
     "name": "Croatia",
-    "capital": ["Zagreb"],    
-
-    "official_language": ["Croatian"],
-
+    "capital": [
+      "Zagreb"
+    ],
+    "official_language": [
+      "Croatian"
+    ],
     "area_km2": 56561,
-
     "population": 3871833,
     "population_year": 2021,
     "population_estimate": false,
-
     "gdp_ppp_usd": 207400000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 113130000000,
-    "gdp_year": 2026,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "HR",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 45.815,
+    "capital_lon": 15.9819
   },
-    {    
+  {
     "name": "Togo",
-    "capital": ["Lomé"],    
-
-    "official_language": ["French"],
-
+    "capital": [
+      "Lomé"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 56785,
-
     "population": 9583381,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 33050000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 10020000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "TG",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 6.1725,
+    "capital_lon": 1.2314
   },
-    {    
+  {
     "name": "Latvia",
-    "capital": ["Riga"],    
-
-    "official_language": ["Latvian"],
-
+    "capital": [
+      "Riga"
+    ],
+    "official_language": [
+      "Latvian"
+    ],
     "area_km2": 64589,
-
     "population": 1842226,
     "population_year": 2022,
     "population_estimate": true,
-
     "gdp_ppp_usd": 82400000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 47880000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "LV",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 56.9496,
+    "capital_lon": 24.1052
   },
-    {    
+  {
     "name": "Lithuania",
-    "capital": ["Vilnius"],    
-
-    "official_language": ["Lithuanian"],
-
+    "capital": [
+      "Vilnius"
+    ],
+    "official_language": [
+      "Lithuanian"
+    ],
     "area_km2": 65300,
-
     "population": 2897430,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 165230000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 95270000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "LT",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 54.6872,
+    "capital_lon": 25.2797
   },
-    {    
+  {
     "name": "Sri Lanka",
-    "capital": ["Sri Jayawardenepura", "Kotte (l)", "Colombo (exe. and jud.)"],
-    
-    "official_language": ["Sinhala", "Tamil"],
-
+    "capital": [
+      "Sri Jayawardenepura",
+      "Kotte (l)",
+      "Colombo (exe. and jud.)"
+    ],
+    "official_language": [
+      "Sinhala",
+      "Tamil"
+    ],
     "area_km2": 67240,
-
     "population": 23300000,
     "population_year": 2026,
     "population_estimate": true,
-
-    "gdp_ppp_usd": 342600000000 ,
+    "gdp_ppp_usd": 342600000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 98900000000,
-    "gdp_year": 2024,    
-
-    "currency": ["LKR"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "LKR"
+    ],
     "iso_alpha2": "LK",
     "continent": "Asia",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 6.9271,
+    "capital_lon": 79.8612
   },
-    {    
+  {
     "name": "Georgia",
-    "capital": ["Tbilisi"],
-    
-    "official_language": ["Georgian", "Abkhaz"],
-
+    "capital": [
+      "Tbilisi"
+    ],
+    "official_language": [
+      "Georgian",
+      "Abkhaz"
+    ],
     "area_km2": 69700,
-
     "population": 3657000,
     "population_year": 2024,
     "population_estimate": false,
-
-    "gdp_ppp_usd": 113580000000 ,
+    "gdp_ppp_usd": 113580000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 35350000000,
-    "gdp_year": 2025,    
-
-    "currency": ["GEL"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "GEL"
+    ],
     "iso_alpha2": "GE",
     "continent": "Europe",
-    "continent_secondary": "Asia"
+    "continent_secondary": "Asia",
+    "capital_lat": 41.7151,
+    "capital_lon": 44.8271
   },
-    {    
+  {
     "name": "Republic of Ireland",
-    "capital": ["Dublin"],
-    
-    "official_language": ["Irish", "English"],
-
+    "capital": [
+      "Dublin"
+    ],
+    "official_language": [
+      "Irish",
+      "English"
+    ],
     "area_km2": 70273,
-
     "population": 5458600,
     "population_year": 2022,
     "population_estimate": false,
-
-    "gdp_ppp_usd": 736730000000 ,
+    "gdp_ppp_usd": 736730000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 598840000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "IE",
     "continent": "Europe",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 53.3498,
+    "capital_lon": -6.2603
   },
-    {    
+  {
     "name": "Sierra Leone",
-    "capital": ["Freetown"],
-    
-    "official_language": ["English", "Krio"],
-
+    "capital": [
+      "Freetown"
+    ],
+    "official_language": [
+      "English",
+      "Krio"
+    ],
     "area_km2": 73252,
-
     "population": 8460512,
     "population_year": 2023,
     "population_estimate": true,
-
-    "gdp_ppp_usd": 32510000000 ,
+    "gdp_ppp_usd": 32510000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 8390000000,
-    "gdp_year": 2025,    
-
-    "currency": ["SLE"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "SLE"
+    ],
     "iso_alpha2": "SL",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 8.4657,
+    "capital_lon": -13.2317
   },
-    {    
+  {
     "name": "Panama",
-    "capital": ["Panama City"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Panama City"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 75417,
-
     "population": 4337768,
     "population_year": 2022,
     "population_estimate": true,
-
     "gdp_ppp_usd": 195279000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 91731000000,
-    "gdp_year": 2025,    
-
-    "currency": ["PAB", "USD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "PAB",
+      "USD"
+    ],
     "iso_alpha2": "PA",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 8.9824,
+    "capital_lon": -79.5199
   },
-    {    
+  {
     "name": "Czech Republic",
-    "capital": ["Prague"],
-    
-    "official_language": ["Czech"],
-
+    "capital": [
+      "Prague"
+    ],
+    "official_language": [
+      "Czech"
+    ],
     "area_km2": 78871,
-
     "population": 10900555,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 619881000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 342992000000,
-    "gdp_year": 2024,    
-
-    "currency": ["CZK"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "CZK"
+    ],
     "iso_alpha2": "CZ",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 50.0755,
+    "capital_lon": 14.4378
   },
-    {    
+  {
     "name": "United Arab Emirates",
-    "capital": ["Abu Dhabi"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Abu Dhabi"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 83600,
-
     "population": 11027129,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 905230000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 548600000000,
-    "gdp_year": 2025,    
-
-    "currency": ["AED"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "AED"
+    ],
     "iso_alpha2": "AE",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 24.4539,
+    "capital_lon": 54.3773
   },
-    {    
+  {
     "name": "Austria",
-    "capital": ["Vienna"],
-    
-    "official_language": ["Austrian German"],
-
+    "capital": [
+      "Vienna"
+    ],
+    "official_language": [
+      "Austrian German"
+    ],
     "area_km2": 83879,
-
     "population": 9110079,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 682860000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 534300000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "AT",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 48.2082,
+    "capital_lon": 16.3738
   },
-    {    
+  {
     "name": "Azerbaijan",
-    "capital": ["Baku"],
-    
-    "official_language": ["Azerbaijani"],
-
+    "capital": [
+      "Baku"
+    ],
+    "official_language": [
+      "Azerbaijani"
+    ],
     "area_km2": 86600,
-
     "population": 10353296,
     "population_year": 2022,
     "population_estimate": true,
-
     "gdp_ppp_usd": 272000000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 79000000000,
-    "gdp_year": 2024,    
-
-    "currency": ["AZN"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "AZN"
+    ],
     "iso_alpha2": "AZ",
     "continent": "Asia",
-    "continent_secondary": "Europe"
+    "continent_secondary": "Europe",
+    "capital_lat": 40.4093,
+    "capital_lon": 49.8671
   },
-    {    
+  {
     "name": "Serbia",
-    "capital": ["Belgrade"],
-    
-    "official_language": ["Serbian"],
-
+    "capital": [
+      "Belgrade"
+    ],
+    "official_language": [
+      "Serbian"
+    ],
     "area_km2": 88499,
-
     "population": 6647003,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 225550000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 112110000000,
-    "gdp_year": 2026,    
-
-    "currency": ["RSD"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "RSD"
+    ],
     "iso_alpha2": "RS",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 44.7866,
+    "capital_lon": 20.4489
   },
-    {    
+  {
     "name": "Jordan",
-    "capital": ["Amman"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Amman"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 89342,
-
     "population": 11484805,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 132092000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 50022000000,
-    "gdp_year": 2023,    
-
-    "currency": ["JOD"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "JOD"
+    ],
     "iso_alpha2": "JO",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 31.9454,
+    "capital_lon": 35.9284
   },
-    {    
+  {
     "name": "Portugal",
-    "capital": ["Lisbon"],
-    
-    "official_language": ["Portuguese"],
-
+    "capital": [
+      "Lisbon"
+    ],
+    "official_language": [
+      "Portuguese"
+    ],
     "area_km2": 92230,
-
     "population": 10749635,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 535210000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 337936000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "PT",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 38.7223,
+    "capital_lon": -9.1393
   },
-    {    
+  {
     "name": "Hungary",
-    "capital": ["Budapest"],
-    
-    "official_language": ["Hungarian"],
-
+    "capital": [
+      "Budapest"
+    ],
+    "official_language": [
+      "Hungarian"
+    ],
     "area_km2": 93030,
-
     "population": 9603634,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 460380000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 247760000000,
-    "gdp_year": 2025,    
-
-    "currency": ["HUF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "HUF"
+    ],
     "iso_alpha2": "HU",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 47.4979,
+    "capital_lon": 19.0402
   },
-    {    
+  {
     "name": "South Korea",
-    "capital": ["Seoul"],
-    
-    "official_language": ["Korean (Pyojuneo)", "Korean Sign Language"],
-
+    "capital": [
+      "Seoul"
+    ],
+    "official_language": [
+      "Korean (Pyojuneo)",
+      "Korean Sign Language"
+    ],
     "area_km2": 100363,
-
     "population": 52081799,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 3363000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1859000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["KRW"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "KRW"
+    ],
     "iso_alpha2": "KR",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 37.5665,
+    "capital_lon": 126.978
   },
-    {    
+  {
     "name": "Iceland",
-    "capital": ["Reykjavík"],
-    
-    "official_language": ["Icelandic"],
-
+    "capital": [
+      "Reykjavík"
+    ],
+    "official_language": [
+      "Icelandic"
+    ],
     "area_km2": 103125,
-
     "population": 393160,
     "population_year": 2025,
     "population_estimate": false,
-
     "gdp_ppp_usd": 31076000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 35310000000,
-    "gdp_year": 2025,    
-
-    "currency": ["ISK"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "ISK"
+    ],
     "iso_alpha2": "IS",
     "continent": "Europe",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 64.1466,
+    "capital_lon": -21.9426
   },
-    {    
+  {
     "name": "Guatemala",
-    "capital": ["Guatemala City"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Guatemala City"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 108889,
-
     "population": 18255216,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 278508000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 120964000000,
-    "gdp_year": 2025,    
-
-    "currency": ["GTQ"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "GTQ"
+    ],
     "iso_alpha2": "GT",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 14.6349,
+    "capital_lon": -90.5069
   },
-    {    
+  {
     "name": "Cuba",
-    "capital": ["Havana"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Havana"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 110860,
-
     "population": 11089511,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 254865000000,
     "gdp_ppp_year": 2015,
-
     "gdp_nominal_usd": 201986000000,
-    "gdp_year": 2023,    
-
-    "currency": ["CUP"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "CUP"
+    ],
     "iso_alpha2": "CU",
     "continent": "North America",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 23.1136,
+    "capital_lon": -82.3666
   },
-    {    
+  {
     "name": "Bulgaria",
-    "capital": ["Sofia"],
-    
-    "official_language": ["Bulgarian"],
-
+    "capital": [
+      "Sofia"
+    ],
+    "official_language": [
+      "Bulgarian"
+    ],
     "area_km2": 110993.6,
-
     "population": 6519789,
     "population_year": 2021,
     "population_estimate": false,
-
     "gdp_ppp_usd": 264699000000,
     "gdp_ppp_year": 2015,
-
     "gdp_nominal_usd": 117007000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "BG",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 42.6977,
+    "capital_lon": 23.3219
   },
-    {    
+  {
     "name": "Liberia",
-    "capital": ["Monrovia"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Monrovia"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 111370,
-
     "population": 5437249,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 11420000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 5170000000,
-    "gdp_year": 2025,    
-
-    "currency": ["USD", "LRD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "USD",
+      "LRD"
+    ],
     "iso_alpha2": "LR",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 6.2907,
+    "capital_lon": -10.7605
   },
-    {    
+  {
     "name": "Honduras",
-    "capital": ["Tegucigalpa"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Tegucigalpa"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 112492,
-
     "population": 9571352,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 86290000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 39450000000,
-    "gdp_year": 2025,    
-
-    "currency": ["HNL"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "HNL"
+    ],
     "iso_alpha2": "HN",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 14.0723,
+    "capital_lon": -87.1921
   },
-    {    
+  {
     "name": "Benin",
-    "capital": ["Porto-Novo"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Porto-Novo"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 114763,
-
     "population": 13754688,
     "population_year": 2022,
     "population_estimate": true,
-
     "gdp_ppp_usd": 59241000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 19940000000,
-    "gdp_year": 2023,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "BJ",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 6.4969,
+    "capital_lon": 2.6289
   },
-    {    
+  {
     "name": "Eritrea",
-    "capital": ["Asmara"],
-    
-    "official_language": ["None (working languages: Tigrinya, Arabic, English)"],
-
+    "capital": [
+      "Asmara"
+    ],
+    "official_language": [
+      "None (working languages: Tigrinya, Arabic, English)"
+    ],
     "area_km2": 120000,
-
     "population": 4950000,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 6369000000,
     "gdp_ppp_year": 2019,
-
     "gdp_nominal_usd": 1982000000,
-    "gdp_year": 2019,    
-
-    "currency": ["ERN"],    
-
+    "gdp_year": 2019,
+    "currency": [
+      "ERN"
+    ],
     "iso_alpha2": "ER",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 15.3229,
+    "capital_lon": 38.9251
   },
-    {    
+  {
     "name": "Malawi",
-    "capital": ["Lilongwe"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Lilongwe"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 118484,
-
     "population": 21240689,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 37919000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 13176000000,
-    "gdp_year": 2023,    
-
-    "currency": ["MWK"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "MWK"
+    ],
     "iso_alpha2": "MW",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -13.9626,
+    "capital_lon": 33.7741
   },
-    {    
+  {
     "name": "North Korea",
-    "capital": ["Pyongyang"],
-    
-    "official_language": ["Korean"],
-
+    "capital": [
+      "Pyongyang"
+    ],
+    "official_language": [
+      "Korean"
+    ],
     "area_km2": 120538,
-
     "population": 26298666,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 15416000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 32036000000,
-    "gdp_year": 2024,    
-
-    "currency": ["KPW"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "KPW"
+    ],
     "iso_alpha2": "KP",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 39.0392,
+    "capital_lon": 125.7625
   },
-    {    
+  {
     "name": "Nicaragua",
-    "capital": ["Managua"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Managua"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 130375,
-
     "population": 6676948,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 56697000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 17843000000,
-    "gdp_year": 2024,    
-
-    "currency": ["NIO"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "NIO"
+    ],
     "iso_alpha2": "NI",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 12.115,
+    "capital_lon": -86.2362
   },
-    {    
+  {
     "name": "Greece",
-    "capital": ["Athens"],
-    
-    "official_language": ["Greek"],
-
+    "capital": [
+      "Athens"
+    ],
+    "official_language": [
+      "Greek"
+    ],
     "area_km2": 131957,
-
     "population": 10432481,
     "population_year": 2021,
     "population_estimate": false,
-
     "gdp_ppp_usd": 466945000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 282019000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "GR",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 37.9838,
+    "capital_lon": 23.7275
   },
-    {    
+  {
     "name": "Tajikistan",
-    "capital": ["Dushanbe"],
-    
-    "official_language": ["Tajik", "Russian"],
-
+    "capital": [
+      "Dushanbe"
+    ],
+    "official_language": [
+      "Tajik",
+      "Russian"
+    ],
     "area_km2": 143100,
-
     "population": 10786734,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 59415000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 12953000000,
-    "gdp_year": 2024,    
-
-    "currency": ["TJS"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "TJS"
+    ],
     "iso_alpha2": "TJ",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 38.5598,
+    "capital_lon": 68.787
   },
-    {    
+  {
     "name": "Nepal",
-    "capital": ["Kathmandu"],
-    
-    "official_language": ["Nepali"],
-
+    "capital": [
+      "Kathmandu"
+    ],
+    "official_language": [
+      "Nepali"
+    ],
     "area_km2": 147516,
-
     "population": 31122387,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 169120000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 43673000000,
-    "gdp_year": 2024,    
-
-    "currency": ["NPR"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "NPR"
+    ],
     "iso_alpha2": "NP",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 27.7172,
+    "capital_lon": 85.324
   },
-    {    
+  {
     "name": "Bangladesh",
-    "capital": ["Dhaka"],
-    
-    "official_language": ["Bengali"],
-
+    "capital": [
+      "Dhaka"
+    ],
+    "official_language": [
+      "Bengali"
+    ],
     "area_km2": 148460,
-
     "population": 171466990,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1780000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 475010000000,
-    "gdp_year": 2025,    
-
-    "currency": ["BDT"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "BDT"
+    ],
     "iso_alpha2": "BP",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 23.8103,
+    "capital_lon": 90.4125
   },
-    {    
+  {
     "name": "Tunisia",
-    "capital": ["Tunis"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Tunis"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 163610,
-
     "population": 11972169,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 183730000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 56290000000,
-    "gdp_year": 2025,    
-
-    "currency": ["TND"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "TND"
+    ],
     "iso_alpha2": "TN",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 36.8065,
+    "capital_lon": 10.1815
   },
-    {    
+  {
     "name": "Suriname",
-    "capital": ["Paramaribo"],
-    
-    "official_language": ["Dutch"],
-
+    "capital": [
+      "Paramaribo"
+    ],
+    "official_language": [
+      "Dutch"
+    ],
     "area_km2": 165940,
-
     "population": 632638,
     "population_year": 2022,
     "population_estimate": true,
-
     "gdp_ppp_usd": 14743000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 4506000000,
-    "gdp_year": 2025,    
-
-    "currency": ["SRD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "SRD"
+    ],
     "iso_alpha2": "SR",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 5.852,
+    "capital_lon": -55.2038
   },
-    {    
+  {
     "name": "Uruguay",
-    "capital": ["Montevideo"],
-    
-    "official_language": ["Spanish", "Uruguayan Sign Language"],
-
+    "capital": [
+      "Montevideo"
+    ],
+    "official_language": [
+      "Spanish",
+      "Uruguayan Sign Language"
+    ],
     "area_km2": 176215,
-
     "population": 3499451,
     "population_year": 2023,
     "population_estimate": false,
-
     "gdp_ppp_usd": 107946000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 82605000000,
-    "gdp_year": 2024,    
-
-    "currency": ["UYU"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "UYU"
+    ],
     "iso_alpha2": "UY",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -34.9011,
+    "capital_lon": -56.1645
   },
-    {    
+  {
     "name": "Cambodia",
-    "capital": ["Phnom Penh"],
-    
-    "official_language": ["Khmer"],
-
+    "capital": [
+      "Phnom Penh"
+    ],
+    "official_language": [
+      "Khmer"
+    ],
     "area_km2": 181035,
-
     "population": 17638801,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 150050000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 49800000000,
-    "gdp_year": 2025,    
-
-    "currency": ["KHR", "USD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "KHR",
+      "USD"
+    ],
     "iso_alpha2": "KH",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 11.5564,
+    "capital_lon": 104.9282
   },
-    {    
+  {
     "name": "Syria",
-    "capital": ["Damascus"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Damascus"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 185180,
-
     "population": 26019711,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 50280000000,
     "gdp_ppp_year": 2021,
-
     "gdp_nominal_usd": 9800000000,
-    "gdp_year": 2022,    
-
-    "currency": ["SYP"],    
-
+    "gdp_year": 2022,
+    "currency": [
+      "SYP"
+    ],
     "iso_alpha2": "SY",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 33.5138,
+    "capital_lon": 36.2765
   },
-    {    
+  {
     "name": "Senegal",
-    "capital": ["Dakar"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Dakar"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 196722,
-
     "population": 18847519,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 105428000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 34728000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "SN",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 14.7167,
+    "capital_lon": -17.4677
   },
-    {    
+  {
     "name": "Kyrgyzstan",
-    "capital": ["Bishkek"],
-    
-    "official_language": ["Kyrgyz (state)", "Russian (official)"],
-
+    "capital": [
+      "Bishkek"
+    ],
+    "official_language": [
+      "Kyrgyz (state)",
+      "Russian (official)"
+    ],
     "area_km2": 200105,
-
     "population": 7300000,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 64110000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 22587000000,
-    "gdp_year": 2025,    
-
-    "currency": ["KGS"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "KGS"
+    ],
     "iso_alpha2": "KG",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 42.8746,
+    "capital_lon": 74.5698
   },
-    {    
+  {
     "name": "Belarus",
-    "capital": ["Minsk"],
-    
-    "official_language": ["Belarusian", "Russian"],
-
+    "capital": [
+      "Minsk"
+    ],
+    "official_language": [
+      "Belarusian",
+      "Russian"
+    ],
     "area_km2": 207600,
-
     "population": 9109280,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 221186000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 68864000000,
-    "gdp_year": 2023,    
-
-    "currency": ["BYN"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "BYN"
+    ],
     "iso_alpha2": "BY",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 53.9006,
+    "capital_lon": 27.559
   },
-    {    
+  {
     "name": "Guyana",
-    "capital": ["Georgetown"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Georgetown"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 214969,
-
     "population": 950986,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 75294000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 25822000000,
-    "gdp_year": 2025,    
-
-    "currency": ["GYD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "GYD"
+    ],
     "iso_alpha2": "GY",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 6.8013,
+    "capital_lon": -58.1551
   },
-    {    
+  {
     "name": "Laos",
-    "capital": ["Vientiane"],
-    
-    "official_language": ["Lao"],
-
+    "capital": [
+      "Vientiane"
+    ],
+    "official_language": [
+      "Lao"
+    ],
     "area_km2": 236800,
-
     "population": 7953556,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 78850000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 16320000000,
-    "gdp_year": 2025,    
-
-    "currency": ["LAK"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "LAK"
+    ],
     "iso_alpha2": "LA",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 17.9757,
+    "capital_lon": 102.6331
   },
-    {    
+  {
     "name": "Romania",
-    "capital": ["Bucharest"],
-    
-    "official_language": ["Romanian"],
-
+    "capital": [
+      "Bucharest"
+    ],
+    "official_language": [
+      "Romanian"
+    ],
     "area_km2": 238397,
-
     "population": 19053815,
     "population_year": 2021,
     "population_estimate": false,
-
     "gdp_ppp_usd": 919881000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 422508000000,
-    "gdp_year": 2025,    
-
-    "currency": ["RON"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "RON"
+    ],
     "iso_alpha2": "RO",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 44.4268,
+    "capital_lon": 26.1025
   },
-    {    
+  {
     "name": "Ghana",
-    "capital": ["Accra"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Accra"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 240000,
-
     "population": 35039451,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 295120000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 88033000000,
-    "gdp_year": 2025,    
-
-    "currency": ["GHS"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "GHS"
+    ],
     "iso_alpha2": "GH",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 5.6037,
+    "capital_lon": -0.187
   },
-    {    
+  {
     "name": "Uganda",
-    "capital": ["Kampala"],
-    
-    "official_language": ["English", "Swahili"],
-
+    "capital": [
+      "Kampala"
+    ],
+    "official_language": [
+      "English",
+      "Swahili"
+    ],
     "area_km2": 241038,
-
     "population": 45905417,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 187110000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 64280000000,
-    "gdp_year": 2025,    
-
-    "currency": ["UGX"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "UGX"
+    ],
     "iso_alpha2": "UG",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 0.3476,
+    "capital_lon": 32.5825
   },
-    {    
+  {
     "name": "United Kingdom",
-    "capital": ["London"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "London"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 244376,
-
     "population": 69281437,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 4455000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 3959000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["GBP"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "GBP"
+    ],
     "iso_alpha2": "GB",
     "continent": "Europe",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 51.5074,
+    "capital_lon": -0.1278
   },
-    {    
+  {
     "name": "Guinea",
-    "capital": ["Conakry"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Conakry"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 245857,
-
     "population": 13986179,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 4455000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 30090000000,
-    "gdp_year": 2025,    
-
-    "currency": ["GNF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "GNF"
+    ],
     "iso_alpha2": "GN",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 9.6412,
+    "capital_lon": -13.5784
   },
-    {    
+  {
     "name": "Gabon",
-    "capital": ["Libreville"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Libreville"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 267668,
-
     "population": 2397368,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 57054000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 21455000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XAF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XAF"
+    ],
     "iso_alpha2": "GA",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 0.4162,
+    "capital_lon": 9.4673
   },
-    {    
+  {
     "name": "New Zealand",
-    "capital": ["Wellington"],
-    
-    "official_language": ["English", "Māori", "NZ Sign Language"],
-
+    "capital": [
+      "Wellington"
+    ],
+    "official_language": [
+      "English",
+      "Māori",
+      "NZ Sign Language"
+    ],
     "area_km2": 263310,
-
     "population": 5341050,
     "population_year": 2026,
     "population_estimate": true,
-
     "gdp_ppp_usd": 298930000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 248670000000,
-    "gdp_year": 2025,    
-
-    "currency": ["NZD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "NZD"
+    ],
     "iso_alpha2": "NZ",
     "continent": "Oceania",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": -41.2865,
+    "capital_lon": 174.7762
   },
-    {    
+  {
     "name": "Burkina Faso",
-    "capital": ["Ouagadougou"],
-    
-    "official_language": ["Mooré", "Dyula", "Fula"],
-
+    "capital": [
+      "Ouagadougou"
+    ],
+    "official_language": [
+      "Mooré",
+      "Dyula",
+      "Fula"
+    ],
     "area_km2": 274223,
-
     "population": 22489126,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 72820000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 27060000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "BF",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 12.3714,
+    "capital_lon": -1.5197
   },
-    {    
+  {
     "name": "Ecuador",
-    "capital": ["Quito"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Quito"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 283561,
-
     "population": 17483326,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 304230000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 130530000000,
-    "gdp_year": 2025,    
-
-    "currency": ["USD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "USD"
+    ],
     "iso_alpha2": "EC",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -0.1807,
+    "capital_lon": -78.4678
   },
-    {    
+  {
     "name": "Philippines",
-    "capital": ["Manila (de jure)", "Metro Manila (de facto)"],
-    
-    "official_language": ["Filipino", "English"],
-
+    "capital": [
+      "Manila (de jure)",
+      "Metro Manila (de facto)"
+    ],
+    "official_language": [
+      "Filipino",
+      "English"
+    ],
     "area_km2": 300000,
-
     "population": 112729484,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 1488000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 497050000000,
-    "gdp_year": 2025,    
-
-    "currency": ["PHP"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "PHP"
+    ],
     "iso_alpha2": "PH",
     "continent": "Asia",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 14.5995,
+    "capital_lon": 120.9842
   },
-    {    
+  {
     "name": "Italy",
-    "capital": ["Rome"],
-    
-    "official_language": ["Italian"],
-
+    "capital": [
+      "Rome"
+    ],
+    "official_language": [
+      "Italian"
+    ],
     "area_km2": 301340,
-
     "population": 58915561,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 3719000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 2423000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "IT",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 41.9028,
+    "capital_lon": 12.4964
   },
-    {    
+  {
     "name": "Oman",
-    "capital": ["Muscat"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Muscat"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 315331,
-
     "population": 5494691,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 231160000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 104350000000,
-    "gdp_year": 2025,    
-
-    "currency": ["OMR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "OMR"
+    ],
     "iso_alpha2": "OM",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 23.5859,
+    "capital_lon": 58.4059
   },
-    {    
+  {
     "name": "Poland",
-    "capital": ["Warsaw"],
-    
-    "official_language": ["Polish"],
-
+    "capital": [
+      "Warsaw"
+    ],
+    "official_language": [
+      "Polish"
+    ],
     "area_km2": 312696,
-
     "population": 38036118,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 2019000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1039000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["PLN"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "PLN"
+    ],
     "iso_alpha2": "PL",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 52.2297,
+    "capital_lon": 21.0122
   },
-    {    
+  {
     "name": "Ivory Coast",
-    "capital": ["Yamoussoukro"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Yamoussoukro"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 322462,
-
     "population": 31500000,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 202647000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 79430000000,
-    "gdp_year": 2023,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "CI",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 6.8276,
+    "capital_lon": -5.2893
   },
-    {    
+  {
     "name": "Malaysia",
-    "capital": ["Kuala Lumpur"],
-    
-    "official_language": ["Malay"],
-
+    "capital": [
+      "Kuala Lumpur"
+    ],
+    "official_language": [
+      "Malay"
+    ],
     "area_km2": 330803,
-
     "population": 34564810,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1478000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 470572000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MYR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MYR"
+    ],
     "iso_alpha2": "MY",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 3.139,
+    "capital_lon": 101.6869
   },
-    {    
+  {
     "name": "Vietnam",
-    "capital": ["Hanoi"],
-    
-    "official_language": ["Vietnamese"],
-
+    "capital": [
+      "Hanoi"
+    ],
+    "official_language": [
+      "Vietnamese"
+    ],
     "area_km2": 331344.82,
-
     "population": 34564810,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 102300000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 490970000000,
-    "gdp_year": 2025,    
-
-    "currency": ["VND"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "VND"
+    ],
     "iso_alpha2": "VN",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 21.0278,
+    "capital_lon": 105.8342
   },
-    {    
+  {
     "name": "Finland",
-    "capital": ["Helsinki"],
-    
-    "official_language": ["Finnish", "Swedish"],
-
+    "capital": [
+      "Helsinki"
+    ],
+    "official_language": [
+      "Finnish",
+      "Swedish"
+    ],
     "area_km2": 338455,
-
     "population": 5635971,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 373160000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 303950000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "FI",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 60.1699,
+    "capital_lon": 24.9384
   },
-    {    
+  {
     "name": "Republic of the Congo",
-    "capital": ["Brazzaville"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Brazzaville"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 342000,
-
     "population": 6142180,
     "population_year": 2023,
     "population_estimate": false,
-
     "gdp_ppp_usd": 42760000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 15281000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XAF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XAF"
+    ],
     "iso_alpha2": "CG",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -4.2634,
+    "capital_lon": 15.2429
   },
-    {    
+  {
     "name": "Germany",
-    "capital": ["Berlin"],
-    
-    "official_language": ["German"],
-
+    "capital": [
+      "Berlin"
+    ],
+    "official_language": [
+      "German"
+    ],
     "area_km2": 357022,
-
     "population": 82719540,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 6154000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 5014000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "DE",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 52.52,
+    "capital_lon": 13.405
   },
-    {    
+  {
     "name": "Japan",
-    "capital": ["Tokyo"],
-    
-    "official_language": ["Japanese"],
-
+    "capital": [
+      "Tokyo"
+    ],
+    "official_language": [
+      "Japanese"
+    ],
     "area_km2": 377975,
-
     "population": 126146099,
     "population_year": 2020,
     "population_estimate": false,
-
     "gdp_ppp_usd": 6758000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 4230000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["JPY"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "JPY"
+    ],
     "iso_alpha2": "JP",
     "continent": "Asia",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": 35.6762,
+    "capital_lon": 139.6503
   },
-    {    
+  {
     "name": "Norway",
-    "capital": ["Oslo"],
-    
-    "official_language": ["Norwegian", "Sámi"],
-
+    "capital": [
+      "Oslo"
+    ],
+    "official_language": [
+      "Norwegian",
+      "Sámi"
+    ],
     "area_km2": 385207,
-
-    "population":  5601049,
+    "population": 5601049,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 606590000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 504280000000,
-    "gdp_year": 2025,    
-
-    "currency": ["NOK"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "NOK"
+    ],
     "iso_alpha2": "NO",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 59.9139,
+    "capital_lon": 10.7522
   },
-    {    
+  {
     "name": "Zimbabwe",
-    "capital": ["Harare"],
-    
-    "official_language": ["Chewa", "Chibarwe", "English", "Kalanga", "Khoisan", "Nambya", "Ndau", "Ndebele", "Shangani", "Shona", "Sotho", "Tonga", "Tswana", "Venda", "Xhosa", "Zimbabwean sign language"],
-
+    "capital": [
+      "Harare"
+    ],
+    "official_language": [
+      "Chewa",
+      "Chibarwe",
+      "English",
+      "Kalanga",
+      "Khoisan",
+      "Nambya",
+      "Ndau",
+      "Ndebele",
+      "Shangani",
+      "Shona",
+      "Sotho",
+      "Tonga",
+      "Tswana",
+      "Venda",
+      "Xhosa",
+      "Zimbabwean sign language"
+    ],
     "area_km2": 390757,
-
-    "population":  16868409,
+    "population": 16868409,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 93870000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 53310000000,
-    "gdp_year": 2025,    
-
-    "currency": ["ZWG", "USD", "ZAR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "ZWG",
+      "USD",
+      "ZAR"
+    ],
     "iso_alpha2": "ZW",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -17.8292,
+    "capital_lon": 31.0522
   },
-    {    
+  {
     "name": "Paraguay",
-    "capital": ["Asunción"],
-    
-    "official_language": ["Spanish", "Guarani"],
-
+    "capital": [
+      "Asunción"
+    ],
+    "official_language": [
+      "Spanish",
+      "Guarani"
+    ],
     "area_km2": 406752,
-
     "population": 6413627,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 136442000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 45465000000,
-    "gdp_year": 2025,    
-
-    "currency": ["PYG"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "PYG"
+    ],
     "iso_alpha2": "PY",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -25.2637,
+    "capital_lon": -57.5759
   },
-    {    
+  {
     "name": "Iraq",
-    "capital": ["Baghdad"],
-    
-    "official_language": ["Arabic", "Kurdish"],
-
+    "capital": [
+      "Baghdad"
+    ],
+    "official_language": [
+      "Arabic",
+      "Kurdish"
+    ],
     "area_km2": 438317,
-
     "population": 46118793,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 690090000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 258020000000,
-    "gdp_year": 2025,    
-
-    "currency": ["IQD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "IQD"
+    ],
     "iso_alpha2": "IQ",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 33.3152,
+    "capital_lon": 44.3661
   },
-    {    
+  {
     "name": "Morocco",
-    "capital": ["Rabat"],
-    
-    "official_language": ["Arabic", "Tamazight"],
-
+    "capital": [
+      "Rabat"
+    ],
+    "official_language": [
+      "Arabic",
+      "Tamazight"
+    ],
     "area_km2": 446550,
-
     "population": 36828330,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 424870000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 165840000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MAD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MAD"
+    ],
     "iso_alpha2": "MA",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 34.0209,
+    "capital_lon": -6.8416
   },
-    {    
+  {
     "name": "Uzbekistan",
-    "capital": ["Tashkent"],
-    
-    "official_language": ["Uzbek", "Karakalpak"],
-
+    "capital": [
+      "Tashkent"
+    ],
+    "official_language": [
+      "Uzbek",
+      "Karakalpak"
+    ],
     "area_km2": 448978,
-
     "population": 38256514,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 507800000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 140480000000,
-    "gdp_year": 2025,    
-
-    "currency": ["UZS"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "UZS"
+    ],
     "iso_alpha2": "UZ",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 41.2995,
+    "capital_lon": 69.2401
   },
-    {    
+  {
     "name": "Sweden",
-    "capital": ["Stockholm"],
-    
-    "official_language": ["Swedish"],
-
+    "capital": [
+      "Stockholm"
+    ],
+    "official_language": [
+      "Swedish"
+    ],
     "area_km2": 450295,
-
     "population": 10610485,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 799680000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 620300000000,
-    "gdp_year": 2025,    
-
-    "currency": ["SEK"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "SEK"
+    ],
     "iso_alpha2": "SE",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 59.3293,
+    "capital_lon": 18.0686
   },
-    {    
+  {
     "name": "Papua New Guinea",
-    "capital": ["Port Moresby"],
-    
-    "official_language": ["English", "Hiri Motu", "PNG Sign Language", "Tok Pisin"],
-
+    "capital": [
+      "Port Moresby"
+    ],
+    "official_language": [
+      "English",
+      "Hiri Motu",
+      "PNG Sign Language",
+      "Tok Pisin"
+    ],
     "area_km2": 462840,
-
     "population": 11781559,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 41810000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 32840000000,
-    "gdp_year": 2025,    
-
-    "currency": ["PGK"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "PGK"
+    ],
     "iso_alpha2": "PG",
     "continent": "Oceania",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": -9.4438,
+    "capital_lon": 147.1803
   },
-    {    
+  {
     "name": "Cameroon",
-    "capital": ["Yaoundé"],
-    
-    "official_language": ["French", "English"],
-
+    "capital": [
+      "Yaoundé"
+    ],
+    "official_language": [
+      "French",
+      "English"
+    ],
     "area_km2": 475442,
-
     "population": 30987821,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 183320000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 67520000000,
-    "gdp_year": 2026,    
-
-    "currency": ["XAF"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "XAF"
+    ],
     "iso_alpha2": "CM",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 3.848,
+    "capital_lon": 11.5021
   },
-    {    
+  {
     "name": "Turkmenistan",
-    "capital": ["Ashgabat"],
-    
-    "official_language": ["Turkmen"],
-
+    "capital": [
+      "Ashgabat"
+    ],
+    "official_language": [
+      "Turkmen"
+    ],
     "area_km2": 491210,
-
     "population": 7057841,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 186110000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 89050000000,
-    "gdp_year": 2025,    
-
-    "currency": ["TMT"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "TMT"
+    ],
     "iso_alpha2": "TM",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 37.9601,
+    "capital_lon": 58.3261
   },
-    {    
+  {
     "name": "Spain",
-    "capital": ["Madrid"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Madrid"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 506030,
-
     "population": 49442844,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 2829000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1891000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR"
+    ],
     "iso_alpha2": "ES",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 40.4168,
+    "capital_lon": -3.7038
   },
-    {    
+  {
     "name": "Thailand",
-    "capital": ["Bangkok"],
-    
-    "official_language": ["Thai"],
-
+    "capital": [
+      "Bangkok"
+    ],
+    "official_language": [
+      "Thai"
+    ],
     "area_km2": 513120,
-
     "population": 65975198,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1853000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 558573000000,
-    "gdp_year": 2025,    
-
-    "currency": ["THB"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "THB"
+    ],
     "iso_alpha2": "TH",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 13.7563,
+    "capital_lon": 100.5018
   },
-    {    
+  {
     "name": "Yemen",
-    "capital": ["Sanaa"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Sanaa"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 455503,
-
     "population": 32684503,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 69960000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 17400000000,
-    "gdp_year": 2025,    
-
-    "currency": ["YER"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "YER"
+    ],
     "iso_alpha2": "YE",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 15.3694,
+    "capital_lon": 44.191
   },
-    {    
+  {
     "name": "Kenya",
-    "capital": ["Nairobi"],
-    
-    "official_language": ["Swahili", "English"],
-
+    "capital": [
+      "Nairobi"
+    ],
+    "official_language": [
+      "Swahili",
+      "English"
+    ],
     "area_km2": 580367,
-
     "population": 53330978,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 430220000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 140870000000,
-    "gdp_year": 2026,    
-
-    "currency": ["KES"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "KES"
+    ],
     "iso_alpha2": "KE",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -1.2921,
+    "capital_lon": 36.8219
   },
-    {    
+  {
     "name": "Botswana",
-    "capital": ["Gaborone"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Gaborone"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 581730,
-
     "population": 2359609,
     "population_year": 2022,
     "population_estimate": false,
-
     "gdp_ppp_usd": 54647000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 21900000000,
-    "gdp_year": 2024,    
-
-    "currency": ["BWP"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "BWP"
+    ],
     "iso_alpha2": "BW",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -24.6282,
+    "capital_lon": 25.9231
   },
-    {    
+  {
     "name": "Madagascar",
-    "capital": ["Antananarivo"],
-    
-    "official_language": ["Malagasy", "French"],
-
+    "capital": [
+      "Antananarivo"
+    ],
+    "official_language": [
+      "Malagasy",
+      "French"
+    ],
     "area_km2": 592796,
-
     "population": 31964956,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 56754000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 15763000000,
-    "gdp_year": 2023,    
-
-    "currency": ["MGA"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "MGA"
+    ],
     "iso_alpha2": "MG",
     "continent": "Africa",
     "continent_secondary": null,
-    "is_island": true
+    "is_island": true,
+    "capital_lat": -18.8792,
+    "capital_lon": 47.5079
   },
-    {    
+  {
     "name": "Ukraine",
-    "capital": ["Kyiv"],
-    
-    "official_language": ["Ukrainian"],
-
+    "capital": [
+      "Kyiv"
+    ],
+    "official_language": [
+      "Ukrainian"
+    ],
     "area_km2": 603628,
-
     "population": 32862000,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 690059000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 205742000000,
-    "gdp_year": 2025,    
-
-    "currency": ["UAH"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "UAH"
+    ],
     "iso_alpha2": "UA",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 50.4501,
+    "capital_lon": 30.5234
   },
-    {    
+  {
     "name": "Central African Republic",
-    "capital": ["Bangui"],
-    
-    "official_language": ["French", "Sango"],
-
+    "capital": [
+      "Bangui"
+    ],
+    "official_language": [
+      "French",
+      "Sango"
+    ],
     "area_km2": 622984,
-
     "population": 5650957,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 5678000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 2760000000,
-    "gdp_year": 2023,    
-
-    "currency": ["XAF"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "XAF"
+    ],
     "iso_alpha2": "CF",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 4.3947,
+    "capital_lon": 18.5582
   },
-    {    
+  {
     "name": "Somalia",
-    "capital": ["Mogadishu"],
-    
-    "official_language": ["Somali"],
-
+    "capital": [
+      "Mogadishu"
+    ],
+    "official_language": [
+      "Somali"
+    ],
     "area_km2": 637657,
-
     "population": 19280850,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 32500000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 12990000000,
-    "gdp_year": 2025,    
-
-    "currency": ["SOS"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "SOS"
+    ],
     "iso_alpha2": "SO",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 2.0469,
+    "capital_lon": 45.3182
   },
-    {    
+  {
     "name": "France",
-    "capital": ["Paris"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Paris"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 632702.3,
-
     "population": 69081996,
     "population_year": 2026,
     "population_estimate": true,
-
     "gdp_ppp_usd": 4504000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 3211000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EUR", "XPF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EUR",
+      "XPF"
+    ],
     "iso_alpha2": "FR",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 48.8566,
+    "capital_lon": 2.3522
   },
-    {    
+  {
     "name": "South Sudan",
-    "capital": ["Juba"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Juba"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 644329,
-
     "population": 12703714,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 15160000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 4980000000,
-    "gdp_year": 2025,    
-
-    "currency": ["SSP"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "SSP"
+    ],
     "iso_alpha2": "SS",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 4.8517,
+    "capital_lon": 31.5825
   },
-    {    
+  {
     "name": "Afghanistan",
-    "capital": ["Kabul"],
-    
-    "official_language": ["Pashto", "Dari"],
-
+    "capital": [
+      "Kabul"
+    ],
+    "official_language": [
+      "Pashto",
+      "Dari"
+    ],
     "area_km2": 652864,
-
     "population": 42500000,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 91668000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 17329000000,
-    "gdp_year": 2023,    
-
-    "currency": ["AFN"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "AFN"
+    ],
     "iso_alpha2": "AF",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 34.5553,
+    "capital_lon": 69.2075
   },
-    {    
+  {
     "name": "Myanmar",
-    "capital": ["Naypyidaw"],
-    
-    "official_language": ["Burmese", "English"],
-
+    "capital": [
+      "Naypyidaw"
+    ],
+    "official_language": [
+      "Burmese",
+      "English"
+    ],
     "area_km2": 676579,
-
     "population": 55770232,
     "population_year": 2022,
     "population_estimate": true,
-
     "gdp_ppp_usd": 273200000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 60560000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MMK"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MMK"
+    ],
     "iso_alpha2": "MM",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 19.7633,
+    "capital_lon": 96.0785
   },
-    {    
+  {
     "name": "Zambia",
-    "capital": ["Lusaka"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Lusaka"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 752617,
-
     "population": 20216029,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 83687000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 29536000000,
-    "gdp_year": 2023,    
-
-    "currency": ["ZMW"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "ZMW"
+    ],
     "iso_alpha2": "ZM",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -15.3875,
+    "capital_lon": 28.3228
   },
-    {    
+  {
     "name": "Chile",
-    "capital": ["Santiago"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Santiago"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 756101.96,
-
     "population": 19629588,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 713030000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 347170000000,
-    "gdp_year": 2025,    
-
-    "currency": ["CLP"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "CLP"
+    ],
     "iso_alpha2": "CL",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -33.4489,
+    "capital_lon": -70.6693
   },
-    {    
+  {
     "name": "Turkey",
-    "capital": ["Ankara"],
-    
-    "official_language": ["Turkish"],
-
+    "capital": [
+      "Ankara"
+    ],
+    "official_language": [
+      "Turkish"
+    ],
     "area_km2": 783562,
-
     "population": 85664944,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 3770000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1570000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["TRY"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "TRY"
+    ],
     "iso_alpha2": "TR",
     "continent": "Asia",
-    "continent_secondary": "Europe"
+    "continent_secondary": "Europe",
+    "capital_lat": 39.9334,
+    "capital_lon": 32.8597
   },
-    {    
+  {
     "name": "Mozambique",
-    "capital": ["Maputo"],
-    
-    "official_language": ["Portuguese"],
-
+    "capital": [
+      "Maputo"
+    ],
+    "official_language": [
+      "Portuguese"
+    ],
     "area_km2": 801590,
-
     "population": 34881007,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 61950000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 23770000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MZN"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MZN"
+    ],
     "iso_alpha2": "MZ",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -25.9692,
+    "capital_lon": 32.5732
   },
-    {    
+  {
     "name": "Namibia",
-    "capital": ["Windhoek"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Windhoek"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 825615,
-
     "population": 3022401,
     "population_year": 2025,
     "population_estimate": false,
-
     "gdp_ppp_usd": 37730000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 14210000000,
-    "gdp_year": 2025,    
-
-    "currency": ["NAD", "ZAR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "NAD",
+      "ZAR"
+    ],
     "iso_alpha2": "NA",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -22.5609,
+    "capital_lon": 17.0658
   },
-    {    
+  {
     "name": "Pakistan",
-    "capital": ["Islamabad"],
-    
-    "official_language": ["Urdu", "English"],
-
+    "capital": [
+      "Islamabad"
+    ],
+    "official_language": [
+      "Urdu",
+      "English"
+    ],
     "area_km2": 881913,
-
     "population": 241499431,
     "population_year": 2023,
     "population_estimate": false,
-
     "gdp_ppp_usd": 1670000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 410500000000,
-    "gdp_year": 2025,    
-
-    "currency": ["PKR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "PKR"
+    ],
     "iso_alpha2": "PK",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 33.6844,
+    "capital_lon": 73.0479
   },
-    {    
+  {
     "name": "Venezuela",
-    "capital": ["Caracas"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Caracas"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 916445,
-
     "population": 31800000,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 234340000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 82770000000,
-    "gdp_year": 2025,    
-
-    "currency": ["VED"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "VED"
+    ],
     "iso_alpha2": "VE",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 10.4806,
+    "capital_lon": -66.9036
   },
-    {    
+  {
     "name": "Nigeria",
-    "capital": ["Abuja"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Abuja"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 923769,
-
     "population": 236747130,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 2254000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 285003000000,
-    "gdp_year": 2025,    
-
-    "currency": ["NGN"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "NGN"
+    ],
     "iso_alpha2": "NG",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 9.0765,
+    "capital_lon": 7.3986
   },
-    {    
+  {
     "name": "Tanzania",
-    "capital": ["Dodoma"],
-    
-    "official_language": ["Swahili", "English"],
-
+    "capital": [
+      "Dodoma"
+    ],
+    "official_language": [
+      "Swahili",
+      "English"
+    ],
     "area_km2": 947303,
-
     "population": 67462121,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 293590000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 88980000000,
-    "gdp_year": 2025,    
-
-    "currency": ["TZS"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "TZS"
+    ],
     "iso_alpha2": "TZ",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -6.163,
+    "capital_lon": 35.7516
   },
-    {    
+  {
     "name": "Egypt",
-    "capital": ["Cairo"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Cairo"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 1010408,
-
     "population": 107868296,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 2372000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 347342000000,
-    "gdp_year": 2025,    
-
-    "currency": ["EGP"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "EGP"
+    ],
     "iso_alpha2": "EG",
     "continent": "Africa",
-    "continent_secondary": "Asia"
+    "continent_secondary": "Asia",
+    "capital_lat": 30.0444,
+    "capital_lon": 31.2357
   },
-    {    
+  {
     "name": "Mauritania",
-    "capital": ["Nouakchott"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Nouakchott"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 1030000,
-
     "population": 4328040,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 40060000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 11470000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MRU"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MRU"
+    ],
     "iso_alpha2": "MR",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 18.0735,
+    "capital_lon": -15.9582
   },
-    {    
+  {
     "name": "Bolivia",
-    "capital": ["Sucre"],
-    
-    "official_language": ["Spanish", "Quechua", "Aymara", "Guarani", "Other indigenous languages"],
-
+    "capital": [
+      "Sucre"
+    ],
+    "official_language": [
+      "Spanish",
+      "Quechua",
+      "Aymara",
+      "Guarani",
+      "Other indigenous languages"
+    ],
     "area_km2": 1098581,
-
     "population": 11365333,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 144098000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 56339000000,
-    "gdp_year": 2025,    
-
-    "currency": ["BOB"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "BOB"
+    ],
     "iso_alpha2": "BO",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -19.0333,
+    "capital_lon": -65.2627
   },
-    {    
+  {
     "name": "Ethiopia",
-    "capital": ["Addis Ababa"],
-    
-    "official_language": ["Amharic", "Oromo"],
-
+    "capital": [
+      "Addis Ababa"
+    ],
+    "official_language": [
+      "Amharic",
+      "Oromo"
+    ],
     "area_km2": 1104300,
-
     "population": 135500000,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 434440000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 145030000000,
-    "gdp_year": 2024,    
-
-    "currency": ["ETB"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "ETB"
+    ],
     "iso_alpha2": "ET",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 9.03,
+    "capital_lon": 38.74
   },
-    {    
+  {
     "name": "Colombia",
-    "capital": ["Bogotá"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Bogotá"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 1141748,
-
     "population": 52695952,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1042000000000,
     "gdp_ppp_year": 2024,
-
     "gdp_nominal_usd": 386076000000,
-    "gdp_year": 2024,    
-
-    "currency": ["COP"],    
-
+    "gdp_year": 2024,
+    "currency": [
+      "COP"
+    ],
     "iso_alpha2": "CO",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 4.711,
+    "capital_lon": -74.0721
   },
-    {    
+  {
     "name": "South Africa",
-    "capital": ["Pretoria (exe)", "Cape Town (l)", "Bloemfontein (j)"],
-    
-    "official_language": ["Afrikaans", "English", "Ndebele", "Sepedi", "Sesotho", "Setswana", "South African Sign Language", "Swazi", "Tshivenda", "Xhosa", "Xitsonga", "Zulu"],
-
+    "capital": [
+      "Pretoria (exe)",
+      "Cape Town (l)",
+      "Bloemfontein (j)"
+    ],
+    "official_language": [
+      "Afrikaans",
+      "English",
+      "Ndebele",
+      "Sepedi",
+      "Sesotho",
+      "Setswana",
+      "South African Sign Language",
+      "Swazi",
+      "Tshivenda",
+      "Xhosa",
+      "Xitsonga",
+      "Zulu"
+    ],
     "area_km2": 1221037,
-
-    "population":  63015904,
+    "population": 63015904,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1060000000000,
     "gdp_ppp_year": 2026,
-
     "gdp_nominal_usd": 443640000000,
-    "gdp_year": 2026,    
-
-    "currency": ["ZAR"],    
-
+    "gdp_year": 2026,
+    "currency": [
+      "ZAR"
+    ],
     "iso_alpha2": "ZA",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -25.7479,
+    "capital_lon": 28.2293
   },
-    {    
+  {
     "name": "Mali",
-    "capital": ["Bamako"],
-    
-    "official_language": ["Bambara", "Bobo", "Hassaniya Arabic", "Bozo", "Dogon, Toro So", "Fula", "Kassonke", "Maninke", "Minyanka", "Senufo, Senara", "Songhay, Koyraboro Senni", "Soninke", "Tamasheq"],
-
+    "capital": [
+      "Bamako"
+    ],
+    "official_language": [
+      "Bambara",
+      "Bobo",
+      "Hassaniya Arabic",
+      "Bozo",
+      "Dogon, Toro So",
+      "Fula",
+      "Kassonke",
+      "Maninke",
+      "Minyanka",
+      "Senufo, Senara",
+      "Songhay, Koyraboro Senni",
+      "Soninke",
+      "Tamasheq"
+    ],
     "area_km2": 1240192,
-
     "population": 21990607,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 72740000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 23210000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "ML",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 12.6392,
+    "capital_lon": -8.0029
   },
-    {    
+  {
     "name": "Angola",
-    "capital": ["Luanda"],
-    
-    "official_language": ["Portuguese"],
-
+    "capital": [
+      "Luanda"
+    ],
+    "official_language": [
+      "Portuguese"
+    ],
     "area_km2": 1246700,
-
     "population": 36604681,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 402160000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 113340000000,
-    "gdp_year": 2025,    
-
-    "currency": ["AOA"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "AOA"
+    ],
     "iso_alpha2": "AO",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -8.839,
+    "capital_lon": 13.2894
   },
-    {    
+  {
     "name": "Niger",
-    "capital": ["Niamey"],
-    
-    "official_language": ["Hausa"],
-
+    "capital": [
+      "Niamey"
+    ],
+    "official_language": [
+      "Hausa"
+    ],
     "area_km2": 1267000,
-
     "population": 26342784,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 61040000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 21870000000,
-    "gdp_year": 2025,    
-
-    "currency": ["XOF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "XOF"
+    ],
     "iso_alpha2": "NE",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 13.5127,
+    "capital_lon": 2.1128
   },
-    {    
+  {
     "name": "Chad",
-    "capital": ["N'Djamena"],
-    
-    "official_language": ["Arabic", "French"],
-
+    "capital": [
+      "N'Djamena"
+    ],
+    "official_language": [
+      "Arabic",
+      "French"
+    ],
     "area_km2": 1280000,
-
     "population": 19093595,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 32375000000,
     "gdp_ppp_year": 2023,
-
     "gdp_nominal_usd": 12596000000,
-    "gdp_year": 2023,    
-
-    "currency": ["XAF"],    
-
+    "gdp_year": 2023,
+    "currency": [
+      "XAF"
+    ],
     "iso_alpha2": "TD",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 12.1348,
+    "capital_lon": 15.0557
   },
-    {    
+  {
     "name": "Peru",
-    "capital": ["Lima"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Lima"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 1285216,
-
     "population": 34352720,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 653090000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 318480000000,
-    "gdp_year": 2025,    
-
-    "currency": ["PEN"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "PEN"
+    ],
     "iso_alpha2": "PE",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -12.0464,
+    "capital_lon": -77.0428
   },
-    {    
+  {
     "name": "Mongolia",
-    "capital": ["Ulaanbaatar"],
-    
-    "official_language": ["Mongolian"],
-
+    "capital": [
+      "Ulaanbaatar"
+    ],
+    "official_language": [
+      "Mongolian"
+    ],
     "area_km2": 1564116,
-
     "population": 3504741,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 73280000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 25800000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MNT"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MNT"
+    ],
     "iso_alpha2": "MN",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 47.8864,
+    "capital_lon": 106.9057
   },
-    {    
+  {
     "name": "Iran",
-    "capital": ["Tehran"],
-    
-    "official_language": ["Persian"],
-
+    "capital": [
+      "Tehran"
+    ],
+    "official_language": [
+      "Persian"
+    ],
     "area_km2": 1648195,
-
     "population": 92417681,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1879000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 356513000000,
-    "gdp_year": 2025,    
-
-    "currency": ["IRR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "IRR"
+    ],
     "iso_alpha2": "IR",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 35.6892,
+    "capital_lon": 51.389
   },
-    {    
+  {
     "name": "Libya",
-    "capital": ["Tripoli"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Tripoli"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 1759541,
-
     "population": 7361263,
     "population_year": 2024,
     "population_estimate": true,
-
     "gdp_ppp_usd": 123990000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 47480000000,
-    "gdp_year": 2025,    
-
-    "currency": ["LYD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "LYD"
+    ],
     "iso_alpha2": "LY",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 32.8872,
+    "capital_lon": 13.1913
   },
-    {    
+  {
     "name": "Sudan",
-    "capital": ["Khartoum"],
-    
-    "official_language": ["Arabic", "English"],
-
+    "capital": [
+      "Khartoum"
+    ],
+    "official_language": [
+      "Arabic",
+      "English"
+    ],
     "area_km2": 1886068,
-
     "population": 51767437,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 117770000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 31510000000,
-    "gdp_year": 2025,    
-
-    "currency": ["SDG"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "SDG"
+    ],
     "iso_alpha2": "SD",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 15.5007,
+    "capital_lon": 32.5599
   },
-    {    
+  {
     "name": "Indonesia",
-    "capital": ["Jakarta"],
-    
-    "official_language": ["Indonesian"],
-
+    "capital": [
+      "Jakarta"
+    ],
+    "official_language": [
+      "Indonesian"
+    ],
     "area_km2": 1904569,
-
     "population": 284438782,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 5009000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1430000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["IDR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "IDR"
+    ],
     "iso_alpha2": "ID",
     "continent": "Asia",
     "continent_secondary": "Oceania",
-    "is_island": true
+    "is_island": true,
+    "capital_lat": -6.2088,
+    "capital_lon": 106.8456
   },
-    {    
+  {
     "name": "Mexico",
-    "capital": ["Mexico City"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Mexico City"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 1972550,
-
     "population": 131946900,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 3396000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1693000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["MXN"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "MXN"
+    ],
     "iso_alpha2": "MX",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 19.4326,
+    "capital_lon": -99.1332
   },
-    {    
+  {
     "name": "Saudi Arabia",
-    "capital": ["Riyadh"],
-    
-    "official_language": ["Arabic"],
-
+    "capital": [
+      "Riyadh"
+    ],
+    "official_language": [
+      "Arabic"
+    ],
     "area_km2": 2149690,
-
     "population": 33702731,
     "population_year": 2024,
     "population_estimate": false,
-
     "gdp_ppp_usd": 2690000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1270000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["SAR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "SAR"
+    ],
     "iso_alpha2": "SA",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 24.7136,
+    "capital_lon": 46.6753
   },
-    {    
+  {
     "name": "Denmark",
-    "capital": ["Copenhagen"],
-    
-    "official_language": ["Danish"],
-
+    "capital": [
+      "Copenhagen"
+    ],
+    "official_language": [
+      "Danish"
+    ],
     "area_km2": 43094,
-
     "population": 6001008,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 533752000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 449940000000,
-    "gdp_year": 2025,    
-
-    "currency": ["DKK"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "DKK"
+    ],
     "iso_alpha2": "DK",
     "continent": "Europe",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 55.6761,
+    "capital_lon": 12.5683
   },
-    {    
+  {
     "name": "Democratic Republic of the Congo",
-    "capital": ["Kinshasa"],
-    
-    "official_language": ["French"],
-
+    "capital": [
+      "Kinshasa"
+    ],
+    "official_language": [
+      "French"
+    ],
     "area_km2": 2345409,
-
     "population": 114388160,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 200760000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 79120000000,
-    "gdp_year": 2025,    
-
-    "currency": ["CDF"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "CDF"
+    ],
     "iso_alpha2": "CD",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -4.4419,
+    "capital_lon": 15.2663
   },
-    {    
+  {
     "name": "Algeria",
-    "capital": ["Algiers"],
-    
-    "official_language": ["Arabic", "Berber"],
-
+    "capital": [
+      "Algiers"
+    ],
+    "official_language": [
+      "Arabic",
+      "Berber"
+    ],
     "area_km2": 2381741,
-
     "population": 47400000,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 875330000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 268890000000,
-    "gdp_year": 2025,    
-
-    "currency": ["DZD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "DZD"
+    ],
     "iso_alpha2": "DZ",
     "continent": "Africa",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 36.7538,
+    "capital_lon": 3.0588
   },
-    {    
+  {
     "name": "Kazakhstan",
-    "capital": ["Astana"],
-    
-    "official_language": ["Kazakh", "Russian"],
-
+    "capital": [
+      "Astana"
+    ],
+    "official_language": [
+      "Kazakh",
+      "Russian"
+    ],
     "area_km2": 2724900,
-
     "population": 20286084,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 904500000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 300540000000,
-    "gdp_year": 2025,    
-
-    "currency": ["KZT"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "KZT"
+    ],
     "iso_alpha2": "KZ",
     "continent": "Asia",
-    "continent_secondary": "Europe"
+    "continent_secondary": "Europe",
+    "capital_lat": 51.1694,
+    "capital_lon": 71.4491
   },
-    {    
+  {
     "name": "Argentina",
-    "capital": ["Buenos Aires"],
-    
-    "official_language": ["Spanish"],
-
+    "capital": [
+      "Buenos Aires"
+    ],
+    "official_language": [
+      "Spanish"
+    ],
     "area_km2": 2780085,
-
     "population": 46735004,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1493000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 683533000000,
-    "gdp_year": 2025,    
-
-    "currency": ["ARS"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "ARS"
+    ],
     "iso_alpha2": "AR",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -34.6037,
+    "capital_lon": -58.3816
   },
-    {    
+  {
     "name": "India",
-    "capital": ["New Delhi"],
-    
-    "official_language": ["Hindi", "English"],
-
+    "capital": [
+      "New Delhi"
+    ],
+    "official_language": [
+      "Hindi",
+      "English"
+    ],
     "area_km2": 3287263,
-
     "population": 1428627663,
     "population_year": 2023,
     "population_estimate": true,
-
     "gdp_ppp_usd": 17647000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 4187000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["INR"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "INR"
+    ],
     "iso_alpha2": "IN",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 28.6139,
+    "capital_lon": 77.209
   },
-    {    
+  {
     "name": "Australia",
-    "capital": ["Canberra"],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Canberra"
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 7688287,
-
     "population": 27840775,
     "population_year": 2026,
     "population_estimate": true,
-
     "gdp_ppp_usd": 1982000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 1830000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["AUD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "AUD"
+    ],
     "iso_alpha2": "AU",
     "continent": "Oceania",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": -35.2809,
+    "capital_lon": 149.13
   },
-    {    
+  {
     "name": "Brazil",
-    "capital": ["Brasília"],
-    
-    "official_language": ["Portuguese"],
-
+    "capital": [
+      "Brasília"
+    ],
+    "official_language": [
+      "Portuguese"
+    ],
     "area_km2": 8515767,
-
     "population": 213421037,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 4970000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 2260000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["BRL"],    
-
+    "gdp_year": 2025,
+    "capital_lat": -15.7939,
+    "capital_lon": -47.8828,
+    "currency": [
+      "BRL"
+    ],
     "iso_alpha2": "BR",
     "continent": "South America",
     "continent_secondary": null
   },
-    {    
+  {
     "name": "China",
-    "capital": ["Beijing"],
-    
-    "official_language": ["Standard Chinese"],
-
+    "capital": [
+      "Beijing"
+    ],
+    "official_language": [
+      "Standard Chinese"
+    ],
     "area_km2": 9596961,
-
     "population": 1404890000,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 41016000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 19399000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["CNY"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "CNY"
+    ],
     "iso_alpha2": "CN",
     "continent": "Asia",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 39.9042,
+    "capital_lon": 116.4074
   },
-    {    
+  {
     "name": "United States",
-    "capital": ["Washington, D.C."],
-    
-    "official_language": ["English"],
-
+    "capital": [
+      "Washington, D.C."
+    ],
+    "official_language": [
+      "English"
+    ],
     "area_km2": 9833520,
-
     "population": 341784857,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 30616000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 30616000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["USD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "USD"
+    ],
     "iso_alpha2": "US",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 38.9072,
+    "capital_lon": -77.0369
   },
-    {    
+  {
     "name": "Canada",
-    "capital": ["Ottawa"],
-    
-    "official_language": ["English", "French"],
-
+    "capital": [
+      "Ottawa"
+    ],
+    "official_language": [
+      "English",
+      "French"
+    ],
     "area_km2": 9984670,
-
     "population": 41575585,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 2723000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 2284000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["CAD"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "CAD"
+    ],
     "iso_alpha2": "CA",
     "continent": "North America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "capital_lat": 45.4215,
+    "capital_lon": -75.6972
   },
-    {    
+  {
     "name": "Russia",
-    "capital": ["Moscow"],
-    
-    "official_language": ["Russian"],
-
+    "capital": [
+      "Moscow"
+    ],
+    "official_language": [
+      "Russian"
+    ],
     "area_km2": 17098246,
-
     "population": 146028325,
     "population_year": 2025,
     "population_estimate": true,
-
     "gdp_ppp_usd": 7143000000000,
     "gdp_ppp_year": 2025,
-
     "gdp_nominal_usd": 2541000000000,
-    "gdp_year": 2025,    
-
-    "currency": ["RUB"],    
-
+    "gdp_year": 2025,
+    "currency": [
+      "RUB"
+    ],
     "iso_alpha2": "RU",
     "continent": "Asia",
-    "continent_secondary": "Europe"
+    "continent_secondary": "Europe",
+    "capital_lat": 55.7558,
+    "capital_lon": 37.6173
   }
-
-
-
-
-
-
-
-
-
 ]

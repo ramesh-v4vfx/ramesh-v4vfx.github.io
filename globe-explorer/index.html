@@ -197,6 +197,10 @@
       <div><span class="lbl">STATUS</span> <span class="val">LIVE</span></div>
     </div>
     <button class="fs-btn" id="fsBtn">Fullscreen</button>
+
+    <button class="fs-btn" id="fsBtn">Fullscreen</button>
+    <button class="fs-btn" id="resetBtn" style="right:150px;">Reset</button>
+
     <div class="info-card" id="infoCard">
       <button class="close" id="infoClose">&times;</button>
       <img class="flag" id="infoFlag" alt="">
@@ -319,7 +323,8 @@ const borderMesh = new THREE.Mesh(borderGeo, borderMat);
 globeGroup.add(borderMesh);
 
 function lonLatToPx(lon, lat){
-  return [ (lon + 180) / 360 * BORDER_CANVAS_W, (90 - lat) / 180 * BORDER_CANVAS_H ];
+  const clampedLat = Math.max(-85, Math.min(85, lat)); // avoid extreme pole distortion
+  return [ (lon + 180) / 360 * BORDER_CANVAS_W, (90 - clampedLat) / 180 * BORDER_CANVAS_H ];
 }
 
 function drawRing(ring){
@@ -395,16 +400,17 @@ function buildMarkerSprite(){
   const c = document.createElement('canvas'); c.width = c.height = size;
   const ctx = c.getContext('2d');
   const grad = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
-  grad.addColorStop(0, 'rgba(0,229,255,1)');
-  grad.addColorStop(0.35, 'rgba(0,229,255,0.7)');
-  grad.addColorStop(1, 'rgba(0,229,255,0)');
+  grad.addColorStop(0, 'rgba(255,0,0,1)');
+  grad.addColorStop(0.15, 'rgba(255,0,0,0.7)');
+  grad.addColorStop(0.5, 'rgba(255,0,0,0)');
   ctx.fillStyle = grad; ctx.fillRect(0,0,size,size);
   const tex = new THREE.CanvasTexture(c);
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending });
   const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(0.18, 0.18, 1);
+  sprite.scale.set(0.09, 0.09, 1);
   return sprite;
 }
+
 const capitalMarker = buildMarkerSprite();
 capitalMarker.visible = false;
 globeGroup.add(capitalMarker);
@@ -470,36 +476,46 @@ const territoriesReady = fetch(TERRITORY_DATA_URL)
   })
   .catch(() => { /* falls back gracefully — territories just show "no data" too */ });
 
-// ---------- ISO code bridge + capital coordinates, from REST Countries ----------
-// (bridges world-atlas's numeric IDs to our own countries.json's iso_alpha2 codes,
-// and gives us real capital lat/lon for the marker — all from one free, keyless API)
+// ---------- name -> ISO bridge, built purely from our own datasets ----------
+// (world-atlas boundary shapes only carry a Natural Earth "name" label, no ISO code —
+// this matches that name against our own countries.json/territories.json "name" field
+// to find the iso code. No external API calls involved anywhere in this bridge.)
+let iso2ByName = new Map();
+
+// ---------- capital coordinates, read from our own dataset once we add them ----------
+// Add "capital_lat" and "capital_lon" (numbers) to entries in countries.json /
+// territories.json to make the marker appear for that place. Until then, findCapitalCoords
+// simply returns null and the marker stays hidden — no external fallback of any kind.
 let capitalCoordsByIso = new Map();
-let alpha2ByNumeric = new Map();
-let alpha2ByName = new Map(); // fallback bridge, keyed by normalized country name
 
-const restCountriesReady = fetch('https://restcountries.com/v3.1/all')
-  .then(r => r.json())
-  .then(list => {
-    list.forEach(c => {
-      if (!c.cca2) return;
-      const iso2 = c.cca2.toUpperCase();
+function buildOwnLookups(){
+  countryDataByIso.forEach((facts, iso2) => {
+    if (facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
+    if (typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') {
+      capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
+    }
+  });
+territoryDataByIso.forEach((facts, iso2) => {
+  if (facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
+  // guard: a territory must never overwrite a real country's capital coords
+  // just because they happen to share the same ISO code (e.g. Ross Dependency
+  // and New Zealand both use "NZ" in this dataset)
+  if (!countryDataByIso.has(iso2) &&
+      typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') {
+    capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
+  }
+});
 
-      if (c.ccn3) {
-        const numId = String(c.ccn3).padStart(3, '0');
-        alpha2ByNumeric.set(numId, iso2);
-      }
+}
 
-      if (c.name && c.name.common) {
-        alpha2ByName.set(normalizeName(c.name.common), iso2);
-      }
-
-      const latlng = c.capitalInfo && c.capitalInfo.latlng;
-      if (latlng && latlng.length === 2) {
-        capitalCoordsByIso.set(iso2, { lat: latlng[0], lon: latlng[1] });
-      }
-    });
-  })
-  .catch(() => { /* falls back gracefully — names default to world-atlas raw ids, capitals just won't show */ });
+function findIsoByName(name){
+  const key = normalizeName(name);
+  if (iso2ByName.has(key)) return iso2ByName.get(key);
+  for (const [k, v] of iso2ByName) {
+    if (k.includes(key) || key.includes(k)) return v;
+  }
+  return null;
+}
 
 function findCapitalCoords(iso2){ return iso2 ? capitalCoordsByIso.get(iso2.toUpperCase()) : null; }
 function findCountryFacts(iso2){ return iso2 ? countryDataByIso.get(iso2.toUpperCase()) : null; }
@@ -556,7 +572,6 @@ function selectCountry(feature){
   redrawBorders();
   const name = feature.properties.name || feature.properties.NAME || 'Unknown';
   const iso2 = feature.properties.iso2;
-  console.log('DEBUG:', { name, iso2, countryDataByIso_size: countryDataByIso.size, hasCA: countryDataByIso.has('CA') });
   selectedVal.textContent = name.toUpperCase();
 
   infoCard.classList.add('show');
@@ -610,19 +625,18 @@ const TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
 
 Promise.all([
   fetch(TOPO_URL).then(r => r.json()),
-  restCountriesReady,
   ownCountriesReady,
   territoriesReady
 ])
   .then(([topology]) => {
+    buildOwnLookups();
+
     const geojson = topojson.feature(topology, topology.objects.countries);
     countryFeatures = geojson.features
       .filter(f => f.geometry)
       .map(f => {
-        const numId = String(f.id).padStart(3, '0');
         const worldAtlasName = (f.properties && f.properties.name) || '';
-
-        const iso2 = alpha2ByNumeric.get(numId) || alpha2ByName.get(normalizeName(worldAtlasName));
+        const iso2 = findIsoByName(worldAtlasName);
         const ownFacts = iso2 ? countryDataByIso.get(iso2) : null;
 
         f.properties = f.properties || {};
@@ -687,18 +701,43 @@ function handleClick(e){
   if(feature) selectCountry(feature);
 }
 
+
 // ---------- search ----------
 function normalize(s){ return s.toLowerCase().trim(); }
+
+// common alternate names/abbreviations users might type, mapped to the
+// exact name string used in our own countries.json — extend as needed
+const NAME_ALIASES = {
+  "usa": "united states",
+  "us": "united states",
+  "u.s.a.": "united states",
+  "u.s.": "united states",
+  "united states of america": "united states",
+  "america": "united states",
+};
+
 function doSearch(){
-  const q = normalize(searchInput.value);
+  let q = normalize(searchInput.value);
   if(!q) return;
-  const match = countryFeatures.find(f => normalize(f.properties.name || '').includes(q));
+
+  if(NAME_ALIASES[q]) q = NAME_ALIASES[q];
+
+  const match = countryFeatures.find(f => {
+    const n = normalize(f.properties.name || '');
+    return n.includes(q) || q.includes(n);
+  });
+
   if(match){
     selectCountry(match);
     const centroid = getFeatureCentroid(match);
     if(centroid){
-      globeGroup.rotation.y = THREE.MathUtils.degToRad(-(centroid.lon + 180));
+      const phi = (90 - centroid.lat) * Math.PI / 180;
+      const theta = (centroid.lon + 180) * Math.PI / 180;
+      const lx = -Math.sin(phi) * Math.cos(theta);
+      const lz = Math.sin(phi) * Math.sin(theta);
+      globeGroup.rotation.y = Math.atan2(lz, lx) - Math.PI / 2;
       globeGroup.rotation.x = 0;
+      velX = 0; velY = 0;
     }
   }
 }
@@ -722,6 +761,28 @@ fsBtn.addEventListener('click', () => {
   else document.exitFullscreen();
 });
 viewer.addEventListener('dblclick', () => fsBtn.click());
+
+const resetBtn = document.getElementById('resetBtn');
+const DEFAULT_CAMERA_Z = 6.2;
+
+resetBtn.addEventListener('click', () => {
+  // reset camera zoom
+  camera.position.z = DEFAULT_CAMERA_Z;
+
+  // reset rotation
+  globeGroup.rotation.set(0, 0, 0);
+  velX = 0; velY = 0;
+
+  // deselect
+  selectedFeature = null;
+  redrawBorders();
+  infoCard.classList.remove('show');
+  selectedVal.textContent = 'NONE';
+  capitalMarker.visible = false;
+
+  // clear search box too
+  searchInput.value = '';
+});
 
 // ---------- render loop ----------
 function animate(){
