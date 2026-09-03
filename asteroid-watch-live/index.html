@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-  <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -14,7 +14,12 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LIVE ASTEROID WATCH // RV·NEOWATCH</title>
+<meta name="description" content="Live tracker for near-Earth asteroids using real NASA data. See potentially hazardous objects, closest approaches, sizes, and velocities for the next 7 days.">
+
+<title>Live Asteroid Watch</title>
+
+<link rel="canonical" href="https://rameshverse.com/asteroid-watch-live/">
+
 <style>
   :root{
     --bg:#050505; --panel:#0b0b0b; --line:#241414;
@@ -73,6 +78,13 @@
   .neo-name{font-size:14px; font-weight:700; letter-spacing:.5px; color:#4ad4ff;}
   .neo-badge{font-size:9px; letter-spacing:1.5px; padding:4px 8px; border:1px solid var(--red-dim); color:var(--red); white-space:nowrap;}
   .neo-badge.safe{border-color:#1a3a2a; color:var(--go);}
+
+  .intro {
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 10px 0 18px;
+}
   .neo-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px 16px;}
   @media(max-width:480px){.neo-grid{grid-template-columns:1fr;}}
   .neo-item .k{font-size:10px; color:var(--text-dim); letter-spacing:0.5px; margin-bottom:3px;}
@@ -90,8 +102,9 @@
 <div class="wrap">
   <header>
     <div>
-      <div class="brand">RAMESHVERSE // RV·NEOWATCH</div>
+      <div class="brand">RAMESHVERSE</div>
       <h1>LIVE ASTEROID <span>WATCH</span></h1>
+      <p class="intro">Pulls live data from NASA's Near-Earth Object Web Service (NeoWs) to track asteroids making close approaches to Earth over the next 7 days, flagging which ones are classified as potentially hazardous based on size and distance.</p>
     </div>
     <div class="clock" id="clockDisplay">--:--:--</div>
   </header>

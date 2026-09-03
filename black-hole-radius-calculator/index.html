@@ -15,6 +15,7 @@
 <meta charset="UTF-8">
 <meta name="description" content="Calculate the Schwarzschild radius of a black hole instantly using mass. Learn how event horizon radius is derived and explore black hole physics with this interactive calculator." />
 <title>Black Hole Event Horizon Radius Calculator</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Open Graph / Facebook -->
@@ -29,6 +30,8 @@
 <meta name="twitter:image" content="https://rameshverse.com/black-hole-radius-calculator/preview-image/bhrc-preview.jpg" />
 <meta name="twitter:title" content="Black Hole Radius Calculator" />
 <meta name="twitter:description" content="Calculate the Schwarzschild radius — the event horizon — of a black hole instantly." />
+
+<link rel="canonical" href="https://rameshverse.com/black-hole-radius-calculator">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -255,6 +258,15 @@ body {
   box-shadow: 0 0 10px 2px rgba(255,233,199,0.55);
   z-index: 2;
   animation: photonPulse 3.2s ease-in-out infinite;
+}
+
+.intro {
+  font-size: 0.6rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  text-align: center;
+  margin: 0 0 20px;
+  font-family: var(--sans);
 }
 
 @keyframes photonPulse {
@@ -776,7 +788,7 @@ input:focus {
       Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km
     </div>
 
-    <!-- Share Button -->
+        <!-- Share Button -->
     <button class="btn-share" onclick="toggleShare()">Share This App</button>
 
     <!-- Share Panel -->
@@ -849,6 +861,7 @@ input:focus {
     </div>
 
   </div>
+  <p class="intro">Calculates the Schwarzschild radius, the boundary beyond which nothing, not even light, can escape, for any mass using R = 2GM/c². Enter a mass in solar masses, Earth masses, or kilograms to find its event horizon radius instantly.</p>
 </div>
 
 <script>

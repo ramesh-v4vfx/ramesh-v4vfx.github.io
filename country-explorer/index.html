@@ -18,7 +18,9 @@
 
   <!-- Primary Meta -->
 <title>Country Explorer | RameshVerse</title>
-<meta name="title" content="Country Explorer | RameshVerse" />
+
+<link rel="canonical" href="https://rameshverse.com/country-explorer" />
+
 <meta
   name="description"
   content="Explore every country's stats, compare nations, play the card game & test your geography knowledge!"
@@ -29,14 +31,13 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://rameshverse.com/country-explorer" />
 <meta property="og:title" content="Country Explorer" />
-<meta property="og:description" content="Explore Countries in the world. Play country games" />
+<meta property="og:description" content="Explore every country's stats, compare nations, play the card game & test your geography knowledge!" />
 <meta property="og:image" content="https://rameshverse.com/country-explorer/image-preview/country-explorer-preview.jpg" />
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Country Explorer" />
-<meta name="twitter:description" content="Explore Countries in the world. Play country games" />
-<meta name="twitter:image" content="https://rameshverse.com/country-explorer/image-preview/country-explorer-preview.jpg" />
+<meta name="twitter:description" content="Explore every country's stats, compare nations, play the card game & test your geography knowledge!" /><meta name="twitter:image" content="https://rameshverse.com/country-explorer/image-preview/country-explorer-preview.jpg" />
 
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -2043,7 +2044,24 @@ body.capturing .cert-text {
 
 <header>
 
-<!-- ROW 1: Filters & actions -->
+   <h1 style="
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--ink);
+    margin:0 0 0px;
+    text-shadow:0 0 10px rgba(255,43,43,0.25);
+  ">
+    Country Explorer — Compare Countries, Play Geography Games & Take the World Quiz
+  </h1>
+
+  <p class="intro-seo" style="max-width:1500px;margin:0px auto;text-align:center;font-size:10px;color:var(--ink-dim);">
+Browse country stats, compare nations, play the card battle game, and take the geography quiz.
+</p>
+
+  <!-- ROW 1: Filters & actions -->
   <div class="header-row header-controls">
 
     <select id="continentFilter" onchange="filterByContinent(this.value)">
@@ -2210,8 +2228,8 @@ body.capturing .cert-text {
     <div id="compare-left"></div>
     <div id="compare-right"></div>
   </div>
-</div>
 
+</div>
 
 <script>
 /* ================= LOAD DATA ================= */

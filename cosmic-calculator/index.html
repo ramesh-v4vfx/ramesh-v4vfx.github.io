@@ -13,8 +13,11 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free cosmic unit converter. Convert between meters, kilometers, miles, Earth radii, solar radii, astronomical units (AU), light-years, and parsecs instantly.">
 
-<title>Cosmic Calculator</title>
+<title>Cosmic Calculator — Astronomical Unit Converter | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/cosmic-calculator">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,6 +50,16 @@
     height: 100%;
     margin: 0;
   }
+
+  .intro {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  text-align: center;
+  letter-spacing: 0.3px;
+  margin: 0px 0 22px;
+}
 
   body {
     font-family: var(--ui);
@@ -149,7 +162,7 @@
     50% { opacity: 0.35; }
   }
 
-  h2 {
+  h1 {
     font-family: var(--display);
     text-align: center;
     margin: 0 0 4px;
@@ -415,7 +428,8 @@
 
   <div class="eyebrow"><span class="dot"></span>Rameshverse Systems &middot; MK&middot;02</div>
 
-  <h2>🪐 Cosmic Calculator</h2>
+  <h1>Cosmic Calculator</h1>
+  
   <span class="version-tag">UNIT CONVERSION MODULE</span>
 
   <button class="secondary-btn" onclick="pasteValue()">Paste Value</button>
@@ -466,6 +480,9 @@
     <div class="history-list" id="historyList"></div>
     <button class="secondary-btn clear-history-btn" onclick="clearHistory()">Clear History</button>
   </div>
+
+  <p class="intro">Convert between everyday and astronomical units of distance — meters, kilometers, and miles alongside Earth radii, solar radii, astronomical units (AU), light-years, and parsecs. Built for quick reference when working with planetary, stellar, or interstellar scales.</p>
+
 </div>
 
 <script>
