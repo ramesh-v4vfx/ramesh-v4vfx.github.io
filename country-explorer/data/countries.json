@@ -23,7 +23,8 @@
     "gdp_ppp_usd": 17763200,
     "gdp_ppp_year": 2021,
     "capital_lat": 41.9029,
-    "capital_lon": 12.4534
+    "capital_lon": 12.4534,
+    "iso_numeric": "336"
   },
   {
     "iso_alpha2": "MC",
@@ -48,7 +49,8 @@
     "gdp_ppp_usd": 8924000000,
     "gdp_ppp_year": 2024,
     "capital_lat": 43.7384,
-    "capital_lon": 7.4246
+    "capital_lon": 7.4246,
+    "iso_numeric": "492"
   },
   {
     "iso_alpha2": "NR",
@@ -75,7 +77,8 @@
     "gdp_ppp_year": 2021,
     "is_island": true,
     "capital_lat": -0.5477,
-    "capital_lon": 166.9209
+    "capital_lon": 166.9209,
+    "iso_numeric": "520"
   },
   {
     "iso_alpha2": "TV",
@@ -102,7 +105,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": -8.5211,
-    "capital_lon": 179.1983
+    "capital_lon": 179.1983,
+    "iso_numeric": "798"
   },
   {
     "iso_alpha2": "SM",
@@ -127,7 +131,8 @@
     "gdp_ppp_usd": 2978000000,
     "gdp_ppp_year": 2024,
     "capital_lat": 43.9333,
-    "capital_lon": 12.4167
+    "capital_lon": 12.4167,
+    "iso_numeric": "674"
   },
   {
     "iso_alpha2": "LI",
@@ -152,7 +157,8 @@
     "gdp_ppp_usd": 7172000000,
     "gdp_ppp_year": 2024,
     "capital_lat": 47.141,
-    "capital_lon": 9.5209
+    "capital_lon": 9.5209,
+    "iso_numeric": "438"
   },
   {
     "iso_alpha2": "MH",
@@ -179,7 +185,8 @@
     "gdp_ppp_year": 2019,
     "is_island": true,
     "capital_lat": 7.1164,
-    "capital_lon": 171.1858
+    "capital_lon": 171.1858,
+    "iso_numeric": "584"
   },
   {
     "iso_alpha2": "KN",
@@ -205,7 +212,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": 17.3026,
-    "capital_lon": -62.7177
+    "capital_lon": -62.7177,
+    "iso_numeric": "659"
   },
   {
     "iso_alpha2": "MV",
@@ -231,7 +239,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": 4.1755,
-    "capital_lon": 73.5093
+    "capital_lon": 73.5093,
+    "iso_numeric": "462"
   },
   {
     "iso_alpha2": "MT",
@@ -258,7 +267,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": 35.8989,
-    "capital_lon": 14.5146
+    "capital_lon": 14.5146,
+    "iso_numeric": "470"
   },
   {
     "iso_alpha2": "GD",
@@ -284,7 +294,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": 12.0561,
-    "capital_lon": -61.7488
+    "capital_lon": -61.7488,
+    "iso_numeric": "308"
   },
   {
     "iso_alpha2": "VC",
@@ -310,7 +321,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": 13.16,
-    "capital_lon": -61.2248
+    "capital_lon": -61.2248,
+    "iso_numeric": "670"
   },
   {
     "iso_alpha2": "BB",
@@ -336,7 +348,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": 13.0975,
-    "capital_lon": -59.6167
+    "capital_lon": -59.6167,
+    "iso_numeric": "052"
   },
   {
     "iso_alpha2": "AG",
@@ -362,7 +375,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": 17.1274,
-    "capital_lon": -61.8468
+    "capital_lon": -61.8468,
+    "iso_numeric": "028"
   },
   {
     "iso_alpha2": "SC",
@@ -388,7 +402,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": -4.6191,
-    "capital_lon": 55.4513
+    "capital_lon": 55.4513,
+    "iso_numeric": "690"
   },
   {
     "iso_alpha2": "PW",
@@ -415,7 +430,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": 7.5006,
-    "capital_lon": 134.6242
+    "capital_lon": 134.6242,
+    "iso_numeric": "585"
   },
   {
     "iso_alpha2": "AD",
@@ -440,7 +456,8 @@
     "gdp_ppp_usd": 6001000000,
     "gdp_ppp_year": 2024,
     "capital_lat": 42.5063,
-    "capital_lon": 1.5218
+    "capital_lon": 1.5218,
+    "iso_numeric": "020"
   },
   {
     "iso_alpha2": "LC",
@@ -466,7 +483,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": 14.0101,
-    "capital_lon": -60.9875
+    "capital_lon": -60.9875,
+    "iso_numeric": "662"
   },
   {
     "iso_alpha2": "FM",
@@ -492,7 +510,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": 6.9248,
-    "capital_lon": 158.1611
+    "capital_lon": 158.1611,
+    "iso_numeric": "583"
   },
   {
     "iso_alpha2": "SG",
@@ -521,7 +540,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": 1.3521,
-    "capital_lon": 103.8198
+    "capital_lon": 103.8198,
+    "iso_numeric": "702"
   },
   {
     "iso_alpha2": "TO",
@@ -548,7 +568,8 @@
     "gdp_ppp_year": 2019,
     "is_island": true,
     "capital_lat": -21.1393,
-    "capital_lon": -175.2049
+    "capital_lon": -175.2049,
+    "iso_numeric": "776"
   },
   {
     "iso_alpha2": "DM",
@@ -574,7 +595,8 @@
     "gdp_ppp_year": 2018,
     "is_island": true,
     "capital_lat": 15.3092,
-    "capital_lon": -61.3794
+    "capital_lon": -61.3794,
+    "iso_numeric": "212"
   },
   {
     "iso_alpha2": "BH",
@@ -600,7 +622,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": 26.2285,
-    "capital_lon": 50.586
+    "capital_lon": 50.586,
+    "iso_numeric": "048"
   },
   {
     "iso_alpha2": "KI",
@@ -627,7 +650,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": 1.3291,
-    "capital_lon": 172.9791
+    "capital_lon": 172.9791,
+    "iso_numeric": "296"
   },
   {
     "iso_alpha2": "ST",
@@ -653,7 +677,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": 0.3365,
-    "capital_lon": 6.7273
+    "capital_lon": 6.7273,
+    "iso_numeric": "678"
   },
   {
     "iso_alpha2": "KM",
@@ -681,7 +706,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": -11.7042,
-    "capital_lon": 43.2551
+    "capital_lon": 43.2551,
+    "iso_numeric": "174"
   },
   {
     "iso_alpha2": "MU",
@@ -708,7 +734,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": -20.1609,
-    "capital_lon": 57.5012
+    "capital_lon": 57.5012,
+    "iso_numeric": "480"
   },
   {
     "iso_alpha2": "LU",
@@ -735,7 +762,8 @@
     "gdp_ppp_usd": 106505000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 49.6116,
-    "capital_lon": 6.1319
+    "capital_lon": 6.1319,
+    "iso_numeric": "442"
   },
   {
     "iso_alpha2": "WS",
@@ -762,7 +790,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": -13.8333,
-    "capital_lon": -171.7667
+    "capital_lon": -171.7667,
+    "iso_numeric": "882"
   },
   {
     "iso_alpha2": "CV",
@@ -789,7 +818,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": 14.9218,
-    "capital_lon": -23.5087
+    "capital_lon": -23.5087,
+    "iso_numeric": "132"
   },
   {
     "iso_alpha2": "TT",
@@ -815,7 +845,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": 10.6549,
-    "capital_lon": -61.5019
+    "capital_lon": -61.5019,
+    "iso_numeric": "780"
   },
   {
     "iso_alpha2": "BN",
@@ -841,7 +872,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": 4.9031,
-    "capital_lon": 114.9398
+    "capital_lon": 114.9398,
+    "iso_numeric": "096"
   },
   {
     "iso_alpha2": "PS",
@@ -869,7 +901,8 @@
     "gdp_ppp_usd": 36391000000,
     "gdp_ppp_year": 2023,
     "capital_lat": 31.7683,
-    "capital_lon": 35.2137
+    "capital_lon": 35.2137,
+    "iso_numeric": "275"
   },
   {
     "iso_alpha2": "CY",
@@ -896,7 +929,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": 35.1856,
-    "capital_lon": 33.3823
+    "capital_lon": 33.3823,
+    "iso_numeric": "196"
   },
   {
     "iso_alpha2": "LB",
@@ -921,7 +955,8 @@
     "gdp_ppp_usd": 78233000000,
     "gdp_ppp_year": 2022,
     "capital_lat": 33.8938,
-    "capital_lon": 35.5018
+    "capital_lon": 35.5018,
+    "iso_numeric": "422"
   },
   {
     "iso_alpha2": "JM",
@@ -947,7 +982,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": 17.9714,
-    "capital_lon": -76.7936
+    "capital_lon": -76.7936,
+    "iso_numeric": "388"
   },
   {
     "iso_alpha2": "GM",
@@ -972,7 +1008,8 @@
     "gdp_ppp_usd": 7502000000,
     "gdp_ppp_year": 2024,
     "capital_lat": 13.4549,
-    "capital_lon": -16.579
+    "capital_lon": -16.579,
+    "iso_numeric": "270"
   },
   {
     "iso_alpha2": "QA",
@@ -997,7 +1034,8 @@
     "gdp_ppp_usd": 378080000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 25.2854,
-    "capital_lon": 51.531
+    "capital_lon": 51.531,
+    "iso_numeric": "634"
   },
   {
     "iso_alpha2": "VU",
@@ -1025,7 +1063,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": -17.7333,
-    "capital_lon": 168.3273
+    "capital_lon": 168.3273,
+    "iso_numeric": "548"
   },
   {
     "iso_alpha2": "ME",
@@ -1050,7 +1089,8 @@
     "gdp_ppp_usd": 21480000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 42.4304,
-    "capital_lon": 19.2594
+    "capital_lon": 19.2594,
+    "iso_numeric": "499"
   },
   {
     "iso_alpha2": "BS",
@@ -1076,7 +1116,8 @@
     "gdp_ppp_year": 2024,
     "is_island": true,
     "capital_lat": 25.0343,
-    "capital_lon": -77.3963
+    "capital_lon": -77.3963,
+    "iso_numeric": "044"
   },
   {
     "iso_alpha2": "TL",
@@ -1104,7 +1145,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": -8.5569,
-    "capital_lon": 125.5603
+    "capital_lon": 125.5603,
+    "iso_numeric": "626"
   },
   {
     "iso_alpha2": "SZ",
@@ -1132,7 +1174,8 @@
     "gdp_ppp_usd": 13797000000,
     "gdp_ppp_year": 2023,
     "capital_lat": -26.3054,
-    "capital_lon": 31.1367
+    "capital_lon": 31.1367,
+    "iso_numeric": "748"
   },
   {
     "iso_alpha2": "KW",
@@ -1157,7 +1200,8 @@
     "gdp_ppp_usd": 260500000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 29.3759,
-    "capital_lon": 47.9774
+    "capital_lon": 47.9774,
+    "iso_numeric": "414"
   },
   {
     "iso_alpha2": "FJ",
@@ -1186,7 +1230,8 @@
     "gdp_ppp_year": 2023,
     "is_island": true,
     "capital_lat": -18.1416,
-    "capital_lon": 178.4419
+    "capital_lon": 178.4419,
+    "iso_numeric": "242"
   },
   {
     "iso_alpha2": "SI",
@@ -1211,7 +1256,8 @@
     "gdp_ppp_usd": 122985000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 46.0569,
-    "capital_lon": 14.5058
+    "capital_lon": 14.5058,
+    "iso_numeric": "705"
   },
   {
     "iso_alpha2": "IL",
@@ -1236,7 +1282,8 @@
     "gdp_ppp_usd": 567550000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 31.7683,
-    "capital_lon": 35.2137
+    "capital_lon": 35.2137,
+    "iso_numeric": "376"
   },
   {
     "iso_alpha2": "SV",
@@ -1261,7 +1308,8 @@
     "gdp_ppp_usd": 88323000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 13.6929,
-    "capital_lon": -89.2182
+    "capital_lon": -89.2182,
+    "iso_numeric": "222"
   },
   {
     "iso_alpha2": "BZ",
@@ -1286,7 +1334,8 @@
     "gdp_ppp_usd": 6414000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 17.251,
-    "capital_lon": -88.759
+    "capital_lon": -88.759,
+    "iso_numeric": "084"
   },
   {
     "iso_alpha2": "DJ",
@@ -1312,7 +1361,8 @@
     "gdp_ppp_usd": 7193000000,
     "gdp_ppp_year": 2023,
     "capital_lat": 11.5721,
-    "capital_lon": 43.1456
+    "capital_lon": 43.1456,
+    "iso_numeric": "262"
   },
   {
     "iso_alpha2": "MK",
@@ -1338,7 +1388,8 @@
     "gdp_ppp_usd": 53345000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 41.9981,
-    "capital_lon": 21.4254
+    "capital_lon": 21.4254,
+    "iso_numeric": "807"
   },
   {
     "iso_alpha2": "RW",
@@ -1366,7 +1417,8 @@
     "gdp_ppp_usd": 58120000000,
     "gdp_ppp_year": 2025,
     "capital_lat": -1.9403,
-    "capital_lon": 29.8739
+    "capital_lon": 29.8739,
+    "iso_numeric": "646"
   },
   {
     "iso_alpha2": "HT",
@@ -1393,7 +1445,8 @@
     "gdp_ppp_year": 2025,
     "is_island": true,
     "capital_lat": 18.5944,
-    "capital_lon": -72.3074
+    "capital_lon": -72.3074,
+    "iso_numeric": "332"
   },
   {
     "iso_alpha2": "BI",
@@ -1420,7 +1473,8 @@
     "gdp_ppp_usd": 13980000000,
     "gdp_ppp_year": 2025,
     "capital_lat": -3.4264,
-    "capital_lon": 29.9306
+    "capital_lon": 29.9306,
+    "iso_numeric": "108"
   },
   {
     "iso_alpha2": "GQ",
@@ -1447,7 +1501,8 @@
     "gdp_ppp_usd": 33001000000,
     "gdp_ppp_year": 2025,
     "capital_lat": 1.8636,
-    "capital_lon": 9.7981
+    "capital_lon": 9.7981,
+    "iso_numeric": "226"
   },
   {
     "iso_alpha2": "AL",
@@ -1472,7 +1527,8 @@
     "gdp_ppp_usd": 66290000000,
     "gdp_ppp_year": 2026,
     "capital_lat": 41.3275,
-    "capital_lon": 19.8187
+    "capital_lon": 19.8187,
+    "iso_numeric": "008"
   },
   {
     "name": "Solomon Islands",
@@ -1498,7 +1554,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": -9.4319,
-    "capital_lon": 159.9556
+    "capital_lon": 159.9556,
+    "iso_numeric": "090"
   },
   {
     "name": "Armenia",
@@ -1523,7 +1580,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 40.1792,
-    "capital_lon": 44.4991
+    "capital_lon": 44.4991,
+    "iso_numeric": "051"
   },
   {
     "name": "Lesotho",
@@ -1550,7 +1608,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -29.3151,
-    "capital_lon": 27.4869
+    "capital_lon": 27.4869,
+    "iso_numeric": "426"
   },
   {
     "name": "Belgium",
@@ -1577,7 +1636,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 50.8503,
-    "capital_lon": 4.3517
+    "capital_lon": 4.3517,
+    "iso_numeric": "056"
   },
   {
     "name": "Moldova",
@@ -1602,7 +1662,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 47.0105,
-    "capital_lon": 28.8638
+    "capital_lon": 28.8638,
+    "iso_numeric": "498"
   },
   {
     "name": "Guinea-Bissau",
@@ -1627,7 +1688,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 11.8817,
-    "capital_lon": -15.6178
+    "capital_lon": -15.6178,
+    "iso_numeric": "624"
   },
   {
     "name": "Taiwan",
@@ -1653,7 +1715,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 25.033,
-    "capital_lon": 121.5654
+    "capital_lon": 121.5654,
+    "iso_numeric": "158"
   },
   {
     "name": "Bhutan",
@@ -1679,7 +1742,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 27.4728,
-    "capital_lon": 89.639
+    "capital_lon": 89.639,
+    "iso_numeric": "064"
   },
   {
     "name": "Switzerland",
@@ -1707,7 +1771,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 46.948,
-    "capital_lon": 7.4474
+    "capital_lon": 7.4474,
+    "iso_numeric": "756"
   },
   {
     "name": "Netherlands",
@@ -1733,7 +1798,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 52.3676,
-    "capital_lon": 4.9041
+    "capital_lon": 4.9041,
+    "iso_numeric": "528"
   },
   {
     "name": "Estonia",
@@ -1758,7 +1824,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 59.437,
-    "capital_lon": 24.7536
+    "capital_lon": 24.7536,
+    "iso_numeric": "233"
   },
   {
     "name": "Dominican Republic",
@@ -1784,7 +1851,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 18.4861,
-    "capital_lon": -69.9312
+    "capital_lon": -69.9312,
+    "iso_numeric": "214"
   },
   {
     "name": "Slovakia",
@@ -1809,7 +1877,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 48.1486,
-    "capital_lon": 17.1077
+    "capital_lon": 17.1077,
+    "iso_numeric": "703"
   },
   {
     "name": "Costa Rica",
@@ -1837,7 +1906,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 9.9281,
-    "capital_lon": -84.0907
+    "capital_lon": -84.0907,
+    "iso_numeric": "188"
   },
   {
     "name": "Bosnia and Herzegovina",
@@ -1864,7 +1934,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 43.8563,
-    "capital_lon": 18.4131
+    "capital_lon": 18.4131,
+    "iso_numeric": "070"
   },
   {
     "name": "Croatia",
@@ -1889,7 +1960,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 45.815,
-    "capital_lon": 15.9819
+    "capital_lon": 15.9819,
+    "iso_numeric": "191"
   },
   {
     "name": "Togo",
@@ -1914,7 +1986,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 6.1725,
-    "capital_lon": 1.2314
+    "capital_lon": 1.2314,
+    "iso_numeric": "768"
   },
   {
     "name": "Latvia",
@@ -1939,7 +2012,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 56.9496,
-    "capital_lon": 24.1052
+    "capital_lon": 24.1052,
+    "iso_numeric": "428"
   },
   {
     "name": "Lithuania",
@@ -1964,7 +2038,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 54.6872,
-    "capital_lon": 25.2797
+    "capital_lon": 25.2797,
+    "iso_numeric": "440"
   },
   {
     "name": "Sri Lanka",
@@ -1993,7 +2068,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 6.9271,
-    "capital_lon": 79.8612
+    "capital_lon": 79.8612,
+    "iso_numeric": "144"
   },
   {
     "name": "Georgia",
@@ -2019,7 +2095,8 @@
     "continent": "Europe",
     "continent_secondary": "Asia",
     "capital_lat": 41.7151,
-    "capital_lon": 44.8271
+    "capital_lon": 44.8271,
+    "iso_numeric": "268"
   },
   {
     "name": "Republic of Ireland",
@@ -2046,7 +2123,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 53.3498,
-    "capital_lon": -6.2603
+    "capital_lon": -6.2603,
+    "iso_numeric": "372"
   },
   {
     "name": "Sierra Leone",
@@ -2072,7 +2150,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 8.4657,
-    "capital_lon": -13.2317
+    "capital_lon": -13.2317,
+    "iso_numeric": "694"
   },
   {
     "name": "Panama",
@@ -2098,7 +2177,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 8.9824,
-    "capital_lon": -79.5199
+    "capital_lon": -79.5199,
+    "iso_numeric": "591"
   },
   {
     "name": "Czech Republic",
@@ -2123,7 +2203,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 50.0755,
-    "capital_lon": 14.4378
+    "capital_lon": 14.4378,
+    "iso_numeric": "203"
   },
   {
     "name": "United Arab Emirates",
@@ -2148,7 +2229,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 24.4539,
-    "capital_lon": 54.3773
+    "capital_lon": 54.3773,
+    "iso_numeric": "784"
   },
   {
     "name": "Austria",
@@ -2173,7 +2255,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 48.2082,
-    "capital_lon": 16.3738
+    "capital_lon": 16.3738,
+    "iso_numeric": "040"
   },
   {
     "name": "Azerbaijan",
@@ -2198,7 +2281,8 @@
     "continent": "Asia",
     "continent_secondary": "Europe",
     "capital_lat": 40.4093,
-    "capital_lon": 49.8671
+    "capital_lon": 49.8671,
+    "iso_numeric": "031"
   },
   {
     "name": "Serbia",
@@ -2223,7 +2307,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 44.7866,
-    "capital_lon": 20.4489
+    "capital_lon": 20.4489,
+    "iso_numeric": "688"
   },
   {
     "name": "Jordan",
@@ -2248,7 +2333,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 31.9454,
-    "capital_lon": 35.9284
+    "capital_lon": 35.9284,
+    "iso_numeric": "400"
   },
   {
     "name": "Portugal",
@@ -2273,7 +2359,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 38.7223,
-    "capital_lon": -9.1393
+    "capital_lon": -9.1393,
+    "iso_numeric": "620"
   },
   {
     "name": "Hungary",
@@ -2298,7 +2385,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 47.4979,
-    "capital_lon": 19.0402
+    "capital_lon": 19.0402,
+    "iso_numeric": "348"
   },
   {
     "name": "South Korea",
@@ -2324,7 +2412,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 37.5665,
-    "capital_lon": 126.978
+    "capital_lon": 126.978,
+    "iso_numeric": "410"
   },
   {
     "name": "Iceland",
@@ -2350,7 +2439,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 64.1466,
-    "capital_lon": -21.9426
+    "capital_lon": -21.9426,
+    "iso_numeric": "352"
   },
   {
     "name": "Guatemala",
@@ -2375,7 +2465,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 14.6349,
-    "capital_lon": -90.5069
+    "capital_lon": -90.5069,
+    "iso_numeric": "320"
   },
   {
     "name": "Cuba",
@@ -2401,7 +2492,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 23.1136,
-    "capital_lon": -82.3666
+    "capital_lon": -82.3666,
+    "iso_numeric": "192"
   },
   {
     "name": "Bulgaria",
@@ -2426,7 +2518,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 42.6977,
-    "capital_lon": 23.3219
+    "capital_lon": 23.3219,
+    "iso_numeric": "100"
   },
   {
     "name": "Liberia",
@@ -2452,7 +2545,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 6.2907,
-    "capital_lon": -10.7605
+    "capital_lon": -10.7605,
+    "iso_numeric": "430"
   },
   {
     "name": "Honduras",
@@ -2477,7 +2571,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 14.0723,
-    "capital_lon": -87.1921
+    "capital_lon": -87.1921,
+    "iso_numeric": "340"
   },
   {
     "name": "Benin",
@@ -2502,7 +2597,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 6.4969,
-    "capital_lon": 2.6289
+    "capital_lon": 2.6289,
+    "iso_numeric": "204"
   },
   {
     "name": "Eritrea",
@@ -2527,7 +2623,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 15.3229,
-    "capital_lon": 38.9251
+    "capital_lon": 38.9251,
+    "iso_numeric": "232"
   },
   {
     "name": "Malawi",
@@ -2552,7 +2649,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -13.9626,
-    "capital_lon": 33.7741
+    "capital_lon": 33.7741,
+    "iso_numeric": "454"
   },
   {
     "name": "North Korea",
@@ -2577,7 +2675,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 39.0392,
-    "capital_lon": 125.7625
+    "capital_lon": 125.7625,
+    "iso_numeric": "408"
   },
   {
     "name": "Nicaragua",
@@ -2602,7 +2701,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 12.115,
-    "capital_lon": -86.2362
+    "capital_lon": -86.2362,
+    "iso_numeric": "558"
   },
   {
     "name": "Greece",
@@ -2627,7 +2727,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 37.9838,
-    "capital_lon": 23.7275
+    "capital_lon": 23.7275,
+    "iso_numeric": "300"
   },
   {
     "name": "Tajikistan",
@@ -2653,7 +2754,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 38.5598,
-    "capital_lon": 68.787
+    "capital_lon": 68.787,
+    "iso_numeric": "762"
   },
   {
     "name": "Nepal",
@@ -2678,7 +2780,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 27.7172,
-    "capital_lon": 85.324
+    "capital_lon": 85.324,
+    "iso_numeric": "524"
   },
   {
     "name": "Bangladesh",
@@ -2699,11 +2802,12 @@
     "currency": [
       "BDT"
     ],
-    "iso_alpha2": "BP",
+    "iso_alpha2": "BD",
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 23.8103,
-    "capital_lon": 90.4125
+    "capital_lon": 90.4125,
+    "iso_numeric": "050"
   },
   {
     "name": "Tunisia",
@@ -2728,7 +2832,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 36.8065,
-    "capital_lon": 10.1815
+    "capital_lon": 10.1815,
+    "iso_numeric": "788"
   },
   {
     "name": "Suriname",
@@ -2753,7 +2858,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": 5.852,
-    "capital_lon": -55.2038
+    "capital_lon": -55.2038,
+    "iso_numeric": "740"
   },
   {
     "name": "Uruguay",
@@ -2779,7 +2885,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": -34.9011,
-    "capital_lon": -56.1645
+    "capital_lon": -56.1645,
+    "iso_numeric": "858"
   },
   {
     "name": "Cambodia",
@@ -2805,7 +2912,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 11.5564,
-    "capital_lon": 104.9282
+    "capital_lon": 104.9282,
+    "iso_numeric": "116"
   },
   {
     "name": "Syria",
@@ -2830,7 +2938,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 33.5138,
-    "capital_lon": 36.2765
+    "capital_lon": 36.2765,
+    "iso_numeric": "760"
   },
   {
     "name": "Senegal",
@@ -2855,7 +2964,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 14.7167,
-    "capital_lon": -17.4677
+    "capital_lon": -17.4677,
+    "iso_numeric": "686"
   },
   {
     "name": "Kyrgyzstan",
@@ -2881,7 +2991,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 42.8746,
-    "capital_lon": 74.5698
+    "capital_lon": 74.5698,
+    "iso_numeric": "417"
   },
   {
     "name": "Belarus",
@@ -2907,7 +3018,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 53.9006,
-    "capital_lon": 27.559
+    "capital_lon": 27.559,
+    "iso_numeric": "112"
   },
   {
     "name": "Guyana",
@@ -2932,7 +3044,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": 6.8013,
-    "capital_lon": -58.1551
+    "capital_lon": -58.1551,
+    "iso_numeric": "328"
   },
   {
     "name": "Laos",
@@ -2957,7 +3070,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 17.9757,
-    "capital_lon": 102.6331
+    "capital_lon": 102.6331,
+    "iso_numeric": "418"
   },
   {
     "name": "Romania",
@@ -2982,7 +3096,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 44.4268,
-    "capital_lon": 26.1025
+    "capital_lon": 26.1025,
+    "iso_numeric": "642"
   },
   {
     "name": "Ghana",
@@ -3007,7 +3122,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 5.6037,
-    "capital_lon": -0.187
+    "capital_lon": -0.187,
+    "iso_numeric": "288"
   },
   {
     "name": "Uganda",
@@ -3033,7 +3149,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 0.3476,
-    "capital_lon": 32.5825
+    "capital_lon": 32.5825,
+    "iso_numeric": "800"
   },
   {
     "name": "United Kingdom",
@@ -3059,7 +3176,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 51.5074,
-    "capital_lon": -0.1278
+    "capital_lon": -0.1278,
+    "iso_numeric": "826"
   },
   {
     "name": "Guinea",
@@ -3084,7 +3202,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 9.6412,
-    "capital_lon": -13.5784
+    "capital_lon": -13.5784,
+    "iso_numeric": "324"
   },
   {
     "name": "Gabon",
@@ -3109,7 +3228,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 0.4162,
-    "capital_lon": 9.4673
+    "capital_lon": 9.4673,
+    "iso_numeric": "266"
   },
   {
     "name": "New Zealand",
@@ -3137,7 +3257,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": -41.2865,
-    "capital_lon": 174.7762
+    "capital_lon": 174.7762,
+    "iso_numeric": "554"
   },
   {
     "name": "Burkina Faso",
@@ -3164,7 +3285,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 12.3714,
-    "capital_lon": -1.5197
+    "capital_lon": -1.5197,
+    "iso_numeric": "854"
   },
   {
     "name": "Ecuador",
@@ -3189,7 +3311,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": -0.1807,
-    "capital_lon": -78.4678
+    "capital_lon": -78.4678,
+    "iso_numeric": "218"
   },
   {
     "name": "Philippines",
@@ -3217,7 +3340,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 14.5995,
-    "capital_lon": 120.9842
+    "capital_lon": 120.9842,
+    "iso_numeric": "608"
   },
   {
     "name": "Italy",
@@ -3242,7 +3366,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 41.9028,
-    "capital_lon": 12.4964
+    "capital_lon": 12.4964,
+    "iso_numeric": "380"
   },
   {
     "name": "Oman",
@@ -3267,7 +3392,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 23.5859,
-    "capital_lon": 58.4059
+    "capital_lon": 58.4059,
+    "iso_numeric": "512"
   },
   {
     "name": "Poland",
@@ -3292,7 +3418,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 52.2297,
-    "capital_lon": 21.0122
+    "capital_lon": 21.0122,
+    "iso_numeric": "616"
   },
   {
     "name": "Ivory Coast",
@@ -3317,7 +3444,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 6.8276,
-    "capital_lon": -5.2893
+    "capital_lon": -5.2893,
+    "iso_numeric": "384"
   },
   {
     "name": "Malaysia",
@@ -3342,7 +3470,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 3.139,
-    "capital_lon": 101.6869
+    "capital_lon": 101.6869,
+    "iso_numeric": "458"
   },
   {
     "name": "Vietnam",
@@ -3367,7 +3496,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 21.0278,
-    "capital_lon": 105.8342
+    "capital_lon": 105.8342,
+    "iso_numeric": "704"
   },
   {
     "name": "Finland",
@@ -3393,7 +3523,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 60.1699,
-    "capital_lon": 24.9384
+    "capital_lon": 24.9384,
+    "iso_numeric": "246"
   },
   {
     "name": "Republic of the Congo",
@@ -3418,7 +3549,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -4.2634,
-    "capital_lon": 15.2429
+    "capital_lon": 15.2429,
+    "iso_numeric": "178"
   },
   {
     "name": "Germany",
@@ -3443,7 +3575,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 52.52,
-    "capital_lon": 13.405
+    "capital_lon": 13.405,
+    "iso_numeric": "276"
   },
   {
     "name": "Japan",
@@ -3469,7 +3602,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": 35.6762,
-    "capital_lon": 139.6503
+    "capital_lon": 139.6503,
+    "iso_numeric": "392"
   },
   {
     "name": "Norway",
@@ -3495,7 +3629,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 59.9139,
-    "capital_lon": 10.7522
+    "capital_lon": 10.7522,
+    "iso_numeric": "578"
   },
   {
     "name": "Zimbabwe",
@@ -3537,7 +3672,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -17.8292,
-    "capital_lon": 31.0522
+    "capital_lon": 31.0522,
+    "iso_numeric": "716"
   },
   {
     "name": "Paraguay",
@@ -3563,7 +3699,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": -25.2637,
-    "capital_lon": -57.5759
+    "capital_lon": -57.5759,
+    "iso_numeric": "600"
   },
   {
     "name": "Iraq",
@@ -3589,7 +3726,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 33.3152,
-    "capital_lon": 44.3661
+    "capital_lon": 44.3661,
+    "iso_numeric": "368"
   },
   {
     "name": "Morocco",
@@ -3615,7 +3753,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 34.0209,
-    "capital_lon": -6.8416
+    "capital_lon": -6.8416,
+    "iso_numeric": "504"
   },
   {
     "name": "Uzbekistan",
@@ -3641,7 +3780,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 41.2995,
-    "capital_lon": 69.2401
+    "capital_lon": 69.2401,
+    "iso_numeric": "860"
   },
   {
     "name": "Sweden",
@@ -3666,7 +3806,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 59.3293,
-    "capital_lon": 18.0686
+    "capital_lon": 18.0686,
+    "iso_numeric": "752"
   },
   {
     "name": "Papua New Guinea",
@@ -3695,7 +3836,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": -9.4438,
-    "capital_lon": 147.1803
+    "capital_lon": 147.1803,
+    "iso_numeric": "598"
   },
   {
     "name": "Cameroon",
@@ -3721,7 +3863,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 3.848,
-    "capital_lon": 11.5021
+    "capital_lon": 11.5021,
+    "iso_numeric": "120"
   },
   {
     "name": "Turkmenistan",
@@ -3746,7 +3889,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 37.9601,
-    "capital_lon": 58.3261
+    "capital_lon": 58.3261,
+    "iso_numeric": "795"
   },
   {
     "name": "Spain",
@@ -3771,7 +3915,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 40.4168,
-    "capital_lon": -3.7038
+    "capital_lon": -3.7038,
+    "iso_numeric": "724"
   },
   {
     "name": "Thailand",
@@ -3796,7 +3941,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 13.7563,
-    "capital_lon": 100.5018
+    "capital_lon": 100.5018,
+    "iso_numeric": "764"
   },
   {
     "name": "Yemen",
@@ -3821,7 +3967,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 15.3694,
-    "capital_lon": 44.191
+    "capital_lon": 44.191,
+    "iso_numeric": "887"
   },
   {
     "name": "Kenya",
@@ -3847,7 +3994,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -1.2921,
-    "capital_lon": 36.8219
+    "capital_lon": 36.8219,
+    "iso_numeric": "404"
   },
   {
     "name": "Botswana",
@@ -3872,7 +4020,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -24.6282,
-    "capital_lon": 25.9231
+    "capital_lon": 25.9231,
+    "iso_numeric": "072"
   },
   {
     "name": "Madagascar",
@@ -3899,7 +4048,8 @@
     "continent_secondary": null,
     "is_island": true,
     "capital_lat": -18.8792,
-    "capital_lon": 47.5079
+    "capital_lon": 47.5079,
+    "iso_numeric": "450"
   },
   {
     "name": "Ukraine",
@@ -3924,7 +4074,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 50.4501,
-    "capital_lon": 30.5234
+    "capital_lon": 30.5234,
+    "iso_numeric": "804"
   },
   {
     "name": "Central African Republic",
@@ -3950,7 +4101,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 4.3947,
-    "capital_lon": 18.5582
+    "capital_lon": 18.5582,
+    "iso_numeric": "140"
   },
   {
     "name": "Somalia",
@@ -3975,7 +4127,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 2.0469,
-    "capital_lon": 45.3182
+    "capital_lon": 45.3182,
+    "iso_numeric": "706"
   },
   {
     "name": "France",
@@ -4001,7 +4154,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 48.8566,
-    "capital_lon": 2.3522
+    "capital_lon": 2.3522,
+    "iso_numeric": "250"
   },
   {
     "name": "South Sudan",
@@ -4026,7 +4180,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 4.8517,
-    "capital_lon": 31.5825
+    "capital_lon": 31.5825,
+    "iso_numeric": "728"
   },
   {
     "name": "Afghanistan",
@@ -4052,7 +4207,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 34.5553,
-    "capital_lon": 69.2075
+    "capital_lon": 69.2075,
+    "iso_numeric": "004"
   },
   {
     "name": "Myanmar",
@@ -4078,7 +4234,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 19.7633,
-    "capital_lon": 96.0785
+    "capital_lon": 96.0785,
+    "iso_numeric": "104"
   },
   {
     "name": "Zambia",
@@ -4103,7 +4260,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -15.3875,
-    "capital_lon": 28.3228
+    "capital_lon": 28.3228,
+    "iso_numeric": "894"
   },
   {
     "name": "Chile",
@@ -4128,7 +4286,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": -33.4489,
-    "capital_lon": -70.6693
+    "capital_lon": -70.6693,
+    "iso_numeric": "152"
   },
   {
     "name": "Turkey",
@@ -4153,7 +4312,8 @@
     "continent": "Asia",
     "continent_secondary": "Europe",
     "capital_lat": 39.9334,
-    "capital_lon": 32.8597
+    "capital_lon": 32.8597,
+    "iso_numeric": "792"
   },
   {
     "name": "Mozambique",
@@ -4178,7 +4338,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -25.9692,
-    "capital_lon": 32.5732
+    "capital_lon": 32.5732,
+    "iso_numeric": "508"
   },
   {
     "name": "Namibia",
@@ -4204,7 +4365,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -22.5609,
-    "capital_lon": 17.0658
+    "capital_lon": 17.0658,
+    "iso_numeric": "516"
   },
   {
     "name": "Pakistan",
@@ -4230,7 +4392,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 33.6844,
-    "capital_lon": 73.0479
+    "capital_lon": 73.0479,
+    "iso_numeric": "586"
   },
   {
     "name": "Venezuela",
@@ -4255,7 +4418,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": 10.4806,
-    "capital_lon": -66.9036
+    "capital_lon": -66.9036,
+    "iso_numeric": "862"
   },
   {
     "name": "Nigeria",
@@ -4280,7 +4444,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 9.0765,
-    "capital_lon": 7.3986
+    "capital_lon": 7.3986,
+    "iso_numeric": "566"
   },
   {
     "name": "Tanzania",
@@ -4306,7 +4471,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -6.163,
-    "capital_lon": 35.7516
+    "capital_lon": 35.7516,
+    "iso_numeric": "834"
   },
   {
     "name": "Egypt",
@@ -4331,7 +4497,8 @@
     "continent": "Africa",
     "continent_secondary": "Asia",
     "capital_lat": 30.0444,
-    "capital_lon": 31.2357
+    "capital_lon": 31.2357,
+    "iso_numeric": "818"
   },
   {
     "name": "Mauritania",
@@ -4356,7 +4523,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 18.0735,
-    "capital_lon": -15.9582
+    "capital_lon": -15.9582,
+    "iso_numeric": "478"
   },
   {
     "name": "Bolivia",
@@ -4385,7 +4553,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": -19.0333,
-    "capital_lon": -65.2627
+    "capital_lon": -65.2627,
+    "iso_numeric": "068"
   },
   {
     "name": "Ethiopia",
@@ -4411,7 +4580,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 9.03,
-    "capital_lon": 38.74
+    "capital_lon": 38.74,
+    "iso_numeric": "231"
   },
   {
     "name": "Colombia",
@@ -4436,7 +4606,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": 4.711,
-    "capital_lon": -74.0721
+    "capital_lon": -74.0721,
+    "iso_numeric": "170"
   },
   {
     "name": "South Africa",
@@ -4474,7 +4645,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -25.7479,
-    "capital_lon": 28.2293
+    "capital_lon": 28.2293,
+    "iso_numeric": "710"
   },
   {
     "name": "Mali",
@@ -4511,7 +4683,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 12.6392,
-    "capital_lon": -8.0029
+    "capital_lon": -8.0029,
+    "iso_numeric": "466"
   },
   {
     "name": "Angola",
@@ -4536,7 +4709,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -8.839,
-    "capital_lon": 13.2894
+    "capital_lon": 13.2894,
+    "iso_numeric": "024"
   },
   {
     "name": "Niger",
@@ -4561,7 +4735,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 13.5127,
-    "capital_lon": 2.1128
+    "capital_lon": 2.1128,
+    "iso_numeric": "562"
   },
   {
     "name": "Chad",
@@ -4587,7 +4762,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 12.1348,
-    "capital_lon": 15.0557
+    "capital_lon": 15.0557,
+    "iso_numeric": "148"
   },
   {
     "name": "Peru",
@@ -4612,7 +4788,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": -12.0464,
-    "capital_lon": -77.0428
+    "capital_lon": -77.0428,
+    "iso_numeric": "604"
   },
   {
     "name": "Mongolia",
@@ -4637,7 +4814,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 47.8864,
-    "capital_lon": 106.9057
+    "capital_lon": 106.9057,
+    "iso_numeric": "496"
   },
   {
     "name": "Iran",
@@ -4662,7 +4840,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 35.6892,
-    "capital_lon": 51.389
+    "capital_lon": 51.389,
+    "iso_numeric": "364"
   },
   {
     "name": "Libya",
@@ -4687,7 +4866,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 32.8872,
-    "capital_lon": 13.1913
+    "capital_lon": 13.1913,
+    "iso_numeric": "434"
   },
   {
     "name": "Sudan",
@@ -4713,7 +4893,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 15.5007,
-    "capital_lon": 32.5599
+    "capital_lon": 32.5599,
+    "iso_numeric": "729"
   },
   {
     "name": "Indonesia",
@@ -4739,7 +4920,8 @@
     "continent_secondary": "Oceania",
     "is_island": true,
     "capital_lat": -6.2088,
-    "capital_lon": 106.8456
+    "capital_lon": 106.8456,
+    "iso_numeric": "360"
   },
   {
     "name": "Mexico",
@@ -4764,7 +4946,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 19.4326,
-    "capital_lon": -99.1332
+    "capital_lon": -99.1332,
+    "iso_numeric": "484"
   },
   {
     "name": "Saudi Arabia",
@@ -4789,7 +4972,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 24.7136,
-    "capital_lon": 46.6753
+    "capital_lon": 46.6753,
+    "iso_numeric": "682"
   },
   {
     "name": "Denmark",
@@ -4814,7 +4998,8 @@
     "continent": "Europe",
     "continent_secondary": null,
     "capital_lat": 55.6761,
-    "capital_lon": 12.5683
+    "capital_lon": 12.5683,
+    "iso_numeric": "208"
   },
   {
     "name": "Democratic Republic of the Congo",
@@ -4839,7 +5024,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": -4.4419,
-    "capital_lon": 15.2663
+    "capital_lon": 15.2663,
+    "iso_numeric": "180"
   },
   {
     "name": "Algeria",
@@ -4865,7 +5051,8 @@
     "continent": "Africa",
     "continent_secondary": null,
     "capital_lat": 36.7538,
-    "capital_lon": 3.0588
+    "capital_lon": 3.0588,
+    "iso_numeric": "012"
   },
   {
     "name": "Kazakhstan",
@@ -4891,7 +5078,8 @@
     "continent": "Asia",
     "continent_secondary": "Europe",
     "capital_lat": 51.1694,
-    "capital_lon": 71.4491
+    "capital_lon": 71.4491,
+    "iso_numeric": "398"
   },
   {
     "name": "Argentina",
@@ -4916,7 +5104,8 @@
     "continent": "South America",
     "continent_secondary": null,
     "capital_lat": -34.6037,
-    "capital_lon": -58.3816
+    "capital_lon": -58.3816,
+    "iso_numeric": "032"
   },
   {
     "name": "India",
@@ -4942,7 +5131,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 28.6139,
-    "capital_lon": 77.209
+    "capital_lon": 77.209,
+    "iso_numeric": "356"
   },
   {
     "name": "Australia",
@@ -4967,7 +5157,8 @@
     "continent": "Oceania",
     "continent_secondary": null,
     "capital_lat": -35.2809,
-    "capital_lon": 149.13
+    "capital_lon": 149.13,
+    "iso_numeric": "036"
   },
   {
     "name": "Brazil",
@@ -4992,7 +5183,8 @@
     ],
     "iso_alpha2": "BR",
     "continent": "South America",
-    "continent_secondary": null
+    "continent_secondary": null,
+    "iso_numeric": "076"
   },
   {
     "name": "China",
@@ -5017,7 +5209,8 @@
     "continent": "Asia",
     "continent_secondary": null,
     "capital_lat": 39.9042,
-    "capital_lon": 116.4074
+    "capital_lon": 116.4074,
+    "iso_numeric": "156"
   },
   {
     "name": "United States",
@@ -5042,7 +5235,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 38.9072,
-    "capital_lon": -77.0369
+    "capital_lon": -77.0369,
+    "iso_numeric": "840"
   },
   {
     "name": "Canada",
@@ -5068,7 +5262,8 @@
     "continent": "North America",
     "continent_secondary": null,
     "capital_lat": 45.4215,
-    "capital_lon": -75.6972
+    "capital_lon": -75.6972,
+    "iso_numeric": "124"
   },
   {
     "name": "Russia",
@@ -5093,6 +5288,7 @@
     "continent": "Asia",
     "continent_secondary": "Europe",
     "capital_lat": 55.7558,
-    "capital_lon": 37.6173
+    "capital_lon": 37.6173,
+    "iso_numeric": "643"
   }
 ]

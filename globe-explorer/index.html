@@ -480,7 +480,9 @@ const territoriesReady = fetch(TERRITORY_DATA_URL)
 // (world-atlas boundary shapes only carry a Natural Earth "name" label, no ISO code —
 // this matches that name against our own countries.json/territories.json "name" field
 // to find the iso code. No external API calls involved anywhere in this bridge.)
+
 let iso2ByName = new Map();
+let iso2ByNumeric = new Map();
 
 // ---------- capital coordinates, read from our own dataset once we add them ----------
 // Add "capital_lat" and "capital_lon" (numbers) to entries in countries.json /
@@ -491,21 +493,22 @@ let capitalCoordsByIso = new Map();
 function buildOwnLookups(){
   countryDataByIso.forEach((facts, iso2) => {
     if (facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
+    if (facts.iso_numeric) iso2ByNumeric.set(String(Number(facts.iso_numeric)), iso2);
     if (typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') {
       capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
     }
   });
-territoryDataByIso.forEach((facts, iso2) => {
-  if (facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
-  // guard: a territory must never overwrite a real country's capital coords
-  // just because they happen to share the same ISO code (e.g. Ross Dependency
-  // and New Zealand both use "NZ" in this dataset)
-  if (!countryDataByIso.has(iso2) &&
-      typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') {
-    capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
-  }
-});
-
+  territoryDataByIso.forEach((facts, iso2) => {
+    if (facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
+    if (facts.iso_numeric) iso2ByNumeric.set(String(Number(facts.iso_numeric)), iso2);
+    // guard: a territory must never overwrite a real country's capital coords
+    // just because they happen to share the same ISO code (e.g. Ross Dependency
+    // and New Zealand both use "NZ" in this dataset)
+    if (!countryDataByIso.has(iso2) &&
+        typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') {
+      capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
+    }
+  });
 }
 
 function findIsoByName(name){
@@ -631,12 +634,12 @@ Promise.all([
   .then(([topology]) => {
     buildOwnLookups();
 
-    const geojson = topojson.feature(topology, topology.objects.countries);
+        const geojson = topojson.feature(topology, topology.objects.countries);
     countryFeatures = geojson.features
       .filter(f => f.geometry)
       .map(f => {
         const worldAtlasName = (f.properties && f.properties.name) || '';
-        const iso2 = findIsoByName(worldAtlasName);
+        const iso2 = iso2ByNumeric.get(String(Number(f.id))) || findIsoByName(worldAtlasName);
         const ownFacts = iso2 ? countryDataByIso.get(iso2) : null;
 
         f.properties = f.properties || {};
