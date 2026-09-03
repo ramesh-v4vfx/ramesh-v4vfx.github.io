@@ -445,66 +445,65 @@ function findCountryAt(lon, lat){
   return null;
 }
 
-// ---------- country facts (RameshVerse's own dataset) ----------
-// Adjust this path if countries.json lives somewhere else on the site.
-const COUNTRY_DATA_URL = '/country-explorer/data/countries.json';
-let countryDataByName = new Map();
-
-// ---------- territory facts (fallback for non-sovereign places like Greenland) ----------
-const TERRITORY_DATA_URL = '/territory-explorer/data/territories.json';
-let territoryDataByName = new Map();
-
 function normalizeName(s){ return (s || '').toLowerCase().trim(); }
 
-fetch(COUNTRY_DATA_URL)
+// ---------- country facts (RameshVerse's own dataset, keyed by ISO alpha-2) ----------
+// Adjust this path if countries.json lives somewhere else on the site.
+const COUNTRY_DATA_URL = '/country-explorer/data/countries.json';
+let countryDataByIso = new Map();
+
+const ownCountriesReady = fetch(COUNTRY_DATA_URL)
   .then(r => r.json())
   .then(list => {
-    list.forEach(c => countryDataByName.set(normalizeName(c.name), c));
+    list.forEach(c => { if (c.iso_alpha2) countryDataByIso.set(c.iso_alpha2.toUpperCase(), c); });
   })
   .catch(() => { /* falls back gracefully — info card just shows "no data" */ });
 
-fetch(TERRITORY_DATA_URL)
+// ---------- territory facts (fallback for non-sovereign places like Greenland), keyed by ISO ----------
+const TERRITORY_DATA_URL = '/territory-explorer/data/territories.json';
+let territoryDataByIso = new Map();
+
+const territoriesReady = fetch(TERRITORY_DATA_URL)
   .then(r => r.json())
   .then(list => {
-    list.forEach(t => territoryDataByName.set(normalizeName(t.name), t));
+    list.forEach(t => { if (t.iso) territoryDataByIso.set(t.iso.toUpperCase(), t); });
   })
   .catch(() => { /* falls back gracefully — territories just show "no data" too */ });
 
-  // ---------- capital coordinates (REST Countries API — free, no key required) ----------
-let capitalCoordsByName = new Map();
+// ---------- ISO code bridge + capital coordinates, from REST Countries ----------
+// (bridges world-atlas's numeric IDs to our own countries.json's iso_alpha2 codes,
+// and gives us real capital lat/lon for the marker — all from one free, keyless API)
+let capitalCoordsByIso = new Map();
+let alpha2ByNumeric = new Map();
+let alpha2ByName = new Map(); // fallback bridge, keyed by normalized country name
 
-fetch('https://restcountries.com/v3.1/all?fields=name,capitalInfo')
+const restCountriesReady = fetch('https://restcountries.com/v3.1/all?fields=cca2,ccn3,name,capitalInfo')
   .then(r => r.json())
   .then(list => {
     list.forEach(c => {
+      if (!c.cca2) return;
+      const iso2 = c.cca2.toUpperCase();
+
+      if (c.ccn3) {
+        const numId = String(c.ccn3).padStart(3, '0');
+        alpha2ByNumeric.set(numId, iso2);
+      }
+
+      if (c.name && c.name.common) {
+        alpha2ByName.set(normalizeName(c.name.common), iso2);
+      }
+
       const latlng = c.capitalInfo && c.capitalInfo.latlng;
       if (latlng && latlng.length === 2) {
-        capitalCoordsByName.set(normalizeName(c.name.common), { lat: latlng[0], lon: latlng[1] });
+        capitalCoordsByIso.set(iso2, { lat: latlng[0], lon: latlng[1] });
       }
     });
   })
-  .catch(() => { /* falls back gracefully — marker just won't show if this fails */ });
+  .catch(() => { /* falls back gracefully — names default to world-atlas raw ids, capitals just won't show */ });
 
-function findCapitalCoords(name){
-  const key = normalizeName(name);
-  if (capitalCoordsByName.has(key)) return capitalCoordsByName.get(key);
-  for (const [k, v] of capitalCoordsByName) {
-    if (k.includes(key) || key.includes(k)) return v;
-  }
-  return null;
-}
-
-function lookupByName(map, name){
-  const key = normalizeName(name);
-  if(map.has(key)) return map.get(key);
-  for(const [k, v] of map){
-    if(k.includes(key) || key.includes(k)) return v;
-  }
-  return null;
-}
-
-function findCountryFacts(name){ return lookupByName(countryDataByName, name); }
-function findTerritoryFacts(name){ return lookupByName(territoryDataByName, name); }
+function findCapitalCoords(iso2){ return iso2 ? capitalCoordsByIso.get(iso2.toUpperCase()) : null; }
+function findCountryFacts(iso2){ return iso2 ? countryDataByIso.get(iso2.toUpperCase()) : null; }
+function findTerritoryFacts(iso2){ return iso2 ? territoryDataByIso.get(iso2.toUpperCase()) : null; }
 
 function flagUrlFor(iso2){
   return iso2 ? `https://flagcdn.com/w320/${iso2.toLowerCase()}.png` : '';
@@ -556,6 +555,7 @@ function selectCountry(feature){
   selectedFeature = feature;
   redrawBorders();
   const name = feature.properties.name || feature.properties.NAME || 'Unknown';
+  const iso2 = feature.properties.iso2;
   selectedVal.textContent = name.toUpperCase();
 
   infoCard.classList.add('show');
@@ -564,11 +564,11 @@ function selectCountry(feature){
   capitalMarker.visible = false;
 
   let display = null;
-  const countryFacts = findCountryFacts(name);
+  const countryFacts = findCountryFacts(iso2);
   if(countryFacts){
     display = buildDisplayFromCountry(countryFacts);
   } else {
-    const territoryFacts = findTerritoryFacts(name);
+    const territoryFacts = findTerritoryFacts(iso2);
     if(territoryFacts) display = buildDisplayFromTerritory(territoryFacts);
   }
 
@@ -587,13 +587,13 @@ function selectCountry(feature){
     infoGdp.textContent = '';
   }
 
-  const capitalCoords = findCapitalCoords(name);
-if(capitalCoords){
-  capitalMarker.position.copy(latLonToVector3(capitalCoords.lat, capitalCoords.lon, EARTH_RADIUS * 1.02));
-  capitalMarker.visible = true;
-} else {
-  capitalMarker.visible = false;
-}
+  const capitalCoords = findCapitalCoords(iso2);
+  if(capitalCoords){
+    capitalMarker.position.copy(latLonToVector3(capitalCoords.lat, capitalCoords.lon, EARTH_RADIUS * 1.02));
+    capitalMarker.visible = true;
+  } else {
+    capitalMarker.visible = false;
+  }
 }
 
 infoClose.addEventListener('click', () => {
@@ -606,28 +606,27 @@ infoClose.addEventListener('click', () => {
 
 // ---------- load world boundaries (world-atlas — public domain, Natural Earth data) ----------
 const TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json';
-const NAMES_URL = 'https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/all/all.json';
 
 Promise.all([
   fetch(TOPO_URL).then(r => r.json()),
-  fetch(NAMES_URL).then(r => r.json())
+  restCountriesReady,
+  ownCountriesReady,
+  territoriesReady
 ])
-  .then(([topology, isoList]) => {
-    // build numeric-ISO-code -> name lookup (both sides zero-padded 3-digit strings)
-    const nameById = new Map();
-    isoList.forEach(entry => {
-      if (entry['country-code'] && entry.name) {
-        nameById.set(entry['country-code'], entry.name);
-      }
-    });
-
+  .then(([topology]) => {
     const geojson = topojson.feature(topology, topology.objects.countries);
     countryFeatures = geojson.features
       .filter(f => f.geometry)
       .map(f => {
-        const id = String(f.id).padStart(3, '0');
+        const numId = String(f.id).padStart(3, '0');
+        const worldAtlasName = (f.properties && f.properties.name) || '';
+
+        const iso2 = alpha2ByNumeric.get(numId) || alpha2ByName.get(normalizeName(worldAtlasName));
+        const ownFacts = iso2 ? countryDataByIso.get(iso2) : null;
+
         f.properties = f.properties || {};
-        f.properties.name = nameById.get(id) || f.properties.name || 'Unknown';
+        f.properties.iso2 = iso2 || null;
+        f.properties.name = (ownFacts && ownFacts.name) || worldAtlasName || 'Unknown';
         return f;
       });
 
