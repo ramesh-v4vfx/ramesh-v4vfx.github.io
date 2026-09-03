@@ -477,7 +477,7 @@ let capitalCoordsByIso = new Map();
 let alpha2ByNumeric = new Map();
 let alpha2ByName = new Map(); // fallback bridge, keyed by normalized country name
 
-const restCountriesReady = fetch('https://restcountries.com/v3.1/all?fields=cca2,ccn3,name,capitalInfo')
+const restCountriesReady = fetch('https://restcountries.com/v3.1/all')
   .then(r => r.json())
   .then(list => {
     list.forEach(c => {
@@ -556,6 +556,7 @@ function selectCountry(feature){
   redrawBorders();
   const name = feature.properties.name || feature.properties.NAME || 'Unknown';
   const iso2 = feature.properties.iso2;
+  console.log('DEBUG:', { name, iso2, countryDataByIso_size: countryDataByIso.size, hasCA: countryDataByIso.has('CA') });
   selectedVal.textContent = name.toUpperCase();
 
   infoCard.classList.add('show');
