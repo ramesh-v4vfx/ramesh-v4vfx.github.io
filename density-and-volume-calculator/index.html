@@ -18,8 +18,11 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Free density and volume calculator. Enter mass and volume to calculate density instantly, with a built-in volume calculator for cubes, boxes, spheres, and cylinders. See if your material floats or sinks in water.">
 
 <title>Density &amp; Volume Calculator</title>
+
+<link rel="canonical" href="https://rameshverse.com/density-and-volume-calculator">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -138,7 +141,7 @@
     .bubble, .sample-cube { animation: none; }
   }
 
-  h2 {
+  h1 {
     font-family: var(--sans);
     font-weight: 800;
     font-size: 1.3rem;
@@ -418,7 +421,7 @@
 
   .modal-close:hover { color: var(--cyan); border-color: var(--cyan); }
 
-  .modal-content h2 { margin-bottom: 16px; }
+  .modal-content h1 { margin-bottom: 16px; }
 
   .modal-content button:not(.modal-close) {
     width: 100%;
@@ -471,7 +474,7 @@
   .volume-pulse { animation: volumePulse 600ms ease-out; }
 
   @media (max-width: 480px) {
-    h2 { font-size: 1.15rem; }
+    h1 { font-size: 1.15rem; }
     .btn-calc { height: 58px; font-size: 1rem; }
     .toggle-row { flex-direction: column; }
   }
@@ -492,7 +495,7 @@
       </div>
       <div class="sample-cube"></div>
     </div>
-    <h2>Density &amp; Volume Calculator</h2>
+    <h1><title>Density & Volume Calculator | rameshverse</title></h1>
     <div class="formula-tag">&rho; = m / V</div>
   </div>
 
@@ -532,7 +535,7 @@
   <div class="modal-content">
     <button class="modal-close" onclick="closeVolumeCalc()" aria-label="Close">&times;</button>
 
-    <h2>Volume Calculator</h2>
+    <h1>Volume Calculator</h1>
 
     <label>Shape</label>
     <select id="shape" onchange="updateVolumeInputs()">

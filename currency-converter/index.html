@@ -14,42 +14,50 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Currency Converter</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet">
+<meta name="description" content="Free currency converter with live exchange rates for 150+ world currencies. Convert USD, EUR, GBP, INR, JPY and more instantly, with quick-pair shortcuts and offline caching.">
+
+<title>Currency Converter | RameshVerse</title>
+
+<link rel="canonical" href="https://rameshverse.com/currency-converter">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://rameshverse.com/currency-converter" />
+<meta property="og:title" content="Currency Converter — Live Exchange Rates" />
+<meta property="og:description" content="Free currency converter with live exchange rates for 150+ world currencies." />
+<meta property="og:image" content="https://rameshverse.com/currency-converter/preview-image/cc-preview.jpg" />
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Currency Converter — Live Exchange Rates" />
+<meta name="twitter:description" content="Free currency converter with live exchange rates for 150+ world currencies." />
+<meta name="twitter:image" content="https://rameshverse.com/currency-converter/preview-image/cc-preview.jpg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #ffffff;
-    --bg-secondary: #f5f4f0;
-    --bg-tertiary: #eeecea;
-    --text: #1a1a18;
-    --text-secondary: #6b6a66;
-    --text-tertiary: #9e9d99;
-    --border: rgba(0,0,0,0.12);
-    --border-secondary: rgba(0,0,0,0.18);
-    --pattern-color: rgba(0,0,0,0.045);
-    --radius-md: 8px;
-    --radius-lg: 12px;
+    --bg: #050608;
+    --panel: rgba(10,12,16,0.85);
+    --panel-2: #0a0a0c;
+    --line: rgba(255,43,43,0.2);
+    --line-bright: rgba(255,43,43,0.4);
+    --red: #ff2b2b;
+    --red-dim: #ff2b2b55;
+    --text: #d8dde3;
+    --muted: #5a6270;
+    --danger: #ff5c4d;
+    --font: 'Space Mono', monospace;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1c1a;
-      --bg-secondary: #252522;
-      --bg-tertiary: #2e2e2b;
-      --text: #f0efe9;
-      --text-secondary: #a8a7a2;
-      --text-tertiary: #6b6a66;
-      --border: rgba(255,255,255,0.1);
-      --border-secondary: rgba(255,255,255,0.16);
-      --pattern-color: rgba(255,255,255,0.045);
-    }
-  }
+  html, body { height: 100%; }
 
   body {
-    font-family: 'DM Mono', monospace;
-    background: var(--bg-tertiary);
+    font-family: var(--font);
+    background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     display: flex;
@@ -57,17 +65,28 @@
     justify-content: center;
     padding: 2rem 1rem;
     position: relative;
+    overflow-x: hidden;
   }
 
-  /* Faint scattered currency-symbol backdrop, adapts to light/dark automatically
-     via mask + background-color (no baked-in colors, works in both themes). */
+  /* HUD scanline + vignette overlays */
+  #scanlines{position:fixed;inset:0;pointer-events:none;z-index:80;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;}
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:79;box-shadow: inset 0 0 180px rgba(0,0,0,0.85);}
+  .corner{position:fixed;width:26px;height:26px;border:2px solid var(--red);z-index:81;pointer-events:none;opacity:.85;}
+  .corner.tl{top:14px;left:14px;border-right:none;border-bottom:none;}
+  .corner.tr{top:14px;right:14px;border-left:none;border-bottom:none;}
+  .corner.bl{bottom:14px;left:14px;border-right:none;border-top:none;}
+  .corner.br{bottom:14px;right:14px;border-left:none;border-top:none;}
+
+  /* Faint scattered currency-symbol backdrop, now tinted red for HUD */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background-color: var(--pattern-color);
+    background-color: rgba(255,43,43,0.05);
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='150'%3E%3Ctext x='12' y='40' font-size='22' font-family='Georgia, serif' fill='white'%3E%24%3C/text%3E%3Ctext x='95' y='22' font-size='17' font-family='Georgia, serif' fill='white' transform='rotate(-12 95 22)'%3E%E2%82%AC%3C/text%3E%3Ctext x='155' y='58' font-size='23' font-family='Georgia, serif' fill='white' transform='rotate(9 155 58)'%3E%C2%A3%3C/text%3E%3Ctext x='40' y='98' font-size='19' font-family='Georgia, serif' fill='white'%3E%C2%A5%3C/text%3E%3Ctext x='175' y='120' font-size='15' font-family='Georgia, serif' fill='white' transform='rotate(-7 175 120)'%3E%E2%82%A9%3C/text%3E%3Ctext x='100' y='140' font-size='13' font-family='Georgia, serif' fill='white'%3E%E2%82%BD%3C/text%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='150'%3E%3Ctext x='12' y='40' font-size='22' font-family='Georgia, serif' fill='white'%3E%24%3C/text%3E%3Ctext x='95' y='22' font-size='17' font-family='Georgia, serif' fill='white' transform='rotate(-12 95 22)'%3E%E2%82%AC%3C/text%3E%3Ctext x='155' y='58' font-size='23' font-family='Georgia, serif' fill='white' transform='rotate(9 155 58)'%3E%C2%A3%3C/text%3E%3Ctext x='40' y='98' font-size='19' font-family='Georgia, serif' fill='white'%3E%C2%A5%3C/text%3E%3Ctext x='175' y='120' font-size='15' font-family='Georgia, serif' fill='white' transform='rotate(-7 175 120)'%3E%E2%82%A9%3C/text%3E%3Ctext x='100' y='140' font-size='13' font-family='Georgia, serif' fill='white'%3E%E2%82%BD%3C/text%3E%3C/svg%3E");
     -webkit-mask-repeat: repeat;
@@ -79,56 +98,63 @@
   .cc-wrap {
     position: relative;
     z-index: 1;
-    background: var(--bg);
-    border-radius: 20px;
-    border: 0.5px solid var(--border);
+    background: var(--panel);
+    backdrop-filter: blur(6px);
+    border-radius: 0;
+    border: 1px solid var(--line-bright);
     padding: 2rem 1.75rem 2.25rem;
     width: 100%;
     max-width: 520px;
-    box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+    box-shadow:
+      0 0 0 1px rgba(255,43,43,0.06),
+      0 0 40px rgba(255,43,43,0.1),
+      0 25px 60px rgba(0,0,0,0.65);
   }
 
   .cc-header { margin-bottom: 1.75rem; }
 
   .cc-brand {
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    color: var(--text-tertiary);
-    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
   }
 
   .cc-eyebrow {
     font-size: 11px;
     letter-spacing: 0.08em;
-    color: var(--text-tertiary);
-    margin-top: 4px;
+    color: var(--muted);
+    margin-top: 6px;
     margin-bottom: 0;
   }
 
   .cc-title {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font);
     font-size: 28px;
-    font-weight: 400;
+    font-weight: 700;
     font-style: normal;
-    color: #cc0000;
+    color: var(--red);
     letter-spacing: 0.08em;
     line-height: 1.1;
+    text-transform: uppercase;
+    text-shadow: 0 0 18px rgba(255,43,43,0.35);
   }
 
   .cc-card {
-    background: var(--bg);
-    border: 0.5px solid var(--border-secondary);
-    border-radius: var(--radius-lg);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 0;
     padding: 1.25rem;
     margin-bottom: 1rem;
   }
 
   .cc-field-label {
     font-size: 11px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--text-tertiary);
+    color: var(--muted);
     margin-bottom: 8px;
   }
 
@@ -140,9 +166,9 @@
 
   .cc-amount-input {
     flex: 1;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font);
     font-size: 28px;
-    font-weight: 500;
+    font-weight: 700;
     background: transparent;
     border: none;
     outline: none;
@@ -151,7 +177,7 @@
     min-width: 0;
   }
 
-  .cc-amount-input::placeholder { color: var(--text-tertiary); }
+  .cc-amount-input::placeholder { color: var(--muted); }
   .cc-amount-input::-webkit-outer-spin-button,
   .cc-amount-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .cc-amount-input[type=number] { -moz-appearance: textfield; }
@@ -162,12 +188,12 @@
   }
 
   .cur-trigger {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font);
     font-size: 13px;
-    font-weight: 500;
-    background: var(--bg-secondary);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
+    font-weight: 700;
+    background: rgba(255,43,43,0.06);
+    border: 1px solid var(--line-bright);
+    border-radius: 0;
     color: var(--text);
     padding: 8px 12px;
     cursor: pointer;
@@ -177,11 +203,11 @@
     align-items: center;
     gap: 6px;
     white-space: nowrap;
-    transition: border-color 0.12s;
+    transition: border-color 0.12s, background 0.12s;
   }
 
-  .cur-trigger:hover { border-color: var(--border-secondary); }
-  .cur-trigger .arrow { margin-left: auto; font-size: 10px; color: var(--text-tertiary); }
+  .cur-trigger:hover { background: rgba(255,43,43,0.12); border-color: var(--red); }
+  .cur-trigger .arrow { margin-left: auto; font-size: 10px; color: var(--muted); }
 
   .cur-dropdown {
     display: none;
@@ -189,10 +215,10 @@
     top: calc(100% + 6px);
     right: 0;
     width: 220px;
-    background: var(--bg);
-    border: 0.5px solid var(--border-secondary);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    background: var(--panel-2);
+    border: 1px solid var(--line-bright);
+    border-radius: 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     z-index: 100;
     overflow: hidden;
   }
@@ -200,18 +226,18 @@
   .cur-dropdown.open { display: block; }
 
   .cur-search {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font);
     font-size: 13px;
-    background: var(--bg-secondary);
+    background: rgba(255,43,43,0.05);
     border: none;
-    border-bottom: 0.5px solid var(--border);
+    border-bottom: 1px solid var(--line);
     color: var(--text);
     padding: 10px 12px;
     width: 100%;
     outline: none;
   }
 
-  .cur-search::placeholder { color: var(--text-tertiary); }
+  .cur-search::placeholder { color: var(--muted); }
 
   .cur-list {
     max-height: 220px;
@@ -219,7 +245,7 @@
   }
 
   .cur-item {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font);
     font-size: 13px;
     padding: 9px 12px;
     cursor: pointer;
@@ -230,25 +256,25 @@
     transition: background 0.1s;
   }
 
-  .cur-item:hover { background: var(--bg-secondary); }
-  .cur-item.selected { background: var(--bg-tertiary); font-weight: 500; }
+  .cur-item:hover { background: rgba(255,43,43,0.1); }
+  .cur-item.selected { background: rgba(255,43,43,0.16); font-weight: 700; }
 
   .cur-item .cur-name {
     font-size: 11px;
-    color: var(--text-tertiary);
+    color: var(--muted);
     margin-left: auto;
   }
 
   .cur-item mark {
-    background: #cc000022;
-    color: #cc0000;
-    border-radius: 2px;
+    background: rgba(255,43,43,0.25);
+    color: var(--red);
+    border-radius: 0;
     padding: 0 1px;
   }
 
   .cur-no-results {
     font-size: 12px;
-    color: var(--text-tertiary);
+    color: var(--muted);
     padding: 12px;
     text-align: center;
   }
@@ -262,50 +288,53 @@
 
   .cc-divider-line {
     flex: 1;
-    height: 0.5px;
-    background: var(--border);
+    height: 1px;
+    background: var(--line);
   }
 
   .cc-swap-btn {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font);
     font-size: 11px;
-    letter-spacing: 0.06em;
-    background: var(--bg-secondary);
-    border: 0.5px solid var(--border-secondary);
-    border-radius: 999px;
-    color: var(--text-secondary);
-    padding: 5px 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: rgba(255,43,43,0.08);
+    border: 1px solid var(--line-bright);
+    border-radius: 0;
+    color: var(--red);
+    padding: 6px 16px;
     cursor: pointer;
     transition: all 0.15s;
     white-space: nowrap;
   }
 
   .cc-swap-btn:hover {
-    border-color: var(--text-tertiary);
-    color: var(--text);
+    background: rgba(255,43,43,0.18);
+    box-shadow: 0 0 14px var(--red-dim);
   }
 
   .cc-result-card {
-    background: var(--bg-secondary);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
+    background: rgba(255,43,43,0.04);
+    border: 1px solid var(--line-bright);
+    border-radius: 0;
     padding: 1.25rem;
     margin-bottom: 1.25rem;
   }
 
   .cc-result-value {
-    font-family: 'Fraunces', serif;
-    font-size: 44px;
-    font-weight: 300;
-    color: var(--text);
+    font-family: var(--font);
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--red);
     line-height: 1;
     margin-bottom: 6px;
     word-break: break-all;
+    text-shadow: 0 0 14px rgba(255,43,43,0.4);
   }
 
   .cc-result-meta {
     font-size: 12px;
-    color: var(--text-tertiary);
+    color: var(--muted);
     letter-spacing: 0.04em;
   }
 
@@ -319,17 +348,17 @@
   .cc-rate-pill {
     font-size: 11px;
     padding: 5px 10px;
-    border-radius: 999px;
-    background: var(--bg-secondary);
-    border: 0.5px solid var(--border);
-    color: var(--text-secondary);
+    border-radius: 0;
+    background: rgba(255,43,43,0.05);
+    border: 1px solid var(--line);
+    color: var(--text);
     letter-spacing: 0.04em;
     white-space: nowrap;
   }
 
   .cc-status {
     font-size: 11px;
-    color: var(--text-tertiary);
+    color: var(--muted);
     text-align: center;
     margin-top: 0.75rem;
     margin-bottom: 1.5rem;
@@ -337,17 +366,18 @@
     letter-spacing: 0.04em;
   }
 
-  .cc-status.loading { color: var(--text-secondary); }
-  .cc-status.error { color: #c0392b; }
+  .cc-status.loading { color: var(--text); }
+  .cc-status.error { color: var(--danger); }
 
   .cc-trending { margin-top: 0.25rem; }
 
   .cc-trending-label {
     font-size: 11px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--text-tertiary);
+    color: var(--red);
     margin-bottom: 10px;
+    text-shadow: 0 0 6px rgba(255,43,43,0.3);
   }
 
   .cc-pair-grid {
@@ -357,12 +387,12 @@
   }
 
   .cc-pair-btn {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font);
     font-size: 12px;
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    color: var(--text);
     padding: 8px 10px;
     cursor: pointer;
     text-align: center;
@@ -370,14 +400,14 @@
   }
 
   .cc-pair-btn:hover {
-    border-color: var(--border-secondary);
-    color: var(--text);
-    background: var(--bg-secondary);
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(255,43,43,0.08);
   }
 
   .attribution {
     font-size: 10px;
-    color: var(--text-tertiary);
+    color: var(--muted);
     text-align: center;
     margin-top: 0.75rem;
     letter-spacing: 0.04em;
@@ -385,8 +415,8 @@
 
   .disclaimer {
     font-size: 11px;
-    color: var(--text-tertiary);
-    border-top: 0.5px solid var(--border);
+    color: var(--muted);
+    border-top: 1px solid var(--line);
     padding-top: 12px;
     margin-top: 1.5rem;
     line-height: 1.6;
@@ -394,17 +424,21 @@
   }
 
   .attribution a {
-    color: var(--text-tertiary);
+    color: var(--red);
     text-decoration: underline;
   }
 </style>
 </head>
 <body>
 
+<div id="scanlines"></div>
+<div id="vignette"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
 <div class="cc-wrap">
   <div class="cc-header">
-    <div class="cc-brand">rameshverse.com</div>
-    <div class="cc-title">Currency Converter</div>
+    <div class="cc-brand">RAMESHVERSE.COM</div>
+    <h1 class="cc-title">Currency Converter</h1>
     <div class="cc-eyebrow">Exchange rates · updated every 24 hours</div>
   </div>
 

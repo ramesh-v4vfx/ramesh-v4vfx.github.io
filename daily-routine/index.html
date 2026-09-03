@@ -12,56 +12,147 @@
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
 
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Routine</title>
+<meta name="description" content="Free daily routine checklist that resets every day. Add recurring tasks, check them off, and start fresh each morning — saved locally in your browser.">
+<title>Daily Routine Checklist | RameshVerse</title>
+<link rel="canonical" href="https://rameshverse.com/daily-routine">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://rameshverse.com/daily-routine" />
+<meta property="og:title" content="Daily Routine Checklist" />
+<meta property="og:description" content="Free daily routine checklist that resets every day. Add recurring tasks, check them off, and start fresh each morning." />
+<meta property="og:image" content="https://rameshverse.com/daily-routine/preview-image/dr-preview.jpg" />
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Daily Routine Checklist" />
+<meta name="twitter:description" content="Free daily routine checklist that resets every day. Add recurring tasks, check them off, and start fresh each morning." />
+<meta name="twitter:image" content="https://rameshverse.com/daily-routine/preview-image/dr-preview.jpg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+  :root {
+    --bg: #050608;
+    --panel: rgba(10,12,16,0.82);
+    --panel-2: #0a0a0c;
+    --line: rgba(255,43,43,0.2);
+    --line-bright: rgba(255,43,43,0.4);
+    --red: #ff2b2b;
+    --red-dim: #ff2b2b55;
+    --text: #d8dde3;
+    --muted: #5a6270;
+    --danger: #ff5c4d;
+    --go: #2fe37a;
+    --font: 'Space Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
   body {
-    font-family: system-ui, sans-serif;
-    background: #0b0f14;
-    color: #fff;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
     margin: 0;
     padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
   }
+
+  /* HUD scanline + vignette overlays */
+  #scanlines{position:fixed;inset:0;pointer-events:none;z-index:80;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;}
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:79;box-shadow: inset 0 0 180px rgba(0,0,0,0.85);}
+  .corner{position:fixed;width:26px;height:26px;border:2px solid var(--red);z-index:81;pointer-events:none;opacity:.85;}
+  .corner.tl{top:14px;left:14px;border-right:none;border-bottom:none;}
+  .corner.tr{top:14px;right:14px;border-left:none;border-bottom:none;}
+  .corner.bl{bottom:14px;left:14px;border-right:none;border-top:none;}
+  .corner.br{bottom:14px;right:14px;border-left:none;border-top:none;}
 
   .container {
     max-width: 480px;
     margin: auto;
+    position: relative;
+    z-index: 2;
   }
 
   h1 {
     text-align: center;
-    font-size: 1.6rem;
-    margin-bottom: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+    text-shadow: 0 0 18px rgba(255,43,43,0.3);
+  }
+
+  .intro {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    margin: 0 0 22px;
+    line-height: 1.6;
   }
 
   .add-task {
     display: flex;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
   }
 
   input {
     flex: 1;
     padding: 12px;
-    border-radius: 8px;
-    border: none;
-    font-size: 1rem;
+    border-radius: 0;
+    border: 1px solid var(--line-bright);
+    background: var(--panel-2);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.95rem;
   }
 
+  input:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 1px var(--red-dim);
+  }
+
+  input::placeholder { color: var(--muted); }
+
   button {
-    padding: 12px 14px;
-    border-radius: 8px;
-    border: none;
+    padding: 12px 16px;
+    border-radius: 0;
+    border: 1px solid var(--line-bright);
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-family: var(--font);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--text);
+    transition: all 0.15s ease;
   }
 
   .add-btn {
-    background: #3b82f6;
-    color: #fff;
+    background: rgba(255,43,43,0.1);
+    color: var(--red);
+    border-color: var(--red);
+    text-shadow: 0 0 6px rgba(255,43,43,0.4);
+  }
+
+  .add-btn:hover {
+    background: rgba(255,43,43,0.2);
+    box-shadow: 0 0 14px var(--red-dim);
   }
 
   ul {
@@ -70,67 +161,101 @@
     margin: 0;
   }
 
-li {
-  background: #111827;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
+  li {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 16px;
+    border-radius: 0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.15s ease;
+  }
 
-li input[type="checkbox"] {
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
-}
+  li:hover { border-color: var(--line-bright); }
 
-.task-text {
-  font-size: 1.05rem;
-  line-height: 1.4;
-}
+  li input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--red);
+    flex-shrink: 0;
+  }
 
+  li.completed {
+    border-color: rgba(47,227,122,0.3);
+    background: rgba(47,227,122,0.04);
+  }
 
-
-li.completed input[type="text"] {
-  text-decoration: line-through;
-  opacity: 0.5;
-}
-
+  li.completed input[type="text"] {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
 
   li input[type="text"] {
     background: transparent;
-    color: #fff;
+    color: var(--text);
     border: none;
     outline: none;
     flex: 1;
-  }
-
-  .delete {
-    background: #ef4444;
-    color: #fff;
-  }
-
-  .clear {
-    margin-top: 15px;
-    width: 100%;
-    background: #374151;
-    color: #fff;
+    font-family: var(--font);
+    font-size: 0.95rem;
   }
 
   li.completed input[type="checkbox"] {
-  cursor: default;
-}
+    cursor: default;
+  }
 
+  .delete {
+    background: rgba(255,43,43,0.08);
+    color: var(--danger);
+    border-color: rgba(255,43,43,0.4);
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
 
-  
+  .delete:hover {
+    background: var(--red);
+    color: #0a0a0c;
+    border-color: var(--red);
+  }
+
+  .clear {
+    margin-top: 18px;
+    width: 100%;
+    background: transparent;
+    color: var(--muted);
+    border-color: var(--line-bright);
+    padding: 13px;
+  }
+
+  .clear:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding: 30px 10px;
+    border: 1px dashed var(--line);
+    letter-spacing: 0.3px;
+  }
 </style>
+
 </head>
 
 <body>
+
+<div id="scanlines"></div>
+<div id="vignette"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
 <div class="container">
   <h1>Daily Routine ⏰</h1>
+  <p class="intro">Recurring checklist — tasks stay saved and uncheck themselves fresh each new day.</p>
 
   <div class="add-task">
     <input id="taskInput" placeholder="Add a daily task…" />
@@ -210,6 +335,11 @@ function render(tasks) {
   const list = document.getElementById("taskList");
   list.innerHTML = "";
 
+  if (tasks.length === 0) {
+    list.innerHTML = '<div class="empty-state">No tasks yet — add your first daily routine item above.</div>';
+    return;
+  }
+
   tasks.forEach((task, index) => {
     const li = document.createElement("li");
     if (task.done) li.classList.add("completed");
@@ -232,10 +362,6 @@ loadTasks();
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
 <script src="/libraries/hud-home-button.js"></script>
-
-<script src="/tools-data.js"></script>
-<script src="/related-modules.js"></script>
-
 
 </body>
 </html>
