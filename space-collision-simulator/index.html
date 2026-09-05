@@ -15,7 +15,12 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MK·COLLIDE — collision simulator</title>
+<meta name="description" content="Simulate collisions between black holes and stars with real physics — binary black hole mergers, tidal disruption events, and stellar mergers, rendered as a 3D inspiral animation.">
+
+<title>Black Hole & Star Collision Simulator | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/space-collision-simulator">
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 
@@ -28,6 +33,10 @@
   html,body{margin:0;padding:0;background:var(--bg);}
   body{font-family:'Space Mono', ui-monospace, monospace; color:var(--text); padding:10px; -webkit-font-smoothing:antialiased;}
   .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  .preset-title{font-size:11px; letter-spacing:0.14em; color:var(--red); margin-bottom:10px; font-weight:700;}
+
+  .preset-panel{border:1px solid var(--red-dim); background:rgba(255,43,43,0.04); padding:14px; margin-bottom:14px;}
 
   .frame{position:relative; border:1px solid var(--line);
     background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px), var(--panel);
@@ -45,8 +54,8 @@
   .panel-title{font-size:10px; letter-spacing:0.12em; color:var(--text-dim); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;}
 
   .preset-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
-  .preset-btn{font-family:inherit; font-size:9.5px; color:var(--text-dim); background:transparent; border:1px dashed var(--line-strong); padding:6px 10px; cursor:pointer;}
-  .preset-btn:hover{color:var(--text); border-color:var(--red-dim);}
+ .preset-btn{font-family:inherit; font-size:11px; letter-spacing:0.04em; color:var(--text); background:rgba(255,255,255,0.02); border:1px solid var(--blue); padding:9px 14px; cursor:pointer; transition:.15s;}
+.preset-btn:hover{color:var(--bg); background:var(--blue); border-color:var(--blue); box-shadow:0 0 10px rgba(74,158,255,0.5);}
 
   .objects-row{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px;}
   @media (max-width:640px){ .objects-row{grid-template-columns:1fr;} }
@@ -117,7 +126,10 @@
 </style>
 </head>
 <body>
-<h2 class="sr-only">Collision simulator: set the mass and, for stars, the radius of two objects (black hole or star), run the collision, and see the real physics outcome — black hole merger with gravitational-wave mass loss, tidal disruption event, or direct capture — rendered as a 3D inspiral animation.</h2>
+
+<h1 style="font-size:11px; letter-spacing:2px; color:var(--red-dim); margin-bottom:10px; text-align:center">
+  BLACK HOLE & STAR COLLISION SIMULATOR
+</h1>
 
 <div class="frame">
   <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
@@ -128,9 +140,7 @@
   </div>
   <div class="hr"></div>
 
-  <div class="panel-title"><span>QUICK PRESETS</span></div>
-  <div class="preset-row" id="presetRow"></div>
-
+  
   <div class="objects-row">
     <div class="obj-card a">
       <div class="obj-title"><span>OBJECT A</span></div>
@@ -171,10 +181,17 @@
     </div>
   </div>
 
+
+
   <div style="display:flex; gap:10px; margin-bottom:16px;">
     <button class="run-btn" id="runBtn" style="margin-bottom:0; flex:1;">⚡ RUN COLLISION</button>
     <button class="run-btn" id="resetBtn" style="margin-bottom:0; flex:0 0 140px; color:var(--red); border-color:var(--red);">↺ RESET</button>
   </div>
+
+    <div class="preset-panel">
+  <div class="preset-title"><span>⚡ QUICK PRESETS</span></div>
+  <div class="preset-row" id="presetRow"></div>
+</div>
 
   <div class="panel-title"><span>RESULTS</span></div>
   <div class="results" id="results">
@@ -198,6 +215,10 @@
   </div>
 </div>
 
+<p style="text-align:center; max-width:640px; margin:20px auto 0; font-size:11px; letter-spacing:0.04em; line-height:1.7; color:var(--text-dim);">
+  Set the mass and, for stars, the radius of two objects (black hole or star), run the collision, and see the real physics outcome — black hole merger with gravitational-wave mass loss, tidal disruption event, or direct capture — rendered as a 3D inspiral animation.
+</p>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -220,10 +241,11 @@
     return n.toFixed(maxDigits===undefined?2:maxDigits);
   }
   function fmtMass(msun){
-    if (msun >= 1e6) return (msun/1e6).toFixed(2)+' M M☉';
-    if (msun >= 1000) return (msun/1000).toFixed(2)+' K M☉';
-    return fmtNum(msun,3) + ' M☉';
-  }
+  if (msun >= 1e9) return (msun/1e9).toFixed(2)+' B M☉';
+  if (msun >= 1e6) return (msun/1e6).toFixed(2)+' M M☉';
+  if (msun >= 1000) return (msun/1000).toFixed(2)+' K M☉';
+  return fmtNum(msun,3) + ' M☉';
+}
 
   // ---------- DOM refs ----------
   var massA = document.getElementById('massA'), radiusA = document.getElementById('radiusA');

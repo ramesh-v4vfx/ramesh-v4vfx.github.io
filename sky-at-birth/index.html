@@ -14,8 +14,14 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YOUR SKY AT BIRTH // RV·NATALSKY</title>
+<meta name="description" content="Generate a free personalized star map of the sky exactly as it appeared at your birth — sun, moon, planets, and constellation positions, downloadable as an SVG poster.">
+
+<title>YOUR SKY AT BIRTH | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/sky-at-birth">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.js"></script>
+
 <style>
   :root{
     --bg:#050505; --panel:#0b0b0b; --line:#241414;
@@ -87,7 +93,7 @@
 
   <div class="panel">
     <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
-    <div class="label">BIRTH DETAILS</div>
+    <h2 class="label">BIRTH DETAILS</h2>
     <div class="form-grid">
       <div class="field"><label>DATE</label><input type="date" id="dobDate"></div>
       <div class="field"><label>TIME (LOCAL, 24H)</label><input type="time" id="dobTime" value="12:00"></div>
@@ -115,7 +121,7 @@
 
     <div class="panel">
       <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
-      <div class="label">CELESTIAL POSITIONS</div>
+      <h2 class="label">CELESTIAL POSITIONS</h2>
       <div class="info-grid" id="bodyInfo"></div>
       <div style="text-align:center;"><span class="zodiac-badge" id="zodiacBadge">—</span></div>
     </div>
@@ -129,7 +135,9 @@ setInterval(()=>{
   document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('en-US',{hour12:false});
 },1000);
 
-document.getElementById('dobDate').valueAsDate = new Date(new Date().getFullYear()-25, 0, 1);
+const d = new Date();
+document.getElementById('dobDate').valueAsDate = new Date(Date.UTC(d.getFullYear()-25, 0, 1));
+
 document.getElementById('tzOffset').value = -(new Date().getTimezoneOffset()/60);
 
 document.getElementById('geoBtn').addEventListener('click', ()=>{

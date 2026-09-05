@@ -14,8 +14,14 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAMESHVERSE·ORRERY // Solar System</title>
+<meta name="description" content="Explore an interactive 3D solar system model with real orbital mechanics — true planet scale, Kepler orbits, and data on every planet and dwarf planet.">
+
+<title>Solar System Simulator | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/solar-system-simulator">
+
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
   :root{
     --red:#ff2b2b;
@@ -215,7 +221,7 @@
 <body>
 
 <div id="loading">
-  <div class="txt">INITIALIZING ORRERY</div>
+  <div class="txt">INITIALIZING SOLAR SYSTEM</div>
   <div class="bar"><div class="fill"></div></div>
 </div>
 
@@ -228,7 +234,7 @@
 
 <div id="topbar">
   <a id="logo" href="/">‹ BACK TO RAMESHVERSE</a>
-  <div id="clock" id="clock-el"></div>
+  <div id="clock"></div>
 </div>
 
 <div id="top-controls">
@@ -238,7 +244,7 @@
   </div>
   <div id="sim-row">
     <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="40"></div>
-    <button class="btn active" id="btn-scale">⇄ SCALE: TRUE</button>
+    <button class="btn active" id="btn-scale">⇄ SCALE PLANETS: TRUE</button>
     <button class="btn" id="btn-pause">PAUSE</button>
     <button class="btn" id="btn-orbits">ORBITS: ON</button>
     <button class="btn" id="btn-reset">RESET</button>
@@ -661,7 +667,7 @@ document.getElementById('btn-reset').addEventListener('click', function(){
   if(scaleMode !== 'true'){
     scaleMode = 'true';
     applyRadiusScale(radiusScaleTrue);
-    document.getElementById('btn-scale').textContent = '⇄ SCALE: TRUE';
+    document.getElementById('btn-scale').textContent = '⇄ SCALE PLANETS: ' + (scaleMode === 'true' ? 'TRUE' : 'ENHANCED');
     document.getElementById('btn-scale').classList.add('active');
     document.getElementById('scale-note').textContent = 'TRUE PLANET SCALE — DISTANCES ARE STYLIZED';
   }
@@ -686,7 +692,7 @@ applyRadiusScale(radiusScaleTrue); // TRUE scale is now the default on load
 document.getElementById('btn-scale').addEventListener('click', function(){
   scaleMode = scaleMode === 'true' ? 'visible' : 'true';
   applyRadiusScale(scaleMode === 'true' ? radiusScaleTrue : radiusScaleVisible);
-  this.textContent = '⇄ SCALE: ' + (scaleMode === 'true' ? 'TRUE' : 'VISIBLE');
+  this.textContent = '⇄ SCALE PLANETS: ' + (scaleMode === 'true' ? 'TRUE' : 'ENHANCED');
   this.classList.toggle('active', scaleMode === 'true');
   document.getElementById('scale-note').textContent = scaleMode === 'true'
     ? 'TRUE PLANET SCALE — DISTANCES ARE STYLIZED'
