@@ -21,9 +21,6 @@
 <meta name="description"
 content="Free universal weight and mass converter. Convert between gram, kilogram, milligram, microgram, ounce, pound, stone, troy ounce, carat, grain, and metric or imperial tons instantly, with full decimal precision.">
 
-<meta name="keywords"
-content="weight converter, mass converter, gram to kg, kg to pound, ounce to gram, troy ounce converter, carat converter, grain converter, stone converter, ton converter, unit converter">
-
 <link rel="canonical" href="https://rameshverse.com/weight-converter">
 <!-- 👈 update this canonical URL (and the og:url / og:image below) to match wherever this page is actually published -->
 
@@ -455,7 +452,13 @@ content="weight converter, mass converter, gram to kg, kg to pound, ounce to gra
       Precious metals use <b>troy units</b> — 1 troy oz = 31.1034768 g
     </div>
   </div>
+
+  <p style="text-align:center; max-width:400px; margin:20px auto 0; padding:0 8px; font-family:var(--mono); font-size:0.74rem; line-height:1.7; color:var(--text-dim);">
+    Convert between 14 weight and mass units instantly — metric (gram, kilogram, tonne), imperial (ounce, pound, stone, ton), and troy/apothecary (troy ounce, troy pound, grain, carat) — with full decimal precision.
+  </p>
 </div>
+
+
 
 <script>
   // Base unit = gram
@@ -561,20 +564,24 @@ content="weight converter, mass converter, gram to kg, kg to pound, ounce to gra
   const copyBtn = document.getElementById("copyBtn");
   const resultBox = document.getElementById("resultBox");
 
-  function copyResult() {
+ function copyResult() {
     const text = resultValueEl.textContent;
     if (!text || text.includes("negative")) return;
 
-    navigator.clipboard.writeText(text);
-
-    copyBtn.textContent = "Copied ✓";
-    copyBtn.classList.add("copied");
-
-    setTimeout(() => {
-      copyBtn.textContent = "Copy Result";
-      copyBtn.classList.remove("copied");
-    }, 1200);
-  }
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.textContent = "Copied ✓";
+      copyBtn.classList.add("copied");
+      setTimeout(() => {
+        copyBtn.textContent = "Copy Result";
+        copyBtn.classList.remove("copied");
+      }, 1200);
+    }).catch(() => {
+      copyBtn.textContent = "Copy failed";
+      setTimeout(() => {
+        copyBtn.textContent = "Copy Result";
+      }, 1200);
+    });
+}
 
   copyBtn.addEventListener("click", copyResult);
   resultBox.addEventListener("click", copyResult);

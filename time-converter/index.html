@@ -16,7 +16,8 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://rameshverse.com/time-converter" />
 <meta property="og:title" content="Time Converter" />
-<meta property="og:description" content="Easily convert between nanoseconds, milliseconds, seconds, minutes, hours, days and more. Fast & free!" />
+<meta name="description" content="Easily convert between nanoseconds, milliseconds, seconds, minutes, hours, days and more. Fast & free!">
+
 <meta property="og:image" content="https://rameshverse.com/time-converter/preview-image/time-converter-preview.jpg" />
 
 <!-- Twitter / X Card -->
@@ -30,7 +31,9 @@
   <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Time Converter</title>
+<title>Time Converter | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/time-converter">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,7 +134,7 @@
     margin: 0 0 10px;
   }
 
-  h2 {
+  h1 {
     font-family: var(--display);
     text-align: center;
     margin: 0 0 4px;
@@ -276,10 +279,7 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  .history-list {
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent-amber-dim) var(--bg-well);
-  }
+ 
   .history::-webkit-scrollbar { width: 6px; }
   .history::-webkit-scrollbar-track { background: var(--bg-well); border-radius: 3px; }
   .history::-webkit-scrollbar-thumb { background: var(--accent-amber-dim); border-radius: 3px; }
@@ -389,7 +389,7 @@
 
   <div class="eyebrow">Rameshverse Systems &middot; MK&middot;02</div>
 
-  <h2>Time Converter</h2>
+  <h1>Time Converter</h1>
   <span class="version-tag">TIME CONVERSION MODULE</span>
 
   <input type="number" id="value" placeholder="Enter value" step="any" aria-label="Value to convert">
@@ -589,16 +589,23 @@
   fromSelect.addEventListener("change", invalidateResult);
   toSelect.addEventListener("change", invalidateResult);
 
-  function animateCounter(start, end) {
+let animFrame = null;
+
+function animateCounter(start, end) {
+    if (animFrame !== null) cancelAnimationFrame(animFrame);
     const duration = 500;
     const startTime = performance.now();
     function step(now) {
       const p = Math.min((now - startTime) / duration, 1);
       resultBox.textContent = format(start + (end - start) * p);
-      if (p < 1) requestAnimationFrame(step);
+      if (p < 1) {
+        animFrame = requestAnimationFrame(step);
+      } else {
+        animFrame = null;
+      }
     }
-    requestAnimationFrame(step);
-  }
+    animFrame = requestAnimationFrame(step);
+}
 
   function format(num) {
     if (decimals !== null) return roundSafe(num, decimals).toFixed(decimals);

@@ -14,8 +14,15 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Time Block Planner | RameshVerse</title>
 <meta name="description" content="Visual day planner and time blocking tool. Block out your schedule, spot gaps instantly, and plan your day.">
+
+<title>Time Block Planner | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/time-block">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg: #0a0a0c;
@@ -33,19 +40,15 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{
+ body{
     background:var(--bg);
     color:var(--text);
     font-family:'Space Mono', 'Courier New', monospace;
     min-height:100vh;
-    background-image:
-      linear-gradient(rgba(255,43,43,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,43,43,0.02) 1px, transparent 1px);
-    background-size: 24px 24px;
     position:relative;
     -webkit-user-select:none;
     user-select:none;
-  }
+}
   body::before{
     content:"";
     position:fixed; inset:0;
@@ -263,14 +266,14 @@
   .gap-flag{
     position:absolute;
     left:64px; right:8px;
-    background:rgba(255,43,43,0.06);
-    border-left:2px dashed var(--red-dim);
+    background:rgba(255,255,255,0.03);
+    border-left:2px dashed var(--gray);
     font-size:9px;
     color:var(--text-dim);
     padding:2px 6px;
     pointer-events:none;
     z-index:1;
-  }
+}
 
   .legend{
     display:flex;
@@ -296,13 +299,11 @@
 
   <header>
     <div>
-      <h1>RV<span>·</span>TIMEBLOCK</h1>
+      <h1>Time Block Planner</h1>
       <div class="subtitle">VISUAL DAY PLANNER — MISSION SEGMENTS</div>
     </div>
-    <a class="back-link" href="#" id="backLink">← RAMESHVERSE</a>
+    
   </header>
-
-  <div class="telemetry" id="telemetry"></div>
 
   <div class="add-row">
     <input type="text" id="blockTitle" placeholder="SEGMENT NAME (e.g. DEEP WORK)" maxlength="40">
@@ -318,6 +319,10 @@
     <button class="primary" id="addBtn">ADD SEGMENT</button>
   </div>
 
+  <div class="telemetry" id="telemetry"></div>
+
+  
+
   <div class="panel">
     <div class="panel-title-row">
       <div class="panel-title" id="dayLabel">TODAY'S TIMELINE</div>
@@ -332,7 +337,7 @@
   </div>
 
   <div class="legend">
-    <span><i class="swatch" style="background:var(--red)"></i> your segment colors mark different focus areas</span>
+    <span><i class="swatch" style="background:conic-gradient(var(--red), var(--blue), var(--green), var(--amber), var(--purple), var(--red));"></i> your segment colors mark different focus areas</span>
     <span><i class="swatch" style="background:rgba(255,43,43,0.3); border:1px dashed var(--red-dim)"></i> unblocked gap ≥ 30 min</span>
   </div>
 
@@ -406,19 +411,19 @@
       });
       pop.appendChild(dot);
     });
-    // position just below the block, within the timeline container
-    const container = document.getElementById('timeline');
-    const blockTop = parseFloat(blockEl.style.top) || 0;
-    const blockHeight = parseFloat(blockEl.style.height) || 18;
-    pop.style.top = (blockTop + blockHeight + 4) + 'px';
-    pop.style.left = '64px';
-    container.appendChild(pop);
+    // position via fixed viewport coordinates, anchored to the block itself —
+    // survives the timeline's periodic re-render since it's not a child of it
+    const rect = blockEl.getBoundingClientRect();
+    pop.style.position = 'fixed';
+    pop.style.top = (rect.bottom + 4) + 'px';
+    pop.style.left = rect.left + 'px';
+    document.body.appendChild(pop);
 
     // close when clicking elsewhere
     setTimeout(function(){
       document.addEventListener('click', closeColorPopover, { once: true });
     }, 0);
-  }
+}
 
   function getDayBlocks(dateStr){
     dateStr = dateStr || currentDate;
@@ -674,10 +679,7 @@
   }
 
   document.getElementById('addBtn').addEventListener('click', addBlock);
-  document.getElementById('backLink').addEventListener('click', function(e){
-    e.preventDefault();
-    window.location.href = 'https://rameshverse.com';
-  });
+  
   document.getElementById('prevDayBtn').addEventListener('click', function(){
     goToDate(shiftDateStr(currentDate, -1));
   });
@@ -691,8 +693,22 @@
   renderColorPicker();
   renderAll();
 
-  // refresh now-line every minute
-  setInterval(renderTimeline, 60000);
+  // refresh now-line every minute, and roll the view forward at midnight
+  // if the person is still looking at "today" (leave manually-navigated
+  // past/future days alone)
+  let lastKnownToday = todayStr();
+  setInterval(function(){
+    const realToday = todayStr();
+    if(realToday !== lastKnownToday){
+      if(currentDate === lastKnownToday){
+        currentDate = realToday;
+      }
+      lastKnownToday = realToday;
+      renderAll();
+      return;
+    }
+    renderTimeline();
+  }, 60000);
 })();
 </script>
 

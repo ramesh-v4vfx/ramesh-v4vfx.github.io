@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Primary Meta -->
-<title>Country Explorer | RameshVerse</title>
+<title>Country Explorer | rameshverse</title>
 
 <link rel="canonical" href="https://rameshverse.com/country-explorer" />
 
@@ -1292,6 +1292,11 @@ body.card-focus .card.focused .card-body::after {
   margin-bottom: 14px;
 }
 
+header a[href="https://rameshverse.com"]:hover {
+  color: var(--ink);
+  border-color: rgba(255,43,43,0.4);
+}
+
 .cert-footer {
   margin-top: 28px;
   font-size: 11px;
@@ -2016,7 +2021,6 @@ body.capturing .cert-text {
 .header-controls,
 .header-sort {
   justify-content: center;
-  padding-left: 190px;
   box-sizing: border-box;
 }
 
@@ -2026,13 +2030,11 @@ body.capturing .cert-text {
 
 @media (max-width: 768px) {
   .header-controls {
-    padding-left: 0;
     justify-content: center;
-    row-gap: 10px;   /* ← adds vertical spacing between wrapped lines */
+    row-gap: 10px;
   }
 
   .header-sort {
-    padding-left: 46px;
     justify-content: flex-start;
   }
 }
@@ -2043,6 +2045,22 @@ body.capturing .cert-text {
 <body>
 
 <header>
+
+  <a href="https://rameshverse.com" style="
+    position:absolute;
+    top:14px;
+    left:16px;
+    font-size:11px;
+    letter-spacing:0.6px;
+    color:var(--ink-dim);
+    text-decoration:none;
+    border:1px solid rgba(234,234,234,0.14);
+    padding:6px 10px;
+    border-radius:3px;
+    background:rgba(255,43,43,0.04);
+    transition:border-color .15s ease, color .15s ease;
+    z-index:10;
+  ">← RameshVerse</a>
 
    <h1 style="
     text-align:center;
@@ -4411,7 +4429,7 @@ document.getElementById('shareCopyLink').onclick = () => {
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
-<script src="/libraries/hud-home-button.js"></script>
+
 
 <script src="/tools-data.js"></script>
 

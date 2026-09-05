@@ -28,7 +28,9 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Top 10 Task Manager</title>
+  <meta name="description" content="A free productivity tool to track your daily top 10 tasks.">
+  <title>Top 10 Task Manager | rameshverse</title>
+  <link rel="canonical" href="https://rameshverse.com/top-10-tasks-monitor/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -410,12 +412,16 @@
   const progressCountEl = document.getElementById('progressCount');
   const progressFillEl  = document.getElementById('progressFill');
 
-  function formatTime(ms) {
+ function formatTime(ms) {
     const s = Math.floor(ms / 1000);
     const m = Math.floor(s / 60);
     const h = Math.floor(m / 60);
+    const d = Math.floor(h / 24);
+    if (d > 0) {
+      return `${d}d ${h % 24}h ${m % 60}m`;
+    }
     return `${h}h ${m % 60}m ${s % 60}s`;
-  }
+}
 
   function getToday()       { return JSON.parse(localStorage.getItem(todayKey))   || []; }
   function saveToday(d)     { localStorage.setItem(todayKey,   JSON.stringify(d)); }
