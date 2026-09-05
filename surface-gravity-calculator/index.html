@@ -12,11 +12,17 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Calculate surface gravity and escape velocity for any planet or body — enter mass and radius to get results in m/s², m/s, and multiples of Earth's values.">
+
+<title>Surface Gravity and Escape Velocity Calculator · rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/surface-gravity-calculator">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<title>Surface Gravity and Escape Velocity Calculator · Rameshverse MK·02</title>
+
 
 <style>
   * { box-sizing: border-box; }
@@ -682,6 +688,10 @@
         v<sub>e</sub> = √(2GM / R) = √(2gR)<br>
         Earth: g ≈ 9.81 m/s², v<sub>e</sub> ≈ 11.186 km/s
       </div>
+
+      <p style="margin-top:18px; padding:0 4px; font-family:var(--mono); font-size:0.72rem; line-height:1.7; text-align:center; color:var(--text-dim);">
+        Calculate the surface gravity and escape velocity of any planet, moon, or star by entering its mass and radius. Results are shown in standard units (m/s², m/s) alongside multiples of Earth's own values for easy comparison.
+      </p>
     </div>
   </div>
 </div>
@@ -819,7 +829,7 @@
       if (Math.abs(num) >= 1e15) {
         input.value = num.toExponential(5);
       } else {
-        input.value = num.toLocaleString("en-US");
+        input.value = num.toLocaleString("en-US", { maximumFractionDigits: 20 });
       }
     } catch {
       alert("Clipboard access not allowed.");
