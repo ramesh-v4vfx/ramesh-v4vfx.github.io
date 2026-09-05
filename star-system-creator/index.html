@@ -14,14 +14,19 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>rameshverse — star system creator</title>
+<meta name="description" content="Design custom star systems with multiple stars and planets — real Kepler orbits, habitable-zone modeling, and exportable system files.">
+
+<title>Star System Creator — Build Multi-Star Systems | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/star-system-creator">
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 
   :root{
     --bg:#08090b; --panel:#0d0f12; --line:#22262b; --line-strong:#3a4046;
     --red:#ff2b2b; --red-dim:#8a1a1a; --green:#39d98a;
-    --text:#d9dde0; --text-dim:#2bb0b5; --text-faint:#ff4747;
+  --text:#d9dde0; --text-dim:#71787e; --text-faint:#454b50; 
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);}
@@ -90,6 +95,12 @@
   .planet-form-row .pf-name{flex:0 1 125px; min-width:95px;}
   .planet-form-row .pf-star{flex:0 1 105px; min-width:85px;}
   .planet-form-row .pf-sm{flex:0 1 74px; min-width:54px;}
+
+  .sys-btn{font-family:inherit; font-size:11px; color:var(--text); background:#0c0d0f;
+  border:1px solid rgba(255,43,43,0.55); padding:6px 14px; cursor:pointer;
+  box-shadow:0 0 10px rgba(255,43,43,0.15);
+  transition:box-shadow .2s ease, border-color .2s ease, color .2s ease;}
+  .sys-btn:hover{border-color:var(--red); box-shadow:0 0 16px rgba(255,43,43,0.3);}
 
   .slider-with-num{display:grid; grid-template-columns:1fr 70px; gap:8px; align-items:center;}
   .two-col{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
@@ -180,9 +191,8 @@
 </style>
 </head>
 <body>
-<h2 class="sr-only">Star system creator: build a system with one or more stars, each with editable mass, radius, and temperature, and planets with editable semi-major axis, eccentricity, radius, mass, and type, all rendered in a rotatable 3D scene with real Kepler orbits and habitable-zone shading.</h2>
 
-<div class="frame">
+  <div class="frame">
   <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
 
   <div class="topbar">
@@ -203,9 +213,9 @@
       <div class="k"><span>SYSTEM NAME</span></div>
       <input type="text" id="systemName" placeholder="Unnamed System" maxlength="30">
     </div>
-    <button class="add-star-btn" id="saveSystemBtn">💾 SAVE SYSTEM</button>
-    <button class="add-star-btn" id="restoreSystemBtn">📂 RESTORE SYSTEM</button>
-    <button class="add-star-btn" id="resetSystemBtn">↺ RESET SYSTEM</button>
+    <button class="sys-btn" id="saveSystemBtn">💾 SAVE SYSTEM</button>
+    <button class="sys-btn" id="restoreSystemBtn">📂 RESTORE SYSTEM</button>
+    <button class="sys-btn" id="resetSystemBtn">↺ RESET SYSTEM</button>
     <select id="presetSelect">
       <option value="">— LOAD SYSTEM —</option>
     </select>
@@ -324,6 +334,10 @@
     </div>
   </div>
 </div>
+
+<h1 style="text-align:center; max-width:1200px; margin:20px auto 0; font-size:10px; letter-spacing:0.1em;line-height: 1.5em; color:var(--text-dim); font-weight:400;">
+  Star system creator: build a system with one or more stars, each with editable mass, radius, and temperature, and planets with editable semi-major axis, eccentricity, radius, mass, and type, all rendered in a rotatable 3D scene with real Kepler orbits and habitable-zone shading.
+</h1>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -812,29 +826,46 @@
     g2.fillStyle = g; g2.fillRect(0,0,512,512);
     return new THREE.CanvasTexture(c);
   }
+  
   function makeStarTexture(){
-    var c = document.createElement('canvas'); c.width=512; c.height=256;
-    var tctx = c.getContext('2d');
-    tctx.fillStyle = '#fff3dc'; tctx.fillRect(0,0,512,256);
-    for (var i=0;i<110;i++){
-      var x = Math.random()*512, y = Math.random()*256, r = 18+Math.random()*46;
-      var v = 175 + Math.random()*80;
-      var g = tctx.createRadialGradient(x,y,0,x,y,r);
-      g.addColorStop(0,'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0.4)');
-      g.addColorStop(1,'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0)');
-      tctx.fillStyle = g; tctx.fillRect(x-r,y-r,r*2,r*2);
-    }
-    for (var j=0;j<6;j++){
-      var sx = Math.random()*512, sy = Math.random()*256, sr = 12+Math.random()*20;
-      var g3 = tctx.createRadialGradient(sx,sy,0,sx,sy,sr);
-      g3.addColorStop(0,'rgba(140,80,45,0.3)');
-      g3.addColorStop(1,'rgba(140,80,45,0)');
-      tctx.fillStyle = g3; tctx.fillRect(sx-sr,sy-sr,sr*2,sr*2);
-    }
-    var tex = new THREE.CanvasTexture(c);
-    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
-    return tex;
+  var W = 512, H = 256;
+  var c = document.createElement('canvas'); c.width=W; c.height=H;
+  var tctx = c.getContext('2d');
+  tctx.fillStyle = '#fff3dc'; tctx.fillRect(0,0,W,H);
+
+  function paintBlob(x, y, r, c0, c1){
+    // paint at the original position AND at ±W offset — whichever copies
+    // actually land near the canvas get a proper, correctly-centered gradient
+    [x, x-W, x+W].forEach(function(px){
+      if (px + r < 0 || px - r > W) return; // fully off-canvas, skip
+      var g = tctx.createRadialGradient(px, y, 0, px, y, r);
+      g.addColorStop(0, c0);
+      g.addColorStop(1, c1);
+      tctx.fillStyle = g;
+      tctx.fillRect(px-r, y-r, r*2, r*2);
+    });
   }
+
+  for (var i=0;i<110;i++){
+    var x = Math.random()*W, y = Math.random()*H, r = 18+Math.random()*46;
+    var v = 175 + Math.random()*80;
+    var c0 = 'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0.4)';
+    var c1 = 'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0)';
+    paintBlob(x, y, r, c0, c1);
+  }
+  for (var j=0;j<6;j++){
+    var sx = Math.random()*W, sy = Math.random()*H, sr = 12+Math.random()*20;
+    paintBlob(sx, sy, sr, 'rgba(140,80,45,0.3)', 'rgba(140,80,45,0)');
+  }
+
+  var tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+  tex.generateMipmaps = false;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  return tex;
+}
+
   function makePlanetTexture(typeId, baseHex){
     var c = document.createElement('canvas'); c.width=256; c.height=128;
     var tctx = c.getContext('2d');
@@ -1333,6 +1364,8 @@ scaleToggleBtn.addEventListener('click', function(){
   presetSelect.addEventListener('change', function(){
     var file = presetSelect.value;
     if (!file) return;
+    var selectedLabel = presetSelect.options[presetSelect.selectedIndex].textContent;
+    var placeholder = presetSelect.options[0];
     fetch(file)
       .then(function(res){
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1341,11 +1374,11 @@ scaleToggleBtn.addEventListener('click', function(){
       .then(function(data){
         loadSystemFromData(data);
         showSysStatus('Loaded ' + (data.systemName || 'preset') + '.');
+        placeholder.textContent = '✓ ' + selectedLabel.toUpperCase() + ' LOADED';
+        presetSelect.value = '';
       })
       .catch(function(err){
         showSysStatus('Could not load preset: ' + err.message);
-      })
-      .finally(function(){
         presetSelect.value = '';
       });
   });
@@ -1382,7 +1415,9 @@ scaleToggleBtn.addEventListener('click', function(){
     resetArmed = false;
     resetSystemBtn.textContent = '↺ RESET SYSTEM';
     loadSystemFromData({ systemName:'', stars:[{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }], planets:[] });
-    showSysStatus('System reset.');
+presetSelect.options[0].textContent = '— LOAD SYSTEM —';
+presetSelect.value = '';
+showSysStatus('System reset.');
   });
 
   function loop(){
