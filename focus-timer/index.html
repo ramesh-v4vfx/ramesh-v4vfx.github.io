@@ -471,13 +471,14 @@
   let data = loadData();
 
   // ---- timer state ----
-  let state = 'idle'; // idle | running | paused
+ let state = 'idle'; // idle | running | paused
   let selectedMin = 25;
   let totalSeconds = selectedMin * 60;
   let remainingSeconds = totalSeconds;
   let interruptions = 0;
   let tickHandle = null;
   let sessionStartTs = null;
+  let sessionEndTs = null; // wall-clock timestamp when the session should end
 
   const els = {
     missionPanel: document.getElementById('missionPanel'),
@@ -572,10 +573,11 @@
     remainingSeconds = totalSeconds;
     interruptions = 0;
     sessionStartTs = Date.now();
+    sessionEndTs = sessionStartTs + totalSeconds * 1000;
     tick();
     renderTimer();
     triggerStartBurst();
-  }
+}
 
   function pauseSession(){
     state = 'paused';
@@ -583,11 +585,12 @@
     renderTimer();
   }
 
-  function resumeSession(){
+ function resumeSession(){
     state = 'running';
+    sessionEndTs = Date.now() + remainingSeconds * 1000;
     tick();
     renderTimer();
-  }
+}
 
   function logInterruption(){
     interruptions++;
@@ -629,9 +632,8 @@
   function tick(){
     tickHandle = setTimeout(function(){
       if(state !== 'running') return;
-      remainingSeconds--;
+      remainingSeconds = Math.max(0, Math.round((sessionEndTs - Date.now()) / 1000));
       if(remainingSeconds <= 0){
-        remainingSeconds = 0;
         renderTimer();
         completeSession();
         return;
@@ -639,7 +641,7 @@
       renderTimer();
       tick();
     }, 1000);
-  }
+}
 
   function recordSession(session){
     data.sessions.push(session);

@@ -59,18 +59,15 @@
   .corner.bl{bottom:-1px; left:-1px; border-bottom:2px solid; border-left:2px solid;}
   .corner.br{bottom:-1px; right:-1px; border-bottom:2px solid; border-right:2px solid;}
 
-  header{
+ header{
     position:relative;
     border-bottom:1px solid var(--red-dim);
     padding: 22px 24px 18px;
     background: linear-gradient(180deg, rgba(255,43,43,0.13), transparent);
     box-shadow: 0 1px 0 rgba(255,43,43,0.15);
-  }
-  .back-link{
-    display:inline-block; font-size:11px; letter-spacing:0.12em; color:var(--text-dim);
-    text-decoration:none; margin-bottom:14px; border:1px solid var(--line-bright); padding:5px 10px;
-    transition: all .15s ease;
-  }
+    text-align:center;
+ }
+ 
   .back-link:hover{color:var(--red-bright); border-color:var(--red);}
   .title-row{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
   .eyebrow{font-size:11px; letter-spacing:0.3em; color:var(--red-bright); opacity:1; text-shadow: 0 0 8px rgba(255,43,43,0.6); font-weight:700;}
@@ -78,11 +75,13 @@
     font-size: clamp(24px, 4vw, 36px); letter-spacing:0.02em; font-weight:700;
     text-transform:uppercase; color:var(--text); text-shadow: 0 0 18px rgba(255,43,43,0.18);
   }
-  .subtitle{color:var(--text-dim); font-size:12.5px; margin-top:8px; max-width:640px; line-height:1.6;}
-  .telemetry{
+  .subtitle{color:var(--text-dim); font-size:12.5px; margin-top:8px; max-width:640px; line-height:1.6; text-align:center; margin-left:auto; margin-right:auto;}
+
+ .telemetry{
     display:flex; gap:22px; margin-top:16px; flex-wrap:wrap; font-size:11px; color:var(--text-dim);
     letter-spacing:0.06em;
-  }
+    justify-content:center;
+}
   .telemetry span b{color:var(--red-bright); font-weight:700;}
 
   nav.tabs{
@@ -131,7 +130,7 @@
 
   /* Card grid */
   .grid{
-    display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:18px;
   }
   @media (max-width:900px){
     .grid{ grid-template-columns:repeat(2, 1fr); }
@@ -238,12 +237,9 @@
 
 <header>
   <div class="corner tl"></div><div class="corner tr"></div>
-  <a href="https://rameshverse.com" class="back-link">← RAMESHVERSE</a>
-  <div class="title-row">
-    <span class="eyebrow">RV·TERRITORY</span>
-  </div>
+    
   <h1>Territory Explorer</h1>
-  <p class="subtitle">A field database of the world's non-sovereign territories — overseas territories, dependencies, crown possessions, special administrative regions, and other places that answer to a capital that isn't their own.</p>
+  
   <div class="telemetry" id="telemetry">LOADING DATA...</div>
 </header>
 
@@ -293,7 +289,11 @@
     <div class="note" id="modalNote"></div>
     <button class="compare-add" id="modalCompareBtn">ADD TO COMPARE</button>
   </div>
+
+  
 </div>
+
+<p class="subtitle">A field database of the world's non-sovereign territories — overseas territories, dependencies, crown possessions, special administrative regions, and other places that answer to a capital that isn't their own.</p>
 
 <script>
 /* ---------------- DATA ----------------
@@ -304,6 +304,13 @@ const TERRITORIES_URL = '/territory-explorer/data/territories.json';
 let TERRITORIES = [];
 
 /* ---------------- HELPERS ---------------- */
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
 function flagImg(iso, size){
   if(!iso || iso.length!==2) return '';
   const c = iso.toLowerCase();
@@ -312,11 +319,11 @@ function flagImg(iso, size){
   return `<img class="flag" src="https://flagcdn.com/${w}x${h}/${c}.png" srcset="https://flagcdn.com/${w*2}x${h*2}/${c}.png 2x" width="${w}" height="${h}" alt="" loading="lazy">`;
 }
 const SORT_OPTIONS = [
-  {label:"NAME (A → Z)", fn:(a,b)=>a.name.localeCompare(b.name)},
-  {label:"POPULATION (LOW → HIGH)", fn:(a,b)=>a.popNum-b.popNum},
-  {label:"POPULATION (HIGH → LOW)", fn:(a,b)=>b.popNum-a.popNum},
-  {label:"AREA (LOW → HIGH)", fn:(a,b)=>a.areaNum-b.areaNum},
-  {label:"AREA (HIGH → LOW)", fn:(a,b)=>b.areaNum-a.areaNum},
+  {label:"NAME (A → Z)", fn:(a,b)=>(a.name||'').localeCompare(b.name||'')},
+  {label:"POPULATION (LOW → HIGH)", fn:(a,b)=>(a.popNum||0)-(b.popNum||0)},
+  {label:"POPULATION (HIGH → LOW)", fn:(a,b)=>(b.popNum||0)-(a.popNum||0)},
+  {label:"AREA (LOW → HIGH)", fn:(a,b)=>(a.areaNum||0)-(b.areaNum||0)},
+  {label:"AREA (HIGH → LOW)", fn:(a,b)=>(b.areaNum||0)-(a.areaNum||0)},
 ];
 
 /* ---------------- STATE ---------------- */
@@ -403,7 +410,7 @@ function getFiltered(){
     if(status && t.status!==status) return false;
     if(continent && t.continent!==continent) return false;
     if(islandOnly && !t.island) return false;
-    if(q && !(t.name.toLowerCase().includes(q) || t.power.toLowerCase().includes(q))) return false;
+    if(q && !((t.name||'').toLowerCase().includes(q) || (t.power||'').toLowerCase().includes(q))) return false;
     return true;
   });
 
@@ -426,16 +433,16 @@ function renderGrid(){
   empty.style.display='none';
 
   grid.innerHTML = list.map(t=>`
-    <div class="card ${compareList.includes(t.name)?'picked':''}" data-name="${t.name}">
+    <div class="card ${compareList.includes(t.name)?'picked':''}" data-name="${escapeHtml(t.name)}">
       ${t.iso ? `<img class="flag-banner" src="https://flagcdn.com/w320/${t.iso.toLowerCase()}.png" alt="" loading="lazy">` : ''}
       <div class="card-body">
-        <h3>${t.name}${t.iso ? `<span class="iso">(${t.iso})</span>` : ''}</h3>
-        <div class="status-tag">${t.status}</div>
-        <div class="region-tag">${t.region.toUpperCase()}</div>
-        <div class="stat-line"><b>Administered by:</b> ${t.power}</div>
-        <div class="stat-line"><b>Capital:</b> ${t.capital}</div>
-        <div class="stat-line"><b>Population:</b> ${t.pop}</div>
-        <div class="stat-line"><b>Area:</b> ${t.area}</div>
+        <h3>${escapeHtml(t.name)}${t.iso ? `<span class="iso">(${escapeHtml(t.iso)})</span>` : ''}</h3>
+        <div class="status-tag">${escapeHtml(t.status)}</div>
+        <div class="region-tag">${escapeHtml((t.region||'').toUpperCase())}</div>
+        <div class="stat-line"><b>Administered by:</b> ${escapeHtml(t.power)}</div>
+        <div class="stat-line"><b>Capital:</b> ${escapeHtml(t.capital)}</div>
+        <div class="stat-line"><b>Population:</b> ${escapeHtml(t.pop)}</div>
+        <div class="stat-line"><b>Area:</b> ${escapeHtml(t.area)}</div>
       </div>
     </div>
   `).join('');
@@ -461,13 +468,13 @@ function closeModal(){
 function renderModal(t){
   if(!t) return;
   document.getElementById('modalStatus').textContent = t.status;
-  document.getElementById('modalName').innerHTML = `${flagImg(t.iso, 24)}${t.name}`;
+  document.getElementById('modalName').innerHTML = `${flagImg(t.iso, 24)}${escapeHtml(t.name)}`;
   document.getElementById('modalAdmin').textContent = `Administered by ${t.power} · ${t.region}`;
   document.getElementById('modalFields').innerHTML = `
-    <div class="field"><label>Capital / Seat</label><div>${t.capital}</div></div>
-    <div class="field"><label>Population</label><div>${t.pop}</div></div>
-    <div class="field"><label>Area</label><div>${t.area}</div></div>
-    <div class="field"><label>Currency</label><div>${t.currency}</div></div>
+    <div class="field"><label>Capital / Seat</label><div>${escapeHtml(t.capital)}</div></div>
+    <div class="field"><label>Population</label><div>${escapeHtml(t.pop)}</div></div>
+    <div class="field"><label>Area</label><div>${escapeHtml(t.area)}</div></div>
+    <div class="field"><label>Currency</label><div>${escapeHtml(t.currency)}</div></div>
   `;
   document.getElementById('modalNote').textContent = t.note;
   const btn = document.getElementById('modalCompareBtn');
@@ -517,16 +524,16 @@ function renderCompareTable(){
   ];
   let html = `<div class="compare-table-wrap"><table class="compare-table"><thead><tr><th></th>`;
   items.forEach(t=>{
-    html += `<th class="territory-col">${flagImg(t.iso)}${t.name}<span class="remove-x" data-name="${t.name}">✕</span></th>`;
+    html += `<th class="territory-col">${flagImg(t.iso)}${escapeHtml(t.name)}<span class="remove-x" data-name="${escapeHtml(t.name)}">✕</span></th>`;
   });
   html += `</tr></thead><tbody>`;
   rows.forEach(r=>{
-    html += `<tr><td class="row-label">${r.label}</td>`;
-    items.forEach(t=>{ html += `<td>${t[r.key]}</td>`; });
+    html += `<tr><td class="row-label">${escapeHtml(r.label)}</td>`;
+    items.forEach(t=>{ html += `<td>${escapeHtml(t[r.key])}</td>`; });
     html += `</tr>`;
   });
   html += `<tr><td class="row-label">Notes</td>`;
-  items.forEach(t=>{ html += `<td>${t.note}</td>`; });
+  items.forEach(t=>{ html += `<td>${escapeHtml(t.note)}</td>`; });
   html += `</tr></tbody></table></div>`;
   wrap.innerHTML = html;
 
@@ -548,7 +555,10 @@ function switchTab(tab){
 
 /* ---------------- LOAD DATA THEN INIT ---------------- */
 fetch(TERRITORIES_URL)
-  .then(r => r.json())
+  .then(r => {
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
   .then(data => {
     TERRITORIES = data;
     init();
@@ -562,6 +572,7 @@ fetch(TERRITORIES_URL)
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
 
 <script src="/tools-data.js"></script>
 <script src="/related-modules.js"></script>

@@ -14,8 +14,17 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quick Capture & Task Triage Tool – RV·TASKTRIAGE | RameshVerse</title>
 <meta name="description" content="Quick capture and task triage tool. Dump every task instantly, then sort each one into Do, Delegate, Defer, or Delete.">
+
+<title>Quick Capture & Task Triage Tool | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/task-triage">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+
 <style>
   :root{
     --bg: #0a0a0c;
@@ -24,12 +33,11 @@
     --red: #ff2b2b;
     --red-dim: #7a1414;
     --green: #23e07a;
-    --gray: #3a3a40;
     --text: #e8e8ea;
     --text-dim: #7a7a82;
     --amber: #ffb020;
     --blue: #3ea6ff;
-    --purple: #b06bff;
+    
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -296,8 +304,7 @@
       <h1>RV<span>·</span>TASKTRIAGE</h1>
       <div class="subtitle">QUICK CAPTURE + FORCED TRIAGE</div>
     </div>
-    <a class="back-link" href="#" id="backLink">← RAMESHVERSE</a>
-  </header>
+    </header>
   <div class="tagline">DUMP IT. DECIDE ON IT. DON'T LET IT PILE UP.</div>
 
   <div class="capture-row">
@@ -574,12 +581,7 @@
     renderList('delete', 'deleteList', 'deleteCount', false);
   }
 
-  document.getElementById('backLink').addEventListener('click', function(e){
-    e.preventDefault();
-    window.location.href = 'https://rameshverse.com';
-  });
-
-  renderAll();
+ renderAll();
   document.getElementById('captureInput').focus();
 })();
 </script>
