@@ -15,11 +15,17 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Convert length units across everyday and subatomic scales — meters, feet, and inches down to nanometers, picometers, and yoctometers, with exact precision for whole-meter conversions.">
+
+<title>Subatomic Calculator · Rameshverse MK·02</title>
+
+<link rel="canonical" href="https://rameshverse.com/subatomic-calculator">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<title>Subatomic Calculator · Rameshverse MK·02</title>
+
 
 <style>
   * { box-sizing: border-box; }
@@ -47,7 +53,7 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     padding: 34px 16px;
     background:
       radial-gradient(circle at 1px 1px, rgba(94,200,255,0.10) 1px, transparent 1.4px) 0 0 / 26px 26px,
@@ -163,7 +169,7 @@
     justify-content: center;
   }
 
-  h2 {
+  h1 {
     font-family: var(--sans);
     font-weight: 800;
     font-size: 1.55rem;
@@ -216,6 +222,16 @@
     opacity: 0.8;
   }
 
+  input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
   @keyframes scan {
     0% { left: -40%; }
     100% { left: 100%; }
@@ -262,8 +278,19 @@
   input:focus, select:focus, button:focus-visible {
     outline: none;
     border-color: var(--electron);
-    box-shadow: 0 0 0 3px var(--electron-dim);
+    box-shadow: 0 0 0 10px var(--electron-dim);
   }
+
+  #value {
+  box-shadow: 0 0 8px rgba(94,200,255,0.15);
+  transition: box-shadow 0.2s ease;
+}
+
+#value:focus {
+  outline: none;
+  border-color: var(--electron);
+  box-shadow: 0 0 0 3px var(--electron-dim), 0 0 18px rgba(94,200,255,0.4);
+}
 
   input[type="number"] { font-family: var(--mono); letter-spacing: 0.02em; }
 
@@ -419,65 +446,6 @@
     margin-bottom: 16px;
   }
 
-  /* ---------- Convert button: immersive core piece ---------- */
-  .convert-wrap {
-    position: relative;
-    padding: 3px;
-    border-radius: 13px;
-    background: linear-gradient(135deg, var(--electron), var(--proton), var(--photon));
-    background-size: 220% 220%;
-    animation: borderflow 6s ease infinite;
-    margin: 6px 0 18px;
-    box-shadow: 0 12px 30px rgba(255,93,93,0.25), 0 0 40px rgba(94,200,255,0.12);
-  }
-
-  @keyframes borderflow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  .convert-btn {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    width: 100%;
-    font-size: 1.05rem;
-    padding: 17px;
-    margin: 0;
-    background: linear-gradient(180deg, #0d1326, #0a0e1c);
-    color: var(--text);
-    font-weight: 700;
-    font-family: var(--sans);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    border: none;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .convert-btn .btn-icon {
-    color: var(--photon);
-    text-shadow: 0 0 10px rgba(255,207,92,0.7);
-    font-size: 1.1rem;
-  }
-
-  .convert-btn::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -60%;
-    width: 40%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.5s ease;
-  }
-
-  .convert-wrap:hover .convert-btn::after { left: 130%; }
-
-  .convert-btn:active:not(:disabled) { transform: scale(0.98); }
-
   .reset-btn { opacity: 0.85; }
   .reset-btn:hover:not(:disabled) { opacity: 1; }
 
@@ -553,7 +521,7 @@
       </div>
 
       <div class="title-row">
-        <h2>Subatomic Calculator</h2>
+        <h1>Subatomic Calculator</h1>
         <span class="version-chip">MK·02</span>
       </div>
 
@@ -575,7 +543,7 @@
         <div class="field-label label-from">From</div>
         <div class="field-label label-to">To</div>
 
-        <select id="from" onchange="invalidateResult()">
+        <select id="from" onchange="autoConvert()">
           <option value="m" selected>Meter (m)</option>
           <option value="ft">Feet (ft)</option>
           <option value="dm">Decimeter (dm)</option>
@@ -594,7 +562,7 @@
 
         <div class="arrow">→</div>
 
-        <select id="to" onchange="invalidateResult()">
+        <select id="to" onchange="autoConvert()">
           <option value="m">Meter (m)</option>
           <option value="ft">Feet (ft)</option>
           <option value="dm">Decimeter (dm)</option>
@@ -618,13 +586,7 @@
         </div>
       </div>
 
-      <div class="convert-wrap">
-        <button onclick="convert()" class="convert-btn">
-          <span class="btn-icon">⚛</span> Convert
-        </button>
-      </div>
-
-      <div class="decimals">
+        <div class="decimals">
         <button onclick="setDecimals(3)" data-mode="3" id="dec3" disabled>3 dec</button>
         <button onclick="setDecimals(2)" data-mode="2" id="dec2" disabled>2 dec</button>
         <button onclick="setDecimals(1)" data-mode="1" id="dec1" disabled>1 dec</button>
@@ -637,8 +599,11 @@
       </div>
 
       <div class="btn-row">
-        <button onclick="toggleHistory()" class="secondary" id="historyToggleBtn" disabled>Show History</button>
-        <button onclick="clearHistory()" class="secondary" id="clearHistoryBtn" style="display:none">Clear History</button>
+      <button onclick="archiveResult()" class="secondary" id="archiveBtn" disabled>Archive Result</button>
+      <button onclick="toggleHistory()" class="secondary" id="historyToggleBtn" disabled>Show History</button>
+      </div>
+      <div class="btn-row">
+      <button onclick="clearHistory()" class="secondary" id="clearHistoryBtn" style="display:none">Clear History</button>
       </div>
 
       <div class="history">
@@ -646,8 +611,15 @@
         <div id="historyList"></div>
       </div>
     </div>
+
+    <p style="text-align:center; max-width:480px; margin:24px auto 0; padding:0 16px; font-family:var(--mono); font-size:0.72rem; line-height:1.7; color:var(--text-dim); letter-spacing:0.02em;">
+  A precision length converter spanning everyday units: meters, feet, inches, down to subatomic scales like picometers, femtometers, and yoctometers. Whole-meter conversions to metric subatomic units use exact integer math instead of floating-point approximation.
+</p>
+
   </div>
 </div>
+
+
 
 <script>
 
@@ -662,6 +634,7 @@
   const decimalButtons = document.querySelectorAll(".decimals button");
   const resultValueEl = document.getElementById("resultValue");
   const copyBtn = document.getElementById("copyBtn");
+const archiveBtn = document.getElementById("archiveBtn");
 
   const unitSymbols = {
     m: "m", ft: "ft", dm: "dm", in: "in", cm: "cm", mm: "mm",
@@ -692,10 +665,11 @@
     });
   }
 
-  function setResultButtonsEnabled(enabled) {
+ function setResultButtonsEnabled(enabled) {
     copyBtn.disabled = !enabled;
+    archiveBtn.disabled = !enabled;
     decimalButtons.forEach(btn => btn.disabled = !enabled);
-  }
+}
 
   function invalidateResult() {
     resultValueEl.textContent = "Result pending\u2026";
@@ -820,6 +794,25 @@
 
   // ---------------------------------------------------------------------
 
+  function autoConvert() {
+    const raw = document.getElementById("value").value;
+    if (raw.trim() === "" || isNaN(parseFloat(raw))) {
+      invalidateResult();
+      return;
+    }
+    convert();
+}
+
+function archiveResult() {
+    if (!hasResult) return;
+    const value = parseFloat(document.getElementById("value").value);
+    const from = document.getElementById("from").value;
+    const to = document.getElementById("to").value;
+    addToHistory(value, from, resultValueEl.textContent, to);
+    archiveBtn.textContent = "Archived!";
+    setTimeout(() => archiveBtn.textContent = "Archive Result", 800);
+}
+
   function convert() {
     const value = parseFloat(document.getElementById("value").value);
     if (isNaN(value)) return;
@@ -849,12 +842,11 @@
     resultValueEl.textContent = outputText;
     hasResult = true;
 
-    addToHistory(value, from, outputText, to);
-
     copyBtn.disabled = false;
-    decimalButtons.forEach(btn => {
-      btn.disabled = !decimalsAvailable;
-    });
+archiveBtn.disabled = false;
+decimalButtons.forEach(btn => {
+  btn.disabled = !decimalsAvailable;
+});
 
     setActiveMode("raw");
   }
@@ -921,9 +913,7 @@
     updateHistoryUI();
   }
 
-  document.getElementById("value").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") convert();
-  });
+  document.getElementById("value").addEventListener("input", autoConvert);
 
 </script>
 

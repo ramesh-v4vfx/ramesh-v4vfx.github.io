@@ -12,18 +12,14 @@
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description"
 content="Free stock profit calculator. Calculate investment, profit, or loss by entering buying price, selling price, and number of shares.">
 
-<meta name="keywords"
-content="stock profit calculator, share profit calculator, investment profit calculator, stock loss calculator, trading calculator">
-
-<meta name="robots" content="index, follow">
-<meta name="author" content="Ramesh Singh">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stock Profit Calculator 💰</title>
+
+<link rel="canonical" href="https://rameshverse.com/stock-profit-calculator">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -438,20 +434,20 @@ content="stock profit calculator, share profit calculator, investment profit cal
     if (sellRaw !== '' && (isNaN(sell) || sell < 0)) { fieldSell.classList.add('invalid'); hasInvalid = true; }
     if (qtyRaw !== '' && (isNaN(qty) || qty < 0)) { fieldQty.classList.add('invalid'); hasInvalid = true; }
 
-    if (isNaN(buy) || isNaN(sell) || isNaN(qty)) {
-      setMode('standby');
-      statusEl.textContent = hasInvalid ? 'Error' : 'Waiting';
-      contextEl.textContent = hasInvalid ? 'Enter valid positive numbers' : 'Fill in all three fields';
+        if (hasInvalid) {
+      setMode('loss');
+      statusEl.textContent = 'Error';
+      contextEl.textContent = 'Enter valid positive numbers';
       heroEl.innerHTML = '—';
       sublineEl.textContent = '';
       lastCopyText = '';
       return;
     }
 
-    if (hasInvalid) {
-      setMode('loss');
-      statusEl.textContent = 'Error';
-      contextEl.textContent = 'Enter valid positive numbers';
+    if (isNaN(buy) || isNaN(sell) || isNaN(qty)) {
+      setMode('standby');
+      statusEl.textContent = 'Waiting';
+      contextEl.textContent = 'Fill in all three fields';
       heroEl.innerHTML = '—';
       sublineEl.textContent = '';
       lastCopyText = '';
@@ -498,9 +494,8 @@ content="stock profit calculator, share profit calculator, investment profit cal
 
   function flashStatus(text) {
     clearTimeout(flashTimeout);
-    const prevText = statusEl.textContent;
     statusEl.textContent = text;
-    flashTimeout = setTimeout(() => { statusEl.textContent = prevText; }, 900);
+    flashTimeout = setTimeout(() => { calculate(); }, 900);
   }
 
   function copyResult() {
