@@ -32,6 +32,41 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// ---------------------------------------------------------------------------
+// Push notifications (rv-notify) — independent of the caching logic above.
+// ---------------------------------------------------------------------------
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data.json();
+  } catch (e) {
+    data = { title: "RameshVerse", body: event.data ? event.data.text() : "" };
+  }
+
+  const title = data.title || "RameshVerse";
+  const options = {
+    body: data.body || "",
+    tag: data.tag || "rv-notify",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    renotify: true
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ("focus" in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow("/");
+    })
+  );
+});
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
