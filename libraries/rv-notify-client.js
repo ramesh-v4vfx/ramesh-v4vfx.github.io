@@ -37,21 +37,25 @@
     await navigator.serviceWorker.ready;
 
     let sub = await reg.pushManager.getSubscription();
-    if (sub) return sub;
 
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') return null;
+    if (!sub) {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') return null;
 
-    const keyRes = await fetch(RV_NOTIFY_ENDPOINT + '/vapid-public-key');
-    if (!keyRes.ok) throw new Error('vapid-public-key fetch failed: ' + keyRes.status);
-    const { key } = await keyRes.json();
-    if (!key) throw new Error('vapid-public-key response had no key');
+      const keyRes = await fetch(RV_NOTIFY_ENDPOINT + '/vapid-public-key');
+      if (!keyRes.ok) throw new Error('vapid-public-key fetch failed: ' + keyRes.status);
+      const { key } = await keyRes.json();
+      if (!key) throw new Error('vapid-public-key response had no key');
 
-    sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(key)
-    });
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(key)
+      });
+    }
 
+    // Always (re)send the subscription to the server — cheap and idempotent.
+    // Guarantees the Durable Object actually has it, even if the browser
+    // already had a cached subscription from before this endpoint existed.
     const subRes = await fetch(RV_NOTIFY_ENDPOINT + '/subscribe?id=' + encodeURIComponent(getVisitorId()), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
