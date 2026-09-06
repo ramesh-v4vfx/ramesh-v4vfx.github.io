@@ -29,9 +29,13 @@
   // the first time. Safe to call every time a tool starts a session — it's a
   // no-op if already subscribed. Returns null if unsupported or denied.
   async function ensurePushSubscription() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      throw new Error('serviceWorker/PushManager unsupported in this browser');
+    }
 
     const reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+
     let sub = await reg.pushManager.getSubscription();
     if (sub) return sub;
 
@@ -39,18 +43,21 @@
     if (permission !== 'granted') return null;
 
     const keyRes = await fetch(RV_NOTIFY_ENDPOINT + '/vapid-public-key');
+    if (!keyRes.ok) throw new Error('vapid-public-key fetch failed: ' + keyRes.status);
     const { key } = await keyRes.json();
+    if (!key) throw new Error('vapid-public-key response had no key');
 
     sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(key)
     });
 
-    await fetch(RV_NOTIFY_ENDPOINT + '/subscribe?id=' + encodeURIComponent(getVisitorId()), {
+    const subRes = await fetch(RV_NOTIFY_ENDPOINT + '/subscribe?id=' + encodeURIComponent(getVisitorId()), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subscription: sub })
     });
+    if (!subRes.ok) throw new Error('/subscribe failed: ' + subRes.status);
 
     return sub;
   }
@@ -63,11 +70,12 @@
       return { fireAt: now + n.delayMs, title: n.title, body: n.body, tag: n.tag };
     });
 
-    await fetch(RV_NOTIFY_ENDPOINT + '/schedule?id=' + encodeURIComponent(getVisitorId()), {
+    const res = await fetch(RV_NOTIFY_ENDPOINT + '/schedule?id=' + encodeURIComponent(getVisitorId()), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notifications: payload })
     });
+    if (!res.ok) throw new Error('/schedule failed: ' + res.status);
   }
 
   async function cancelNotifications() {

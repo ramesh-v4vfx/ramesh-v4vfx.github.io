@@ -567,7 +567,30 @@ function toggleTimer() {
     // True push notifications — fire even if the phone is locked or the
     // PWA is fully closed, once the Cloudflare Worker's alarm goes off.
     if (window.RVNotify) {
-      RVNotify.ensurePushSubscription().then(function (sub) {
+      RVNotify.ensurePushSubscription().then    // True push notifications — fire even if the phone is locked or the
+    // PWA is fully closed, once the Cloudflare Worker's alarm goes off.
+    var dbg = document.getElementById("pushDebug");
+    function log(msg) {
+      if (dbg) dbg.textContent = (dbg.textContent ? dbg.textContent + " | " : "") + msg;
+      console.log("[rv-notify]", msg);
+    }
+    if (window.RVNotify) {
+      log("starting subscribe...");
+      RVNotify.ensurePushSubscription()
+        .then(function (sub) {
+          if (!sub) { log("ensurePushSubscription returned null (denied/unsupported)"); return; }
+          log("subscribed OK, scheduling...");
+          return RVNotify.scheduleNotifications([
+            { delayMs: WORK_TIME - 5 * 60 * 1000, title: "5 minutes left", body: "Final stretch — 5 minutes remaining in this focus session.", tag: "pomodoro-5min" },
+            { delayMs: WORK_TIME, title: "Session complete", body: "Focus session finished — time for a 5 minute break.", tag: "pomodoro-done" }
+          ]).then(function () { log("scheduled OK"); });
+        })
+        .catch(function (err) {
+          log("ERROR: " + (err && err.message ? err.message : String(err)));
+        });
+    } else {
+      log("RVNotify not loaded — check script tag / file path");
+    }(function (sub) {
         if (!sub) return; // unsupported or permission denied — in-app beep/vibrate still covers this
         RVNotify.scheduleNotifications([
           { delayMs: WORK_TIME - 5 * 60 * 1000, title: "5 minutes left", body: "Final stretch — 5 minutes remaining in this focus session.", tag: "pomodoro-5min" },
