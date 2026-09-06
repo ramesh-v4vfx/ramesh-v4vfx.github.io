@@ -599,11 +599,18 @@ function pauseRun() {
   if (window.RVNotify) RVNotify.cancelNotifications();
 }
 
-      sendNotification("Session complete", "Focus session finished — time for a 5 minute break.");
-      if (window.RVNotify) RVNotify.cancelNotifications();
-      openNotePopup();
-
-      setMode("break");
+function resetTimer() {
+  clearInterval(intervalId);
+  state = "idle";
+  setMode("work");
+  duration = WORK_TIME;
+  elapsedAtPause = 0;
+  display.textContent = format(WORK_TIME);
+  statusEl.textContent = "Ready to focus";
+  toggleBtn.textContent = "▶ Start";
+  setProgress(0);
+  if (window.RVNotify) RVNotify.cancelNotifications();
+}
 
 function tick() {
   const elapsed = Date.now() - startTime;
@@ -793,6 +800,7 @@ resetTimer();
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
 <script src="/libraries/hud-home-button.js"></script>
+<script src="/libraries/rv-notify-client.js"></script>
 
 <script src="/tools-data.js"></script>
 <script src="/related-modules.js"></script>
