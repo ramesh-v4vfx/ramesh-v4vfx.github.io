@@ -36,7 +36,7 @@
 
   * { box-sizing: border-box; }
 
-  body {
+    body {
     font-family: system-ui, sans-serif;
     background:
       radial-gradient(circle at 30% 10%, rgba(226,152,79,0.06), transparent 55%),
@@ -44,7 +44,7 @@
     color: var(--text);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
     padding: 12px;
   }
@@ -507,7 +507,7 @@ function pulseDial() {
   dialEl.classList.add("pulse");
 }
 
-/* ---------------- NOTIFICATIONS (no audio) ---------------- */
+/* ---------------- NOTIFICATIONS (local fallback, no push) ---------------- */
 function ensureNotificationPermission() {
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
@@ -555,6 +555,13 @@ function saveToday() {
   localStorage.setItem("pomodoroLog", JSON.stringify(data));
 }
 
+/* ---------------- PUSH DEBUG HELPER ---------------- */
+function rvLog(msg) {
+  const dbg = document.getElementById("pushDebug");
+  if (dbg) dbg.textContent = (dbg.textContent ? dbg.textContent + " | " : "") + msg;
+  console.log("[rv-notify]", msg);
+}
+
 /* ---------------- TIMER ---------------- */
 function toggleTimer() {
   if (state === "idle") {
@@ -567,36 +574,21 @@ function toggleTimer() {
     // True push notifications — fire even if the phone is locked or the
     // PWA is fully closed, once the Cloudflare Worker's alarm goes off.
     if (window.RVNotify) {
-      RVNotify.ensurePushSubscription().then    // True push notifications — fire even if the phone is locked or the
-    // PWA is fully closed, once the Cloudflare Worker's alarm goes off.
-    var dbg = document.getElementById("pushDebug");
-    function log(msg) {
-      if (dbg) dbg.textContent = (dbg.textContent ? dbg.textContent + " | " : "") + msg;
-      console.log("[rv-notify]", msg);
-    }
-    if (window.RVNotify) {
-      log("starting subscribe...");
+      rvLog("starting subscribe...");
       RVNotify.ensurePushSubscription()
         .then(function (sub) {
-          if (!sub) { log("ensurePushSubscription returned null (denied/unsupported)"); return; }
-          log("subscribed OK, scheduling...");
+          if (!sub) { rvLog("ensurePushSubscription returned null (denied/unsupported)"); return; }
+          rvLog("subscribed OK, scheduling...");
           return RVNotify.scheduleNotifications([
             { delayMs: WORK_TIME - 5 * 60 * 1000, title: "5 minutes left", body: "Final stretch — 5 minutes remaining in this focus session.", tag: "pomodoro-5min" },
             { delayMs: WORK_TIME, title: "Session complete", body: "Focus session finished — time for a 5 minute break.", tag: "pomodoro-done" }
-          ]).then(function () { log("scheduled OK"); });
+          ]).then(function () { rvLog("scheduled OK"); });
         })
         .catch(function (err) {
-          log("ERROR: " + (err && err.message ? err.message : String(err)));
+          rvLog("ERROR: " + (err && err.message ? err.message : String(err)));
         });
     } else {
-      log("RVNotify not loaded — check script tag / file path");
-    }(function (sub) {
-        if (!sub) return; // unsupported or permission denied — in-app beep/vibrate still covers this
-        RVNotify.scheduleNotifications([
-          { delayMs: WORK_TIME - 5 * 60 * 1000, title: "5 minutes left", body: "Final stretch — 5 minutes remaining in this focus session.", tag: "pomodoro-5min" },
-          { delayMs: WORK_TIME, title: "Session complete", body: "Focus session finished — time for a 5 minute break.", tag: "pomodoro-done" }
-        ]);
-      });
+      rvLog("RVNotify not loaded — check script tag / file path");
     }
   } else if (state === "running") {
     pauseRun();
@@ -653,7 +645,11 @@ function tick() {
       updateStats();
       if (openPanel === "today") renderToday();
 
-      sendNotification("Session complete", "Focus session finished — time for a 5 minute break.");
+      // No local sendNotification here on purpose — the real push notification
+      // (scheduled at session start via RVNotify) already delivers this banner.
+      // Calling both would show two notifications for the same moment.
+      if ("vibrate" in navigator) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} }
+      if (window.RVNotify) RVNotify.cancelNotifications();
       openNotePopup();
 
       setMode("break");
