@@ -273,7 +273,7 @@
         <span class="tag" id="stageTag">SYSTEM VIEW</span>
         <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
         <span class="hzlabel">■ HABITABLE ZONE</span>
-        <span class="drag-hint" id="dragHint">click a planet for a close look, try enhanced scale if too tiny</span>
+        <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         <span class="watermark">rameshverse.com</span>
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
         <button class="fs-btn active" id="scaleToggleBtn" style="right:170px;">⊙ TRUE PLANET SCALE — CLICK FOR ENHANCED</button>
@@ -988,6 +988,7 @@
   planetMeshes:[], planetLabels:[], planetAtmos:[], planetRings:[],
   azimuth:0.7, polar:1.05, radius:11, savedRadius:11, autoRotate:true,
   dragging:false, lastX:0, lastY:0,
+  panning:false, panLastX:0, panLastY:0,
   clickStartX:0, clickStartY:0, hasMoved:false,
   focusObj:null, lookTarget:new THREE.Vector3(0,0,0)
 };
@@ -999,7 +1000,8 @@ function handleStageClick(e){
   mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
   mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouseNDC, three.camera);
-  var hits = raycaster.intersectObjects(three.planetMeshes);
+  var starMeshes = three.starObjs.map(function(so){ return so.mesh; });
+  var hits = raycaster.intersectObjects(three.planetMeshes.concat(starMeshes));
   if (hits.length){
     three.focusObj = hits[0].object;
     three.savedRadius = three.radius;
@@ -1010,14 +1012,33 @@ function handleStageClick(e){
   }
 }
 
+    stage3d.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
     stage3d.addEventListener('pointerdown', function(e){
-  three.dragging = true; three.autoRotate = false;
-  three.lastX = e.clientX; three.lastY = e.clientY;
+  three.autoRotate = false;
+  if (e.button === 2){
+    three.panning = true;
+    three.panLastX = e.clientX; three.panLastY = e.clientY;
+  } else {
+    three.dragging = true;
+    three.lastX = e.clientX; three.lastY = e.clientY;
+  }
   three.clickStartX = e.clientX; three.clickStartY = e.clientY;
   three.hasMoved = false;
   stage3d.classList.add('dragging');
 });
+
 window.addEventListener('pointermove', function(e){
+  if (three.panning){
+    var pdx = e.clientX - three.panLastX, pdy = e.clientY - three.panLastY;
+    three.panLastX = e.clientX; three.panLastY = e.clientY;
+    var panSpeed = three.radius * 0.0016;
+    var right = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 0);
+    var up = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 1);
+    three.lookTarget.addScaledVector(right, -pdx*panSpeed);
+    three.lookTarget.addScaledVector(up, pdy*panSpeed);
+    return;
+  }
   if (!three.dragging) return;
   var dx = e.clientX - three.lastX, dy = e.clientY - three.lastY;
   three.lastX = e.clientX; three.lastY = e.clientY;
@@ -1028,6 +1049,7 @@ window.addEventListener('pointermove', function(e){
 });
 window.addEventListener('pointerup', function(e){
   three.dragging = false;
+  three.panning = false;
   stage3d.classList.remove('dragging');
   if (!three.hasMoved) handleStageClick(e);
 });
@@ -1084,6 +1106,7 @@ window.addEventListener('pointerup', function(e){
       var starMat = new THREE.MeshBasicMaterial({color:starColor, map:makeStarTexture()});
       var starMesh = new THREE.Mesh(starGeo, starMat);
       starMesh.scale.setScalar(starScale/0.4);
+      starMesh.userData.size = starScale;
       group.add(starMesh);
 
       var glowInnerMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:starColor, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
@@ -1203,8 +1226,6 @@ window.addEventListener('pointerup', function(e){
 
     if (three.focusObj && three.focusObj.parent){
   three.focusObj.getWorldPosition(three.lookTarget);
-} else {
-  three.lookTarget.set(0,0,0);
 }
 
 if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
