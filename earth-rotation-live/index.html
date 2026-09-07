@@ -84,6 +84,17 @@
     aspect-ratio:auto;
     border:none;
   }
+
+  .viewer.fake-fullscreen{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  aspect-ratio:auto;
+  z-index:9999;
+  border:none;
+}
+
   #globeCanvas{
     display:block;
     width:100%;
@@ -485,22 +496,42 @@ document.addEventListener('fullscreenchange', () => {
   fsBtn.textContent = document.fullscreenElement ? 'Restore' : 'Fullscreen';
 });
 
-// ---------- fullscreen toggle ----------
+// ---------- fullscreen toggle (mobile-safe) ----------
+function isFullscreen(){
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || viewer.classList.contains('fake-fullscreen'));
+}
+
+function requestFS(el){
+  if (el.requestFullscreen) return el.requestFullscreen();
+  if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen(); // Safari (iOS 16.4+, desktop)
+  // No Fullscreen API support at all (older iOS Safari) -> CSS fake-fullscreen
+  el.classList.add('fake-fullscreen');
+  document.body.style.overflow = 'hidden';
+  setTimeout(handleResize, 50);
+  fsBtn.textContent = 'Restore';
+}
+
+function exitFS(){
+  if (document.fullscreenElement && document.exitFullscreen) return document.exitFullscreen();
+  if (document.webkitFullscreenElement && document.webkitExitFullscreen) return document.webkitExitFullscreen();
+  viewer.classList.remove('fake-fullscreen');
+  document.body.style.overflow = '';
+  setTimeout(handleResize, 50);
+  fsBtn.textContent = 'Fullscreen';
+}
+
 fsBtn.addEventListener('click', () => {
-  if(!document.fullscreenElement){
-    viewer.requestFullscreen().catch(() => {});
-  } else {
-    document.exitFullscreen();
-  }
+  isFullscreen() ? exitFS() : requestFS(viewer);
 });
 viewer.addEventListener('dblclick', () => fsBtn.click());
 
-const resetBtn = document.getElementById('resetBtn');
-const DEFAULT_CAMERA_POS = new THREE.Vector3(0, 0, 6.2);
-resetBtn.addEventListener('click', () => {
-  camera.position.copy(DEFAULT_CAMERA_POS);
-  controls.target.set(0, 0, 0);
-  controls.update();
+document.addEventListener('fullscreenchange', () => {
+  setTimeout(handleResize, 50);
+  fsBtn.textContent = document.fullscreenElement ? 'Restore' : 'Fullscreen';
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  setTimeout(handleResize, 50);
+  fsBtn.textContent = document.webkitFullscreenElement ? 'Restore' : 'Fullscreen';
 });
 
 // ---------- render loop ----------
