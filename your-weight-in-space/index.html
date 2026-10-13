@@ -12,7 +12,7 @@
   gtag('config', 'G-DZMEQ7NQCD');
 </script>
 
-  <meta charset="UTF-8" />
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Your Weight in Space</title>
 
@@ -260,6 +260,13 @@
     margin-bottom: 6px;
   }
 
+  .field-hint {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
   .field-row { display: flex; gap: 8px; }
 
   .field-row input {
@@ -357,7 +364,7 @@
     word-break: break-word;
   }
 
-  .result-unit { font-size: 14px; color: var(--text-dim); margin-bottom: 14px; }
+  .result-unit { font-size: 12.5px; color: var(--text-dim); margin-bottom: 14px; line-height: 1.55; }
 
   .result-divider { border: none; border-top: 1px dashed var(--line-soft); margin: 1rem 0; }
 
@@ -365,12 +372,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     font-family: var(--mono);
     font-size: 12.5px;
     color: var(--text-dim);
     margin-bottom: 7px;
   }
 
+  .meta-row span:first-child { text-align: left; }
   .meta-row span:last-child { color: var(--text); text-align: right; }
 
   .result-note {
@@ -411,14 +420,15 @@
   <div class="form-card">
 
     <div class="field">
-      <label for="wval">Your weight</label>
+      <label for="wval">Your mass</label>
       <div class="field-row">
         <input type="number" id="wval" placeholder="e.g. 70" min="0" step="0.1" inputmode="decimal" />
-        <select id="wunit" aria-label="Weight unit">
+        <select id="wunit" aria-label="Mass unit">
           <option value="kg">kg</option>
           <option value="lb">lb</option>
         </select>
       </div>
+      <p class="field-hint">Enter the number your bathroom scale shows on Earth.</p>
     </div>
 
     <div class="field">
@@ -464,12 +474,17 @@
       <div class="corner-br"></div>
       <div class="result-icon" id="res-icon"></div>
       <div class="result-body-name" id="res-name"></div>
+      <div class="result-body-name" style="margin-bottom:2px;">Scale reading</div>
       <div class="result-weight" id="res-weight"></div>
       <div class="result-unit" id="res-unit"></div>
       <hr class="result-divider" />
       <div class="meta-row">
-        <span>Your weight on Earth</span>
+        <span>Your mass (same everywhere)</span>
         <span id="res-earth"></span>
+      </div>
+      <div class="meta-row">
+        <span>Actual weight (force)</span>
+        <span id="res-force"></span>
       </div>
       <div class="meta-row">
         <span>Surface gravity</span>
@@ -486,16 +501,19 @@
 </div>
 
 <script>
+  const G_EARTH  = 9.80665;      // m/s², standard gravity
+  const LB_TO_KG = 0.45359237;
+
   const bodies = {
     Mercury:      { icon: "🌑", g: 0.38,     gStr: "3.7 m/s²",           note: "" },
     Venus:        { icon: "🟡", g: 0.904,    gStr: "8.87 m/s²",          note: "" },
     Earth:        { icon: "🌍", g: 1,         gStr: "9.81 m/s²",          note: "" },
     Moon:         { icon: "🌙", g: 0.1654,   gStr: "1.62 m/s²",          note: "Earth's natural satellite." },
     Mars:         { icon: "🔴", g: 0.3794,   gStr: "3.72 m/s²",          note: "" },
-    Jupiter:      { icon: "🟠", g: 2.528,    gStr: "24.8 m/s²",          note: "Measured at the cloud-top level — Jupiter has no solid surface." },
-    Saturn:       { icon: "🪐", g: 1.065,    gStr: "10.44 m/s²",         note: "Measured at the cloud-top level." },
-    Uranus:       { icon: "🔵", g: 0.886,    gStr: "8.69 m/s²",          note: "" },
-    Neptune:      { icon: "🟣", g: 1.14,     gStr: "11.15 m/s²",         note: "" },
+    Jupiter:      { icon: "🟠", g: 2.528,    gStr: "24.8 m/s²",          note: "Measured at the 1-bar pressure level — Jupiter has no solid surface." },
+    Saturn:       { icon: "🪐", g: 1.065,    gStr: "10.44 m/s²",         note: "Measured at the 1-bar pressure level — Saturn has no solid surface." },
+    Uranus:       { icon: "🔵", g: 0.886,    gStr: "8.69 m/s²",          note: "Measured at the 1-bar pressure level — Uranus has no solid surface." },
+    Neptune:      { icon: "🟣", g: 1.14,     gStr: "11.15 m/s²",         note: "Measured at the 1-bar pressure level — Neptune has no solid surface." },
     Ceres:        { icon: "⚪", g: 0.029,    gStr: "0.28 m/s²",          note: "Largest object in the asteroid belt." },
     Pluto:        { icon: "🧊", g: 0.063,    gStr: "0.62 m/s²",          note: "Reclassified as a dwarf planet in 2006." },
     Haumea:       { icon: "🪨", g: 0.044,    gStr: "0.44 m/s²",          note: "Has an ellipsoidal shape due to its rapid spin." },
@@ -506,7 +524,7 @@
     Gonggong:     { icon: "🌘", g: 0.0443,   gStr: "0.434 m/s²",         note: "Named after a Chinese water god." },
     Orcus:        { icon: "⚫", g: 0.027,    gStr: "0.27 m/s²",          note: "Sometimes called the 'anti-Pluto' due to its opposite orbit." },
     Varuna:       { icon: "💫", g: 0.017,    gStr: "0.17 m/s²",          note: "A Kuiper Belt object with a fast rotation." },
-    Sun:          { icon: "☀️", g: 27.96,    gStr: "274 m/s²",           note: "The Sun's gravity is so strong you would be crushed instantly." },
+    Sun:          { icon: "☀️", g: 27.96,    gStr: "274 m/s²",           note: "Measured at the visible surface (photosphere). The Sun's gravity is so strong you would be crushed instantly." },
     /* Fixed: this previously listed g = 1.535e17 and gStr = "~1.5 × 10¹⁸ m/s²",
        overstating Sagittarius A*'s event-horizon gravity by roughly 11-12
        orders of magnitude. Using the same Newtonian approximation as the
@@ -514,7 +532,7 @@
        ~4 million solar masses (matching the note text below), the correct
        figure is about 373,667x Earth gravity — still catastrophic, just not
        fictionally catastrophic. */
-    SagittariusA: { icon: "🌀", g: 373667,   gStr: "~3.67 × 10⁶ m/s²",   note: "Newtonian estimate of gravity at the event horizon of the Milky Way's supermassive black hole (~4 million solar masses). Nothing — not even light — can escape beyond this point." },
+    SagittariusA: { icon: "🌀", g: 373667,   gStr: "~3.67 × 10⁶ m/s²",   note: "Illustrative Newtonian estimate of gravity at the event horizon of the Milky Way's supermassive black hole (~4 million solar masses). Nothing — not even light — can escape beyond this point." },
   };
 
   const displayNames = {
@@ -563,7 +581,9 @@
       return;
     }
 
-    const w       = raw * b.g;
+    const w       = raw * b.g;                         // scale reading (kgf / lbf)
+    const massKg  = unit === "kg" ? raw : raw * LB_TO_KG;
+    const forceN  = massKg * b.g * G_EARTH;            // true weight in newtons
     const wStr    = fmt(w, unit);
     const multStr = fmtMultiplier(b.g);
     const name    = displayNames[key] || key;
@@ -571,8 +591,10 @@
     document.getElementById("res-icon").textContent   = b.icon;
     document.getElementById("res-name").textContent   = name;
     document.getElementById("res-weight").textContent = wStr;
-    document.getElementById("res-unit").textContent   = unit;
+    document.getElementById("res-unit").textContent   =
+      "What an Earth-calibrated scale would show. Your mass doesn't change, only gravity's pull does.";
     document.getElementById("res-earth").textContent  = `${raw.toFixed(2)} ${unit}`;
+    document.getElementById("res-force").textContent  = fmt(forceN, "N");
     document.getElementById("res-grav").textContent   = b.gStr;
     document.getElementById("res-mult").textContent   = multStr;
     document.getElementById("res-note").textContent   = b.note;
