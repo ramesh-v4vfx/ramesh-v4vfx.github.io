@@ -83,7 +83,6 @@
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--red);cursor:pointer;box-shadow:0 0 6px var(--red);border-radius:50%;}
   input[type=range]::-moz-range-thumb{width:12px;height:12px;background:var(--red);cursor:pointer;border:none;border-radius:50%;}
 
-  .preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
   .chip{
     font-size:9px;letter-spacing:1px;padding:5px 8px;border:1px solid var(--dim);color:var(--dim);
     cursor:pointer;transition:.15s;
@@ -105,7 +104,7 @@
   #reset-btn:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 10px var(--red-dim);}
 
   #canvaswrap{position:relative;min-height:460px;background:#000;overflow:hidden;}
-  #bh-canvas{display:block;width:100%;height:100%;cursor:grab;}
+  #bh-canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none;}
   #bh-canvas:active{cursor:grabbing;}
   #canvashint{position:absolute;top:10px;left:10px;font-size:9px;color:var(--dim);letter-spacing:1px;background:rgba(5,6,8,0.6);padding:4px 8px;pointer-events:none;}
 
@@ -131,6 +130,7 @@
   .unit-chip{
     flex:1;text-align:center;padding:9px 6px;font-size:11px;font-weight:700;letter-spacing:1.5px;
     border:none;background:transparent;color:var(--dim);cursor:pointer;transition:.15s;
+    font-family:inherit;
   }
   .unit-chip:first-child{border-right:1px solid var(--red-dim);}
   .unit-chip:hover{color:var(--red);}
@@ -171,16 +171,9 @@
 
       <div class="field">
         <label>MASS <span class="val" id="mass-val">10 M☉</span></label>
-        <input type="range" id="mass" min="0" max="11" step="any" value="1">
-        <div class="mass-input-row">
-          <input type="text" id="mass-input" inputmode="decimal" spellcheck="false" placeholder="exact mass">
+        <div class="mass-input-row" style="margin-top:0;">
+          <input type="text" id="mass-input" inputmode="decimal" spellcheck="false" placeholder="mass in M☉ (1 to 1e11)">
           <span class="mass-input-unit">M☉ <button id="mass-input-go" title="apply">↵</button></span>
-        </div>
-        <div class="preset-row">
-          <div class="chip" data-mass="1">STELLAR</div>
-          <div class="chip" data-mass="6.633">SGR A*</div>
-          <div class="chip" data-mass="9.813">M87*</div>
-          <div class="chip" data-mass="11">PHOENIX A</div>
         </div>
       </div>
 
@@ -192,6 +185,11 @@
       <div class="field">
         <label>LENSING STRENGTH <span class="val" id="lens-val">1.2</span></label>
         <input type="range" id="lens" min="0" max="3" step="0.05" value="1.2">
+      </div>
+
+      <div class="field">
+        <label>GLOW <span class="val" id="glow-val">1.50</span></label>
+        <input type="range" id="glow" min="0" max="3" step="0.05" value="1.5">
       </div>
 
       <div class="subhead">DERIVED PROPERTIES</div>
@@ -225,35 +223,41 @@
 (function(){
 
 // ---------------- PHYSICAL CONSTANTS ----------------
-const G = 6.674e-11;        // m^3 kg^-1 s^-2
-const C = 2.998e8;          // m/s
-const MSUN = 1.989e30;      // kg
-const KB = 1.381e-23;       // J/K
-const HBAR = 1.0546e-34;    // J s
-const RS_PER_MSUN_KM = (2*G*MSUN/(C*C))/1000; // ~2.9536 km per solar mass
+// Same constants as the RameshVerse spreadsheet, so the app and the sheet agree to every digit.
+// M_sun is the nominal solar mass, 1.988416e30 kg (as listed on Wikipedia's "Solar mass" page).
+const G = 6.6743e-11;               // m^3 kg^-1 s^-2 (CODATA 2018)
+const C = 299792458;                // m/s (exact)
+const MSUN = 1.988416e30;           // kg (nominal)
+const GM_SUN = G * MSUN;            // m^3 s^-2
+const KB = 1.380649e-23;            // J/K (exact)
+const HBAR = 1.054571817e-34;       // J s
+const RS_PER_MSUN_KM = (2*GM_SUN/(C*C))/1000; // ~2.95325 km per solar mass
 
 // ---------------- PHYSICS ----------------
-function computeStats(massSolar, spin){
-  const rsKm = massSolar * RS_PER_MSUN_KM;
-  const rgKm = rsKm/2; // gravitational radius GM/c^2 in km
-  const photonSphereKm = 1.5 * rsKm; // Schwarzschild approximation
-
-  // ISCO via Bardeen-Press-Teukolsky (prograde, equatorial)
-  const a = spin;
+// ISCO radius in units of GM/c^2 (Bardeen-Press-Teukolsky, prograde, equatorial)
+function iscoOverM(a){
   const Z1 = 1 + Math.cbrt(1-a*a) * (Math.cbrt(1+a) + Math.cbrt(1-a));
   const Z2 = Math.sqrt(3*a*a + Z1*Z1);
-  const riscoOverM = 3 + Z2 - Math.sqrt((3-Z1)*(3+Z1+2*Z2));
-  const iscoKm = riscoOverM * rgKm;
+  return 3 + Z2 - Math.sqrt((3-Z1)*(3+Z1+2*Z2));
+}
 
-  const massKg = massSolar * MSUN;
-  const hawkingT = (HBAR*Math.pow(C,3)) / (8*Math.PI*G*massKg*KB); // Kelvin
+function computeStats(massSolar, spin){
+  const rsKm = massSolar * RS_PER_MSUN_KM;   // Schwarzschild radius 2GM/c^2
+  const rgKm = rsKm/2;                       // gravitational radius GM/c^2
+  const a = spin;
+  const horizonKm = rgKm * (1 + Math.sqrt(1 - a*a)); // Kerr outer horizon r+
+  const photonSphereKm = 1.5 * rsKm;         // Schwarzschild approximation
+  const iscoKm = iscoOverM(a) * rgKm;
+
+  // Hawking temperature (non-spinning formula), using GM directly for precision
+  const hawkingT = (HBAR*C*C*C) / (8*Math.PI*GM_SUN*massSolar*KB); // Kelvin
 
   let tidalNote;
   if(massSolar < 1000) tidalNote = "Stellar-mass regime: tidal forces at the horizon are lethal — any infalling object is stretched into spaghetti well before crossing it.";
   else if(massSolar < 1e6) tidalNote = "Intermediate-mass regime: tidal shredding still occurs, but closer to (or just past) the horizon than for a stellar-mass hole.";
   else tidalNote = "Supermassive regime: tidal forces at the horizon are gentle — an object could cross the event horizon intact, with spaghettification only happening much deeper inside.";
 
-  return {massSolar, spin, rsKm, photonSphereKm, iscoKm, hawkingT, tidalNote};
+  return {massSolar, spin, rsKm, horizonKm, photonSphereKm, iscoKm, hawkingT, tidalNote};
 }
 
 function fmtKm(km){
@@ -265,8 +269,8 @@ function fmtKm(km){
 const SOLAR_RADIUS_KM = 695700;
 function fmtRsun(km){
   const r = km / SOLAR_RADIUS_KM;
-  if(r >= 1e6) return (r/1e6).toFixed(2)+'M R☉';
-  if(r >= 1e3) return (r/1e3).toFixed(2)+'K R☉';
+  if(r >= 1e6) return (r/1e6).toFixed(2)+' million R☉';
+  if(r >= 1e3) return (r/1e3).toFixed(2)+' thousand R☉';
   if(r >= 0.001) return r.toFixed(4)+' R☉';
   return r.toExponential(2)+' R☉';
 }
@@ -275,9 +279,9 @@ function fmtRadius(km){
   return radiusUnit === 'km' ? fmtKm(km) : fmtRsun(km);
 }
 function fmtMass(massSolar){
-  if(massSolar >= 1e9) return (massSolar/1e9).toFixed(2)+'B M☉';
-  if(massSolar >= 1e6) return (massSolar/1e6).toFixed(2)+'M M☉';
-  if(massSolar >= 1e3) return (massSolar/1e3).toFixed(2)+'K M☉';
+  if(massSolar >= 1e9) return (massSolar/1e9).toFixed(2)+' billion M☉';
+  if(massSolar >= 1e6) return (massSolar/1e6).toFixed(2)+' million M☉';
+  if(massSolar >= 1e3) return (massSolar/1e3).toFixed(2)+' thousand M☉';
   return massSolar.toFixed(massSolar<10?1:0)+' M☉';
 }
 
@@ -289,13 +293,14 @@ function renderStats(r){
       <button class="chip unit-chip ${radiusUnit==='rsun'?'active':''}" data-unit="rsun">R☉ SOLAR RADII</button>
     </div>
     <div class="stat-row" data-copy="${fmtMass(r.massSolar)}"><div class="k">MASS<span class="u">solar masses</span></div><div class="v">${fmtMass(r.massSolar)}</div></div>
-    <div class="stat-row" data-copy="${fmtRadius(r.rsKm)}"><div class="k">SCHWARZSCHILD RADIUS<span class="u">event horizon</span></div><div class="v">${fmtRadius(r.rsKm)}</div></div>
-    <div class="stat-row" data-copy="${fmtRadius(r.photonSphereKm)}"><div class="k">PHOTON SPHERE<span class="u">≈1.5× horizon</span></div><div class="v">${fmtRadius(r.photonSphereKm)}</div></div>
+    <div class="stat-row" data-copy="${fmtRadius(r.rsKm)}"><div class="k">SCHWARZSCHILD RADIUS<span class="u">2GM/c² · non-spinning</span></div><div class="v">${fmtRadius(r.rsKm)}</div></div>
+    <div class="stat-row" data-copy="${fmtRadius(r.horizonKm)}"><div class="k">EVENT HORIZON<span class="u">Kerr r₊ · spin a=${r.spin.toFixed(3)}</span></div><div class="v">${fmtRadius(r.horizonKm)}</div></div>
+    <div class="stat-row" data-copy="${fmtRadius(r.photonSphereKm)}"><div class="k">PHOTON SPHERE<span class="u">≈1.5× Schwarzschild radius</span></div><div class="v">${fmtRadius(r.photonSphereKm)}</div></div>
     <div class="stat-row" data-copy="${fmtRadius(r.iscoKm)}"><div class="k">ISCO<span class="u">spin a=${r.spin.toFixed(3)}</span></div><div class="v">${fmtRadius(r.iscoKm)}</div></div>
     <div class="stat-row" data-copy="${r.hawkingT.toExponential(2)} K"><div class="k">HAWKING TEMP<span class="u">kelvin</span></div><div class="v">${r.hawkingT.toExponential(2)}</div></div>
     <div class="stat-row" data-copy="c (speed of light)"><div class="k">ESCAPE VELOCITY<span class="u">speed of light</span></div><div class="v">c</div></div>
     <div id="blurb"><b>Tidal outlook:</b> ${r.tidalNote}</div>
-    <div id="disclaimer">VISUAL APPROXIMATION. The lensing effect is a stylized screen-space shader, not a full geodesic ray-tracer. ISCO uses the Bardeen–Press–Teukolsky prograde formula; the photon sphere is the non-spinning (Schwarzschild) value.</div>
+    <div id="disclaimer">VISUAL APPROXIMATION. The lensing effect is a stylized screen-space shader, not a full geodesic ray-tracer. The event horizon and ISCO use the Kerr / Bardeen–Press–Teukolsky formulas (prograde, equatorial). The photon sphere and Hawking temperature are the non-spinning (Schwarzschild) values.</div>
   `;
   body.querySelectorAll('.unit-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
@@ -326,7 +331,6 @@ document.getElementById('results-body').addEventListener('click', e=>{
 });
 
 // ---------------- SLIDER WIRING ----------------
-const massSlider = document.getElementById('mass');
 const massVal = document.getElementById('mass-val');
 const massInput = document.getElementById('mass-input');
 const massInputGo = document.getElementById('mass-input-go');
@@ -334,14 +338,24 @@ const spinSlider = document.getElementById('spin');
 const spinVal = document.getElementById('spin-val');
 const lensSlider = document.getElementById('lens');
 const lensVal = document.getElementById('lens-val');
+const glowSlider = document.getElementById('glow');
+const glowVal = document.getElementById('glow-val');
 
-function currentMassSolar(){ return Math.pow(10, parseFloat(massSlider.value)); }
+// Defaults used by the RESET button
+const DEFAULT_MASS = 10, DEFAULT_SPIN = 0, DEFAULT_LENS = 1.2, DEFAULT_GLOW = 1.5;
+const MASS_MIN = 1, MASS_MAX = 1e11;
+
+// The mass is stored exactly as typed (no slider / log rounding), in solar masses.
+let massSolarState = DEFAULT_MASS;
+function currentMassSolar(){ return massSolarState; }
 function currentSpin(){ return parseFloat(spinSlider.value); }
 function currentLensStrength(){ return parseFloat(lensSlider.value); }
+function currentGlow(){ return parseFloat(glowSlider.value); }
 
+// Lossless display: re-reading the box (e.g. on blur) must never change the stored mass.
 function massInputDisplay(massSolar){
-  if(massSolar >= 1e7) return massSolar.toExponential(3);
-  return massSolar.toLocaleString('en-US',{maximumFractionDigits:2});
+  if(massSolar >= 1e7) return massSolar.toExponential();
+  return massSolar.toLocaleString('en-US',{maximumFractionDigits:10});
 }
 
 let stats = computeStats(currentMassSolar(), currentSpin());
@@ -351,24 +365,20 @@ function refresh(){
   massVal.textContent = fmtMass(stats.massSolar);
   spinVal.textContent = currentSpin().toFixed(3);
   lensVal.textContent = currentLensStrength().toFixed(2);
+  glowVal.textContent = currentGlow().toFixed(2);
   if(document.activeElement !== massInput) massInput.value = massInputDisplay(stats.massSolar);
   renderStats(stats);
   updateBHVisualRadius();
 }
 
-massSlider.addEventListener('input', ()=>{
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-  refresh();
-});
 spinSlider.addEventListener('input', refresh);
 lensSlider.addEventListener('input', ()=>{ lensVal.textContent = currentLensStrength().toFixed(2); });
+glowSlider.addEventListener('input', ()=>{ glowVal.textContent = currentGlow().toFixed(2); });
 
 function applyMassInput(){
   const v = parseFloat(massInput.value.replace(/,/g,''));
   if(!isFinite(v) || v<=0){ massInput.value = massInputDisplay(currentMassSolar()); return; }
-  const clamped = Math.max(1, Math.min(1e11, v));
-  massSlider.value = Math.log10(clamped);
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  massSolarState = Math.max(MASS_MIN, Math.min(MASS_MAX, v));
   refresh();
 }
 massInput.addEventListener('keydown', e=>{
@@ -376,15 +386,6 @@ massInput.addEventListener('keydown', e=>{
 });
 massInput.addEventListener('blur', applyMassInput);
 massInputGo.addEventListener('click', ()=>{ applyMassInput(); massInput.blur(); });
-
-document.querySelectorAll('.chip[data-mass]').forEach(chip=>{
-  chip.addEventListener('click', ()=>{
-    massSlider.value = chip.dataset.mass;
-    refresh();
-    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-  });
-});
 
 let diskOn = true, ringOn = true;
 document.getElementById('btn-disk').addEventListener('click', function(){
@@ -403,7 +404,9 @@ document.getElementById('btn-ring').addEventListener('click', function(){
 // ---------------- THREE.JS SCENE ----------------
 const wrap = document.getElementById('canvaswrap');
 const canvas = document.getElementById('bh-canvas');
-const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+// The scene is drawn into a render target, so antialiasing is handled by the
+// (multisampled) target below rather than by the default framebuffer.
+const renderer = new THREE.WebGLRenderer({canvas, antialias:false});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 
 const scene = new THREE.Scene();
@@ -428,33 +431,54 @@ function makeStars(){
 }
 makeStars();
 
+// Visual scale: logMassSolar is log10(solar masses), i.e. 0..11 across the allowed mass range.
+// Linear mapping in log-mass so distinct masses stay visually distinct all the way
+// up to the most extreme supermassive black holes.
+function visualRadiusForMass(logMassSolar){
+  return 2.6 + logMassSolar * 0.85;
+}
+// Scene geometry that depends on mass AND spin, in scene units:
+//   rs   = Schwarzschild radius (reference scale, photon ring)
+//   h    = Kerr outer horizon radius (the black sphere)
+//   isco = inner edge of the accretion disk
+function visualGeometry(){
+  const rs = visualRadiusForMass(Math.log10(currentMassSolar()));
+  const a = currentSpin();
+  return {
+    rs,
+    h: rs * (1 + Math.sqrt(1 - a*a)) / 2,
+    isco: rs * iscoOverM(a) / 2
+  };
+}
+
+const vis0 = visualGeometry();
+let rsVisual = vis0.rs;
+let bhRadius = vis0.h;
+let iscoVisual = vis0.isco;
+
 // event horizon sphere (pure black occluder)
-let bhRadius = 4.5;
 const bhGeo = new THREE.SphereGeometry(bhRadius, 48, 48);
 const bhMat = new THREE.MeshBasicMaterial({color:0x000000});
 const bhMesh = new THREE.Mesh(bhGeo, bhMat);
 scene.add(bhMesh);
 
-function visualRadiusForMass(logMassSolar){
-  // logMassSolar is log10(solar masses), i.e. the mass slider's own value (0..11).
-  // Linear mapping across the full slider range so distinct masses stay visually
-  // distinct all the way up to the most extreme supermassive presets.
-  return 2.6 + logMassSolar * 0.85;
-}
 function updateBHVisualRadius(){
-  const newR = visualRadiusForMass(parseFloat(massSlider.value));
-  if(Math.abs(newR-bhRadius) < 0.001) return;
-  bhRadius = newR;
+  const v = visualGeometry();
+  const unchanged = Math.abs(v.rs-rsVisual) < 0.001 &&
+                    Math.abs(v.h-bhRadius) < 0.001 &&
+                    Math.abs(v.isco-iscoVisual) < 0.001;
+  if(unchanged) return;
+  rsVisual = v.rs; bhRadius = v.h; iscoVisual = v.isco;
   bhMesh.geometry.dispose();
   bhMesh.geometry = new THREE.SphereGeometry(bhRadius, 48, 48);
   rebuildDiskAndRing();
   // auto-frame the camera outward if the disk has grown past the current view
-  const diskOuter = bhRadius * 5.8;
+  const diskOuter = rsVisual * 5.8;
   const comfortableDist = diskOuter * 1.7;
   if(targetRadius < comfortableDist) targetRadius = comfortableDist;
 }
 
-// accretion disk: stacked additive-blended color bands, tilted, spinning
+// accretion disk: stacked additive-blended color bands, tilted, differentially rotating
 const diskGroup = new THREE.Group();
 diskGroup.rotation.x = Math.PI/2 - 0.34;
 scene.add(diskGroup);
@@ -476,6 +500,17 @@ function tempToColor(t){ // t: 1=hottest(inner) .. 0=coolest(outer)
   return stops[stops.length-1].c.clone();
 }
 
+// Spiral arms + clumps, so the disk's rotation is actually visible.
+// th: angle (rad), u: radius in Schwarzschild radii. All angular frequencies are
+// integers so the pattern has no seam.
+function diskBrightness(th, u){
+  const b = 0.70
+          + 0.20*Math.sin(2*th - 3.2*Math.log(u))
+          + 0.12*Math.sin(5*th + 9*u + 1.3)
+          + 0.10*Math.sin(11*th - 5*u + 0.7);
+  return Math.max(0.2, Math.min(1.1, b));
+}
+
 function buildDisk(){
   // dispose & remove any existing bands (avoid relying on Object3D.clear which
   // may not exist on older three.js builds)
@@ -485,8 +520,8 @@ function buildDisk(){
     child.geometry.dispose();
     child.material.dispose();
   }
-  const diskInner = bhRadius * 1.7;
-  const diskOuter = bhRadius * 5.8;
+  const diskInner = iscoVisual;          // inner edge = ISCO, so the spin slider changes the look
+  const diskOuter = rsVisual * 5.8;
   const bands = 40;
   for(let i=0;i<bands;i++){
     const t = i/(bands-1);
@@ -495,12 +530,26 @@ function buildDisk(){
     const temp = 1-t;
     const color = tempToColor(temp);
     const opacity = 0.55*(0.28+0.72*temp)+0.04;
-    const geo = new THREE.RingGeometry(rInner, rOuter, 96, 1);
+    const geo = new THREE.RingGeometry(rInner, rOuter, 128, 1);
+
+    // per-vertex brightness (greyscale multiplier on the band colour)
+    const pos = geo.attributes.position;
+    const cols = new Float32Array(pos.count*3);
+    for(let k=0;k<pos.count;k++){
+      const x = pos.getX(k), y = pos.getY(k);
+      const b = diskBrightness(Math.atan2(y,x), Math.hypot(x,y)/rsVisual);
+      cols[k*3] = b; cols[k*3+1] = b; cols[k*3+2] = b;
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(cols,3));
+
     const mat = new THREE.MeshBasicMaterial({
-      color, transparent:true, opacity, side:THREE.DoubleSide,
+      color, vertexColors:true, transparent:true, opacity, side:THREE.DoubleSide,
       blending:THREE.AdditiveBlending, depthWrite:false
     });
-    diskGroup.add(new THREE.Mesh(geo, mat));
+    const mesh = new THREE.Mesh(geo, mat);
+    // Keplerian-style differential rotation: inner bands orbit faster (omega ~ r^-1.5)
+    mesh.userData.omega = 1.2 * Math.pow(rsVisual / ((rInner+rOuter)/2), 1.5);
+    diskGroup.add(mesh);
   }
 }
 
@@ -509,14 +558,14 @@ let photonRing;
 function buildPhotonRing(){
   const segments = 128;
   const pts = [];
-  const r = bhRadius * 1.5;
+  const r = rsVisual * 1.5;
   for(let s=0;s<=segments;s++){
     const a=(s/segments)*Math.PI*2;
     pts.push(new THREE.Vector3(Math.cos(a)*r, 0, Math.sin(a)*r));
   }
   const geo = new THREE.BufferGeometry().setFromPoints(pts);
   const mat = new THREE.LineDashedMaterial({color:0xff2b2b, transparent:true, opacity:0.5, dashSize:1.4, gapSize:1.0});
-  if(photonRing){ scene.remove(photonRing); photonRing.geometry.dispose(); }
+  if(photonRing){ scene.remove(photonRing); photonRing.geometry.dispose(); photonRing.material.dispose(); }
   photonRing = new THREE.Line(geo, mat);
   photonRing.computeLineDistances();
   photonRing.visible = ringOn;
@@ -531,6 +580,7 @@ rebuildDiskAndRing();
 diskGroup.visible = diskOn;
 
 // ---------------- CAMERA CONTROLS (orbit + pan + zoom) ----------------
+const PHI_MIN = 0.15, PHI_MAX = Math.PI - 0.15;
 let camTheta = 0.7, camPhi = 1.15, camRadius = 55;
 let targetTheta = camTheta, targetPhi = camPhi, targetRadius = camRadius;
 let camFocus = new THREE.Vector3(0,0,0);
@@ -539,12 +589,16 @@ function updateCamera(){
   camTheta += (targetTheta-camTheta)*0.08;
   camPhi += (targetPhi-camPhi)*0.08;
   camRadius += (targetRadius-camRadius)*0.08;
-  camPhi = Math.max(0.15, Math.min(Math.PI-0.15, camPhi));
+  camPhi = Math.max(PHI_MIN, Math.min(PHI_MAX, camPhi));
   const x = camFocus.x + camRadius*Math.sin(camPhi)*Math.cos(camTheta);
   const y = camFocus.y + camRadius*Math.cos(camPhi);
   const z = camFocus.z + camRadius*Math.sin(camPhi)*Math.sin(camTheta);
   camera.position.set(x,y,z);
   camera.lookAt(camFocus);
+}
+
+function clampZoom(){
+  targetRadius = Math.max(rsVisual*2.2, Math.min(260, targetRadius));
 }
 
 canvas.addEventListener('contextmenu', e=>e.preventDefault());
@@ -557,11 +611,16 @@ function panCamera(dx,dy){
   camFocus.addScaledVector(up, dy*panSpeed);
 }
 canvas.addEventListener('pointerdown', e=>{
+  if(!e.isPrimary) return; // ignore the second finger of a pinch
   if(e.button===2){ panning=true; panLastX=e.clientX; panLastY=e.clientY; }
   else { dragging=true; lastX=e.clientX; lastY=e.clientY; }
 });
-window.addEventListener('pointerup', ()=>{dragging=false; panning=false;});
+// pointercancel fires when the browser takes over a touch gesture; without it the drag can stick on
+['pointerup','pointercancel'].forEach(type=>{
+  window.addEventListener(type, ()=>{ dragging=false; panning=false; });
+});
 window.addEventListener('pointermove', e=>{
+  if(!e.isPrimary) return;
   if(panning){
     const dx=e.clientX-panLastX, dy=e.clientY-panLastY;
     panLastX=e.clientX; panLastY=e.clientY;
@@ -573,35 +632,39 @@ window.addEventListener('pointermove', e=>{
   lastX=e.clientX; lastY=e.clientY;
   targetTheta -= dx*0.005;
   targetPhi -= dy*0.005;
+  // clamp the TARGET too, otherwise dragging past a pole leaves the view "stuck"
+  targetPhi = Math.max(PHI_MIN, Math.min(PHI_MAX, targetPhi));
 });
 canvas.addEventListener('wheel', e=>{
   e.preventDefault();
   targetRadius *= (1+e.deltaY*0.001);
-  targetRadius = Math.max(bhRadius*2.2, Math.min(260, targetRadius));
+  clampZoom();
 },{passive:false});
 
 let pinchStart=null, touchPanX=null, touchPanY=null;
 canvas.addEventListener('touchmove', e=>{
   if(e.touches.length===2){
+    dragging = false; // two fingers = pinch/pan, never rotate
     const t0=e.touches[0], t1=e.touches[1];
     const dx=t0.clientX-t1.clientX, dy=t0.clientY-t1.clientY;
     const d=Math.hypot(dx,dy);
     const midX=(t0.clientX+t1.clientX)/2, midY=(t0.clientY+t1.clientY)/2;
     if(pinchStart!=null){
       targetRadius *= (pinchStart/d);
-      targetRadius = Math.max(bhRadius*2.2, Math.min(260, targetRadius));
+      clampZoom();
     }
     if(touchPanX!=null) panCamera(midX-touchPanX, midY-touchPanY);
     pinchStart=d; touchPanX=midX; touchPanY=midY;
   }
 },{passive:true});
-canvas.addEventListener('touchend', e=>{
+function endTouch(e){
   if(e.touches.length<2){ pinchStart=null; touchPanX=null; touchPanY=null; }
-});
+}
+canvas.addEventListener('touchend', endTouch);
+canvas.addEventListener('touchcancel', endTouch);
 
 document.getElementById('reset-btn').addEventListener('click', ()=>{
-  massSlider.value = 1; spinSlider.value = 0; lensSlider.value = 1.2;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  massSolarState = DEFAULT_MASS; spinSlider.value = DEFAULT_SPIN; lensSlider.value = DEFAULT_LENS; glowSlider.value = DEFAULT_GLOW;
   refresh();
   if(!diskOn){ diskOn=true; const b=document.getElementById('btn-disk'); b.classList.add('on'); b.textContent='ACCRETION DISK: ON'; diskGroup.visible=true; }
   if(!ringOn){ ringOn=true; const b=document.getElementById('btn-ring'); b.classList.add('on'); b.textContent='PHOTON SPHERE REF: ON'; photonRing.visible=true; }
@@ -609,7 +672,9 @@ document.getElementById('reset-btn').addEventListener('click', ()=>{
 });
 
 // ---------------- LENSING POST-PROCESS (render-to-texture + screen-space warp) ----------------
-let rt = new THREE.WebGLRenderTarget(2,2);
+// Multisampled target (WebGL2) gives anti-aliased edges; falls back to a plain target otherwise.
+const useMSAA = renderer.capabilities.isWebGL2 && typeof THREE.WebGLMultisampleRenderTarget === 'function';
+let rt = useMSAA ? new THREE.WebGLMultisampleRenderTarget(2,2) : new THREE.WebGLRenderTarget(2,2);
 const quadScene = new THREE.Scene();
 const quadCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
 const lensUniforms = {
@@ -618,6 +683,7 @@ const lensUniforms = {
   uAspect: {value: 1.0},
   uRs: {value: 0.08},
   uStrength: {value: 1.2},
+  uGlow: {value: 1.5},
 };
 const lensMat = new THREE.ShaderMaterial({
   uniforms: lensUniforms,
@@ -635,6 +701,7 @@ const lensMat = new THREE.ShaderMaterial({
     uniform float uAspect;
     uniform float uRs;
     uniform float uStrength;
+    uniform float uGlow;
     varying vec2 vUv;
     void main(){
       vec2 uv = vUv;
@@ -651,8 +718,30 @@ const lensMat = new THREE.ShaderMaterial({
       vec2 offset = vec2(dir.x/uAspect, dir.y) * bend;
       vec2 sampleUV = clamp(uv - offset, vec2(0.001), vec2(0.999));
       vec4 col = texture2D(uTex, sampleUV);
-      float ring = smoothstep(uRs*2.3, uRs*1.4, dist) * (1.0-smoothstep(uRs*1.0, uRs*1.35, dist));
+      // smoothstep requires edge0 < edge1 (reversed edges are undefined in GLSL)
+      float ring = (1.0 - smoothstep(uRs*1.4, uRs*2.3, dist)) * (1.0 - smoothstep(uRs*1.0, uRs*1.35, dist));
       col.rgb += ring * vec3(1.0,0.82,0.55) * 0.9;
+
+      // ---- glow (scaled by the GLOW slider) ----
+      float edge = (dist - uRs) / uRs;   // 0 at the horizon edge, grows outward
+      // thin bright photon-ring rim hugging the horizon
+      float rim = exp(-edge * 24.0);
+      // soft warm halo that fades out over about one horizon radius
+      float halo = 0.55*exp(-edge * 3.0) + 0.9*exp(-edge * 9.0);
+      col.rgb += uGlow * (rim * 1.3 * vec3(1.0,0.93,0.78) + halo * 0.55 * vec3(1.0,0.72,0.38));
+
+      // bloom: blurred copy of the brightest parts of the scene (disk) added back on top
+      vec3 bloom = vec3(0.0);
+      for(int i=0;i<8;i++){
+        float ang = 6.2831853 * float(i) / 8.0;
+        vec2 dv = vec2(cos(ang)/uAspect, sin(ang));
+        vec3 s1 = texture2D(uTex, clamp(sampleUV + dv*0.010, vec2(0.001), vec2(0.999))).rgb;
+        vec3 s2 = texture2D(uTex, clamp(sampleUV + dv*0.028, vec2(0.001), vec2(0.999))).rgb;
+        vec3 s3 = texture2D(uTex, clamp(sampleUV + dv*0.060, vec2(0.001), vec2(0.999))).rgb;
+        bloom += max(s1 - 0.2, 0.0) + 0.7*max(s2 - 0.2, 0.0) + 0.5*max(s3 - 0.2, 0.0);
+      }
+      col.rgb += bloom / 8.0 * 0.9 * uGlow;
+
       gl_FragColor = col;
     }
   `
@@ -678,20 +767,22 @@ function resizeAll(){
 }
 window.addEventListener('resize', resizeAll);
 
-const tmpEdge = new THREE.Vector3();
 const tmpCenter = new THREE.Vector3();
 function updateLensUniforms(){
+  // Exact angular radius of the sphere's silhouette for a perspective camera:
+  // sin(alpha) = R/d, projected radius = tan(alpha)/tan(fov/2) in NDC (height units).
+  const dCam = camera.position.distanceTo(bhMesh.position);
+  const ratio = Math.min(bhRadius / Math.max(dCam, 1e-6), 0.98);
+  const tanAlpha = ratio / Math.sqrt(1 - ratio*ratio);
+  const tanHalfFov = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+  const rUv = 0.5 * tanAlpha / tanHalfFov;
+
   tmpCenter.copy(bhMesh.position).project(camera);
-  const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0);
-  tmpEdge.copy(bhMesh.position).addScaledVector(right, bhRadius).project(camera);
   const cx = tmpCenter.x*0.5+0.5, cy = tmpCenter.y*0.5+0.5;
-  const ex = tmpEdge.x*0.5+0.5, ey = tmpEdge.y*0.5+0.5;
-  const aspect = lensUniforms.uAspect.value;
-  const dx = (ex-cx)*aspect, dy = (ey-cy);
-  const rUv = Math.sqrt(dx*dx+dy*dy);
   lensUniforms.uBH.value.set(cx,cy);
   lensUniforms.uRs.value = Math.max(0.005, rUv);
   lensUniforms.uStrength.value = currentLensStrength();
+  lensUniforms.uGlow.value = currentGlow();
 }
 
 // ---------------- ANIMATE ----------------
@@ -700,7 +791,10 @@ function animate(){
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
 
-  if(diskOn) diskGroup.rotation.z += dt*0.18;
+  if(diskOn){
+    const bands = diskGroup.children;
+    for(let i=0;i<bands.length;i++) bands[i].rotation.z += dt*bands[i].userData.omega;
+  }
 
   updateCamera();
   camera.updateMatrixWorld();
