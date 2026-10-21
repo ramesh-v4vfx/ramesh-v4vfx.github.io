@@ -604,6 +604,19 @@
     return n.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 20 });
   }
 
+  // Adds thousands separators to the whole-number part only:
+  // "1000000000.5" -> "1,000,000,000.5"
+  function addCommas(str) {
+    const [intPart, decPart] = String(str).split(".");
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return decPart !== undefined ? grouped + "." + decPart : grouped;
+  }
+
+  // What the user sees: plain decimal + thousands separators.
+  function toDisplay(num) {
+    return addCommas(toDecimal(num));
+  }
+
   function pasteValue() {
     navigator.clipboard.readText().then(raw => {
       // FIX: empty clipboard used to pass isNaN("") and paste a blank;
@@ -632,7 +645,7 @@
 
     lastResult = result;
     $result.classList.remove("stale", "error");
-    $result.innerText = toDecimal(result);
+    $result.innerText = toDisplay(result);
     flashResult();
     addToHistory(value, currentLabel(), result);
   }
@@ -648,8 +661,8 @@
     const n = lastResult;
     $result.classList.remove("stale", "error");
     $result.innerText = Math.abs(n) >= 1e21
-      ? toDecimal(n)
-      : n.toFixed(d);
+      ? toDisplay(n)
+      : addCommas(n.toFixed(d));
     flashResult();
   }
 
@@ -692,7 +705,7 @@
   }
 
   function addToHistory(input, label, result) {
-    history.unshift({ input, label, result: toDecimal(result) });
+    history.unshift({ input, label, result: toDisplay(result) });
     history = history.slice(0, 10);
     renderHistory();
   }
