@@ -13,7 +13,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free cosmic unit converter. Convert between meters, kilometers, miles, Earth radii, solar radii, astronomical units (AU), light-years, parsecs, kiloparsecs, and megaparsecs instantly.">
+<meta name="description" content="Free cosmic unit converter. Convert between any pair of meters, kilometers, miles, Earth radii, Jupiter radii, solar radii, astronomical units (AU), light-years, megalight-years, gigalight-years, parsecs, kiloparsecs, megaparsecs, and gigaparsecs instantly.">
 
 <title>Cosmic Calculator — Astronomical Unit Converter | rameshverse</title>
 
@@ -189,7 +189,42 @@
   .converter > * { margin-bottom: 12px; }
 
   .value-input { margin-bottom: 8px; }
-  select { margin-bottom: 14px; }
+  select { margin-bottom: 8px; }
+
+  /* NEW: small "FROM" / "TO" captions above the two unit dropdowns */
+  .field-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    margin-bottom: 6px;
+  }
+
+  /* NEW: FROM [swap] TO sit together in one row */
+  .unit-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: end;
+  }
+  .unit-field { min-width: 0; }
+  .unit-field select {
+    margin-bottom: 0;
+    padding: 0 12px;
+    font-size: 16px;
+    text-overflow: ellipsis;
+  }
+  .swap-btn {
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    font-size: 22px;
+    letter-spacing: 0;
+    line-height: 1;
+  }
 
   .round-buttons button {
     padding: 12px;
@@ -418,6 +453,9 @@
     body { padding: 12px; }
     .converter { padding: 22px 18px; }
     .round-buttons, .action-row { flex-direction: column; }
+    /* narrow phones: stack From / swap / To so the unit names stay readable */
+    .unit-row { grid-template-columns: 1fr; gap: 8px; }
+    .swap-btn { width: 100%; height: 40px; }
     input, select, button { font-size: 16px; } /* prevents iOS zoom */
   }
 
@@ -440,35 +478,22 @@
 
   <input type="number" id="value" class="value-input" placeholder="Enter value" step="any" inputmode="decimal" aria-label="Value to convert">
 
-  <!-- Grouped for easier scanning now that the list has grown to 18 options -->
-  <select id="conversion" aria-label="Conversion type">
-    <optgroup label="Everyday">
-      <option value="m-km">meters → km</option>
-      <option value="km-m">km → meters</option>
-      <option value="km-mi">km → miles</option>
-      <option value="mi-km">miles → km</option>
-    </optgroup>
-    <optgroup label="Planetary &amp; Stellar">
-      <option value="er-km">Earth Radius → km</option>
-      <option value="km-er">km → Earth Radius</option>
-      <option value="sr-km">Solar Radius → km</option>
-      <option value="km-sr">km → Solar Radius</option>
-      <option value="au-km">AU → km</option>
-      <option value="km-au">km → AU</option>
-    </optgroup>
-    <optgroup label="Interstellar &amp; Galactic">
-      <option value="ly-km">light-year → km</option>
-      <option value="km-ly">km → light-year</option>
-      <option value="ly-pc">light-year → parsec</option>
-      <option value="pc-ly">parsec → light-year</option>
-      <option value="ly-kpc">light-year → kiloparsec</option>
-      <option value="kpc-ly">kiloparsec → light-year</option>
-      <option value="ly-mpc">light-year → megaparsec</option>
-      <option value="mpc-ly">megaparsec → light-year</option>
-    </optgroup>
-  </select>
+  <!-- NEW: two dropdowns replace the old 24-option "A → B" list.
+       Every unit can now convert to every other unit. Options are built
+       from the UNITS table in the script below. -->
+  <div class="unit-row">
+    <div class="unit-field">
+      <label class="field-label" for="fromUnit">From</label>
+      <select id="fromUnit" aria-label="Convert from unit"></select>
+    </div>
 
-  <button class="secondary-btn" onclick="swapDirection()" title="Reverse the conversion and carry the result over as the new input">⇄ Swap Direction</button>
+    <button class="secondary-btn swap-btn" onclick="swapUnits()" aria-label="Swap units" title="Swap the two units and carry the result over as the new input">⇄</button>
+
+    <div class="unit-field">
+      <label class="field-label" for="toUnit">To</label>
+      <select id="toUnit" aria-label="Convert to unit"></select>
+    </div>
+  </div>
 
   <button class="convert-btn" onclick="convert()">Convert</button>
 
@@ -491,7 +516,7 @@
     <button class="secondary-btn clear-history-btn" onclick="clearHistory()">Clear History</button>
   </div>
 
-  <p class="intro">Convert between everyday and astronomical units of distance — meters, kilometers, and miles alongside Earth radii, solar radii, astronomical units (AU), light-years, parsecs, kiloparsecs, and megaparsecs. Built for quick reference when working with planetary, stellar, interstellar, or galactic scales.</p>
+  <p class="intro">Convert between any pair of everyday and astronomical units of distance — meters, kilometers, and miles alongside Earth radii, Jupiter radii, solar radii, astronomical units (AU), light-years, megalight-years, gigalight-years, parsecs, kiloparsecs, megaparsecs, and gigaparsecs. Built for quick reference when working with planetary, stellar, interstellar, galactic, or cosmological scales.</p>
 
 </div>
 
@@ -516,51 +541,123 @@
     field.appendChild(frag);
   })();
 
-  // ---- Constants ----
-  // IMPROVED: more precise values (previous: 9.4607e12 km/ly, 0.621371 mi/km).
-  const AU_IN_KM         = 149597870.7;        // IAU 2012 exact
-  const SOLAR_RADIUS_KM  = 695700;             // IAU 2015 nominal
-  const EARTH_RADIUS_KM  = 6371;               // mean radius
-  const KM_PER_MILE      = 1.609344;           // exact
-  const LY_IN_KM         = 9460730472580.8;    // exact (Julian year x c)
-  const LY_PER_PC        = 3.26156377717;      // 648000/pi AU, in light-years
-  const PC_PER_KPC       = 1e3;
-  const PC_PER_MPC       = 1e6;
+  // ---- LOGIC START (pure functions, no DOM) ----
+
+  // Reference constants
+  const AU_IN_KM         = 149597870.7;                 // IAU 2012 exact
+  const PC_IN_KM         = AU_IN_KM * 648000 / Math.PI; // parsec, exact definition
+  const LY_IN_KM         = 9460730472580.8;             // exact (Julian year x c)
+  const KM_PER_MILE      = 1.609344;                    // exact
+  const EARTH_RADIUS_KM  = 6371;                        // mean radius
+  const JUPITER_RADIUS_KM = 69911;                      // mean radius (NASA), same convention as Earth
+  const SOLAR_RADIUS_KM  = 695700;                      // IAU 2015 nominal
+
+  // Every unit is stored ONCE as its size in kilometers. Any conversion is
+  //   value x (km per FROM unit) / (km per TO unit)
+  // so adding a new unit is a single line here -- nothing else to change.
+  const UNITS = [
+    // Everyday
+    { id: "m",   group: "Everyday",                  label: "m · Meters",                 short: "m",         km: 0.001 },
+    { id: "km",  group: "Everyday",                  label: "km · Kilometers",            short: "km",        km: 1 },
+    { id: "mi",  group: "Everyday",                  label: "mi · Miles",                 short: "mi",        km: KM_PER_MILE },
+
+    // Planetary & Stellar
+    { id: "er",  group: "Planetary & Stellar",       label: "Earth radii",                short: "Earth R",   km: EARTH_RADIUS_KM },
+    { id: "jr",  group: "Planetary & Stellar",       label: "Jupiter radii",              short: "Jupiter R", km: JUPITER_RADIUS_KM },
+    { id: "sr",  group: "Planetary & Stellar",       label: "Solar radii",                short: "Solar R",   km: SOLAR_RADIUS_KM },
+    { id: "au",  group: "Planetary & Stellar",       label: "AU · Astronomical units",    short: "AU",        km: AU_IN_KM },
+
+    // Interstellar & Galactic
+    { id: "ly",  group: "Interstellar & Galactic",   label: "ly · Light-years",           short: "ly",        km: LY_IN_KM },
+    { id: "pc",  group: "Interstellar & Galactic",   label: "pc · Parsecs",               short: "pc",        km: PC_IN_KM },
+    { id: "kpc", group: "Interstellar & Galactic",   label: "kpc · Kiloparsecs",          short: "kpc",       km: PC_IN_KM * 1e3 },
+
+    // Cosmological
+    { id: "mly", group: "Cosmological",              label: "Mly · Megalight-years",      short: "Mly",       km: LY_IN_KM * 1e6 },
+    { id: "gly", group: "Cosmological",              label: "Gly · Gigalight-years",      short: "Gly",       km: LY_IN_KM * 1e9 },
+    { id: "mpc", group: "Cosmological",              label: "Mpc · Megaparsecs",          short: "Mpc",       km: PC_IN_KM * 1e6 },
+    { id: "gpc", group: "Cosmological",              label: "Gpc · Gigaparsecs",          short: "Gpc",       km: PC_IN_KM * 1e9 }
+  ];
+
+  const UNIT_MAP = {};
+  UNITS.forEach(u => { UNIT_MAP[u.id] = u; });
+
+  function convertValue(value, fromId, toId) {
+    return value * UNIT_MAP[fromId].km / UNIT_MAP[toId].km;
+  }
+
+  function cleanFloat(num) {
+    // 15 significant digits is safe for IEEE-754 doubles
+    return Number(num.toPrecision(15));
+  }
+
+  // Plain decimal string, never exponential, even for very small results
+  // (e.g. 1 meter in gigaparsecs). Falls back to exponential only if the
+  // number would need more than 100 decimal places.
+  function toDecimal(num) {
+    const n = cleanFloat(num);
+    if (n === 0) return "0";
+    const s = String(n);
+    if (!/e/i.test(s)) return s;
+
+    const abs = Math.abs(n);
+    if (abs >= 1) {
+      // very large (>= 1e21): full digits, no grouping
+      return n.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 0 });
+    }
+
+    // very small (< 1e-6): enough decimals for ~15 significant digits
+    const decimals = Math.ceil(-Math.log10(abs)) + 14;
+    if (decimals > 100) return n.toExponential(6);
+    return n.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+  }
+
+  // Adds thousands separators to the whole-number part only:
+  // "1000000000.5" -> "1,000,000,000.5"
+  function addCommas(str) {
+    const [intPart, decPart] = String(str).split(".");
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return decPart !== undefined ? grouped + "." + decPart : grouped;
+  }
+
+  // What the user sees: plain decimal + thousands separators.
+  function toDisplay(num) {
+    return addCommas(toDecimal(num));
+  }
+
+  // ---- LOGIC END ----
 
   const WAITING = "Result waiting...";
-
-  // Data-driven conversions (replaces the long switch statement).
-  const CONVERSIONS = {
-    "m-km":   v => v / 1000,
-    "km-m":   v => v * 1000,
-    "km-mi":  v => v / KM_PER_MILE,
-    "mi-km":  v => v * KM_PER_MILE,
-    "er-km":  v => v * EARTH_RADIUS_KM,
-    "km-er":  v => v / EARTH_RADIUS_KM,
-    "sr-km":  v => v * SOLAR_RADIUS_KM,
-    "km-sr":  v => v / SOLAR_RADIUS_KM,
-    "au-km":  v => v * AU_IN_KM,
-    "km-au":  v => v / AU_IN_KM,
-    "ly-km":  v => v * LY_IN_KM,
-    "km-ly":  v => v / LY_IN_KM,
-    "ly-pc":  v => v / LY_PER_PC,
-    "pc-ly":  v => v * LY_PER_PC,
-    "ly-kpc": v => v / (LY_PER_PC * PC_PER_KPC),
-    "kpc-ly": v => v * LY_PER_PC * PC_PER_KPC,
-    "ly-mpc": v => v / (LY_PER_PC * PC_PER_MPC),
-    "mpc-ly": v => v * LY_PER_PC * PC_PER_MPC
-  };
 
   let lastResult = null;
   let history = [];
 
   const $value  = document.getElementById("value");
-  const $conv   = document.getElementById("conversion");
+  const $from   = document.getElementById("fromUnit");
+  const $to     = document.getElementById("toUnit");
   const $result = document.getElementById("result");
 
-  function currentLabel() {
-    return $conv.options[$conv.selectedIndex].text;
+  // Build both dropdowns from the UNITS table, grouped by category.
+  function buildUnitOptions(select, selectedId) {
+    const groups = new Map();
+    UNITS.forEach(u => {
+      let og = groups.get(u.group);
+      if (!og) {
+        og = document.createElement("optgroup");
+        og.label = u.group;
+        groups.set(u.group, og);
+        select.appendChild(og);
+      }
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = u.label;
+      og.appendChild(opt);
+    });
+    select.value = selectedId;
   }
+
+  buildUnitOptions($from, "ly");
+  buildUnitOptions($to, "pc");
 
   function flashResult() {
     $result.classList.add("flash");
@@ -585,37 +682,13 @@
     $result.classList.remove("error");
     markStale();
   });
-  $conv.addEventListener("change", markStale);
+  $from.addEventListener("change", markStale);
+  $to.addEventListener("change", markStale);
 
-  // NEW: press Enter to convert
+  // Press Enter to convert
   $value.addEventListener("keydown", e => {
     if (e.key === "Enter") convert();
   });
-
-  function cleanFloat(num) {
-    // 15 significant digits is safe for IEEE-754 doubles
-    return Number(num.toPrecision(15));
-  }
-
-  // Plain decimal string, never exponential (e.g. 3.07e-7 -> 0.000000307).
-  function toDecimal(num) {
-    const n = cleanFloat(num);
-    if (!/e/i.test(String(n))) return String(n);
-    return n.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 20 });
-  }
-
-  // Adds thousands separators to the whole-number part only:
-  // "1000000000.5" -> "1,000,000,000.5"
-  function addCommas(str) {
-    const [intPart, decPart] = String(str).split(".");
-    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return decPart !== undefined ? grouped + "." + decPart : grouped;
-  }
-
-  // What the user sees: plain decimal + thousands separators.
-  function toDisplay(num) {
-    return addCommas(toDecimal(num));
-  }
 
   function pasteValue() {
     navigator.clipboard.readText().then(raw => {
@@ -636,22 +709,21 @@
     const value = parseFloat($value.value);
     if (isNaN(value)) return showError("Enter a number first");
 
-    const type = $conv.value;
-    const fn = CONVERSIONS[type];
-    if (!fn) return;
+    const fromId = $from.value;
+    const toId = $to.value;
 
-    const result = fn(value);
+    const result = convertValue(value, fromId, toId);
     if (!isFinite(result)) return showError("Number too large");
 
     lastResult = result;
     $result.classList.remove("stale", "error");
     $result.innerText = toDisplay(result);
     flashResult();
-    addToHistory(value, currentLabel(), result);
+    addToHistory(value, UNIT_MAP[fromId].short + " → " + UNIT_MAP[toId].short, result);
   }
 
   function roundResult(d) {
-    // IMPROVED: if the input changed since the last convert, convert first
+    // If the input changed since the last convert, convert first
     // instead of silently doing nothing.
     if (lastResult === null) {
       convert();
@@ -666,14 +738,14 @@
     flashResult();
   }
 
-  // NEW: flip direction (e.g. km → AU becomes AU → km) and carry the
-  // result over as the new input so you can round-trip a value.
-  function swapDirection() {
-    const [a, b] = $conv.value.split("-");
-    const reversed = b + "-" + a;
-    if (!CONVERSIONS[reversed]) return;
+  // Swap the two units and carry the result over as the new input,
+  // so you can round-trip a value (e.g. ly -> pc becomes pc -> ly).
+  function swapUnits() {
+    const fromId = $from.value;
+    $from.value = $to.value;
+    $to.value = fromId;
+
     const carry = lastResult;
-    $conv.value = reversed;
     if (carry !== null) {
       $value.value = toDecimal(carry);
       convert();
@@ -685,7 +757,7 @@
   function copyMainResult() {
     const btn = document.getElementById("copyBtn");
     const text = $result.innerText;
-    // FIX: don't copy placeholder / error text
+    // Don't copy placeholder / error text
     if (text === WAITING || $result.classList.contains("error")) return;
     navigator.clipboard.writeText(text).then(() => {
       btn.innerText = "Copied!";
@@ -726,7 +798,7 @@
       const div = document.createElement("div");
       div.className = "history-item";
       div.title = "Click to copy result";
-      // IMPROVED: readable label ("km → AU") instead of raw code ("km-au")
+      // Readable label ("km → AU") instead of raw code
       div.innerText = `${item.input} · ${item.label} = ${item.result}`;
       div.onclick = () => navigator.clipboard.writeText(String(item.result)).catch(() => {});
       list.appendChild(div);
@@ -739,7 +811,7 @@
     const open = box.style.display !== "block";
     box.style.display = open ? "block" : "none";
     btn.innerText = open ? "Hide History" : "Show History";
-    if (open) renderHistory(); // FIX: show the "No conversions yet" message on first open
+    if (open) renderHistory(); // show the "No conversions yet" message on first open
   }
 
   function clearHistory() {
