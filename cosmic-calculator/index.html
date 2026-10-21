@@ -13,7 +13,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free cosmic unit converter. Convert between meters, kilometers, miles, Earth radii, solar radii, astronomical units (AU), light-years, and parsecs instantly.">
+<meta name="description" content="Free cosmic unit converter. Convert between meters, kilometers, miles, Earth radii, solar radii, astronomical units (AU), light-years, parsecs, kiloparsecs, and megaparsecs instantly.">
 
 <title>Cosmic Calculator — Astronomical Unit Converter | rameshverse</title>
 
@@ -47,38 +47,38 @@
   }
 
   html, body {
-    height: 100%;
     margin: 0;
   }
 
   .intro {
-  font-family: var(--mono);
-  font-size: 10px;
-  line-height: 1.6;
-  color: var(--text-dim);
-  text-align: center;
-  letter-spacing: 0.3px;
-  margin: 0px 0 22px;
-}
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 0.3px;
+    margin: 0 0 22px;
+  }
 
+  /* FIX: body no longer locks scrolling (overflow:hidden + 100vh used to
+     clip the panel on short screens, especially with History open). */
   body {
     font-family: var(--ui);
     color: var(--text-primary);
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
     min-height: 100vh;
     min-height: 100dvh;
+    padding: 24px 12px;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
     background:
       radial-gradient(ellipse at 20% 15%, rgba(79,120,216,0.10), transparent 55%),
       radial-gradient(ellipse at 85% 80%, rgba(150,79,216,0.08), transparent 55%),
       linear-gradient(180deg, #03040a 0%, #070b16 55%, #04060d 100%);
+    background-attachment: fixed;
   }
 
-  /* Twinkling starfield — populated by JS, sits behind everything */
   .starfield {
     position: fixed;
     inset: 0;
@@ -104,6 +104,7 @@
   @media (prefers-reduced-motion: reduce) {
     .star { animation: none; opacity: 0.6; }
     .eyebrow .dot { animation: none; }
+    .result { transition: none; }
   }
 
   .converter {
@@ -112,6 +113,8 @@
     padding: 28px;
     border-radius: 6px;
     width: 470px;
+    max-width: 100%;
+    margin: auto; /* centers vertically when there is room, scrolls otherwise */
     position: relative;
     z-index: 1;
     box-shadow:
@@ -120,7 +123,6 @@
       0 25px 60px rgba(0,0,0,0.65);
   }
 
-  /* HUD corner brackets — signature element */
   .converter::before,
   .converter::after {
     content: "";
@@ -184,7 +186,6 @@
     margin: 0 0 26px;
   }
 
-  /* Vertical stack spacing */
   .converter > * { margin-bottom: 12px; }
 
   .value-input { margin-bottom: 8px; }
@@ -214,6 +215,9 @@
     border: 1px solid var(--border-line);
   }
 
+  select optgroup { color: var(--text-dim); font-style: normal; }
+  select option { color: var(--text-primary); background: var(--bg-well); }
+
   .value-input {
     font-family: var(--mono);
     letter-spacing: 0.5px;
@@ -235,6 +239,7 @@
     -webkit-appearance: none;
     margin: 0;
   }
+  .value-input { -moz-appearance: textfield; appearance: textfield; }
 
   .value-input, select {
     height: 52px;
@@ -265,7 +270,6 @@
     outline-offset: 2px;
   }
 
-  /* Primary action — hero button */
   .convert-btn {
     background: linear-gradient(135deg, var(--accent-cyan), #1fa9d6);
     color: #01131a;
@@ -290,7 +294,6 @@
 
   .round-buttons { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 12px; }
 
-  /* Result readout */
   .result {
     margin-top: 4px;
     padding: 16px;
@@ -306,6 +309,7 @@
     text-shadow: 0 0 10px rgba(79,216,255,0.45);
     position: relative;
     overflow: hidden;
+    overflow-wrap: anywhere; /* long numbers wrap instead of overflowing */
     transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
   }
 
@@ -334,6 +338,11 @@
     text-shadow: none;
   }
 
+  .result.error {
+    color: var(--accent-red);
+    text-shadow: none;
+  }
+
   .copy-btn {
     margin-bottom: 16px;
     background: linear-gradient(135deg, var(--accent-green), #1fcf68);
@@ -358,10 +367,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 4px;
-  }
-
-  /* Themed scrollbar (Firefox + WebKit) */
-  .history-list {
     scrollbar-width: thin;
     scrollbar-color: var(--accent-cyan-dim) var(--bg-well);
   }
@@ -409,10 +414,9 @@
     border-color: var(--accent-red);
   }
 
-  /* ===== Mobile-friendly (no layout change) ===== */
   @media (max-width: 480px) {
-    body { padding: 12px; align-items: flex-start; }
-    .converter { width: 100%; max-width: 100%; }
+    body { padding: 12px; }
+    .converter { padding: 22px 18px; }
     .round-buttons, .action-row { flex-direction: column; }
     input, select, button { font-size: 16px; } /* prevents iOS zoom */
   }
@@ -429,36 +433,42 @@
   <div class="eyebrow"><span class="dot"></span>Rameshverse Systems &middot; MK&middot;02</div>
 
   <h1>Cosmic Calculator</h1>
-  
+
   <span class="version-tag">UNIT CONVERSION MODULE</span>
 
   <button class="secondary-btn" onclick="pasteValue()">Paste Value</button>
 
-  <input type="number" id="value" class="value-input" placeholder="Enter value" aria-label="Value to convert">
+  <input type="number" id="value" class="value-input" placeholder="Enter value" step="any" inputmode="decimal" aria-label="Value to convert">
 
-  <!-- ✅ ORDER UPDATED EXACTLY AS REQUESTED -->
+  <!-- Grouped for easier scanning now that the list has grown to 18 options -->
   <select id="conversion" aria-label="Conversion type">
-    <option value="m-km">meters → km</option>
-    <option value="km-m">km → meters</option>
-
-    <option value="km-mi">km → miles</option>
-    <option value="mi-km">miles → km</option>
-
-    <option value="er-km">Earth Radius → km</option>
-    <option value="km-er">km → Earth Radius</option>
-
-    <option value="sr-km">Solar Radius → km</option>
-    <option value="km-sr">km → Solar Radius</option>
-
-    <option value="au-km">AU → km</option>
-    <option value="km-au">km → AU</option>
-
-    <option value="ly-km">light-year → km</option>
-    <option value="km-ly">km → light-year</option>
-
-    <option value="ly-pc">light-year → parsec</option>
-    <option value="pc-ly">parsec → light-year</option>
+    <optgroup label="Everyday">
+      <option value="m-km">meters → km</option>
+      <option value="km-m">km → meters</option>
+      <option value="km-mi">km → miles</option>
+      <option value="mi-km">miles → km</option>
+    </optgroup>
+    <optgroup label="Planetary &amp; Stellar">
+      <option value="er-km">Earth Radius → km</option>
+      <option value="km-er">km → Earth Radius</option>
+      <option value="sr-km">Solar Radius → km</option>
+      <option value="km-sr">km → Solar Radius</option>
+      <option value="au-km">AU → km</option>
+      <option value="km-au">km → AU</option>
+    </optgroup>
+    <optgroup label="Interstellar &amp; Galactic">
+      <option value="ly-km">light-year → km</option>
+      <option value="km-ly">km → light-year</option>
+      <option value="ly-pc">light-year → parsec</option>
+      <option value="pc-ly">parsec → light-year</option>
+      <option value="ly-kpc">light-year → kiloparsec</option>
+      <option value="kpc-ly">kiloparsec → light-year</option>
+      <option value="ly-mpc">light-year → megaparsec</option>
+      <option value="mpc-ly">megaparsec → light-year</option>
+    </optgroup>
   </select>
+
+  <button class="secondary-btn" onclick="swapDirection()" title="Reverse the conversion and carry the result over as the new input">⇄ Swap Direction</button>
 
   <button class="convert-btn" onclick="convert()">Convert</button>
 
@@ -481,7 +491,7 @@
     <button class="secondary-btn clear-history-btn" onclick="clearHistory()">Clear History</button>
   </div>
 
-  <p class="intro">Convert between everyday and astronomical units of distance — meters, kilometers, and miles alongside Earth radii, solar radii, astronomical units (AU), light-years, and parsecs. Built for quick reference when working with planetary, stellar, or interstellar scales.</p>
+  <p class="intro">Convert between everyday and astronomical units of distance — meters, kilometers, and miles alongside Earth radii, solar radii, astronomical units (AU), light-years, parsecs, kiloparsecs, and megaparsecs. Built for quick reference when working with planetary, stellar, interstellar, or galactic scales.</p>
 
 </div>
 
@@ -506,108 +516,164 @@
     field.appendChild(frag);
   })();
 
-  function pasteValue() {
-    navigator.clipboard.readText().then(text => {
-      if (isNaN(text.trim())) return alert("Clipboard does not contain a valid number");
-      document.getElementById("value").value = text.trim();
-      invalidateResult();
-      flashResult();
-    }).catch(() => {
-      alert("Couldn't read the clipboard. Check that this page has clipboard permission.");
-    });
-  }
+  // ---- Constants ----
+  // IMPROVED: more precise values (previous: 9.4607e12 km/ly, 0.621371 mi/km).
+  const AU_IN_KM         = 149597870.7;        // IAU 2012 exact
+  const SOLAR_RADIUS_KM  = 695700;             // IAU 2015 nominal
+  const EARTH_RADIUS_KM  = 6371;               // mean radius
+  const KM_PER_MILE      = 1.609344;           // exact
+  const LY_IN_KM         = 9460730472580.8;    // exact (Julian year x c)
+  const LY_PER_PC        = 3.26156377717;      // 648000/pi AU, in light-years
+  const PC_PER_KPC       = 1e3;
+  const PC_PER_MPC       = 1e6;
 
-  const AU_IN_KM = 149597870.7;
-  const SOLAR_RADIUS_KM = 695700;
-  const EARTH_RADIUS_KM = 6371;
+  const WAITING = "Result waiting...";
+
+  // Data-driven conversions (replaces the long switch statement).
+  const CONVERSIONS = {
+    "m-km":   v => v / 1000,
+    "km-m":   v => v * 1000,
+    "km-mi":  v => v / KM_PER_MILE,
+    "mi-km":  v => v * KM_PER_MILE,
+    "er-km":  v => v * EARTH_RADIUS_KM,
+    "km-er":  v => v / EARTH_RADIUS_KM,
+    "sr-km":  v => v * SOLAR_RADIUS_KM,
+    "km-sr":  v => v / SOLAR_RADIUS_KM,
+    "au-km":  v => v * AU_IN_KM,
+    "km-au":  v => v / AU_IN_KM,
+    "ly-km":  v => v * LY_IN_KM,
+    "km-ly":  v => v / LY_IN_KM,
+    "ly-pc":  v => v / LY_PER_PC,
+    "pc-ly":  v => v * LY_PER_PC,
+    "ly-kpc": v => v / (LY_PER_PC * PC_PER_KPC),
+    "kpc-ly": v => v * LY_PER_PC * PC_PER_KPC,
+    "ly-mpc": v => v / (LY_PER_PC * PC_PER_MPC),
+    "mpc-ly": v => v * LY_PER_PC * PC_PER_MPC
+  };
 
   let lastResult = null;
   let history = [];
 
-  function roundSafe(num, decimals) {
-    const factor = 10 ** decimals;
-    return Math.round((num + Number.EPSILON) * factor) / factor;
+  const $value  = document.getElementById("value");
+  const $conv   = document.getElementById("conversion");
+  const $result = document.getElementById("result");
+
+  function currentLabel() {
+    return $conv.options[$conv.selectedIndex].text;
   }
 
   function flashResult() {
-    const r = document.getElementById("result");
-    r.classList.add("flash");
-    setTimeout(() => r.classList.remove("flash"), 250);
+    $result.classList.add("flash");
+    setTimeout(() => $result.classList.remove("flash"), 250);
   }
 
-  // Marks the current result as no longer trustworthy once the input
-  // changes, so "Round" can't silently operate on an outdated value.
-  function invalidateResult() {
+  function showError(msg) {
     lastResult = null;
-    const r = document.getElementById("result");
-    r.classList.remove("stale");
+    $result.classList.remove("stale");
+    $result.classList.add("error");
+    $result.innerText = msg;
   }
 
-  document.getElementById("value").addEventListener("input", () => {
-    const r = document.getElementById("result");
-    if (r.innerText !== "Result waiting...") {
+  function markStale() {
+    if ($result.innerText !== WAITING && !$result.classList.contains("error")) {
       lastResult = null;
-      r.classList.add("stale");
+      $result.classList.add("stale");
     }
-  });
-
-  document.getElementById("conversion").addEventListener("change", () => {
-    const r = document.getElementById("result");
-    if (r.innerText !== "Result waiting...") {
-      lastResult = null;
-      r.classList.add("stale");
-    }
-  });
-
-  function convert() {
-    const value = parseFloat(document.getElementById("value").value);
-    if (isNaN(value)) return;
-
-    const type = document.getElementById("conversion").value;
-    let result;
-
-    switch (type) {
-      case "km-m": result = value * 1000; break;
-      case "m-km": result = value / 1000; break;
-      case "km-mi": result = value * 0.621371; break;
-      case "mi-km": result = value / 0.621371; break;
-      case "ly-km": result = value * 9.4607e12; break;
-      case "km-ly": result = value / 9.4607e12; break;
-      case "ly-pc": result = value / 3.26156; break;
-      case "pc-ly": result = value * 3.26156; break;
-      case "au-km": result = value * AU_IN_KM; break;
-      case "km-au": result = value / AU_IN_KM; break;
-      case "km-sr": result = value / SOLAR_RADIUS_KM; break;
-      case "sr-km": result = value * SOLAR_RADIUS_KM; break;
-      case "km-er": result = value / EARTH_RADIUS_KM; break;
-      case "er-km": result = value * EARTH_RADIUS_KM; break;
-    }
-
-    lastResult = result;
-    const r = document.getElementById("result");
-    r.classList.remove("stale");
-    r.innerText = cleanFloat(result);
-    flashResult();
-    addToHistory(value, type, result);
   }
 
-  function roundResult(d) {
-    if (lastResult === null) return;
-    const rounded = roundSafe(lastResult, d);
-    const r = document.getElementById("result");
-    r.classList.remove("stale");
-    r.innerText = rounded.toFixed(d);
-    flashResult();
-  }
+  $value.addEventListener("input", () => {
+    $result.classList.remove("error");
+    markStale();
+  });
+  $conv.addEventListener("change", markStale);
+
+  // NEW: press Enter to convert
+  $value.addEventListener("keydown", e => {
+    if (e.key === "Enter") convert();
+  });
 
   function cleanFloat(num) {
     // 15 significant digits is safe for IEEE-754 doubles
     return Number(num.toPrecision(15));
   }
 
+  // Plain decimal string, never exponential (e.g. 3.07e-7 -> 0.000000307).
+  function toDecimal(num) {
+    const n = cleanFloat(num);
+    if (!/e/i.test(String(n))) return String(n);
+    return n.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 20 });
+  }
+
+  function pasteValue() {
+    navigator.clipboard.readText().then(raw => {
+      // FIX: empty clipboard used to pass isNaN("") and paste a blank;
+      // also now tolerates thousands separators like "1,000,000".
+      const text = raw.trim().replace(/,/g, "");
+      if (text === "" || isNaN(text)) return alert("Clipboard does not contain a valid number");
+      $value.value = text;
+      $result.classList.remove("error");
+      markStale();
+      flashResult();
+    }).catch(() => {
+      alert("Couldn't read the clipboard. Check that this page has clipboard permission.");
+    });
+  }
+
+  function convert() {
+    const value = parseFloat($value.value);
+    if (isNaN(value)) return showError("Enter a number first");
+
+    const type = $conv.value;
+    const fn = CONVERSIONS[type];
+    if (!fn) return;
+
+    const result = fn(value);
+    if (!isFinite(result)) return showError("Number too large");
+
+    lastResult = result;
+    $result.classList.remove("stale", "error");
+    $result.innerText = toDecimal(result);
+    flashResult();
+    addToHistory(value, currentLabel(), result);
+  }
+
+  function roundResult(d) {
+    // IMPROVED: if the input changed since the last convert, convert first
+    // instead of silently doing nothing.
+    if (lastResult === null) {
+      convert();
+      if (lastResult === null) return;
+    }
+    // Always plain decimal form (never exponential), per user preference.
+    const n = lastResult;
+    $result.classList.remove("stale", "error");
+    $result.innerText = Math.abs(n) >= 1e21
+      ? toDecimal(n)
+      : n.toFixed(d);
+    flashResult();
+  }
+
+  // NEW: flip direction (e.g. km → AU becomes AU → km) and carry the
+  // result over as the new input so you can round-trip a value.
+  function swapDirection() {
+    const [a, b] = $conv.value.split("-");
+    const reversed = b + "-" + a;
+    if (!CONVERSIONS[reversed]) return;
+    const carry = lastResult;
+    $conv.value = reversed;
+    if (carry !== null) {
+      $value.value = toDecimal(carry);
+      convert();
+    } else {
+      markStale();
+    }
+  }
+
   function copyMainResult() {
     const btn = document.getElementById("copyBtn");
-    const text = document.getElementById("result").innerText;
+    const text = $result.innerText;
+    // FIX: don't copy placeholder / error text
+    if (text === WAITING || $result.classList.contains("error")) return;
     navigator.clipboard.writeText(text).then(() => {
       btn.innerText = "Copied!";
       btn.classList.add("copied");
@@ -625,8 +691,8 @@
     });
   }
 
-  function addToHistory(input, type, result) {
-    history.unshift({ input, type, result });
+  function addToHistory(input, label, result) {
+    history.unshift({ input, label, result: toDecimal(result) });
     history = history.slice(0, 10);
     renderHistory();
   }
@@ -646,8 +712,10 @@
     history.forEach(item => {
       const div = document.createElement("div");
       div.className = "history-item";
-      div.innerText = `${item.input} (${item.type}) = ${item.result}`;
-      div.onclick = () => navigator.clipboard.writeText(item.result);
+      div.title = "Click to copy result";
+      // IMPROVED: readable label ("km → AU") instead of raw code ("km-au")
+      div.innerText = `${item.input} · ${item.label} = ${item.result}`;
+      div.onclick = () => navigator.clipboard.writeText(String(item.result)).catch(() => {});
       list.appendChild(div);
     });
   }
@@ -655,22 +723,21 @@
   function toggleHistory() {
     const box = document.getElementById("historyBox");
     const btn = document.getElementById("historyToggle");
-    box.style.display = box.style.display === "block" ? "none" : "block";
-    btn.innerText = box.style.display === "block" ? "Hide History" : "Show History";
+    const open = box.style.display !== "block";
+    box.style.display = open ? "block" : "none";
+    btn.innerText = open ? "Hide History" : "Show History";
+    if (open) renderHistory(); // FIX: show the "No conversions yet" message on first open
   }
 
-  // Clears saved conversions only — separate from Reset, which just
-  // clears the current input/result.
   function clearHistory() {
     history = [];
     renderHistory();
   }
 
   function resetAll() {
-    document.getElementById("value").value = "";
-    const r = document.getElementById("result");
-    r.innerText = "Result waiting...";
-    r.classList.remove("stale");
+    $value.value = "";
+    $result.innerText = WAITING;
+    $result.classList.remove("stale", "error");
     lastResult = null;
   }
 </script>
