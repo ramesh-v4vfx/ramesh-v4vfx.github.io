@@ -2055,6 +2055,22 @@
   .share-bar       { order: 6; }
   footer           { order: 7; }
 }
+
+/* ── PHONES: open with the search bar, put the showcase sections at the bottom ──
+   Order on phones: search + tabs → tool cards → hero banner →
+   Most Popular Tools → System Distribution → share bar → footer.
+   (Tablets and desktop keep the layout above.) */
+@media (max-width: 700px) {
+  .sticky-top            { order: 1; }
+  .tools                 { order: 2; }
+  .hero                  { order: 3; margin-top: 24px; }
+  .popular-tools,
+  .popular-tools-launch  { order: 4; }
+  .category-radar,
+  .category-radar-launch { order: 5; }
+  .share-bar             { order: 6; }
+  footer                 { order: 7; }
+}
 </style>
 </head>
 <body>
