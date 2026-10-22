@@ -1469,6 +1469,59 @@
   display: none !important;
 }
 
+/* ── MOST POPULAR TOOLS — minimized launcher ──
+   The panel starts minimized. This fixed-size button sits where the
+   panel's top edge is, so nothing on the page changes size or shifts
+   while the page loads. */
+.popular-tools-launch {
+  position: absolute;
+  left: calc(25% - 400px);
+  top: 465px;
+  z-index: 1;
+  width: 300px;
+  height: 44px;
+  padding: 0 16px 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: top .45s ease, background .25s ease, border-color .25s ease, color .25s ease;
+}
+.popular-tools-launch:hover,
+.popular-tools-launch:focus-visible {
+  background: rgba(255,43,43,0.12);
+  border-color: rgba(255,43,43,0.6);
+  color: #fff;
+}
+.popular-tools-launch[hidden] { display: none !important; }
+.hero.hidden ~ .popular-tools-launch { top: 180px; }
+
+@media (max-width: 1200px) {
+  .popular-tools-launch {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 92% !important;
+    margin: 20px auto 0 !important;
+  }
+}
+
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     .hero { height: 62vw; min-height: 200px; }
@@ -1920,6 +1973,7 @@
 
   .hero            { order: 1; }
   .popular-tools   { order: 2; }
+  .popular-tools-launch { order: 2; }
   .category-radar  { order: 3; }
   .sticky-top      { order: 4; }
   .tools           { order: 5; }
@@ -2152,8 +2206,12 @@
 </div>
 
 <!-- MOST POPULAR TOOLS -->
-<aside class="popular-tools" id="popularTools">
-  <button type="button" class="popular-tools-close" id="popularToolsClose" aria-label="Hide most popular tools">×</button>
+<button type="button" class="popular-tools-launch" id="popularToolsOpen"
+        aria-expanded="false" aria-controls="popularTools">
+  <span>🏆 Most Popular Tools</span><span aria-hidden="true">▾</span>
+</button>
+<aside class="popular-tools is-closed" id="popularTools">
+  <button type="button" class="popular-tools-close" id="popularToolsClose" aria-label="Minimize most popular tools" title="Minimize">▴</button>
   <h2>🏆 Most Popular Tools</h2>
   <div id="popularToolsList"></div>
   <button type="button" class="popular-tools-expand" id="popularToolsExpand">▾ Show all</button>
@@ -3007,13 +3065,19 @@
     alert("Link copied to clipboard!");
   }
 
-  // Load Most Popular Tools
-fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
-  .then(response => response.json())
-  .then(renderPopularToolsWithTrend)
-  .catch(error => {
-    console.error("Popular tools failed:", error);
-  });
+  // Load Most Popular Tools — only when the panel is first opened
+  // (or when the launcher is hovered/focused), not at page load.
+  let popularToolsPromise;
+  window.loadPopularTools = function () {
+    popularToolsPromise ??= fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
+      .then(response => response.json())
+      .then(renderPopularToolsWithTrend)
+      .catch(error => {
+        popularToolsPromise = null;   // allow a retry next time
+        console.error("Popular tools failed:", error);
+      });
+    return popularToolsPromise;
+  };
 
   /* ── ORGANIC TOOL CARD HOVER ── */
 (function () {
@@ -3454,20 +3518,30 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
   cards.forEach(c => io.observe(c));
 })();
 
-/* ── CLOSE MOST POPULAR TOOLS ── */
+/* ── MOST POPULAR TOOLS — minimized by default, opens on click ── */
 (function () {
   const panel = document.getElementById("popularTools");
+  const openBtn = document.getElementById("popularToolsOpen");
   const closeBtn = document.getElementById("popularToolsClose");
-  if (!panel || !closeBtn) return;
+  if (!panel || !openBtn || !closeBtn) return;
 
-  if (sessionStorage.getItem("popularToolsClosed") === "1") {
-    panel.classList.add("is-closed");
-    return;
-  }
+  const prefetch = () => { if (window.loadPopularTools) window.loadPopularTools(); };
+  openBtn.addEventListener("pointerenter", prefetch, { once: true });
+  openBtn.addEventListener("focus", prefetch, { once: true });
+
+  openBtn.addEventListener("click", function () {
+    prefetch();
+    panel.classList.remove("is-closed");
+    openBtn.hidden = true;
+    openBtn.setAttribute("aria-expanded", "true");
+    closeBtn.focus({ preventScroll: true });
+  });
 
   closeBtn.addEventListener("click", function () {
     panel.classList.add("is-closed");
-    sessionStorage.setItem("popularToolsClosed", "1");
+    openBtn.hidden = false;
+    openBtn.setAttribute("aria-expanded", "false");
+    openBtn.focus({ preventScroll: true });
   });
 })();
 
