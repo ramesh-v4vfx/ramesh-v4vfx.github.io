@@ -42,10 +42,25 @@
 <meta name="theme-color" content="#0e0101">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+<!-- Start downloading the first hero image immediately (it is the LCP element) -->
+<link rel="preload" as="image" href="images/hero-images/02 black hole simulator.webp" fetchpriority="high">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+<!-- Fonts + icons load without blocking the first paint.
+     (Italic Space Mono removed — it isn't used anywhere on the page.) -->
+<link rel="preload" as="style"
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" as="style"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</noscript>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; }
@@ -1604,6 +1619,12 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+  }
+
+  /* Phones go straight to the page — the splash would only delay the
+     first meaningful paint on slow connections. */
+  @media (max-width: 700px) {
+    #bootOverlay { display: none !important; }
   }
 
   .boot-mark {
@@ -3316,18 +3337,13 @@
     return;
   }
 
-  window.addEventListener("load", () => {
-    setTimeout(() => {
-      overlay.classList.add("boot-hidden");
-      sessionStorage.setItem("rvBooted", "1");
-    }, 1500);
-  });
-
-  // Safety net in case load already fired
+  // The splash animation itself lasts ~1.8s, so hide it on that timer
+  // instead of waiting for every image/font/script to finish loading
+  // (on slow connections that kept the page covered for 5s+).
   setTimeout(() => {
     overlay.classList.add("boot-hidden");
     sessionStorage.setItem("rvBooted", "1");
-  }, 3500);
+  }, 1800);
 })();
 
 /* ── AMBIENT STARFIELD ── */
