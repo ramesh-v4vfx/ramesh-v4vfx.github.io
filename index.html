@@ -174,6 +174,12 @@
     display: block;
   }
 
+  /* Slides that haven't been loaded yet (no src) stay invisible,
+     so the browser never flashes alt text while waiting. */
+  .hero-slide img:not([src]) {
+    visibility: hidden;
+  }
+
   /* Ken Burns zoom effect on active slide */
   .hero-slide.active img {
     animation: kenburns 8s ease-out forwards;
@@ -1953,24 +1959,26 @@
     ❯
 </button>
 
-  <!-- SLIDE 1 -->
+  <!-- SLIDE 1 (loads immediately, highest priority — this is the LCP image) -->
 <div class="hero-slide active"
      data-title="Black Hole Simulator"
      data-desc="Find event horizon radius, photon sphere, ISCO, and Hawking temperature."
      data-url="/black-hole-simulator/">
-  <img src="images/hero-images/02 black hole simulator.jpg"
+  <img src="images/hero-images/02 black hole simulator.webp"
      alt="Black Hole Simulator"
-     loading="eager">
+     loading="eager"
+     fetchpriority="high">
 </div>
+
+  <!-- SLIDES 2–16: use data-src, the hero script sets the real src just before each slide is shown -->
 
   <!-- SLIDE 2 -->
 <div class="hero-slide"
      data-title="Star System Creator"
      data-desc="Create your own star system or recreate an existing one using its values."
      data-url="/star-system-creator/">
-  <img src="images/hero-images/03 star system creator.jpg"
-       alt="Star System Creator thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/03 star system creator.webp"
+       alt="Star System Creator thumbnail" />
 </div>
 
   <!-- SLIDE 3 -->
@@ -1978,9 +1986,8 @@
      data-title="Country Explorer"
      data-desc="Explore countries, play the card game and quiz, and compare nations."
      data-url="/country-explorer/">
-  <img src="images/hero-images/04 country explorer.jpg"
-       alt="Country Explorer thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/04 country explorer.webp"
+       alt="Country Explorer thumbnail" />
 </div>
 
   <!-- SLIDE 4 -->
@@ -1988,9 +1995,8 @@
      data-title="Seconds to Frames"
      data-desc="A simple tool to calculate frames from seconds for any FPS."
      data-url="/seconds-to-frames/">
-  <img src="images/hero-images/05 seconds to frames.jpg"
-       alt="Seconds to Frames thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/05 seconds to frames.webp"
+       alt="Seconds to Frames thumbnail" />
 </div>
 
 <!-- SLIDE 5 -->
@@ -1998,9 +2004,8 @@
      data-title="Earth Rotation Live"
      data-desc="Check out earth rotation in real time."
      data-url="/earth-rotation-live/">
-  <img src="images/hero-images/01 earth rotation live.jpg"
-       alt="Earth Rotation Live thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/01 earth rotation live.webp"
+       alt="Earth Rotation Live thumbnail" />
 </div>
 
 <!-- SLIDE 6 -->
@@ -2008,9 +2013,8 @@
      data-title="Lagrange Points Simulator"
      data-desc="Check out gravity parking spots — a three-body problem simulator."
      data-url="/lagrange-points-simulator/">
-  <img src="images/hero-images/06 lagrange points simulator.jpg"
-       alt="Lagrange Points Simulator thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/06 lagrange points simulator.webp"
+       alt="Lagrange Points Simulator thumbnail" />
 </div>
 
 <!-- SLIDE 7 -->
@@ -2018,9 +2022,8 @@
      data-title="Antipode Finder"
      data-desc="Dig a hole straight through the Earth from anywhere, and find out where you'd come out."
      data-url="/antipode-finder/">
-  <img src="images/hero-images/07 antipode finder.jpg"
-       alt="Antipode Finder thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/07 antipode finder.webp"
+       alt="Antipode Finder thumbnail" />
 </div>
 
 <!-- SLIDE 8 -->
@@ -2028,9 +2031,8 @@
      data-title="Territory Explorer"
      data-desc="Explore territories by area, population, continent, status, administering states, and regions."
      data-url="/territory-explorer/">
-  <img src="images/hero-images/08 territory explorer.jpg"
-       alt="Territory Explorer thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/08 territory explorer.webp"
+       alt="Territory Explorer thumbnail" />
 </div>
 
 <!-- SLIDE 9 -->
@@ -2038,9 +2040,8 @@
      data-title="Solar System Simulator"
      data-desc="Navigate through the solar system and get info on every planet."
      data-url="/solar-system-simulator/">
-  <img src="images/hero-images/09 solar system simulator.jpg"
-       alt="Solar System Simulator thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/09 solar system simulator.webp"
+       alt="Solar System Simulator thumbnail" />
 </div>
 
 <!-- SLIDE 10 -->
@@ -2048,9 +2049,8 @@
      data-title="Black Hole Event Horizon Radius Calculator"
      data-desc="Calculate the event horizon radius of any black hole."
      data-url="/black-hole-radius-calculator/">
-  <img src="images/hero-images/10 black hole radius calculator.jpg"
-       alt="Black Hole Radius Calculator thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/10 black hole radius calculator.webp"
+       alt="Black Hole Radius Calculator thumbnail" />
 </div>
 
 <!-- SLIDE 11 -->
@@ -2058,9 +2058,8 @@
      data-title="Cosmic Calculator"
      data-desc="Calculate cosmic-scale distances from meters to astronomical units."
      data-url="/cosmic-calculator/">
-  <img src="images/hero-images/11 cosmic calculator.jpg"
-       alt="Cosmic Calculator thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/11 cosmic calculator.webp"
+       alt="Cosmic Calculator thumbnail" />
 </div>
 
 <!-- SLIDE 12 -->
@@ -2068,9 +2067,8 @@
      data-title="Globe Explorer"
      data-desc="Explore the globe and click on a country or territory to learn more."
      data-url="/globe-explorer/">
-  <img src="images/hero-images/12 globe explorer.jpg"
-       alt="Globe Explorer thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/12 globe explorer.webp"
+       alt="Globe Explorer thumbnail" />
 </div>
 
 <!-- SLIDE 13 -->
@@ -2078,9 +2076,8 @@
      data-title="Asteroid Watch Live"
      data-desc="Track near-Earth asteroids live and see which ones are potentially hazardous."
      data-url="/asteroid-watch-live/">
-  <img src="images/hero-images/13 asteroid watch live.jpg"
-       alt="Asteroid Watch Live thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/13 asteroid watch live.webp"
+       alt="Asteroid Watch Live thumbnail" />
 </div>
 
 <!-- SLIDE 14 -->
@@ -2088,9 +2085,8 @@
      data-title="Asteroid Impact Simulator"
      data-desc="Simulate an asteroid strike: energy, crater, and blast radius, city by city."
      data-url="/asteroid-impact-simulator/">
-  <img src="images/hero-images/14 asteroid impact simulator.jpg"
-       alt="Asteroid Impact Simulator thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/14 asteroid impact simulator.webp"
+       alt="Asteroid Impact Simulator thumbnail" />
 </div>
 
 <!-- SLIDE 15 -->
@@ -2098,9 +2094,8 @@
      data-title="Sky Tonight"
      data-desc="What's happening in the sky tonight?"
      data-url="/sky-tonight/">
-  <img src="images/hero-images/15 sky tonight.jpg"
-       alt="Sky Tonight thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/15 sky tonight.webp"
+       alt="Sky Tonight thumbnail" />
 </div>
 
 <!-- SLIDE 16 -->
@@ -2108,9 +2103,8 @@
      data-title="Your Sky at Birth"
      data-desc="Check your sky at your birth date — downloadable."
      data-url="/sky-at-birth/">
-  <img src="images/hero-images/16 sky at birth.jpg"
-       alt="Your Sky at Birth thumbnail"
-       loading="lazy" />
+  <img data-src="images/hero-images/16 sky at birth.webp"
+       alt="Your Sky at Birth thumbnail" />
 </div>
 
   <!-- Info overlay (updates per slide) -->
@@ -2579,6 +2573,18 @@
     let current = 0;
     let timer, progTimer, progStart;
 
+    /* Slides 2–16 start with data-src only (no src), so nothing downloads
+       until this runs. Called for the slide about to be shown, and for the
+       one after it so the next transition is instant. */
+    function loadSlide(i) {
+      const s = slides[(i + slides.length) % slides.length];
+      const img = s && s.querySelector('img[data-src]');
+      if (!img) return;
+      img.loading = 'eager';          // it's about to be shown, so don't wait for lazy heuristics
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    }
+
     function restartSweep() {
       if (!sweep) return;
       sweep.style.setProperty('--sweep-duration', DURATION + 'ms');
@@ -2618,6 +2624,8 @@
       slides[current].classList.remove('active');
       dotsWrap.children[current].classList.remove('active');
       current = (idx + slides.length) % slides.length;
+      loadSlide(current);        // make sure the slide we're showing is loaded
+      loadSlide(current + 1);    // preload the next one so it's ready
       slides[current].classList.add('active');
       dotsWrap.children[current].classList.add('active');
       updateInfo(current);
@@ -2661,6 +2669,7 @@
       });
     }
 
+    loadSlide(1);   // preload slide 2 so the first transition is instant
     updateInfo(0);
     startProgress();
 
@@ -3465,9 +3474,6 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
   const firebaseConfig = {
     apiKey: "AIzaSyDD7T__rYYhAar9QknMYCX8Ob876ChAvPo",
     authDomain: "rameshverse-hub.firebaseapp.com",
@@ -3477,9 +3483,21 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
     appId: "1:385147058247:web:990390fd9976d6e5d01962"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const feedbackRef = collection(db, "feedback");
+  /* Firebase is loaded on demand: only when someone hovers over or
+     clicks the feedback button, instead of on every page visit. */
+  let fbPromise;
+  function loadFirebase() {
+    fbPromise ??= (async () => {
+      const [{ initializeApp }, { getFirestore, collection, addDoc, serverTimestamp }] =
+        await Promise.all([
+          import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"),
+          import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js")
+        ]);
+      const db = getFirestore(initializeApp(firebaseConfig));
+      return { addDoc, serverTimestamp, feedbackRef: collection(db, "feedback") };
+    })().catch(err => { fbPromise = null; throw err; });  // allow a retry if it failed
+    return fbPromise;
+  }
 
   const fab = document.getElementById("feedbackFabBtn");
   const overlay = document.getElementById("feedbackOverlay");
@@ -3499,7 +3517,11 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
     });
   });
 
-  fab.addEventListener("click", () => overlay.classList.add("open"));
+  fab.addEventListener("pointerenter", () => loadFirebase().catch(() => {}), { once: true });
+  fab.addEventListener("click", () => {
+    overlay.classList.add("open");
+    loadFirebase().catch(() => {});
+  });
   closeBtn.addEventListener("click", () => overlay.classList.remove("open"));
   overlay.addEventListener("click", e => { if (e.target === overlay) overlay.classList.remove("open"); });
 
@@ -3512,6 +3534,7 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
     sendBtn.disabled = true;
     statusEl.textContent = "Sending...";
     try {
+      const { addDoc, serverTimestamp, feedbackRef } = await loadFirebase();
       await addDoc(feedbackRef, {
         name: name.slice(0, 60),
         message: message.slice(0, 2000),
@@ -3527,8 +3550,6 @@ fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
       sendBtn.disabled = false;
     }
   });
-
-  
 </script>
 
 <script>
