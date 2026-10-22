@@ -1939,6 +1939,59 @@
     display: none !important;
   }
 
+  /* ── SYSTEM DISTRIBUTION — minimized launcher ──
+     Mirror of the Most Popular Tools button, on the right side.
+     Fixed size, so nothing shifts while the page loads. */
+  .category-radar-launch {
+    position: absolute;
+    right: calc(25% - 400px);
+    top: 465px;
+    z-index: 1;
+    width: 300px;
+    height: 44px;
+    padding: 0 20px 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff2b2b;
+    text-shadow: 0 0 10px rgba(255,43,43,0.6);
+    background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+    border: 1px solid rgba(255,43,43,0.25);
+    border-radius: 0;
+    clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+    box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: top .45s ease, background .25s ease, border-color .25s ease, color .25s ease;
+  }
+  .category-radar-launch:hover,
+  .category-radar-launch:focus-visible {
+    background: rgba(255,43,43,0.12);
+    border-color: rgba(255,43,43,0.6);
+    color: #fff;
+  }
+  .category-radar-launch[hidden] { display: none !important; }
+  .hero.hidden ~ .category-radar-launch { top: 180px; }
+
+  @media (max-width: 1200px) {
+    .category-radar-launch {
+      position: relative !important;
+      right: auto !important;
+      left: auto !important;
+      top: auto !important;
+      width: 100% !important;
+      max-width: 92% !important;
+      margin: 16px auto 0 !important;
+    }
+  }
+
   /* Same responsive collapse as the popular-tools panel: stack below
      the grid on narrower screens instead of floating beside it. */
   @media (max-width: 1200px) {
@@ -1996,6 +2049,7 @@
   .popular-tools   { order: 2; }
   .popular-tools-launch { order: 2; }
   .category-radar  { order: 3; }
+  .category-radar-launch { order: 3; }
   .sticky-top      { order: 4; }
   .tools           { order: 5; }
   .share-bar       { order: 6; }
@@ -2242,8 +2296,12 @@
      2. HTML — paste right after your existing
         <aside class="popular-tools" ...>...</aside> block
      ══════════════════════════════════════════════════════ -->
-<aside class="category-radar" id="categoryRadar">
-  <button type="button" class="category-radar-close" id="categoryRadarClose" aria-label="Hide system distribution">×</button>
+<button type="button" class="category-radar-launch" id="categoryRadarOpen"
+        aria-expanded="false" aria-controls="categoryRadar">
+  <span>📊 System Distribution</span><span aria-hidden="true">▾</span>
+</button>
+<aside class="category-radar is-closed" id="categoryRadar">
+  <button type="button" class="category-radar-close" id="categoryRadarClose" aria-label="Minimize system distribution" title="Minimize">▴</button>
   <h2>System Distribution</h2>
   <div class="radar-donut-wrap">
     <div class="radar-donut" id="radarDonut">
@@ -3718,22 +3776,25 @@
       noteEl.textContent = `Note: ${multiTagCount} module${multiTagCount === 1 ? '' : 's'} span multiple categories. Find categories below search bar and explore`;
     }
   })();
-  /* ── CLOSE SYSTEM DISTRIBUTION ──
-     Same session-persistence pattern as your existing popular-tools
-     close button. */
+  /* ── SYSTEM DISTRIBUTION — minimized by default, click to expand / collapse ── */
   (function () {
     const panel = document.getElementById('categoryRadar');
+    const openBtn = document.getElementById('categoryRadarOpen');
     const closeBtn = document.getElementById('categoryRadarClose');
-    if (!panel || !closeBtn) return;
+    if (!panel || !openBtn || !closeBtn) return;
 
-    if (sessionStorage.getItem('categoryRadarClosed') === '1') {
-      panel.classList.add('is-closed');
-      return;
-    }
+    openBtn.addEventListener('click', function () {
+      panel.classList.remove('is-closed');
+      openBtn.hidden = true;
+      openBtn.setAttribute('aria-expanded', 'true');
+      closeBtn.focus({ preventScroll: true });
+    });
 
     closeBtn.addEventListener('click', function () {
       panel.classList.add('is-closed');
-      sessionStorage.setItem('categoryRadarClosed', '1');
+      openBtn.hidden = false;
+      openBtn.setAttribute('aria-expanded', 'false');
+      openBtn.focus({ preventScroll: true });
     });
   })();
 </script>
