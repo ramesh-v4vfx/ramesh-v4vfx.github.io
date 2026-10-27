@@ -9,6 +9,73 @@
     "distanceLy": 5860000000,
     "distanceNote": null
   },
+
+  {
+    "id": "v461-sgr",
+    "name": "V4641 Sgr",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 6.4,
+    "distanceLy": 20200,
+    "distanceNote": null
+  },
+
+  {
+    "id": "xte-J1550-564",
+    "name": "XTE J1550-564",
+    "spin": 0.49,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary), transient, microquasar",
+    "massSolar": 9.1,
+    "distanceLy": 14300,
+    "distanceNote": null
+  },
+
+    {
+    "id": "grs-1915+105",
+    "name": "GRS 1915+105",
+    "spin": 0.98,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary), microquasar, long-lived transient",
+    "massSolar": 12.4,
+    "distanceLy": 28000,
+    "distanceNote": null
+  },
+
+  {
+    "id": "gw151226",
+    "name": "GW151226",
+    "spin": 0.75,
+    "status": "Confirmed",
+    "type": "Binary black hole merger",
+    "massSolar": 20.7,
+    "distanceLy": 1500000000,
+    "distanceNote": null
+  },
+
+  {
+    "id": "gw170104",
+    "name": "GW170104",
+    "spin": 0.67,
+    "status": "Confirmed",
+    "type": "Binary black hole merger",
+    "massSolar": 47.5,
+    "distanceLy": 3600000000,
+    "distanceNote": null
+  },
+
+  {
+    "id": "gw150914",
+    "name": "GW150914",
+    "spin": 0.68,
+    "status": "Confirmed",
+    "type": "Binary black hole merger",
+    "massSolar": 61.5,
+    "distanceLy": 1500000000,
+    "distanceNote": null
+  },
+
   {
     "id": "ic-1101",
     "name": "IC 1101",
