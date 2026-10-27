@@ -48,7 +48,7 @@
     "name": "GW151226",
     "spin": 0.75,
     "status": "Confirmed",
-    "type": "Binary black hole merger",
+    "type": "Merger remnant",
     "massSolar": 20.7,
     "distanceLy": 1500000000,
     "distanceNote": null
@@ -59,7 +59,7 @@
     "name": "GW170104",
     "spin": 0.67,
     "status": "Confirmed",
-    "type": "Binary black hole merger",
+    "type": "Merger remnant",
     "massSolar": 47.5,
     "distanceLy": 3600000000,
     "distanceNote": null
@@ -70,7 +70,7 @@
     "name": "GW150914",
     "spin": 0.68,
     "status": "Confirmed",
-    "type": "Binary black hole merger",
+    "type": "Merger remnant",
     "massSolar": 61.5,
     "distanceLy": 1500000000,
     "distanceNote": null
