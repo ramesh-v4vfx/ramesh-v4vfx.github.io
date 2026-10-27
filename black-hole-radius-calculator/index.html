@@ -13,7 +13,7 @@
 </script>
 
 <meta charset="UTF-8">
-<meta name="description" content="Calculate the Schwarzschild radius of a black hole instantly using mass. Learn how event horizon radius is derived and explore black hole physics with this interactive calculator." />
+<meta name="description" content="Calculate the Schwarzschild radius of a black hole instantly using mass, and add spin to get the event horizon radius of a rotating (Kerr) black hole. Explore black hole physics with this interactive calculator." />
 <title>Black Hole Event Horizon Radius Calculator</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -472,6 +472,43 @@ input:focus {
   text-shadow: 0 0 6px rgba(255,43,43,0.6);
 }
 
+.btn-spin {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 8px;
+  background: rgba(255,43,43,0.04);
+  color: var(--t-red);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(255,43,43,0.5);
+  box-shadow: inset 0 0 0 1px rgba(255,43,43,0.28);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.btn-spin:hover { background: rgba(255,43,43,0.1); box-shadow: inset 0 0 0 1px rgba(255,43,43,0.55); }
+.btn-spin:active { transform: scale(0.98); }
+.btn-spin.open { background: rgba(255,43,43,0.14); box-shadow: inset 0 0 0 1px rgba(255,43,43,0.7); }
+
+.spin-box { display: none; flex-direction: column; gap: 8px; text-align: left; }
+.spin-box.open { display: flex; animation: resultPop 0.25s ease-out; }
+.spin-hint { font-family: var(--mono); font-size: 0.7rem; line-height: 1.5; color: rgba(255,43,43,0.55); letter-spacing: 0.02em; }
+.spin-err { display: none; font-family: var(--mono); font-size: 0.75rem; color: #ff7b7b; }
+.spin-err.show { display: block; }
+
+.res-title {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,43,43,0.75);
+  margin: 0 0 10px;
+}
+.res-title:not(:first-child) { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,43,43,0.14); }
+.res-title + .line { margin-top: 0; }
+
 /* ---------- Calculate button ---------- */
 .calc-wrap {
   position: relative;
@@ -772,6 +809,14 @@ input:focus {
         <button class="btn-small" data-decimals="2" onclick="setDecimals(2, this)">2 dec</button>
         <button class="btn-small active" data-decimals="3" onclick="setDecimals(3, this)">3 dec</button>
       </div>
+
+      <button class="btn-spin" id="spinToggle" type="button" aria-expanded="false" aria-controls="spinBox" onclick="toggleSpin()">+ Add spin</button>
+
+      <div class="spin-box" id="spinBox">
+        <input id="spinInput" placeholder="Spin a* (−1 to 1)" inputmode="decimal" autocomplete="off" aria-label="Spin a*">
+        <div class="spin-hint">a* = 0 means not spinning, 1 is the maximum spin, a negative value spins the other way. Try 0.9.</div>
+        <div class="spin-err" id="spinErr" role="alert"></div>
+      </div>
     </div>
 
     <div class="calc-wrap">
@@ -785,7 +830,7 @@ input:focus {
     </div>
 
     <div class="small">
-      Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km
+      Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km<br>With spin: r₊ = (GM/c²)(1 + √(1 − a²))
     </div>
 
         <!-- Share Button -->
@@ -861,12 +906,13 @@ input:focus {
     </div>
 
   </div>
-  <p class="intro">Calculates the Schwarzschild radius, the boundary beyond which nothing, not even light, can escape, for any mass using R = 2GM/c². Enter a mass in solar masses, Earth masses, or kilograms to find its event horizon radius instantly.</p>
+  <p class="intro">Calculates the Schwarzschild radius, the boundary beyond which nothing, not even light, can escape, for any mass using R = 2GM/c². Enter a mass in solar masses, Earth masses, or kilograms to find its event horizon radius instantly. Press Add spin to include the spin of a rotating black hole: its event horizon is smaller than the Schwarzschild radius, r₊ = (GM/c²)(1 + √(1 − a²)).</p>
 </div>
 
 <script>
 let decimals = 3;
 let lastResult = null;
+let spinOn = false;
 
 const G = 6.67430e-11;
 const c = 299792458;
@@ -875,6 +921,35 @@ const earthMass = 5.9722e24;
 const solarRadius = 6.957e8;
 
 const massInput = document.getElementById('massInput');
+const spinInput = document.getElementById('spinInput');
+
+// keep the spin box to digits, one minus sign and a dot; recalculate live once a result is showing
+spinInput.addEventListener('input', function () {
+  this.value = this.value.replace(/[−–]/g, '-').replace(/,/g, '.').replace(/[^0-9.\-]/g, '');
+  if (lastResult) calculate();
+});
+
+function toggleSpin() {
+  spinOn = !spinOn;
+  const btn = document.getElementById('spinToggle');
+  document.getElementById('spinBox').classList.toggle('open', spinOn);
+  btn.classList.toggle('open', spinOn);
+  btn.setAttribute('aria-expanded', spinOn);
+  btn.textContent = spinOn ? '− Remove spin' : '+ Add spin';
+  if (spinOn) {
+    spinInput.focus();
+  } else {
+    spinInput.value = '';
+    showSpinErr('');
+    if (lastResult) calculate();
+  }
+}
+
+function showSpinErr(msg) {
+  const el = document.getElementById('spinErr');
+  el.textContent = msg;
+  el.classList.toggle('show', !!msg);
+}
 
 massInput.addEventListener('input', function () {
   const cursorPos = this.selectionStart;
@@ -914,21 +989,36 @@ function format(n) {
 function calculate() {
   const val = parseFloat(document.getElementById('massInput').value.replace(/,/g,''));
   if (!val || val <= 0) return;
+
+  // optional spin
+  let a = null;
+  if (spinOn) {
+    const raw = spinInput.value.trim();
+    if (raw !== '') {
+      a = parseFloat(raw);
+      if (Number.isNaN(a) || a < -1 || a > 1) {
+        showSpinErr('Spin must be a number from -1 to 1.');
+        return;
+      }
+    }
+  }
+  showSpinErr('');
+
   const type = document.getElementById('massType').value;
   const M =
     type === 'solar' ? val * solarMass :
     type === 'earth' ? val * earthMass : val;
   const rs = (2 * G * M) / (c * c);
-  lastResult = { m: rs, km: rs / 1000, rsolar: rs / solarRadius };
+  lastResult = { m: rs, km: rs / 1000, rsolar: rs / solarRadius, spin: a, kerr: null };
+  if (a !== null) {
+    const rk = (rs / 2) * (1 + Math.sqrt(1 - a * a)); // outer event horizon, Kerr black hole
+    lastResult.kerr = { m: rk, km: rk / 1000, rsolar: rk / solarRadius };
+  }
   renderResult(lastResult);
 }
 
-function renderResult(r) {
-  const output = document.getElementById('output');
-  const resetWrap = document.getElementById('resetWrap');
-  output.style.display = 'block';
-  resetWrap.style.display = 'block';
-  output.innerHTML = `
+function lines(r) {
+  return `
     <div class="line">
       <span class="unit-tag">M</span>
       <span class="value">${format(r.m)} m</span>
@@ -943,8 +1033,21 @@ function renderResult(r) {
       <span class="unit-tag">R☉</span>
       <span class="value">${format(r.rsolar)} R☉</span>
       <button class="copy-btn" onclick="copyValue(this,'${format(r.rsolar)} R☉')">Copy</button>
-    </div>
-  `;
+    </div>`;
+}
+
+function renderResult(r) {
+  const output = document.getElementById('output');
+  const resetWrap = document.getElementById('resetWrap');
+  output.style.display = 'block';
+  resetWrap.style.display = 'block';
+  if (r.kerr) {
+    output.innerHTML =
+      `<div class="res-title">Schwarzschild radius (no spin)</div>` + lines(r) +
+      `<div class="res-title">Black hole radius (spin a* = ${String(+r.spin.toFixed(6))})</div>` + lines(r.kerr);
+  } else {
+    output.innerHTML = lines(r);
+  }
 }
 
 function copyValue(btn, text) {
@@ -963,6 +1066,10 @@ function roundSafe(num, decimals) {
 function resetCalc() {
   massInput.value = '';
   document.getElementById('massType').value = 'solar';
+
+  if (spinOn) toggleSpin();
+  spinInput.value = '';
+  showSpinErr('');
 
   decimals = 3;
   document.querySelectorAll('.btn-small').forEach(b => b.classList.remove('active'));
