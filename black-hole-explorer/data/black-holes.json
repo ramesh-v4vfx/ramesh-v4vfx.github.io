@@ -1,0 +1,1982 @@
+[
+  {
+    "id": "phoenix-a",
+    "name": "Phoenix A*",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (radio AGN)",
+    "massSolar": 100000000000,
+    "distanceLy": 5860000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ic-1101",
+    "name": "IC 1101",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (radio AGN)",
+    "massSolar": 97700000000,
+    "distanceLy": 1126870285,
+    "distanceNote": null
+  },
+  {
+    "id": "4c-74-13",
+    "name": "4C +74.13",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (radio AGN)",
+    "massSolar": 51300000000,
+    "distanceLy": 2600000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ton-618",
+    "name": "TON 618",
+    "spin": 0.6,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 40700000000,
+    "distanceLy": 10795776102.42,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j143148-09-053558",
+    "name": "SDSS J143148.09+053558",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 36400000000,
+    "distanceLy": 10700000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j114833-14-193003-2",
+    "name": "SDSS J114833.14+193003.2",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 36310000000,
+    "distanceLy": 4800000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-3842",
+    "name": "NGC 3842",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant",
+    "massSolar": 34600000000,
+    "distanceLy": 325000000,
+    "distanceNote": null
+  },
+  {
+    "id": "smss-j215728-21-360215-1",
+    "name": "SMSS J215728.21-360215.1",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 34000000000,
+    "distanceLy": 12550000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j102325-31-514251-0",
+    "name": "SDSS J102325.31+514251.0",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 33100000000,
+    "distanceLy": 12000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "abell-1201-bcg",
+    "name": "Abell 1201 BCG",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant",
+    "massSolar": 32700000000,
+    "distanceLy": 2735000000,
+    "distanceNote": null
+  },
+  {
+    "id": "h1821-643",
+    "name": "H1821+643",
+    "spin": 0.62,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 30000000000,
+    "distanceLy": 3400000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-6166",
+    "name": "NGC 6166",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (low-luminosity radio AGN)",
+    "massSolar": 28400000000,
+    "distanceLy": 490000000,
+    "distanceNote": null
+  },
+  {
+    "id": "4c-37-11",
+    "name": "4C +37.11",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Binary (active, radio)",
+    "massSolar": 28000000000,
+    "distanceLy": 750000000,
+    "distanceNote": null
+  },
+  {
+    "id": "eso-383-76",
+    "name": "ESO 383-76",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Not verified",
+    "massSolar": 27500000000,
+    "distanceLy": 654237078,
+    "distanceNote": null
+  },
+  {
+    "id": "2mass-j13260399-7023462",
+    "name": "2MASS J13260399+7023462",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 27000000000,
+    "distanceLy": 3900000000,
+    "distanceNote": null
+  },
+  {
+    "id": "eso-444-46",
+    "name": "ESO 444-46",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Not verified",
+    "massSolar": 26900000000,
+    "distanceLy": 654900000,
+    "distanceNote": null
+  },
+  {
+    "id": "ugc-10143",
+    "name": "UGC 10143",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Not verified",
+    "massSolar": 26300000000,
+    "distanceLy": 537200000,
+    "distanceNote": null
+  },
+  {
+    "id": "apm-08279-5255",
+    "name": "APM 08279+5255",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 23000000000,
+    "distanceLy": 12050000000,
+    "distanceNote": null
+  },
+  {
+    "id": "holmberg-15a",
+    "name": "Holmberg 15A",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Not verified",
+    "massSolar": 21600000000,
+    "distanceLy": 753000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-4889",
+    "name": "NGC 4889",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant",
+    "massSolar": 21000000000,
+    "distanceLy": 308000000,
+    "distanceNote": null
+  },
+  {
+    "id": "hs-0741-4741",
+    "name": "HS 0741+4741",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 19500000000,
+    "distanceLy": 4300000000,
+    "distanceNote": null
+  },
+  {
+    "id": "oj-287-primary",
+    "name": "OJ 287 primary",
+    "spin": 0.35,
+    "status": "Candidate",
+    "type": "Binary (active, blazar)",
+    "massSolar": 18350000000,
+    "distanceLy": 4000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1600",
+    "name": "NGC 1600",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant",
+    "massSolar": 17000000000,
+    "distanceLy": 149281774,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j010013-02-280225-8",
+    "name": "SDSS J010013.02+280225.8",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 15800000000,
+    "distanceLy": 12800000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j08019-69-373047-3",
+    "name": "SDSS J08019.69+373047.3",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 15100000000,
+    "distanceLy": 11700000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j115954-33-201921-1",
+    "name": "SDSS J115954.33+201921.1",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 14100000000,
+    "distanceLy": 11600000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j075303-34-423130-8",
+    "name": "SDSS J075303.34+423130.8",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 13800000000,
+    "distanceLy": 11700000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j080430-56-542041-1",
+    "name": "SDSS J080430.56+542041.1",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 13500000000,
+    "distanceLy": 11800000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j081855-77-095848-0",
+    "name": "SDSS J081855.77+095848.0",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 12000000000,
+    "distanceLy": 11800000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1270",
+    "name": "NGC 1270",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (low-luminosity AGN)",
+    "massSolar": 12000000000,
+    "distanceLy": 231200000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j082535-19-512706-3",
+    "name": "SDSS J082535.19+512706.3",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 11200000000,
+    "distanceLy": 11700000000,
+    "distanceNote": null
+  },
+  {
+    "id": "s5-0014-81",
+    "name": "S5 0014+81",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (blazar)",
+    "massSolar": 11000000000,
+    "distanceLy": 12000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j013127-34-032100-1",
+    "name": "SDSS J013127.34-032100.1",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (blazar candidate)",
+    "massSolar": 11000000000,
+    "distanceLy": 7100000000,
+    "distanceNote": null
+  },
+  {
+    "id": "icrf-j131043-3-555211",
+    "name": "ICRF J131043.3-555211",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 10500000000,
+    "distanceLy": 9500000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pso-j334-2028-01-4075",
+    "name": "PSO J334.2028+01.4075",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (radio-loud quasar)",
+    "massSolar": 10000000000,
+    "distanceLy": 10300000000,
+    "distanceNote": null
+  },
+  {
+    "id": "rx-j1532-9-3021",
+    "name": "RX J1532.9+3021",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (radio AGN)",
+    "massSolar": 10000000000,
+    "distanceLy": 3900000000,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-b2126-158",
+    "name": "QSO B2126-158",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (radio-loud quasar)",
+    "massSolar": 10000000000,
+    "distanceLy": 11500000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1281",
+    "name": "NGC 1281",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Not verified",
+    "massSolar": 10000000000,
+    "distanceLy": 195700000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j015741-57-010629-6",
+    "name": "SDSS J015741.57-010629.6",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 9800000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j230301-45-093930-7",
+    "name": "SDSS J230301.45-093930.7",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 9120000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j140821-67-025733-2",
+    "name": "SDSS J140821.67+025733.2",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 8000000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j075819-70-202300-9",
+    "name": "SDSS J075819.70+202300.9",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 7800000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "cid-947",
+    "name": "CID-947",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 6900000000,
+    "distanceLy": 11900000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j080956-02-502000-9",
+    "name": "SDSS J080956.02+502000.9",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 6460000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j014214-75-002324-2",
+    "name": "SDSS J014214.75+002324.2",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 6310000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-87",
+    "name": "Messier 87",
+    "spin": 0.85,
+    "status": "Confirmed",
+    "type": "Active (radio AGN with jet)",
+    "massSolar": 6500000000,
+    "distanceLy": 53500000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-5419",
+    "name": "NGC 5419",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (low-luminosity AGN), possible binary",
+    "massSolar": 7200000000,
+    "distanceLy": 210000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j025905-63-001121-9",
+    "name": "SDSS J025905.63+001121.9",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 5250000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j094202-04-042244-5",
+    "name": "SDSS J094202.04+042244.5",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 5130000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-b0746-254",
+    "name": "QSO B0746+254",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 5000000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-b2149-306",
+    "name": "QSO B2149-306",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (blazar)",
+    "massSolar": 5000000000,
+    "distanceLy": 2300000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j090033-50-421547-0",
+    "name": "SDSS J090033.50+421547.0",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 4700000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-60",
+    "name": "Messier 60",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Not verified",
+    "massSolar": 4500000000,
+    "distanceLy": 56700000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j011521-20-152453-3",
+    "name": "SDSS J011521.20+152453.3",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 4100000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-b0222-185",
+    "name": "QSO B0222+185",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (blazar)",
+    "massSolar": 4000000000,
+    "distanceLy": 7000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "hercules-a",
+    "name": "Hercules A",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (radio AGN)",
+    "massSolar": 4000000000,
+    "distanceLy": 2258000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j075403-60-481428-0",
+    "name": "SDSS J075403.60+481428.0",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 3890000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j150752-66-133844-5",
+    "name": "SDSS J150752.66+133844.5",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 3681000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "abell-1836-bcg",
+    "name": "Abell 1836-BCG",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Not verified",
+    "massSolar": 3610000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j213023-61-122252-0",
+    "name": "SDSS J213023.61+122252.0",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 3500000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j173352-23-540030-4",
+    "name": "SDSS J173352.23+540030.4",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 3400000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "wise-j104222-11-164115-3",
+    "name": "WISE J104222.11+164115.3",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (obscured quasar)",
+    "massSolar": 3240000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j025021-76-075749-9",
+    "name": "SDSS J025021.76-075749.9",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 3100000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1271",
+    "name": "NGC 1271",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Not verified",
+    "massSolar": 3000000000,
+    "distanceLy": 249000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j030341-04-002321-9",
+    "name": "SDSS J030341.04-002321.9",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 3000000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-b0836-710",
+    "name": "QSO B0836+710",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (blazar)",
+    "massSolar": 3000000000,
+    "distanceLy": 9800000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j162752-18-541912-5",
+    "name": "SDSS J162752.18+541912.5",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 2750000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j224956-08-000218-0",
+    "name": "SDSS J224956.08+000218.0",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 2630000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j030449-85-000813-4",
+    "name": "SDSS J030449.85-000813.4",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 2400000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j234625-66-001600-4",
+    "name": "SDSS J234625.66-001600.4",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 2240000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "ulas-j1120-0641",
+    "name": "ULAS J1120+0641",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, radio-quiet)",
+    "massSolar": 2000000000,
+    "distanceLy": 12900000000,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-0537-286",
+    "name": "QSO 0537-286",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (blazar)",
+    "massSolar": 2000000000,
+    "distanceLy": 11400000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-3115",
+    "name": "NGC 3115",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant",
+    "massSolar": 2000000000,
+    "distanceLy": 31600000,
+    "distanceNote": null
+  },
+  {
+    "id": "q0906-6930",
+    "name": "Q0906+6930",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (blazar)",
+    "massSolar": 2000000000,
+    "distanceLy": 12300000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j025231-19-034112-7",
+    "name": "SDSS J025231.19+034112.7",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 1510000000,
+    "distanceLy": null,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-b0805-614",
+    "name": "QSO B0805+614",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 1500000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "messier-84",
+    "name": "Messier 84",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (radio AGN)",
+    "massSolar": 1500000000,
+    "distanceLy": 54900000,
+    "distanceNote": null
+  },
+  {
+    "id": "poniua-ena",
+    "name": "Pōniuāʻena",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 1500000000,
+    "distanceLy": 13020000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pks-2059-034",
+    "name": "PKS 2059+034",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Not verified",
+    "massSolar": 1360000000,
+    "distanceLy": 8000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "abell-3565-bcg",
+    "name": "Abell 3565-BCG",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (radio AGN)",
+    "massSolar": 1340000000,
+    "distanceLy": 160000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-7768",
+    "name": "NGC 7768",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Not verified",
+    "massSolar": 1300000000,
+    "distanceLy": 369000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1277",
+    "name": "NGC 1277",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (low-luminosity AGN)",
+    "massSolar": 1200000000,
+    "distanceLy": 240000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j233254-46-151305-5",
+    "name": "SDSS J233254.46+151305.5",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 1094000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "qso-b225155-2217",
+    "name": "QSO B225155+2217",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 1000000000,
+    "distanceLy": 12100000000,
+    "distanceNote": null
+  },
+  {
+    "id": "qso-b1210-330",
+    "name": "QSO B1210+330",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 1000000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "cygnus-a",
+    "name": "Cygnus A",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (powerful radio AGN)",
+    "massSolar": 1000000000,
+    "distanceLy": 760000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sombrero-galaxy",
+    "name": "Sombrero Galaxy",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (low-luminosity AGN)",
+    "massSolar": 1000000000,
+    "distanceLy": 31100000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-501",
+    "name": "Markarian 501",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (blazar)",
+    "massSolar": 3400000000,
+    "distanceLy": 465000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-1426-015",
+    "name": "PG 1426+015",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 1298000000,
+    "distanceLy": 400000000,
+    "distanceNote": null
+  },
+  {
+    "id": "3c-109",
+    "name": "3C 109",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (broad-line radio galaxy)",
+    "massSolar": 930000000,
+    "distanceLy": 3500000000,
+    "distanceNote": null
+  },
+  {
+    "id": "3c-273",
+    "name": "3C 273",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar with jet)",
+    "massSolar": 886000000,
+    "distanceLy": 2443000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ulas-j1342-0928",
+    "name": "ULAS J1342+0928",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar)",
+    "massSolar": 800000000,
+    "distanceLy": 13100000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j155053-16-052112-1",
+    "name": "SDSS J155053.16+052112.1",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 794000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "messier-49",
+    "name": "Messier 49",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (low-luminosity AGN)",
+    "massSolar": 560000000,
+    "distanceLy": 55900000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1399",
+    "name": "NGC 1399",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (radio source)",
+    "massSolar": 500000000,
+    "distanceLy": 66000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-0804-761",
+    "name": "PG 0804+761",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 693000000,
+    "distanceLy": 1200000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-1617-175",
+    "name": "PG 1617+175",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 594000000,
+    "distanceLy": 15400000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-1700-518",
+    "name": "PG 1700+518",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 781000000,
+    "distanceLy": 400000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ugc-12591",
+    "name": "UGC 12591",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Dormant (possibly quiescent)",
+    "massSolar": 618000000,
+    "distanceLy": 394260000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j214611-58-070449-2",
+    "name": "SDSS J214611.58-070449.2",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 2750000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "sdss-j020151-65-012902-5",
+    "name": "SDSS J020151.65+012902.5",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 537000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "sdss-j113029-48-634620-4",
+    "name": "SDSS J113029.48+634620.4",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 490000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "ngc-4261",
+    "name": "NGC 4261",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (radio AGN)",
+    "massSolar": 400000000,
+    "distanceLy": 95900000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-1307-085",
+    "name": "PG 1307+085",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 440000000,
+    "distanceLy": 2100000000,
+    "distanceNote": null
+  },
+  {
+    "id": "sdss-j134617-54-622045-5",
+    "name": "SDSS J134617.54+622045.5",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar, presumed)",
+    "massSolar": 398000000,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "sage0536agn",
+    "name": "SAGE0536AGN",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (AGN)",
+    "massSolar": 350000000,
+    "distanceLy": 2300000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1275",
+    "name": "NGC 1275",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (radio AGN, Seyfert 1.5/LINER)",
+    "massSolar": 340000000,
+    "distanceLy": 225190000,
+    "distanceNote": null
+  },
+  {
+    "id": "3c-390-3",
+    "name": "3C 390.3",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (broad-line radio galaxy)",
+    "massSolar": 287000000,
+    "distanceLy": 780000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ii-zwicky-136",
+    "name": "II Zwicky 136",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar/Seyfert, presumed)",
+    "massSolar": 457000000,
+    "distanceLy": 830000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-0052-251",
+    "name": "PG 0052+251",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 369000000,
+    "distanceLy": 2002000000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-59",
+    "name": "Messier 59",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (low-luminosity AGN)",
+    "massSolar": 270000000,
+    "distanceLy": 50100000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-1411-442",
+    "name": "PG 1411+442",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 443000000,
+    "distanceLy": 1244000000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-876",
+    "name": "Markarian 876",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1/quasar)",
+    "massSolar": 279000000,
+    "distanceLy": 1752000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-0953-414",
+    "name": "PG 0953+414",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 276000000,
+    "distanceLy": 2900000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-0026-129",
+    "name": "PG 0026+129",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar)",
+    "massSolar": 393000000,
+    "distanceLy": 1845000000,
+    "distanceNote": null
+  },
+  {
+    "id": "fairall-9",
+    "name": "Fairall 9",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 255000000,
+    "distanceLy": 650000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-7727-a",
+    "name": "NGC 7727 A",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (dual system)",
+    "massSolar": 154000000,
+    "distanceLy": 89000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-7727-b",
+    "name": "NGC 7727 B",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (dual system)",
+    "massSolar": 6300000,
+    "distanceLy": 89001600,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-1095",
+    "name": "Markarian 1095",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1, presumed)",
+    "massSolar": 150000000,
+    "distanceLy": 440000000,
+    "distanceNote": null
+  },
+  {
+    "id": "andromeda-galaxy",
+    "name": "Andromeda Galaxy",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant",
+    "massSolar": 141000000,
+    "distanceLy": 2500000,
+    "distanceNote": null
+  },
+  {
+    "id": "oj-287-secondary",
+    "name": "OJ 287 secondary",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Binary companion",
+    "massSolar": 150000000,
+    "distanceLy": 4000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-1211-143",
+    "name": "PG 1211+143",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (quasar/NLS1)",
+    "massSolar": 146000000,
+    "distanceLy": 1038000000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-105",
+    "name": "Messier 105",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (low-luminosity AGN, LINER)",
+    "massSolar": 140000000,
+    "distanceLy": 36600000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-509",
+    "name": "Markarian 509",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 143000000,
+    "distanceLy": 469000000,
+    "distanceNote": null
+  },
+  {
+    "id": "rx-j124236-9-111935",
+    "name": "RX J124236.9-111935",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Dormant (tidal disruption flare)",
+    "massSolar": 100000000,
+    "distanceLy": 700000000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-85",
+    "name": "Messier 85",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Dormant (no nuclear activity)",
+    "massSolar": 100000000,
+    "distanceLy": 60000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-5548",
+    "name": "NGC 5548",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1.5)",
+    "massSolar": 67100000,
+    "distanceLy": 244600000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-88",
+    "name": "Messier 88",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (Seyfert 2)",
+    "massSolar": 80000000,
+    "distanceLy": 58660000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-81",
+    "name": "Messier 81",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (low-luminosity AGN)",
+    "massSolar": 70000000,
+    "distanceLy": 11990000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-771",
+    "name": "Markarian 771",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar/Seyfert 1)",
+    "massSolar": 73200000,
+    "distanceLy": 870000000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-58",
+    "name": "Messier 58",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Active (low-luminosity AGN)",
+    "massSolar": 70000000,
+    "distanceLy": 68000000,
+    "distanceNote": null
+  },
+  {
+    "id": "pg-0844-349",
+    "name": "PG 0844+349",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (quasar/Seyfert 1)",
+    "massSolar": 92400000,
+    "distanceLy": 849000000,
+    "distanceNote": null
+  },
+  {
+    "id": "centaurus-a",
+    "name": "Centaurus A",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (radio AGN)",
+    "massSolar": 55000000,
+    "distanceLy": 12000000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-79",
+    "name": "Markarian 79",
+    "spin": 0.7,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1.2)",
+    "massSolar": 52400000,
+    "distanceLy": 307078187,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-96",
+    "name": "Messier 96",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (low-luminosity AGN, LINER)",
+    "massSolar": 48000000,
+    "distanceLy": 31000000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-817",
+    "name": "Markarian 817",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 49400000,
+    "distanceLy": 456000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-3227",
+    "name": "NGC 3227",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1.5)",
+    "massSolar": 42200000,
+    "distanceLy": 77000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-4151-primary",
+    "name": "NGC 4151 primary",
+    "spin": 0.9,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1.5)",
+    "massSolar": 40000000,
+    "distanceLy": 51500000,
+    "distanceNote": null
+  },
+  {
+    "id": "3c-120",
+    "name": "3C 120",
+    "spin": -0.1,
+    "status": "Confirmed",
+    "type": "Active (broad-line radio galaxy)",
+    "massSolar": 55500000,
+    "distanceLy": 419000000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-279",
+    "name": "Markarian 279",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 34900000,
+    "distanceLy": 421371861,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-3516",
+    "name": "NGC 3516",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 42700000,
+    "distanceLy": 165000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-863",
+    "name": "NGC 863",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 47500000,
+    "distanceLy": 297000000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-82",
+    "name": "Messier 82",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Not verified (starburst galaxy)",
+    "massSolar": 30000000,
+    "distanceLy": 12000000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-108",
+    "name": "Messier 108",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Possible low-luminosity AGN (disputed)",
+    "massSolar": 24000000,
+    "distanceLy": 46000000,
+    "distanceNote": null
+  },
+  {
+    "id": "m60-ucd1",
+    "name": "M60-UCD1",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant",
+    "massSolar": 20000000,
+    "distanceLy": 48600000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-3783",
+    "name": "NGC 3783",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1.5)",
+    "massSolar": 29800000,
+    "distanceLy": 135700000,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-110",
+    "name": "Markarian 110",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 25100000,
+    "distanceLy": 489121847,
+    "distanceNote": null
+  },
+  {
+    "id": "markarian-335",
+    "name": "Markarian 335",
+    "spin": 0.9,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1/NLS1)",
+    "massSolar": 14200000,
+    "distanceLy": 490210000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-4151-secondary",
+    "name": "NGC 4151 secondary",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Binary companion (disputed)",
+    "massSolar": 10000000,
+    "distanceLy": 51500000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-7469",
+    "name": "NGC 7469",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 12200000,
+    "distanceLy": 195000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ic-4329a",
+    "name": "IC 4329A",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 9900000,
+    "distanceLy": 206749528,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-4593",
+    "name": "NGC 4593",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (Seyfert 1)",
+    "massSolar": 5360000,
+    "distanceLy": 120000000,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-61",
+    "name": "Messier 61",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (low-luminosity AGN, disputed)",
+    "massSolar": 5000000,
+    "distanceLy": 52500000,
+    "distanceNote": null
+  },
+  {
+    "id": "sagittarius-a",
+    "name": "Sagittarius A*",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (very faint)",
+    "massSolar": 4300000,
+    "distanceLy": 26996,
+    "distanceNote": null
+  },
+  {
+    "id": "messier-32",
+    "name": "Messier 32",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant",
+    "massSolar": 2500000,
+    "distanceLy": 2500000,
+    "distanceNote": null
+  },
+  {
+    "id": "2mass-j05215658-4359220",
+    "name": "2MASS J05215658+4359220",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (stellar-mass, in binary)",
+    "massSolar": 3.3,
+    "distanceLy": 8033,
+    "distanceNote": null
+  },
+  {
+    "id": "gw190425-s-remnant",
+    "name": "GW190425's remnant",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Merger remnant (stellar-mass)",
+    "massSolar": 3.4,
+    "distanceLy": 520000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-3201-1",
+    "name": "NGC 3201-1",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (stellar-mass, in binary)",
+    "massSolar": 4.36,
+    "distanceLy": 15500,
+    "distanceNote": null
+  },
+  {
+    "id": "gro-j1719-24-grs-1716-249",
+    "name": "GRO J1719-24/GRS 1716−249",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (X-ray binary)",
+    "massSolar": 4.9,
+    "distanceLy": 7800,
+    "distanceNote": null
+  },
+  {
+    "id": "4u-1543-475",
+    "name": "4U 1543-475",
+    "spin": 0.8,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 9.4,
+    "distanceLy": 24500,
+    "distanceNote": null
+  },
+  {
+    "id": "xte-j1650-500",
+    "name": "XTE J1650-500",
+    "spin": 0.79,
+    "status": "Candidate",
+    "type": "Active (X-ray binary)",
+    "massSolar": 5.1,
+    "distanceLy": 8500,
+    "distanceNote": null
+  },
+  {
+    "id": "gro-j1655-40",
+    "name": "GRO J1655-40",
+    "spin": 0.98,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 6.3,
+    "distanceLy": 10400,
+    "distanceNote": null
+  },
+  {
+    "id": "gx-339-4",
+    "name": "GX 339-4",
+    "spin": 0.93,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 5.9,
+    "distanceLy": 39000,
+    "distanceNote": null
+  },
+  {
+    "id": "gaia-bh1",
+    "name": "Gaia BH1",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (stellar-mass, in binary)",
+    "massSolar": 9.78,
+    "distanceLy": 1560,
+    "distanceNote": null
+  },
+  {
+    "id": "gaia-bh3",
+    "name": "Gaia BH3",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (stellar-mass, in binary)",
+    "massSolar": 32.7,
+    "distanceLy": 1926,
+    "distanceNote": null
+  },
+  {
+    "id": "gaia-bh2",
+    "name": "Gaia BH2",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (stellar-mass, in binary)",
+    "massSolar": 8.93,
+    "distanceLy": 3800,
+    "distanceNote": null
+  },
+  {
+    "id": "gaia18ajz",
+    "name": "Gaia18ajz",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (isolated, microlensing)",
+    "massSolar": 11.1,
+    "distanceLy": 4300,
+    "distanceNote": null
+  },
+  {
+    "id": "a0620-00",
+    "name": "A0620-00",
+    "spin": 0.12,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 6.6,
+    "distanceLy": 3500,
+    "distanceNote": null
+  },
+  {
+    "id": "ogle-2011-blg-0462",
+    "name": "OGLE-2011-BLG-0462",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (isolated, microlensing)",
+    "massSolar": 7.1,
+    "distanceLy": 4950,
+    "distanceNote": null
+  },
+  {
+    "id": "grs-1124-683",
+    "name": "GRS 1124-683",
+    "spin": 0.3,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 11,
+    "distanceLy": 19200,
+    "distanceNote": null
+  },
+  {
+    "id": "xte-j1118-480",
+    "name": "XTE J1118+480",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 7.5,
+    "distanceLy": 5600,
+    "distanceNote": null
+  },
+  {
+    "id": "cygnus-x-1",
+    "name": "Cygnus X-1",
+    "spin": 0.9985,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 21.2,
+    "distanceLy": 7200,
+    "distanceNote": null
+  },
+  {
+    "id": "v404-cygni",
+    "name": "V404 Cygni",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 9,
+    "distanceLy": 7800,
+    "distanceNote": null
+  },
+  {
+    "id": "gro-j0422-32",
+    "name": "GRO J0422+32",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 3.97,
+    "distanceLy": 8100,
+    "distanceNote": null
+  },
+  {
+    "id": "macho-96-blg-5",
+    "name": "MACHO-96-BLG-5",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (isolated, microlensing)",
+    "massSolar": 5.3,
+    "distanceLy": 6500,
+    "distanceNote": null
+  },
+  {
+    "id": "gs-2000-25",
+    "name": "GS 2000+25",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (X-ray binary)",
+    "massSolar": 7.5,
+    "distanceLy": 8800,
+    "distanceNote": null
+  },
+  {
+    "id": "gaia18cbf",
+    "name": "Gaia18cbf",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (isolated, microlensing)",
+    "massSolar": 2.65,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "swift-j1727-8-1613",
+    "name": "Swift J1727.8-1613",
+    "spin": 0.98,
+    "status": "Candidate",
+    "type": "Active (X-ray binary)",
+    "massSolar": 3.12,
+    "distanceLy": 12000,
+    "distanceNote": null
+  },
+  {
+    "id": "cygnus-x-3",
+    "name": "Cygnus X-3",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (X-ray binary, may be a neutron star)",
+    "massSolar": 2.4,
+    "distanceLy": 24000,
+    "distanceNote": null
+  },
+  {
+    "id": "macho-98-blg-6",
+    "name": "MACHO-98-BLG-6",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (isolated, microlensing)",
+    "massSolar": 3.17,
+    "distanceLy": null,
+    "distanceNote": "not confirmed"
+  },
+  {
+    "id": "macho-99-blg-22",
+    "name": "MACHO-99-BLG-22",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (isolated, microlensing)",
+    "massSolar": 7.5,
+    "distanceLy": 15700,
+    "distanceNote": null
+  },
+  {
+    "id": "omega-centauri",
+    "name": "Omega Centauri",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (intermediate-mass)",
+    "massSolar": 10000,
+    "distanceLy": 15800,
+    "distanceNote": null
+  },
+  {
+    "id": "gcirs-13e",
+    "name": "GCIRS 13E",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (intermediate-mass, disputed)",
+    "massSolar": 1300,
+    "distanceLy": 26000,
+    "distanceNote": null
+  },
+  {
+    "id": "47-tucanae",
+    "name": "47 Tucanae",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (intermediate-mass, disputed)",
+    "massSolar": 2300,
+    "distanceLy": 14500,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-6388",
+    "name": "NGC 6388",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (intermediate-mass, disputed)",
+    "massSolar": 28000,
+    "distanceLy": 35000,
+    "distanceNote": null
+  },
+  {
+    "id": "mayall-ii",
+    "name": "Mayall II",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Dormant (intermediate-mass)",
+    "massSolar": 20000,
+    "distanceLy": 2520000,
+    "distanceNote": null
+  },
+  {
+    "id": "m82-x-1",
+    "name": "M82 X-1",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (ULX, intermediate-mass)",
+    "massSolar": 400,
+    "distanceLy": 12000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-1313-x-1",
+    "name": "NGC 1313 X-1",
+    "spin": 0.998,
+    "status": "Candidate",
+    "type": "Active (ULX, intermediate-mass)",
+    "massSolar": 5000,
+    "distanceLy": 12886000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-5408-x-1",
+    "name": "NGC 5408 X-1",
+    "spin": 0.7,
+    "status": "Candidate",
+    "type": "Active (ULX, intermediate-mass)",
+    "massSolar": 10000,
+    "distanceLy": 15700000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-4395-nucleus",
+    "name": "NGC 4395 nucleus",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Active (dwarf Seyfert 1)",
+    "massSolar": 300000,
+    "distanceLy": 13900000,
+    "distanceNote": null
+  },
+  {
+    "id": "ic-3602",
+    "name": "IC 3602",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Not verified",
+    "massSolar": 15000,
+    "distanceLy": 54000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ic-3633",
+    "name": "IC 3633",
+    "spin": null,
+    "status": "Predicted",
+    "type": "Not verified",
+    "massSolar": 8300,
+    "distanceLy": 88000000,
+    "distanceNote": null
+  },
+  {
+    "id": "ngc-2276-3c",
+    "name": "NGC 2276-3c",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (ULX, intermediate-mass disputed)",
+    "massSolar": 50000,
+    "distanceLy": 120000000,
+    "distanceNote": null
+  },
+  {
+    "id": "hlx-1",
+    "name": "HLX-1",
+    "spin": null,
+    "status": "Candidate",
+    "type": "Active (hyperluminous X-ray source)",
+    "massSolar": 20000,
+    "distanceLy": 290000000,
+    "distanceNote": null
+  },
+  {
+    "id": "3xmm-j215022-4-055108",
+    "name": "3XMM J215022.4-055108",
+    "spin": 0.8,
+    "status": "Candidate",
+    "type": "Dormant (tidal disruption flare)",
+    "massSolar": 50000,
+    "distanceLy": 740000000,
+    "distanceNote": null
+  },
+  {
+    "id": "gw231123",
+    "name": "GW231123",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Merger remnant",
+    "massSolar": 225,
+    "distanceLy": 4000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "gw190521",
+    "name": "GW190521",
+    "spin": 0.72,
+    "status": "Confirmed",
+    "type": "Merger remnant",
+    "massSolar": 142,
+    "distanceLy": 7000000000,
+    "distanceNote": null
+  },
+  {
+    "id": "omegacat-bh-2",
+    "name": "oMEGACat BH-2",
+    "spin": null,
+    "status": "Confirmed",
+    "type": "Dormant (stellar-mass, in binary)",
+    "massSolar": 4.46,
+    "distanceLy": 17919,
+    "distanceNote": null
+  }
+]

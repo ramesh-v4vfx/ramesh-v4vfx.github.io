@@ -58,4 +58,6 @@ window.RameshverseTools = [
   { id: "antipode-finder",      name: "Antipode Finder",                            url: "/antipode-finder/",                       category: "geography" },
   { id: "earth-rotation-live",      name: "Earth Rotation Live",                            url: "/earth-rotation-live/",                       category: "science" },
   { id: "globe-explorer",      name: "Globe Explorer",                            url: "/globe-explorer/",                       category: "geography" },
+  { id: "black-hole-explorer",      name: "Black Hole Explorer",                            url: "/black-hole-explorer/",                       category: "science" },
+
 ];
