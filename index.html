@@ -29,6 +29,23 @@
   }
 </script>
 
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="rameshverse">
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        /* fails silently if offline support isn't available — the
+           site still works completely normally either way */
+      });
+    });
+  }
+</script>
+
 <meta charset="UTF-8">
 <title>Free Space Simulators & Science Tools | rameshverse</title>
 <link rel="icon" type="image/png" href="/favicon.png">
@@ -2020,6 +2037,258 @@
   .share-bar             { order: 6; }
   footer                 { order: 7; }
 }
+
+/* ══════════════════════════════════════════════════════
+   RIGHT RAIL + RECENTLY USED TOOLS
+   The right-hand panels now live in one container, so a new
+   panel can sit above System Distribution and push it down
+   instead of overlapping it (both were absolutely positioned
+   at the same spot before).
+   ══════════════════════════════════════════════════════ */
+.right-rail {
+  position: absolute;
+  right: calc(25% - 400px);
+  top: 465px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: top .45s ease;
+}
+
+.hero.hidden ~ .right-rail { top: 180px; }
+
+/* Panels inside the rail flow normally; the rail does the positioning */
+.right-rail .category-radar,
+.right-rail .category-radar-launch {
+  position: relative;
+  right: auto;
+  top: auto;
+}
+
+/* ── Recently used: expanded panel ── */
+.recent-tools {
+  position: relative;
+  z-index: 1;
+  width: 300px;
+  background: linear-gradient(180deg, rgba(27, 29, 27, 0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  padding: 16px 20px 14px 14px;
+  clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%, 0 22px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+}
+
+.recent-tools::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, #ff2b2b, rgba(255,43,43,0.05));
+  box-shadow: 0 0 10px rgba(255,43,43,0.5);
+}
+
+.recent-tools::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(45deg, transparent 49%, rgba(255,43,43,0.55) 50%, transparent 51%);
+  pointer-events: none;
+}
+
+.recent-tools-close {
+  position: absolute;
+  top: 2px;
+  left: 28px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255,43,43,0.4);
+  border-radius: 0;
+  background: rgba(0,0,0,.5);
+  color: #ff2b2b;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .2s, box-shadow .2s, transform .2s;
+}
+
+.recent-tools-close:hover {
+  background: rgba(255,43,43,.15);
+  box-shadow: 0 0 12px rgba(255,43,43,.5);
+  transform: scale(1.08);
+}
+
+.recent-tools h2 {
+  margin: 0 0 12px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  font-weight: 700;
+  padding-bottom: 8px;
+  position: relative;
+  text-align: right;
+}
+
+.recent-tools h2::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  height: 1px;
+  background: #ff2b2b;
+  box-shadow: 0 0 6px rgba(255,43,43,0.8);
+}
+
+#recentToolsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recent-tool-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  color: #d8d5da;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.76rem;
+  text-decoration: none;
+
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,43,43,0.12);
+  border-radius: 4px;
+
+  transition: background .25s ease, border-color .25s ease, color .25s ease, transform .25s ease;
+}
+
+.recent-tool-item:hover,
+.recent-tool-item:focus-visible {
+  color: #fff;
+  background: rgba(255,43,43,0.1);
+  border-color: rgba(255,43,43,0.5);
+  transform: translateX(-2px);
+}
+
+.recent-tool-item:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
+
+.recent-tool-icon {
+  flex-shrink: 0;
+  width: 1.3em;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.recent-tool-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-tool-go {
+  flex-shrink: 0;
+  color: rgba(255,43,43,0.85);
+  font-size: 0.8rem;
+}
+
+.recent-tools-clear {
+  display: block;
+  margin: 10px 0 0 auto;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: color .2s ease;
+}
+
+.recent-tools-clear:hover,
+.recent-tools-clear:focus-visible { color: #ff2b2b; }
+
+/* ── Recently used: minimized launcher (same look as the other two) ── */
+.recent-tools-launch {
+  position: relative;
+  width: 300px;
+  height: 44px;
+  padding: 0 20px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+}
+
+.recent-tools-launch:hover,
+.recent-tools-launch:focus-visible {
+  background: rgba(255,43,43,0.12);
+  border-color: rgba(255,43,43,0.6);
+  color: #fff;
+}
+
+/* hidden = nothing opened yet (or list cleared); is-closed = minimized */
+.recent-tools[hidden],
+.recent-tools-launch[hidden],
+.recent-tools.is-closed { display: none !important; }
+
+/* Tablet / phone: the rail dissolves and its panels join the same
+   stacked order as the other sections, right above System Distribution. */
+@media (max-width: 1200px) {
+  .right-rail { display: contents; }
+
+  .recent-tools,
+  .recent-tools-launch {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 92% !important;
+    min-width: 0;
+    margin: 16px auto 0 !important;
+    order: 3;
+  }
+}
+
+@media (max-width: 700px) {
+  .recent-tools,
+  .recent-tools-launch { order: 5; }
+}
 </style>
 </head>
 <body>
@@ -2260,6 +2529,21 @@
      2. HTML — paste right after your existing
         <aside class="popular-tools" ...>...</aside> block
      ══════════════════════════════════════════════════════ -->
+<!-- RIGHT RAIL: Recently Used sits above System Distribution -->
+<div class="right-rail" id="rightRail">
+
+<!-- RECENTLY USED TOOLS (hidden until the visitor has opened a tool; filled by script) -->
+<button type="button" class="recent-tools-launch" id="recentToolsOpen"
+        aria-expanded="false" aria-controls="recentTools" hidden>
+  <span>🕘 Recently Used</span><span aria-hidden="true">▾</span>
+</button>
+<aside class="recent-tools" id="recentTools" aria-label="Recently used tools" hidden>
+  <button type="button" class="recent-tools-close" id="recentToolsClose" aria-label="Minimize recently used tools" title="Minimize">▴</button>
+  <h2>Recently Used</h2>
+  <div id="recentToolsList"></div>
+  <button type="button" class="recent-tools-clear" id="recentToolsClear">Clear list</button>
+</aside>
+
 <button type="button" class="category-radar-launch" id="categoryRadarOpen"
         aria-expanded="false" aria-controls="categoryRadar">
   <span>📊 System Distribution</span><span aria-hidden="true">▾</span>
@@ -2278,6 +2562,8 @@
     <div id="categoryRadarLegend"></div>
   <p class="radar-note" id="categoryRadarNote"></p>
 </aside>
+
+</div><!-- /right-rail -->
 
 <!-- TOOLS GRID -->
 <section class="tools" id="toolsGrid">
@@ -3773,6 +4059,154 @@
       openBtn.setAttribute('aria-expanded', 'false');
       openBtn.focus({ preventScroll: true });
     });
+  })();
+</script>
+
+<script>
+  /* ── RECENTLY USED TOOLS ──
+     Remembers the last tools this visitor opened (in their own browser,
+     via localStorage) and lists up to 5 of them above System Distribution.
+     A tool counts as "opened" when its link is clicked from anywhere on
+     this page: the tool grid, the hero button, or Most Popular Tools. */
+  (function () {
+    const KEY          = 'rvRecentTools';
+    const COLLAPSE_KEY = 'rvRecentToolsCollapsed';
+    const SHOW = 5;    // how many are displayed
+    const KEEP = 10;   // how many are remembered (spares cover tools removed from the site later)
+
+    const panel    = document.getElementById('recentTools');
+    const launch   = document.getElementById('recentToolsOpen');
+    const closeBtn = document.getElementById('recentToolsClose');
+    const clearBtn = document.getElementById('recentToolsClear');
+    const list     = document.getElementById('recentToolsList');
+    if (!panel || !launch || !closeBtn || !clearBtn || !list) return;
+
+    const ICONS = {
+      science: '🔬', productivity: '📋', calculator: '🧮',
+      finance: '💰', geography: '🌍', games: '🎮'
+    };
+
+    // "/black-hole-simulator" and "/black-hole-simulator/" count as the same tool
+    function normPath(href) {
+      try {
+        const u = new URL(href, location.href);
+        if (u.origin !== location.origin) return null;
+        return u.pathname.endsWith('/') ? u.pathname : u.pathname + '/';
+      } catch (e) { return null; }
+    }
+
+    // Known tools, read from the tool grid so names always match the cards
+    const registry = {};
+    document.querySelectorAll('#toolsGrid a.tool').forEach(a => {
+      const path = normPath(a.getAttribute('href'));
+      const h3 = a.querySelector('h3');
+      if (!path || !h3) return;
+      const firstCat = (a.dataset.category || '').trim().split(/\s+/)[0];
+      registry[path] = { name: h3.textContent.trim(), icon: ICONS[firstCat] || '⚡' };
+    });
+
+    function load() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(KEY) || '[]');
+        return Array.isArray(raw) ? raw.filter(p => typeof p === 'string') : [];
+      } catch (e) { return []; }
+    }
+    function save(paths) {
+      try { localStorage.setItem(KEY, JSON.stringify(paths.slice(0, KEEP))); } catch (e) { /* storage unavailable */ }
+    }
+    function isCollapsed() {
+      try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) { return false; }
+    }
+    function setCollapsed(on) {
+      try {
+        if (on) localStorage.setItem(COLLAPSE_KEY, '1');
+        else localStorage.removeItem(COLLAPSE_KEY);
+      } catch (e) { /* storage unavailable */ }
+    }
+
+    function render() {
+      const paths = load().filter(p => registry[p]).slice(0, SHOW);
+      list.textContent = '';
+
+      if (!paths.length) {            // nothing opened yet → show nothing
+        panel.hidden  = true;
+        launch.hidden = true;
+        return;
+      }
+
+      paths.forEach(path => {
+        const info = registry[path];
+        const a = document.createElement('a');
+        a.className = 'recent-tool-item';
+        a.href = path;
+        a.title = info.name;
+
+        const icon = document.createElement('span');
+        icon.className = 'recent-tool-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = info.icon;
+
+        const name = document.createElement('span');
+        name.className = 'recent-tool-name';
+        name.textContent = info.name;
+
+        const go = document.createElement('span');
+        go.className = 'recent-tool-go';
+        go.setAttribute('aria-hidden', 'true');
+        go.textContent = '›';
+
+        a.append(icon, name, go);
+        list.appendChild(a);
+      });
+
+      const collapsed = isCollapsed();
+      panel.hidden = false;
+      panel.classList.toggle('is-closed', collapsed);
+      launch.hidden = !collapsed;
+    }
+
+    function record(path) {
+      const paths = load().filter(p => p !== path);   // reopening a tool moves it to the top
+      paths.unshift(path);
+      save(paths);
+    }
+
+    function onOpen(e) {
+      if (e.type === 'auxclick' && e.button !== 1) return;   // middle-click only
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      const path = normPath(a.getAttribute('href'));
+      if (!path || !registry[path]) return;                  // ignores share links, feedback link, etc.
+      record(path);
+      setTimeout(render, 0);   // after the click finishes, so the link being followed isn't swapped out mid-click
+    }
+
+    document.addEventListener('click', onOpen);
+    document.addEventListener('auxclick', onOpen);
+
+    launch.addEventListener('click', function () {
+      setCollapsed(false);
+      render();
+      closeBtn.focus({ preventScroll: true });
+    });
+    closeBtn.addEventListener('click', function () {
+      setCollapsed(true);
+      render();
+      launch.focus({ preventScroll: true });
+    });
+    clearBtn.addEventListener('click', function () {
+      save([]);
+      render();
+    });
+
+    // Keep the list fresh when coming back with the Back button,
+    // and when another tab of the site changes it.
+    window.addEventListener('pageshow', e => { if (e.persisted) render(); });
+    window.addEventListener('storage', e => {
+      if (e.key === KEY || e.key === COLLAPSE_KEY) render();
+    });
+
+    render();
   })();
 </script>
 
