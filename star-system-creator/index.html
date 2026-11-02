@@ -51,10 +51,10 @@
 
   .sysname-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
 
-  /* ── LOAD SYSTEM — accented select, sized to its content ── */
+  /* ── LOAD SYSTEM PRESET — accented select, sized to its content ── */
   #presetSelect{
-    width:210px;
-    max-width:60vw;
+    width:250px;
+    max-width:70vw;
     font-size:11px;
     padding:6px 7px;
     border:1px solid rgba(255,43,43,0.55);
@@ -86,6 +86,7 @@
   input[type=text]:focus, input[type=number]:focus{outline:none; border-color:var(--red-dim); box-shadow:0 0 10px rgba(255,43,43,0.22);}
   input[type=number]{-moz-appearance:textfield;}
   input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  input:disabled{opacity:0.45; cursor:not-allowed;}
   select{width:100%; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:6px 7px; transition:border-color .2s ease, box-shadow .2s ease;}
   select:focus{outline:none; border-color:var(--red-dim); box-shadow:0 0 10px rgba(255,43,43,0.22);}
   #starTypeSelect{width:180px; max-width:100%;}
@@ -129,7 +130,12 @@
   .stage canvas{display:block;}
   .stage .tag{position:absolute; top:8px; left:10px; font-size:9px; letter-spacing:0.1em; color:var(--text-faint); z-index:4;}
   .stage .not-to-scale{position:absolute; top:24px; left:10px; font-size:8px; letter-spacing:0.08em; color:var(--text-faint); opacity:0.7; z-index:4;}
-  .stage .hzlabel{position:absolute; bottom:8px; left:10px; font-size:9px; color:var(--green); z-index:4;}
+  .stage .hzlabel{position:absolute; bottom:8px; left:10px; font-family:inherit; font-size:9px; letter-spacing:0.06em; color:var(--green); z-index:6; cursor:pointer;
+    background:rgba(0,0,0,0.55); border:1px solid rgba(57,217,138,0.4); padding:5px 9px; transition:border-color .2s ease, color .2s ease, box-shadow .2s ease;}
+  .stage .hzlabel:hover{border-color:var(--green); box-shadow:0 0 10px rgba(57,217,138,0.2);}
+  .stage .hzlabel.off{color:var(--text-faint); border-color:var(--line);}
+  #physicsBtn{top:auto; bottom:28px; right:10px;}
+  .stage .physics-log{position:absolute; top:42px; left:10px; z-index:4; pointer-events:none; font-size:8.5px; letter-spacing:0.05em; line-height:1.6; color:var(--red); text-shadow:0 0 6px #000; max-width:60%;}
   .stage .drag-hint{position:absolute; bottom:8px; right:10px; font-size:8.5px; color:var(--text-faint); z-index:4;}
   .stage .watermark{position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:8.5px; letter-spacing:0.1em; color:var(--text-faint); opacity:0.55; z-index:4; pointer-events:none;}
   .fs-btn{position:absolute; top:8px; right:10px; z-index:6; font-family:inherit; font-size:9px; letter-spacing:0.08em; color:var(--text-dim);
@@ -152,6 +158,7 @@
     #scaleToggleBtn{ top:44px; right:auto !important; left:8px; font-size:8px; padding:5px 8px; max-width:150px; white-space:normal; line-height:1.3; text-align:left; }
     .stage .tag{ top:82px; }
     .stage .not-to-scale{ top:98px; }
+    .stage .physics-log{ top:116px; }
   }
 
   .add-row{border:1px solid var(--line); padding:10px; margin-bottom:10px;}
@@ -181,11 +188,17 @@
   .brand-link{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:13px; letter-spacing:0.14em; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px; transition:color .2s ease;}
   .brand-link:hover{color:var(--red);}
   .brand-link .arrow{color:var(--red);}
-  .leave-confirm{display:none; align-items:center; gap:10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim); margin-top:6px;}
+
+  /* ── Leave confirmation: centered modal over the whole screen ── */
+  .leave-confirm{display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:10001; align-items:center; justify-content:center; background:rgba(0,0,0,0.72);}
   .leave-confirm.show{display:flex;}
-  .leave-confirm button{font-family:inherit; font-size:9px; letter-spacing:0.08em; padding:4px 10px; cursor:pointer; background:transparent;}
+  .leave-box{position:relative; background:var(--panel); border:1px solid var(--red-dim); padding:24px 28px; width:min(92vw, 420px); text-align:center;
+    box-shadow:0 0 36px rgba(255,43,43,0.22), 0 24px 60px rgba(0,0,0,0.6);}
+  .leave-msg{font-size:11px; letter-spacing:0.06em; line-height:1.7; color:var(--text); margin-bottom:18px;}
+  .leave-actions{display:flex; gap:12px; justify-content:center;}
+  .leave-confirm button{font-family:inherit; font-size:10px; letter-spacing:0.1em; padding:8px 20px; cursor:pointer; background:transparent; transition:background .2s ease, border-color .2s ease, color .2s ease;}
   .leave-confirm .yes-btn{color:var(--red); border:1px solid var(--red-dim);}
-  .leave-confirm .yes-btn:hover{background:rgba(255,43,43,0.1);}
+  .leave-confirm .yes-btn:hover{background:rgba(255,43,43,0.1); border-color:var(--red);}
   .leave-confirm .no-btn{color:var(--text-dim); border:1px solid var(--line);}
   .leave-confirm .no-btn:hover{color:var(--text); border-color:var(--line-strong);}
 </style>
@@ -198,10 +211,14 @@
   <div class="topbar">
     <div>
       <button class="brand-link" id="brandLink"><span class="arrow">←</span> RAMESHVERSE</button>
-      <div class="leave-confirm" id="leaveConfirm">
-        <span>Leave this tool and return to rameshverse.com?</span>
-        <button class="yes-btn" id="leaveYes">YES</button>
-        <button class="no-btn" id="leaveNo">NO</button>
+      <div class="leave-confirm" id="leaveConfirm" role="dialog" aria-modal="true" aria-labelledby="leaveMsg">
+        <div class="leave-box">
+          <div class="leave-msg" id="leaveMsg">Leave this tool and return to rameshverse.com?</div>
+          <div class="leave-actions">
+            <button class="yes-btn" id="leaveYes">YES</button>
+            <button class="no-btn" id="leaveNo">NO</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="sub">STAR SYSTEM CREATOR // MULTI-STAR // HABITABLE-ZONE MODEL</div>
@@ -217,7 +234,7 @@
     <button class="sys-btn" id="restoreSystemBtn">📂 RESTORE SYSTEM</button>
     <button class="sys-btn" id="resetSystemBtn">↺ RESET SYSTEM</button>
     <select id="presetSelect">
-      <option value="">— LOAD SYSTEM —</option>
+      <option value="">— LOAD SYSTEM PRESET —</option>
     </select>
     <span class="sys-status" id="sysStatus"></span>
     <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none;">
@@ -238,11 +255,11 @@
       </div>
       <div class="field" style="margin-bottom:0;">
         <div class="k"><span>MASS (M☉)</span></div>
-        <input type="number" id="starMassInput" step="0.01" min="0.05" max="100">
+        <input type="number" id="starMassInput" step="any" min="0.05" max="10000000000">
       </div>
       <div class="field" style="margin-bottom:0;">
-        <div class="k"><span>RADIUS (R☉)</span></div>
-        <input type="number" id="starRadiusInput" step="0.01" min="0.05" max="1500">
+        <div class="k"><span id="starRadiusLabel">RADIUS (R☉)</span></div>
+        <input type="number" id="starRadiusInput" step="any" min="0.000001" max="1500">
       </div>
       <div class="field" style="margin-bottom:0;">
         <div class="k"><span>TEMPERATURE (K)</span></div>
@@ -253,7 +270,11 @@
         <div class="lum-readout" id="starLumOut" style="font-size:13px;">1.000 L☉</div>
       </div>
       <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
-        <div class="k"><span>DIST. FROM PRIMARY (AU)</span></div>
+        <div class="k"><span>PARENT STAR (ORBITS)</span></div>
+        <select id="starParentSelect"></select>
+      </div>
+      <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
+        <div class="k"><span>DIST. FROM PARENT (AU)</span></div>
         <input type="number" id="starOrbitNumber" step="0.001" min="0.015" max="10000">
       </div>
       <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
@@ -261,7 +282,7 @@
         <input type="number" id="starEccNumber" step="0.001" min="0" max="0.9">
       </div>
       <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
-        <div class="k"><span>PERIOD AROUND PRIMARY</span></div>
+        <div class="k"><span>PERIOD AROUND PARENT</span></div>
         <div class="lum-readout" id="starPeriodOut" style="font-size:11px;">1.00 yr</div>
       </div>
     </div>
@@ -272,11 +293,13 @@
       <div class="stage" id="stage">
         <span class="tag" id="stageTag">SYSTEM VIEW</span>
         <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
-        <span class="hzlabel">■ HABITABLE ZONE</span>
+        <button class="hzlabel" id="hzToggleBtn" title="Show or hide the habitable-zone rings">■ HABITABLE ZONE: ON</button>
+        <div class="physics-log" id="physicsLog"></div>
         <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         <span class="watermark">rameshverse.com</span>
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
-        <button class="fs-btn active" id="scaleToggleBtn" style="right:170px;">⊙ TRUE PLANET SCALE — CLICK FOR ENHANCED</button>
+        <button class="fs-btn active" id="scaleToggleBtn" style="right:170px;">⊙ TRUE SIZE SCALE — CLICK FOR ENHANCED</button>
+        <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a real gravity (N-body) simulation">⚛ REALISTIC PHYSICS: OFF</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
           <input type="range" id="speedSlider" min="0" max="50" value="25" step="5">
@@ -342,6 +365,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
+  // Schwarzschild radius: 2GM/c^2 = 2.953 km per solar mass; 1 R☉ = 695,700 km
+  var BH_RADIUS_PER_MSUN = 4.245e-6;
+  function schwarzschildR(M){ return BH_RADIUS_PER_MSUN * M; }
+  function fmtR(r){ return r < 0.001 ? r.toPrecision(4) : String(r); }
+
   var starTypePresets = [
     {cls:'O', label:'O — blue giant', T:35000, M:25, R:8, group:'Main Sequence'},
     {cls:'B', label:'B — blue-white', T:15000, M:8, R:4, group:'Main Sequence'},
@@ -353,6 +381,7 @@
     {cls:'WD', label:'White Dwarf — stellar remnant', T:15000, M:0.6, R:0.011, group:'Remnants & Exotics'},
     {cls:'sdB', label:'Blue Subdwarf — stripped helium star', T:28000, M:0.47, R:0.2, group:'Remnants & Exotics'},
     {cls:'PSR', label:'Pulsar — rotating neutron star', T:1000000, M:1.4, R:0.000014, group:'Remnants & Exotics'},
+    {cls:'BH', label:'Black Hole — collapsed massive star', T:0, M:10, R:schwarzschildR(10), group:'Remnants & Exotics'},
     {cls:'BD*', label:'Blue Dwarf — theoretical, far-future red dwarf', T:9000, M:0.2, R:0.12, group:'Theoretical'}
   ];
 
@@ -381,9 +410,11 @@
   var starTypeSelect = document.getElementById('starTypeSelect');
   var starMassInput = document.getElementById('starMassInput');
   var starRadiusInput = document.getElementById('starRadiusInput');
+  var starRadiusLabel = document.getElementById('starRadiusLabel');
   var starTempInput = document.getElementById('starTempInput');
   var starLumOut = document.getElementById('starLumOut');
   var starOrbitFields = document.querySelectorAll('.star-orbit-field');
+  var starParentSelect = document.getElementById('starParentSelect');
   var starOrbitNumber = document.getElementById('starOrbitNumber');
   var starEccNumber = document.getElementById('starEccNumber');
 
@@ -404,6 +435,9 @@
   var stage = document.getElementById('stage');
   var stage3d = document.getElementById('stage3d');
   var fsBtn = document.getElementById('fsBtn');
+  var physicsBtn = document.getElementById('physicsBtn');
+  var hzToggleBtn = document.getElementById('hzToggleBtn');
+  var physicsLog = document.getElementById('physicsLog');
   var notToScaleEl = document.querySelector('.not-to-scale');
   function updateScaleLabel(){
     notToScaleEl.textContent = trueScaleMode
@@ -424,7 +458,13 @@
   var t = 0;
   var speedMultiplier = 0.25;
 
-  function starLuminosity(s){ return s.R*s.R*Math.pow(s.T/5778, 4); }
+  function starLuminosity(s){
+    if (s.cls==='BH') return 0; // a bare black hole emits no light of its own
+    return s.R*s.R*Math.pow(s.T/5778, 4);
+  }
+  function lumText(s){
+    return s.cls==='BH' ? '0 L☉ (no accretion)' : starLuminosity(s).toFixed(3) + ' L☉';
+  }
   function hzBounds(L){ return { inner: Math.sqrt(L/1.1), outer: Math.sqrt(L/0.53) }; }
   function eqTemp(L, dAU, albedo){ return 278.5 * Math.pow(L,0.25) * Math.pow(1-albedo,0.25) / Math.sqrt(dAU); }
   var EARTH_MASSES_PER_SOLAR = 333000;
@@ -445,9 +485,19 @@
     return [c(r),c(g),c(b)];
   }
 
+  // Stylized distance scale.
+  //  - up to LOG_CAP_AU the old logarithmic mapping is kept, so compact systems look exactly as before
+  //  - beyond that it grows like sqrt(distance), so 100 / 1000 / 5000 AU are clearly spread apart
+  //    (raise FAR_K to spread far orbits even more, lower it to bring them closer)
+  var LOG_CAP_AU = 10;
+  var FAR_K = 0.45;
+  function logUnits(au){
+    return 0.7 + ((Math.log10(au)-AU_LO)/(AU_HI-AU_LO))*(6.2-0.7);
+  }
   function auToUnits(au){
-    var v = (Math.log10(Math.max(au,0.015))-AU_LO)/(AU_HI-AU_LO);
-    return 0.7 + v*(6.2-0.7);
+    au = Math.max(au, 0.015);
+    if (au <= LOG_CAP_AU) return logUnits(au);
+    return logUnits(LOG_CAP_AU) + FAR_K*(Math.sqrt(au) - Math.sqrt(LOG_CAP_AU));
   }
 
   // real Kepler motion: mean anomaly -> eccentric anomaly (Newton) -> true anomaly + radius
@@ -466,14 +516,31 @@
     return { x:r*Math.cos(trueAnom), z:r*Math.sin(trueAnom) };
   }
 
-    var trueScaleMode = true; // default: exaggerated/visible mode
+    var trueScaleMode = true; // default: true relative sizes
     var SUN_EARTH_RADII = 109.2; // Sun's radius ÷ Earth's radius
+    var STAR_REF_VISUAL = 0.3;   // on-screen radius of the primary star
 
-    function planetVisualSize(p, starVisualRadius, starR){
-      var trueRatio = p.radiusRE / (SUN_EARTH_RADII * Math.max(starR, 0.05));
+    // Every size in the scene is measured against the PRIMARY star.
+    // (Floor of 0.05 R☉ keeps a tiny remnant as primary from blowing everything else up.)
+    function refRadius(){ return Math.max(stars[0].R, 0.05); }
+
+    function starVisualRadius(s){
+      var ratio = Math.max(s.R, 1e-9) / refRadius();
+      var raw = trueScaleMode
+        ? STAR_REF_VISUAL * ratio                    // true proportions to the primary
+        : STAR_REF_VISUAL * Math.pow(ratio, 0.4);    // compressed so giants and dwarfs both stay readable
+      if (raw > 2) raw = 2 + Math.log10(raw/2)*0.6;  // soft cap so a supergiant can't swallow the scene
+      var minV = trueScaleMode ? 0.004 : 0.03;
+      return Math.max(minV, raw);
+    }
+
+    function planetVisualSize(p, hostStarR){
       if (trueScaleMode){
-        return Math.max(0.0008, starVisualRadius * trueRatio);
+        // planet radius in R☉, drawn at the same scale as the primary star
+        var size = STAR_REF_VISUAL * (p.radiusRE / SUN_EARTH_RADII) / refRadius();
+        return Math.max(0.0008, Math.min(1.5, size));
       }
+      var trueRatio = p.radiusRE / (SUN_EARTH_RADII * Math.max(hostStarR, 0.05));
       var visSize = Math.pow(trueRatio, 0.3) * 0.115;
       return Math.max(0.022, Math.min(0.45, visSize));
     }
@@ -481,20 +548,54 @@
   // ---- star editor ----
   function syncStarEditorFromState(){
     var s = stars[editingStarIndex];
+    var bh = s.cls==='BH';
     starNameInput.value = s.name;
     starMassInput.value = s.M;
-    starRadiusInput.value = s.R;
-    starTempInput.value = s.T;
+    starRadiusInput.value = fmtR(s.R);
+    starTempInput.value = bh ? '' : s.T;
+    starTempInput.placeholder = bh ? '—' : '';
+    starRadiusInput.disabled = bh;
+    starTempInput.disabled = bh;
+    starRadiusLabel.textContent = bh ? 'HORIZON RADIUS (R☉)' : 'RADIUS (R☉)';
     starTypeSelect.value = s.cls;
-    starLumOut.textContent = starLuminosity(s).toFixed(3) + ' L☉';
+    starLumOut.textContent = lumText(s);
     var showOrbit = editingStarIndex!==0;
     starOrbitFields.forEach(function(el){ el.style.display = showOrbit ? 'block' : 'none'; });
     if (editingStarIndex!==0){
+      renderParentSelect();
       starOrbitNumber.value = s.au.toFixed(3);
       starEccNumber.value = (s.ecc||0).toFixed(3);
       updateStarPeriodPreview();
     }
   }
+
+  // ---- star hierarchy: every star except the primary orbits a PARENT star ----
+  // A star may only orbit a star listed before it, which makes loops impossible
+  // (star 4 can orbit star 1, 2 or 3; star 2 can only orbit star 1).
+  function parentOf(s){ return s.parent || 0; }
+
+  function renderParentSelect(){
+    if (editingStarIndex===0) return;
+    var s = stars[editingStarIndex];
+    starParentSelect.innerHTML = '';
+    for (var i=0;i<editingStarIndex;i++){
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = stars[i].name;
+      starParentSelect.appendChild(opt);
+    }
+    var p = parentOf(s);
+    if (p >= editingStarIndex) p = 0;
+    starParentSelect.value = String(p);
+  }
+
+  starParentSelect.addEventListener('change', function(){
+    var s = stars[editingStarIndex];
+    s.parent = Math.min(editingStarIndex-1, Math.max(0, parseInt(starParentSelect.value,10)||0));
+    updateStarPeriodPreview();
+    renderStarChips();
+    rebuildIfReady();
+  });
 
   function renderStarTypeSelect(){
     starTypeSelect.innerHTML = '';
@@ -531,9 +632,16 @@
     var s = stars[editingStarIndex];
     s.name = starNameInput.value.trim() || ('Star ' + (editingStarIndex+1));
     s.M = Math.max(0.05, parseFloat(starMassInput.value)||1);
-    s.R = Math.max(0.05, parseFloat(starRadiusInput.value)||1);
-    s.T = Math.max(1000, parseFloat(starTempInput.value)||5778);
-    starLumOut.textContent = starLuminosity(s).toFixed(3) + ' L☉';
+    if (s.cls==='BH'){
+      // horizon radius follows from the mass; temperature is meaningless for a bare black hole
+      s.R = schwarzschildR(s.M);
+      s.T = 0;
+      starRadiusInput.value = fmtR(s.R);
+    } else {
+      s.R = Math.max(0.000001, parseFloat(starRadiusInput.value)||1);
+      s.T = Math.max(1000, parseFloat(starTempInput.value)||5778);
+    }
+    starLumOut.textContent = lumText(s);
     renderStarChips(); renderTable(); rebuildIfReady();
     updatePeriodPreview();
     if (editingStarIndex!==0) updateStarPeriodPreview();
@@ -547,7 +655,7 @@
   function updateStarPeriodPreview(){
     if (editingStarIndex===0) return;
     var s = stars[editingStarIndex];
-    var totalMass = stars[0].M + s.M;
+    var totalMass = stars[parentOf(s)].M + s.M;
     starPeriodOut.textContent = formatPeriod(orbitalPeriodYears(s.au, totalMass));
   }
 
@@ -570,7 +678,9 @@
     stars.forEach(function(s, idx){
       var chip = document.createElement('button');
       chip.className = 'star-chip' + (idx===editingStarIndex?' active':'');
-      chip.innerHTML = '<span>'+s.name+' ('+s.cls+')</span>';
+      var chipLabel = s.name+' ('+s.cls+')';
+      if (idx>0 && stars.length>2) chipLabel += ' → ' + stars[parentOf(s)].name;
+      chip.innerHTML = '<span>'+chipLabel+'</span>';
       if (idx>0){
         var rm = document.createElement('span');
         rm.className = 'rmstar';
@@ -594,12 +704,13 @@
     addBtn2.addEventListener('click', addStar);
     starChipRow.appendChild(addBtn2);
     starCountOut.textContent = stars.length + (stars.length===1?' star':' stars');
+    renderParentSelect(); // keeps the parent list in step with renamed / added / removed stars
     updateOrbitsStarUI();
   }
 
   function addStar(){
     var idx = stars.length;
-    stars.push({ name:'Star '+(idx+1), cls:'K', M:0.7, R:0.85, T:4500, au:20, ecc:0.05, angle:Math.random()*Math.PI*2 });
+    stars.push({ name:'Star '+(idx+1), cls:'K', M:0.7, R:0.85, T:4500, au:20, ecc:0.05, angle:Math.random()*Math.PI*2, parent:0 });
     editingStarIndex = idx;
     syncStarEditorFromState();
     renderStarChips();
@@ -608,7 +719,14 @@
 
   function removeStar(idx){
     if (idx===0) return;
+    var removedParent = parentOf(stars[idx]);
     stars.splice(idx,1);
+    // stars that orbited the removed star now orbit ITS parent; later stars shift down one index
+    stars.forEach(function(s){
+      if (s.parent === undefined) return;
+      if (s.parent === idx) s.parent = removedParent;
+      else if (s.parent > idx) s.parent -= 1;
+    });
     planets.forEach(function(p){
       if (p.starIndex===idx) p.starIndex = 0;
       else if (p.starIndex>idx) p.starIndex -= 1;
@@ -754,7 +872,7 @@
       var hz = hzBounds(L);
       var temp = eqTemp(L, p.au, p.type.albedo);
       var period = orbitalPeriodYears(p.au, star.M + planetMassSolar(p));
-      var inHZ = p.au >= hz.inner && p.au <= hz.outer;
+      var inHZ = L > 0 && p.au >= hz.inner && p.au <= hz.outer;
       var tr = document.createElement('tr');
       tr.className = 'data';
       tr.innerHTML =
@@ -765,7 +883,7 @@
         '<td>'+(p.ecc||0).toFixed(2)+'</td>'+
         '<td>'+p.radiusRE.toFixed(2)+'</td>'+
         '<td>'+p.type.label+'</td>'+
-        '<td>'+Math.round(temp)+'</td>'+
+        '<td>'+(L > 0 ? Math.round(temp) : '—')+'</td>'+
         '<td class="'+(inHZ?'hz-yes':'')+'">'+(inHZ?'YES':'—')+'</td>'+
         '<td></td>';
       var rmTd = tr.lastElementChild;
@@ -792,8 +910,398 @@
     emptyMsg.style.display = planets.length ? 'none' : 'block';
   }
 
+  // ================= HABITABLE-ZONE VISIBILITY + REALISTIC (N-BODY) MODE =================
+  var showHZ = true;          // habitable-zone rings on by default
+  var realisticMode = false;  // OFF = idealized Kepler orbits (the original behaviour)
+
+  // Realistic mode: every star and planet becomes a point mass and pulls on every other one
+  // (Newtonian gravity, kick-drift-kick leapfrog). Physics runs in true AU / years / solar masses.
+  // Each body starts on the orbit set in the editor; from then on nothing is "on rails":
+  // companions perturb planets, orbits precess and can go unstable, bodies can be ejected,
+  // and bodies that touch or come inside each other's tidal (Roche) limit are swallowed.
+  // The simulation is flat (all orbits share one plane). The picture still uses the stylized
+  // distance scale, applied to each body's position relative to its parent / host star.
+  var G_AU = 4*Math.PI*Math.PI;      // AU^3 / (Msun * yr^2)
+  var AU_PER_RSUN = 0.00465047;
+  var AU_PER_REARTH = 4.26352e-5;
+  var SIM_ETA = 0.025;               // time step = ETA x shortest dynamical time (about 250 steps per orbit)
+  var SIM_BUDGET_MS = 9;             // CPU time per frame the physics may use before the sim falls behind real time
+  var SIM_SOFT2 = 1e-8;              // tiny softening (AU^2): only prevents numerical blow-ups
+  var TRAIL_N = 300;                 // points kept in each orbit trail
+  var sim = null;
+  var simPending = [];               // pairs of bodies in contact this step
+  var simEvents = [];                // messages for the on-screen event log
+  var simOff = { x:0, z:0 };
+
+  function solveE(M, e){
+    var E = e < 0.8 ? M : Math.PI;
+    for (var k=0;k<30;k++){
+      var d = (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E));
+      E -= d;
+      if (Math.abs(d) < 1e-12) break;
+    }
+    return E;
+  }
+
+  // follow "absorbed by" links to the body that is still alive
+  function simResolve(i){
+    var B = sim.bodies, guard = 0;
+    while (!B[i].alive && B[i].by >= 0 && guard++ < 64) i = B[i].by;
+    return i;
+  }
+  // body that body b is drawn relative to: its parent / host star, or whoever swallowed it.
+  // Returns -1 for the body that sits at the center of the picture.
+  function simDisplayParent(b){
+    var B = sim.bodies, p = B[b].parent, guard = 0;
+    while (p >= 0 && guard++ < 64){
+      var r = simResolve(p);
+      if (r !== b) return r;
+      p = B[p].parent;
+    }
+    return -1;
+  }
+  // the stylized distance scale, applied to a relative position vector (keeps its direction)
+  function dispOffset(dx, dz, out){
+    var d = Math.sqrt(dx*dx + dz*dz);
+    if (d < 1e-12){ out.x = 0; out.z = 0; return out; }
+    var u = auToUnits(d)/d;
+    out.x = dx*u; out.z = dz*u;
+    return out;
+  }
+
+  function contactRadius(a, b){
+    var hv = a.m >= b.m ? a : b, lt = hv===a ? b : a;
+    // touching, or inside the tidal (Roche) limit of the heavier body: the lighter one is torn apart / swallowed
+    return Math.max(a.r + b.r, lt.r*Math.cbrt(hv.m/Math.max(lt.m,1e-12)));
+  }
+  function buildContact(){
+    var B = sim.bodies, n = B.length;
+    sim.contact2 = new Float64Array(n*n);
+    for (var i=0;i<n;i++) for (var j=i+1;j<n;j++){
+      var rc = contactRadius(B[i], B[j]);
+      sim.contact2[i*n+j] = rc*rc;
+    }
+  }
+
+  function initSim(){
+    var S = stars.length, bodies = [];
+    stars.forEach(function(s, i){
+      bodies.push({ kind:'star', name:s.name, isBH:s.cls==='BH', m:s.M, r:s.R*AU_PER_RSUN,
+        a:s.au||0, e:s.ecc||0, ang:s.angle||0, parent: i===0 ? -1 : Math.min(parentOf(s), i-1),
+        x:0, z:0, vx:0, vz:0, ax:0, az:0, alive:true, by:-1, escaped:false,
+        trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
+    });
+    planets.forEach(function(p){
+      bodies.push({ kind:'planet', name:p.name, isBH:false, m:planetMassSolar(p), r:p.radiusRE*AU_PER_REARTH,
+        a:p.au, e:p.ecc||0, ang:p.angle||0, parent: Math.min(p.starIndex||0, S-1),
+        x:0, z:0, vx:0, vz:0, ax:0, az:0, alive:true, by:-1, escaped:false,
+        trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
+    });
+
+    // mass of a star plus every star orbiting it (directly or indirectly)
+    function subtreeMass(si){
+      var m = bodies[si].m;
+      for (var k=si+1;k<S;k++){ if (bodies[k].parent === si) m += subtreeMass(k); }
+      return m;
+    }
+
+    // Starting state of every body from its orbital elements, at the phase it has right now.
+    // Children of a body are placed from the inside out; each one orbits the combined mass and
+    // moving center of mass of everything already inside it (parent + closer-in companion stars),
+    // so hierarchical systems (a close pair with a distant third star) start out bound and stable.
+    function placeChildren(pi){
+      var kids = [];
+      for (var k=0;k<bodies.length;k++){ if (bodies[k].parent === pi) kids.push(k); }
+      kids.sort(function(p, q){ return bodies[p].a - bodies[q].a; });
+      var P = bodies[pi];
+      var gm = P.m, gx = P.x, gz = P.z, gvx = P.vx, gvz = P.vz;
+      kids.forEach(function(k){
+        var bd = bodies[k];
+        var ms = bd.kind==='star' ? subtreeMass(k) : bd.m;
+        var a = Math.max(bd.a, 0.015), e = Math.min(0.9, Math.max(0, bd.e));
+        var periodAn = orbitalPeriodYears(a, P.m + bd.m);   // same phase as the idealized mode
+        var M = (bd.ang + t*(ORBIT_SPEED/Math.max(periodAn,0.0001))) % (Math.PI*2);
+        var E = solveE(M, e), cE = Math.cos(E), sE = Math.sin(E), sq = Math.sqrt(1 - e*e);
+        var r = a*(1 - e*cE);
+        var f = Math.sqrt(G_AU*(gm + ms)*a)/r;
+        bd.x  = gx  + a*(cE - e);
+        bd.z  = gz  + a*sq*sE;
+        bd.vx = gvx - f*sE;
+        bd.vz = gvz + f*sq*cE;
+        bd.trailDt = periodAn/90;
+        if (bd.kind === 'star'){
+          var tm = gm + ms;
+          gx  = (gm*gx  + ms*bd.x )/tm;  gz  = (gm*gz  + ms*bd.z )/tm;
+          gvx = (gm*gvx + ms*bd.vx)/tm;  gvz = (gm*gvz + ms*bd.vz)/tm;
+          gm = tm;
+        }
+      });
+      kids.forEach(function(k){ if (bodies[k].kind === 'star') placeChildren(k); });
+    }
+    placeChildren(0);
+
+    // remove the whole system's drift so it stays put
+    var Mt = 0, cx = 0, cz = 0, px = 0, pz = 0;
+    bodies.forEach(function(b){ Mt += b.m; cx += b.m*b.x; cz += b.m*b.z; px += b.m*b.vx; pz += b.m*b.vz; });
+    cx /= Mt; cz /= Mt; px /= Mt; pz /= Mt;
+    bodies.forEach(function(b){ b.x -= cx; b.z -= cz; b.vx -= px; b.vz -= pz; });
+
+    sim = { bodies:bodies, S:S, tauMin:1e9, rate:1, t:0, contact2:null };
+    simPending.length = 0;
+    buildContact();
+    computeAcc();
+    // a body that starts inside another's tidal limit is swallowed right away
+    var g0 = 0;
+    while (simPending.length && g0++ < 6){
+      if (processPending()) computeAcc(); else break;
+    }
+  }
+
+  // pairwise gravity; also finds contacts and the shortest dynamical time (which sets the time step)
+  function computeAcc(){
+    var B = sim.bodies, n = B.length, i, j, bi, bj, tau2 = 1e30;
+    for (i=0;i<n;i++){ B[i].ax = 0; B[i].az = 0; }
+    simPending.length = 0;
+    for (i=0;i<n;i++){
+      bi = B[i];
+      if (!bi.alive) continue;
+      for (j=i+1;j<n;j++){
+        bj = B[j];
+        if (!bj.alive) continue;
+        var dx = bj.x - bi.x, dz = bj.z - bi.z;
+        var r2 = dx*dx + dz*dz;
+        if (r2 < sim.contact2[i*n+j]){ simPending.push(i, j); continue; }
+        var rs2 = r2 + SIM_SOFT2;
+        var rs3 = rs2*Math.sqrt(rs2);
+        var inv = G_AU/rs3;
+        bi.ax += bj.m*dx*inv; bi.az += bj.m*dz*inv;
+        bj.ax -= bi.m*dx*inv; bj.az -= bi.m*dz*inv;
+        var t2 = rs3/(G_AU*(bi.m + bj.m));
+        if (t2 < tau2) tau2 = t2;
+      }
+    }
+    sim.tauMin = Math.sqrt(tau2);
+  }
+
+  // the lighter body is absorbed by the heavier one (momentum and mass conserved)
+  function mergeBodies(i, j){
+    var B = sim.bodies;
+    var hv = B[i].m >= B[j].m ? i : j, lt = hv===i ? j : i;
+    var H = B[hv], L = B[lt], M = H.m + L.m;
+    H.x  = (H.m*H.x  + L.m*L.x )/M;  H.z  = (H.m*H.z  + L.m*L.z )/M;
+    H.vx = (H.m*H.vx + L.m*L.vx)/M;  H.vz = (H.m*H.vz + L.m*L.vz)/M;
+    H.r = H.isBH ? schwarzschildR(M)*AU_PER_RSUN : Math.cbrt(H.r*H.r*H.r + L.r*L.r*L.r);
+    H.m = M;
+    L.alive = false; L.by = hv; L.vx = 0; L.vz = 0;
+    simEvents.push(L.name + ' swallowed by ' + H.name);
+    buildContact();
+  }
+  function processPending(){
+    var B = sim.bodies, merged = false;
+    for (var k=0;k<simPending.length;k+=2){
+      var i = simPending[k], j = simPending[k+1];
+      if (!B[i].alive || !B[j].alive) continue;
+      mergeBodies(i, j);
+      merged = true;
+    }
+    simPending.length = 0;
+    return merged;
+  }
+
+  function pushTrail(i){
+    var B = sim.bodies, bd = B[i], dp = simDisplayParent(i);
+    if (dp < 0) return;
+    if (bd.trailParent !== dp){ bd.trail.length = 0; bd.trailParent = dp; }
+    dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
+    var tr = bd.trail;
+    tr.push(simOff.x, 0, simOff.z);
+    if (tr.length > TRAIL_N*3) tr.splice(0, 3);
+  }
+
+  // advance the simulation by the same amount of "orbit time" the idealized mode would advance
+  function stepSim(dtT){
+    if (!sim) return;
+    var req = dtT*ORBIT_SPEED/(2*Math.PI);            // years to simulate this frame
+    if (!(req > 0)) return;
+    var B = sim.bodies, n = B.length, remaining = req, done = 0, steps = 0, i, b;
+    var t0 = performance.now();
+    while (remaining > 1e-14){
+      var dt = Math.min(remaining, SIM_ETA*sim.tauMin), h = 0.5*dt;
+      for (i=0;i<n;i++){
+        b = B[i];
+        if (!b.alive) continue;
+        b.vx += h*b.ax; b.vz += h*b.az;
+        b.x += dt*b.vx; b.z += dt*b.vz;
+      }
+      computeAcc();
+      var guard = 0;
+      while (simPending.length && guard++ < 6){
+        if (processPending()) computeAcc(); else break;
+      }
+      for (i=0;i<n;i++){
+        b = B[i];
+        if (!b.alive) continue;
+        b.vx += h*b.ax; b.vz += h*b.az;
+      }
+      remaining -= dt; done += dt; sim.t += dt;
+      for (i=0;i<n;i++){
+        b = B[i];
+        if (!b.alive || b.parent < 0) continue;
+        b.trailAcc += dt;
+        if (b.trailAcc >= b.trailDt){
+          b.trailAcc = (b.trailAcc > 2*b.trailDt) ? 0 : b.trailAcc - b.trailDt;
+          pushTrail(i);
+        }
+      }
+      if ((++steps & 15) === 0 && performance.now() - t0 > SIM_BUDGET_MS) break; // can't keep up: run slower than real time
+    }
+    sim.rate = sim.rate*0.9 + 0.1*Math.min(1, done/req);
+  }
+
+  // report bodies that have clearly been flung out of the system (unbound and far from the center of mass)
+  function checkEscapes(){
+    var B = sim.bodies, Mt = 0, cx = 0, cz = 0, px = 0, pz = 0, i, b;
+    for (i=0;i<B.length;i++){
+      b = B[i];
+      if (!b.alive) continue;
+      Mt += b.m; cx += b.m*b.x; cz += b.m*b.z; px += b.m*b.vx; pz += b.m*b.vz;
+    }
+    if (Mt <= 0) return;
+    cx /= Mt; cz /= Mt; px /= Mt; pz /= Mt;
+    for (i=0;i<B.length;i++){
+      b = B[i];
+      if (!b.alive || b.escaped) continue;
+      var dx = b.x - cx, dz = b.z - cz, r = Math.sqrt(dx*dx + dz*dz);
+      if (r < 1000) continue;
+      var vx = b.vx - px, vz = b.vz - pz;
+      if (vx*vx + vz*vz > 2*G_AU*Mt/r){
+        b.escaped = true;
+        simEvents.push(b.name + ' escaped the system');
+      }
+    }
+  }
+
+  function logPhysics(msg){
+    var d = document.createElement('div');
+    d.textContent = msg;
+    physicsLog.appendChild(d);
+    while (physicsLog.children.length > 5) physicsLog.removeChild(physicsLog.firstChild);
+    setTimeout(function(){ if (d.parentNode) d.parentNode.removeChild(d); }, 9000);
+  }
+  function flushSimEvents(){
+    while (simEvents.length) logPhysics(simEvents.shift());
+  }
+
   // ---- three.js ----
   var three = null;
+
+  // true when the object and everything above it is visible (hidden bodies must not be clickable / focusable)
+  function isLive(o){
+    while (o){ if (o.visible === false) return false; o = o.parent; }
+    return true;
+  }
+  function applyHZVisibility(){
+    if (!three) return;
+    three.starObjs.forEach(function(so){ if (so.hzMesh) so.hzMesh.visible = showHZ; });
+  }
+
+  function makeTrailLine(color, opacity){
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array((TRAIL_N+1)*3), 3));
+    geo.setDrawRange(0, 0);
+    var line = new THREE.Line(geo, new THREE.LineBasicMaterial({color:color, transparent:true, opacity:opacity}));
+    line.frustumCulled = false;
+    return line;
+  }
+  function writeTrail(i, line, off, anchor){
+    if (!line) return;
+    var tr = sim.bodies[i].trail, pos = line.geometry.attributes.position, arr = pos.array, len = tr.length, k;
+    for (k=0;k<len;k++) arr[k] = tr[k];
+    arr[len] = off.x; arr[len+1] = 0; arr[len+2] = off.z;   // end the trail exactly on the body
+    pos.needsUpdate = true;
+    line.geometry.setDrawRange(0, len/3 + 1);
+    line.visible = true;
+    if (anchor) line.position.copy(anchor);
+  }
+  // realistic mode draws live trails instead of the fixed idealized ellipses
+  function setupSimVisuals(){
+    var last = three.starObjs.length - 1;
+    three.starObjs.forEach(function(so, i){
+      if (so.orbitLine) so.orbitLine.visible = false;
+      if (i === 0) return;
+      var line = makeTrailLine(0x9a735e, 0.75);
+      three.scene.add(line);
+      three.starOrbitLines.push(line);     // removed with the other star lines on the next rebuild
+      so.trailLine = line;
+    });
+    three.planetMeshes.forEach(function(mesh, j){
+      if (mesh.userData.orbitLine) mesh.userData.orbitLine.visible = false;
+      var host = three.starObjs[Math.min(planets[j].starIndex||0, last)];
+      var line = makeTrailLine(0x7f8c99, 0.65);
+      host.group.add(line);
+      mesh.userData.trailLine = line;
+    });
+  }
+
+  var simPlaced = [];
+  function placeStar(i){
+    if (simPlaced[i]) return;
+    simPlaced[i] = true;
+    var B = sim.bodies, bd = B[i], so = three.starObjs[i];
+    so.mesh.rotation.y += 0.0032*speedMultiplier;
+    if (!bd.alive){
+      so.group.visible = false;
+      so.mesh.userData.dead = true;
+      if (so.trailLine) so.trailLine.visible = false;
+      return;
+    }
+    so.group.visible = true;
+    var dp = simDisplayParent(i);
+    if (dp < 0){
+      so.group.position.set(0, 0, 0);
+      if (so.trailLine) so.trailLine.visible = false;
+      return;
+    }
+    placeStar(dp);
+    var pg = three.starObjs[dp].group.position;
+    dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
+    so.group.position.set(pg.x + simOff.x, 0, pg.z + simOff.z);
+    writeTrail(i, so.trailLine, simOff, pg);
+  }
+
+  function applySimPositions(){
+    var B = sim.bodies, S = sim.S, i, j;
+    simPlaced.length = 0;
+    for (i=0;i<S;i++) placeStar(i);
+    for (j=0;j<planets.length;j++){
+      var bi = S + j, bd = B[bi], mesh = three.planetMeshes[j];
+      var label = three.planetLabels[j], atmo = three.planetAtmos[j], ring = three.planetRings[j], tl = mesh.userData.trailLine;
+      if (!bd.alive){
+        mesh.visible = false; mesh.userData.dead = true;
+        if (label) label.visible = false;
+        if (atmo) atmo.visible = false;
+        if (ring) ring.visible = false;
+        if (tl) tl.visible = false;
+        continue;
+      }
+      var dp = simDisplayParent(bi);
+      if (dp < 0) dp = simResolve(0);
+      var host = three.starObjs[dp].group;
+      if (mesh.parent !== host){
+        // its host star was swallowed (or it was captured): hang it on the star it now belongs to
+        host.add(mesh);
+        [label, atmo, ring, tl].forEach(function(o){ if (o) host.add(o); });
+        bd.trail.length = 0;
+      }
+      dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
+      mesh.position.set(simOff.x, 0, simOff.z);
+      mesh.rotation.y += 0.006*speedMultiplier;
+      if (label) label.position.set(simOff.x, mesh.userData.size + 0.22, simOff.z);
+      if (atmo) atmo.position.set(simOff.x, 0, simOff.z);
+      if (ring) ring.position.set(simOff.x, 0, simOff.z);
+      writeTrail(bi, tl, simOff, null);
+    }
+  }
 
   function makeGlowTexture(){
     var c = document.createElement('canvas'); c.width=128; c.height=128;
@@ -825,6 +1333,35 @@
     g.addColorStop(1, 'rgba('+tint+',0)');
     g2.fillStyle = g; g2.fillRect(0,0,512,512);
     return new THREE.CanvasTexture(c);
+  }
+
+  // thin bright ring (photon ring) used around black holes; the ring peaks at 0.64 of the sprite radius
+  function makePhotonRingTexture(){
+    var c = document.createElement('canvas'); c.width=256; c.height=256;
+    var g2 = c.getContext('2d');
+    var g = g2.createRadialGradient(128,128,0,128,128,128);
+    g.addColorStop(0,'rgba(255,255,255,0)');
+    g.addColorStop(0.5,'rgba(255,230,190,0)');
+    g.addColorStop(0.64,'rgba(255,238,205,0.95)');
+    g.addColorStop(0.70,'rgba(255,170,90,0.45)');
+    g.addColorStop(0.85,'rgba(255,120,40,0.1)');
+    g.addColorStop(1,'rgba(255,120,40,0)');
+    g2.fillStyle = g; g2.fillRect(0,0,256,256);
+    return new THREE.CanvasTexture(c);
+  }
+  // accretion disk: bright white-hot at the inner edge, fading to dull orange outside
+  function makeDiskTexture(){
+    var c = document.createElement('canvas'); c.width=16; c.height=256;
+    var d2 = c.getContext('2d');
+    var g = d2.createLinearGradient(0,256,0,0);
+    g.addColorStop(0,'rgba(255,248,230,0.95)');
+    g.addColorStop(0.2,'rgba(255,200,120,0.85)');
+    g.addColorStop(0.6,'rgba(220,100,35,0.4)');
+    g.addColorStop(1,'rgba(120,40,10,0)');
+    d2.fillStyle = g; d2.fillRect(0,0,16,256);
+    var tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping;
+    return tex;
   }
   
   function makeStarTexture(){
@@ -945,6 +1482,16 @@
     return spr;
   }
 
+  // ---- camera focus helpers (the camera eases toward its target instead of jumping) ----
+  // The point the camera looks at is  goal + lookOffset , where goal is the focused body
+  // (or baseTarget when nothing is focused) and lookOffset decays to zero every frame.
+  function setFocus(obj){
+    three.focusObj = obj;
+    var g = new THREE.Vector3();
+    if (obj && obj.parent) obj.getWorldPosition(g); else g.copy(three.baseTarget);
+    three.lookOffset.copy(three.lookTarget).sub(g);
+  }
+
   function initThree(){
     if (three) return;
     var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
@@ -952,16 +1499,21 @@
     stage3d.appendChild(renderer.domElement);
 
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45, 1, 0.001, 160);
+    var camera = new THREE.PerspectiveCamera(45, 1, 0.001, 500);
     var ambient = new THREE.AmbientLight(0x222226, 1.1);
     scene.add(ambient);
     var hemi = new THREE.HemisphereLight(0x2a3550, 0x05050a, 0.55);
     scene.add(hemi);
 
+    // backdrop (stars + nebulae) lives in one group that follows the camera each frame,
+    // so it stays "infinitely far away" however far you zoom out
+    var sky = new THREE.Group();
+    scene.add(sky);
+
     var nebulaA = new THREE.Sprite(new THREE.SpriteMaterial({map:makeNebulaTexture('90,70,170'), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
-    nebulaA.scale.set(65,65,1); nebulaA.position.set(-18,10,-30); scene.add(nebulaA);
+    nebulaA.scale.set(65,65,1); nebulaA.position.set(-18,10,-30); sky.add(nebulaA);
     var nebulaB = new THREE.Sprite(new THREE.SpriteMaterial({map:makeNebulaTexture('60,110,150'), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
-    nebulaB.scale.set(50,50,1); nebulaB.position.set(22,-12,-32); scene.add(nebulaB);
+    nebulaB.scale.set(50,50,1); nebulaB.position.set(22,-12,-32); sky.add(nebulaB);
 
     var starField = (function(){
       var geo = new THREE.BufferGeometry();
@@ -978,19 +1530,29 @@
       geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
       geo.setAttribute('color', new THREE.BufferAttribute(col,3));
       var mat = new THREE.PointsMaterial({size:0.13, vertexColors:true, transparent:true, opacity:0.85, sizeAttenuation:true});
-      return new THREE.Points(geo, mat);
+      var pts = new THREE.Points(geo, mat);
+      pts.frustumCulled = false;
+      return pts;
     })();
-    scene.add(starField);
+    sky.add(starField);
 
     three = {
-  renderer:renderer, scene:scene, camera:camera,
+  renderer:renderer, scene:scene, camera:camera, sky:sky,
   starObjs:[], starOrbitLines:[],
   planetMeshes:[], planetLabels:[], planetAtmos:[], planetRings:[],
-  azimuth:0.7, polar:1.05, radius:11, savedRadius:11, autoRotate:true,
+  azimuth:0.7, polar:1.05,
+  radius:11, targetRadius:11, savedRadius:11,   // radius eases toward targetRadius
+  extent:6.5,                                   // outermost orbit radius in scene units (for max zoom-out)
+  autoRotate:true,
   dragging:false, lastX:0, lastY:0,
   panning:false, panLastX:0, panLastY:0,
   clickStartX:0, clickStartY:0, hasMoved:false,
-  focusObj:null, lookTarget:new THREE.Vector3(0,0,0)
+  focusObj:null,
+  baseTarget:new THREE.Vector3(0,0,0),
+  lookOffset:new THREE.Vector3(0,0,0),
+  lookTarget:new THREE.Vector3(0,0,0),
+  goalVec:new THREE.Vector3(),
+  lastT:performance.now()
 };
 
 var raycaster = new THREE.Raycaster();
@@ -1001,14 +1563,18 @@ function handleStageClick(e){
   mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouseNDC, three.camera);
   var starMeshes = three.starObjs.map(function(so){ return so.mesh; });
-  var hits = raycaster.intersectObjects(three.planetMeshes.concat(starMeshes));
+  var hits = raycaster.intersectObjects(three.planetMeshes.concat(starMeshes)).filter(function(h){
+    return !h.object.userData.dead && isLive(h.object);   // swallowed / hidden bodies can't be clicked
+  });
   if (hits.length){
-    three.focusObj = hits[0].object;
-    three.savedRadius = three.radius;
-    three.radius = Math.max(hits[0].object.userData.size*6, 0.015);
+    var obj = hits[0].object;
+    if (!three.focusObj) three.savedRadius = three.targetRadius;
+    three.targetRadius = Math.max(obj.userData.size*6, 0.015);
+    setFocus(obj);
   } else if (three.focusObj){
-    three.focusObj = null;
-    three.radius = three.savedRadius;
+    three.targetRadius = three.savedRadius;
+    three.baseTarget.set(0,0,0);
+    setFocus(null);
   }
 }
 
@@ -1032,11 +1598,16 @@ window.addEventListener('pointermove', function(e){
   if (three.panning){
     var pdx = e.clientX - three.panLastX, pdy = e.clientY - three.panLastY;
     three.panLastX = e.clientX; three.panLastY = e.clientY;
+    // panning releases any focus lock and moves the free camera target
+    if (three.focusObj){
+      three.baseTarget.copy(three.lookTarget);
+      setFocus(null);
+    }
     var panSpeed = three.radius * 0.0016;
     var right = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 0);
     var up = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 1);
-    three.lookTarget.addScaledVector(right, -pdx*panSpeed);
-    three.lookTarget.addScaledVector(up, pdy*panSpeed);
+    three.baseTarget.addScaledVector(right, -pdx*panSpeed);
+    three.baseTarget.addScaledVector(up, pdy*panSpeed);
     return;
   }
   if (!three.dragging) return;
@@ -1048,18 +1619,23 @@ window.addEventListener('pointermove', function(e){
   three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
 });
 window.addEventListener('pointerup', function(e){
+  // only a press that STARTED on the 3D stage counts as a click on it
+  var wasActive = three.dragging || three.panning;
   three.dragging = false;
   three.panning = false;
   stage3d.classList.remove('dragging');
-  if (!three.hasMoved) handleStageClick(e);
+  if (wasActive && !three.hasMoved && e.button === 0) handleStageClick(e);
 });
 
-    // Wider, smoother exponential zoom — scroll speed now scales with
-    // current distance, so it feels responsive whether you're
-    // surveying the whole system or examining a single planet.
+    // Zoom: the wheel only moves a TARGET radius; update3D eases the real radius toward it
+    // every frame, so notched mouse wheels and trackpads both feel smooth.
     stage3d.addEventListener('wheel', function(e){
   e.preventDefault();
-  var factor = Math.pow(1.0018, e.deltaY);
+  var d = e.deltaY;
+  if (e.deltaMode === 1) d *= 33;        // lines -> pixels
+  else if (e.deltaMode === 2) d *= 300;  // pages -> pixels
+  d = Math.max(-300, Math.min(300, d));  // one huge flick shouldn't teleport the camera
+  var factor = Math.exp(d*0.0015);
   var minR, maxR;
   if (three.focusObj){
     var s = three.focusObj.userData.size || 0.02;
@@ -1067,9 +1643,9 @@ window.addEventListener('pointerup', function(e){
     maxR = Math.max(s*90, 5);
   } else {
     minR = 1.2;
-    maxR = 70;
+    maxR = Math.max(70, three.extent*3.2);
   }
-  three.radius = Math.max(minR, Math.min(maxR, three.radius*factor));
+  three.targetRadius = Math.max(minR, Math.min(maxR, three.targetRadius*factor));
 }, {passive:false});
   }
 
@@ -1079,7 +1655,13 @@ window.addEventListener('pointerup', function(e){
 
   function rebuildSystem3D(){
     if (!three) return;
-    three.focusObj = null;
+    if (three.focusObj){
+      // the focused mesh is about to be replaced, so ease back to the overview
+      three.focusObj = null;
+      three.targetRadius = three.savedRadius;
+      three.baseTarget.set(0,0,0);
+      three.lookOffset.copy(three.lookTarget);
+    }
     var scene = three.scene;
 
     three.starObjs.forEach(function(so){
@@ -1093,48 +1675,100 @@ window.addEventListener('pointerup', function(e){
     three.starObjs = []; three.starOrbitLines = [];
     three.planetMeshes = []; three.planetLabels = []; three.planetAtmos = []; three.planetRings = [];
 
+    // outermost orbit in scene units — sets how far the camera may zoom out
+    // (a star's offset from the origin = its parent's offset + its own orbit; parents always come first)
+    var extent = 6.5;
+    var starOffsets = [];
+    stars.forEach(function(s, idx){
+      if (idx===0){ starOffsets.push(0); return; }
+      var off = starOffsets[Math.min(parentOf(s), idx-1)] + auToUnits(s.au*(1+(s.ecc||0)));
+      starOffsets.push(off);
+      extent = Math.max(extent, off);
+    });
+    planets.forEach(function(p){
+      var hostOff = starOffsets[p.starIndex] || 0;
+      extent = Math.max(extent, hostOff + auToUnits(p.au*(1+(p.ecc||0))));
+    });
+    three.extent = extent;
+
     stars.forEach(function(s, idx){
       var group = new THREE.Group();
       scene.add(group);
 
-      var starRGB = tempToRGB(s.T);
-      var starColor = new THREE.Color(starRGB[0]/255, starRGB[1]/255, starRGB[2]/255);
+      var isBH = s.cls==='BH';
       var L = starLuminosity(s);
-      var starScale = 0.28 + Math.log10(Math.max(L,0.001)+1)*0.09;
+      var starScale = starVisualRadius(s);   // sized relative to the primary star
+      if (isBH) starScale = Math.max(starScale, 0.03);
+
+      var starColor;
+      if (isBH){
+        starColor = new THREE.Color(1.0, 0.62, 0.3);
+      } else {
+        var starRGB = tempToRGB(s.T);
+        starColor = new THREE.Color(starRGB[0]/255, starRGB[1]/255, starRGB[2]/255);
+      }
 
       var starGeo = new THREE.SphereGeometry(0.4, 28, 28);
-      var starMat = new THREE.MeshBasicMaterial({color:starColor, map:makeStarTexture()});
+      var starMat = isBH
+        ? new THREE.MeshBasicMaterial({color:0x000000})
+        : new THREE.MeshBasicMaterial({color:starColor, map:makeStarTexture()});
       var starMesh = new THREE.Mesh(starGeo, starMat);
       starMesh.scale.setScalar(starScale/0.4);
-      starMesh.userData.size = starScale;
+      starMesh.userData.size = isBH ? starScale*2.5 : starScale;
       group.add(starMesh);
 
-      var glowInnerMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:starColor, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
-      var glowInner = new THREE.Sprite(glowInnerMat);
-      glowInner.scale.set(starScale*4.6, starScale*4.6, 1);
-      group.add(glowInner);
+      var topY;
+      if (isBH){
+        // photon ring: thin bright ring just outside the horizon, always facing the camera
+        var photon = new THREE.Sprite(new THREE.SpriteMaterial({map:makePhotonRingTexture(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
+        var photonSize = starScale*5.3;
+        photon.scale.set(photonSize, photonSize, 1);
+        group.add(photon);
 
-      var glowOuterMat = new THREE.SpriteMaterial({map:makeHaloTexture(), color:starColor, transparent:true, opacity:0.7, blending:THREE.AdditiveBlending, depthWrite:false});
-      var glowOuter = new THREE.Sprite(glowOuterMat);
-      glowOuter.scale.set(starScale*11, starScale*11, 1);
-      group.add(glowOuter);
+        // accretion disk, tilted so it reads as a disk from most angles
+        var diskInner = starScale*1.9, diskOuter = starScale*5;
+        var diskGeo = new THREE.RingGeometry(diskInner, diskOuter, 96);
+        fixRingUVs(diskGeo, diskInner, diskOuter);
+        var diskMat = new THREE.MeshBasicMaterial({map:makeDiskTexture(), transparent:true, blending:THREE.AdditiveBlending, side:THREE.DoubleSide, depthWrite:false});
+        var disk = new THREE.Mesh(diskGeo, diskMat);
+        disk.rotation.x = -Math.PI/2 + 0.4;
+        group.add(disk);
+        topY = starScale*3.2;
+      } else {
+        var glowBase = Math.max(starScale, 0.1); // keep tiny remnants (white dwarfs, pulsars) visible as glowing points
+        var glowInnerMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:starColor, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+        var glowInner = new THREE.Sprite(glowInnerMat);
+        glowInner.scale.set(glowBase*4.6, glowBase*4.6, 1);
+        group.add(glowInner);
 
-      var light = new THREE.PointLight(starColor, idx===0?2.6:1.6, 60, 1.6);
+        var glowOuterMat = new THREE.SpriteMaterial({map:makeHaloTexture(), color:starColor, transparent:true, opacity:0.7, blending:THREE.AdditiveBlending, depthWrite:false});
+        var glowOuter = new THREE.Sprite(glowOuterMat);
+        glowOuter.scale.set(glowBase*11, glowBase*11, 1);
+        group.add(glowOuter);
+        topY = starScale;
+      }
+
+      var light = new THREE.PointLight(starColor, isBH ? 0.8 : (idx===0?2.6:1.6), 60, 1.6);
       group.add(light);
 
-      var hz = hzBounds(L);
-      var rIn = auToUnits(Math.max(hz.inner,0.05)), rOut = auToUnits(Math.min(hz.outer,50));
-      var hzMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.1, side:THREE.DoubleSide}));
-      hzMesh.rotation.x = -Math.PI/2;
-      group.add(hzMesh);
+      if (L > 0){
+        var hz = hzBounds(L);
+        var rIn = auToUnits(Math.max(hz.inner,0.05)), rOut = auToUnits(Math.min(hz.outer,50));
+        var hzMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
+        hzMesh.rotation.x = -Math.PI/2;
+        hzMesh.visible = showHZ;
+        group.add(hzMesh);
+      }
 
       var label = makeTextSprite(s.name, 22);
-      label.position.set(0, starScale/0.4*0.4 + 0.35, 0);
+      label.position.set(0, topY + 0.35, 0);
       group.add(label);
 
-      three.starObjs.push({ group:group, mesh:starMesh, star:s, visualRadius:starScale });
+      var starObjEntry = { group:group, mesh:starMesh, star:s, visualRadius:starScale, parentIdx:0, orbitLine:null, hzMesh:hzMesh||null, trailLine:null };
+      three.starObjs.push(starObjEntry);
 
       if (idx>0){
+        starObjEntry.parentIdx = Math.min(parentOf(s), idx-1);
         var pts = [];
         var a = auToUnits(s.au), e = s.ecc||0;
         for (var i=0;i<=128;i++){
@@ -1146,6 +1780,7 @@ window.addEventListener('pointerup', function(e){
         var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x5a4038, transparent:true, opacity:0.5}));
         scene.add(line);
         three.starOrbitLines.push(line);
+        starObjEntry.orbitLine = line; // moved each frame so the orbit stays centered on its parent star
       }
     });
 
@@ -1164,7 +1799,7 @@ window.addEventListener('pointerup', function(e){
       var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x394048, transparent:true, opacity:0.55}));
       group.add(line);
 
-      var size = planetVisualSize(p, starObj.visualRadius, starObj.star.R);
+      var size = planetVisualSize(p, starObj.star.R);
       var geo = new THREE.SphereGeometry(size, 20, 20);
       var mat = new THREE.MeshStandardMaterial({map:makePlanetTexture(p.type.id, p.type.hex), roughness:0.7, metalness:0.06});
       var mesh = new THREE.Mesh(geo, mat);
@@ -1199,6 +1834,14 @@ window.addEventListener('pointerup', function(e){
       group.add(label);
       three.planetLabels.push(label);
     });
+
+    // realistic mode starts a fresh gravity simulation from the orbits set in the editor
+    if (realisticMode){
+      initSim();
+      setupSimVisuals();
+    } else {
+      sim = null;
+    }
   }
 
   function resizeThree(){
@@ -1212,29 +1855,30 @@ window.addEventListener('pointerup', function(e){
   function update3D(){
     if (!three) return;
 
+    var now = performance.now();
+    var dt = Math.min(0.05, Math.max(0.001, (now - three.lastT)/1000));
+    three.lastT = now;
+
+    // 1) move bodies first, so the camera follows this frame's positions (no one-frame lag)
+    if (realisticMode && sim && three.starObjs.length === sim.S && three.planetMeshes.length === planets.length){
+      applySimPositions();
+    } else {
     three.starObjs.forEach(function(so, idx){
       so.mesh.rotation.y += 0.0032*speedMultiplier;
       if (idx===0){
         so.group.position.set(0,0,0);
       } else {
         var a = auToUnits(so.star.au);
-        var starPeriod = orbitalPeriodYears(so.star.au, stars[0].M + so.star.M);
+        // orbit around the PARENT star (always earlier in the list, so its position is already updated)
+        var parentObj = three.starObjs[so.parentIdx] || three.starObjs[0];
+        var parentStar = parentObj.star;
+        var starPeriod = orbitalPeriodYears(so.star.au, parentStar.M + so.star.M);
         var pos = keplerPos(so.star, a, starPeriod);
-        so.group.position.set(pos.x, 0, pos.z);
+        var pp = parentObj.group.position;
+        so.group.position.set(pp.x + pos.x, pp.y, pp.z + pos.z);
+        if (so.orbitLine) so.orbitLine.position.copy(pp);
       }
     });
-
-    if (three.focusObj && three.focusObj.parent){
-  three.focusObj.getWorldPosition(three.lookTarget);
-}
-
-if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
-three.camera.position.set(
-  three.lookTarget.x + three.radius*Math.sin(three.polar)*Math.cos(three.azimuth),
-  three.lookTarget.y + three.radius*Math.cos(three.polar),
-  three.lookTarget.z + three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
-);
-three.camera.lookAt(three.lookTarget);
 
     three.planetMeshes.forEach(function(mesh, idx){
       var p = mesh.userData.planet;
@@ -1251,6 +1895,43 @@ three.camera.lookAt(three.lookTarget);
       var ring = three.planetRings[idx];
       if (ring) ring.position.set(pos.x, 0, pos.z);
     });
+    }
+
+    // 2) where the camera looks: the focused body (or free target), plus a decaying offset
+    //    that turns a focus change into a smooth glide instead of a jump
+    if (three.focusObj && (three.focusObj.userData.dead || !isLive(three.focusObj))){
+      // the focused body was swallowed: ease back out to the overview
+      three.targetRadius = three.savedRadius;
+      three.baseTarget.set(0,0,0);
+      setFocus(null);
+    }
+    if (three.focusObj && three.focusObj.parent){
+      three.focusObj.getWorldPosition(three.goalVec);
+    } else {
+      three.focusObj = null;
+      three.goalVec.copy(three.baseTarget);
+    }
+    three.lookOffset.multiplyScalar(Math.exp(-dt*8));
+    if (three.lookOffset.lengthSq() < 1e-10) three.lookOffset.set(0,0,0);
+    three.lookTarget.copy(three.goalVec).add(three.lookOffset);
+
+    // 3) zoom: ease the radius toward its target in log space (constant zoom "speed" at any scale)
+    var lr = Math.log(three.radius), lt = Math.log(three.targetRadius);
+    if (Math.abs(lt-lr) > 0.0005){
+      lr += (lt-lr)*(1-Math.exp(-dt*9));
+      three.radius = Math.exp(lr);
+    } else {
+      three.radius = three.targetRadius;
+    }
+
+    if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
+    three.camera.position.set(
+      three.lookTarget.x + three.radius*Math.sin(three.polar)*Math.cos(three.azimuth),
+      three.lookTarget.y + three.radius*Math.cos(three.polar),
+      three.lookTarget.z + three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
+    );
+    three.camera.lookAt(three.lookTarget);
+    three.sky.position.copy(three.camera.position);
 
     three.renderer.render(three.scene, three.camera);
   }
@@ -1270,26 +1951,36 @@ three.camera.lookAt(three.lookTarget);
   }
   fsBtn.addEventListener('click', function(){ setExpanded(!isExpanded); });
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && isExpanded) setExpanded(false);
+    if (e.key === 'Escape' && isExpanded && !leaveConfirm.classList.contains('show')) setExpanded(false);
   });
 
   systemNameInput.addEventListener('input', function(){
     stageTag.textContent = systemNameInput.value.trim() || 'SYSTEM VIEW';
   });
 
-  // ---- return to rameshverse ----
+  // ---- return to rameshverse (centered confirmation modal) ----
   var brandLink = document.getElementById('brandLink');
   var leaveConfirm = document.getElementById('leaveConfirm');
   var leaveYes = document.getElementById('leaveYes');
   var leaveNo = document.getElementById('leaveNo');
-  brandLink.addEventListener('click', function(){
+  function openLeave(){
     leaveConfirm.classList.add('show');
-  });
+    leaveNo.focus();
+  }
+  function closeLeave(){
+    leaveConfirm.classList.remove('show');
+    brandLink.focus();
+  }
+  brandLink.addEventListener('click', openLeave);
   leaveYes.addEventListener('click', function(){
     window.location.href = 'https://rameshverse.com/';
   });
-  leaveNo.addEventListener('click', function(){
-    leaveConfirm.classList.remove('show');
+  leaveNo.addEventListener('click', closeLeave);
+  leaveConfirm.addEventListener('click', function(e){
+    if (e.target === leaveConfirm) closeLeave(); // click on the dark backdrop cancels
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && leaveConfirm.classList.contains('show')) closeLeave();
   });
 
   // ---- save / restore / reset ----
@@ -1320,6 +2011,12 @@ three.camera.lookAt(three.lookTarget);
     systemNameInput.value = data.systemName || '';
     stageTag.textContent = data.systemName || 'SYSTEM VIEW';
     stars = (data.stars && data.stars.length) ? data.stars : [{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }];
+    // older saves have no parent: they orbit the primary. Also guard against bad indices.
+    stars.forEach(function(s, idx){
+      if (idx===0){ s.parent = undefined; return; }
+      var p = parseInt(s.parent, 10);
+      s.parent = (isFinite(p) && p >= 0 && p < idx) ? p : 0;
+    });
     editingStarIndex = 0;
     planets = (data.planets||[]).map(function(p){
       var type = null;
@@ -1360,7 +2057,7 @@ three.camera.lookAt(three.lookTarget);
 scaleToggleBtn.addEventListener('click', function(){
   trueScaleMode = !trueScaleMode;
   scaleToggleBtn.textContent = trueScaleMode
-  ? '⊙ TRUE PLANET SCALE — CLICK FOR ENHANCED'
+  ? '⊙ TRUE SIZE SCALE — CLICK FOR ENHANCED'
   : '◎ ENHANCED SCALE — CLICK TO REVERT';
   scaleToggleBtn.classList.toggle('active', trueScaleMode);
   updateScaleLabel();
@@ -1436,16 +2133,47 @@ scaleToggleBtn.addEventListener('click', function(){
     resetArmed = false;
     resetSystemBtn.textContent = '↺ RESET SYSTEM';
     loadSystemFromData({ systemName:'', stars:[{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }], planets:[] });
-presetSelect.options[0].textContent = '— LOAD SYSTEM —';
+presetSelect.options[0].textContent = '— LOAD SYSTEM PRESET —';
 presetSelect.value = '';
 showSysStatus('System reset.');
   });
 
+  var frameCount = 0;
   function loop(){
-    t += 0.016*speedMultiplier;
+    var dtT = 0.016*speedMultiplier;
+    t += dtT;
+    if (realisticMode && sim){
+      stepSim(dtT);
+      checkEscapes();
+      flushSimEvents();
+      // if the physics can't keep up (very tight orbits / huge masses), say how much slower than real time it runs
+      if ((++frameCount % 20) === 0){
+        var rate = sim.rate;
+        physicsBtn.textContent = '⚛ REALISTIC PHYSICS: ON' + (rate < 0.9 ? ' (' + Math.max(1, Math.round(rate*100)) + '% SPEED)' : '');
+      }
+    }
     update3D();
     requestAnimationFrame(loop);
   }
+
+  // ---- realistic physics on/off ----
+  physicsBtn.addEventListener('click', function(){
+    realisticMode = !realisticMode;
+    physicsBtn.classList.toggle('active', realisticMode);
+    physicsBtn.textContent = realisticMode ? '⚛ REALISTIC PHYSICS: ON' : '⚛ REALISTIC PHYSICS: OFF';
+    rebuildIfReady();   // fresh start: ON begins a gravity simulation from the current orbits, OFF returns to idealized orbits
+    logPhysics(realisticMode
+      ? 'REALISTIC PHYSICS ON — bodies now pull on each other'
+      : 'REALISTIC PHYSICS OFF — idealized Kepler orbits');
+  });
+
+  // ---- habitable zone rings on/off (on by default) ----
+  hzToggleBtn.addEventListener('click', function(){
+    showHZ = !showHZ;
+    hzToggleBtn.classList.toggle('off', !showHZ);
+    hzToggleBtn.textContent = showHZ ? '■ HABITABLE ZONE: ON' : '□ HABITABLE ZONE: OFF';
+    applyHZVisibility();
+  });
 
      var speedSlider = document.getElementById('speedSlider');
    speedSlider.addEventListener('input', function(){
