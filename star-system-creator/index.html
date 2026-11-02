@@ -155,7 +155,6 @@
   @media (max-width:700px){
     .speed-ctrl{ top:8px; }
     #fsBtn{ top:44px; right:8px; font-size:8px; padding:5px 8px; }
-    #scaleToggleBtn{ top:44px; right:auto !important; left:8px; font-size:8px; padding:5px 8px; max-width:150px; white-space:normal; line-height:1.3; text-align:left; }
     .stage .tag{ top:82px; }
     .stage .not-to-scale{ top:98px; }
     .stage .physics-log{ top:116px; }
@@ -180,6 +179,9 @@
   table.planets tr:last-child td{border-bottom:none;}
   table.planets tr.data:hover td{background:rgba(255,43,43,0.04);}
   table.planets td.name{color:var(--text);}
+  table.planets td.link{cursor:pointer;}
+  table.planets td.link:hover{color:var(--red); text-decoration:underline;}
+  #stage3d.over-label{cursor:pointer;}
   table.planets td.hz-yes{color:var(--green);}
   table.planets .rm{cursor:pointer; color:var(--text-faint); border:1px solid var(--line); padding:3px 6px; background:none; font-family:inherit; font-size:10px; transition:color .2s ease, border-color .2s ease;}
   table.planets .rm:hover{color:var(--red); border-color:var(--red-dim);}
@@ -298,8 +300,7 @@
         <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         <span class="watermark">rameshverse.com</span>
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
-        <button class="fs-btn active" id="scaleToggleBtn" style="right:170px;">⊙ TRUE SIZE SCALE — CLICK FOR ENHANCED</button>
-        <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a real gravity (N-body) simulation">⚛ REALISTIC PHYSICS: OFF</button>
+        <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a real gravity (N-body) simulation">⚛ REALISTIC MODE: OFF</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
           <input type="range" id="speedSlider" min="0" max="50" value="25" step="5">
@@ -439,7 +440,20 @@
   var hzToggleBtn = document.getElementById('hzToggleBtn');
   var physicsLog = document.getElementById('physicsLog');
   var notToScaleEl = document.querySelector('.not-to-scale');
+  function fmtSpan(au){
+    if (au >= 0.1) return au.toFixed(au < 10 ? 2 : 0) + ' AU';
+    var km = au*149597870.7;
+    return (km >= 1000 ? Math.round(km).toLocaleString() : km.toFixed(1)) + ' km';
+  }
+  // realistic mode: say how wide the current view is in real units
+  function updateViewScaleText(){
+    if (!three || !realDist) return;
+    var spanAU = 2*three.radius*Math.tan(22.5*Math.PI/180)*three.camera.aspect/Math.max(distK, 1e-12);
+    notToScaleEl.textContent = (trueScaleMode ? 'TO SCALE — TRUE DISTANCES & SIZES' : 'TRUE DISTANCES — SIZES ENLARGED')
+      + ' · VIEW ≈ ' + fmtSpan(spanAU) + ' ACROSS';
+  }
   function updateScaleLabel(){
+    if (realDist){ updateViewScaleText(); return; }
     notToScaleEl.textContent = trueScaleMode
       ? 'NOT TO SCALE — DISTANCES ARE STYLIZED'
       : 'NOT TO SCALE — DISTANCES & SIZES ARE STYLIZED';
@@ -516,7 +530,7 @@
     return { x:r*Math.cos(trueAnom), z:r*Math.sin(trueAnom) };
   }
 
-    var trueScaleMode = true; // default: true relative sizes
+    var trueScaleMode = true; // true relative sizes, always (the old 'enhanced' toggle was removed)
     var SUN_EARTH_RADII = 109.2; // Sun's radius ÷ Earth's radius
     var STAR_REF_VISUAL = 0.3;   // on-screen radius of the primary star
 
@@ -525,6 +539,7 @@
     function refRadius(){ return Math.max(stars[0].R, 0.05); }
 
     function starVisualRadius(s){
+      if (realDist && trueScaleMode) return Math.max(1e-10, s.R*AU_PER_RSUN*distK);   // true physical size
       var ratio = Math.max(s.R, 1e-9) / refRadius();
       var raw = trueScaleMode
         ? STAR_REF_VISUAL * ratio                    // true proportions to the primary
@@ -535,6 +550,7 @@
     }
 
     function planetVisualSize(p, hostStarR){
+      if (realDist && trueScaleMode) return Math.max(1e-10, p.radiusRE*AU_PER_REARTH*distK);   // true physical size
       if (trueScaleMode){
         // planet radius in R☉, drawn at the same scale as the primary star
         var size = STAR_REF_VISUAL * (p.radiusRE / SUN_EARTH_RADII) / refRadius();
@@ -695,6 +711,8 @@
         editingStarIndex = idx;
         syncStarEditorFromState();
         renderStarChips();
+        var so = three && three.starObjs[idx];
+        if (so) focusBody(so.mesh);   // selecting a star also flies the camera to it
       });
       starChipRow.appendChild(chip);
     });
@@ -876,8 +894,8 @@
       var tr = document.createElement('tr');
       tr.className = 'data';
       tr.innerHTML =
-        '<td class="name">'+p.name+'</td>'+
-        (multi ? '<td>'+star.name+'</td>' : '') +
+        '<td class="name link" title="Click to fly to this planet">'+p.name+'</td>'+
+        (multi ? '<td class="link" title="Click to fly to this star">'+star.name+'</td>' : '') +
         '<td>'+p.au.toFixed(3)+'</td>'+
         '<td>'+formatPeriod(period)+'</td>'+
         '<td>'+(p.ecc||0).toFixed(2)+'</td>'+
@@ -887,6 +905,12 @@
         '<td class="'+(inHZ?'hz-yes':'')+'">'+(inHZ?'YES':'—')+'</td>'+
         '<td></td>';
       var rmTd = tr.lastElementChild;
+      var nameTd = tr.children[0];
+      nameTd.addEventListener('click', function(){ focusBody(three && three.planetMeshes[idx]); });
+      if (multi) tr.children[1].addEventListener('click', function(){
+        var so = three && three.starObjs[p.starIndex];
+        focusBody(so && so.mesh);
+      });
       var editBtn = document.createElement('button');
       editBtn.className = 'rm';
       editBtn.textContent = '✎';
@@ -913,6 +937,12 @@
   // ================= HABITABLE-ZONE VISIBILITY + REALISTIC (N-BODY) MODE =================
   var showHZ = true;          // habitable-zone rings on by default
   var realisticMode = false;  // OFF = idealized Kepler orbits (the original behaviour)
+  // In realistic mode distances are TRUE: scene units = AU x distK (distK is chosen so the whole
+  // system fits the opening view). Otherwise the stylized log/sqrt distance scale is used.
+  var realDist = false;
+  var distK = 1;
+  var REAL_TARGET = 6;        // scene units the outermost orbit is fitted to
+  function distUnits(au){ return realDist ? au*distK : auToUnits(au); }
 
   // Realistic mode: every star and planet becomes a point mass and pulls on every other one
   // (Newtonian gravity, kick-drift-kick leapfrog). Physics runs in true AU / years / solar masses.
@@ -964,7 +994,7 @@
   function dispOffset(dx, dz, out){
     var d = Math.sqrt(dx*dx + dz*dz);
     if (d < 1e-12){ out.x = 0; out.z = 0; return out; }
-    var u = auToUnits(d)/d;
+    var u = distUnits(d)/d;
     out.x = dx*u; out.z = dz*u;
     return out;
   }
@@ -1240,6 +1270,43 @@
       var line = makeTrailLine(0x7f8c99, 0.65);
       host.group.add(line);
       mesh.userData.trailLine = line;
+      if (realDist){
+        // at true scale a planet is far smaller than a pixel when zoomed out: a small glowing dot keeps it findable
+        var mk = new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlowTexture(), color:planets[j].type.hex, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, depthWrite:false}));
+        host.group.add(mk);
+        mesh.userData.marker = mk;
+      }
+    });
+  }
+
+  // True-scale view: bodies can be a millionth of the view across, so glows, labels and markers are
+  // sized against the camera distance instead of the world (they keep the same size on screen).
+  function updateRealisticDecor(){
+    var ls = three.radius/11;
+    three.starObjs.forEach(function(so){
+      var fx = so.fx;
+      if (!fx) return;
+      var s0 = so.visualRadius;
+      if (fx.label){ fx.label.scale.set(1.1*ls, 0.28*ls, 1); fx.label.position.y = fx.topY + 0.35*ls; }
+      if (fx.isBH){
+        var f = Math.max(1, ls*0.07/Math.max(s0, 1e-12));      // keeps a distant black hole's glow findable
+        if (fx.photon) fx.photon.scale.set(s0*5.3*f, s0*5.3*f, 1);
+        if (fx.disk) fx.disk.scale.setScalar(f);
+      } else {
+        var gi = Math.max(s0*4.6, ls*0.5), go = Math.max(s0*11, ls*1.2);
+        if (fx.glowInner) fx.glowInner.scale.set(gi, gi, 1);
+        if (fx.glowOuter) fx.glowOuter.scale.set(go, go, 1);
+      }
+    });
+    three.planetMeshes.forEach(function(mesh, j){
+      var label = three.planetLabels[j], mk = mesh.userData.marker;
+      if (label){ label.scale.set(1.1*ls, 0.28*ls, 1); label.position.y = mesh.userData.size + 0.22*ls; }
+      if (mk){
+        var ms = Math.max(mesh.userData.size*2.5, ls*0.05);
+        mk.scale.set(ms, ms, 1);
+        mk.position.copy(mesh.position);
+        mk.visible = mesh.visible;
+      }
     });
   }
 
@@ -1282,6 +1349,7 @@
         if (atmo) atmo.visible = false;
         if (ring) ring.visible = false;
         if (tl) tl.visible = false;
+        if (mesh.userData.marker) mesh.userData.marker.visible = false;
         continue;
       }
       var dp = simDisplayParent(bi);
@@ -1290,7 +1358,7 @@
       if (mesh.parent !== host){
         // its host star was swallowed (or it was captured): hang it on the star it now belongs to
         host.add(mesh);
-        [label, atmo, ring, tl].forEach(function(o){ if (o) host.add(o); });
+        [label, atmo, ring, tl, mesh.userData.marker].forEach(function(o){ if (o) host.add(o); });
         bd.trail.length = 0;
       }
       dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
@@ -1492,6 +1560,16 @@
     three.lookOffset.copy(three.lookTarget).sub(g);
   }
 
+  // fly the camera to a star / planet mesh (same behaviour as clicking it in the scene)
+  function focusBody(obj){
+    if (!three || !obj || obj.userData.dead || !isLive(obj)) return;
+    if (!three.focusObj) three.savedRadius = three.targetRadius;
+    three.targetRadius = Math.max(obj.userData.size*6, realDist ? 1e-10 : 0.015);
+    setFocus(obj);
+    three.autoRotate = false;
+    try { stage3d.scrollIntoView({behavior:'smooth', block:'nearest'}); } catch(e){}
+  }
+
   function initThree(){
     if (three) return;
     var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
@@ -1557,20 +1635,27 @@
 
 var raycaster = new THREE.Raycaster();
 var mouseNDC = new THREE.Vector2();
+// what is under the pointer: a name label wins over the body itself (bodies can be tiny at true scale)
+function pickBody(){
+  var starMeshes = three.starObjs.map(function(so){ return so.mesh; });
+  var labels = three.planetLabels.filter(Boolean).concat(three.starObjs.map(function(so){ return so.fx && so.fx.label; }).filter(Boolean));
+  var ok = function(h){
+    var t = h.object.userData.target || h.object;
+    return !t.userData.dead && isLive(t);   // swallowed / hidden bodies can't be clicked
+  };
+  var lh = raycaster.intersectObjects(labels).filter(ok);
+  if (lh.length) return lh[0].object.userData.target;
+  var hits = raycaster.intersectObjects(three.planetMeshes.concat(starMeshes)).filter(ok);
+  return hits.length ? hits[0].object : null;
+}
 function handleStageClick(e){
   var rect = stage3d.getBoundingClientRect();
   mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
   mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouseNDC, three.camera);
-  var starMeshes = three.starObjs.map(function(so){ return so.mesh; });
-  var hits = raycaster.intersectObjects(three.planetMeshes.concat(starMeshes)).filter(function(h){
-    return !h.object.userData.dead && isLive(h.object);   // swallowed / hidden bodies can't be clicked
-  });
-  if (hits.length){
-    var obj = hits[0].object;
-    if (!three.focusObj) three.savedRadius = three.targetRadius;
-    three.targetRadius = Math.max(obj.userData.size*6, 0.015);
-    setFocus(obj);
+  var obj = pickBody();
+  if (obj){
+    focusBody(obj);
   } else if (three.focusObj){
     three.targetRadius = three.savedRadius;
     three.baseTarget.set(0,0,0);
@@ -1579,6 +1664,18 @@ function handleStageClick(e){
 }
 
     stage3d.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+    // pointer cursor while hovering a name label
+    stage3d.addEventListener('pointermove', function(e){
+      if (three.dragging || three.panning) return;
+      var rect = stage3d.getBoundingClientRect();
+      mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
+      mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
+      raycaster.setFromCamera(mouseNDC, three.camera);
+      var labels = three.planetLabels.filter(Boolean).concat(three.starObjs.map(function(so){ return so.fx && so.fx.label; }).filter(Boolean));
+      var over = labels.length && raycaster.intersectObjects(labels).some(function(h){ return isLive(h.object); });
+      stage3d.classList.toggle('over-label', !!over);
+    });
 
     stage3d.addEventListener('pointerdown', function(e){
   three.autoRotate = false;
@@ -1635,14 +1732,14 @@ window.addEventListener('pointerup', function(e){
   if (e.deltaMode === 1) d *= 33;        // lines -> pixels
   else if (e.deltaMode === 2) d *= 300;  // pages -> pixels
   d = Math.max(-300, Math.min(300, d));  // one huge flick shouldn't teleport the camera
-  var factor = Math.exp(d*0.0015);
+  var factor = Math.exp(d*(realDist ? 0.003 : 0.0015));   // true scale spans many orders of magnitude, so zoom faster
   var minR, maxR;
   if (three.focusObj){
     var s = three.focusObj.userData.size || 0.02;
-    minR = Math.max(0.003, s*0.3);
+    minR = realDist ? Math.max(1e-10, s*0.3) : Math.max(0.003, s*0.3);
     maxR = Math.max(s*90, 5);
   } else {
-    minR = 1.2;
+    minR = realDist ? Math.max(1e-6, (three.starObjs[0] ? three.starObjs[0].visualRadius*1.4 : 0)) : 1.2;   // free view: stay outside the central star
     maxR = Math.max(70, three.extent*3.2);
   }
   three.targetRadius = Math.max(minR, Math.min(maxR, three.targetRadius*factor));
@@ -1664,6 +1761,23 @@ window.addEventListener('pointerup', function(e){
     }
     var scene = three.scene;
 
+    // true-distance scale (realistic mode): fit the outermost orbit of the system to REAL_TARGET units
+    realDist = realisticMode;
+    if (realDist){
+      var maxAU = 0.05, offAU = [];
+      stars.forEach(function(s, idx){
+        if (idx===0){ offAU.push(0); return; }
+        var o = offAU[Math.min(parentOf(s), idx-1)] + s.au*(1+(s.ecc||0));
+        offAU.push(o);
+        maxAU = Math.max(maxAU, o);
+      });
+      planets.forEach(function(p){
+        maxAU = Math.max(maxAU, (offAU[p.starIndex]||0) + p.au*(1+(p.ecc||0)));
+      });
+      if (!planets.length && stars.length < 2) maxAU = Math.max(maxAU, 1.5);   // empty system: frame the habitable zone
+      distK = REAL_TARGET/maxAU;
+    }
+
     three.starObjs.forEach(function(so){
       scene.remove(so.group);
     });
@@ -1681,13 +1795,13 @@ window.addEventListener('pointerup', function(e){
     var starOffsets = [];
     stars.forEach(function(s, idx){
       if (idx===0){ starOffsets.push(0); return; }
-      var off = starOffsets[Math.min(parentOf(s), idx-1)] + auToUnits(s.au*(1+(s.ecc||0)));
+      var off = starOffsets[Math.min(parentOf(s), idx-1)] + distUnits(s.au*(1+(s.ecc||0)));
       starOffsets.push(off);
       extent = Math.max(extent, off);
     });
     planets.forEach(function(p){
       var hostOff = starOffsets[p.starIndex] || 0;
-      extent = Math.max(extent, hostOff + auToUnits(p.au*(1+(p.ecc||0))));
+      extent = Math.max(extent, hostOff + distUnits(p.au*(1+(p.ecc||0))));
     });
     three.extent = extent;
 
@@ -1698,7 +1812,7 @@ window.addEventListener('pointerup', function(e){
       var isBH = s.cls==='BH';
       var L = starLuminosity(s);
       var starScale = starVisualRadius(s);   // sized relative to the primary star
-      if (isBH) starScale = Math.max(starScale, 0.03);
+      if (isBH && !(realDist && trueScaleMode)) starScale = Math.max(starScale, 0.03);
 
       var starColor;
       if (isBH){
@@ -1735,7 +1849,7 @@ window.addEventListener('pointerup', function(e){
         group.add(disk);
         topY = starScale*3.2;
       } else {
-        var glowBase = Math.max(starScale, 0.1); // keep tiny remnants (white dwarfs, pulsars) visible as glowing points
+        var glowBase = realDist ? starScale : Math.max(starScale, 0.1); // keep tiny remnants (white dwarfs, pulsars) visible as glowing points
         var glowInnerMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:starColor, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
         var glowInner = new THREE.Sprite(glowInnerMat);
         glowInner.scale.set(glowBase*4.6, glowBase*4.6, 1);
@@ -1753,7 +1867,8 @@ window.addEventListener('pointerup', function(e){
 
       if (L > 0){
         var hz = hzBounds(L);
-        var rIn = auToUnits(Math.max(hz.inner,0.05)), rOut = auToUnits(Math.min(hz.outer,50));
+        var rIn = realDist ? hz.inner*distK : auToUnits(Math.max(hz.inner,0.05));
+        var rOut = realDist ? hz.outer*distK : auToUnits(Math.min(hz.outer,50));
         var hzMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
         hzMesh.rotation.x = -Math.PI/2;
         hzMesh.visible = showHZ;
@@ -1761,10 +1876,12 @@ window.addEventListener('pointerup', function(e){
       }
 
       var label = makeTextSprite(s.name, 22);
+      label.userData.target = starMesh;
       label.position.set(0, topY + 0.35, 0);
       group.add(label);
 
-      var starObjEntry = { group:group, mesh:starMesh, star:s, visualRadius:starScale, parentIdx:0, orbitLine:null, hzMesh:hzMesh||null, trailLine:null };
+      var starObjEntry = { group:group, mesh:starMesh, star:s, visualRadius:starScale, parentIdx:0, orbitLine:null, hzMesh:hzMesh||null, trailLine:null,
+        fx:{ glowInner:glowInner||null, glowOuter:glowOuter||null, photon:photon||null, disk:disk||null, label:label, topY:topY, isBH:isBH } };
       three.starObjs.push(starObjEntry);
 
       if (idx>0){
@@ -1831,6 +1948,7 @@ window.addEventListener('pointerup', function(e){
       three.planetRings.push(ring);
 
       var label = makeTextSprite(p.name);
+      label.userData.target = mesh;
       group.add(label);
       three.planetLabels.push(label);
     });
@@ -1931,6 +2049,16 @@ window.addEventListener('pointerup', function(e){
       three.lookTarget.z + three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
     );
     three.camera.lookAt(three.lookTarget);
+    if (realDist){
+      updateRealisticDecor();
+      // the clipping planes follow the zoom so a planet and a whole system can both be viewed sharply
+      var nearP = Math.max(1e-10, three.radius*0.01), farP = Math.max(1000, three.radius*10 + three.extent*10);
+      if (Math.abs(three.camera.near - nearP) > nearP*0.02 || three.camera.far !== farP){
+        three.camera.near = nearP; three.camera.far = farP; three.camera.updateProjectionMatrix();
+      }
+    } else if (three.camera.near !== 0.001 || three.camera.far !== 500){
+      three.camera.near = 0.001; three.camera.far = 500; three.camera.updateProjectionMatrix();
+    }
     three.sky.position.copy(three.camera.position);
 
     three.renderer.render(three.scene, three.camera);
@@ -2053,17 +2181,6 @@ window.addEventListener('pointerup', function(e){
     restoreFileInput.click();
   });
 
-  var scaleToggleBtn = document.getElementById('scaleToggleBtn');
-scaleToggleBtn.addEventListener('click', function(){
-  trueScaleMode = !trueScaleMode;
-  scaleToggleBtn.textContent = trueScaleMode
-  ? '⊙ TRUE SIZE SCALE — CLICK FOR ENHANCED'
-  : '◎ ENHANCED SCALE — CLICK TO REVERT';
-  scaleToggleBtn.classList.toggle('active', trueScaleMode);
-  updateScaleLabel();
-  rebuildIfReady();
-});
-
     // ---- presets ----
   var PRESETS = [
     { label:'Kepler-11', file:'presets/kepler-11.json' }
@@ -2149,22 +2266,31 @@ showSysStatus('System reset.');
       // if the physics can't keep up (very tight orbits / huge masses), say how much slower than real time it runs
       if ((++frameCount % 20) === 0){
         var rate = sim.rate;
-        physicsBtn.textContent = '⚛ REALISTIC PHYSICS: ON' + (rate < 0.9 ? ' (' + Math.max(1, Math.round(rate*100)) + '% SPEED)' : '');
+        physicsBtn.textContent = '⚛ REALISTIC MODE: ON' + (rate < 0.9 ? ' (' + Math.max(1, Math.round(rate*100)) + '% SPEED)' : '');
       }
     }
+    if (realDist && (frameCount % 15) === 0) updateViewScaleText();
     update3D();
     requestAnimationFrame(loop);
   }
 
-  // ---- realistic physics on/off ----
+  // ---- realistic mode on/off ----
   physicsBtn.addEventListener('click', function(){
     realisticMode = !realisticMode;
     physicsBtn.classList.toggle('active', realisticMode);
-    physicsBtn.textContent = realisticMode ? '⚛ REALISTIC PHYSICS: ON' : '⚛ REALISTIC PHYSICS: OFF';
+    physicsBtn.textContent = realisticMode ? '⚛ REALISTIC MODE: ON' : '⚛ REALISTIC MODE: OFF';
+    if (three){
+      // the two modes use different scales, so go back to the opening view
+      three.focusObj = null;
+      three.baseTarget.set(0,0,0);
+      three.lookOffset.copy(three.lookTarget);
+      three.targetRadius = 11; three.savedRadius = 11;
+    }
     rebuildIfReady();   // fresh start: ON begins a gravity simulation from the current orbits, OFF returns to idealized orbits
+    updateScaleLabel();
     logPhysics(realisticMode
-      ? 'REALISTIC PHYSICS ON — bodies now pull on each other'
-      : 'REALISTIC PHYSICS OFF — idealized Kepler orbits');
+      ? 'REALISTIC MODE ON — real gravity and true distances'
+      : 'REALISTIC MODE OFF — idealized Kepler orbits');
   });
 
   // ---- habitable zone rings on/off (on by default) ----
