@@ -14,7 +14,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Explore an interactive 3D solar system model with real orbital mechanics — true planet scale, Kepler orbits, and data on every planet and dwarf planet.">
+<meta name="description" content="Explore an interactive 3D solar system model drawn fully to scale — real distances and sizes, today's planet positions, Kepler orbits, moons, and data on every planet and dwarf planet.">
 
 <title>Solar System Simulator | rameshverse</title>
 
@@ -96,16 +96,19 @@
     pointer-events:none;
     padding:0 14px;
   }
-  #bodies-row{
-    display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;
+  .body-row{
+    display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;align-items:center;
     max-width:100%;
     pointer-events:auto;
     padding-bottom:2px;
     scrollbar-width:thin;
   }
-  #bodies-row::-webkit-scrollbar{height:3px;}
-  #bodies-row::-webkit-scrollbar-thumb{background:var(--red-dim);}
-  #bodies-row .btn{padding:6px 9px;font-size:9px;}
+  .body-row::-webkit-scrollbar{height:3px;}
+  .body-row::-webkit-scrollbar-thumb{background:var(--red-dim);}
+  .body-row .btn{padding:5px 8px;font-size:9px;}
+  .body-row .row-tag{font-size:8px;letter-spacing:2px;color:var(--dim);opacity:.7;padding-right:2px;white-space:nowrap;flex:none;}
+  #moons-row .btn,#small-row .btn{font-size:8.5px;padding:4px 7px;}
+  .btn.moon{border-color:rgba(255,255,255,.18);}
   #planet-buttons{display:contents;}
   #sim-row{
     display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;
@@ -138,7 +141,7 @@
 
   /* info panel */
   #panel{
-    position:fixed;top:70px;right:20px;width:280px;
+    position:fixed;top:184px;right:20px;width:280px;max-height:calc(100vh - 200px);overflow-y:auto;
     background:rgba(8,9,12,0.88);
     border:1px solid var(--red-dim);
     padding:0;
@@ -187,7 +190,7 @@
   #scale-note{
     position:fixed;bottom:20px;left:20px;
     font-size:9px;color:var(--dim);letter-spacing:1px;z-index:56;
-    opacity:.7;pointer-events:none;max-width:220px;
+    opacity:.7;pointer-events:none;max-width:300px;
   }
   #watermark{
     position:fixed;bottom:8px;left:50%;transform:translateX(-50%);
@@ -208,13 +211,34 @@
   }
   #loading .txt{font-size:11px;letter-spacing:3px;color:var(--dim);}
 
+  /* name labels (HTML overlay) */
+  #labels{position:fixed;inset:0;pointer-events:none;z-index:54;overflow:hidden;}
+  .lbl{
+    position:absolute;left:0;top:0;display:none;
+    font-size:9px;letter-spacing:1.2px;color:#cfd5dc;opacity:.92;
+    padding:1px 3px;white-space:nowrap;cursor:pointer;pointer-events:auto;
+    text-shadow:0 0 4px #000,0 0 2px #000,0 0 8px #000;will-change:transform;
+  }
+  .lbl:hover{color:var(--red);}
+  .lbl.dwarf{color:#8d95a1;}
+  .lbl.moon{color:#9aa3ae;font-size:8px;letter-spacing:1px;}
+  .lbl.sel{color:var(--red);}
+  #speed-val{min-width:64px;color:var(--text);letter-spacing:1px;}
+  #scalebar{
+    position:fixed;right:40px;bottom:22px;z-index:56;text-align:center;
+    font-size:9px;letter-spacing:1px;color:var(--dim);pointer-events:none;
+  }
+  #scalebar .bar{height:6px;border:1px solid var(--dim);border-top:none;margin:4px auto 0;}
+
   @media(max-width:640px){
     #panel{width:calc(100vw - 40px);right:20px;top:64px;}
     #topbar{padding:14px 18px;}
     #logo{font-size:10px;letter-spacing:1px;}
     #clock{display:none;}
     #hint{display:none;}
-    #scale-note{bottom:16px;left:18px;}
+    #scale-note{bottom:16px;left:18px;max-width:200px;}
+    #scalebar{right:18px;bottom:16px;}
+    #speed-val{display:none;}
   }
 </style>
 </head>
@@ -238,20 +262,23 @@
 </div>
 
 <div id="top-controls">
-  <div id="bodies-row">
+  <div class="body-row" id="bodies-row">
     <button class="btn" id="btn-sun">SUN</button>
     <div id="planet-buttons"></div>
   </div>
+  <div class="body-row" id="small-row"><span class="row-tag">DISTANT</span></div>
+  <div class="body-row" id="moons-row"><span class="row-tag">MOONS</span></div>
   <div id="sim-row">
-    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="40"></div>
-    <button class="btn active" id="btn-scale">⇄ SCALE PLANETS: TRUE</button>
+    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="40"><span id="speed-val"></span></div>
     <button class="btn" id="btn-pause">PAUSE</button>
     <button class="btn" id="btn-orbits">ORBITS: ON</button>
+    <button class="btn" id="btn-belts">BELTS: ON</button>
     <button class="btn" id="btn-reset">RESET</button>
   </div>
 </div>
 
 <div id="canvas-wrap"></div>
+<div id="labels"></div>
 
 <div id="panel">
   <div id="panel-head">
@@ -263,8 +290,9 @@
 
 <div id="reticle"><span class="tick top"></span><span class="tick bot"></span><span class="tick l"></span><span class="tick r"></span></div>
 
-<div id="hint">DRAG TO ROTATE · RIGHT-DRAG / 2-FINGER TO PAN · SCROLL TO ZOOM · CLICK A BODY TO LOCK TARGET</div>
-<div id="scale-note">TRUE PLANET SCALE — DISTANCES ARE STYLIZED</div>
+<div id="hint">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK A NAME OR BUTTON TO FLY TO IT · RIGHT-DRAG / 2-FINGER TO PAN</div>
+<div id="scale-note">TO SCALE — TRUE DISTANCES &amp; SIZES</div>
+<div id="scalebar"><div class="txt"></div><div class="bar"></div></div>
 <div id="watermark">rameshverse.com</div>
 
 
@@ -272,79 +300,210 @@
 <script>
 (function(){
 
-// ---------- DATA (astronomically referenced, visually scaled for legibility) ----------
-// distance: AU (semi-major axis), radius: km, period: Earth days, ecc: orbital eccentricity, massKg: real mass
+// ================================================================================================
+//  SOLAR SYSTEM SIMULATOR — everything is drawn TRUE TO SCALE.
+//  1 scene unit = Sun radius / 9.5, so distances AND sizes use the same real-world ruler.
+// ================================================================================================
+const AU_KM   = 149597870.7;
+const SUN_R_KM = 696340;
+const KM_U    = 9.5 / SUN_R_KM;          // scene units per km
+const AU_U    = AU_KM * KM_U;            // scene units per AU  (~2041)
+const J2000   = 2451545.0;               // Julian date of the J2000 epoch
+const DEG     = Math.PI / 180;
+const TWO_PI  = Math.PI * 2;
+const OBLIQ   = 23.43928 * DEG;          // tilt of Earth's axis to the ecliptic
+const LIGHT_SEC_PER_AU = 499.004784;
+const C_KM_S  = 299792.458;
+const jdNow = () => Date.now() / 86400000 + 2440587.5;
+
+// ---------- DATA ----------
+// Planet orbits: JPL "Keplerian elements for approximate positions" (Standish), valid 1800-2050, J2000 ecliptic.
+// Row = [a, a', e, e', I, I', L, L', long.peri, long.peri', long.node, long.node']  (AU, deg, per Julian century)
+// Dwarf planets: osculating elements at the epoch given (JPL / published values).
+// pole = IAU north-pole direction (RA, Dec) — used for ring and moon orbit planes.
 const PLANETS = [
-  {name:"MERCURY", color:0x9c9c9c, distAU:0.39, radiusKm:2440, periodDays:88,   dayLenH:1408,  moons:0, ecc:0.2056, massKg:3.301e23, desc:"Smallest planet. No atmosphere to speak of. Surface temps swing over 600°C between day and night."},
-  {name:"VENUS",   color:0xe8c27a, distAU:0.72, radiusKm:6052, periodDays:225,  dayLenH:5832,  moons:0, ecc:0.0068, massKg:4.867e24, desc:"Hottest planet in the solar system due to a runaway greenhouse atmosphere of CO2. Rotates backwards."},
-  {name:"EARTH",   color:0x2b6fff, distAU:1.00, radiusKm:6371, periodDays:365,  dayLenH:24,    moons:1, ecc:0.0167, massKg:5.972e24, desc:"Only known planet with liquid water oceans covering most of its surface and confirmed life."},
-  {name:"MARS",    color:0xc1440e, distAU:1.52, radiusKm:3390, periodDays:687,  dayLenH:24.6,  moons:2, ecc:0.0934, massKg:6.417e23, desc:"The Red Planet. Home to Olympus Mons, the largest volcano in the solar system, and vast dust storms."},
-  {name:"JUPITER", color:0xd9b38c, distAU:5.20, radiusKm:69911,periodDays:4333, dayLenH:9.9,   moons:95, ecc:0.0489, massKg:1.898e27, desc:"Largest planet. A gas giant with the Great Red Spot, a storm larger than Earth raging for centuries."},
-  {name:"SATURN",  color:0xead6a6, distAU:9.58, radiusKm:58232,periodDays:10759,dayLenH:10.7,  moons:146,ecc:0.0565, massKg:5.683e26, desc:"Famous for its extensive ring system made of ice and rock. Less dense than water.", ring:true},
-  {name:"URANUS",  color:0x9fd8d8, distAU:19.2, radiusKm:25362,periodDays:30687,dayLenH:17.2,  moons:28, ecc:0.0457, massKg:8.681e25, desc:"Ice giant that rotates on its side, likely due to an ancient massive impact. Faint ring system.", ring:true, ringThin:true},
-  {name:"NEPTUNE", color:0x3b5fd9, distAU:30.05,radiusKm:24622,periodDays:60190,dayLenH:16.1,  moons:16, ecc:0.0113, massKg:1.024e26, desc:"Windiest planet, with supersonic storms. Farthest known planet from the Sun."},
-  {name:"CERES",   color:0x9a8f80, distAU:2.77, radiusKm:473,  periodDays:1682,  dayLenH:9.1,   moons:0, ecc:0.0758, massKg:9.38e20, dwarf:true, desc:"Largest object in the asteroid belt and the only IAU-recognized dwarf planet in the inner solar system. Likely holds a subsurface ocean."},
-  {name:"PLUTO",   color:0xc9b8a0, distAU:39.5, radiusKm:1188, periodDays:90560, dayLenH:153.3, moons:5, ecc:0.2488, massKg:1.303e22, dwarf:true, desc:"Best-known dwarf planet, reclassified from planet status in 2006. Shares a mutual orbit with its large moon Charon."},
-  {name:"HAUMEA",  color:0xdfe6ea, distAU:43.13,radiusKm:780,  periodDays:103410,dayLenH:3.915, moons:2, ecc:0.191,  massKg:4.006e21, dwarf:true, desc:"An extremely elongated, fast-spinning dwarf planet — a full day is under 4 hours, the fastest rotation of any known large solar system body. Wears a thin ring."},
-  {name:"MAKEMAKE",color:0xc9a37a, distAU:45.79,radiusKm:715,  periodDays:111845,dayLenH:22.48, moons:1, ecc:0.161,  massKg:3.1e21,  dwarf:true, desc:"A bright, reddish dwarf planet in the Kuiper Belt, discovered in 2005 shortly before Eris. Its single known moon is nicknamed MK 2."},
-  {name:"ERIS",    color:0xd8d4cc, distAU:68,   radiusKm:1163, periodDays:203830,dayLenH:25.9,  moons:1, ecc:0.4407, massKg:1.66e22, dwarf:true, desc:"A frozen, distant dwarf planet whose 2005 discovery triggered the debate that redefined what counts as a planet."},
+  {name:"MERCURY", color:0x9c9c9c, radiusKm:2440,  periodDays:88,    dayLenH:1408,  moons:0,   massKg:3.301e23, tilt:0.03,   pole:[281.0097,61.4143],
+   std:[0.38709927,0.00000037, 0.20563593,0.00001906, 7.00497902,-0.00594749, 252.25032350,149472.67411175, 77.45779628,0.16047689, 48.33076593,-0.12534081],
+   desc:"Smallest planet. No atmosphere to speak of. Surface temps swing over 600°C between day and night."},
+  {name:"VENUS",   color:0xe8c27a, radiusKm:6052,  periodDays:225,   dayLenH:5832,  moons:0,   massKg:4.867e24, tilt:177.36, pole:[272.76,67.16], retro:true,
+   std:[0.72333566,0.00000390, 0.00677672,-0.00004107, 3.39467605,-0.00078890, 181.97909950,58517.81538729, 131.60246718,0.00268329, 76.67984255,-0.27769418],
+   desc:"Hottest planet in the solar system due to a runaway greenhouse atmosphere of CO2. Rotates backwards."},
+  {name:"EARTH",   color:0x2b6fff, radiusKm:6371,  periodDays:365,   dayLenH:24,    moons:1,   massKg:5.972e24, tilt:23.44,  pole:[0,90],
+   std:[1.00000261,0.00000562, 0.01671123,-0.00004392, -0.00001531,-0.01294668, 100.46457166,35999.37244981, 102.93768193,0.32327364, 0.0,0.0],
+   desc:"Only known planet with liquid water oceans covering most of its surface and confirmed life."},
+  {name:"MARS",    color:0xc1440e, radiusKm:3390,  periodDays:687,   dayLenH:24.6,  moons:2,   massKg:6.417e23, tilt:25.19,  pole:[317.68143,52.8865],
+   std:[1.52371034,0.00001847, 0.09339410,0.00007882, 1.84969142,-0.00813131, -4.55343205,19140.30268499, -23.94362959,0.44441088, 49.55953891,-0.29257343],
+   desc:"The Red Planet. Home to Olympus Mons, the largest volcano in the solar system, and vast dust storms."},
+  {name:"JUPITER", color:0xd9b38c, radiusKm:69911, periodDays:4333,  dayLenH:9.9,   moons:95,  massKg:1.898e27, tilt:3.13,   pole:[268.056595,64.495303],
+   std:[5.20288700,-0.00011607, 0.04838624,-0.00013253, 1.30439695,-0.00183714, 34.39644051,3034.74612775, 14.72847983,0.21252668, 100.47390909,0.20469106],
+   desc:"Largest planet. A gas giant with the Great Red Spot, a storm larger than Earth raging for centuries."},
+  {name:"SATURN",  color:0xead6a6, radiusKm:58232, periodDays:10759, dayLenH:10.7,  moons:146, massKg:5.683e26, tilt:26.73,  pole:[40.589,83.537],
+   std:[9.53667594,-0.00125060, 0.05386179,-0.00050991, 2.48599187,0.00193609, 49.95424423,1222.49362201, 92.59887831,-0.41897216, 113.66242448,-0.28867794],
+   ring:{mode:0, innerKm:74658, outerKm:136775, color:0xe6d3a3},
+   desc:"Famous for its extensive ring system made of ice and rock. Less dense than water."},
+  {name:"URANUS",  color:0x9fd8d8, radiusKm:25362, periodDays:30687, dayLenH:17.2,  moons:28,  massKg:8.681e25, tilt:97.77,  pole:[257.311,-15.175], retro:true,
+   std:[19.18916464,-0.00196176, 0.04725744,-0.00004397, 0.77263783,-0.00242939, 313.23810451,428.48202785, 170.95427630,0.40805281, 74.01692503,0.04240589],
+   ring:{mode:1, innerKm:41837, outerKm:51149, color:0xa9b2b8},
+   desc:"Ice giant that rotates on its side, likely due to an ancient massive impact. Faint ring system."},
+  {name:"NEPTUNE", color:0x3b5fd9, radiusKm:24622, periodDays:60190, dayLenH:16.1,  moons:16,  massKg:1.024e26, tilt:28.32,  pole:[299.36,43.46],
+   std:[30.06992276,0.00026291, 0.00859048,0.00005105, 1.77004347,0.00035372, -55.12002969,218.45945325, 44.96476227,-0.32241464, 131.78422574,-0.00508664],
+   desc:"Windiest planet, with supersonic storms. Farthest known planet from the Sun."},
+  {name:"CERES",   color:0x9a8f80, radiusKm:473,   periodDays:1682,  dayLenH:9.1,   moons:0,   massKg:9.38e20,  tilt:4,      dwarf:true,
+   orb:{jd0:2459600.5, a:2.7670, e:0.0785, i:10.6, om:80.3, w:73.6, M0:291.4},
+   desc:"Largest object in the asteroid belt and the only IAU-recognized dwarf planet in the inner solar system. Likely holds a subsurface ocean."},
+  {name:"PLUTO",   color:0xc9b8a0, radiusKm:1188,  periodDays:90560, dayLenH:153.3, moons:5,   massKg:1.303e22, tilt:122.53, pole:[132.993,-6.163], dwarf:true, retro:true,
+   orb:{jd0:2451545.0, a:39.482, e:0.2488, i:17.16, om:110.299, w:113.834, M0:14.53},
+   desc:"Best-known dwarf planet, reclassified from planet status in 2006. Shares a mutual orbit with its large moon Charon."},
+  {name:"HAUMEA",  color:0xdfe6ea, radiusKm:780,   periodDays:103410,dayLenH:3.915, moons:2,   massKg:4.006e21, tilt:null,   dwarf:true,
+   orb:{jd0:2459200.5, a:43.116, e:0.19642, i:28.2137, om:122.167, w:239.041, M0:218.205},
+   desc:"An extremely elongated, fast-spinning dwarf planet — a full day is under 4 hours, the fastest rotation of any known large solar system body. Wears a thin ring."},
+  {name:"MAKEMAKE",color:0xc9a37a, radiusKm:715,   periodDays:111845,dayLenH:22.48, moons:1,   massKg:3.1e21,   tilt:null,   dwarf:true,
+   orb:{jd0:2461000.5, a:45.499, e:0.1604, i:29.002, om:79.441, w:296.065, M0:170.497},
+   desc:"A bright, reddish dwarf planet in the Kuiper Belt, discovered in 2005 shortly before Eris. Its single known moon is nicknamed MK 2."},
+  {name:"ERIS",    color:0xd8d4cc, radiusKm:1163,  periodDays:203830,dayLenH:25.9,  moons:1,   massKg:1.66e22,  tilt:null,   dwarf:true,
+   orb:{jd0:2461000.5, a:67.69, e:0.436, i:44.18, om:36.02, w:151.66, M0:205.11},
+   desc:"A frozen, distant dwarf planet whose 2005 discovery triggered the debate that redefined what counts as a planet."},
+  // ---- distant objects (elements at the epoch given; heliocentric, approximate) ----
+  {name:"DEEDEE", desig:"2014 UZ224", kind:"DISTANT TNO · DWARF-PLANET CANDIDATE", color:0xc9a89a, radiusKm:317.5, dayLenH:null, moons:0, massKg:null, tilt:null, dwarf:true, small:true,
+   orb:{jd0:2460800.5, a:109.93, e:0.648, i:26.7787, om:131.133, w:28.55, M0:323.47},
+   desc:"A scattered-disc object about 635 km across, found in 2014 — nicknamed DeeDee, for “Distant Dwarf”. Its orbit swings from about 39 AU out to 180 AU and takes roughly 1,150 years."},
+  {name:"HALE-BOPP", desig:"C/1995 O1", kind:"COMET", color:0xbcd6ff, radiusKm:30, dayLenH:11.35, moons:0, massKg:1.9e14, tilt:null, dwarf:true, small:true,
+   orb:{jd0:2459837.5, a:177.43, e:0.99498, i:89.288, om:282.73, w:130.41, M0:3.877},
+   desc:"The Great Comet of 1997, visible to the naked eye for 18 months. Its nucleus is about 60 km across — unusually large. Its orbit is almost perpendicular to the planets' and takes about 2,400 years; it last passed the Sun on 1 April 1997."},
+  {name:"BIDEN", desig:"2012 VP113", kind:"DISTANT TNO · SEDNOID", color:0xd6b8b0, radiusKm:225, dayLenH:null, moons:0, massKg:null, tilt:null, dwarf:true, small:true,
+   orb:{jd0:2460800.5, a:262.3, e:0.6931, i:24.0563, om:90.80, w:293.90, M0:24.05},
+   desc:"Nicknamed “Biden” after its designation, VP. About 450 km across, and one of the few known bodies that never come closer to the Sun than about 80 AU — far beyond Neptune's influence."},
+  {name:"SEDNA", desig:"90377 Sedna", kind:"DISTANT TNO · DWARF-PLANET CANDIDATE", color:0xc4573b, radiusKm:500, dayLenH:10.27, moons:0, massKg:null, tilt:null, dwarf:true, small:true,
+   orb:{jd0:2458900.5, a:506, e:0.8496, i:11.9307, om:144.248, w:311.352, M0:358.117},
+   desc:"One of the reddest objects in the solar system, about 1,000 km across. It runs from about 76 AU out to nearly 940 AU on an orbit of roughly 11,400 years — and it is near its closest point to the Sun now."},
+  {name:"LELEĀKŪHONUA", desig:"541132 (2015 TG387)", kind:"EXTREME TNO", color:0xb9a89c, radiusKm:110, dayLenH:null, moons:0, massKg:null, tilt:null, dwarf:true, small:true,
+   orb:{jd0:2460000.5, a:1389, e:0.94572, i:11.68, om:300.989, w:118.236, M0:359.63},
+   desc:"Nicknamed “The Goblin”, about 220 km across. Its orbit reaches out to well over 2,000 AU, and it is currently near its closest approach to the Sun."},
+  {name:"2014 FE72", desig:"2014 FE72", kind:"EXTREME TNO", color:0xa9b4c4, radiusKm:120, dayLenH:null, moons:0, massKg:null, tilt:null, dwarf:true, small:true,
+   orb:{jd0:2459600.5, a:2791.896, e:0.9870, i:20.599, om:336.770, w:134.425, M0:0.125},
+   desc:"One of the most distant objects ever seen orbiting the Sun — about 250 km across, and its orbit reaches out beyond 5,000 AU, where the Sun would look like just another bright star."},
 ];
 
-const SUN = {name:"SUN", radiusKm:696340, massKg:1.989e30, desc:"G-type main-sequence star. Contains 99.8% of the solar system's mass. Core temperature ~15 million °C."};
+// Moons: orbit radius (km, from the planet's centre), radius (km), sidereal period (days; negative = retrograde)
+const MOONS = {
+  EARTH:   [{n:"MOON",     a:384400,  r:1737.4, P:27.3217, color:0xb9b9b4, moon:true}],
+  MARS:    [{n:"PHOBOS",   a:9376,    r:11.1,   P:0.31891, color:0x8a7f76},
+            {n:"DEIMOS",   a:23463,   r:6.2,    P:1.263,   color:0x9a8e84}],
+  JUPITER: [{n:"IO",       a:421700,  r:1821.6, P:1.769,   color:0xe3cf7a},
+            {n:"EUROPA",   a:671034,  r:1560.8, P:3.5512,  color:0xd9d2c4},
+            {n:"GANYMEDE", a:1070412, r:2634.1, P:7.1546,  color:0xa79d92},
+            {n:"CALLISTO", a:1882709, r:2410.3, P:16.689,  color:0x7f776e}],
+  SATURN:  [{n:"MIMAS",    a:185540,  r:198.2,  P:0.9424,  color:0xbdbdbd},
+            {n:"ENCELADUS",a:238040,  r:252.1,  P:1.3702,  color:0xf2f4f6},
+            {n:"TETHYS",   a:294670,  r:531.1,  P:1.8878,  color:0xe4e4e4},
+            {n:"DIONE",    a:377420,  r:561.4,  P:2.7369,  color:0xd2d2d2},
+            {n:"RHEA",     a:527070,  r:763.8,  P:4.5175,  color:0xc9c9c9},
+            {n:"TITAN",    a:1221870, r:2574.7, P:15.945,  color:0xd9a441},
+            {n:"IAPETUS",  a:3560840, r:734.5,  P:79.33,   color:0x9b8f80}],
+  URANUS:  [{n:"MIRANDA",  a:129900,  r:235.8,  P:1.4135,  color:0xc4c4c4},
+            {n:"ARIEL",    a:190900,  r:578.9,  P:2.520,   color:0xd0d0d0},
+            {n:"UMBRIEL",  a:266000,  r:584.7,  P:4.144,   color:0x8f8f8f},
+            {n:"TITANIA",  a:436300,  r:788.4,  P:8.706,   color:0xb5b0a8},
+            {n:"OBERON",   a:583500,  r:761.4,  P:13.463,  color:0xa39b92}],
+  NEPTUNE: [{n:"TRITON",   a:354759,  r:1353.4, P:-5.877,  color:0xe3d6d0}],
+  PLUTO:   [{n:"CHARON",   a:19591,   r:606,    P:6.387,   color:0x9a9189}],
+  HAUMEA:  [{n:"NAMAKA",   a:25657,   r:85,     P:18.28,   color:0xdfe6ea},
+            {n:"HI'IAKA",  a:49880,   r:160,    P:49.12,   color:0xdfe6ea}],
+  ERIS:    [{n:"DYSNOMIA", a:37273,   r:350,    P:15.786,  color:0x8d8a85}],
+};
 
-// ---------- SCALING ----------
-// Distance: spread out logarithmically-ish so inner planets aren't crushed against the sun
-// Size: compress hugely (real scale would make the sun a football field vs planets as grains of sand)
-const NEPTUNE_AU = 30.05, NEPTUNE_DIST = 26 + NEPTUNE_AU * 34;
-function distScale(au){
-  if(au <= NEPTUNE_AU) return 26 + au * 34; // true-ish spacing out to Neptune
-  // beyond Neptune, compress log-wise so Pluto/Eris/Sedna are reachable & orderly
-  return NEPTUNE_DIST + Math.log((au - NEPTUNE_AU) + 1) * 150;
-}
-function radiusScaleVisible(km){ return Math.max(Math.pow(km, 0.27) * 0.16, 1.15); } // flatter curve + higher floor so small/dwarf bodies are easy to see & click
-// TRUE: sizes proportional to the Sun's real radius (9.5 scene units = 696,340 km) — no artificial compression.
-// This makes the gas giants look properly small next to the Sun and the terrestrial/dwarf worlds shrink to near-dots,
-// which is the actual, honest scale of the solar system.
-function radiusScaleTrue(km){ return Math.max((km/696340) * 9.5, 0.012); }
+const SUN = {name:"SUN", radiusKm:SUN_R_KM, massKg:1.989e30, desc:"G-type main-sequence star. Contains 99.8% of the solar system's mass. Core temperature ~15 million °C."};
 
-// ---------- KEPLER ORBITAL MECHANICS ----------
-// Static ellipse shape for orbit rings, parametrized directly by true anomaly:
-// r(nu) = a(1-e^2) / (1 + e*cos(nu))
-function ellipseRadiusAt(a, e, nu){
-  return a*(1-e*e) / (1 + e*Math.cos(nu));
+// ---------- ORBITAL MECHANICS ----------
+function makeElements(o){
+  const i=o.i*DEG, om=o.om*DEG, w=o.w*DEG;
+  const cw=Math.cos(w), sw=Math.sin(w), co=Math.cos(om), so=Math.sin(om), ci=Math.cos(i), si=Math.sin(i);
+  return {
+    jd0:o.jd0, a:o.a, e:o.e, i, om, w, M0:o.M0*DEG,
+    n: (o.n !== undefined) ? o.n : TWO_PI/(365.25636*Math.pow(o.a,1.5)),   // mean motion, rad/day
+    P11: cw*co - sw*so*ci,  P12: -sw*co - cw*so*ci,
+    P21: cw*so + sw*co*ci,  P22: -sw*so + cw*co*ci,
+    P31: sw*si,             P32: cw*si
+  };
 }
-// True motion: mean anomaly (advances linearly with time) -> eccentric anomaly (Newton's method)
-// -> true anomaly + radius. This makes bodies genuinely sweep faster near perihelion (Kepler's 2nd law)
-// instead of moving at a uniform angular rate.
-function solveKepler(meanAnomaly, e){
-  let E = meanAnomaly;
-  for(let i=0;i<6;i++){
-    E = E - (E - e*Math.sin(E) - meanAnomaly)/(1 - e*Math.cos(E));
-  }
-  const rOverA = 1 - e*Math.cos(E);
-  const trueAnom = 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2), Math.sqrt(1-e)*Math.cos(E/2));
-  return {rOverA, trueAnom};
+// planets: elements and rates evaluated for the date the page was opened, then frozen
+function standishElements(r, jd){
+  const T=(jd-J2000)/36525;
+  const a=r[0]+r[1]*T, e=r[2]+r[3]*T, I=r[4]+r[5]*T, L=r[6]+r[7]*T, vp=r[8]+r[9]*T, Om=r[10]+r[11]*T;
+  return makeElements({jd0:jd, a, e, i:I, om:Om, w:vp-Om, M0:L-vp, n:(r[7]-r[9])/36525*DEG});
 }
+function solveE(M, e){
+  M = ((M % TWO_PI) + TWO_PI) % TWO_PI;
+  let E = e < 0.8 ? M : Math.PI;
+  for(let k=0;k<10;k++){ E -= (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E)); }
+  return E;
+}
+// heliocentric position in scene units. Ecliptic (X,Y,Z) -> scene (X, Z, -Y): y is "north", motion is counter-clockwise from above.
+function orbitPoint(el, E, out){
+  const xp = el.a*(Math.cos(E)-el.e), yp = el.a*Math.sqrt(1-el.e*el.e)*Math.sin(E);
+  const X = el.P11*xp + el.P12*yp, Y = el.P21*xp + el.P22*yp, Z = el.P31*xp + el.P32*yp;
+  return out.set(X*AU_U, Z*AU_U, -Y*AU_U);
+}
+function orbitPos(el, jd, out){
+  return orbitPoint(el, solveE(el.M0 + el.n*(jd-el.jd0), el.e), out);
+}
+function poleVec(ra, dec){
+  ra*=DEG; dec*=DEG;
+  const x=Math.cos(dec)*Math.cos(ra), y=Math.cos(dec)*Math.sin(ra), z=Math.sin(dec);
+  const Xe=x, Ye=y*Math.cos(OBLIQ)+z*Math.sin(OBLIQ), Ze=-y*Math.sin(OBLIQ)+z*Math.cos(OBLIQ);
+  return new THREE.Vector3(Xe, Ze, -Ye).normalize();
+}
+// two unit vectors spanning the plane perpendicular to a pole (u points roughly along the ecliptic x axis)
+function planeBasis(p){
+  let u = new THREE.Vector3(0,1,0).cross(p);
+  if(u.lengthSq() < 1e-6) u.set(1,0,0);
+  u.normalize();
+  const v = new THREE.Vector3().crossVectors(p, u).normalize();
+  return {u, v};
+}
+
+function fmt(n){ return n.toLocaleString(); }
 function fmtMass(kg){
   const exp = Math.floor(Math.log10(kg));
   const mant = (kg/Math.pow(10,exp)).toFixed(2);
-  const supMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  const supMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
   const supExp = String(exp).split('').map(c=>supMap[c]||c).join('');
   return mant + ' × 10' + supExp + ' kg';
+}
+function fmtSpan(au){
+  if(au >= 0.1) return (au<10 ? au.toFixed(2) : Math.round(au).toLocaleString()) + ' AU';
+  const km = au*AU_KM;
+  return (km >= 1000 ? Math.round(km).toLocaleString() : km.toFixed(1)) + ' km';
+}
+function fmtLight(s){
+  if(s < 60) return s.toFixed(s < 10 ? 2 : 1) + ' s';
+  if(s < 3600) return Math.floor(s/60) + ' min ' + Math.round(s%60) + ' s';
+  if(s < 172800) return Math.floor(s/3600) + ' h ' + Math.round((s%3600)/60) + ' min';
+  return (s/86400).toFixed(1) + ' days';
+}
+function fmtPeriod(d){
+  d = Math.abs(d);
+  if(d >= 365250) return fmt(Math.round(d/365.25)) + ' yr';
+  return d >= 730 ? fmt(Math.round(d)) + ' d (' + (d/365.25).toFixed(d/365.25 < 10 ? 2 : 1) + ' yr)' : (d < 10 ? d.toFixed(2) : fmt(Math.round(d))) + ' days';
+}
+function nice125(x){
+  const ex = Math.pow(10, Math.floor(Math.log10(x))), f = x/ex;
+  return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * ex;
 }
 
 // ---------- THREE SETUP ----------
 const wrap = document.getElementById('canvas-wrap');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 8000);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 5e6);
 camera.position.set(0, 180, 340);
+const TAN_HALF_FOV = Math.tan(camera.fov/2*DEG);
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 wrap.appendChild(renderer.domElement);
 
-// starfield
+// starfield (follows the camera, so it stays infinitely far away)
 function makeStars(){
   const geo = new THREE.BufferGeometry();
   const count = 3000;
@@ -359,115 +518,222 @@ function makeStars(){
   }
   geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
   const mat = new THREE.PointsMaterial({color:0xffffff, size:1.1, sizeAttenuation:true, opacity:0.75, transparent:true});
-  scene.add(new THREE.Points(geo, mat));
+  const pts = new THREE.Points(geo, mat);
+  scene.add(pts);
+  return pts;
 }
-makeStars();
+const starPoints = makeStars();
 
-// lights
-const ambient = new THREE.AmbientLight(0x404050, 0.5);
-scene.add(ambient);
-const sunLight = new THREE.PointLight(0xfff2d0, 2.4, 3000, 1.4);
+// lights — sunlight fades gently across the true-scale system; a little ambient keeps night sides readable
+scene.add(new THREE.AmbientLight(0x6a6a80, 0.8));
+const sunLight = new THREE.PointLight(0xfff2d0, 1.25, 2.5e6, 1.4);   // gentle enough that pale planets (Jupiter, Saturn) don't blow out to white
 scene.add(sunLight);
 
-// SUN mesh
+// SUN
 const sunRadius = 9.5;
-const sunGeo = new THREE.SphereGeometry(sunRadius, 48, 48);
-const sunMat = new THREE.MeshBasicMaterial({color:0xffb020});
-const sunMesh = new THREE.Mesh(sunGeo, sunMat);
-sunMesh.userData = {type:'sun'};
+const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(sunRadius, 128, 96), new THREE.MeshBasicMaterial({color:0xffb020}));
 scene.add(sunMesh);
 
-// sun glow sprite
-(function(){
-  const c = document.createElement('canvas'); c.width=256;c.height=256;
-  const ctx=c.getContext('2d');
-  const g = ctx.createRadialGradient(128,128,0,128,128,128);
-  g.addColorStop(0,'rgba(255,180,60,0.9)');
-  g.addColorStop(0.4,'rgba(255,120,30,0.35)');
-  g.addColorStop(1,'rgba(255,80,20,0)');
-  ctx.fillStyle=g;ctx.fillRect(0,0,256,256);
-  const tex = new THREE.CanvasTexture(c);
-  const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthWrite:false});
-  const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(70,70,1);
-  scene.add(sprite);
-})();
-
-// orbit rings + planets
-const planetMeshes = [];
+function radialTexture(stops, size){
+  const c = document.createElement('canvas'); c.width=size; c.height=size;
+  const ctx=c.getContext('2d'), h=size/2;
+  const g = ctx.createRadialGradient(h,h,0,h,h,h);
+  stops.forEach(s=>g.addColorStop(s[0], s[1]));
+  ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
+  return new THREE.CanvasTexture(c);
+}
+const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: radialTexture([[0,'rgba(255,180,60,0.9)'],[0.4,'rgba(255,120,30,0.35)'],[1,'rgba(255,80,20,0)']],256),
+  transparent:true, depthWrite:false}));
+sunGlow.scale.setScalar(sunRadius*4);   // fixed world size: a halo hugging the Sun that fades out of sight with distance, like everything else
+scene.add(sunGlow);
+// ---------- BODIES ----------
+const bodies = [];      // everything that can be selected / labelled
+const planets = [];
+const moons = [];
 const orbitLines = [];
 let orbitsVisible = true;
+let beltsVisible = true;
+const Y_AXIS = new THREE.Vector3(0,1,0);
+const Z_AXIS = new THREE.Vector3(0,0,1);
+const tmpQ = new THREE.Quaternion();
+let simJD = jdNow();
+const jdStart = simJD;
+
+const sunBody = {kind:'sun', name:'SUN', mesh:sunMesh, rad:sunRadius, wp:new THREE.Vector3(), prio:0,
+  worldPos(out){ return out.set(0,0,0); }};
+sunMesh.userData.body = sunBody;
+bodies.push(sunBody);
+
+function ringPointsFor(el){
+  const pts=[], n = el.e > 0.9 ? 1440 : 360;
+  for(let k=0;k<=n;k++) pts.push(orbitPoint(el, k/n*TWO_PI, new THREE.Vector3()));
+  return pts;
+}
+
+const ringVert = `
+varying vec3 vL;
+void main(){ vL = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`;
+// Ring shading: banded transparency (Saturn: C, B, Cassini division, A, Encke gap; Uranus: thin rings),
+// the lit/unlit face, and the planet's own shadow falling across the rings.
+const ringFrag = `
+varying vec3 vL;
+uniform vec3 uSun;      // direction to the Sun, in ring space
+uniform vec3 uCam;      // camera position, in ring space
+uniform float uR;       // planet radius
+uniform float uIn;
+uniform float uOut;
+uniform vec3 uColor;
+uniform float uMode;
+float band(float t, float a, float b, float s){ return smoothstep(a-s,a+s,t)*(1.0-smoothstep(b-s,b+s,t)); }
+float line(float t, float c, float w){ float d=(t-c)/w; return exp(-d*d); }
+void main(){
+  float r = length(vL.xy);
+  float t = (r-uIn)/(uOut-uIn);
+  float alpha;
+  vec3 col = uColor;
+  if(uMode < 0.5){
+    alpha = 0.22*band(t,0.0,0.28,0.02) + 0.95*band(t,0.28,0.69,0.015) + 0.05*band(t,0.69,0.76,0.01) + 0.62*band(t,0.76,1.0,0.01);
+    alpha *= 1.0 - 0.9*band(t,0.935,0.95,0.004);
+    alpha *= 0.84 + 0.16*sin(t*150.0);
+    col *= 0.78 + 0.22*sin(t*40.0+1.0);
+  } else {
+    alpha = max(max(max(line(t,0.0,0.01),line(t,0.043,0.01)),max(line(t,0.079,0.01),line(t,0.30,0.01))),
+                max(max(line(t,0.40,0.01),line(t,0.573,0.01)),max(max(line(t,0.623,0.01),line(t,0.696,0.01)),max(line(t,0.878,0.01),line(t,1.0,0.016)))));
+    alpha *= 0.55;
+  }
+  float t0 = -dot(vL, uSun);
+  float shadow = 1.0;
+  if(t0 > 0.0){
+    float d = length(vL + uSun*t0);
+    shadow = smoothstep(uR*0.985, uR*1.015, d);
+  }
+  shadow = mix(0.05, 1.0, shadow);
+  float lit = (uCam.z*uSun.z >= 0.0) ? 1.0 : 0.3;
+  gl_FragColor = vec4(col*lit*shadow, alpha*(lit > 0.9 ? 1.0 : 0.85));
+}`;
 
 PLANETS.forEach((p, i)=>{
-  const dist = distScale(p.distAU);
-  const rad = radiusScaleVisible(p.radiusKm);
+  const el = p.std ? standishElements(p.std, simJD) : makeElements(p.orb);
+  const rad = p.radiusKm * KM_U;
 
-  // orbit ring (true ellipse shape, using real eccentricity)
-  const segments = 128;
-  const ringPts = [];
-  const e = p.ecc || 0;
-  for(let s=0;s<=segments;s++){
-    const nu = (s/segments)*Math.PI*2;
-    const r = ellipseRadiusAt(dist, e, nu);
-    ringPts.push(new THREE.Vector3(Math.cos(nu)*r, 0, Math.sin(nu)*r));
-  }
-  const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
-  let ringLine;
-  if(p.dwarf){
-    const ringMat = new THREE.LineDashedMaterial({color:0xff2b2b, transparent:true, opacity:0.28, dashSize:2.2, gapSize:1.6});
-    ringLine = new THREE.Line(ringGeo, ringMat);
-    ringLine.computeLineDistances();
-  } else {
-    const ringMat = new THREE.LineBasicMaterial({color:0xff2b2b, transparent:true, opacity:0.22});
-    ringLine = new THREE.Line(ringGeo, ringMat);
-  }
+  // orbit ring — the real, tilted ellipse with the Sun at one focus
+  const ringMat = p.dwarf
+    ? new THREE.LineDashedMaterial({color:0xff2b2b, transparent:true, opacity:0.28, dashSize:el.a*AU_U*0.012, gapSize:el.a*AU_U*0.009, depthWrite:false})
+    : new THREE.LineBasicMaterial({color:0xff2b2b, transparent:true, opacity:0.22, depthWrite:false});
+  const ringLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(ringPointsFor(el)), ringMat);
+  if(p.dwarf) ringLine.computeLineDistances();
   scene.add(ringLine);
   orbitLines.push(ringLine);
 
   // planet
-  const geo = new THREE.SphereGeometry(rad, 32, 32);
-  const mat = new THREE.MeshStandardMaterial({color:p.color, roughness:0.85, metalness:0.05});
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.userData = {type:'planet', index:i};
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(rad, 128, 96), new THREE.MeshStandardMaterial({color:p.color, roughness:0.85, metalness:0.05}));
   scene.add(mesh);
 
-  // saturn/uranus rings
+  const pole = p.pole ? poleVec(p.pole[0], p.pole[1]) : new THREE.Vector3(0,1,0);
+  const qAlign = new THREE.Quaternion().setFromUnitVectors(Y_AXIS, pole);
+
+  // rings (equatorial plane, true radii)
   let ringMesh = null;
   if(p.ring){
-    const inner = rad * (p.ringThin? 1.3 : 1.4);
-    const outer = rad * (p.ringThin? 1.55 : 2.1);
-    const rGeo = new THREE.RingGeometry(inner, outer, 64);
-    // fix UV for radial gradient look
-    const rMat = new THREE.MeshBasicMaterial({color:0xcbb98a, side:THREE.DoubleSide, transparent:true, opacity:p.ringThin?0.35:0.6});
-    ringMesh = new THREE.Mesh(rGeo, rMat);
-    ringMesh.rotation.x = Math.PI/2 * 0.92;
+    const inner = p.ring.innerKm*KM_U, outer = p.ring.outerKm*KM_U;
+    ringMesh = new THREE.Mesh(new THREE.RingGeometry(inner, outer, 192, 1), new THREE.ShaderMaterial({
+      vertexShader: ringVert, fragmentShader: ringFrag, transparent:true, side:THREE.DoubleSide, depthWrite:false,
+      uniforms:{ uSun:{value:new THREE.Vector3(0,0,1)}, uCam:{value:new THREE.Vector3(0,0,1)}, uR:{value:rad},
+                 uIn:{value:inner}, uOut:{value:outer}, uColor:{value:new THREE.Color(p.ring.color)}, uMode:{value:p.ring.mode} }
+    }));
+    ringMesh.quaternion.setFromUnitVectors(Z_AXIS, pole);
     scene.add(ringMesh);
   }
 
-  // label sprite (small dot handled via reticle in screen space instead)
-  planetMeshes.push({
-    mesh, ringMesh, data:p, dist,
-    angle: Math.random()*Math.PI*2, // mean anomaly, advances linearly with real time
-    meanMotion: (Math.PI*2) / p.periodDays, // radians per simulated day — tied directly to real orbital period
-    rotSpeed: 0.01 + Math.random()*0.02
+  // group that rides on the planet and carries its moons
+  const group = new THREE.Group();
+  scene.add(group);
+
+  const pm = {kind:'planet', name:p.name, data:p, el, mesh, ringMesh, group, rad, pole, qAlign, spin:Math.random()*TWO_PI,
+              wp:new THREE.Vector3(), prio:p.dwarf?2:1, moons:[], moonRange:0, inRange:false,
+              worldPos(out){ return out.copy(this.mesh.position); }};
+  mesh.userData.body = pm;
+  planets.push(pm); bodies.push(pm);
+
+  // moons
+  (MOONS[p.name]||[]).forEach(md=>{
+    const aU = md.a*KM_U, mrad = md.r*KM_U;
+    let basis;
+    if(md.moon){   // Earth's Moon orbits close to the ecliptic plane (5.1°)
+      const t = 5.145*DEG;
+      basis = planeBasis(new THREE.Vector3(0, Math.cos(t), Math.sin(t)));
+    } else basis = planeBasis(pole);   // the others orbit in their planet's equatorial plane
+    const mmesh = new THREE.Mesh(new THREE.SphereGeometry(mrad, 96, 64), new THREE.MeshStandardMaterial({color:md.color, roughness:0.95}));
+    group.add(mmesh);
+    const pts=[]; for(let k=0;k<=128;k++){ const th=k/128*TWO_PI; pts.push(basis.u.clone().multiplyScalar(Math.cos(th)*aU).addScaledVector(basis.v, Math.sin(th)*aU)); }
+    const oline = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color:0x8a93a1, transparent:true, opacity:0.28, depthWrite:false}));
+    oline.visible = false;
+    group.add(oline);
+    // phase: the Moon uses its real mean longitude; other moons start at an arbitrary phase (their true phase is not modelled)
+    let th0, rate;
+    if(md.moon){ th0 = 218.316*DEG; rate = 13.176396*DEG; }
+    else { let h=0; for(const ch of md.n) h = (h*31 + ch.charCodeAt(0)) % 360; th0 = h*DEG; rate = TWO_PI/md.P; }
+    const mb = {kind:'moon', name:md.n, md, parent:pm, mesh:mmesh, orbitLine:oline, basis, aU, rad:mrad,
+                th0, rate, wp:new THREE.Vector3(), prio:3,
+                worldPos(out){ return out.copy(this.parent.mesh.position).add(this.mesh.position); }};
+    mmesh.userData.body = mb;
+    pm.moons.push(mb); moons.push(mb); bodies.push(mb);
+    pm.moonRange = Math.max(pm.moonRange, aU*40);
   });
 });
 
-// ---------- CAMERA CONTROLS (lightweight orbit control, no extra lib needed) ----------
-let camTheta = 0.9, camPhi = 1.48, camRadius = 60;
-let targetTheta = camTheta, targetPhi = camPhi, targetRadius = camRadius;
-let camFocus = new THREE.Vector3(0,0,0);
+// ---------- ASTEROID BELT + KUIPER BELT (statistical clouds of small bodies; positions are illustrative) ----------
+function gauss(){ return (Math.random()+Math.random()+Math.random()+Math.random()-2)/2*1.7; }
+function makeBelt(count, aMin, aMax, eMax, incSigmaDeg, color, size, opacity){
+  const pos = new Float32Array(count*3), tmp = new THREE.Vector3();
+  for(let k=0;k<count;k++){
+    const el = makeElements({jd0:J2000, a:aMin+Math.random()*(aMax-aMin), e:Math.random()*eMax, i:Math.abs(gauss())*incSigmaDeg,
+                             om:Math.random()*360, w:Math.random()*360, M0:Math.random()*360});
+    orbitPoint(el, solveE(el.M0, el.e), tmp);
+    pos[k*3]=tmp.x; pos[k*3+1]=tmp.y; pos[k*3+2]=tmp.z;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const pts = new THREE.Points(g, new THREE.PointsMaterial({color, size, sizeAttenuation:false, transparent:true, opacity, depthWrite:false}));
+  scene.add(pts);
+  return pts;
+}
+const asteroidBelt = makeBelt(3500, 2.1, 3.3, 0.22, 8, 0xb4b9c2, 1.2, 0.4);
+const kuiperBelt   = makeBelt(5000, 39, 50, 0.14, 11, 0x8fa6c4, 1.3, 0.42);
+const asteroidRate = TWO_PI/(365.25636*Math.pow(2.7,1.5));
+const kuiperRate   = TWO_PI/(365.25636*Math.pow(43,1.5));
 
+// ---------- CAMERA CONTROLS ----------
+let camTheta = 0.9, camPhi = 1.2, camRadius = 250000;
+let targetTheta = camTheta, targetPhi = camPhi, targetRadius = camRadius;
+const camFocus = new THREE.Vector3(0,0,0);
+let locked = null;                      // the selected body (or null)
+const lockOffset = new THREE.Vector3();
+
+function clampRadius(r){
+  let minR = 0.02;
+  if(locked) minR = locked.kind==='sun' ? sunRadius*3 : Math.max(1e-5, locked.rad*1.4);
+  else if(camFocus.length() < sunRadius*3) minR = sunRadius*3.2;    // free view centred on the Sun: stop before it fills the screen
+  return Math.max(minR, Math.min(3e7, r));   // out to ~15,000 AU, enough for 2014 FE72's whole orbit
+}
 function updateCamera(){
   camTheta += (targetTheta-camTheta)*0.08;
   camPhi += (targetPhi-camPhi)*0.08;
-  camRadius += (targetRadius-camRadius)*0.08;
+  camRadius = Math.exp(Math.log(camRadius) + (Math.log(targetRadius)-Math.log(camRadius))*0.1);   // log-space easing: smooth across 10 orders of magnitude
   camPhi = Math.max(0.15, Math.min(Math.PI-0.15, camPhi));
-  const x = camFocus.x + camRadius*Math.sin(camPhi)*Math.cos(camTheta);
-  const y = camFocus.y + camRadius*Math.cos(camPhi);
-  const z = camFocus.z + camRadius*Math.sin(camPhi)*Math.sin(camTheta);
-  camera.position.set(x,y,z);
+  camera.position.set(
+    camFocus.x + camRadius*Math.sin(camPhi)*Math.cos(camTheta),
+    camFocus.y + camRadius*Math.cos(camPhi),
+    camFocus.z + camRadius*Math.sin(camPhi)*Math.sin(camTheta));
+  // never let the camera enter the Sun (everything would turn yellow)
+  const minD = sunRadius*1.25, dd = camera.position.length();
+  if(dd < minD){ if(dd < 1e-6) camera.position.set(0,0,minD); else camera.position.multiplyScalar(minD/dd); }
   camera.lookAt(camFocus);
+  // clipping planes follow the zoom so a whole system and a single moon both stay sharp
+  const nearP = Math.max(1e-7, camRadius*0.002), farP = 5e6 + camRadius*4;
+  if(Math.abs(camera.near-nearP) > nearP*0.02 || camera.far !== farP){ camera.near = nearP; camera.far = farP; camera.updateProjectionMatrix(); }
+  camera.updateMatrixWorld();
 }
 
 renderer.domElement.addEventListener('contextmenu', e=>e.preventDefault());
@@ -486,7 +752,7 @@ function panCamera(dx, dy){
 renderer.domElement.addEventListener('pointerdown', e=>{
   if(e.button===2){
     panning=true; panLastX=e.clientX; panLastY=e.clientY;
-    if(lockedIndex!==null) deselect();
+    if(locked) deselect();
   } else {
     dragging=true; lastX=e.clientX; lastY=e.clientY;
   }
@@ -506,26 +772,28 @@ window.addEventListener('pointermove', e=>{
   targetTheta -= dx*0.005;
   targetPhi -= dy*0.005;
 });
-renderer.domElement.addEventListener('wheel', e=>{
+function onWheel(e){
   e.preventDefault();
-  targetRadius *= (1 + e.deltaY*0.001);
-  targetRadius = Math.max(0.6, Math.min(2600, targetRadius));
-},{passive:false});
+  targetRadius *= (1 + e.deltaY*0.003);
+  targetRadius = clampRadius(targetRadius);
+}
+renderer.domElement.addEventListener('wheel', onWheel, {passive:false});
+const labelLayer = document.getElementById('labels');
+labelLayer.addEventListener('wheel', onWheel, {passive:false});   // wheel keeps zooming while the pointer is over a name
 
-// touch: 1-finger rotate (handled by pointer events above), 2-finger pinch-zoom + pan
+// touch: 1-finger rotate (pointer events above), 2-finger pinch-zoom + pan
 let pinchStart=null, touchPanX=null, touchPanY=null;
 renderer.domElement.addEventListener('touchmove', e=>{
   if(e.touches.length===2){
     const t0=e.touches[0], t1=e.touches[1];
-    const dx=t0.clientX-t1.clientX, dy=t0.clientY-t1.clientY;
-    const d=Math.hypot(dx,dy);
+    const d=Math.hypot(t0.clientX-t1.clientX, t0.clientY-t1.clientY);
     const midX=(t0.clientX+t1.clientX)/2, midY=(t0.clientY+t1.clientY)/2;
     if(pinchStart!=null){
       targetRadius *= (pinchStart/d);
-      targetRadius = Math.max(0.6, Math.min(2600, targetRadius));
+      targetRadius = clampRadius(targetRadius);
     }
     if(touchPanX!=null){
-      if(lockedIndex!==null) deselect();
+      if(locked) deselect();
       panCamera(midX-touchPanX, midY-touchPanY);
     }
     pinchStart=d; touchPanX=midX; touchPanY=midY;
@@ -538,28 +806,22 @@ renderer.domElement.addEventListener('touchend', e=>{
 // ---------- RAYCAST CLICK ----------
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let lockedIndex = null; // null = free, 'sun', or planet index
-
 function onClick(e){
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
   mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouse, camera);
-  raycaster.params.Points.threshold = 0.5;
-  const targets = [sunMesh, ...planetMeshes.map(p=>p.mesh)];
-  const hits = raycaster.intersectObjects(targets);
-  if(hits.length){
-    const obj = hits[0].object;
-    if(obj.userData.type==='sun') selectSun();
-    else selectPlanet(obj.userData.index);
-  }
+  const targets = [sunMesh];
+  planets.forEach(p=>{ targets.push(p.mesh); });
+  moons.forEach(m=>{ if(m.parent.inRange) targets.push(m.mesh); });
+  const hits = raycaster.intersectObjects(targets).filter(h=>h.object.visible);
+  if(hits.length) selectBody(hits[0].object.userData.body);
 }
-renderer.domElement.addEventListener('click', e=>{
-  // only treat as click if not a drag
-  if(Math.abs(e.clientX-clickStartX)<4 && Math.abs(e.clientY-clickStartY)<4) onClick(e);
-});
 let clickStartX=0, clickStartY=0;
 renderer.domElement.addEventListener('pointerdown', e=>{clickStartX=e.clientX;clickStartY=e.clientY;});
+renderer.domElement.addEventListener('click', e=>{
+  if(Math.abs(e.clientX-clickStartX)<4 && Math.abs(e.clientY-clickStartY)<4) onClick(e);   // only a click, not a drag
+});
 
 // ---------- PANEL / SELECTION ----------
 const panel = document.getElementById('panel');
@@ -568,45 +830,56 @@ const panelBody = document.getElementById('panel-body');
 const panelClose = document.getElementById('panel-close');
 const reticle = document.getElementById('reticle');
 
-function fmt(n){ return n.toLocaleString(); }
-
-function selectSun(){
-  lockedIndex = 'sun';
-  targetRadius = Math.max(targetRadius, 60);
-  camFocus.set(0,0,0);
-  panelName.textContent = 'SUN';
-  panelBody.innerHTML = `
-    <div class="row"><span class="k">TYPE</span><span class="v">G-TYPE STAR</span></div>
-    <div class="row"><span class="k">RADIUS</span><span class="v">${fmt(SUN.radiusKm)} km</span></div>
-    <div class="row"><span class="k">MASS</span><span class="v">${fmtMass(SUN.massKg)}</span></div>
-    <div class="row"><span class="k">MASS SHARE</span><span class="v">99.8%</span></div>
-    <div id="panel-desc">${SUN.desc}</div>
-  `;
-  panel.classList.add('show');
-  highlightButtons('SUN');
+function flyTo(body, closeRadius){
+  const p = body.worldPos(new THREE.Vector3());
+  lockOffset.copy(camFocus).sub(p);     // glide: the offset decays while the camera tracks the body exactly
+  targetRadius = closeRadius;
 }
+const row = (k, v, id) => `<div class="row"><span class="k">${k}</span><span class="v"${id?` id="${id}"`:''}>${v}</span></div>`;
 
-function selectPlanet(i){
-  lockedIndex = i;
-  const p = PLANETS[i];
-  panelName.textContent = p.name;
-  panelBody.innerHTML = `
-    <div class="row"><span class="k">TYPE</span><span class="v">${p.dwarf ? 'DWARF PLANET' : 'PLANET'}</span></div>
-    <div class="row"><span class="k">DIST FROM SUN</span><span class="v">${p.distAU} AU</span></div>
-    <div class="row"><span class="k">ECCENTRICITY</span><span class="v">${p.ecc.toFixed(4)}</span></div>
-    <div class="row"><span class="k">RADIUS</span><span class="v">${fmt(p.radiusKm)} km</span></div>
-    <div class="row"><span class="k">MASS</span><span class="v">${fmtMass(p.massKg)}</span></div>
-    <div class="row"><span class="k">ORBITAL PERIOD</span><span class="v">${fmt(p.periodDays)} days</span></div>
-    <div class="row"><span class="k">DAY LENGTH</span><span class="v">${fmt(Math.round(p.dayLenH))} hrs</span></div>
-    <div class="row"><span class="k">MOONS</span><span class="v">${p.moons}</span></div>
-    <div id="panel-desc">${p.desc}</div>
-  `;
+function selectBody(b){
+  locked = b;
+  flyTo(b, b.kind==='sun' ? sunRadius*5 : Math.max(b.rad*5, 1e-4));
+  if(b.kind === 'sun'){
+    panelName.textContent = 'SUN';
+    panelBody.innerHTML =
+      row('TYPE','G-TYPE STAR') + row('RADIUS', fmt(SUN.radiusKm)+' km') + row('MASS', fmtMass(SUN.massKg)) + row('MASS SHARE','99.8%') +
+      row('LIGHT TIME TO EARTH','—','lv-light') + `<div id="panel-desc">${SUN.desc}</div>`;
+  } else if(b.kind === 'planet'){
+    const p = b.data;
+    panelName.textContent = p.name;
+    panelBody.innerHTML =
+      row('TYPE', p.kind || (p.dwarf ? 'DWARF PLANET' : 'PLANET')) +
+      (p.desig ? row('DESIGNATION', p.desig) : '') +
+      row('MEAN DISTANCE', b.el.a.toFixed(3)+' AU') +
+      row('DISTANCE NOW','—','lv-dist') +
+      row('LIGHT TIME FROM SUN','—','lv-light') +
+      row('ECCENTRICITY', b.el.e.toFixed(4)) +
+      row('ORBIT TILT', Math.abs(b.el.i/DEG).toFixed(2)+'°') +
+      row('AXIAL TILT', p.tilt==null ? '—' : p.tilt.toFixed(2)+'°') +
+      row('RADIUS', (p.radiusKm<100 ? p.radiusKm.toFixed(1) : fmt(Math.round(p.radiusKm)))+' km') +
+      row('MASS', p.massKg ? fmtMass(p.massKg) : 'UNKNOWN') +
+      row('ORBITAL PERIOD', fmtPeriod(p.periodDays || 365.25636*Math.pow(b.el.a,1.5))) +
+      row('DAY LENGTH', p.dayLenH ? fmt(Math.round(p.dayLenH*10)/10)+' hrs' : 'UNKNOWN') +
+      row('MOONS', p.moons + (b.moons.length ? ' ('+b.moons.length+' shown)' : '')) +
+      `<div id="panel-desc">${p.desc}</div>`;
+  } else {
+    panelName.textContent = b.name;
+    panelBody.innerHTML =
+      row('TYPE','MOON OF '+b.parent.name) +
+      row('ORBIT RADIUS', fmt(b.md.a)+' km') +
+      row('RADIUS', (b.md.r<100 ? b.md.r.toFixed(1) : fmt(Math.round(b.md.r)))+' km') +
+      row('ORBITAL PERIOD', fmtPeriod(b.md.P) + (b.md.P<0 ? ' · RETROGRADE' : '')) +
+      row('LIGHT TIME FROM SUN','—','lv-light') +
+      `<div id="panel-desc">Orbits ${b.parent.name} at a true distance of ${fmt(b.md.a)} km — about ${(b.md.a/b.parent.data.radiusKm).toFixed(1)} planet radii from its centre.${b.md.moon ? ' Position is its real position for the simulated date.' : ' Starting position along its orbit is illustrative.'}</div>`;
+  }
   panel.classList.add('show');
-  highlightButtons(p.name);
+  highlightButtons(b.kind==='moon' ? null : b.name);
+  updateLive();
 }
 
 function deselect(){
-  lockedIndex = null;
+  locked = null;
   panel.classList.remove('show');
   reticle.style.display = 'none';
   highlightButtons(null);
@@ -614,139 +887,247 @@ function deselect(){
 panelClose.addEventListener('click', deselect);
 
 function highlightButtons(name){
-  document.querySelectorAll('#planet-buttons .btn, #btn-sun').forEach(b=>{
+  document.querySelectorAll('#top-controls .body-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.name===name);
   });
 }
 
+// live rows: distance from the Sun and light travel time
+function updateLive(){
+  if(!locked) return;
+  const lt = document.getElementById('lv-light'), ld = document.getElementById('lv-dist');
+  let au = null;
+  if(locked.kind === 'planet') au = locked.mesh.position.length()/AU_U;
+  else if(locked.kind === 'moon') au = locked.parent.mesh.position.length()/AU_U;
+  else if(locked.kind === 'sun') au = planets[2].mesh.position.length()/AU_U;   // Earth
+  if(ld && au!=null) ld.textContent = au.toFixed(au<10?3:2)+' AU · '+fmt(Math.round(au*AU_KM/1e6))+' M km';
+  if(lt && au!=null) lt.textContent = fmtLight(au*LIGHT_SEC_PER_AU);
+}
+
 // buttons
 document.getElementById('btn-sun').dataset.name = 'SUN';
-document.getElementById('btn-sun').addEventListener('click', selectSun);
-const pbWrap = document.getElementById('planet-buttons');
-PLANETS.forEach((p,i)=>{
-  const b = document.createElement('button');
-  b.className = p.dwarf ? 'btn dwarf' : 'btn';
-  b.textContent=p.name; b.dataset.name=p.name;
-  b.addEventListener('click', ()=>selectPlanet(i));
-  pbWrap.appendChild(b);
+document.getElementById('btn-sun').classList.add('body-btn');
+document.getElementById('btn-sun').addEventListener('click', ()=>selectBody(sunBody));
+function addBodyButton(container, b, cls, title){
+  const el = document.createElement('button');
+  el.className = 'btn body-btn ' + cls;
+  el.textContent = b.name; el.dataset.name = b.name;
+  if(title) el.title = title;
+  el.addEventListener('click', ()=>selectBody(b));
+  container.appendChild(el);
+}
+const pbWrap = document.getElementById('planet-buttons'), smallWrap = document.getElementById('small-row'), moonWrap = document.getElementById('moons-row');
+planets.forEach(pm=>{
+  if(pm.data.small) addBodyButton(smallWrap, pm, 'dwarf', pm.data.kind + ' · ' + pm.data.desig);
+  else addBodyButton(pbWrap, pm, pm.data.dwarf ? 'dwarf' : '', null);
+});
+moons.forEach(m=>addBodyButton(moonWrap, m, 'moon', 'MOON OF '+m.parent.name));
+
+// ---------- NAME LABELS (HTML overlay, constant on-screen size, click to fly) ----------
+bodies.forEach(b=>{
+  const el = document.createElement('div');
+  el.className = 'lbl ' + (b.kind==='moon' ? 'moon' : (b.kind==='planet' && b.data.dwarf) ? 'dwarf' : '');
+  el.textContent = b.name;
+  el.addEventListener('click', ev=>{ ev.stopPropagation(); selectBody(b); });
+  labelLayer.appendChild(el);
+  b.label = el; b.labelShown = false; b.labelW = b.name.length*6.8 + 10;
 });
 
 // ---------- SIM CONTROLS ----------
-let simSpeed = 40;
+const speedEl = document.getElementById('speed');
+const speedVal = document.getElementById('speed-val');
+const DEFAULT_SPEED = 40;
+let simDaysPerSec = 10;
 let paused = false;
-document.getElementById('speed').addEventListener('input', e=>{ simSpeed = +e.target.value; });
+// slider 0..100 -> 0.1 day/s .. 10,000 day/s (logarithmic)
+function setSpeedFromSlider(v){
+  simDaysPerSec = 0.1*Math.pow(10, v*0.05);
+  const d = simDaysPerSec;
+  speedVal.textContent = d < 1 ? (d*24).toFixed(1)+' hr/s' : d < 365 ? (d < 10 ? d.toFixed(1) : Math.round(d))+' days/s' : (d/365.25).toFixed(1)+' yr/s';
+}
+speedEl.addEventListener('input', e=>setSpeedFromSlider(+e.target.value));
+setSpeedFromSlider(DEFAULT_SPEED);
+
 document.getElementById('btn-pause').addEventListener('click', function(){
   paused = !paused;
   this.textContent = paused ? 'RESUME' : 'PAUSE';
   this.classList.toggle('active', paused);
 });
+function applyOrbitVisibility(){
+  orbitLines.forEach(l=>l.visible=orbitsVisible);
+  document.getElementById('btn-orbits').textContent = 'ORBITS: ' + (orbitsVisible?'ON':'OFF');
+}
 document.getElementById('btn-orbits').addEventListener('click', function(){
   orbitsVisible = !orbitsVisible;
-  orbitLines.forEach(l=>l.visible=orbitsVisible);
-  this.textContent = 'ORBITS: ' + (orbitsVisible?'ON':'OFF');
+  applyOrbitVisibility();
 });
-document.getElementById('btn-reset').addEventListener('click', function(){
-  // camera back to default view
-  targetTheta = 0.9; targetPhi = 1.48; targetRadius = 60;
+function applyBeltVisibility(){
+  asteroidBelt.visible = kuiperBelt.visible = beltsVisible;
+  document.getElementById('btn-belts').textContent = 'BELTS: ' + (beltsVisible?'ON':'OFF');
+}
+document.getElementById('btn-belts').addEventListener('click', function(){
+  beltsVisible = !beltsVisible;
+  applyBeltVisibility();
+});
+function openingView(){
+  targetTheta = 0.9; targetPhi = 1.2; targetRadius = 250000;   // the whole system at true scale
   camFocus.set(0,0,0);
+  lockOffset.set(0,0,0);
+}
+document.getElementById('btn-reset').addEventListener('click', function(){
+  openingView();
   deselect();
-
-  // sim back to default speed & running
-  simSpeed = 40;
-  document.getElementById('speed').value = 40;
+  // simulation back to today, default speed, running
+  simJD = jdNow();
+  speedEl.value = DEFAULT_SPEED; setSpeedFromSlider(DEFAULT_SPEED);
   paused = false;
   document.getElementById('btn-pause').textContent = 'PAUSE';
   document.getElementById('btn-pause').classList.remove('active');
-
-  // orbits back on
-  orbitsVisible = true;
-  orbitLines.forEach(l=>l.visible=true);
-  document.getElementById('btn-orbits').textContent = 'ORBITS: ON';
-
-  // scale back to true (the default)
-  if(scaleMode !== 'true'){
-    scaleMode = 'true';
-    applyRadiusScale(radiusScaleTrue);
-    document.getElementById('btn-scale').textContent = '⇄ SCALE PLANETS: ' + (scaleMode === 'true' ? 'TRUE' : 'ENHANCED');
-    document.getElementById('btn-scale').classList.add('active');
-    document.getElementById('scale-note').textContent = 'TRUE PLANET SCALE — DISTANCES ARE STYLIZED';
-  }
+  orbitsVisible = true; applyOrbitVisibility();
+  beltsVisible = true; applyBeltVisibility();
 });
 
-let scaleMode = 'true'; // 'visible' | 'true' — TRUE is the default
-function applyRadiusScale(fn){
-  planetMeshes.forEach(pm=>{
-    const newRad = fn(pm.data.radiusKm);
-    pm.mesh.geometry.dispose();
-    pm.mesh.geometry = new THREE.SphereGeometry(newRad, 32, 32);
-    if(pm.ringMesh){
-      const inner = newRad * (pm.data.ringThin ? 1.3 : 1.4);
-      const outer = newRad * (pm.data.ringThin ? 1.55 : 2.1);
-      pm.ringMesh.geometry.dispose();
-      pm.ringMesh.geometry = new THREE.RingGeometry(inner, outer, 64);
-    }
-  });
+// ---------- HUD: scale note, scale bar, date ----------
+const scaleNote = document.getElementById('scale-note');
+const scaleBarEl = document.getElementById('scalebar');
+const scaleBarLine = scaleBarEl.querySelector('.bar');
+const scaleBarTxt = scaleBarEl.querySelector('.txt');
+const clockEl = document.getElementById('clock');
+
+function updateHud(){
+  // how much real distance the screen spans at the focus point
+  const ppu = (window.innerHeight/2)/(camRadius*TAN_HALF_FOV);          // pixels per scene unit at the focus
+  const spanAU = window.innerWidth/ppu/AU_U;
+  scaleNote.textContent = 'TO SCALE — TRUE DISTANCES & SIZES · VIEW ≈ ' + fmtSpan(spanAU) + ' ACROSS';
+  // scale bar: a round length (1, 2, 5 × 10ⁿ) about 120 px wide
+  const targetKm = 130/ppu/KM_U;
+  let km, label;
+  if(targetKm >= 0.1*AU_KM){ const au = nice125(targetKm/AU_KM); km = au*AU_KM; label = (au>=1 ? fmt(au) : String(au)) + ' AU'; }
+  else { km = nice125(targetKm); label = fmt(km) + ' km'; }
+  scaleBarLine.style.width = (km*KM_U*ppu).toFixed(0) + 'px';
+  scaleBarTxt.textContent = label + '  ·  ' + fmtLight(km/C_KM_S) + ' of light';
+  // simulated date
+  const ms = (simJD-2440587.5)*86400000;
+  const dte = new Date(ms);
+  clockEl.textContent = isFinite(dte.getTime()) ? 'SIM DATE ' + dte.toISOString().replace('T',' ').slice(0,16) + ' UTC' : 'SIM DATE —';
 }
-applyRadiusScale(radiusScaleTrue); // TRUE scale is now the default on load
-
-document.getElementById('btn-scale').addEventListener('click', function(){
-  scaleMode = scaleMode === 'true' ? 'visible' : 'true';
-  applyRadiusScale(scaleMode === 'true' ? radiusScaleTrue : radiusScaleVisible);
-  this.textContent = '⇄ SCALE PLANETS: ' + (scaleMode === 'true' ? 'TRUE' : 'ENHANCED');
-  this.classList.toggle('active', scaleMode === 'true');
-  document.getElementById('scale-note').textContent = scaleMode === 'true'
-    ? 'TRUE PLANET SCALE — DISTANCES ARE STYLIZED'
-    : 'NOT TO SCALE — DISTANCES & SIZES ARE STYLIZED';
-});
 
 // ---------- ANIMATE ----------
 const clock = new THREE.Clock();
 const tmpVec = new THREE.Vector3();
+const tmpVec2 = new THREE.Vector3();
+const tmpInv = new THREE.Quaternion();
+let frame = 0;
+const labelRects = [];
+const labelOrder = bodies.slice().sort((a,b)=>a.prio-b.prio);
+
+function updatePositions(dt){
+  planets.forEach(pm=>{
+    orbitPos(pm.el, simJD, pm.mesh.position);
+    if(!paused) pm.spin += dt*0.2;
+    pm.mesh.quaternion.copy(pm.qAlign).multiply(tmpQ.setFromAxisAngle(Y_AXIS, pm.spin));
+    pm.group.position.copy(pm.mesh.position);
+    if(pm.ringMesh) pm.ringMesh.position.copy(pm.mesh.position);
+  });
+  const dJ = simJD - J2000;
+  moons.forEach(m=>{
+    const th = m.th0 + m.rate*dJ;
+    m.mesh.position.set(0,0,0)
+      .addScaledVector(m.basis.u, Math.cos(th)*m.aU)
+      .addScaledVector(m.basis.v, Math.sin(th)*m.aU);
+  });
+  asteroidBelt.rotation.y = asteroidRate*(simJD-J2000);
+  kuiperBelt.rotation.y = kuiperRate*(simJD-J2000);
+}
+
+function updateScreenSpace(){
+  const W = window.innerWidth, H = window.innerHeight, ppuK = (H/2)/TAN_HALF_FOV;   // px per unit = ppuK / distance
+
+  bodies.forEach(b=>{
+    b.worldPos(b.wp);
+    b.dist = camera.position.distanceTo(b.wp);
+    b.ppu = ppuK/Math.max(b.dist,1e-12);
+    b.discPx = b.rad*2*b.ppu;
+  });
+
+  planets.forEach(pm=>{
+    pm.inRange = pm.moonRange > 0 && pm.dist < pm.moonRange;
+    if(pm.ringMesh){
+      // ring shader inputs: direction to the Sun and the camera, both in ring space
+      tmpInv.copy(pm.ringMesh.quaternion).invert();
+      const u = pm.ringMesh.material.uniforms;
+      u.uSun.value.copy(pm.wp).multiplyScalar(-1).normalize().applyQuaternion(tmpInv);
+      u.uCam.value.copy(camera.position).sub(pm.wp).applyQuaternion(tmpInv);
+    }
+  });
+  moons.forEach(m=>{ m.orbitLine.visible = m.parent.inRange && orbitsVisible; });
+
+  // labels: highest priority first; skip any that would overlap one already placed
+  labelRects.length = 0;
+  const order = locked ? [locked].concat(labelOrder) : labelOrder;
+  const seen = new Set();
+  order.forEach(b=>{
+    if(seen.has(b)) return; seen.add(b);
+    let ok = true;
+    if(b.kind==='moon' && !b.parent.inRange) ok = false;
+    let sx=0, sy=0, x=0, y=0;
+    if(ok){
+      tmpVec.copy(b.wp).project(camera);
+      sx = (tmpVec.x*0.5+0.5)*W; sy = (-tmpVec.y*0.5+0.5)*H;
+      if(tmpVec.z >= 1 || sx < -60 || sx > W+60 || sy < -20 || sy > H+20) ok = false;
+      else if(b.discPx > H*0.7 && b !== locked) ok = false;
+      else if(b.discPx > H*1.3) ok = false;
+    }
+    if(ok){
+      const off = b.discPx/2 + 9;       // the label sits beside the body; a short leader line points back to it
+      x = sx + off; y = sy - 7;
+      const w = b.labelW, h = 14;
+      for(let k=0;k<labelRects.length;k++){
+        const r = labelRects[k];
+        if(x < r[0]+r[2]+2 && x+w+2 > r[0] && y < r[1]+r[3]+2 && y+h+2 > r[1]){ ok = false; break; }
+      }
+      if(ok) labelRects.push([x,y,w,h]);
+    }
+    if(ok){
+      b.label.style.transform = 'translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px)';
+      if(!b.labelShown){ b.label.style.display = 'block'; b.labelShown = true; }
+      b.label.classList.toggle('sel', b === locked);
+    } else if(b.labelShown){
+      b.label.style.display = 'none'; b.labelShown = false;
+    }
+  });
+}
 
 function animate(){
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
+  if(!paused) simJD += dt*simDaysPerSec;
 
-  if(!paused){
-    // simSpeed = simulated Earth-days advanced per real second, so relative
-    // planet speeds match Kepler's third law exactly (using real periodDays)
-    const simDaysThisFrame = dt * simSpeed;
-    planetMeshes.forEach(pm=>{
-      pm.angle += simDaysThisFrame * pm.meanMotion;
-      const {rOverA, trueAnom} = solveKepler(pm.angle % (Math.PI*2), pm.data.ecc||0);
-      const r = pm.dist * rOverA;
-      const x = Math.cos(trueAnom)*r;
-      const z = Math.sin(trueAnom)*r;
-      pm.mesh.position.set(x,0,z);
-      pm.mesh.rotation.y += dt*pm.rotSpeed*10;
-      if(pm.ringMesh) pm.ringMesh.position.set(x,0,z);
-    });
-  }
+  updatePositions(dt);
 
-  // camera focus follow if locked
-  if(lockedIndex==='sun'){
-    camFocus.lerp(new THREE.Vector3(0,0,0), 0.1);
-  } else if(typeof lockedIndex === 'number'){
-    const pm = planetMeshes[lockedIndex];
-    camFocus.lerp(pm.mesh.position, 0.15);
+  // camera follows the selected body exactly (it moves thousands of units per second here); lockOffset decays so a change of target is a smooth glide
+  if(locked){
+    lockOffset.multiplyScalar(Math.pow(0.85, dt*60));
+    if(lockOffset.lengthSq() < 1e-16) lockOffset.set(0,0,0);
+    locked.worldPos(tmpVec2);
+    camFocus.copy(tmpVec2).add(lockOffset);
   }
 
   updateCamera();
+  starPoints.position.copy(camera.position);
+  starPoints.scale.setScalar(Math.max(1, camera.near*3/2200));   // keep the star shell beyond the near plane when zoomed far out
+  updateScreenSpace();
 
-  // reticle screen-space position
-  if(typeof lockedIndex === 'number' || lockedIndex==='sun'){
-    const targetPos = lockedIndex==='sun' ? new THREE.Vector3(0,0,0) : planetMeshes[lockedIndex].mesh.position;
-    tmpVec.copy(targetPos);
-    tmpVec.project(camera);
-    const sx = (tmpVec.x*0.5+0.5) * window.innerWidth;
-    const sy = (-tmpVec.y*0.5+0.5) * window.innerHeight;
+  if((++frame % 8) === 0){ updateHud(); updateLive(); }
+
+  // reticle on the selected body
+  if(locked){
+    tmpVec.copy(locked.wp).project(camera);
     if(tmpVec.z < 1){
       reticle.style.display = 'block';
-      reticle.style.left = (sx-26)+'px';
-      reticle.style.top = (sy-26)+'px';
-    } else {
-      reticle.style.display = 'none';
-    }
+      reticle.style.left = ((tmpVec.x*0.5+0.5)*window.innerWidth - 26)+'px';
+      reticle.style.top = ((-tmpVec.y*0.5+0.5)*window.innerHeight - 26)+'px';
+    } else reticle.style.display = 'none';
   }
 
   renderer.render(scene, camera);
@@ -759,15 +1140,6 @@ window.addEventListener('resize', ()=>{
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ---------- CLOCK HUD ----------
-function tickClock(){
-  const el = document.getElementById('clock');
-  const now = new Date();
-  el.textContent = 'T+ ' + now.toISOString().replace('T',' ').slice(0,19) + ' UTC';
-}
-setInterval(tickClock, 1000);
-tickClock();
-
 // ---------- LOADING ----------
 setTimeout(()=>{
   document.getElementById('loading').style.opacity='0';
@@ -775,7 +1147,11 @@ setTimeout(()=>{
   setTimeout(()=>document.getElementById('loading').remove(), 450);
 }, 500);
 
+camRadius = targetRadius = 250000;
+applyOrbitVisibility(); applyBeltVisibility();
+updatePositions(0);
 updateCamera();
+updateHud();
 animate();
 
 })();
