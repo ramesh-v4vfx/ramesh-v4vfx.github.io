@@ -269,7 +269,7 @@
   <div class="body-row" id="small-row"><span class="row-tag">DISTANT</span></div>
   <div class="body-row" id="moons-row"><span class="row-tag">MOONS</span></div>
   <div id="sim-row">
-    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="40"><span id="speed-val"></span></div>
+    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="26"><span id="speed-val"></span></div>
     <button class="btn" id="btn-pause">PAUSE</button>
     <button class="btn" id="btn-orbits">ORBITS: ON</button>
     <button class="btn" id="btn-belts">BELTS: ON</button>
@@ -290,7 +290,7 @@
 
 <div id="reticle"><span class="tick top"></span><span class="tick bot"></span><span class="tick l"></span><span class="tick r"></span></div>
 
-<div id="hint">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK A NAME OR BUTTON TO FLY TO IT · RIGHT-DRAG / 2-FINGER TO PAN</div>
+<div id="hint">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK A NAME OR BUTTON TO FLY TO IT · CLICK EMPTY SPACE OR PRESS ESC TO DESELECT · RIGHT-DRAG / 2-FINGER TO PAN</div>
 <div id="scale-note">TO SCALE — TRUE DISTANCES &amp; SIZES</div>
 <div id="scalebar"><div class="txt"></div><div class="bar"></div></div>
 <div id="watermark">rameshverse.com</div>
@@ -708,12 +708,13 @@ const kuiperRate   = TWO_PI/(365.25636*Math.pow(43,1.5));
 let camTheta = 0.9, camPhi = 1.2, camRadius = 250000;
 let targetTheta = camTheta, targetPhi = camPhi, targetRadius = camRadius;
 const camFocus = new THREE.Vector3(0,0,0);
-let locked = null;                      // the selected body (or null)
+let locked = null;                      // the selected body (info panel, reticle, highlighted button)
+let follow = null;                      // the body the camera rides along with — stays set after deselecting, so the view never jumps
 const lockOffset = new THREE.Vector3();
 
 function clampRadius(r){
   let minR = 0.02;
-  if(locked) minR = locked.kind==='sun' ? sunRadius*3 : Math.max(1e-5, locked.rad*1.4);
+  if(follow) minR = follow.kind==='sun' ? sunRadius*3 : Math.max(1e-5, follow.rad*1.4);
   else if(camFocus.length() < sunRadius*3) minR = sunRadius*3.2;    // free view centred on the Sun: stop before it fills the screen
   return Math.max(minR, Math.min(3e7, r));   // out to ~15,000 AU, enough for 2014 FE72's whole orbit
 }
@@ -739,6 +740,7 @@ function updateCamera(){
 renderer.domElement.addEventListener('contextmenu', e=>e.preventDefault());
 
 let dragging = false, lastX=0, lastY=0;
+let dragMoved = false;                  // small dead zone so a click/tap never nudges the rotation
 let panning = false, panLastX=0, panLastY=0;
 
 function panCamera(dx, dy){
@@ -752,9 +754,9 @@ function panCamera(dx, dy){
 renderer.domElement.addEventListener('pointerdown', e=>{
   if(e.button===2){
     panning=true; panLastX=e.clientX; panLastY=e.clientY;
-    if(locked) deselect();
+    if(follow) deselect(true);          // panning frees the camera from the body
   } else {
-    dragging=true; lastX=e.clientX; lastY=e.clientY;
+    dragging=true; dragMoved=false; lastX=e.clientX; lastY=e.clientY;
   }
   wrap.classList.add('dragging');
 });
@@ -767,6 +769,10 @@ window.addEventListener('pointermove', e=>{
     return;
   }
   if(!dragging) return;
+  if(!dragMoved){
+    if(Math.hypot(e.clientX-lastX, e.clientY-lastY) < 4) return;   // still within the click dead zone
+    dragMoved = true;
+  }
   const dx = e.clientX-lastX, dy = e.clientY-lastY;
   lastX=e.clientX; lastY=e.clientY;
   targetTheta -= dx*0.005;
@@ -793,7 +799,7 @@ renderer.domElement.addEventListener('touchmove', e=>{
       targetRadius = clampRadius(targetRadius);
     }
     if(touchPanX!=null){
-      if(locked) deselect();
+      if(follow) deselect(true);        // panning frees the camera from the body
       panCamera(midX-touchPanX, midY-touchPanY);
     }
     pinchStart=d; touchPanX=midX; touchPanY=midY;
@@ -816,12 +822,14 @@ function onClick(e){
   moons.forEach(m=>{ if(m.parent.inRange) targets.push(m.mesh); });
   const hits = raycaster.intersectObjects(targets).filter(h=>h.object.visible);
   if(hits.length) selectBody(hits[0].object.userData.body);
+  else if(locked) deselect();           // click on empty space: clear the selection, the camera stays exactly where it is
 }
 let clickStartX=0, clickStartY=0;
 renderer.domElement.addEventListener('pointerdown', e=>{clickStartX=e.clientX;clickStartY=e.clientY;});
 renderer.domElement.addEventListener('click', e=>{
   if(Math.abs(e.clientX-clickStartX)<4 && Math.abs(e.clientY-clickStartY)<4) onClick(e);   // only a click, not a drag
 });
+window.addEventListener('keydown', e=>{ if(e.key==='Escape' && locked) deselect(); });
 
 // ---------- PANEL / SELECTION ----------
 const panel = document.getElementById('panel');
@@ -839,6 +847,7 @@ const row = (k, v, id) => `<div class="row"><span class="k">${k}</span><span cla
 
 function selectBody(b){
   locked = b;
+  follow = b;
   flyTo(b, b.kind==='sun' ? sunRadius*5 : Math.max(b.rad*5, 1e-4));
   if(b.kind === 'sun'){
     panelName.textContent = 'SUN';
@@ -878,13 +887,16 @@ function selectBody(b){
   updateLive();
 }
 
-function deselect(){
+// Clears the selection (panel, reticle, highlight). The camera keeps following the body it was on,
+// so nothing moves — unless releaseCamera is true (panning, Reset), which frees the camera too.
+function deselect(releaseCamera){
   locked = null;
+  if(releaseCamera === true) follow = null;
   panel.classList.remove('show');
   reticle.style.display = 'none';
   highlightButtons(null);
 }
-panelClose.addEventListener('click', deselect);
+panelClose.addEventListener('click', ()=>deselect());   // wrapper: the click event must not be passed in as the argument
 
 function highlightButtons(name){
   document.querySelectorAll('#top-controls .body-btn').forEach(b=>{
@@ -936,8 +948,8 @@ bodies.forEach(b=>{
 // ---------- SIM CONTROLS ----------
 const speedEl = document.getElementById('speed');
 const speedVal = document.getElementById('speed-val');
-const DEFAULT_SPEED = 40;
-let simDaysPerSec = 10;
+const DEFAULT_SPEED = 26;
+let simDaysPerSec = 2;
 let paused = false;
 // slider 0..100 -> 0.1 day/s .. 10,000 day/s (logarithmic)
 function setSpeedFromSlider(v){
@@ -976,7 +988,7 @@ function openingView(){
 }
 document.getElementById('btn-reset').addEventListener('click', function(){
   openingView();
-  deselect();
+  deselect(true);                       // Reset also releases the camera
   // simulation back to today, default speed, running
   simJD = jdNow();
   speedEl.value = DEFAULT_SPEED; setSpeedFromSlider(DEFAULT_SPEED);
@@ -1105,11 +1117,11 @@ function animate(){
 
   updatePositions(dt);
 
-  // camera follows the selected body exactly (it moves thousands of units per second here); lockOffset decays so a change of target is a smooth glide
-  if(locked){
+  // camera follows the followed body exactly (it moves thousands of units per second here); lockOffset decays so a change of target is a smooth glide
+  if(follow){
     lockOffset.multiplyScalar(Math.pow(0.85, dt*60));
     if(lockOffset.lengthSq() < 1e-16) lockOffset.set(0,0,0);
-    locked.worldPos(tmpVec2);
+    follow.worldPos(tmpVec2);
     camFocus.copy(tmpVec2).add(lockOffset);
   }
 
