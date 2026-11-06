@@ -212,20 +212,24 @@
         setTimeout(positionAtBottom, 800);
         window.addEventListener("resize", positionAtBottom);
 
-        // Calculators often grow taller after the user hits "Calculate"
-        // (a result box appears). Watch the page for that and reposition
-        // — debounced so rapid changes don't trigger a reposition storm.
-        let repositionTimer = null;
-        const observer = new MutationObserver(() => {
-            clearTimeout(repositionTimer);
-            repositionTimer = setTimeout(positionAtBottom, 120);
+        // Reposition whenever a top-level element changes SIZE (results panel
+        // appears, <details> opens, etc). Unlike a MutationObserver on
+        // style/class, this is not triggered by animations that only move things.
+        const ro = new ResizeObserver(() => {
+            requestAnimationFrame(positionAtBottom);
         });
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ["style", "class"]
-        });
+
+        function watch(el) {
+            if (el !== wrap && el.nodeType === 1) ro.observe(el);
+        }
+
+        Array.from(document.body.children).forEach(watch);
+
+        // pick up elements other scripts add to <body> later (children only)
+        new MutationObserver(muts => {
+            muts.forEach(m => m.addedNodes.forEach(watch));
+            requestAnimationFrame(positionAtBottom);
+        }).observe(document.body, { childList: true });
     }
 
     if (document.body) {
