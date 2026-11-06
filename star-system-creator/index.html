@@ -143,8 +143,8 @@
   .fs-btn:hover{border-color:var(--red-dim); color:var(--text); box-shadow:0 0 10px rgba(255,43,43,0.15);}
   .speed-ctrl{position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:8px;
     background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);}
-  .speed-ctrl input[type=range]{width:90px;}
-  .speed-ctrl b{color:var(--red); min-width:32px;}
+  .speed-ctrl input[type=range]{width:130px;}
+  .speed-ctrl b{color:var(--red); min-width:38px; text-align:right; font-variant-numeric:tabular-nums;}
   .stage.expanded{position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:9999; margin:0; border:none;}
   #stage3d{position:absolute; inset:0; cursor:grab;}
   #stage3d.dragging{cursor:grabbing;}
@@ -303,8 +303,8 @@
         <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a real gravity (N-body) simulation">⚛ REALISTIC MODE: OFF</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
-          <input type="range" id="speedSlider" min="0" max="50" value="25" step="5">
-          
+          <input type="range" id="speedSlider" min="0" max="100" value="47" step="1" title="Speed (logarithmic, 0 = paused, max 1000). Double-click to reset." aria-label="Simulation speed">
+          <b id="speedOut">25</b>
         </div>
         <div id="stage3d"></div>
       </div>
@@ -493,6 +493,74 @@ openPlanetBtn.addEventListener('click', function(){
   }
   function hzBounds(L){ return { inner: Math.sqrt(L/1.1), outer: Math.sqrt(L/0.53) }; }
   function eqTemp(L, dAU, albedo){ return 278.5 * Math.pow(L,0.25) * Math.pow(1-albedo,0.25) / Math.sqrt(dAU); }
+  function eqTempFromFlux(S, albedo){ return 278.5 * Math.pow(S*(1-albedo), 0.25); }   // S in Earth units; same as eqTemp for one star
+
+  // ---- habitable zone with several stars ----
+  // A planet is lit by EVERY star, so the habitable zone is where the TOTAL stellar flux is between
+  // 0.53 and 1.1 (Earth = 1). For a single star this is exactly the old sqrt(L/1.1)..sqrt(L/0.53) band.
+  // For a planet orbiting star `host` at semi-major axis a, with another star j at mean separation s,
+  // the flux of star j averaged around the orbit is  L_j / |s^2 - a^2|  (circular orbit, random phase):
+  //   a << s : L_j / s^2          (a steady extra heating from the distant companion)
+  //   a ~  s : blows up           (the orbit passes through the companion: never habitable)
+  //   a >> s : L_j / a^2          (a circumbinary planet sees both stars as one source)
+  var HZ_FLUX_HI = 1.1, HZ_FLUX_LO = 0.53;
+
+  // mean-square separation (AU^2) between two stars, time-averaged for eccentric orbits.
+  // Walks the star tree: each parent-child link adds au^2 * sqrt(1-e^2) (links point in unrelated directions).
+  function starSepSq(i, j){
+    if (i === j) return 0;
+    function chain(k){ var c = [k]; while (k > 0){ k = Math.min(parentOf(stars[k]), k-1); c.push(k); } return c; }
+    function link(k){ var s = stars[k], e = s.ecc||0; return s.au*s.au*Math.sqrt(1 - e*e); }
+    var ci = chain(i), cj = chain(j), lca = 0, x;
+    for (x=0;x<ci.length;x++){ if (cj.indexOf(ci[x]) >= 0){ lca = ci[x]; break; } }
+    var sum = 0;
+    for (x=0; ci[x] !== lca; x++) sum += link(ci[x]);
+    for (x=0; cj[x] !== lca; x++) sum += link(cj[x]);
+    return sum;
+  }
+
+  // total flux (Earth units) on a planet orbiting star `host` at semi-major axis aAU
+  function fluxAt(host, aAU){
+    var S = starLuminosity(stars[host]) / (aAU*aAU);
+    for (var j=0;j<stars.length;j++){
+      if (j === host) continue;
+      var Lj = starLuminosity(stars[j]);
+      if (Lj <= 0) continue;
+      S += Lj / Math.max(Math.abs(starSepSq(host, j) - aAU*aAU), 1e-9);
+    }
+    return S;
+  }
+  function fluxInHZ(S){ return S >= HZ_FLUX_LO && S <= HZ_FLUX_HI; }
+
+  // every orbital-radius range [aIn, aOut] (AU, around star `host`) where a planet would be habitable.
+  // Usually one band; a close companion can split it or remove it, and a far companion adds a
+  // circumbinary band. Slivers thinner than 5% are dropped.
+  function hzIntervals(host){
+    var LO = 0.001, HI = 1e5, STEP = 1.003, out = [], start = null;
+    function ok(a){ return fluxInHZ(fluxAt(host, a)); }
+    function edge(a0, a1){                       // bisect (in log space) between an inside and an outside radius
+      var inside = ok(a0);
+      for (var k=0;k<40;k++){
+        var m = Math.sqrt(a0*a1);
+        if (ok(m) === inside) a0 = m; else a1 = m;
+      }
+      return Math.sqrt(a0*a1);
+    }
+    function close(a0, a1){ if (a1/a0 >= 1.05) out.push([a0, a1]); }
+    var wasIn = ok(LO), prev = LO;
+    if (wasIn) start = LO;
+    for (var a = LO*STEP; a <= HI; a *= STEP){
+      var nowIn = ok(a);
+      if (nowIn !== wasIn){
+        var b = edge(prev, a);
+        if (nowIn) start = b; else { close(start, b); start = null; }
+        wasIn = nowIn;
+      }
+      prev = a;
+    }
+    if (wasIn && start !== null) close(start, HI);
+    return out;
+  }
   var EARTH_MASSES_PER_SOLAR = 333000;
   function planetMassSolar(p){ return p.massME / EARTH_MASSES_PER_SOLAR; }
   function orbitalPeriodYears(aAU, totalMassSolar){ return Math.sqrt(Math.pow(aAU,3) / Math.max(totalMassSolar,0.0001)); }
@@ -540,6 +608,55 @@ openPlanetBtn.addEventListener('click', function(){
     var r = aUnits*(1 - e*Math.cos(E));
     var trueAnom = 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2), Math.sqrt(1-e)*Math.cos(E/2));
     return { x:r*Math.cos(trueAnom), z:r*Math.sin(trueAnom) };
+  }
+
+  // ---- barycentric star layout (idealized mode) ----
+  // Stars are no longer "on rails" around a pinned parent. A parent and each companion circle their
+  // shared center of mass, so a heavy companion barely moves while a light one swings around it,
+  // and two equal stars both orbit the point between them. The whole system's center of mass stays
+  // at the origin. Companions of one parent are added from the inside out (like realistic mode):
+  // each one orbits the combined mass already inside it, and a companion carries the mass of its
+  // own sub-system (stars orbiting it), so hierarchical systems (close pair + distant third) work.
+  var starPos = [];     // {x,z} where each star is drawn
+  var starAnchor = [];  // per companion: {x,z} center of its orbit ellipse, f = ellipse size factor
+  function layoutStars(){
+    var n = stars.length, i;
+    starPos.length = 0; starAnchor.length = 0;
+    for (i=0;i<n;i++){ starPos.push({x:0, z:0}); starAnchor.push({x:0, z:0, f:1}); }
+
+    // mass of each star plus everything orbiting it (children always have a higher index than parents)
+    var sub = [];
+    for (i=0;i<n;i++) sub.push(stars[i].M);
+    for (i=n-1;i>=1;i--) sub[Math.min(parentOf(stars[i]), i-1)] += sub[i];
+
+    // bx,bz = center of mass of star i's sub-system
+    function place(i, bx, bz){
+      var kids = [];
+      for (var k=i+1;k<n;k++){ if (Math.min(parentOf(stars[k]), k-1) === i) kids.push(k); }
+      kids.sort(function(p, q){ return stars[p].au - stars[q].au; });
+
+      var members = [{ idx:i, x:0, z:0 }], anchors = [], gm = stars[i].M;
+      kids.forEach(function(k){
+        var s = stars[k], ms = sub[k], tm = gm + ms;
+        var period = orbitalPeriodYears(s.au, stars[i].M + s.M);
+        var rel = keplerPos(s, auToUnits(s.au), period);     // companion relative to what is already inside it
+        var dx = -rel.x*ms/tm, dz = -rel.z*ms/tm;            // everything already placed recoils
+        members.forEach(function(m){ m.x += dx; m.z += dz; });
+        anchors.forEach(function(a){ a.x += dx; a.z += dz; });
+        var an = starAnchor[k];                              // this pair's orbit is centered on the pair's barycenter
+        an.x = 0; an.z = 0; an.f = gm/tm;
+        anchors.push(an);
+        members.push({ idx:k, x:rel.x*gm/tm, z:rel.z*gm/tm });
+        gm = tm;
+      });
+
+      anchors.forEach(function(a){ a.x += bx; a.z += bz; });
+      members.forEach(function(m){
+        if (m.idx === i){ starPos[i].x = bx + m.x; starPos[i].z = bz + m.z; }
+        else place(m.idx, bx + m.x, bz + m.z);
+      });
+    }
+    place(0, 0, 0);
   }
 
     var trueScaleMode = true; // true relative sizes, always (the old 'enhanced' toggle was removed)
@@ -622,6 +739,7 @@ openPlanetBtn.addEventListener('click', function(){
     s.parent = Math.min(editingStarIndex-1, Math.max(0, parseInt(starParentSelect.value,10)||0));
     updateStarPeriodPreview();
     renderStarChips();
+    renderTable();
     rebuildIfReady();
   });
 
@@ -692,12 +810,14 @@ openPlanetBtn.addEventListener('click', function(){
     s.au = Math.min(10000, Math.max(0.015, parseFloat(starOrbitNumber.value)||1));
     starOrbitNumber.value = s.au.toFixed(3);
     updateStarPeriodPreview();
+    renderTable();   // planet flux / HZ depend on where the other stars are
     rebuildIfReady();
   });
   starEccNumber.addEventListener('change', function(){
     var s = stars[editingStarIndex];
     s.ecc = Math.max(0, Math.min(0.9, parseFloat(starEccNumber.value)||0));
     starEccNumber.value = s.ecc.toFixed(3);
+    renderTable();
     rebuildIfReady();
   });
 
@@ -744,6 +864,7 @@ openPlanetBtn.addEventListener('click', function(){
     editingStarIndex = idx;
     syncStarEditorFromState();
     renderStarChips();
+    renderTable();
     rebuildIfReady();
   }
 
@@ -898,12 +1019,12 @@ openPlanetBtn.addEventListener('click', function(){
     var multi = stars.length>1;
 
     planets.forEach(function(p, idx){
-      var star = stars[p.starIndex] || stars[0];
-      var L = starLuminosity(star);
-      var hz = hzBounds(L);
-      var temp = eqTemp(L, p.au, p.type.albedo);
+      var hostIdx = stars[p.starIndex] ? p.starIndex : 0;
+      var star = stars[hostIdx];
+      var flux = fluxAt(hostIdx, p.au);          // light from ALL stars, not just the host
+      var temp = eqTempFromFlux(flux, p.type.albedo);
       var period = orbitalPeriodYears(p.au, star.M + planetMassSolar(p));
-      var inHZ = L > 0 && p.au >= hz.inner && p.au <= hz.outer;
+      var inHZ = fluxInHZ(flux);
       var tr = document.createElement('tr');
       tr.className = 'data';
       tr.innerHTML =
@@ -914,7 +1035,7 @@ openPlanetBtn.addEventListener('click', function(){
         '<td>'+(p.ecc||0).toFixed(2)+'</td>'+
         '<td>'+p.radiusRE.toFixed(2)+'</td>'+
         '<td>'+p.type.label+'</td>'+
-        '<td>'+(L > 0 ? Math.round(temp) : '—')+'</td>'+
+        '<td>'+(flux > 0 ? Math.round(temp) : '—')+'</td>'+
         '<td class="'+(inHZ?'hz-yes':'')+'">'+(inHZ?'YES':'—')+'</td>'+
         '<td></td>';
       var rmTd = tr.lastElementChild;
@@ -1336,17 +1457,20 @@ openPlanetBtn.addEventListener('click', function(){
       return;
     }
     so.group.visible = true;
+    // every star is drawn at its TRUE position in the system's center-of-mass frame (the simulation
+    // keeps that point at the origin), so the primary visibly wobbles instead of being pinned.
+    // Distances are linear in realistic mode (distUnits = AU x distK), so this equals the old
+    // "parent position + relative offset" placement for companions.
+    so.group.position.set(bd.x*distK, 0, bd.z*distK);
     var dp = simDisplayParent(i);
     if (dp < 0){
-      so.group.position.set(0, 0, 0);
       if (so.trailLine) so.trailLine.visible = false;
       return;
     }
     placeStar(dp);
     var pg = three.starObjs[dp].group.position;
     dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
-    so.group.position.set(pg.x + simOff.x, 0, pg.z + simOff.z);
-    writeTrail(i, so.trailLine, simOff, pg);
+    writeTrail(i, so.trailLine, simOff, pg);   // trail = path relative to its parent star, ending on the star
   }
 
   function applySimPositions(){
@@ -1878,12 +2002,20 @@ window.addEventListener('pointerup', function(e){
       var light = new THREE.PointLight(starColor, isBH ? 0.8 : (idx===0?2.6:1.6), 60, 1.6);
       group.add(light);
 
-      if (L > 0){
-        var hz = hzBounds(L);
-        var rIn = realDist ? hz.inner*distK : auToUnits(Math.max(hz.inner,0.05));
-        var rOut = realDist ? hz.outer*distK : auToUnits(Math.min(hz.outer,50));
-        var hzMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
-        hzMesh.rotation.x = -Math.PI/2;
+      // habitable zone from the TOTAL flux of all stars (see hzIntervals): a companion shrinks, splits
+      // or removes the band near it instead of the ring running straight through the other star.
+      var hzMesh = null;
+      var hzBands = hzIntervals(idx);
+      if (hzBands.length){
+        hzMesh = new THREE.Group();
+        hzBands.forEach(function(band){
+          var rIn = realDist ? band[0]*distK : auToUnits(Math.max(band[0],0.05));
+          var rOut = realDist ? band[1]*distK : auToUnits(Math.min(band[1],50));
+          if (!(rOut > rIn)) return;
+          var ringMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
+          ringMesh.rotation.x = -Math.PI/2;
+          hzMesh.add(ringMesh);
+        });
         hzMesh.visible = showHZ;
         group.add(hzMesh);
       }
@@ -1994,20 +2126,17 @@ window.addEventListener('pointerup', function(e){
     if (realisticMode && sim && three.starObjs.length === sim.S && three.planetMeshes.length === planets.length){
       applySimPositions();
     } else {
+    // stars circle their shared centers of mass (see layoutStars); planets ride along inside each star's group
+    layoutStars();
     three.starObjs.forEach(function(so, idx){
       so.mesh.rotation.y += 0.0032*speedMultiplier;
-      if (idx===0){
-        so.group.position.set(0,0,0);
-      } else {
-        var a = auToUnits(so.star.au);
-        // orbit around the PARENT star (always earlier in the list, so its position is already updated)
-        var parentObj = three.starObjs[so.parentIdx] || three.starObjs[0];
-        var parentStar = parentObj.star;
-        var starPeriod = orbitalPeriodYears(so.star.au, parentStar.M + so.star.M);
-        var pos = keplerPos(so.star, a, starPeriod);
-        var pp = parentObj.group.position;
-        so.group.position.set(pp.x + pos.x, pp.y, pp.z + pos.z);
-        if (so.orbitLine) so.orbitLine.position.copy(pp);
+      var sp = starPos[idx];
+      if (!sp) return;
+      so.group.position.set(sp.x, 0, sp.z);
+      if (idx > 0 && so.orbitLine){
+        var an = starAnchor[idx];
+        so.orbitLine.position.set(an.x, 0, an.z);   // orbit ellipse is centered on the pair's barycenter
+        so.orbitLine.scale.set(an.f, 1, an.f);      // and scaled to the companion's share of the separation
       }
     });
 
@@ -2314,10 +2443,34 @@ showSysStatus('System reset.');
     applyHZVisibility();
   });
 
-     var speedSlider = document.getElementById('speedSlider');
-   speedSlider.addEventListener('input', function(){
-     speedMultiplier = parseFloat(speedSlider.value)/100;
-   });
+  // ---- speed slider ----
+  // Logarithmic, so slow and very fast speeds are both easy to hit: position 0 = paused,
+  // positions 1..100 run from speed 1 up to 1000 (about 7% per step). Speed 25 is the default.
+  // (speed / 100 is the time multiplier the animation uses.)
+  var SPEED_MIN = 1, SPEED_MAX = 1000, SPEED_DEFAULT = 25, SPEED_POSITIONS = 100;
+  var speedSlider = document.getElementById('speedSlider');
+  var speedOut = document.getElementById('speedOut');
+  function posToSpeed(pos){
+    pos = Math.round(pos);
+    if (pos <= 0) return 0;
+    if (pos >= SPEED_POSITIONS) return SPEED_MAX;
+    return SPEED_MIN * Math.pow(SPEED_MAX/SPEED_MIN, (pos-1)/(SPEED_POSITIONS-1));
+  }
+  function speedToPos(speed){
+    if (speed <= 0) return 0;
+    return Math.round(1 + (SPEED_POSITIONS-1)*Math.log(speed/SPEED_MIN)/Math.log(SPEED_MAX/SPEED_MIN));
+  }
+  function setSpeed(speed){
+    speedMultiplier = speed/100;
+    speedOut.textContent = speed < 10 ? speed.toFixed(speed === 0 ? 0 : 2) : String(Math.round(speed));
+  }
+  speedSlider.addEventListener('input', function(){ setSpeed(posToSpeed(parseFloat(speedSlider.value))); });
+  speedSlider.addEventListener('dblclick', function(){
+    speedSlider.value = speedToPos(SPEED_DEFAULT);
+    setSpeed(SPEED_DEFAULT);
+  });
+  speedSlider.value = speedToPos(SPEED_DEFAULT);
+  setSpeed(SPEED_DEFAULT);
 
   // ---- click-and-drag scrubbing for number fields (instead of native spin/scroll) ----
   function enableDragScrub(input){
