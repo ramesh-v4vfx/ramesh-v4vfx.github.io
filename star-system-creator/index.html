@@ -312,7 +312,9 @@
 
     <div>
       <div class="add-row">
-        <div class="planet-form-row">
+        <button class="add-btn" id="openPlanetBtn" style="margin-top:0;">+ ADD PLANET</button>
+          <div id="planetFormWrap" style="display:none; margin-top:10px;">
+          <div class="planet-form-row">
           <div class="field pf-name">
             <div class="k"><span>PLANET NAME</span></div>
             <input type="text" id="pName" placeholder="Unnamed-01" maxlength="18">
@@ -346,8 +348,9 @@
           <div class="k"><span>PLANET TYPE</span></div>
           <div class="type-row" id="typeRow"></div>
         </div>
-        <button class="add-btn" id="addBtn">+ ADD PLANET TO SYSTEM</button>
-        <button class="add-btn rand-btn" id="cancelEditBtn" style="display:none;">✕ CANCEL EDIT</button>
+        <button class="add-btn" id="addBtn">✓ ADD PLANET TO SYSTEM</button>
+        <button class="add-btn rand-btn" id="cancelEditBtn">✕ CANCEL</button>
+      </div>
       </div>
 
       <div class="panel-title"><span>SYSTEM MANIFEST</span><span id="planetCount">0 bodies</span></div>
@@ -429,6 +432,15 @@
   var massInput = document.getElementById('massInput');
   var addBtn = document.getElementById('addBtn');
   var cancelEditBtn = document.getElementById('cancelEditBtn');
+var openPlanetBtn = document.getElementById('openPlanetBtn');
+var planetFormWrap = document.getElementById('planetFormWrap');
+function openPlanetForm(){ planetFormWrap.style.display = 'block'; openPlanetBtn.style.display = 'none'; }
+function closePlanetForm(){ planetFormWrap.style.display = 'none'; openPlanetBtn.style.display = ''; }
+openPlanetBtn.addEventListener('click', function(){
+  resetForm();
+  openPlanetForm();
+  pNameInput.focus();
+});
   var planetTable = document.getElementById('planetTable');
   var starColHeader = document.getElementById('starColHeader');
   var planetCount = document.getElementById('planetCount');
@@ -827,8 +839,8 @@
 
   function exitEditMode(){
     editingIndex = null;
-    addBtn.textContent = '+ ADD PLANET TO SYSTEM';
-    cancelEditBtn.style.display = 'none';
+    addBtn.textContent = '✓ ADD PLANET TO SYSTEM';
+    closePlanetForm();
     resetForm();
   }
   cancelEditBtn.addEventListener('click', exitEditMode);
@@ -856,6 +868,7 @@
       data.hasRing = generateRing(data.type);
       planets.push(data);
       nextNum++;
+      closePlanetForm();
       resetForm();
     }
     renderTable();
@@ -874,7 +887,7 @@
     massInput.value = p.massME;
     if (stars.length>1) orbitsStarSelect.value = p.starIndex||0;
     addBtn.textContent = '✓ UPDATE PLANET';
-    cancelEditBtn.style.display = 'block';
+    openPlanetForm();
     updatePeriodPreview();
     window.scrollTo({top:0, behavior:'smooth'});
   }
