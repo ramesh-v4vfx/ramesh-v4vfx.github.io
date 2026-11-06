@@ -185,10 +185,32 @@ body {
 /* ---------- Black hole hero mark ---------- */
 .bh-mark {
   position: relative;
-  width: 128px;
-  height: 128px;
+  width: 240px;
+  aspect-ratio: 220 / 130;
   margin: 0 auto 8px;
-  perspective: 560px;
+}
+
+/* the black hole itself: shadow, photon ring, lensed halo and a tilted, Doppler-beamed disk */
+.bh-svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.bh-streak {
+  fill: none;
+  stroke: rgba(255,244,220,0.6);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  stroke-dasharray: 16 34 6 34;      /* pattern period = 90, so the loop below is seamless */
+  animation: diskflow 5s linear infinite;
+}
+
+@keyframes diskflow {
+  to { stroke-dashoffset: -90; }
 }
 
 .bh-glow {
@@ -227,45 +249,14 @@ body {
   .bh-ripple { animation: none; opacity: 0; }
 }
 
-.bh-disk {
-  position: absolute;
-  inset: 6px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg,
-    var(--photon), var(--gold), var(--ember), var(--crimson),
-    #4a0f24, #0a0410, #4a0f24,
-    var(--crimson), var(--ember), var(--gold), var(--photon));
-  transform: rotateX(75deg);
-  animation: diskspin 9s linear infinite;
-  box-shadow: 0 0 44px 6px rgba(255,140,60,0.35);
-  -webkit-mask: radial-gradient(circle, transparent 40%, black 44%, black 100%);
-          mask: radial-gradient(circle, transparent 40%, black 44%, black 100%);
-  z-index: 1;
-}
-
-@keyframes diskspin {
-  from { transform: rotateX(75deg) rotateZ(0deg); }
-  to   { transform: rotateX(75deg) rotateZ(360deg); }
-}
-
-.bh-photon-ring {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 62px; height: 62px;
-  margin: -31px 0 0 -31px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,233,199,0.65);
-  box-shadow: 0 0 10px 2px rgba(255,233,199,0.55);
-  z-index: 2;
-  animation: photonPulse 3.2s ease-in-out infinite;
-}
+.bh-photon-ring { animation: photonPulse 3.2s ease-in-out infinite; }
 
 .intro {
   font-size: 0.6rem;
   line-height: 1.6;
   color: var(--text-dim);
   text-align: center;
-  margin: 0 0 20px;
+  margin: 26px 0 20px;   /* breathing room between the tool card and the description */
   font-family: var(--sans);
 }
 
@@ -274,19 +265,8 @@ body {
   50% { opacity: 1; }
 }
 
-.bh-core {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 56px; height: 56px;
-  margin: -28px 0 0 -28px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #000 55%, #000 100%);
-  box-shadow: inset 0 0 22px 6px rgba(0,0,0,0.95), 0 0 0 1px rgba(0,0,0,0.6);
-  z-index: 3;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .bh-disk, .bh-photon-ring, .bh-glow { animation: none; }
+  .bh-photon-ring, .bh-glow, .bh-streak { animation: none; }
 }
 
 h1 {
@@ -508,69 +488,7 @@ input:focus {
 }
 .res-title:not(:first-child) { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,43,43,0.14); }
 .res-title + .line { margin-top: 0; }
-
-/* ---------- Calculate button ---------- */
-.calc-wrap {
-  position: relative;
-  margin-top: 26px;
-  padding: 3px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #ff5050, var(--t-red), var(--blood));
-  background-size: 220% 220%;
-  animation: borderflow 6s ease infinite, pulseGlow 2.5s infinite;
-}
-
-@keyframes borderflow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0 rgba(255,43,43,0.55); }
-  70% { box-shadow: 0 0 0 16px rgba(255,43,43,0); }
-  100% { box-shadow: 0 0 0 0 rgba(255,43,43,0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .calc-wrap { animation: none; }
-}
-
-.btn-red {
-  position: relative;
-  width: 100%;
-  padding: 16px 20px;
-  font-size: 1.05rem;
-  font-family: var(--mono);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #161617, #0a0a0b);
-  color: var(--t-red);
-  text-shadow: 0 0 10px rgba(255,43,43,0.7);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  overflow: hidden;
-}
-
-.btn-red .icon { color: var(--t-red); text-shadow: 0 0 10px rgba(255,43,43,0.85); }
-
-.btn-red::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -60%;
-  width: 40%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.5s ease;
-}
-
-.calc-wrap:hover .btn-red::after { left: 130%; }
-.btn-red:active { transform: scale(0.97); }
+.res-note { font-family: var(--mono); font-size: 0.7rem; line-height: 1.5; color: rgba(255,43,43,0.55); letter-spacing: 0.02em; }
 
 .result {
   display: none;
@@ -641,11 +559,12 @@ input:focus {
 }
 
 .small {
-  margin-top: 16px;
-  font-size: 0.78rem;
+  margin-top: 14px;
+  font-size: 0.6rem;
+  line-height: 1.5;
   font-family: var(--mono);
   color: rgba(255,43,43,0.55);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .btn-reset {
@@ -736,9 +655,7 @@ input:focus {
 @media (max-width: 480px) {
   body { padding: 26px 12px; }
 
-  .bh-mark { width: 104px; height: 104px; }
-  .bh-photon-ring { width: 52px; height: 52px; margin: -26px 0 0 -26px; }
-  .bh-core { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+  .bh-mark { width: 200px; }
 
   h1 { font-size: 1.12rem; margin-bottom: 22px; }
 
@@ -750,8 +667,6 @@ input:focus {
 
   .btn-small { flex: 1; min-width: 90px; padding: 12px 0; font-size: 0.85rem; }
 
-  .btn-red { font-size: 1rem; padding: 15px 0; }
-
   .result { padding: 16px 14px; }
 
   .line { grid-template-columns: auto 1fr; }
@@ -759,7 +674,7 @@ input:focus {
 
   .btn-reset { width: 100%; padding: 14px 0; }
 
-  .small { font-size: 0.72rem; line-height: 1.5; }
+  .small { font-size: 0.55rem; line-height: 1.5; }
 }
 </style>
 </head>
@@ -779,9 +694,79 @@ input:focus {
     <div class="bh-ripple"></div>
     <div class="bh-ripple r2"></div>
     <div class="bh-glow"></div>
-    <div class="bh-disk"></div>
-    <div class="bh-photon-ring"></div>
-    <div class="bh-core"></div>
+
+    <!-- Black hole seen from slightly above the disk plane (Interstellar-style):
+         far side of the disk, lensed halo arching over the top and under the bottom,
+         black shadow with a photon ring, then the near side of the disk passing in front.
+         The side of the disk turning towards us (left) is brighter: relativistic Doppler beaming. -->
+    <svg class="bh-svg" viewBox="0 0 220 130" aria-hidden="true" focusable="false">
+      <defs>
+        <!-- temperature: white-hot at the inner edge, cooling to red at the rim.
+             objectBoundingBox units stretch this circle into the disk's ellipse. -->
+        <radialGradient id="bhDiskGrad" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0.365" stop-color="#fff7e6"/>
+          <stop offset="0.46"  stop-color="#ffe0a0"/>
+          <stop offset="0.62"  stop-color="#ffb347"/>
+          <stop offset="0.79"  stop-color="#ff6b35"/>
+          <stop offset="0.92"  stop-color="#b3261e" stop-opacity="0.8"/>
+          <stop offset="1"     stop-color="#5a0f10" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- lensed image of the far side of the disk -->
+        <radialGradient id="bhHaloGrad" gradientUnits="userSpaceOnUse" cx="110" cy="65" r="40">
+          <stop offset="0.6"  stop-color="#fff3d6" stop-opacity="0.95"/>
+          <stop offset="0.7"  stop-color="#ffc060" stop-opacity="0.75"/>
+          <stop offset="0.82" stop-color="#ff7a30" stop-opacity="0.35"/>
+          <stop offset="1"    stop-color="#ff3860" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Doppler beaming: approaching side (left) bright, receding side (right) dim -->
+        <linearGradient id="bhDopplerGrad" gradientUnits="userSpaceOnUse" x1="6" y1="0" x2="214" y2="0">
+          <stop offset="0"   stop-color="#ffffff"/>
+          <stop offset="0.5" stop-color="#c8c8c8"/>
+          <stop offset="1"   stop-color="#555555"/>
+        </linearGradient>
+        <mask id="bhDopplerMask" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="130">
+          <rect x="0" y="0" width="220" height="130" fill="url(#bhDopplerGrad)"/>
+        </mask>
+
+        <!-- the whole disk is drawn once, minus the upper half of the shadow's circle:
+             that part of the disk lies behind the hole, so the near side crosses in front
+             of the shadow while the far side is hidden by it (no seam, no double blending) -->
+        <clipPath id="bhDiskClip">
+          <path clip-rule="evenodd" d="M0,0 H220 V130 H0 Z M85.4,65 A24.6,24.6 0 0 1 134.6,65 Z"/>
+        </clipPath>
+
+        <filter id="bhPhotonBlur" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="2"/>
+        </filter>
+
+        <!-- the disk: a flat ring seen at a shallow angle -->
+        <path id="bhAnnulus" fill="url(#bhDiskGrad)" fill-rule="evenodd"
+              d="M6,65 a104,19 0 1,0 208,0 a104,19 0 1,0 -208,0 Z
+                 M72,65 a38,7 0 1,0 76,0 a38,7 0 1,0 -76,0 Z"/>
+      </defs>
+
+      <!-- 1. lensed halo: the far side of the disk bent over the top and under the bottom -->
+      <g mask="url(#bhDopplerMask)">
+        <circle cx="110" cy="65" r="40" fill="url(#bhHaloGrad)"/>
+      </g>
+
+      <!-- 2. the shadow and the photon ring hugging it -->
+      <circle cx="110" cy="65" r="24" fill="#000"/>
+      <circle cx="110" cy="65" r="24.6" fill="none" stroke="#ffb060" stroke-width="3" opacity="0.6" filter="url(#bhPhotonBlur)"/>
+      <circle class="bh-photon-ring" cx="110" cy="65" r="24.6" fill="none" stroke="#fff2d8" stroke-width="1.1"/>
+
+      <!-- 3. the disk: far side hidden behind the shadow, near side crossing in front of it -->
+      <g mask="url(#bhDopplerMask)">
+        <g clip-path="url(#bhDiskClip)">
+          <use href="#bhAnnulus"/>
+          <ellipse class="bh-streak" cx="110" cy="65" rx="52" ry="9.5"  style="animation-duration:4s"/>
+          <ellipse class="bh-streak" cx="110" cy="65" rx="70" ry="12.8" style="animation-duration:6s"/>
+          <ellipse class="bh-streak" cx="110" cy="65" rx="88" ry="16.1" style="animation-duration:8s"/>
+        </g>
+      </g>
+    </svg>
   </div>
 
   <h1>Black Hole Radius Calculator</h1>
@@ -819,10 +804,6 @@ input:focus {
       </div>
     </div>
 
-    <div class="calc-wrap">
-      <button class="btn-red" onclick="calculate()"><span class="icon">⌖</span> Calculate</button>
-    </div>
-
     <div class="result" id="output"></div>
 
     <div id="resetWrap" style="display:none; margin-top:16px;">
@@ -830,7 +811,7 @@ input:focus {
     </div>
 
     <div class="small">
-      Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km<br>With spin: r₊ = (GM/c²)(1 + √(1 − a²))
+      Constants: M☉ = 1.988416×10³⁰ kg · R☉ = 695,700 km<br>1 AU = 149,597,870.7 km · 1 ly = 9.4607×10¹² km<br>With spin: r₊ = (GM/c²)(1 + √(1 − a²))
     </div>
 
         <!-- Share Button -->
@@ -906,11 +887,12 @@ input:focus {
     </div>
 
   </div>
-  <p class="intro">Calculates the Schwarzschild radius, the boundary beyond which nothing, not even light, can escape, for any mass using R = 2GM/c². Enter a mass in solar masses, Earth masses, or kilograms to find its event horizon radius instantly. Press Add spin to include the spin of a rotating black hole: its event horizon is smaller than the Schwarzschild radius, r₊ = (GM/c²)(1 + √(1 − a²)).</p>
+  <p class="intro">Calculates the Schwarzschild radius, the boundary beyond which nothing, not even light, can escape, for any mass using R = 2GM/c². Enter a mass in solar masses, Earth masses, or kilograms to find its event horizon radius instantly, in kilometres, solar radii, astronomical units (AU) and light years. Press Add spin to include the spin of a rotating black hole: its event horizon is smaller than the Schwarzschild radius, r₊ = (GM/c²)(1 + √(1 − a²)).</p>
 </div>
 
 <script>
-let decimals = 3;
+let decimals = 3;          // precision in use right now (null = Original)
+let userDecimals = 3;      // precision the user picked; Original is switched on automatically for tiny values
 let lastResult = null;
 let spinOn = false;
 
@@ -919,17 +901,44 @@ const c = 299792458;
 const solarMass = 1.988416e30;
 const earthMass = 5.9722e24;
 const solarRadius = 6.957e8;
+const AU = 149597870700;            // metres in one astronomical unit (IAU 2012, exact)
+const lightYear = 9460730472580800; // metres in one light year (Julian year, exact)
 
 const massInput = document.getElementById('massInput');
 const spinInput = document.getElementById('spinInput');
 
-// keep the spin box to digits, one minus sign and a dot; recalculate live once a result is showing
+// keep the spin box to digits, one minus sign and a dot; results update live as you type
 spinInput.addEventListener('input', function () {
   this.value = this.value.replace(/[−–]/g, '-').replace(/,/g, '.').replace(/[^0-9.\-]/g, '');
-  if (lastResult) calculate();
+  calculate();
+  scheduleSpinZero(false);
 });
 
+// A spin of 0 means "no spin": close the spin box and bring the "+ Add spin" button back.
+// After typing a digit we wait a moment, so "0" can still become "0.9"; Enter closes it at once.
+let spinZeroTimer = null;
+
+function isZeroSpin() {
+  const raw = spinInput.value.trim();
+  return raw !== '' && !/^-?\.?$/.test(raw) && Number(raw) === 0;
+}
+
+function scheduleSpinZero(immediate) {
+  clearTimeout(spinZeroTimer);
+  if (!spinOn || !isZeroSpin()) return;
+  if (immediate) { toggleSpin(); return; }
+  spinZeroTimer = setTimeout(() => { if (spinOn && isZeroSpin()) toggleSpin(); }, 800);
+}
+
+spinInput.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') scheduleSpinZero(true);
+});
+
+// changing the mass unit recalculates straight away
+document.getElementById('massType').addEventListener('change', calculate);
+
 function toggleSpin() {
+  clearTimeout(spinZeroTimer);
   spinOn = !spinOn;
   const btn = document.getElementById('spinToggle');
   document.getElementById('spinBox').classList.toggle('open', spinOn);
@@ -941,7 +950,7 @@ function toggleSpin() {
   } else {
     spinInput.value = '';
     showSpinErr('');
-    if (lastResult) calculate();
+    calculate();
   }
 }
 
@@ -954,30 +963,40 @@ function showSpinErr(msg) {
 massInput.addEventListener('input', function () {
   const cursorPos = this.selectionStart;
   let raw = this.value.replace(/,/g, '');
-  if (!raw) return;
-  const parts = raw.split('.');
-  parts[0] = parts[0].replace(/\D/g, '');
-  if (parts[1]) parts[1] = parts[1].replace(/\D/g, '');
-  parts[0] = Number(parts[0]).toLocaleString('en-US');
-  const formatted = parts.join('.');
-  const diff = formatted.length - this.value.length;
-  this.value = formatted;
-  this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+  if (raw) {
+    const parts = raw.split('.');
+    parts[0] = parts[0].replace(/\D/g, '');
+    if (parts[1]) parts[1] = parts[1].replace(/\D/g, '');
+    parts[0] = Number(parts[0]).toLocaleString('en-US');
+    const formatted = parts.join('.');
+    const diff = formatted.length - this.value.length;
+    this.value = formatted;
+    this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+  }
+  calculate(); // results update live as you type; clears when the box is empty
 });
 
 // Fixed: previously relied on the global `event` object (non-standard,
 // unreliable outside inline-handler context). Now the clicked button is
 // passed explicitly.
 function setDecimals(d, btn) {
+  userDecimals = d;
   decimals = d;
-  document.querySelectorAll('.btn-small').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  syncDecButtons();
   if (lastResult) renderResult(lastResult);
+}
+
+// highlight the tab for the precision currently in use
+function syncDecButtons() {
+  const key = decimals === null ? 'null' : String(decimals);
+  document.querySelectorAll('.btn-small').forEach(b => b.classList.toggle('active', b.dataset.decimals === key));
 }
 
 function format(n) {
   if (decimals === null) {
-    return Number(n).toLocaleString('en-US', { maximumFractionDigits: 30 });
+    const x = Number(n);
+    if (x > 0 && x < 1e-24) return x.toExponential(6); // too small for plain digits
+    return x.toLocaleString('en-US', { maximumFractionDigits: 30 });
   }
   const rounded = roundSafe(n, decimals);
   return rounded.toLocaleString('en-US', {
@@ -986,54 +1005,91 @@ function format(n) {
   });
 }
 
+// build every unit from a radius in metres
+function units(m) {
+  return {
+    mm: m * 1000,
+    m: m,
+    km: m / 1000,
+    rsolar: m / solarRadius,
+    au: m / AU,
+    ly: m / lightYear
+  };
+}
+
+function clearResult() {
+  const output = document.getElementById('output');
+  output.style.display = 'none';
+  output.innerHTML = '';
+  document.getElementById('resetWrap').style.display = 'none';
+  lastResult = null;
+  decimals = userDecimals;   // nothing showing: go back to the precision the user chose
+  syncDecButtons();
+}
+
+// runs on every keystroke / change, so there is no Calculate button
 function calculate() {
   const val = parseFloat(document.getElementById('massInput').value.replace(/,/g,''));
-  if (!val || val <= 0) return;
+  if (!val || val <= 0) { clearResult(); return; }
 
   // optional spin
   let a = null;
+  showSpinErr('');
   if (spinOn) {
     const raw = spinInput.value.trim();
-    if (raw !== '') {
-      a = parseFloat(raw);
+    // '', '-', '.' and '-.' are half-typed numbers: wait for more digits, no error yet
+    if (!/^-?\.?$/.test(raw)) {
+      a = Number(raw);
       if (Number.isNaN(a) || a < -1 || a > 1) {
         showSpinErr('Spin must be a number from -1 to 1.');
-        return;
+        a = null; // show the no-spin result rather than a stale spin one
       }
     }
   }
-  showSpinErr('');
 
   const type = document.getElementById('massType').value;
   const M =
     type === 'solar' ? val * solarMass :
     type === 'earth' ? val * earthMass : val;
   const rs = (2 * G * M) / (c * c);
-  lastResult = { m: rs, km: rs / 1000, rsolar: rs / solarRadius, spin: a, kerr: null };
+  lastResult = Object.assign(units(rs), { spin: a, kerr: null });
   if (a !== null) {
     const rk = (rs / 2) * (1 + Math.sqrt(1 - a * a)); // outer event horizon, Kerr black hole
-    lastResult.kerr = { m: rk, km: rk / 1000, rsolar: rk / solarRadius };
+    lastResult.kerr = units(rk);
   }
   renderResult(lastResult);
 }
 
+// a unit is only worth showing if it would not display as 0.000 (or 0.00) at the chosen precision;
+// "Original" shows full digits, so nothing rounds to zero there
+function showable(v) {
+  return decimals === null || roundSafe(v, decimals) !== 0;
+}
+
+// the rows to display for one radius, smallest unit first
+function rowsFor(r) {
+  const rows = [];
+  // under 1 m: millimetres, listed above metres
+  if (r.m < 1) rows.push(['MM', r.mm, 'mm']);
+  // under 0.001 km (1 m), or whenever km would read zero at this precision: kilometres are too coarse, add metres
+  if (r.km < 0.001 || !showable(r.km)) rows.push(['M', r.m, 'm']);
+  rows.push(['KM', r.km, 'km'], ['R☉', r.rsolar, 'R☉'], ['AU', r.au, 'AU']);
+  if (r.ly >= 0.001) rows.push(['LY', r.ly, 'ly']);    // light years only from 0.001 ly up
+  return rows.filter(([, v]) => showable(v));          // never show a unit that reads 0.000
+}
+
 function lines(r) {
-  return `
+  const html = rowsFor(r)
+    .map(([tag, v, unit]) => `
     <div class="line">
-      <span class="unit-tag">M</span>
-      <span class="value">${format(r.m)} m</span>
-      <button class="copy-btn" onclick="copyValue(this,'${format(r.m)} m')">Copy</button>
-    </div>
-    <div class="line">
-      <span class="unit-tag">KM</span>
-      <span class="value">${format(r.km)} km</span>
-      <button class="copy-btn" onclick="copyValue(this,'${format(r.km)} km')">Copy</button>
-    </div>
-    <div class="line">
-      <span class="unit-tag">R☉</span>
-      <span class="value">${format(r.rsolar)} R☉</span>
-      <button class="copy-btn" onclick="copyValue(this,'${format(r.rsolar)} R☉')">Copy</button>
-    </div>`;
+      <span class="unit-tag">${tag}</span>
+      <span class="value">${format(v)} ${unit}</span>
+      <button class="copy-btn" onclick="copyValue(this,'${format(v)} ${unit}')">Copy</button>
+    </div>`)
+    .join('');
+
+  // every unit would read zero: say so instead of leaving an empty panel
+  return html || `<div class="res-note">Too small to show at this precision. Select Original to see the full value.</div>`;
 }
 
 function renderResult(r) {
@@ -1041,12 +1097,20 @@ function renderResult(r) {
   const resetWrap = document.getElementById('resetWrap');
   output.style.display = 'block';
   resetWrap.style.display = 'block';
+
+  // too small for the chosen precision (every unit would read zero): switch to the Original tab;
+  // it goes back to the user's own choice as soon as the value is big enough again
+  decimals = userDecimals;
+  if (rowsFor(r.kerr || r).length === 0) decimals = null;
+  syncDecButtons();
+
   if (r.kerr) {
+    // with spin: show only the spinning black hole's radius (no Schwarzschild panel)
     output.innerHTML =
-      `<div class="res-title">Schwarzschild radius (no spin)</div>` + lines(r) +
       `<div class="res-title">Black hole radius (spin a* = ${String(+r.spin.toFixed(6))})</div>` + lines(r.kerr);
   } else {
-    output.innerHTML = lines(r);
+    // no spin: plain Schwarzschild radius
+    output.innerHTML = `<div class="res-title">Schwarzschild radius</div>` + lines(r);
   }
 }
 
@@ -1071,16 +1135,11 @@ function resetCalc() {
   spinInput.value = '';
   showSpinErr('');
 
+  userDecimals = 3;
   decimals = 3;
-  document.querySelectorAll('.btn-small').forEach(b => b.classList.remove('active'));
-  document.querySelector('.btn-small[data-decimals="3"]').classList.add('active');
+  syncDecButtons();
 
-  const output = document.getElementById('output');
-  const resetWrap = document.getElementById('resetWrap');
-  output.style.display = 'none';
-  output.innerHTML = '';
-  resetWrap.style.display = 'none';
-  lastResult = null;
+  clearResult();
   massInput.focus();
 }
 
