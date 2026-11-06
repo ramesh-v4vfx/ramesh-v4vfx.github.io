@@ -14,7 +14,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Interactive Lagrange point visualizer for the three-body problem. Explore L1 through L5 for Sun-Earth, Sun-Jupiter, Earth-Moon, and other systems, with a real orbital dynamics simulation.">
+<meta name="description" content="Interactive Lagrange point visualizer for the three-body problem. Explore L1 through L5 for Sun-Earth, Sun-Jupiter, Earth-Moon, and Pluto-Charon, with a real orbital dynamics simulation, zero-velocity curves, and an inertial-frame view.">
 
 <title>Lagrange Point Visualizer — L1 to L5 Orbital Simulator | rameshverse</title>
 
@@ -49,16 +49,18 @@ html,body{margin:0;padding:0;background:var(--rv-bg);color:var(--rv-text);font-f
 }
 
 header{
-  display:flex; justify-content:space-between; align-items:flex-end;
+  display:flex; justify-content:space-between; align-items:flex-end; gap:12px;
   border-bottom:1px solid var(--rv-red-dim); padding-bottom:14px; margin-bottom:22px; letter-spacing:0.08em;
 }
 .title-block h1{ font-size:26px; margin:0; color:var(--rv-red); text-shadow:0 0 14px var(--rv-red-glow); letter-spacing:0.12em; }
 .title-block .sub{ font-size:11px; color:var(--rv-dim); margin-top:4px; letter-spacing:0.18em;}
 .badge{ font-size:10px; color:var(--rv-dim); text-align:right; line-height:1.6; }
 .badge span{color:var(--rv-cyan);}
+@media(max-width:560px){ .title-block h1{font-size:19px;} .title-block .sub{font-size:9px;} }
 
 .grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:20px; }
 @media(max-width:860px){ .grid{grid-template-columns:1fr;} }
+.grid > .panel{ min-width:0; }
 
 .panel{ position:relative; background:var(--rv-panel); border:1px solid var(--rv-red-dim); padding:16px; }
 .panel .bl,.panel .br,.panel .tl,.panel .tr{ content:""; position:absolute; width:12px; height:12px; }
@@ -67,31 +69,50 @@ header{
 .panel .bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--rv-red); border-left:2px solid var(--rv-red);}
 .panel .br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--rv-red); border-right:2px solid var(--rv-red);}
 
-.panel-label{ font-size:11px; color:var(--rv-red); letter-spacing:0.2em; margin-bottom:10px; display:flex; justify-content:space-between; }
+.panel-label{ font-size:11px; color:var(--rv-red); letter-spacing:0.2em; margin-bottom:10px; display:flex; justify-content:space-between; gap:10px; }
 .panel-label .dot{ width:7px;height:7px;border-radius:50%;background:var(--rv-green); box-shadow:0 0 8px var(--rv-green); display:inline-block; margin-right:6px; }
+.panel-label #stateLbl{ color:var(--rv-dim); text-align:right; }
+.sec-label{ font-size:10px; color:var(--rv-red); letter-spacing:0.2em; margin:4px 0 -6px; }
 
 canvas{ width:100%; display:block; background:#05050a; border:1px solid rgba(255,255,255,0.05); }
+#sim{ aspect-ratio:720/520; height:auto; cursor:crosshair; }
+#sim.dragging{ cursor:grabbing; }
+#zoomCanvas{ width:150px; height:110px; }
 
 .canvas-wrap{ position:relative; }
 .speed-overlay{
   position:absolute; left:14px; bottom:14px; z-index:5;
   background:rgba(5,5,6,0.78); border:1px solid var(--rv-red-dim); backdrop-filter:blur(2px);
-  padding:6px 10px; width:150px; display:flex; align-items:center; gap:8px;
+  padding:6px 10px; width:210px; display:flex; align-items:center; gap:8px;
 }
-.speed-overlay .ff-icon{ color:var(--rv-cyan); font-size:13px; flex-shrink:0; line-height:1; }
-.speed-overlay input[type=range]{ -webkit-appearance:none; flex:1; height:2px; background:var(--rv-red-dim); outline:none; }
+.speed-overlay .ff-icon{ color:var(--rv-cyan); font-size:9px; letter-spacing:0.12em; flex-shrink:0; line-height:1; }
+.speed-overlay .spd-val{ color:var(--rv-text); font-size:10px; width:36px; text-align:right; flex-shrink:0; }
+.speed-overlay input[type=range]{ -webkit-appearance:none; flex:1; min-width:0; height:2px; background:var(--rv-red-dim); outline:none; }
 .speed-overlay input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:11px; height:11px; background:var(--rv-cyan); box-shadow:0 0 8px rgba(79,209,255,0.6); cursor:pointer; border:none; }
 .speed-overlay input[type=range]::-moz-range-thumb{ width:11px; height:11px; background:var(--rv-cyan); border:none; box-shadow:0 0 8px rgba(79,209,255,0.6); cursor:pointer; }
 
 .zoom-inset{
-  position:absolute; right:14px; top:14px; z-index:5;
+  position:absolute; right:14px; top:14px; z-index:5; pointer-events:none;
   width:150px; height:110px; background:rgba(5,5,6,0.85); border:1px solid var(--rv-cyan);
 }
 .zoom-inset .zi-label{ position:absolute; top:3px; left:6px; font-size:8px; color:var(--rv-cyan); letter-spacing:0.08em; z-index:1; }
 
+.toolbar{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.tb-btn{
+  background:#0d0e10; color:var(--rv-text); border:1px solid var(--rv-red-dim); font-family:'Space Mono',monospace;
+  font-size:10px; letter-spacing:0.08em; padding:7px 9px; cursor:pointer; -webkit-appearance:none; appearance:none;
+  transition:background .15s, box-shadow .15s, color .15s;
+}
+.tb-btn:hover{ background:rgba(255,43,43,0.08); box-shadow:0 0 8px var(--rv-red-dim); }
+.tb-btn.on{ border-color:var(--rv-cyan); color:var(--rv-cyan); }
+.toolbar select{ width:auto; flex:1 1 150px; font-size:10px; padding:6px 8px; }
+
+.hint{ margin-top:8px; font-size:9px; color:var(--rv-dim); letter-spacing:0.06em; line-height:1.7; }
+.hint kbd{ font-family:inherit; color:var(--rv-cyan); border:1px solid rgba(79,209,255,0.3); padding:0 4px; }
+
 .controls{ display:flex; flex-direction:column; gap:16px; }
 .ctrl-row{ display:flex; flex-direction:column; gap:6px; }
-.ctrl-row label{ font-size:11px; color:var(--rv-dim); letter-spacing:0.1em; display:flex; justify-content:space-between;}
+.ctrl-row label{ font-size:11px; color:var(--rv-dim); letter-spacing:0.1em; display:flex; justify-content:space-between; gap:8px;}
 .ctrl-row label b{ color:var(--rv-text); font-weight:400; }
 input[type=range]{ -webkit-appearance:none; width:100%; height:2px; background:var(--rv-red-dim); outline:none; }
 input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; background:var(--rv-red); box-shadow:0 0 8px var(--rv-red-glow); cursor:pointer; border:none; }
@@ -106,6 +127,7 @@ select{
 .lp-btn{
   background:#0d0e10; color:var(--rv-cyan); border:1px solid var(--rv-red-dim); font-family:'Space Mono',monospace;
   font-size:11px; padding:8px 2px; cursor:pointer; text-align:center; transition:background .15s, box-shadow .15s;
+  -webkit-appearance:none; appearance:none;
 }
 .lp-btn:hover{ background:rgba(79,209,255,0.08); box-shadow:0 0 8px rgba(79,209,255,0.25); }
 .lp-btn.active{ border-color:var(--rv-cyan); color:var(--rv-text); background:rgba(79,209,255,0.12); }
@@ -116,17 +138,22 @@ button.clear-btn{
 }
 button.clear-btn:hover{ color:var(--rv-red); box-shadow:0 0 8px var(--rv-red-dim); }
 
+button:focus-visible, select:focus-visible, input:focus-visible, canvas:focus-visible{ outline:1px solid var(--rv-cyan); outline-offset:2px; }
+
 .telemetry{ margin-top:2px; display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; }
-.tele-item{ border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; }
+.tele-item{ border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; min-width:0; }
 .tele-item .k{ font-size:9px; color:var(--rv-dim); letter-spacing:0.14em;}
-.tele-item .v{ font-size:14px; color:var(--rv-cyan); margin-top:2px;}
+.tele-item .v{ font-size:14px; color:var(--rv-cyan); margin-top:2px; overflow-wrap:anywhere;}
+.tele-item .s{ font-size:9px; color:var(--rv-dim); margin-top:2px; letter-spacing:0.04em; line-height:1.4; }
 .tele-item .v.gold{ color:var(--rv-gold);}
 .tele-item .v.green{ color:var(--rv-green);}
 .tele-item .v.purple{ color:var(--rv-purple);}
 .tele-item .v.red{ color:var(--rv-red); }
 
-.status-line{ margin-top:6px; padding:10px 12px; border:1px solid var(--rv-red-dim); font-size:11px; letter-spacing:0.08em; background:rgba(255,43,43,0.04); }
+.status-line{ margin-top:6px; padding:10px 12px; border:1px solid var(--rv-red-dim); font-size:11px; letter-spacing:0.08em; background:rgba(255,43,43,0.04); line-height:1.5; }
 .status-line b{ color:var(--rv-red); }
+.note-box{ padding:10px 12px; border:1px solid rgba(79,209,255,0.25); font-size:10px; letter-spacing:0.05em; line-height:1.6; color:var(--rv-text); background:rgba(79,209,255,0.03); }
+.note-box b{ color:var(--rv-cyan); font-weight:400; letter-spacing:0.14em; }
 
 .footer-note{ margin-top:18px; font-size:10px; color:var(--rv-dim); letter-spacing:0.06em; line-height:1.6; }
 </style>
@@ -146,17 +173,29 @@ button.clear-btn:hover{ color:var(--rv-red); box-shadow:0 0 8px var(--rv-red-dim
   <div class="grid">
     <div class="panel">
       <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
-      <div class="panel-label"><span><span class="dot"></span>ROTATING FRAME — EFFECTIVE POTENTIAL</span><span id="stateLbl">--</span></div>
+      <div class="panel-label"><span><span class="dot"></span><span id="frameLbl">ROTATING FRAME — EFFECTIVE POTENTIAL</span></span><span id="stateLbl">--</span></div>
       <div class="canvas-wrap">
-        <canvas id="sim" width="720" height="520"></canvas>
+        <canvas id="sim" width="720" height="520" role="img" aria-label="Map of the restricted three-body problem showing the two massive bodies, the five Lagrange points and a test mass trail"></canvas>
         <div class="speed-overlay">
-          <span class="ff-icon">speed</span>
-          <input type="range" id="speedSlider" min="0.2" max="100" value="10" step="0.1">
+          <span class="ff-icon">SPEED</span>
+          <input type="range" id="speedSlider" min="0" max="1000" value="831" step="1" aria-label="Simulation speed">
+          <span class="spd-val" id="speedLbl">35×</span>
         </div>
-        <div class="zoom-inset" id="zoomInset">
+        <div class="zoom-inset" id="zoomInset" aria-hidden="true">
           <div class="zi-label">ZOOM: L1 · m₂ · L2</div>
           <canvas id="zoomCanvas" width="150" height="110" style="border:none;"></canvas>
         </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="tb-btn" id="playBtn" type="button">PAUSE</button>
+        <button class="tb-btn" id="reBtn" type="button">RE-RELEASE</button>
+        <button class="tb-btn" id="frameBtn" type="button">FRAME: ROTATING</button>
+      </div>
+
+      <div class="hint">
+        CLICK the map to drop a test mass (click a Lagrange point to snap to it) ·
+        KEYS: <kbd>1</kbd>–<kbd>5</kbd> place · <kbd>SPACE</kbd> pause · <kbd>R</kbd> re-release · <kbd>F</kbd> frame · <kbd>C</kbd> clear
       </div>
     </div>
 
@@ -166,338 +205,732 @@ button.clear-btn:hover{ color:var(--rv-red); box-shadow:0 0 8px var(--rv-red-dim
 
       <div class="controls">
         <div class="ctrl-row">
-          <label>SYSTEM PRESET</label>
+          <label for="presetSelect">SYSTEM PRESET</label>
           <select id="presetSelect">
             <option value="custom">CUSTOM μ</option>
             <option value="sunearth" selected>SUN – EARTH (μ = 3.00×10⁻⁶)</option>
             <option value="sunjupiter">SUN – JUPITER (μ = 9.54×10⁻⁴)</option>
-            <option value="earthmoon">EARTH – MOON (μ = 0.0123)</option>
-            <option value="plutocharon">PLUTO – CHARON (μ = 0.1165)</option>
+            <option value="earthmoon">EARTH – MOON (μ = 0.0122)</option>
+            <option value="plutocharon">PLUTO – CHARON (μ = 0.1085)</option>
           </select>
         </div>
         <div class="ctrl-row">
-          <label>MASS RATIO μ = m₂/(m₁+m₂) <b id="muLbl">3.006e-6</b></label>
+          <label for="muSlider">MASS RATIO μ = m₂/(m₁+m₂) <b id="muLbl">3.003e-6</b></label>
           <input type="range" id="muSlider" min="-6.3" max="-0.301" value="-5.5225" step="0.001">
         </div>
         <div class="ctrl-row">
-          <label>PLACE TEST MASS AT</label>
-          <div class="lp-grid" id="lpGrid">
-            <div class="lp-btn" data-lp="L1">L1</div>
-            <div class="lp-btn" data-lp="L2">L2</div>
-            <div class="lp-btn" data-lp="L3">L3</div>
-            <div class="lp-btn" data-lp="L4">L4</div>
-            <div class="lp-btn" data-lp="L5">L5</div>
+          <label id="placeLbl">PLACE TEST MASS AT</label>
+          <div class="lp-grid" id="lpGrid" role="group" aria-labelledby="placeLbl">
+            <button type="button" class="lp-btn" data-lp="L1">L1</button>
+            <button type="button" class="lp-btn" data-lp="L2">L2</button>
+            <button type="button" class="lp-btn" data-lp="L3">L3</button>
+            <button type="button" class="lp-btn" data-lp="L4">L4</button>
+            <button type="button" class="lp-btn" data-lp="L5">L5</button>
           </div>
         </div>
-        <button class="clear-btn" id="clearBtn">CLEAR TEST MASS</button>
+        <div class="ctrl-row">
+          <label for="pertSlider">PERTURBATION SIZE <b id="pertLbl">1.0×</b></label>
+          <input type="range" id="pertSlider" min="0.1" max="5" value="1" step="0.1">
+        </div>
+        <div class="ctrl-row">
+          <label for="trailSlider">TRAIL LENGTH <b id="trailLbl">1500</b></label>
+          <input type="range" id="trailSlider" min="200" max="5000" value="1500" step="100">
+        </div>
+        <button class="clear-btn" id="clearBtn" type="button">CLEAR TEST MASS</button>
 
+        <div class="sec-label">LAGRANGE POINTS</div>
         <div class="telemetry">
-          <div class="tele-item"><div class="k">L1 (x)</div><div class="v" id="l1V">--</div></div>
-          <div class="tele-item"><div class="k">L2 (x)</div><div class="v" id="l2V">--</div></div>
-          <div class="tele-item"><div class="k">L3 (x)</div><div class="v" id="l3V">--</div></div>
-          <div class="tele-item"><div class="k">L4 / L5 (x, ±y)</div><div class="v" id="l45V">--</div></div>
+          <div class="tele-item"><div class="k">L1 (x)</div><div class="v" id="l1V">--</div><div class="s" id="l1S"></div></div>
+          <div class="tele-item"><div class="k">L2 (x)</div><div class="v" id="l2V">--</div><div class="s" id="l2S"></div></div>
+          <div class="tele-item"><div class="k">L3 (x)</div><div class="v" id="l3V">--</div><div class="s" id="l3S"></div></div>
+          <div class="tele-item"><div class="k">L4 / L5 (x, ±y)</div><div class="v" id="l45V">--</div><div class="s" id="l45S"></div></div>
           <div class="tele-item"><div class="k">L4/L5 STABILITY LIMIT</div><div class="v gold" id="stabLimV">μ &lt; 0.0385</div></div>
           <div class="tele-item"><div class="k">L4/L5 STATUS AT THIS μ</div><div class="v" id="stabV">--</div></div>
         </div>
 
-        <div class="status-line" id="statusLine">
-          <b>STANDBY —</b> choose a system, then place a test mass at any Lagrange point to test its stability.
+        <div class="sec-label">TEST MASS</div>
+        <div class="telemetry">
+          <div class="tele-item"><div class="k">DRIFT FROM RELEASE</div><div class="v" id="driftV">--</div><div class="s" id="driftS"></div></div>
+          <div class="tele-item"><div class="k">ELAPSED</div><div class="v" id="timeV">--</div><div class="s" id="timeS"></div></div>
+          <div class="tele-item"><div class="k">JACOBI CONSTANT C</div><div class="v purple" id="jacV">--</div><div class="s" id="jacS"></div></div>
+          <div class="tele-item"><div class="k">INTEGRATION ERROR ΔC</div><div class="v green" id="dcV">--</div><div class="s">conserved quantity check</div></div>
         </div>
+
+        <div class="status-line" id="statusLine">
+          <b>STANDBY —</b> choose a system, then place a test mass at any Lagrange point (or click the map) to test its stability.
+        </div>
+        <div class="note-box" id="noteBox"></div>
       </div>
     </div>
   </div>
 
   <div class="footer-note">
     ILLUSTRATIVE MODEL — units are the standard CRTBP normalization (G=1, total mass=1, separation=1, orbital angular
-    velocity=1). L1/L2/L3 solved numerically (Newton–Raphson) from the effective-potential equilibrium condition; L4/L5
-    are exact equilateral-triangle points. Test-mass motion integrates the full rotating-frame equations of motion,
-    including the Coriolis term, via RK4 — this is a real (if idealized, planar, circular-orbit) dynamics simulation.
+    velocity=1; one time unit = 1/2π of an orbital period). L1/L2/L3 are solved with a bracketed bisection on the
+    effective-potential equilibrium condition (guaranteed to converge for every μ); L4/L5 are exact equilateral-triangle
+    points. Test-mass motion integrates the full rotating-frame equations, including the Coriolis term, with an RK4 solver
+    whose step size shrinks near the masses. The Jacobi constant C = 2Ω − v² is conserved by the true dynamics, so ΔC
+    measures numerical error. Bodies are not drawn to scale; test masses that come within a small capture radius of a
+    body are stopped. Planar, circular-orbit approximation. Physical distances use mean orbital separations.
   </div>
 </div>
 
 <script>
-const canvas = document.getElementById('sim');
-const ctx = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height;
-const cx = W/2, cy = H/2;
+/* ============================================================
+   PHYSICS (pure functions, no DOM)
+   ============================================================ */
+const TWO_PI = Math.PI * 2;
+const ROUTH_LIMIT = (1 - Math.sqrt(69) / 9) / 2;   // ≈ 0.038521, L4/L5 linear stability limit
 
-const presetSelect = document.getElementById('presetSelect');
-const muSlider = document.getElementById('muSlider');
-const speedSlider = document.getElementById('speedSlider');
-const muLbl = document.getElementById('muLbl');
-const stateLbl = document.getElementById('stateLbl');
-const zoomCanvas = document.getElementById('zoomCanvas');
-const zctx = zoomCanvas.getContext('2d');
-const zoomInset = document.getElementById('zoomInset');
-const l1V = document.getElementById('l1V');
-const l2V = document.getElementById('l2V');
-const l3V = document.getElementById('l3V');
-const l45V = document.getElementById('l45V');
-const stabV = document.getElementById('stabV');
-const statusLine = document.getElementById('statusLine');
-const lpGrid = document.getElementById('lpGrid');
-const clearBtn = document.getElementById('clearBtn');
-
-const PRESETS = {
-  sunearth: 3.003e-6,
-  sunjupiter: 9.537e-4,
-  earthmoon: 0.01215,
-  plutocharon: 0.1165
-};
-function getMu(){ return Math.pow(10, parseFloat(muSlider.value)); }
-presetSelect.addEventListener('change', ()=>{
-  const v = presetSelect.value;
-  if(v!=='custom'){ muSlider.value = Math.log10(PRESETS[v]); }
-  recomputeLagrangePoints();
-  clearTest();
-});
-muSlider.addEventListener('input', ()=>{
-  presetSelect.value='custom';
-  recomputeLagrangePoints();
-});
-
-// --- solve collinear Lagrange points via Newton-Raphson ---
+// d(effective potential)/dx along the axis; Lagrange L1-L3 are its roots.
 function gFunc(x, mu){
-  const r1 = x+mu, r2 = x-1+mu;
+  const r1 = x + mu, r2 = x - 1 + mu;
   return x - (1-mu)*r1/Math.pow(Math.abs(r1),3) - mu*r2/Math.pow(Math.abs(r2),3);
 }
-function newton(x0, mu){
-  let x = x0;
-  for(let i=0;i<60;i++){
-    const h = 1e-6;
-    const f = gFunc(x,mu);
-    const fp = (gFunc(x+h,mu)-gFunc(x-h,mu))/(2*h);
-    if(Math.abs(fp)<1e-14) break;
-    const xn = x - f/fp;
-    if(!isFinite(xn)) break;
-    x = xn;
+// g is strictly increasing between each pair of singularities, so bisection always converges.
+function bisect(lo, hi, mu){
+  let flo = gFunc(lo, mu);
+  for(let i=0;i<200;i++){
+    const mid = 0.5*(lo+hi);
+    const fm = gFunc(mid, mu);
+    if(fm === 0) return mid;
+    if((fm < 0) === (flo < 0)){ lo = mid; flo = fm; } else { hi = mid; }
+    if(hi - lo < 1e-15) break;
   }
-  return x;
+  return 0.5*(lo+hi);
 }
-
-let LP = {}; // current lagrange point positions {L1:{x,y},...}
-function recomputeLagrangePoints(){
-  const mu = getMu();
-  muLbl.textContent = mu < 0.001 ? mu.toExponential(3) : mu.toFixed(4);
-  const rh = Math.cbrt(mu/3);
-  const xL1 = newton((1-mu)-rh, mu);
-  const xL2 = newton((1-mu)+rh, mu);
-  const xL3 = newton(-1-5*mu/12, mu);
-  LP = {
-    L1:{x:xL1,y:0}, L2:{x:xL2,y:0}, L3:{x:xL3,y:0},
-    L4:{x:0.5-mu,y:Math.sqrt(3)/2}, L5:{x:0.5-mu,y:-Math.sqrt(3)/2}
-  };
-  l1V.textContent = xL1.toFixed(4);
-  l2V.textContent = xL2.toFixed(4);
-  l3V.textContent = xL3.toFixed(4);
-  l45V.textContent = (0.5-mu).toFixed(3)+', ±'+(Math.sqrt(3)/2).toFixed(3);
-
-  const stable = mu < 0.0385;
-  stabV.textContent = stable ? 'STABLE (μ < limit)' : 'UNSTABLE (μ > limit)';
-  stabV.className = 'v ' + (stable?'green':'red');
-}
-recomputeLagrangePoints();
-
-// --- test particle dynamics: full rotating-frame RK4 with Coriolis ---
-let test = null; // {x,y,vx,vy, trail:[]}
-let activeLP = null;
-
-function accel(mu, x, y, vx, vy){
-  const r1 = Math.hypot(x+mu, y);
-  const r2 = Math.hypot(x-1+mu, y);
-  const ax = 2*vy + x - (1-mu)*(x+mu)/Math.pow(r1,3) - mu*(x-1+mu)/Math.pow(r2,3);
-  const ay = -2*vx + y - (1-mu)*y/Math.pow(r1,3) - mu*y/Math.pow(r2,3);
-  return [ax,ay];
-}
-function rk4Step(mu, s, dt){
-  function deriv(st){
-    const [ax,ay] = accel(mu, st.x, st.y, st.vx, st.vy);
-    return {x:st.vx, y:st.vy, vx:ax, vy:ay};
-  }
-  const k1 = deriv(s);
-  const s2 = {x:s.x+k1.x*dt/2, y:s.y+k1.y*dt/2, vx:s.vx+k1.vx*dt/2, vy:s.vy+k1.vy*dt/2};
-  const k2 = deriv(s2);
-  const s3 = {x:s.x+k2.x*dt/2, y:s.y+k2.y*dt/2, vx:s.vx+k2.vx*dt/2, vy:s.vy+k2.vy*dt/2};
-  const k3 = deriv(s3);
-  const s4 = {x:s.x+k3.x*dt, y:s.y+k3.y*dt, vx:s.vx+k3.vx*dt, vy:s.vy+k3.vy*dt};
-  const k4 = deriv(s4);
+function solveLagrange(mu){
+  const e = 1e-12;
   return {
-    x: s.x + dt/6*(k1.x+2*k2.x+2*k3.x+k4.x),
-    y: s.y + dt/6*(k1.y+2*k2.y+2*k3.y+k4.y),
-    vx: s.vx + dt/6*(k1.vx+2*k2.vx+2*k3.vx+k4.vx),
-    vy: s.vy + dt/6*(k1.vy+2*k2.vy+2*k3.vy+k4.vy)
+    L1:{x:bisect(-mu+e, 1-mu-e, mu), y:0},
+    L2:{x:bisect(1-mu+e, 3, mu),     y:0},
+    L3:{x:bisect(-3, -mu-e, mu),     y:0},
+    L4:{x:0.5-mu, y: Math.sqrt(3)/2},
+    L5:{x:0.5-mu, y:-Math.sqrt(3)/2}
   };
 }
 
-function placeTest(lpKey){
-  activeLP = lpKey;
-  document.querySelectorAll('.lp-btn').forEach(b=>b.classList.toggle('active', b.dataset.lp===lpKey));
-  const p = LP[lpKey];
-  const mu = getMu();
-  const isTriangular = (lpKey==='L4' || lpKey==='L5');
-  const rh = Math.cbrt(mu/3); // Hill radius — the natural length scale of the local dynamics
-  const eps = isTriangular ? 0.06*Math.sqrt(mu) : 0.4*rh;
-  // The CRTBP effective potential Omega(x,y) = 0.5(x^2+y^2) + (1-mu)/r1 + mu/r2 depends on y
-  // only through y^2 (since r1^2=(x+mu)^2+y^2, r2^2=(x-1+mu)^2+y^2), so Omega(x,y)=Omega(x,-y)
-  // exactly: the dynamics are mirror-symmetric across the Sun-Earth line. With zero initial
-  // velocity, mirroring the y-offset (dy -> -dy) between L4 and L5 therefore produces an exact
-  // mirror-image trajectory, not an approximation — this is a consequence of the equations of
-  // motion, not a tuning choice.
-  const ySign = p.y >= 0 ? 1 : -1;
-  test = {x:p.x+eps, y:p.y+eps*0.6*ySign, vx:0, vy:0, trail:[]};
-  statusLine.innerHTML = '<b>TRACKING —</b> test mass released near '+lpKey+' with a small perturbation.';
+// Pseudo-potential Ω (standard form incl. the constant, so C(L4)=3 exactly).
+function omega(mu, x, y){
+  const r1 = Math.hypot(x+mu, y), r2 = Math.hypot(x-1+mu, y);
+  return 0.5*(x*x+y*y) + (1-mu)/Math.max(r1,1e-9) + mu/Math.max(r2,1e-9) + 0.5*mu*(1-mu);
+}
+function jacobi(mu, s){ return 2*omega(mu, s.x, s.y) - (s.vx*s.vx + s.vy*s.vy); }
+
+function acc(mu, x, y, vx, vy, out){
+  const dx1 = x+mu, dx2 = x-1+mu;
+  const r1 = Math.sqrt(dx1*dx1+y*y), r2 = Math.sqrt(dx2*dx2+y*y);
+  const i1 = (1-mu)/(r1*r1*r1), i2 = mu/(r2*r2*r2);
+  out[0] =  2*vy + x - i1*dx1 - i2*dx2;
+  out[1] = -2*vx + y - i1*y   - i2*y;
+}
+const _k1=[0,0], _k2=[0,0], _k3=[0,0], _k4=[0,0];
+function rk4(mu, s, h){
+  const x=s.x, y=s.y, vx=s.vx, vy=s.vy;
+  acc(mu,x,y,vx,vy,_k1);
+  const vx2=vx+0.5*h*_k1[0], vy2=vy+0.5*h*_k1[1];
+  acc(mu,x+0.5*h*vx,y+0.5*h*vy,vx2,vy2,_k2);
+  const vx3=vx+0.5*h*_k2[0], vy3=vy+0.5*h*_k2[1];
+  acc(mu,x+0.5*h*vx2,y+0.5*h*vy2,vx3,vy3,_k3);
+  const vx4=vx+h*_k3[0], vy4=vy+h*_k3[1];
+  acc(mu,x+h*vx3,y+h*vy3,vx4,vy4,_k4);
+  s.x  = x + h/6*(vx + 2*vx2 + 2*vx3 + vx4);
+  s.y  = y + h/6*(vy + 2*vy2 + 2*vy3 + vy4);
+  s.vx = vx + h/6*(_k1[0] + 2*_k2[0] + 2*_k3[0] + _k4[0]);
+  s.vy = vy + h/6*(_k1[1] + 2*_k2[1] + 2*_k3[1] + _k4[1]);
+}
+
+const BASE_DT = 0.002;
+// Step size: fixed base step, shrunk near either mass (local dynamical time ~ r^1.5/sqrt(M)).
+function adaptiveStep(mu, x, y){
+  const r1 = Math.hypot(x+mu, y), r2 = Math.hypot(x-1+mu, y);
+  const h = 0.04*Math.min(Math.pow(r1,1.5), Math.pow(r2,1.5)/Math.sqrt(mu));
+  return Math.max(1e-7, Math.min(BASE_DT, h));
+}
+function captureRadii(mu){ return { r1: 0.012, r2: Math.max(2e-4, 0.02*Math.cbrt(mu/3)) }; }
+
+// Small offset from the equilibrium, scaled to the natural length of the local dynamics.
+function releaseState(mu, lp, key, pertMul){
+  const rh = Math.cbrt(mu/3);                       // Hill radius
+  const tri = (key==='L4' || key==='L5');
+  const eps = (tri ? 0.06*Math.sqrt(mu) : 0.4*rh) * pertMul;
+  // Ω(x,y)=Ω(x,-y): dynamics are mirror-symmetric across the m1-m2 line, so mirroring dy between
+  // L4 and L5 gives an exact mirror-image trajectory.
+  const ySign = lp.y >= 0 ? 1 : -1;
+  // L1 sits just inside m2: nudge it toward m1 so the release shows drift rather than an instant fall into m2.
+  const xSign = (key === 'L1') ? -1 : 1;
+  return { x: lp.x+xSign*eps, y: lp.y+eps*0.6*ySign, vx:0, vy:0, eps };
+}
+// Collinear points are always unstable: flag once the drift is 15x the initial offset.
+// L4/L5 are stable below the Routh limit, where a test mass legitimately librates over a wide arc
+// (amplitude ~ eps/sqrt(mu)), so it is only flagged above the limit and once it is clearly far away.
+function divergenceThreshold(key, eps, mu){
+  const tri = (key==='L4' || key==='L5');
+  if(!tri) return Math.min(0.6, 15*eps);
+  return mu >= ROUTH_LIMIT ? 0.6 : Infinity;
+}
+/* ===== END PHYSICS ===== */
+
+
+/* ============================================================
+   DATA
+   ============================================================ */
+const PRESETS = {
+  sunearth:   { mu:3.003e-6,  a:149597870.7, days:365.256,  n1:'SUN',   n2:'EARTH',
+    pts:{
+      L1:'SOHO and DSCOVR watch the Sun from around this point.',
+      L2:'JWST and Euclid operate around this point.',
+      L3:'Hidden on the far side of the Sun; too remote to be useful.',
+      L4:'Earth has only a few known co-orbital Trojans, e.g. asteroid 2010 TK7 near L4.',
+      L5:'Earth has only a few known co-orbital Trojans; most are near L4.'
+    }},
+  sunjupiter: { mu:9.5388e-4, a:778479000,   days:4332.59,  n1:'SUN',   n2:'JUPITER',
+    pts:{
+      L4:'Home to the Jupiter Trojans: thousands of known asteroids, now being visited by NASA\'s Lucy mission.',
+      L5:'Home to the Jupiter Trojans: thousands of known asteroids, now being visited by NASA\'s Lucy mission.'
+    }},
+  earthmoon:  { mu:0.01215,   a:384400,      days:27.3217,  n1:'EARTH', n2:'MOON',
+    pts:{
+      L1:'Proposed as a staging point between Earth and the Moon.',
+      L2:'China\'s Queqiao-1 relay satellite used a halo orbit around it to link Earth with the lunar far side.',
+      L4:'The Sun\'s pull disturbs this point; faint "Kordylewski" dust clouds have been reported here, but the detections are debated.',
+      L5:'The Sun\'s pull disturbs this point; faint "Kordylewski" dust clouds have been reported here, but the detections are debated.'
+    }},
+  plutocharon:{ mu:0.1085,    a:19591,       days:6.3872,   n1:'PLUTO', n2:'CHARON',
+    pts:{
+      L4:'Pluto–Charon is a near-binary: μ is far above the limit, so there are no stable triangular points.',
+      L5:'Pluto–Charon is a near-binary: μ is far above the limit, so there are no stable triangular points.'
+    }}
+};
+
+/* ============================================================
+   DOM + CANVAS SETUP
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const canvas = $('sim'), ctx = canvas.getContext('2d');
+const W = 720, H = 520;
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+canvas.width = W*DPR; canvas.height = H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+
+const zoomCanvas = $('zoomCanvas'), zctx = zoomCanvas.getContext('2d');
+const ZW = 150, ZH = 110;
+zoomCanvas.width = ZW*DPR; zoomCanvas.height = ZH*DPR; zctx.setTransform(DPR,0,0,DPR,0,0);
+const zoomInset = $('zoomInset');
+
+const presetSelect = $('presetSelect'), muSlider = $('muSlider'), speedSlider = $('speedSlider');
+const pertSlider = $('pertSlider'), trailSlider = $('trailSlider');
+const statusLine = $('statusLine'), lpGrid = $('lpGrid');
+
+const SCALE = 165;   // fixed view: px per unit separation, centred on the barycentre
+const TRAIL_DT = 0.02, MAX_STEPS = 6000;
+
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let mu = PRESETS.sunearth.mu;
+let presetKey = 'sunearth';
+let cur = PRESETS.sunearth;
+let LP = {};
+let simT = 0, paused = false;
+let frameMode = 'rot';           // 'rot' | 'inertial'
+const view = { cx:0, cy:0, scale:SCALE };
+let test = null;
+let lastPlace = null;            // how to re-release: {kind:'lp',key} | {kind:'free',x,y}
+
+const n1 = () => cur ? cur.n1 : 'm₁';
+const n2 = () => cur ? cur.n2 : 'm₂';
+
+function getSpeed(){ return 0.2*Math.pow(500, parseFloat(speedSlider.value)/1000); }
+function setStatus(head, body){ statusLine.innerHTML = '<b>'+head+' —</b> '+body; }
+
+/* ---------- formatting helpers ---------- */
+function fmtDist(km){
+  if(km >= 1e6) return (km/1e6).toFixed(2)+' M km';
+  return Math.round(km).toLocaleString('en-US')+' km';
+}
+function fmtDays(d){
+  if(d < 1) return (d*24).toFixed(1)+' h';
+  if(d < 1000) return d.toFixed(d<100?1:0)+' d';
+  return (d/365.25).toFixed(1)+' yr';
+}
+function fmtSci(v){
+  const a = Math.abs(v);
+  if(a === 0) return '0';
+  if(a < 1e-3 || a >= 1e4) return v.toExponential(2);
+  return v.toFixed(a < 0.1 ? 5 : 4);
+}
+
+/* ============================================================
+   COORDINATES (rotating frame <-> display frame <-> pixels)
+   ============================================================ */
+function toDisplay(x, y, t){
+  if(frameMode === 'rot') return [x, y];
+  const th = (t === undefined) ? simT : t, c = Math.cos(th), s = Math.sin(th);
+  return [x*c - y*s, x*s + y*c];
+}
+function toRot(X, Y){
+  if(frameMode === 'rot') return [X, Y];
+  const c = Math.cos(simT), s = Math.sin(simT);
+  return [X*c + Y*s, -X*s + Y*c];
+}
+function toPx(X, Y){ return [W/2 + (X-view.cx)*view.scale, H/2 - (Y-view.cy)*view.scale]; }
+function fromPx(px, py){ return [view.cx + (px-W/2)/view.scale, view.cy - (py-H/2)/view.scale]; }
+const onScreen = (px,py,m) => px > -m && px < W+m && py > -m && py < H+m;
+
+
+/* ============================================================
+   LAGRANGE POINT BOOKKEEPING
+   ============================================================ */
+function recomputePoints(){
+  LP = solveLagrange(mu);
+
+  $('muLbl').textContent = mu < 0.001 ? mu.toExponential(3) : mu.toFixed(4);
+  $('l1V').textContent = LP.L1.x.toFixed(4);
+  $('l2V').textContent = LP.L2.x.toFixed(4);
+  $('l3V').textContent = LP.L3.x.toFixed(4);
+  $('l45V').textContent = (0.5-mu).toFixed(3)+', ±'+(Math.sqrt(3)/2).toFixed(3);
+
+  const dk = d => cur ? fmtDist(d*cur.a) : d.toFixed(4)+' a';
+  $('l1S').textContent = dk(1-mu-LP.L1.x)+' from '+n2();
+  $('l2S').textContent = dk(LP.L2.x-(1-mu))+' from '+n2();
+  $('l3S').textContent = dk(Math.abs(LP.L3.x+mu))+' from '+n1();
+  $('l45S').textContent = '60° ahead / behind '+n2();
+  $('stabLimV').textContent = 'μ < '+ROUTH_LIMIT.toFixed(4);
+
+  const stable = mu < ROUTH_LIMIT;
+  $('stabV').textContent = stable ? 'STABLE (μ < limit)' : 'UNSTABLE (μ > limit)';
+  $('stabV').className = 'v ' + (stable ? 'green' : 'red');
+  $('driftS').textContent = '';
+  refreshNote();
+}
+
+function refreshNote(){
+  const box = $('noteBox');
+  const key = test && test.kind === 'lp' ? test.key : null;
+  if(!key){
+    box.innerHTML = '<b>ABOUT THE POINTS</b><br>L1–L3 sit on the m₁–m₂ line and are unstable saddles. L4/L5 form equilateral triangles with the two bodies and are stable only when μ is below ≈0.0385. Select a point to see what happens there.';
+    return;
+  }
+  const tri = (key === 'L4' || key === 'L5');
+  let physics;
+  if(!tri) physics = 'Unstable saddle point: a small nudge grows exponentially, so real spacecraft need regular station-keeping.';
+  else if(mu < ROUTH_LIMIT) physics = 'Linearly stable: the Coriolis force bends any drift into slow loops around the point, so the test mass stays nearby.';
+  else physics = 'Unstable at this μ (above the '+ROUTH_LIMIT.toFixed(4)+' limit): the loops grow and the test mass spirals away.';
+  const extra = cur && cur.pts && cur.pts[key] ? ' '+cur.pts[key] : '';
+  box.innerHTML = '<b>'+key+' · '+n1()+'–'+n2()+'</b><br>'+physics+extra;
+}
+
+/* ============================================================
+   TEST MASS PLACEMENT
+   ============================================================ */
+function setActiveButton(key){
+  lpGrid.querySelectorAll('.lp-btn').forEach(b => b.classList.toggle('active', b.dataset.lp === key));
+}
+function newTest(props){
+  test = Object.assign({ vx:0, vy:0, t0:simT, trail:[], lastTrail:simT, state:'live', flagged:false }, props);
+  test.trail.push({x:test.x, y:test.y, t:simT});
+  test.C0 = jacobi(mu, test);
+}
+
+function placeTest(key, opts){
+  opts = opts || {};
+  const rel = releaseState(mu, LP[key], key, parseFloat(pertSlider.value));
+  newTest({ kind:'lp', key, x:rel.x, y:rel.y, eps:rel.eps, ref:{x:LP[key].x, y:LP[key].y},
+            thresh:divergenceThreshold(key, rel.eps, mu) });
+  lastPlace = { kind:'lp', key };
+  setActiveButton(key);
+  setStatus('TRACKING', 'test mass released near '+key+' with a small perturbation.');
+  refreshNote(); updateHash();
+}
+function placeAt(xr, yr){
+  newTest({ kind:'free', key:null, x:xr, y:yr, eps:0, ref:{x:xr, y:yr}, thresh:Infinity });
+  lastPlace = { kind:'free', x:xr, y:yr };
+  setActiveButton(null);
+  setStatus('TRACKING', 'free-drop test mass released at rest in the rotating frame at ('+xr.toFixed(4)+', '+yr.toFixed(4)+').');
+  refreshNote(); updateHash();
 }
 function clearTest(){
-  test = null; activeLP = null;
-  document.querySelectorAll('.lp-btn').forEach(b=>b.classList.remove('active'));
-  statusLine.innerHTML = '<b>STANDBY —</b> choose a system, then place a test mass at any Lagrange point to test its stability.';
+  test = null; lastPlace = null;
+  setActiveButton(null);
+  setStatus('STANDBY', 'choose a system, then place a test mass at any Lagrange point (or click the map) to test its stability.');
+  $('stateLbl').textContent = 'NO TEST MASS';
+  ['driftV','timeV','jacV','dcV'].forEach(id => $(id).textContent = '--');
+  ['driftS','timeS','jacS'].forEach(id => $(id).textContent = '');
+  refreshNote(); updateHash();
 }
-lpGrid.querySelectorAll('.lp-btn').forEach(b=>b.addEventListener('click', ()=>placeTest(b.dataset.lp)));
-clearBtn.addEventListener('click', clearTest);
-
-// --- rendering ---
-const scalePx = 165; // px per unit separation distance
-function toPx(x,y){ return [cx + x*scalePx, cy - y*scalePx]; }
-
-function potential(mu,x,y){
-  const r1 = Math.hypot(x+mu,y), r2 = Math.hypot(x-1+mu,y);
-  return -(0.5*(x*x+y*y) + (1-mu)/Math.max(r1,0.02) + mu/Math.max(r2,0.02));
+function rerelease(){
+  if(!lastPlace){ return; }
+  if(lastPlace.kind === 'lp') placeTest(lastPlace.key, {keepView:true});
+  else placeAt(lastPlace.x, lastPlace.y);
 }
 
-function drawPotentialField(mu){
+/* ============================================================
+   VIEW CONTROL
+   ============================================================ */
+
+function setFrame(f){
+  if(f === frameMode) return;
+  frameMode = f;
+  $('frameBtn').textContent = 'FRAME: ' + (f === 'rot' ? 'ROTATING' : 'INERTIAL');
+  $('frameBtn').classList.toggle('on', f !== 'rot');
+  $('frameLbl').textContent = f === 'rot' ? 'ROTATING FRAME — EFFECTIVE POTENTIAL' : 'INERTIAL FRAME — BARYCENTRIC';
+  updateHash();
+}
+
+/* ============================================================
+   PRESETS & CONTROL WIRING
+   ============================================================ */
+function applyPreset(key){
+  presetKey = key;
+  cur = PRESETS[key] || null;
+  if(cur){ mu = cur.mu; muSlider.value = Math.log10(mu); }
+  recomputePoints();
+  clearTest();
+}
+presetSelect.addEventListener('change', () => applyPreset(presetSelect.value));
+muSlider.addEventListener('input', () => {
+  mu = Math.pow(10, parseFloat(muSlider.value));
+  presetKey = 'custom'; cur = null; presetSelect.value = 'custom';
+  recomputePoints();
+  if(test && test.kind === 'lp') placeTest(test.key, {keepView:true}); else clearTest();
+});
+lpGrid.querySelectorAll('.lp-btn').forEach(b => b.addEventListener('click', () => placeTest(b.dataset.lp)));
+$('clearBtn').addEventListener('click', clearTest);
+
+speedSlider.addEventListener('input', updateSpeedLbl);
+function updateSpeedLbl(){ const s = getSpeed(); $('speedLbl').textContent = (s < 10 ? s.toFixed(1) : Math.round(s)) + '×'; }
+updateSpeedLbl();
+
+pertSlider.addEventListener('input', () => {
+  $('pertLbl').textContent = parseFloat(pertSlider.value).toFixed(1)+'×';
+  if(test && test.kind === 'lp') placeTest(test.key, {keepView:true});
+});
+trailSlider.addEventListener('input', () => { $('trailLbl').textContent = trailSlider.value; });
+
+function setPaused(p){ paused = p; $('playBtn').textContent = p ? 'PLAY' : 'PAUSE'; $('playBtn').classList.toggle('on', p); }
+$('playBtn').addEventListener('click', () => setPaused(!paused));
+$('reBtn').addEventListener('click', rerelease);
+$('frameBtn').addEventListener('click', () => setFrame(frameMode === 'rot' ? 'inertial' : 'rot'));
+
+/* ---------- canvas pointer interaction ---------- */
+function canvasPos(ev){
+  const r = canvas.getBoundingClientRect();
+  return [(ev.clientX-r.left)*W/r.width, (ev.clientY-r.top)*H/r.height];
+}
+canvas.addEventListener('click', ev => handleClick(canvasPos(ev)));
+
+function handleClick(p){
+  // snap to a Lagrange point marker if the click lands close to one
+  let best = null, bd = 14;
+  for(const k of ['L1','L2','L3','L4','L5']){
+    const d = toDisplay(LP[k].x, LP[k].y), q = toPx(d[0], d[1]);
+    const dist = Math.hypot(q[0]-p[0], q[1]-p[1]);
+    if(dist < bd){ bd = dist; best = k; }
+  }
+  if(best){ placeTest(best); return; }
+  const w = fromPx(p[0], p[1]), r = toRot(w[0], w[1]);
+  placeAt(r[0], r[1]);
+}
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown', ev => {
+  if(ev.ctrlKey || ev.metaKey || ev.altKey) return;
+  const tag = ev.target && ev.target.tagName;
+  if(tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+  if(tag === 'BUTTON' && (ev.key === ' ' || ev.key === 'Enter')) return;
+  const k = ev.key.toLowerCase();
+  if(k >= '1' && k <= '5') placeTest('L'+k);
+  else if(k === ' ') { ev.preventDefault(); setPaused(!paused); }
+  else if(k === 'c') clearTest();
+  else if(k === 'r') rerelease();
+  else if(k === 'f') setFrame(frameMode === 'rot' ? 'inertial' : 'rot');
+});
+
+/* ---------- shareable URL state ---------- */
+function updateHash(){
+  try{
+    const p = new URLSearchParams();
+    if(presetKey !== 'custom') p.set('system', presetKey); else p.set('mu', mu.toPrecision(4));
+    if(test && test.kind === 'lp') p.set('point', test.key);
+    if(frameMode !== 'rot') p.set('frame', 'inertial');
+    history.replaceState(null, '', '#'+p.toString());
+  }catch(e){}
+}
+function readHash(){
+  try{
+    const p = new URLSearchParams(location.hash.slice(1));
+    const sys = p.get('system');
+    if(sys && PRESETS[sys]){ presetSelect.value = sys; applyPreset(sys); }
+    else if(p.get('mu')){
+      const m = parseFloat(p.get('mu'));
+      if(isFinite(m) && m >= 5e-7 && m <= 0.5){
+        mu = m; presetKey = 'custom'; cur = null; presetSelect.value = 'custom';
+        muSlider.value = Math.log10(mu); recomputePoints(); clearTest();
+      }
+    }
+    if(p.get('frame') === 'inertial') setFrame('inertial');
+    const pt = p.get('point');
+    if(pt && LP[pt]) placeTest(pt);
+  }catch(e){}
+}
+
+/* ============================================================
+   SIMULATION STEP
+   ============================================================ */
+function advance(dtReal){
+  if(paused) return;
+  let remaining = Math.min(dtReal, 0.05) * 0.6 * getSpeed();
+  if(!test || test.state !== 'live'){ simT += remaining; return; }
+
+  const cap = captureRadii(mu);
+  let steps = 0;
+  while(remaining > 1e-12 && steps < MAX_STEPS){
+    let h = adaptiveStep(mu, test.x, test.y);
+    if(h > remaining) h = remaining;
+    rk4(mu, test, h);
+    remaining -= h; simT += h; steps++;
+
+    if(!isFinite(test.x + test.y)){ test.state = 'lost'; break; }
+    if(Math.hypot(test.x+mu, test.y) < cap.r1){ test.state = 'impact1'; break; }
+    if(Math.hypot(test.x-1+mu, test.y) < cap.r2){ test.state = 'impact2'; break; }
+    if(Math.hypot(test.x, test.y) > 25){ test.state = 'escaped'; break; }
+    if(simT - test.lastTrail >= TRAIL_DT){
+      test.trail.push({x:test.x, y:test.y, t:simT});
+      test.lastTrail = simT;
+    }
+  }
+  // steps cap reached: the leftover time is dropped so the display clock stays consistent with the particle
+  const maxTrail = parseInt(trailSlider.value, 10);
+  if(test.trail.length > maxTrail) test.trail.splice(0, test.trail.length - maxTrail);
+  if(test.state !== 'live') test.trail.push({x:test.x, y:test.y, t:simT});
+
+  if(test.kind === 'lp' && !test.flagged){
+    const d = Math.hypot(test.x-test.ref.x, test.y-test.ref.y);
+    if(d > test.thresh) test.flagged = true;
+  }
+}
+
+
+/* ============================================================
+   BACKGROUND: effective-potential shading (original look), cached per mu
+   ============================================================ */
+const fieldCanvas = document.createElement('canvas');
+fieldCanvas.width = W*DPR; fieldCanvas.height = H*DPR;
+const fctx = fieldCanvas.getContext('2d');
+let fieldMu = null;
+function potential(m, x, y){
+  const r1 = Math.hypot(x+m, y), r2 = Math.hypot(x-1+m, y);
+  return -(0.5*(x*x+y*y) + (1-m)/Math.max(r1,0.02) + m/Math.max(r2,0.02));
+}
+function buildField(){
+  if(fieldMu === mu) return;
+  fieldMu = mu;
   const cell = 8;
-  let minP=Infinity, maxP=-Infinity;
+  let minP = Infinity, maxP = -Infinity;
   const vals = [];
   for(let px=0; px<W; px+=cell){
     for(let py=0; py<H; py+=cell){
-      const x = (px-cx)/scalePx, y = -(py-cy)/scalePx;
-      const p = potential(mu,x,y);
-      vals.push([px,py,p]);
-      if(p<minP) minP=p; if(p>maxP) maxP=p;
+      const x = (px-W/2)/SCALE, y = -(py-H/2)/SCALE;
+      const v = potential(mu, x, y);
+      vals.push([px, py, v]);
+      if(v < minP) minP = v;
+      if(v > maxP) maxP = v;
     }
   }
-  vals.forEach(([px,py,p])=>{
-    const t = Math.max(0,Math.min(1,(p-minP)/(maxP-minP)));
-    const shade = Math.floor(8+t*22);
-    ctx.fillStyle = `rgb(${shade},${shade+2},${shade+6})`;
-    ctx.fillRect(px,py,cell,cell);
+  fctx.clearRect(0, 0, fieldCanvas.width, fieldCanvas.height);
+  vals.forEach(([px, py, v]) => {
+    const t = Math.max(0, Math.min(1, (v-minP)/(maxP-minP)));
+    const shade = Math.floor(8 + t*22);
+    fctx.fillStyle = 'rgb('+shade+','+(shade+2)+','+(shade+6)+')';
+    fctx.fillRect(px*DPR, py*DPR, cell*DPR, cell*DPR);
   });
 }
 
-function drawFrame(){
-  const mu = getMu();
-  ctx.clearRect(0,0,W,H);
-  drawPotentialField(mu);
+/* ============================================================
+   DRAWING
+   ============================================================ */
+function drawBody(rotX, rotY, rpx, color, glowColor, label){
+  const d = toDisplay(rotX, rotY), p = toPx(d[0], d[1]);
+  if(!onScreen(p[0], p[1], 80)) return;
+  const g = ctx.createRadialGradient(p[0]-rpx*0.2, p[1]-rpx*0.2, 1, p[0], p[1], rpx*1.8);
+  g.addColorStop(0, glowColor); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(p[0], p[1], rpx*1.8, 0, TWO_PI); ctx.fillStyle = g; ctx.fill();
+  ctx.beginPath(); ctx.arc(p[0], p[1], rpx, 0, TWO_PI); ctx.fillStyle = color; ctx.fill();
+  ctx.font = '9px Space Mono'; ctx.fillStyle = 'rgba(216,218,221,0.65)';
+  ctx.fillText(label, p[0]+rpx+5, p[1]+rpx+10);
+}
+
+function niceLength(v){
+  const e = Math.pow(10, Math.floor(Math.log10(v))), m = v/e;
+  return (m >= 5 ? 5 : m >= 2 ? 2 : 1) * e;
+}
+function drawScaleBar(){
+  const n = niceLength(110/view.scale), px = n*view.scale;
+  const x1 = W-16, x0 = x1-px, y = H-16;
+  ctx.strokeStyle = 'rgba(216,218,221,0.6)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x0, y-4); ctx.lineTo(x0, y); ctx.lineTo(x1, y); ctx.lineTo(x1, y-4); ctx.stroke();
+  const label = cur ? fmtDist(n*cur.a) : (n < 0.01 ? n.toExponential(0) : String(+n.toPrecision(2))) + ' a';
+  ctx.font = '9px Space Mono'; ctx.fillStyle = 'rgba(216,218,221,0.7)'; ctx.textAlign = 'right';
+  ctx.fillText(label, x1, y-8); ctx.textAlign = 'left';
+}
+
+function drawTrail(){
+  const tr = test.trail, n = tr.length;
+  if(n < 2) return;
+  const xs = new Float32Array(n), ys = new Float32Array(n);
+  for(let i=0; i<n; i++){
+    const d = toDisplay(tr[i].x, tr[i].y, tr[i].t), p = toPx(d[0], d[1]);
+    xs[i] = p[0]; ys[i] = p[1];
+  }
+  const B = 20, per = Math.ceil(n/B);
+  ctx.lineWidth = 1.3; ctx.lineJoin = 'round';
+  for(let b=0; b<B; b++){
+    const s = Math.max(1, b*per), e = Math.min(n, (b+1)*per);
+    if(s >= e) break;
+    ctx.beginPath(); ctx.moveTo(xs[s-1], ys[s-1]);
+    for(let i=s; i<e; i++) ctx.lineTo(xs[i], ys[i]);
+    ctx.strokeStyle = 'rgba(255,207,107,'+(0.06+0.6*(b+1)/B).toFixed(3)+')';
+    ctx.stroke();
+  }
+}
+
+function draw(){
+  ctx.fillStyle = '#05050a'; ctx.fillRect(0, 0, W, H);
+  if(frameMode === 'rot'){ buildField(); ctx.drawImage(fieldCanvas, 0, 0, W, H); }
 
   // co-rotating axis guide
-  ctx.strokeStyle='rgba(255,255,255,0.05)';
-  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+  const o = toPx(0, 0);
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, o[1]); ctx.lineTo(W, o[1]); ctx.moveTo(o[0], 0); ctx.lineTo(o[0], H); ctx.stroke();
 
-  // orbit circle of m2 around barycenter
-  ctx.strokeStyle='rgba(79,209,255,0.12)';
-  const [ox,oy] = toPx(1-mu,0);
-  ctx.beginPath(); ctx.arc(cx,cy,Math.hypot(ox-cx,oy-cy),0,Math.PI*2); ctx.stroke();
+  // orbit circle of m2 around the barycentre
+  ctx.strokeStyle = 'rgba(79,209,255,0.12)';
+  ctx.beginPath(); ctx.arc(o[0], o[1], (1-mu)*view.scale, 0, TWO_PI); ctx.stroke();
 
-  // bodies
-  const [m1x,m1y] = toPx(-mu,0);
-  const [m2x,m2y] = toPx(1-mu,0);
-  const r1px = Math.max(7, 16*(1-mu));
-  const r2px = Math.max(4, 16*mu*3);
-  let g1 = ctx.createRadialGradient(m1x-3,m1y-3,1,m1x,m1y,r1px*1.8);
-  g1.addColorStop(0,'#ffe6a3'); g1.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.beginPath(); ctx.arc(m1x,m1y,r1px*1.8,0,Math.PI*2); ctx.fillStyle=g1; ctx.fill();
-  ctx.beginPath(); ctx.arc(m1x,m1y,r1px,0,Math.PI*2); ctx.fillStyle='#ffcf6b'; ctx.fill();
-  ctx.beginPath(); ctx.arc(m2x,m2y,r2px,0,Math.PI*2); ctx.fillStyle='#9fc4ff'; ctx.fill();
+  if(test) drawTrail();
+
+  // bodies (not to scale)
+  drawBody(-mu, 0, Math.max(7, 16*(1-mu)), '#ffcf6b', '#ffe6a3', n1());
+  drawBody(1-mu, 0, Math.max(4, 16*mu*3), '#9fc4ff', 'rgba(159,196,255,0.7)', n2());
 
   // Lagrange points
-  ctx.font='10px Space Mono';
-  Object.entries(LP).forEach(([k,p])=>{
-    const [px,py] = toPx(p.x,p.y);
-    ctx.beginPath(); ctx.arc(px,py,4,0,Math.PI*2);
-    ctx.strokeStyle = 'rgba(92,255,161,0.7)'; ctx.lineWidth=1.4; ctx.stroke();
-    ctx.fillStyle='rgba(92,255,161,0.85)';
-    ctx.fillText(k, px+7, py-5);
-  });
-
-  // test particle integration + trail
-  if(test){
-    const speed = parseFloat(speedSlider.value);
-    const baseDt = 0.01/6; // fixed, accurate step size regardless of speed
-    const substeps = Math.max(6, Math.min(400, Math.round(speed*6)));
-    for(let i=0;i<substeps;i++){
-      const ns = rk4Step(mu, test, baseDt);
-      test.x=ns.x; test.y=ns.y; test.vx=ns.vx; test.vy=ns.vy;
-    }
-    test.trail.push({x:test.x,y:test.y});
-    if(test.trail.length>500) test.trail.shift();
-
-    for(let i=1;i<test.trail.length;i++){
-      const age = i/test.trail.length; // 0 = oldest, 1 = newest
-      const [px1,py1] = toPx(test.trail[i-1].x, test.trail[i-1].y);
-      const [px2,py2] = toPx(test.trail[i].x, test.trail[i].y);
-      ctx.beginPath();
-      ctx.moveTo(px1,py1); ctx.lineTo(px2,py2);
-      ctx.strokeStyle = `rgba(255,207,107,${0.06+age*0.5})`;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    const [tpx,tpy] = toPx(test.x,test.y);
-    ctx.beginPath(); ctx.arc(tpx,tpy,3.5,0,Math.PI*2); ctx.fillStyle='#ffcf6b'; ctx.fill();
-
-    // stability read: distance drifting from origin LP over time
-    const dNow = Math.hypot(test.x-LP[activeLP].x, test.y-LP[activeLP].y);
-    stateLbl.textContent = activeLP + ' DRIFT: ' + dNow.toFixed(3);
-    if(dNow > 0.6 && !test.flagged){
-      test.flagged = true;
-      statusLine.innerHTML = '<b>DIVERGED —</b> test mass has drifted far from '+activeLP+' — unstable equilibrium.';
-    } else if(!test.flagged){
-      statusLine.innerHTML = '<b>TRACKING —</b> test mass near '+activeLP+', drift = '+dNow.toFixed(4)+'.';
-    }
-  } else {
-    stateLbl.textContent = 'NO TEST MASS';
+  ctx.font = '10px Space Mono';
+  for(const k of ['L1','L2','L3','L4','L5']){
+    const d = toDisplay(LP[k].x, LP[k].y), p = toPx(d[0], d[1]);
+    if(!onScreen(p[0], p[1], 30)) continue;
+    ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, TWO_PI);
+    ctx.strokeStyle = 'rgba(92,255,161,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
+    ctx.fillStyle = 'rgba(92,255,161,0.85)'; ctx.fillText(k, p[0]+7, p[1]-5);
   }
 
-  drawZoomInset(mu);
+  // test mass
+  if(test){
+    const d = toDisplay(test.x, test.y), p = toPx(d[0], d[1]);
+    if(onScreen(p[0], p[1], 20)){
+      const bad = test.state !== 'live' || test.flagged;
+      ctx.fillStyle = bad ? '#ff5a5a' : '#ffcf6b';
+      ctx.beginPath(); ctx.arc(p[0], p[1], 3.5, 0, TWO_PI); ctx.fill();
+      if(test.state === 'impact1' || test.state === 'impact2'){
+        ctx.strokeStyle = '#ff5a5a'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(p[0]-7, p[1]-7); ctx.lineTo(p[0]+7, p[1]+7); ctx.moveTo(p[0]+7, p[1]-7); ctx.lineTo(p[0]-7, p[1]+7); ctx.stroke();
+      }
+    }
+  }
 
-  requestAnimationFrame(drawFrame);
+  drawScaleBar();
+  drawZoomInset();
 }
-requestAnimationFrame(drawFrame);
 
-function drawZoomInset(mu){
+function drawZoomInset(){
   const rh = Math.cbrt(mu/3);
-  const globalSepPx = rh*2*scalePx; // how far apart L1..L2 appear in the main view
-  if(globalSepPx > 34){ zoomInset.style.display='none'; return; }
-  zoomInset.style.display='block';
+  if(frameMode !== 'rot' || rh*2*view.scale > 34){ zoomInset.style.display = 'none'; return; }
+  zoomInset.style.display = 'block';
 
-  const ZW=150, ZH=110, zcx=ZW/2, zcy=ZH/2;
-  zctx.clearRect(0,0,ZW,ZH);
-  const zScale = (ZW*0.38) / (rh*1.6); // fit L1..L2 span with margin
+  const zcx = ZW/2, zcy = ZH/2;
+  zctx.clearRect(0, 0, ZW, ZH);
+  const zScale = (ZW*0.38)/(rh*1.6);
+  const zp = (x, y) => [zcx + (x-(1-mu))*zScale, zcy - y*zScale];
 
-  function ztoPx(x,y){ return [zcx + (x-(1-mu))*zScale, zcy - y*zScale]; }
+  const e = zp(1-mu, 0);
+  zctx.beginPath(); zctx.arc(e[0], e[1], 5, 0, TWO_PI); zctx.fillStyle = '#9fc4ff'; zctx.fill();
+  zctx.fillStyle = 'rgba(159,196,255,0.85)'; zctx.font = '9px Space Mono';
+  zctx.fillText(cur ? cur.n2 : 'm₂', e[0]-12, e[1]+17);
 
-  // m2 (Earth) — drawn first, underneath, but now clearly bigger than the gap
-  const [ex,ey] = ztoPx(1-mu,0);
-  zctx.beginPath(); zctx.arc(ex,ey,5,0,Math.PI*2); zctx.fillStyle='#9fc4ff'; zctx.fill();
-  zctx.fillStyle='rgba(159,196,255,0.85)'; zctx.font='15px Space Mono';
-  zctx.fillText('m₂', ex-6, ey+16);
-
-  ['L1','L2'].forEach(k=>{
-    const p = LP[k];
-    const [px,py] = ztoPx(p.x,p.y);
-    zctx.beginPath(); zctx.arc(px,py,4,0,Math.PI*2);
-    zctx.strokeStyle='rgba(92,255,161,0.8)'; zctx.lineWidth=1.3; zctx.stroke();
-    zctx.fillStyle='rgba(92,255,161,0.9)'; zctx.fillText(k, px-5, py-8);
+  ['L1','L2'].forEach(k => {
+    const p = zp(LP[k].x, LP[k].y);
+    zctx.beginPath(); zctx.arc(p[0], p[1], 4, 0, TWO_PI);
+    zctx.strokeStyle = 'rgba(92,255,161,0.8)'; zctx.lineWidth = 1.3; zctx.stroke();
+    zctx.fillStyle = 'rgba(92,255,161,0.9)'; zctx.fillText(k, p[0]-6, p[1]-8);
   });
 
-  // if a test particle is nearby, show it too
   if(test){
-    const [tpx,tpy] = ztoPx(test.x,test.y);
-    if(tpx>-10&&tpx<ZW+10&&tpy>-10&&tpy<ZH+10){
-      zctx.beginPath(); zctx.arc(tpx,tpy,2.5,0,Math.PI*2); zctx.fillStyle='#ffcf6b'; zctx.fill();
+    const p = zp(test.x, test.y);
+    if(p[0] > -10 && p[0] < ZW+10 && p[1] > -10 && p[1] < ZH+10){
+      zctx.beginPath(); zctx.arc(p[0], p[1], 2.5, 0, TWO_PI);
+      zctx.fillStyle = test.flagged ? '#ff5a5a' : '#ffcf6b'; zctx.fill();
     }
   }
 }
+
+/* ============================================================
+   TELEMETRY (throttled to ~10 Hz)
+   ============================================================ */
+let lastTele = 0;
+function updateTelemetry(now){
+  if(now - lastTele < 100) return;
+  lastTele = now;
+  if(!test){ $('stateLbl').textContent = 'NO TEST MASS'; return; }
+
+  const dNow = Math.hypot(test.x-test.ref.x, test.y-test.ref.y);
+  const periods = (simT-test.t0)/TWO_PI;
+  const C = jacobi(mu, test);
+
+  $('driftV').textContent = dNow.toFixed(dNow < 0.01 ? 5 : 4);
+  const tri = test.kind === 'lp' && (test.key === 'L4' || test.key === 'L5');
+  if(test.kind !== 'lp') $('driftS').textContent = 'from release point';
+  else if(tri) $('driftS').textContent = mu < ROUTH_LIMIT ? 'bounded libration (stable)' : (dNow/test.eps).toFixed(1)+'× initial offset';
+  else $('driftS').textContent = (dNow/test.eps).toFixed(1)+'× initial offset';
+  $('timeV').textContent = periods.toFixed(2)+' orbits';
+  $('timeS').textContent = cur ? '≈ '+fmtDays(periods*cur.days) : (simT-test.t0).toFixed(2)+' time units';
+  $('jacV').textContent = C.toFixed(5);
+  $('jacS').textContent = test.kind === 'lp' ? 'start: '+test.C0.toFixed(5) : '';
+  const dC = Math.abs(C-test.C0);
+  $('dcV').textContent = fmtSci(dC);
+  $('dcV').className = 'v ' + (dC < 1e-6 ? 'green' : dC < 1e-3 ? 'gold' : 'red');
+
+  const label = test.kind === 'lp' ? test.key : 'FREE DROP';
+  $('stateLbl').textContent = label+' · DRIFT '+dNow.toFixed(3);
+
+  if(test.state === 'impact1') setStatus('IMPACT', 'test mass hit '+n1()+' and was stopped.');
+  else if(test.state === 'impact2') setStatus('IMPACT', 'test mass hit '+n2()+' and was stopped.');
+  else if(test.state === 'escaped') setStatus('ESCAPED', 'test mass left the system (more than 25 separations away) and was stopped.');
+  else if(test.state === 'lost') setStatus('LOST', 'numerical failure — the test mass was stopped. Try RE-RELEASE.');
+  else if(test.kind === 'lp' && test.flagged) setStatus('DIVERGED', 'test mass has drifted far from '+test.key+' ('+(dNow/test.eps).toFixed(0)+'× its initial offset) — unstable equilibrium.');
+  else if(tri && mu < ROUTH_LIMIT) setStatus('TRACKING', 'test mass librating around '+test.key+', drift = '+dNow.toFixed(5)+' — bounded, so the point is stable (the arc can be much wider than the initial offset).');
+  else if(test.kind === 'lp') setStatus('TRACKING', 'test mass near '+test.key+', drift = '+dNow.toFixed(5)+' ('+(dNow/test.eps).toFixed(1)+'× initial offset).');
+  else setStatus('TRACKING', 'free-drop test mass, '+dNow.toFixed(4)+' from its release point.');
+}
+
+/* ============================================================
+   MAIN LOOP
+   ============================================================ */
+let lastTs = null;
+function frame(ts){
+  const dt = lastTs === null ? 0 : Math.max(0, (ts-lastTs)/1000);
+  lastTs = ts;
+  advance(dt);
+  draw();
+  updateTelemetry(ts);
+  requestAnimationFrame(frame);
+}
+
+recomputePoints();
+refreshNote();
+// Default on open: Sun–Earth with a test mass released at L2. A shared link (#system=...) overrides this.
+if(location.hash.length > 1) readHash(); else placeTest('L2');
+requestAnimationFrame(frame);
 </script>
 
 <script src="/libraries/config.js"></script>
