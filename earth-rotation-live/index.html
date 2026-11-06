@@ -208,7 +208,7 @@
       <div><span class="lbl">STATUS</span> <span class="val">LIVE</span></div>
     </div>
     <button class="fs-btn" id="fsBtn">Fullscreen</button>
-    <button class="fs-btn reset-btn" id="resetBtn">Reset View</button>
+    <button class="fs-btn reset-btn" id="resetBtn">Reset</button>
     <div class="loading" id="loadingScreen"><span class="dot">●</span> LOADING EARTH TEXTURES...</div>
   </div>
 
@@ -523,6 +523,51 @@ function exitFS(){
 fsBtn.addEventListener('click', () => {
   isFullscreen() ? exitFS() : requestFS(viewer);
 });
+
+resetBtn.addEventListener('click', () => {
+  if (!controls.enabled) return; // already animating
+
+  const endDist = 6.2;
+  const startTarget = controls.target.clone();
+  const endTarget = new THREE.Vector3(0, 0, 0);
+  const startDist = camera.position.distanceTo(startTarget);
+  const startDir = camera.position.clone().sub(startTarget).normalize();
+  const endDir = new THREE.Vector3(0, 0, 1);
+
+  const fullRot = new THREE.Quaternion().setFromUnitVectors(startDir, endDir);
+  const noRot = new THREE.Quaternion();
+  const stepRot = new THREE.Quaternion();
+  const dir = new THREE.Vector3();
+
+  const duration = 1400; // ms
+  let t0 = null;
+
+  controls.enabled = false;
+  const hadDamping = controls.enableDamping;
+  controls.enableDamping = false;
+
+  function step(now){
+    if (t0 === null) t0 = now;
+    const t = Math.min((now - t0) / duration, 1);
+    const e = -(Math.cos(Math.PI * t) - 1) / 2; // ease in-out
+
+    stepRot.copy(noRot).slerp(fullRot, e);
+    dir.copy(startDir).applyQuaternion(stepRot);
+    const dist = startDist + (endDist - startDist) * e;
+
+    controls.target.lerpVectors(startTarget, endTarget, e);
+    camera.position.copy(controls.target).addScaledVector(dir, dist);
+
+    if (t < 1) {
+      requestAnimationFrame(step);
+    } else {
+      controls.enabled = true;
+      controls.enableDamping = hadDamping;
+    }
+  }
+  requestAnimationFrame(step);
+});
+
 viewer.addEventListener('dblclick', () => fsBtn.click());
 
 document.addEventListener('fullscreenchange', () => {
