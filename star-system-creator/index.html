@@ -143,7 +143,7 @@
   .fs-btn:hover{border-color:var(--red-dim); color:var(--text); box-shadow:0 0 10px rgba(255,43,43,0.15);}
   .speed-ctrl{position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:8px;
     background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);}
-  .speed-ctrl input[type=range]{width:130px;}
+  .speed-ctrl input[type=range]{width:min(320px, calc(100vw - 190px));}
   .speed-ctrl b{color:var(--red); min-width:38px; text-align:right; font-variant-numeric:tabular-nums;}
   .stage.expanded{position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:9999; margin:0; border:none;}
   #stage3d{position:absolute; inset:0; cursor:grab;}
@@ -303,7 +303,7 @@
         <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a real gravity (N-body) simulation">⚛ REALISTIC MODE: OFF</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
-          <input type="range" id="speedSlider" min="0" max="100" value="47" step="1" title="Speed (logarithmic, 0 = paused, max 1000). Double-click to reset." aria-label="Simulation speed">
+          <input type="range" id="speedSlider" min="0" max="200" value="70" step="1" title="Speed (logarithmic, 0 = paused, max 10000). Double-click to reset." aria-label="Simulation speed">
           <b id="speedOut">25</b>
         </div>
         <div id="stage3d"></div>
@@ -2447,7 +2447,7 @@ showSysStatus('System reset.');
   // Logarithmic, so slow and very fast speeds are both easy to hit: position 0 = paused,
   // positions 1..100 run from speed 1 up to 1000 (about 7% per step). Speed 25 is the default.
   // (speed / 100 is the time multiplier the animation uses.)
-  var SPEED_MIN = 1, SPEED_MAX = 1000, SPEED_DEFAULT = 25, SPEED_POSITIONS = 100;
+  var SPEED_MIN = 1, SPEED_MAX = 10000, SPEED_DEFAULT = 25, SPEED_POSITIONS = 200;
   var speedSlider = document.getElementById('speedSlider');
   var speedOut = document.getElementById('speedOut');
   function posToSpeed(pos){
