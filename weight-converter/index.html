@@ -16,24 +16,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Universal Weight Converter</title>
+<title>Universal Weight Converter — Grams to Solar Masses</title>
 
 <meta name="description"
-content="Free universal weight and mass converter. Convert between gram, kilogram, milligram, microgram, ounce, pound, stone, troy ounce, carat, grain, and metric or imperial tons instantly, with full decimal precision.">
+content="Free universal weight and mass converter. Convert between gram, kilogram, milligram, ounce, pound, stone, troy ounce, carat, grain, metric and imperial tons, plus Moon, Earth, Jupiter and solar mass. 18 units, instant results.">
 
 <link rel="canonical" href="https://rameshverse.com/weight-converter">
 <!-- 👈 update this canonical URL (and the og:url / og:image below) to match wherever this page is actually published -->
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Universal Weight Converter">
-<meta property="og:description" content="Convert between 14 weight and mass units instantly — metric, imperial, troy, and apothecary — with full decimal precision.">
+<meta property="og:title" content="Universal Weight Converter — Grams to Solar Masses">
+<meta property="og:description" content="Convert between 18 weight and mass units instantly — metric, imperial, troy, and astronomical (Moon, Earth, Jupiter, Sun).">
 <meta property="og:url" content="https://rameshverse.com/weight-converter">
 <meta property="og:image" content="https://rameshverse.com/weight-converter/preview-image/weight-converter-preview.jpg">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Universal Weight Converter">
-<meta name="twitter:description" content="Convert between 14 weight and mass units instantly — metric, imperial, troy, and apothecary — with full decimal precision.">
+<meta name="twitter:title" content="Universal Weight Converter — Grams to Solar Masses">
+<meta name="twitter:description" content="Convert between 18 weight and mass units instantly — metric, imperial, troy, and astronomical (Moon, Earth, Jupiter, Sun).">
 <meta name="twitter:image" content="https://rameshverse.com/weight-converter/preview-image/weight-converter-preview.jpg">
+
+<meta name="theme-color" content="#040000">
 
 <script type="application/ld+json">
 {
@@ -42,7 +44,7 @@ content="Free universal weight and mass converter. Convert between gram, kilogra
   "name": "Universal Weight Converter",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Any",
-  "description": "Free online tool to convert between 14 weight and mass units, including metric (gram, kilogram, tonne), imperial (ounce, pound, stone, ton), and troy/apothecary (troy ounce, troy pound, grain, carat) units.",
+  "description": "Free online tool to convert between 18 weight and mass units, including metric (gram, kilogram, tonne), imperial (ounce, pound, stone, ton), troy/apothecary (troy ounce, troy pound, grain, carat) and astronomical (Moon mass, Earth mass, Jupiter mass, solar mass) units.",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -54,262 +56,281 @@ content="Free universal weight and mass converter. Convert between gram, kilogra
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+
+  /* RameshVerse Terminator HUD theme: red #ff2b2b on black, Space Mono,
+     corner brackets and scanlines. CSS only, no extra JS or fonts, to stay fast. */
   :root {
-    --bg: #070b0d;
-    --panel: #0f172a;
-    --panel-2: #070c14;
-    --line: rgba(52,211,153,0.16);
-    --line-soft: rgba(52,211,153,0.08);
-    --emerald: #34d399;
-    --emerald-dim: rgba(52,211,153,0.14);
-    --brass: #e8c477;
-    --brass-dark: #8a6423;
-    --text: #e7f2ec;
-    --text-dim: #7c8f88;
-    --sans: 'Sora', system-ui, -apple-system, sans-serif;
-    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+    color-scheme: dark;
+    --bg: #040000;
+    --panel: #0d0606;
+    --panel-2: #130808;
+    --well: #060202;
+    --red: #ff2b2b;
+    --red-glow: rgba(255, 43, 43, 0.45);
+    --red-line: rgba(255, 43, 43, 0.28);
+    --red-dim: rgba(255, 43, 43, 0.5);
+    --red-soft: rgba(255, 43, 43, 0.08);
+    --red-light: #ff8f8f;
+    --amber: #ffb020;
+    --text: #f3dede;
+    --text-dim: #a87a7a;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
   }
 
-  * { box-sizing: border-box; }
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  html, body { margin: 0; }
 
   body {
-    font-family: var(--sans);
-    background:
-      radial-gradient(circle at 1px 1px, rgba(52,211,153,0.08) 1px, transparent 1.4px) 0 0 / 26px 26px,
-      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(52,211,153,0.10), transparent 62%),
-      var(--bg);
+    font-family: var(--mono);
     color: var(--text);
-    margin: 0;
-    padding: 32px 16px;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
     min-height: 100vh;
-  }
-
-  .page { width: 100%; max-width: 420px; }
-
-  /* ---------- Header / balance scale mark ---------- */
-  .header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 18px;
-  }
-
-  .scale-mark {
+    min-height: 100dvh;
+    padding: 24px 12px;
     position: relative;
-    width: 110px;
-    height: 92px;
-    margin-bottom: 8px;
+    overflow-x: hidden;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(255,43,43,0.14), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(255,43,43,0.08), transparent 55%),
+      var(--bg);
+    background-attachment: fixed;
   }
 
-  .scale-post {
-    position: absolute;
-    left: 50%; top: 28px; bottom: 6px;
-    width: 3px; margin-left: -1.5px;
-    background: linear-gradient(180deg, var(--brass), var(--brass-dark));
-  }
-
-  .scale-base {
-    position: absolute;
-    left: 50%; bottom: 0;
-    width: 44px; height: 5px; margin-left: -22px;
-    background: linear-gradient(180deg, var(--brass), var(--brass-dark));
-    border-radius: 3px;
-  }
-
-  .scale-pivot {
-    position: absolute;
-    left: 50%; top: 24px;
-    width: 9px; height: 9px; margin-left: -4.5px;
-    border-radius: 50%;
-    background: var(--brass);
-    box-shadow: 0 0 8px rgba(232,196,119,0.6);
+  /* CRT scanlines over the whole page */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
     z-index: 3;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,43,43,0.035) 0px,
+      rgba(255,43,43,0.035) 1px,
+      transparent 1px,
+      transparent 3px
+    );
   }
 
-  .scale-beam {
-    position: absolute;
-    left: 50%; top: 27px;
-    width: 88px; height: 3px; margin-left: -44px;
-    background: linear-gradient(90deg, var(--brass-dark), var(--brass), var(--brass-dark));
-    border-radius: 2px;
-    transform-origin: 50% 50%;
-    animation: scaleTip 4.6s ease-in-out infinite;
-    z-index: 2;
+  /* one slow scan bar sweeping down the screen (transform only, so it is cheap) */
+  body::before {
+    content: "";
+    position: fixed;
+    left: 0; top: 0;
+    width: 100%;
+    height: 24vh;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(255,43,43,0.07), transparent);
+    transform: translateY(-30vh);
+    animation: sweep 8s linear infinite;
   }
 
-  @keyframes scaleTip {
-    0%, 100% { transform: rotate(-3.5deg); }
-    50%      { transform: rotate(3.5deg); }
+  @keyframes sweep {
+    to { transform: translateY(110vh); }
   }
 
-  .scale-beam .string {
-    position: absolute;
-    top: 3px;
-    width: 1.5px; height: 13px;
-    background: rgba(232,196,119,0.55);
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
   }
-
-  .scale-beam .string.l { left: 5px; }
-  .scale-beam .string.r { right: 5px; }
-
-  .scale-beam .pan {
-    position: absolute;
-    top: 15px;
-    width: 24px; height: 14px;
-    border: 1.5px solid rgba(232,196,119,0.7);
-    border-top: none;
-    border-radius: 0 0 12px 12px;
-    background: rgba(232,196,119,0.08);
-  }
-
-  .scale-beam .pan.l { left: -6px; }
-  .scale-beam .pan.r { right: -6px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .scale-beam { animation: none; }
+    body::before { animation: none; display: none; }
+    .eyebrow .dot, #resultUnit::after { animation: none; }
+    .swap-btn.spin { animation: none; }
+  }
+
+  .converter {
+    background: linear-gradient(155deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--red-line);
+    padding: 28px;
+    border-radius: 2px;
+    width: 500px;
+    max-width: 100%;
+    margin: auto; /* centers vertically when there is room, scrolls otherwise */
+    position: relative;
+    z-index: 1;
+    box-shadow:
+      0 0 0 1px rgba(255,43,43,0.05),
+      0 0 40px rgba(255,43,43,0.12),
+      0 25px 60px rgba(0,0,0,0.7);
+  }
+
+  /* four targeting-style corner brackets */
+  .corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 0 solid var(--red);
+    filter: drop-shadow(0 0 4px var(--red-glow));
+    pointer-events: none;
+  }
+  .corner.tl { top: -1px;    left: -1px;  border-width: 2px 0 0 2px; }
+  .corner.tr { top: -1px;    right: -1px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: -1px; left: -1px;  border-width: 0 0 2px 2px; }
+  .corner.br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 10.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+  }
+
+  .eyebrow .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    animation: blink 1.8s ease-in-out infinite;
+    flex-shrink: 0;
   }
 
   h1 {
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: 1.35rem;
     text-align: center;
-    margin: 4px 0 0;
-  }
-
-  .brand-badge {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin: 12px auto 0;
-    width: fit-content;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.16em;
+    margin: 0 0 4px;
+    font-size: 1.35rem;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--emerald);
-    border: 1px solid rgba(52,211,153,0.32);
-    background: rgba(52,211,153,0.06);
-    padding: 5px 12px;
-    border-radius: 999px;
+    color: var(--text);
+    text-shadow: 0 0 18px var(--red-glow);
   }
 
-  .brand-badge .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--brass);
-    box-shadow: 0 0 6px 1px rgba(232,196,119,0.7);
-  }
-
-  /* ---------- Card ---------- */
-  .app {
-    position: relative;
-    width: 100%;
-    background: linear-gradient(180deg, var(--panel), var(--panel-2));
-    border: 1px solid var(--line);
-    padding: 22px 20px;
-    border-radius: 16px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(52,211,153,0.03) inset;
-    overflow: hidden;
-    margin-top: 20px;
-  }
-
-  .app::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -40%;
-    width: 40%; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--emerald), transparent);
-    animation: scan 6s linear infinite;
-    opacity: 0.8;
-  }
-
-  @keyframes scan {
-    0% { left: -40%; }
-    100% { left: 100%; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .app::before { animation: none; }
-  }
-
-  .corner-tl, .corner-br {
-    position: absolute;
-    width: 14px; height: 14px;
-    border-color: var(--emerald);
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .corner-tl { top: 10px; left: 10px; border-top: 2px solid var(--emerald); border-left: 2px solid var(--emerald); }
-  .corner-br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--emerald); border-right: 2px solid var(--emerald); }
-
-  label {
+  .version-tag {
     display: block;
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.13em;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--red);
+    opacity: 0.85;
+    margin: 0 0 26px;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 10.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--text-dim);
+    text-align: left;
     margin-bottom: 6px;
   }
 
-  input, select {
+  input, select, button {
     width: 100%;
-    padding: 0 14px;
-    height: 48px;
-    border-radius: 9px;
-    border: 1px solid var(--line-soft);
-    background: #050a0d;
-    color: var(--text);
-    font-size: 1rem;
+    border-radius: 2px;
+    border: none;
+    box-sizing: border-box;
     font-family: var(--mono);
   }
 
-  input::placeholder { color: #3f5850; }
+  input, select {
+    height: 52px;
+    background: var(--well);
+    color: var(--text);
+    border: 1px solid var(--red-line);
+  }
 
-  input:focus, select:focus {
+  .value-input {
+    padding: 0 18px;
+    font-size: 17px;
+    letter-spacing: 0.5px;
+    box-shadow: inset 0 0 12px rgba(255,43,43,0.06);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    margin-bottom: 16px;
+  }
+
+  .value-input::placeholder { color: #5e3a3a; }
+
+  .value-input:focus {
     outline: none;
-    border-color: var(--emerald);
-    box-shadow: 0 0 0 3px var(--emerald-dim);
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(255,43,43,0.2), inset 0 0 12px rgba(255,43,43,0.08);
+    background: #020000;
   }
 
-  select option { color: #000; background: #fff; }
+  /* hide the number spinners: they step by 1 and are useless for 1e30-type values */
+  .value-input::-webkit-inner-spin-button,
+  .value-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .value-input { -moz-appearance: textfield; appearance: textfield; }
 
+  /* FROM [swap] TO always sit together in ONE row, on desktop and on phones */
   .unit-row {
-    display: flex;
-    flex-direction: column;
-    margin-top: 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 16px;
+  }
+  .unit-field { min-width: 0; }
+
+  select {
+    padding: 0 10px;
+    font-size: 14px;
+    font-weight: 400;
+    text-overflow: ellipsis;
   }
 
-  .swap-wrap {
-    display: flex;
-    justify-content: center;
-    margin: 14px 0;
+  select optgroup { color: var(--text-dim); font-style: normal; background: var(--well); }
+  select option { color: var(--text); background: var(--well); }
+
+  button {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  button:active { transform: scale(0.97); }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  .secondary-btn {
+    background: transparent;
+    border: 1px solid var(--red-line);
+    color: var(--red);
+  }
+  .secondary-btn:hover {
+    background: var(--red-soft);
+    border-color: var(--red);
+    box-shadow: 0 0 12px rgba(255,43,43,0.25);
   }
 
   .swap-btn {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    border: 1px solid var(--line);
-    background: rgba(52,211,153,0.08);
-    color: var(--emerald);
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    font-size: 22px;
+    letter-spacing: 0;
+    line-height: 1;
   }
-
-  .swap-btn:hover { border-color: var(--emerald); box-shadow: 0 0 12px rgba(52,211,153,0.3); }
-  .swap-btn:active { transform: scale(0.92) rotate(180deg); }
+  .swap-btn:active { transform: scale(0.92); }
   .swap-btn.spin { animation: swapSpin 0.4s ease; }
 
   @keyframes swapSpin {
@@ -318,230 +339,353 @@ content="Free universal weight and mass converter. Convert between gram, kilogra
   }
 
   .result {
-    margin-top: 18px;
-    background: #050a0d;
-    border: 1px solid var(--line-soft);
-    border-radius: 10px;
-    padding: 16px 14px;
+    padding: 30px 14px 14px;
+    background: linear-gradient(180deg, var(--well), #0c0404);
+    border: 1px solid var(--red-line);
+    border-radius: 2px;
     text-align: center;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
   }
 
-  .result:hover { border-color: var(--line); }
+  .result:hover { border-color: var(--red-dim); }
+
+  /* result-box scanlines */
+  .result::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.02) 0px,
+      rgba(255,255,255,0.02) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+  }
+
+  .result-tag {
+    position: absolute;
+    top: 9px;
+    left: 12px;
+    font-size: 9.5px;
+    letter-spacing: 2.5px;
+    color: var(--red-dim);
+  }
 
   #resultValue {
-    font-family: var(--mono);
+    display: block;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--emerald);
-    text-shadow: 0 0 12px rgba(52,211,153,0.3);
-    word-break: break-all;
+    letter-spacing: 0.5px;
+    color: var(--red);
+    text-shadow: 0 0 10px var(--red-glow);
+    overflow-wrap: anywhere; /* long numbers wrap at the commas first, anywhere only as a last resort */
+  }
+
+  /* error message: amber so it never looks like a normal red result */
+  #resultValue.error {
+    font-size: 0.95rem;
+    color: var(--amber);
+    text-shadow: none;
+    overflow-wrap: normal;
+  }
+
+  /* scientific-notation helper line, only for very large / very small results */
+  #resultSci {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--red-light);
+    overflow-wrap: anywhere;
+  }
+  #resultSci:empty { display: none; }
+  #resultSci sup {
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 0;          /* keeps the raised exponent from stretching the line */
+    position: relative;
+    top: -0.45em;
+    vertical-align: baseline;
+    margin-left: 1px;
   }
 
   #resultUnit {
     display: block;
-    margin-top: 4px;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--text-dim);
+  }
+  #resultUnit:not(:empty)::after {
+    content: "_";
+    color: var(--red);
+    animation: blink 1s steps(1) infinite;
   }
 
   .result-hint {
     margin-top: 6px;
-    font-size: 0.7rem;
+    font-size: 0.66rem;
+    letter-spacing: 1.5px;
     color: var(--text-dim);
   }
 
-  button.copy {
-    width: 100%;
+  .copy-btn {
     margin-top: 12px;
-    height: 46px;
-    border-radius: 9px;
-    border: 1px solid rgba(52,211,153,0.35);
-    background: linear-gradient(180deg, rgba(52,211,153,0.1), rgba(52,211,153,0.02));
-    color: var(--emerald);
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-weight: 700;
-    cursor: pointer;
-    transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.1s ease;
+    height: 48px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    background: var(--red);
+    color: #140000;
+    box-shadow: 0 0 18px rgba(255,43,43,0.35);
   }
-
-  button.copy:hover { box-shadow: 0 0 16px rgba(52,211,153,0.25); }
-  button.copy:active { transform: scale(0.98); }
-
-  button.copy.copied {
-    border-color: #34d399;
-    background: #16a34a;
-    color: #fff;
-  }
+  .copy-btn:hover { box-shadow: 0 0 28px rgba(255,43,43,0.6); }
+  .copy-btn.copied { background: #e8e8e8; color: #140000; box-shadow: none; }
+  .copy-btn.copy-failed { background: var(--amber); color: #140000; box-shadow: none; }
 
   .note {
     margin-top: 16px;
     padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px dashed var(--line-soft);
-    font-family: var(--mono);
-    font-size: 0.74rem;
+    border-radius: 2px;
+    border: 1px dashed var(--red-line);
+    font-size: 11px;
     line-height: 1.6;
     text-align: center;
     color: var(--text-dim);
   }
 
-  .note b { color: var(--brass); }
+  .note b { color: var(--red); font-weight: 700; }
+
+  .intro {
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 0.3px;
+    margin: 22px 0 0;
+  }
 
   @media (max-width: 480px) {
-    .app { padding: 20px 16px; }
-    h1 { font-size: 1.2rem; }
+    body { padding: 10px; }
+    .converter { padding: 22px 14px; }
+    h1 { font-size: 1.05rem; letter-spacing: 0.5px; }
+    .version-tag { font-size: 10px; letter-spacing: 2px; }
+    .version-tag { margin-bottom: 20px; }
+    /* keep From / swap / To in one row on phones: slimmer swap button and padding */
+    .unit-row { gap: 6px; }
+    .swap-btn { width: 40px; }
+    select { padding: 0 8px; }
+    input, select, button { font-size: 16px; } /* prevents iOS zoom */
   }
+
 </style>
 </head>
 
 <body>
 
-<div class="page">
+<div class="converter">
 
-  <div class="header">
-    <div class="scale-mark">
-      <div class="scale-post"></div>
-      <div class="scale-base"></div>
-      <div class="scale-pivot"></div>
-      <div class="scale-beam">
-        <div class="string l"></div>
-        <div class="string r"></div>
-        <div class="pan l"></div>
-        <div class="pan r"></div>
-      </div>
-    </div>
-    <h1>Universal Weight Converter</h1>
-    <div class="brand-badge"><span class="dot"></span> Rameshverse Systems · MK·02</div>
-  </div>
+  <span class="corner tl"></span>
+  <span class="corner tr"></span>
+  <span class="corner bl"></span>
+  <span class="corner br"></span>
 
-  <div class="app">
-    <div class="corner-tl"></div>
-    <div class="corner-br"></div>
+  <div class="eyebrow"><span class="dot"></span>Rameshverse Systems &middot; MK&middot;02</div>
 
-    <label for="value">Value</label>
-    <input type="number" id="value" placeholder="Enter value" inputmode="decimal">
+  <h1>Universal Weight Converter</h1>
 
-    <div class="unit-row">
-      <label class="field-label" for="fromUnit">From</label>
+  <span class="version-tag">UNIT CONVERSION MODULE</span>
+
+  <label class="field-label" for="value">&gt; Value</label>
+  <input type="number" id="value" class="value-input" placeholder="Enter value (e.g. 1.5e53)" step="any" inputmode="decimal">
+
+  <div class="unit-row">
+    <div class="unit-field">
+      <label class="field-label" for="fromUnit">&gt; From</label>
       <select id="fromUnit" aria-label="Convert from unit"></select>
+    </div>
 
-      <div class="swap-wrap">
-        <button class="swap-btn" id="swapBtn" type="button" aria-label="Swap units" title="Swap units">⇅</button>
-      </div>
+    <button class="secondary-btn swap-btn" id="swapBtn" type="button" aria-label="Swap units" title="Swap the two units">⇄</button>
 
-      <label class="field-label" for="toUnit">To</label>
+    <div class="unit-field">
+      <label class="field-label" for="toUnit">&gt; To</label>
       <select id="toUnit" aria-label="Convert to unit"></select>
     </div>
-
-    <div class="result" id="resultBox">
-      <span id="resultValue" aria-live="polite">0</span>
-      <span id="resultUnit"></span>
-      <div class="result-hint">Tap to copy</div>
-    </div>
-
-    <button id="copyBtn" class="copy" type="button">Copy Result</button>
-
-    <div class="note">
-      Precious metals use <b>troy units</b> — 1 troy oz = 31.1034768 g
-    </div>
   </div>
 
-  <p style="text-align:center; max-width:400px; margin:20px auto 0; padding:0 8px; font-family:var(--mono); font-size:0.74rem; line-height:1.7; color:var(--text-dim);">
-    Convert between 14 weight and mass units instantly — metric (gram, kilogram, tonne), imperial (ounce, pound, stone, ton), and troy/apothecary (troy ounce, troy pound, grain, carat) — with full decimal precision.
-  </p>
+  <div class="result" id="resultBox">
+    <span class="result-tag">OUTPUT</span>
+    <span id="resultValue" role="status" aria-live="polite">0</span>
+    <span id="resultSci"></span>
+    <span id="resultUnit"></span>
+    <div class="result-hint">TAP TO COPY</div>
+  </div>
+
+  <button id="copyBtn" class="copy-btn" type="button">Copy Result</button>
+
+  <div class="note" id="note"></div>
+
+  <p class="intro">Convert between 18 weight and mass units instantly — metric (gram, kilogram, tonne), imperial (ounce, pound, stone, ton), troy/apothecary (troy ounce, troy pound, grain, carat) and astronomical (Moon, Earth, Jupiter and solar mass) — with full decimal precision.</p>
+
 </div>
 
-
-
 <script>
-  // Base unit = gram
-  const units = {
-    "Microgram (µg)": 0.000001,
-    "Milligram (mg)": 0.001,
-    "Gram (g)": 1,
-    "Kilogram (kg)": 1000,
-    "Metric tonne (t)": 1_000_000,
+  // Every unit is stored ONCE as its size in grams.
+  // To add a unit later, add one line here -- nothing else needs to change.
+  // The dropdown shows "short · Name" so the abbreviation stays visible even
+  // when a long name is cut off on a narrow phone.
+  const UNITS = [
+    // Metric
+    { short: "µg",    name: "Microgram",      g: 0.000001,       group: "Metric" },
+    { short: "mg",    name: "Milligram",      g: 0.001,          group: "Metric" },
+    { short: "g",     name: "Gram",           g: 1,              group: "Metric" },
+    { short: "kg",    name: "Kilogram",       g: 1000,           group: "Metric" },
+    { short: "t",     name: "Metric tonne",   g: 1_000_000,      group: "Metric" },
 
-    "Carat (ct)": 0.2,
-    "Grain (gr)": 0.06479891,
+    // Imperial & US
+    { short: "oz",    name: "Ounce",          g: 28.349523125,   group: "Imperial & US" },
+    { short: "lb",    name: "Pound",          g: 453.59237,      group: "Imperial & US" },
+    { short: "st",    name: "Stone",          g: 6350.29318,     group: "Imperial & US" },
+    { short: "sh tn", name: "US ton (short)", g: 907_184.74,     group: "Imperial & US" },
+    { short: "l tn",  name: "UK ton (long)",  g: 1_016_046.9088, group: "Imperial & US" },
 
-    "Ounce (oz)": 28.349523125,
-    "Pound (lb)": 453.59237,
-    "Stone (st)": 6350.29318,
-    "US ton (short)": 907_184.74,
-    "UK ton (long)": 1_016_046.9088,
+    // Troy, apothecary & gems
+    { short: "gr",    name: "Grain",          g: 0.06479891,     group: "Troy, Apothecary & Gems" },
+    { short: "ct",    name: "Carat",          g: 0.2,            group: "Troy, Apothecary & Gems" },
+    { short: "ozt",   name: "Troy ounce",     g: 31.1034768,     group: "Troy, Apothecary & Gems" },
+    { short: "tlb",   name: "Troy pound",     g: 373.2417216,    group: "Troy, Apothecary & Gems" },
 
-    "Troy ounce (ozt)": 31.1034768,
-    "Troy pound (tlb)": 373.2417216
-  };
+    // Astronomical (approximate: known to about 4-5 significant digits)
+    { short: "M☾",    name: "Moon mass",      g: 7.342e25,       group: "Astronomical", astro: true },
+    { short: "M⊕",    name: "Earth mass",     g: 5.9722e27,      group: "Astronomical", astro: true },
+    { short: "M♃",    name: "Jupiter mass",   g: 1.8982e30,      group: "Astronomical", astro: true },
+    { short: "M☉",    name: "Solar mass",     g: 1.98847e33,     group: "Astronomical", astro: true }
+  ];
 
-  const fromSelect = document.getElementById("fromUnit");
-  const toSelect = document.getElementById("toUnit");
-  const valueInput = document.getElementById("value");
+  const UNIT_MAP = {};
+  UNITS.forEach(u => { UNIT_MAP[u.short] = u; });
+
+  const NOTE_TROY  = 'Precious metals use <b>troy units</b> — 1 troy oz = 31.1034768 g';
+  const NOTE_ASTRO = 'Astronomical masses are <b>approximate</b> (about 5 significant digits), so results show 6 digits';
+
+  const fromSelect    = document.getElementById("fromUnit");
+  const toSelect      = document.getElementById("toUnit");
+  const valueInput    = document.getElementById("value");
   const resultValueEl = document.getElementById("resultValue");
-  const resultUnitEl = document.getElementById("resultUnit");
-  const swapBtn = document.getElementById("swapBtn");
+  const resultSciEl   = document.getElementById("resultSci");
+  const resultUnitEl  = document.getElementById("resultUnit");
+  const noteEl        = document.getElementById("note");
+  const swapBtn       = document.getElementById("swapBtn");
+  const copyBtn       = document.getElementById("copyBtn");
+  const resultBox     = document.getElementById("resultBox");
 
-  Object.keys(units).forEach(unit => {
-    fromSelect.add(new Option(unit, unit));
-    toSelect.add(new Option(unit, unit));
-  });
-
-  fromSelect.value = "Gram (g)";
-  toSelect.value = "Kilogram (kg)";
-
-  // Extracts the short abbreviation from a label like "Kilogram (kg)" -> "kg"
-  function unitAbbrev(label) {
-    const match = label.match(/\(([^)]+)\)/);
-    return match ? match[1] : label;
+  // Build both dropdowns from the UNITS table, grouped by category.
+  function buildUnitOptions(select, selectedShort) {
+    const groups = new Map();
+    UNITS.forEach(u => {
+      let og = groups.get(u.group);
+      if (!og) {
+        og = document.createElement("optgroup");
+        og.label = u.group;
+        groups.set(u.group, og);
+        select.appendChild(og);
+      }
+      og.appendChild(new Option(u.short + " · " + u.name, u.short));
+    });
+    select.value = selectedShort;
   }
 
-  /* Fixed (round 2): the multiply/round/divide approach itself becomes
-     unsafe for large converted values — multiplying by 10^8 can push the
-     intermediate value past Number.MAX_SAFE_INTEGER (2^53), which is
-     exactly what produced "453,592,370.00000006" instead of an exact
-     453,592,370 when converting 1 lb to micrograms. The actual noise
-     already exists in the raw division (0.000001 isn't exactly
-     representable in binary floating point), so instead of trying to
-     round to a fixed decimal count, we clean the float to ~15 significant
-     digits (removing binary-division noise) and let toLocaleString's
-     maximumFractionDigits handle final display rounding safely. */
+  buildUnitOptions(fromSelect, "g");
+  buildUnitOptions(toSelect, "kg");
+
+  /* Clean the float to ~15 significant digits to remove binary-division noise
+     (e.g. 453592370.00000006 -> 453592370), then let Intl handle display
+     rounding. Multiplying/rounding/dividing by powers of ten is NOT safe for
+     large values because the intermediate can exceed 2^53. */
   function cleanFloat(value) {
     if (!isFinite(value) || value === 0) return value;
     return Number(value.toPrecision(15));
   }
 
+  // Plain decimal output, never exponential.
+  //  - approx (astronomical): 6 significant digits
+  //  - results below 1: 8 significant digits (so 0.0000030035 is not cut to 0.000003)
+  //  - everything else: up to 8 decimal places
+  function formatResult(n, approx) {
+    if (n === 0) return "0";
+    let opts;
+    if (approx)                  opts = { maximumSignificantDigits: 6 };
+    else if (Math.abs(n) < 1)    opts = { maximumSignificantDigits: 8 };
+    else                         opts = { maximumFractionDigits: 8 };
+    return n.toLocaleString("en-US", opts);
+  }
+
+  // Scientific notation like "1.5 × 10<sup>53</sup>" for the helper line.
+  // A real <sup> tag is used instead of Unicode superscript characters (², ⁴ ...):
+  // those glyphs are tiny and unclear in most monospace fonts.
+  function toSci(n, digits) {
+    const parts = n.toExponential(digits - 1).split("e");
+    const mantissa = parts[0].replace(/\.?0+$/, "");
+    const exp = String(parseInt(parts[1], 10));
+    return mantissa + " × 10<sup>" + exp + "</sup>";
+  }
+
+  // Shrink the font as the result gets longer so it stays readable
+  function fitResult() {
+    const len = resultValueEl.textContent.length;
+    resultValueEl.style.fontSize =
+      resultValueEl.classList.contains("error") ? "" :
+      len > 40 ? "0.8rem" :
+      len > 28 ? "0.95rem" :
+      len > 18 ? "1.15rem" :
+      len > 13 ? "1.3rem" : "";
+  }
+
+  function showResult(text, isError) {
+    // Give long numbers a clean line-break point after each comma (<wbr> adds no text,
+    // so copying still gives the plain number). Text here is only digits, commas, dots
+    // or our own error messages, so innerHTML is safe.
+    resultValueEl.innerHTML = isError ? text : text.replace(/,/g, ",<wbr>");
+    resultValueEl.classList.toggle("error", !!isError);
+    fitResult();
+  }
+
   function convert() {
+    const fromUnit = UNIT_MAP[fromSelect.value];
+    const toUnit   = UNIT_MAP[toSelect.value];
+    const approx   = !!(fromUnit.astro || toUnit.astro);
+
+    noteEl.innerHTML = approx ? NOTE_ASTRO : NOTE_TROY;
+    resultSciEl.textContent = "";
+    resultUnitEl.textContent = toUnit.short;
+
     const raw = valueInput.value;
     const value = parseFloat(raw);
 
-    if (raw.trim() === "" || isNaN(value)) {
-      resultValueEl.textContent = "0";
-      resultUnitEl.textContent = unitAbbrev(toSelect.value);
-      return;
-    }
-
+    if (raw.trim() === "" || isNaN(value)) return showResult("0", false);
     if (value < 0) {
-      resultValueEl.textContent = "Weight can't be negative.";
       resultUnitEl.textContent = "";
-      return;
+      return showResult("Weight can't be negative.", true);
     }
 
-    const grams = value * units[fromSelect.value];
-    const converted = grams / units[toSelect.value];
-    const cleaned = cleanFloat(converted);
+    const converted = value * fromUnit.g / toUnit.g;
+    if (!isFinite(converted)) {
+      resultUnitEl.textContent = "";
+      return showResult("Number too large.", true);
+    }
 
-    resultValueEl.textContent = cleaned.toLocaleString("en-US", {
-      maximumFractionDigits: 8
-    });
-    resultUnitEl.textContent = unitAbbrev(toSelect.value);
+    const cleaned = cleanFloat(converted);
+    showResult(formatResult(cleaned, approx), false);
+
+    // Show scientific notation for very large / very small results
+    const abs = Math.abs(cleaned);
+    if (abs !== 0 && (abs >= 1e6 || abs < 1e-3)) {
+      // only digits, a minus sign and our own unit symbols here, so innerHTML is safe
+      resultSciEl.innerHTML = "= " + toSci(cleaned, approx ? 6 : 8) + " " + toUnit.short;
+    }
   }
 
   function swapUnits() {
@@ -561,27 +705,27 @@ content="Free universal weight and mass converter. Convert between gram, kilogra
   toSelect.addEventListener("change", convert);
   swapBtn.addEventListener("click", swapUnits);
 
-  const copyBtn = document.getElementById("copyBtn");
-  const resultBox = document.getElementById("resultBox");
-
- function copyResult() {
+  function copyResult() {
+    if (resultValueEl.classList.contains("error")) return;
     const text = resultValueEl.textContent;
-    if (!text || text.includes("negative")) return;
+    if (!text) return;
 
     navigator.clipboard.writeText(text).then(() => {
-      copyBtn.textContent = "Copied ✓";
+      copyBtn.textContent = "Copied!";
       copyBtn.classList.add("copied");
       setTimeout(() => {
         copyBtn.textContent = "Copy Result";
         copyBtn.classList.remove("copied");
-      }, 1200);
+      }, 800);
     }).catch(() => {
-      copyBtn.textContent = "Copy failed";
+      copyBtn.textContent = "Copy Failed";
+      copyBtn.classList.add("copy-failed");
       setTimeout(() => {
         copyBtn.textContent = "Copy Result";
+        copyBtn.classList.remove("copy-failed");
       }, 1200);
     });
-}
+  }
 
   copyBtn.addEventListener("click", copyResult);
   resultBox.addEventListener("click", copyResult);
