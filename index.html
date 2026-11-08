@@ -211,13 +211,14 @@
     position: absolute;
     inset: 0;
     opacity: 0;
-    transition: opacity 1.2s ease;
+    transition: opacity .4s ease;          /* old slide fades out first */
     pointer-events: none;
   }
 
   .hero-slide.active {
     opacity: 1;
     pointer-events: auto;
+    transition: opacity .5s ease .35s;     /* new slide fades in right after */
   }
 
   .hero-slide picture { display: block; width: 100%; height: 100%; }
@@ -238,7 +239,7 @@
 
   /* Ken Burns zoom effect on active slide */
   .hero-slide.active img {
-    animation: kenburns 8s ease-out forwards;
+    animation: kenburns 4s ease-out forwards;
   }
 
   @keyframes kenburns {
@@ -423,53 +424,6 @@
     box-shadow: 0 0 0 1px rgba(255,43,43,.5), 0 0 14px rgba(255,43,43,.35);
     color: #ff2b2b;
 }
-
-/* ── HERO RADAR SWEEP ──
-     A soft diagonal band of light drifting across the hero every
-     ~7s. Subtle — reads as a HUD scan, not a distraction. */
-  .hero-sweep {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    overflow: hidden;
-  }
-    .hero-sweep::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -25%;
-    width: 22%;
-    height: 100%;
-    background: linear-gradient(
-      100deg,
-      transparent 0%,
-      rgba(255,43,43,0.10) 45%,
-      rgba(255,43,43,0.16) 50%,
-      rgba(255,43,43,0.10) 55%,
-      transparent 100%
-    );
-    filter: blur(2px);
-    animation: heroSweepMove var(--sweep-duration, 7500ms) linear forwards;
-  }
-  .hero-sweep.sweep-reset::before {
-    animation: none; /* JS toggles this to snap the sweep back and restart it in sync with each slide */
-  }
-  .hero-sweep.sweep-paused::before {
-    animation-play-state: paused; /* pauses in place on hover, same as the old progress bar did */
-  }
-  @keyframes heroSweepMove {
-    0%   { left: -25%; }
-    38%  { left: 115%; }
-    100% { left: 115%; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-sweep::before { animation: none; display: none; }
-  }
-  @media (max-width: 600px) {
-    .hero-sweep::before { width: 34%; } /* reads better on narrow screens */
-  }
-
 
   /* ── HUD STRIP — rotating third segment ──
      Your existing .hud-strip stays as-is; this just styles the
@@ -2303,8 +2257,6 @@
 
   <div class="hero-progress" id="heroProgress"></div>
 
-  <div class="hero-sweep" aria-hidden="true"></div>
-
   <button class="hero-close" id="heroClose" aria-label="Hide featured tools">
     ×
 </button>
@@ -2938,6 +2890,17 @@
   (function() {const hero = document.getElementById("hero");
     const heroClose = document.getElementById("heroClose");
 
+    // Banner analytics: sends events to Google Analytics (GA4).
+    // transport_type 'beacon' makes sure the click is still recorded
+    // when the click takes the visitor to another page.
+    function track(name, params) {
+      try {
+        if (typeof gtag === 'function') {
+          gtag('event', name, Object.assign({ transport_type: 'beacon' }, params || {}));
+        }
+      } catch (e) {}
+    }
+
     // Hide hero if already closed this session
     if (sessionStorage.getItem("heroClosed") === "1") {
     hero.classList.add("hidden");
@@ -2946,6 +2909,7 @@
 
   // Close button
     heroClose.addEventListener("click", () => {
+    track('hero_close');
     hero.classList.add("hidden");
     sessionStorage.setItem("heroClosed", "1");
 });
@@ -2961,12 +2925,14 @@
     const prevBtn = document.getElementById('heroPrev');
     const nextBtn = document.getElementById('heroNext');
 
-    const DURATION = 7500; // ms per slide — matches the radar sweep's own cycle
-    const sweep = document.querySelector('.hero-sweep');
+    const DURATION = 3750; // ms per slide (was 7500, so twice as fast). Change this one number to tune the speed.
 
     let current = 0;
-    let timer, progTimer, progStart;
+    let timer = null;
     let started = false;
+    let hovering = false;
+    let tickStart = 0;
+    let remaining = DURATION;
 
     /* Slides 2–16 start with data-src only (no src), so nothing downloads
        until this runs. Called for the slide about to be shown, and for the
@@ -2978,14 +2944,6 @@
       img.loading = 'eager';          // it's about to be shown, so don't wait for lazy heuristics
       img.src = img.dataset.src;
       img.removeAttribute('data-src');
-    }
-
-    function restartSweep() {
-      if (!sweep) return;
-      sweep.style.setProperty('--sweep-duration', DURATION + 'ms');
-      sweep.classList.add('sweep-reset');
-      void sweep.offsetWidth; // force reflow so the animation actually restarts
-      sweep.classList.remove('sweep-reset');
     }
 
     // Build dots
@@ -3002,17 +2960,17 @@
 
     function updateInfo(idx) {
       const s = slides[idx];
-      infoEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      infoEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
       infoEl.style.opacity = '0';
       infoEl.style.transform = 'translateY(8px)';
       setTimeout(() => {
         titleEl.textContent = s.dataset.title || '';
         descEl.textContent  = s.dataset.desc  || '';
         ctaEl.href          = s.dataset.url   || '/';
-        infoEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        infoEl.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
         infoEl.style.opacity = '1';
         infoEl.style.transform = 'translateY(0)';
-      }, 320);
+      }, 300);
     }
 
     function goTo(idx) {
@@ -3035,34 +2993,32 @@
     goTo(current + 1);
     });
 
+    // The click that matters: "→ Open Tool" on the banner
+    ctaEl.addEventListener('click', () => {
+      track('hero_cta_click', {
+        tool_name: titleEl.textContent,
+        tool_url: ctaEl.getAttribute('href'),
+        slide_number: current + 1
+      });
+    });
+
+    // Arrow clicks show whether people browse the banner by hand
+    prevBtn.addEventListener('click', () => track('hero_arrow_click', { direction: 'prev' }));
+    nextBtn.addEventListener('click', () => track('hero_arrow_click', { direction: 'next' }));
+
     function startProgress() {
       clearTimeout(timer);
-      clearInterval(progTimer);
       progress.style.transition = 'none';
       progress.style.width = '0%';
+      remaining = DURATION;
+      if (hovering) return;              // stay paused until the mouse leaves
 
-      // Force reflow so transition resets
-      void progress.offsetWidth;
+      void progress.offsetWidth;         // force reflow so the bar restarts
       progress.style.transition = 'width ' + DURATION + 'ms linear';
       progress.style.width = '100%';
-
-      restartSweep();
-      // No setTimeout here anymore — the sweep's own animationend event
-      // below is what actually advances the slide, so they can never
-      // drift apart from each other.
-    }
-
-    if (sweep) {
-      sweep.addEventListener('animationend', (e) => {
-        // Only react to the sweep's own animation finishing (not any
-        // other animation that might bubble up), and ignore it while
-        // hovered/paused — a paused animation never fires this anyway,
-        // but this guards against any edge case.
-        if (e.animationName !== 'heroSweepMove') return;
-        if (sweep.classList.contains('sweep-paused')) return;
-        if (!started) return;   // hero hasn't started yet (phones: waiting until it scrolls near)
-        goTo(current + 1);
-      });
+      tickStart = Date.now();
+      // A plain timer advances the slide now that the radar sweep is gone.
+      timer = setTimeout(() => goTo(current + 1), DURATION);
     }
 
     function startHero() {
@@ -3095,27 +3051,29 @@
       startHero();
     }
 
-    // Pause on hover
-    
-           hero.addEventListener('mouseenter', () => {
+    // Pause on hover, resume with the time that was left
+    hero.addEventListener('mouseenter', () => {
+      hovering = true;
+      if (!started) return;
+      clearTimeout(timer);
+      remaining = Math.max(0, remaining - (Date.now() - tickStart));
       const computed = parseFloat(getComputedStyle(progress).width);
       const total    = hero.offsetWidth;
       progress.style.transition = 'none';
       progress.style.width = ((computed / total) * 100).toFixed(1) + '%';
-      if (sweep) sweep.classList.add('sweep-paused');
     });
+
     hero.addEventListener('mouseleave', () => {
-      const remaining = (1 - parseFloat(progress.style.width) / 100) * DURATION;
+      hovering = false;
+      if (!started) return;
       progress.style.transition = 'width ' + remaining + 'ms linear';
       progress.style.width = '100%';
-      if (sweep) sweep.classList.remove('sweep-paused');
-      // No setTimeout to re-schedule — CSS animation-play-state resumes
-      // exactly where it left off, and animationend fires naturally
-      // when the (paused-then-resumed) sweep actually finishes.
+      tickStart = Date.now();
+      timer = setTimeout(() => goTo(current + 1), remaining);
     });
   })();
 
-  /* ── HUD STRIP ROTATOR ──
+    /* ── HUD STRIP ROTATOR ──
      Cycles the "SIGNAL STABLE" slot through a few live-feeling
      readouts: signal status, current moon phase, and a light
      rotation through your own tool count. Clock stays untouched. */

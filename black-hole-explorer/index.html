@@ -41,11 +41,12 @@ button,input,select{font:inherit;color:inherit}
 .back{font-size:12px;letter-spacing:.12em;text-decoration:none;color:var(--dim)}
 .back:hover{color:var(--red)}
 .brand{font-size:12px;letter-spacing:.2em;color:var(--red)}
-.hero{padding:18px 16px 6px}
-.hero h1{font-size:clamp(20px,3.4vw,30px);letter-spacing:.06em;text-transform:uppercase}
-.hero p{color:var(--dim);font-size:12px;margin-top:4px;max-width:70ch}
+.hero{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 16px;padding:8px 16px 0}
+.hero h1{flex:none;font-size:clamp(16px,2vw,19px);letter-spacing:.06em;text-transform:uppercase}
+.hero p{flex:1 1 260px;min-width:0;color:var(--dim);font-size:11px;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:620px){.hero p{display:none}}
 
-.app{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:16px;padding:16px;align-items:start}
+.app{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:16px;padding:10px 16px 16px;align-items:start}
 @media (max-width:860px){.app{grid-template-columns:1fr}.card-wrap{order:-1}}
 
 /* HUD corners */
@@ -69,7 +70,24 @@ button,input,select{font:inherit;color:inherit}
 @media (max-width:860px){.list{max-height:420px;min-height:240px}}
 .item{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px;cursor:pointer}
 .item:hover{background:rgba(255,255,255,.03)}
-.item[aria-current="true"]{background:rgba(255,43,43,.08);box-shadow:inset 2px 0 0 var(--red)}
+.item[aria-current="true"]{background:rgba(255,43,43,.16);box-shadow:inset 4px 0 0 var(--red)}
+.item[aria-current="true"] .it-n{color:#fff;font-weight:700}
+.item[aria-current="true"] .it-n::before{content:"▶ ";color:var(--red)}
+.item[aria-current="true"] .it-t{color:var(--tx)}
+.item[aria-current="true"] .dot{box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--c),0 0 10px var(--c)}
+.item.flash{animation:flash 1.1s ease-out}
+@keyframes flash{0%{background:rgba(255,43,43,.55)}100%{background:rgba(255,43,43,.16)}}
+@media (prefers-reduced-motion:reduce){.item.flash{animation:none}}
+
+/* locate bar: a control above the list (dashed and neutral, so it never looks like the red selected row) */
+.cur{display:flex;align-items:center;gap:8px;width:calc(100% - 24px);margin:8px 12px;text-align:left;background:transparent;border:1px dashed var(--line2);padding:5px 10px;cursor:pointer;color:var(--dim)}
+.cur:hover,.cur:focus-visible{border-color:var(--tx);color:var(--tx)}
+.cur svg{flex:none;width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
+.cur-txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
+.cur-txt small{flex:none;font-size:9px;letter-spacing:.16em}
+.cur-txt b{min-width:0;font-size:12px;font-weight:400;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cur-go{flex:none;font-size:11px;letter-spacing:.06em;color:var(--tx)}
+.cur.in-view .cur-go{color:var(--dim)}
 .dot{width:8px;height:8px;border-radius:50%}
 .s-Confirmed{--c:var(--ok)}.s-Candidate{--c:var(--cand)}.s-Predicted{--c:var(--pred)}.s-Unverified{--c:var(--unv)}
 .dot{background:var(--c)}
@@ -80,13 +98,15 @@ button,input,select{font:inherit;color:inherit}
 
 /* card */
 .card-wrap{min-width:0}
-.frame{position:relative;border-bottom:1px solid var(--line);background:#04050a;overflow:hidden}
+.frame{position:relative;display:flex;flex-direction:column;background:#04050a;overflow:hidden}
+.stage{position:relative;border-top:1px solid var(--line)}
+.ovl{padding:16px 16px 0}
 canvas{display:block;width:100%;aspect-ratio:16/10;cursor:ns-resize;touch-action:pan-x;background:#04050a}
 .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);mix-blend-mode:screen}
 .hud{position:absolute;font-size:10px;letter-spacing:.14em;color:var(--dim);pointer-events:none;text-transform:uppercase}
-.hud.tl{top:10px;left:14px}.hud.tr{top:10px;right:14px;text-align:right}
+.hud.tl{top:46px;left:14px}.hud.tr{top:10px;right:14px;text-align:right}
 .hud.bl{bottom:10px;left:14px}.hud.br{bottom:10px;right:14px;text-align:right}
-.info{padding:16px}
+.info{padding:0 16px 16px}
 .head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .head h2{font-size:clamp(20px,3vw,28px);line-height:1.15;letter-spacing:.03em;word-break:break-word}
 .badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--c);color:var(--c);padding:3px 10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
@@ -94,18 +114,47 @@ canvas{display:block;width:100%;aspect-ratio:16/10;cursor:ns-resize;touch-action
 .sub{color:var(--dim);font-size:12px;margin-top:4px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:14px}
 @media (max-width:620px){.grid{grid-template-columns:repeat(2,1fr)}}
-.cell{background:var(--panel);padding:10px 12px;min-width:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+/* a last row that is not full stretches across, so the grid never looks cut off */
+.cell:last-child:nth-child(3n+1){grid-column:span 3}
+.cell:last-child:nth-child(3n+2){grid-column:span 2}
+@media (max-width:620px){
+  .cell:last-child:nth-child(3n+1),.cell:last-child:nth-child(3n+2){grid-column:auto}
+  .cell:last-child:nth-child(odd){grid-column:span 2}
+}
+.cell{background:var(--panel);padding:8px 12px;min-width:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .cell b{display:block;font-size:10px;font-weight:400;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
 .cell span{display:block;font-size:17px;margin-top:2px;overflow-wrap:anywhere}
+.cell span.na{font-size:12px;color:var(--dim)}
+.cell b i{font-style:normal}
 .cell small{display:block;font-size:10px;color:var(--dim);margin-top:2px;overflow-wrap:anywhere}
 .bar{height:3px;background:var(--line2);margin-top:6px}
 .bar i{display:block;height:100%;background:var(--red)}
 .status-line{margin-top:14px;font-size:12px;color:var(--dim);border-left:2px solid var(--c);padding-left:10px}
 .notes{margin-top:12px;font-size:12px;border-left:2px solid var(--line2);padding-left:10px}
 .notes b{display:block;font-size:10px;font-weight:400;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
-.nav{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.nav{position:absolute;top:10px;left:14px;z-index:6;display:flex;gap:6px}
 .btn{background:transparent;border:1px solid var(--line2);padding:7px 14px;font-size:12px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
 .btn:hover{border-color:var(--red);color:var(--red)}
+.nav .btn{padding:4px 10px;font-size:11px;background:rgba(8,10,16,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+/* wide screens: the results float over the animation, on its right side */
+@media (min-width:1200px){
+  .stage{order:-1;border-top:0}
+  .info{border-top:1px solid var(--line);padding:12px 16px 16px}
+  .ovl{position:absolute;top:10px;right:10px;z-index:5;width:min(300px,36%);max-height:calc(var(--stageH,480px) - 20px);overflow:auto;padding:10px 0 4px;
+    background:rgba(8,10,16,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid var(--line2);border-left:2px solid var(--red)}
+  .ovl .head{padding:0 12px;gap:6px}
+  .ovl .head h2{font-size:17px}
+  .ovl .sub{padding:0 12px;margin-top:2px}
+  .ovl .grid{grid-template-columns:1fr;border:0;margin-top:8px}
+  .ovl .grid .cell,.ovl .grid .cell:last-child{grid-column:1 / -1}
+  .ovl .cell{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0 10px;padding:3px 12px;background:transparent;border:0;border-top:1px solid rgba(255,255,255,.07)}
+  .ovl .cell b{font-size:9px}
+  .ovl .cell span{font-size:13px;margin-top:0;text-align:right}
+  .ovl .cell .long{display:none}
+  .ovl .bar{flex-basis:100%;margin-top:3px}
+  .hud.tr{display:none}
+  .hud.br{right:calc(min(300px,36%) + 24px)}
+}
 .foot{padding:14px 16px 28px;color:var(--dim);font-size:11px;max-width:100ch}
 .err{padding:20px;color:var(--red)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -141,23 +190,36 @@ canvas{display:block;width:100%;aspect-ratio:16/10;cursor:ns-resize;touch-action
       </select>
       <div class="count" id="count"></div>
     </div>
+    <button class="cur" id="cur" type="button" aria-label="Scroll the list to the black hole you are viewing">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.5"/><path d="M8 0.5v4M8 11.5v4M0.5 8h4M11.5 8h4"/></svg>
+      <span class="cur-txt"><small>SELECTED</small><b id="curName">Loading…</b></span>
+      <span class="cur-go" id="curGo"></span>
+    </button>
     <div class="list" id="list" role="list"></div>
   </aside>
 
   <section class="card-wrap hud-box" id="card" aria-live="polite">
     <div class="frame">
-      <canvas id="cv" role="img" aria-label="Code-drawn black hole graphic"></canvas>
-      <div class="scan"></div>
-      <div class="hud tl" id="htl"></div>
-      <div class="hud tr" id="htr"></div>
-      <div class="hud bl" id="hbl"></div>
-      <div class="hud br" id="hbr">Drag to tilt</div>
+      <div class="ovl" id="ovl"></div>
+      <div class="info" id="info"></div>
+      <div class="stage">
+        <div class="nav" role="group" aria-label="Browse black holes">
+          <button class="btn" id="prev" type="button">← Prev</button>
+          <button class="btn" id="rand" type="button">Random</button>
+          <button class="btn" id="next" type="button">Next →</button>
+        </div>
+        <canvas id="cv" role="img" aria-label="Code-drawn black hole graphic"></canvas>
+        <div class="scan"></div>
+        <div class="hud tl" id="htl"></div>
+        <div class="hud tr" id="htr"></div>
+        <div class="hud bl" id="hbl"></div>
+        <div class="hud br" id="hbr">Drag to tilt</div>
+      </div>
     </div>
-    <div class="info" id="info"></div>
   </section>
 </main>
 
-<p class="foot">Graphics are artistic and drawn live in code, not real images. The disk size follows the spin (a faster spin lets matter orbit closer), the colour follows the mass (lighter black holes run hotter and bluer), and the shape follows the type.<br><br>Constants: c = 299,792,458 m/s · G = 6.6743 × 10⁻¹¹ N·m²/kg² · M☉ = 1.988416 × 10³⁰ kg · R☉ = 695,700 km · 1 AU = 149,597,870.7 km. Schwarzschild radius = 2GM/c². With a measured spin, the black hole radius is the outer event horizon, GM/c² × (1 + √(1 − a²)). Light-crossing time is the radius divided by c. Average density is the mass divided by the volume of a sphere with the Schwarzschild radius. Comoving distance is worked out from the light-travel distance with a flat ΛCDM model (H₀ = 67.66 km/s/Mpc, Ωm = 0.3111) and is shown only for objects beyond 10 million light-years.</p>
+<p class="foot">Graphics are artistic and drawn live in code, not real images. The disk size follows the spin (a faster spin lets matter orbit closer), the colour follows the mass (lighter black holes run hotter and bluer), and the shape follows the type.<br><br>Constants: c = 299,792,458 m/s · G = 6.6743 × 10⁻¹¹ N·m²/kg² · M☉ = 1.988416 × 10³⁰ kg · R☉ = 695,700 km · 1 AU = 149,597,870.7 km. Schwarzschild radius = 2GM/c². With a measured spin, the black hole radius is the outer event horizon, GM/c² × (1 + √(1 − a²)). Light-crossing time is the Schwarzschild radius divided by c. The photon sphere is the closest circular orbit for light: 3GM/c² without spin, and 2GM/c² × [1 + cos(⅔ arccos(∓a))] with spin (minus for light moving with the spin). The ISCO is the innermost stable circular orbit for matter: 6GM/c² without spin, and the Bardeen et al. (1972) formula with spin. A negative spin is read as an orbit against the spin, and where spin is not measured (marked with *), no spin is assumed. The Hawking temperature is ħc³ / (8πGMk) without spin, multiplied by 2√(1−a²) / (1 + √(1−a²)) with spin (ħ = 1.0546 × 10⁻³⁴ J·s, k = 1.3806 × 10⁻²³ J/K). Every black hole here is far colder than the 2.7 K cosmic microwave background, so each one takes in more heat than it gives off. Average density is the mass divided by the volume of a sphere with the Schwarzschild radius. Comoving distance is worked out from the light-travel distance with a flat ΛCDM model (H₀ = 67.66 km/s/Mpc, Ωm = 0.3111) and is shown only for objects beyond 10 million light-years.</p>
 
 <script>
 (()=>{
@@ -210,6 +272,9 @@ const RSUN=695700;               // solar radius, km
 const AU_KM=149597870.7;         // astronomical unit, km
 const LY_KM=C*365.25*86400/1000; // light-year, km
 const H0=67.66,OMEGA_M=0.3111;   // flat ΛCDM (Planck 2018) for comoving distance
+const HBAR=1.054571817e-34;      // reduced Planck constant, J·s
+const KB=1.380649e-23;           // Boltzmann constant, J/K
+const CMB_K=2.725;               // temperature of the cosmic microwave background, K
 const rsKm=m=>2*GRAV*m*MSUN/(C*C)/1000;           // Schwarzschild radius, km
 const rKerrKm=(m,a)=>rsKm(m)/2*(1+Math.sqrt(1-a*a)); // outer event horizon, km
 const num=(x,max=6)=>(+x.toPrecision(3)).toLocaleString('en-US',{maximumFractionDigits:max});
@@ -269,6 +334,18 @@ function iscoOf(a){ // Bardeen et al. 1972, in units of GM/c²
   return a>=0?3+z2-s:3+z2+s;
 }
 
+// Circular photon orbit in the equatorial plane, in units of GM/c² (Bardeen et al. 1972).
+// a >= 0: orbit moving with the spin. a < 0: moving against it (same convention as iscoOf).
+function photonOf(a){
+  const A=Math.min(1,Math.abs(a));
+  return 2*(1+Math.cos(2/3*Math.acos(a>=0?-A:A)));
+}
+// Hawking temperature in kelvin: ħc³/(8πGMk) for no spin, times 2√(1−a²)/(1+√(1−a²)) with spin.
+function hawkingK(m,a){
+  const q=Math.sqrt(1-Math.min(1,Math.abs(a))**2);
+  return HBAR*C*C*C/(4*Math.PI*KB*GRAV*m*MSUN)*q/(1+q);
+}
+
 /* ---------- list ---------- */
 function applyFilters(){
   const q=F.q.trim().toLowerCase();
@@ -292,12 +369,13 @@ function applyFilters(){
 function renderList(){
   $('#count').textContent=VIEW.length+' of '+DATA.length+' black holes';
   const el=$('#list');
-  if(!VIEW.length){el.innerHTML='<div class="empty">No black hole matches these filters.</div>';return}
+  if(!VIEW.length){el.innerHTML='<div class="empty">No black hole matches these filters.</div>';updateCur();return}
   el.innerHTML=VIEW.map(b=>
     `<button class="item s-${b.status}" role="listitem" data-id="${b.id}"${CUR&&CUR.id===b.id?' aria-current="true"':''}>
       <span class="dot"></span>
       <span><span class="it-n">${esc(b.name)}</span><span class="it-t">${esc(b.type)}</span></span>
       <span class="it-m">${fmtMassShort(b.massSolar)}</span></button>`).join('');
+  updateCur();
 }
 function markCurrent(scroll){
   const el=$('#list');
@@ -307,6 +385,38 @@ function markCurrent(scroll){
     if(scroll){const top=n.offsetTop,bot=top+n.offsetHeight;
       if(top<el.scrollTop)el.scrollTop=top;
       else if(bot>el.scrollTop+el.clientHeight)el.scrollTop=bot-el.clientHeight}}
+  updateCur();
+}
+
+/* "Now viewing" bar: shows the selected black hole and where it is in the list */
+function updateCur(){
+  const b=$('#cur');if(!b||!CUR)return;
+  const el=$('#list'),n=el.querySelector(`[data-id="${CUR.id}"]`);
+  let txt,vis=false;
+  if(!n)txt='hidden by filters · show';
+  else{
+    const top=n.offsetTop,bot=top+n.offsetHeight;
+    if(top<el.scrollTop)txt='▲ jump up';
+    else if(bot>el.scrollTop+el.clientHeight)txt='▼ jump down';
+    else{txt='✓ in view';vis=true}
+  }
+  b.className='cur'+(vis?' in-view':'');
+  $('#curName').textContent=CUR.name;
+  $('#curGo').textContent=txt;
+}
+function resetFilters(){
+  F.q='';F.status='All';F.kind='all';F.cls='all';
+  $('#q').value='';$('#fkind').value='all';$('#fcls').value='all';
+  document.querySelectorAll('#chips .chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.s==='All'));
+  applyFilters();
+}
+function locate(){
+  if(!CUR)return;
+  const el=$('#list');
+  let n=el.querySelector(`[data-id="${CUR.id}"]`);
+  if(!n){resetFilters();n=el.querySelector(`[data-id="${CUR.id}"]`);if(!n)return}
+  el.scrollTo({top:Math.max(0,n.offsetTop-(el.clientHeight-n.offsetHeight)/2),behavior:reduce?'auto':'smooth'});
+  n.classList.remove('flash');void n.offsetWidth;n.classList.add('flash');
 }
 
 /* ---------- card ---------- */
@@ -314,43 +424,51 @@ function select(b,opts={}){
   if(!b)return;
   CUR=b;
   try{history.replaceState(null,'','#'+b.id)}catch(e){}
-  const rsK=rsKm(b.massSolar),[rs,rsSub]=fmtLen(rsK);
+  const rsK=rsKm(b.massSolar),[rs]=fmtLen(rsK);
   const hasSpin=b.spin!=null;
   const kerr=hasSpin?rKerrKm(b.massSolar,Math.max(-1,Math.min(1,b.spin))):null;
-  const [kr,krSub]=hasSpin?fmtLen(kerr):['',''];
-  const tS=fmtTime(rsK*1000/C),tK=hasSpin?fmtTime(kerr*1000/C):'';
+  const [kr]=hasSpin?fmtLen(kerr):[''];
+  const tS=fmtTime(rsK*1000/C);
   const vol=4/3*Math.PI*Math.pow(rsK*1000,3),dens=b.massSolar*MSUN/vol;
-  const cm=comoving(b.distanceLy),[cms,cmsSub]=cm?fmtGly(cm.ly):['—',b.distanceLy==null?(b.distanceNote?b.distanceNote.toUpperCase():'NOT LISTED'):'NEARBY, NOT APPLICABLE'];
+  // photon sphere, ISCO and Hawking temperature (spin used when it is measured, otherwise no spin)
+  const sp=hasSpin?Math.max(-1,Math.min(1,b.spin)):0;
+  const gmKm=rsK/2;                                   // GM/c² in km
+  const phU=photonOf(sp),isU=iscoOf(sp);
+  const [phs]=fmtLen(phU*gmKm),[isc]=fmtLen(isU*gmKm);
+  const star=hasSpin?'':'<abbr title="Spin not measured, so no spin is assumed">*</abbr>';
+  const hawk=hawkingK(b.massSolar,sp);
+  const nice=t=>t?t[0]+t.slice(1).toLowerCase():'—';
+  const cm=comoving(b.distanceLy),[cms,cmsSub]=cm?fmtGly(cm.ly):['—',b.distanceLy==null?(b.distanceNote?b.distanceNote.toUpperCase():'NOT LISTED'):'NOT APPLICABLE'];
   const [ds,dsSub]=fmtDist(b.distanceLy,b.distanceNote);
+  // when a value is missing, say why in the value line itself (the small detail line is gone)
+  const missing=(v,why)=>v==='—'?`<span class="na">${esc(nice(why))}</span>`:`<span>${v}</span>`;
   const info=(b.kind==='merger'&&b.status==='Confirmed')?MERGER_INFO:STATUS_INFO[b.status];
-  $('#info').innerHTML=`
+  $('#ovl').innerHTML=`
     <div class="head s-${b.status}">
       <h2>${esc(b.name)}</h2>
       <span class="badge"><i></i>${esc(b.status)}</span>
     </div>
     <div class="sub">${esc(b.type)}</div>
     <div class="grid">
-      <div class="cell"><b>Mass</b><span>${fmtMass(b.massSolar)} M☉</span><small>${b.massSolar.toLocaleString('en-US',{maximumFractionDigits:3})} solar masses</small></div>
+      <div class="cell"><b>Mass</b><span>${fmtMass(b.massSolar)} M☉</span></div>
       <div class="cell"><b>Spin (a*)</b><span>${hasSpin?b.spin:'Not measured'}</span>
         <div class="bar"><i style="width:${hasSpin?Math.min(100,Math.abs(b.spin)*100):0}%"></i></div></div>
-      <div class="cell"><b>Mass class</b><span>${CLASS_LABEL[b.cls]}</span><small>&nbsp;</small></div>
-      <div class="cell"><b>Schwarzschild radius</b><span>${rs}</span><small>${esc(rsSub)||'&nbsp;'}</small></div>
-      ${hasSpin?`<div class="cell"><b>Black hole radius (with spin)</b><span>${kr}</span><small>${esc(krSub)||'&nbsp;'}</small></div>`:''}
-      <div class="cell"><b>Light-crossing time</b><span>${tS}</span><small>${hasSpin?'Black hole radius: '+tK:'Schwarzschild radius'}</small></div>
-      <div class="cell"><b>Average density</b><span>${fmtSci(dens)} kg/m³</span><small>Mass inside the Schwarzschild radius</small></div>
-      <div class="cell"><b>Light-travel distance</b><span>${ds}</span><small>${esc(dsSub)||'&nbsp;'}</small></div>
-      <div class="cell"><b>Comoving distance</b><span>${cms}</span><small>${cm?(esc(cmsSub)+' · z ≈ '+cm.z.toFixed(2)):esc(cmsSub)}</small></div>
-      <div class="cell"><b>Activity</b><span>${esc(b.kind==='unknown'?'Unclear':b.kind[0].toUpperCase()+b.kind.slice(1))}</span><small>&nbsp;</small></div>
-    </div>
+      <div class="cell"><b>Mass class</b><span>${CLASS_LABEL[b.cls]}</span></div>
+      <div class="cell"><b>Schwarzschild radius</b><span>${rs}</span></div>
+      ${hasSpin?`<div class="cell"><b>Black hole radius<i class="long"> (with spin)</i></b><span>${kr}</span></div>`:''}
+      <div class="cell"><b>Photon sphere${star}</b><span>${phs}</span></div>
+      <div class="cell"><b>ISCO<i class="long"> (innermost stable orbit)</i>${star}</b><span>${isc}</span></div>
+      <div class="cell"><b>Hawking temperature${star}</b><span>${hawk>0?fmtSci(hawk)+' K':'0 K'}</span></div>
+      <div class="cell"><b>Light-crossing time</b><span>${tS}</span></div>
+      <div class="cell"><b>Average density</b><span>${fmtSci(dens)} kg/m³</span></div>
+      <div class="cell"><b>Light-travel distance</b>${missing(ds,dsSub)}</div>
+      <div class="cell"><b>Comoving distance</b>${missing(cms,cmsSub)}</div>
+      <div class="cell"><b>Activity</b><span>${esc(b.kind==='unknown'?'Unclear':b.kind[0].toUpperCase()+b.kind.slice(1))}</span></div>
+    </div>`;
+  $('#info').innerHTML=`
     <p class="status-line s-${b.status}">${esc(info)}</p>
     ${b.notes?`<div class="notes"><b>Notes</b>${esc(b.notes)}</div>`:''}
-    <div class="nav">
-      <button class="btn" id="prev">← Prev</button>
-      <button class="btn" id="rand">Random</button>
-      <button class="btn" id="next">Next →</button>
-    </div>`;
-  $('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);$('#rand').onclick=()=>{
-    if(VIEW.length)select(VIEW[Math.floor(Math.random()*VIEW.length)],{scroll:true})};
+`;
   $('#htl').textContent='RV·BLACKHOLE // '+b.id;
   $('#htr').textContent=b.kind==='unknown'?'activity unclear':b.kind;
   $('#hbl').textContent='';
@@ -371,6 +489,7 @@ const cv=$('#cv'),ctx=cv.getContext('2d');
 let W=300,H=190,DPR=1;
 let incl=74*Math.PI/180,inclT=incl; // inclination from face-on
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wide=matchMedia('(min-width:1200px)'); // wide layout: results panel floats over the right of the animation
 let G=null,P=null,STARS=[],raf=0,t0=performance.now(),tNow=0;
 
 function mix(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]}
@@ -395,17 +514,19 @@ function resize(){
   W=Math.max(220,r.width);H=Math.max(140,r.height);
   cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
   ctx.setTransform(DPR,0,0,DPR,0,0);
+  $('#card').style.setProperty('--stageH',H+'px'); // lets the floating results panel scroll if it is ever taller than the animation
   if(CUR)build(CUR);
 }
 
 function build(b){
   const rng=rnd(hash(b.id));
-  const S=Math.min(W,H),cx=W/2,cy=H/2;
+  const OFF=wide.matches?Math.min(300,W*0.36)+10:0,VW=W-OFF; // keep the black hole in the part not covered by the panel
+  const S=Math.min(VW,H),cx=VW/2,cy=H/2;
   const a=b.spin==null?0:Math.max(-0.998,Math.min(0.998,b.spin));
   const isco=iscoOf(a);
   const shadow=S*0.175;
   const rin=shadow*(1+0.3*(Math.min(isco,9)-1)/5);
-  const rout=Math.min(rin*3.7,W*0.46);
+  const rout=Math.min(rin*3.7,VW*0.46);
   const col=massColor(b.massSolar);
   const t=b.type;
   const kind=b.kind;
@@ -711,6 +832,11 @@ function initControls(){
   $('#fcls').onchange=e=>{F.cls=e.target.value;applyFilters()};
   $('#fsort').onchange=e=>{F.sort=e.target.value;applyFilters()};
   let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{F.q=e.target.value;applyFilters()},80)});
+  $('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+  $('#rand').onclick=()=>{if(VIEW.length)select(VIEW[Math.floor(Math.random()*VIEW.length)],{scroll:true})};
+  $('#cur').addEventListener('click',locate);
+  let cq=0;
+  $('#list').addEventListener('scroll',()=>{if(!cq)cq=requestAnimationFrame(()=>{cq=0;updateCur()})},{passive:true});
   $('#list').addEventListener('click',e=>{
     const it=e.target.closest('.item');if(!it)return;
     select(DATA.find(b=>b.id===it.dataset.id),{noScroll:true,scroll:true});
@@ -731,7 +857,8 @@ fetch('data/black-holes.json').then(r=>{if(!r.ok)throw new Error(r.status);retur
   applyFilters();
   resize();
   const id=decodeURIComponent(location.hash.slice(1));
-  const first=DATA.find(b=>b.id===id)||DATA.find(b=>b.id==='sagittarius-a')||VIEW[0];
+  // A link with #id opens that black hole; otherwise start on Phoenix A*
+  const first=DATA.find(b=>b.id===id)||DATA.find(b=>b.id==='phoenix-a')||DATA.find(b=>/^\s*phoenix a\b/i.test(b.name))||DATA.find(b=>b.id==='sagittarius-a')||VIEW[0];
   select(first,{noScroll:false});
   kick();
 }).catch(err=>{
