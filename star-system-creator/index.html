@@ -30,8 +30,12 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);}
+  html{-webkit-text-size-adjust:100%; text-size-adjust:100%; -webkit-tap-highlight-color:transparent;}
   body{font-family:'Space Mono', ui-monospace, monospace; color:var(--text); padding:10px; -webkit-font-smoothing:antialiased;}
   .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  /* taps respond instantly (no double-tap-zoom delay) on buttons and form controls */
+  button, select, input, .hzlabel{touch-action:manipulation;}
 
   .frame{position:relative; border:1px solid var(--line);
     background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px), var(--panel);
@@ -68,7 +72,8 @@
   #presetSelect:focus{ outline:none; border-color:var(--red); box-shadow:0 0 18px rgba(255,43,43,0.38); }
 
   .grid{display:grid; grid-template-columns:1.55fr 1fr; gap:20px;}
-  @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
+  .grid > div{min-width:0;}
+  @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
 
   .panel-title{font-size:10px; letter-spacing:0.12em; color:var(--text-dim); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;}
 
@@ -126,17 +131,18 @@
   .add-star-btn:hover{color:var(--text); border-color:var(--red-dim); box-shadow:0 0 10px rgba(255,43,43,0.12);}
   .sys-status{font-size:9px; color:var(--text-faint); letter-spacing:0.04em;}
 
-  .stage{position:relative; border:1px solid var(--line); background:#000; height:620px; margin-bottom:14px; overflow:hidden;}
+  .stage{position:relative; border:1px solid var(--line); background:#000; height:620px; margin-bottom:14px; overflow:hidden;
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;}
   .stage canvas{display:block;}
-  .stage .tag{position:absolute; top:8px; left:10px; font-size:9px; letter-spacing:0.1em; color:var(--text-faint); z-index:4;}
-  .stage .not-to-scale{position:absolute; top:24px; left:10px; font-size:8px; letter-spacing:0.08em; color:var(--text-faint); opacity:0.7; z-index:4;}
+  .stage .tag{position:absolute; top:8px; left:10px; font-size:9px; letter-spacing:0.1em; color:var(--text-faint); z-index:4; pointer-events:none;}
+  .stage .not-to-scale{position:absolute; top:24px; left:10px; font-size:8px; letter-spacing:0.08em; color:var(--text-faint); opacity:0.7; z-index:4; pointer-events:none;}
   .stage .hzlabel{position:absolute; bottom:8px; left:10px; font-family:inherit; font-size:9px; letter-spacing:0.06em; color:var(--green); z-index:6; cursor:pointer;
     background:rgba(0,0,0,0.55); border:1px solid rgba(57,217,138,0.4); padding:5px 9px; transition:border-color .2s ease, color .2s ease, box-shadow .2s ease;}
   .stage .hzlabel:hover{border-color:var(--green); box-shadow:0 0 10px rgba(57,217,138,0.2);}
   .stage .hzlabel.off{color:var(--text-faint); border-color:var(--line);}
   #physicsBtn{top:auto; bottom:28px; right:10px;}
   .stage .physics-log{position:absolute; top:42px; left:10px; z-index:4; pointer-events:none; font-size:8.5px; letter-spacing:0.05em; line-height:1.6; color:var(--red); text-shadow:0 0 6px #000; max-width:60%;}
-  .stage .drag-hint{position:absolute; bottom:8px; right:10px; font-size:8.5px; color:var(--text-faint); z-index:4;}
+  .stage .drag-hint{position:absolute; bottom:8px; right:10px; font-size:8.5px; color:var(--text-faint); z-index:4; pointer-events:none;}
   .stage .watermark{position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:8.5px; letter-spacing:0.1em; color:var(--text-faint); opacity:0.55; z-index:4; pointer-events:none;}
   .fs-btn{position:absolute; top:8px; right:10px; z-index:6; font-family:inherit; font-size:9px; letter-spacing:0.08em; color:var(--text-dim);
     background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; cursor:pointer; transition:border-color .2s ease, color .2s ease, box-shadow .2s ease;}
@@ -145,10 +151,11 @@
     background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);}
   .speed-ctrl input[type=range]{width:min(320px, calc(100vw - 190px));}
   .speed-ctrl b{color:var(--red); min-width:38px; text-align:right; font-variant-numeric:tabular-nums;}
-  .stage.expanded{position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:9999; margin:0; border:none;}
-  #stage3d{position:absolute; inset:0; cursor:grab;}
+  .stage.expanded{position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; height:100dvh; z-index:9999; margin:0; border:none;}
+  /* touch-action:none hands every finger gesture on the 3D view to the script (rotate, pinch, pan) instead of scrolling the page */
+  #stage3d{position:absolute; inset:0; cursor:grab; touch-action:none;}
   #stage3d.dragging{cursor:grabbing;}
-  #stage3d canvas{width:100% !important; height:100% !important; display:block;}
+  #stage3d canvas{width:100% !important; height:100% !important; display:block; touch-action:none;}
 
   .fs-btn.active{border-color:var(--red); color:var(--red); background:rgba(255,43,43,0.12);}
 
@@ -173,6 +180,8 @@
   .rand-btn{margin-top:8px; color:var(--text-dim); border-color:var(--line);}
   .rand-btn:hover{color:var(--text); border-color:var(--line-strong); background:rgba(255,255,255,0.03); box-shadow:none;}
 
+  /* the manifest scrolls sideways instead of squeezing when the column is narrow */
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
   table.planets{width:100%; border-collapse:collapse; font-size:9.5px;}
   table.planets th{text-align:left; font-weight:400; color:var(--text-faint); letter-spacing:0.06em; font-size:8px; padding:6px 5px; border-bottom:1px solid var(--line);}
   table.planets td{padding:7px 5px; border-bottom:1px solid var(--line); color:var(--text-dim); vertical-align:middle;}
@@ -203,6 +212,75 @@
   .leave-confirm .yes-btn:hover{background:rgba(255,43,43,0.1); border-color:var(--red);}
   .leave-confirm .no-btn{color:var(--text-dim); border:1px solid var(--line);}
   .leave-confirm .no-btn:hover{color:var(--text); border-color:var(--line-strong);}
+
+  /* ════════ TABLET / TOUCH ════════ */
+  /* tablets (touch screens up to ~1100px wide, portrait or landscape) get one column so the 3D view uses the full width */
+  @media (pointer:coarse) and (max-width:1100px){ .grid{grid-template-columns:1fr;} }
+
+  @media (pointer:coarse){
+    body{padding:8px;}
+    .frame{padding:18px;}
+    .brand-link{padding:10px 4px;}
+    .sub{font-size:11px;}
+    .field .k{font-size:10px;}
+
+    /* 16px text in form fields stops iPad/iPhone Safari from zooming the page when a field is focused */
+    input[type=text], input[type=number], select{font-size:16px; padding:10px 9px;}
+    #presetSelect{font-size:16px; padding:10px 9px; width:290px;}
+    #starTypeSelect{width:100%;}
+    .star-editor-row .field{flex:0 1 150px; min-width:120px;}
+    .star-editor-row .sf-name{flex:0 1 200px; min-width:150px;}
+    .star-editor-row .sf-type{flex:0 1 260px; min-width:220px;}
+    .planet-form-row .field{flex:0 1 110px; min-width:90px;}
+    .planet-form-row .pf-name{flex:0 1 170px; min-width:140px;}
+    .planet-form-row .pf-star{flex:0 1 140px; min-width:115px;}
+    .planet-form-row .pf-sm{flex:0 1 100px; min-width:86px;}
+    .lum-readout{font-size:15px;}
+
+    /* bigger tap targets (about 44px) */
+    .sys-btn{font-size:12px; padding:12px 16px;}
+    .star-chip{font-size:11px; padding:11px 12px;}
+    .star-chip .rmstar{font-size:15px; padding:4px 8px; margin:-4px -4px -4px 0;}
+    .add-star-btn{font-size:11px; padding:11px 14px;}
+    .type-btn{font-size:11px; padding:12px 12px;}
+    .add-btn{font-size:12px; padding:14px;}
+    .leave-confirm button{font-size:12px; padding:13px 28px;}
+    .leave-msg{font-size:12px;}
+
+    /* 3D stage controls */
+    .stage{height:min(620px, 72vh); height:min(620px, 72dvh); min-height:380px;}
+    .stage .tag{font-size:10px;}
+    .stage .not-to-scale{font-size:9px; top:26px;}
+    .stage .physics-log{font-size:10px; top:46px;}
+    .stage .drag-hint{font-size:10px;}
+    .stage .hzlabel{font-size:10px; padding:11px 13px;}
+    .fs-btn{font-size:11px; padding:11px 14px;}
+    #physicsBtn{bottom:32px;}
+    .speed-ctrl{padding:8px 12px; gap:10px; font-size:10px;}
+    input[type=range]{height:28px; background:transparent;}
+    input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line-strong);}
+    input[type=range]::-webkit-slider-thumb{width:24px; height:24px; margin-top:-10.5px;}
+    input[type=range]::-moz-range-track{height:3px; background:var(--line-strong);}
+    input[type=range]::-moz-range-thumb{width:24px; height:24px;}
+
+    /* manifest table */
+    table.planets{font-size:11px; min-width:600px;}
+    table.planets th{font-size:9px; padding:8px 6px;}
+    table.planets td{padding:11px 6px;}
+    table.planets .rm{font-size:14px; padding:8px 13px; margin-left:4px;}
+  }
+
+  /* slider is shorter on mid-size touch screens so it clears the fullscreen button */
+  @media (pointer:coarse) and (min-width:701px){
+    .speed-ctrl input[type=range]{width:min(260px, calc(100vw - 440px));}
+  }
+  /* phones */
+  @media (pointer:coarse) and (max-width:700px){
+    #fsBtn{top:56px; right:8px; font-size:10px; padding:9px 11px;}
+    .stage .tag{top:98px;}
+    .stage .not-to-scale{top:114px;}
+    .stage .physics-log{top:134px;}
+  }
 </style>
 </head>
 <body>
@@ -303,7 +381,7 @@
         <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a real gravity (N-body) simulation">⚛ REALISTIC MODE: OFF</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
-          <input type="range" id="speedSlider" min="0" max="200" value="70" step="1" title="Speed (logarithmic, 0 = paused, max 10000). Double-click to reset." aria-label="Simulation speed">
+          <input type="range" id="speedSlider" min="0" max="200" value="70" step="1" title="Speed (logarithmic, 0 = paused, max 10000). Double-click or double-tap to reset." aria-label="Simulation speed">
           <b id="speedOut">25</b>
         </div>
         <div id="stage3d"></div>
@@ -354,9 +432,11 @@
       </div>
 
       <div class="panel-title"><span>SYSTEM MANIFEST</span><span id="planetCount">0 bodies</span></div>
+      <div class="table-scroll">
       <table class="planets" id="planetTable">
         <tr><th>NAME</th><th id="starColHeader" style="display:none;">STAR</th><th>AU</th><th>PERIOD</th><th>ECC</th><th>R⊕</th><th>TYPE</th><th>T(K)</th><th>HZ</th><th></th></tr>
       </table>
+      </div>
       <div class="empty" id="emptyMsg">No planets yet — set a distance and type, then add one.</div>
     </div>
   </div>
@@ -1762,6 +1842,8 @@ openPlanetBtn.addEventListener('click', function(){
   dragging:false, lastX:0, lastY:0,
   panning:false, panLastX:0, panLastY:0,
   clickStartX:0, clickStartY:0, hasMoved:false,
+  // two-finger touch gesture (pinch to zoom, drag to pan)
+  gesture:false, pinchDist:0, pinchCX:0, pinchCY:0, pinchStartCX:0, pinchStartCY:0, pinchPan:false,
   focusObj:null,
   baseTarget:new THREE.Vector3(0,0,0),
   lookOffset:new THREE.Vector3(0,0,0),
@@ -1785,12 +1867,29 @@ function pickBody(){
   var hits = raycaster.intersectObjects(three.planetMeshes.concat(starMeshes)).filter(ok);
   return hits.length ? hits[0].object : null;
 }
+// touch taps are imprecise and bodies are often a few pixels wide, so a tap near a body (within maxPx) counts as a tap on it
+function nearestBody(e, rect, maxPx){
+  var cands = three.planetMeshes.concat(three.starObjs.map(function(so){ return so.mesh; }));
+  var best = null, bestD = maxPx, v = new THREE.Vector3(), cv = new THREE.Vector3();
+  cands.forEach(function(m){
+    if (!m || m.userData.dead || !isLive(m)) return;
+    m.getWorldPosition(v);
+    cv.copy(v).applyMatrix4(three.camera.matrixWorldInverse);
+    if (cv.z >= 0) return;                         // behind the camera
+    v.project(three.camera);
+    var sx = (v.x*0.5+0.5)*rect.width + rect.left, sy = (-v.y*0.5+0.5)*rect.height + rect.top;
+    var d = Math.sqrt((sx-e.clientX)*(sx-e.clientX) + (sy-e.clientY)*(sy-e.clientY));
+    if (d < bestD){ bestD = d; best = m; }
+  });
+  return best;
+}
 function handleStageClick(e){
   var rect = stage3d.getBoundingClientRect();
   mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
   mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
   raycaster.setFromCamera(mouseNDC, three.camera);
   var obj = pickBody();
+  if (!obj && e.pointerType === 'touch') obj = nearestBody(e, rect, 34);
   if (obj){
     focusBody(obj);
   } else if (three.focusObj){
@@ -1802,8 +1901,9 @@ function handleStageClick(e){
 
     stage3d.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 
-    // pointer cursor while hovering a name label
+    // pointer cursor while hovering a name label (mouse only)
     stage3d.addEventListener('pointermove', function(e){
+      if (e.pointerType === 'touch') return;
       if (three.dragging || three.panning) return;
       var rect = stage3d.getBoundingClientRect();
       mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
@@ -1814,52 +1914,132 @@ function handleStageClick(e){
       stage3d.classList.toggle('over-label', !!over);
     });
 
-    stage3d.addEventListener('pointerdown', function(e){
-  three.autoRotate = false;
-  if (e.button === 2){
-    three.panning = true;
-    three.panLastX = e.clientX; three.panLastY = e.clientY;
-  } else {
-    three.dragging = true;
-    three.lastX = e.clientX; three.lastY = e.clientY;
-  }
-  three.clickStartX = e.clientX; three.clickStartY = e.clientY;
-  three.hasMoved = false;
-  stage3d.classList.add('dragging');
-});
+    // ---- input ----
+    // mouse:  left-drag rotates, right-drag pans, wheel zooms, click focuses
+    // touch:  one finger rotates, tap focuses, two fingers pinch-zoom and pan
+    var touches = {};   // active touch pointers: id -> {x, y}
+    function touchIds(){ return Object.keys(touches); }
 
-window.addEventListener('pointermove', function(e){
-  if (three.panning){
-    var pdx = e.clientX - three.panLastX, pdy = e.clientY - three.panLastY;
-    three.panLastX = e.clientX; three.panLastY = e.clientY;
-    // panning releases any focus lock and moves the free camera target
-    if (three.focusObj){
-      three.baseTarget.copy(three.lookTarget);
-      setFocus(null);
+    // zoom by a factor (>1 zooms out, <1 zooms in), within the limits that apply right now
+    function zoomBy(factor){
+      var minR, maxR;
+      if (three.focusObj){
+        var s = three.focusObj.userData.size || 0.02;
+        minR = realDist ? Math.max(1e-10, s*0.3) : Math.max(0.003, s*0.3);
+        maxR = Math.max(s*90, 5);
+      } else {
+        minR = realDist ? Math.max(1e-6, (three.starObjs[0] ? three.starObjs[0].visualRadius*1.4 : 0)) : 1.2;   // free view: stay outside the central star
+        maxR = Math.max(70, three.extent*3.2);
+      }
+      three.targetRadius = Math.max(minR, Math.min(maxR, three.targetRadius*factor));
     }
-    var panSpeed = three.radius * 0.0016;
-    var right = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 0);
-    var up = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 1);
-    three.baseTarget.addScaledVector(right, -pdx*panSpeed);
-    three.baseTarget.addScaledVector(up, pdy*panSpeed);
-    return;
-  }
-  if (!three.dragging) return;
-  var dx = e.clientX - three.lastX, dy = e.clientY - three.lastY;
-  three.lastX = e.clientX; three.lastY = e.clientY;
-  if (Math.abs(e.clientX-three.clickStartX) > 4 || Math.abs(e.clientY-three.clickStartY) > 4) three.hasMoved = true;
-  three.azimuth -= dx*0.006;
-  three.polar -= dy*0.006;
-  three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
-});
-window.addEventListener('pointerup', function(e){
-  // only a press that STARTED on the 3D stage counts as a click on it
-  var wasActive = three.dragging || three.panning;
-  three.dragging = false;
-  three.panning = false;
-  stage3d.classList.remove('dragging');
-  if (wasActive && !three.hasMoved && e.button === 0) handleStageClick(e);
-});
+
+    // slide the camera target sideways in screen space (panning releases any focus lock)
+    function panBy(dx, dy){
+      if (three.focusObj){
+        three.baseTarget.copy(three.lookTarget);
+        setFocus(null);
+      }
+      var panSpeed = three.radius * 0.0016;
+      var right = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 0);
+      var up = new THREE.Vector3().setFromMatrixColumn(three.camera.matrixWorld, 1);
+      three.baseTarget.addScaledVector(right, -dx*panSpeed);
+      three.baseTarget.addScaledVector(up, dy*panSpeed);
+    }
+
+    stage3d.addEventListener('pointerdown', function(e){
+      three.autoRotate = false;
+      if (e.pointerType === 'touch'){
+        touches[e.pointerId] = { x:e.clientX, y:e.clientY };
+        var ids = touchIds();
+        if (ids.length >= 2){
+          // a second finger switches from rotating to pinch-zoom / two-finger pan
+          var a = touches[ids[0]], b = touches[ids[1]];
+          three.gesture = true;
+          three.dragging = false; three.panning = false;
+          three.hasMoved = true;                     // so lifting the fingers is never read as a tap
+          three.pinchDist = Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+          three.pinchCX = (a.x+b.x)/2; three.pinchCY = (a.y+b.y)/2;
+          three.pinchStartCX = three.pinchCX; three.pinchStartCY = three.pinchCY;
+          three.pinchPan = false;
+          stage3d.classList.add('dragging');
+          return;
+        }
+      }
+      if (e.button === 2){
+        three.panning = true;
+        three.panLastX = e.clientX; three.panLastY = e.clientY;
+      } else {
+        three.dragging = true;
+        three.lastX = e.clientX; three.lastY = e.clientY;
+      }
+      three.clickStartX = e.clientX; three.clickStartY = e.clientY;
+      three.hasMoved = false;
+      stage3d.classList.add('dragging');
+    });
+
+    window.addEventListener('pointermove', function(e){
+      if (e.pointerType === 'touch' && touches[e.pointerId]){
+        touches[e.pointerId].x = e.clientX; touches[e.pointerId].y = e.clientY;
+        if (three.gesture){
+          var ids = touchIds();
+          if (ids.length >= 2){
+            var a = touches[ids[0]], b = touches[ids[1]];
+            var dist = Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+            var cx = (a.x+b.x)/2, cy = (a.y+b.y)/2;
+            if (three.pinchDist > 4 && dist > 4){
+              zoomBy(three.pinchDist/dist);          // fingers apart = zoom in
+              three.radius = three.targetRadius;     // follow the fingers directly, no easing lag
+            }
+            // pan only once the midpoint has clearly moved, so a pure pinch keeps a focus lock
+            if (!three.pinchPan){
+              var mx = cx-three.pinchStartCX, my = cy-three.pinchStartCY;
+              if (mx*mx + my*my > 144) three.pinchPan = true;
+            }
+            if (three.pinchPan) panBy(cx-three.pinchCX, cy-three.pinchCY);
+            three.pinchDist = dist; three.pinchCX = cx; three.pinchCY = cy;
+          }
+          return;
+        }
+      }
+      if (three.panning){
+        var pdx = e.clientX - three.panLastX, pdy = e.clientY - three.panLastY;
+        three.panLastX = e.clientX; three.panLastY = e.clientY;
+        panBy(pdx, pdy);
+        return;
+      }
+      if (!three.dragging) return;
+      var dx = e.clientX - three.lastX, dy = e.clientY - three.lastY;
+      three.lastX = e.clientX; three.lastY = e.clientY;
+      var tol = e.pointerType === 'touch' ? 10 : 4;   // fingers wobble more than a mouse
+      if (Math.abs(e.clientX-three.clickStartX) > tol || Math.abs(e.clientY-three.clickStartY) > tol) three.hasMoved = true;
+      three.azimuth -= dx*0.006;
+      three.polar -= dy*0.006;
+      three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
+    });
+
+    function endPointer(e, cancelled){
+      if (e.pointerType === 'touch'){
+        delete touches[e.pointerId];
+        if (three.gesture){
+          // stay in gesture mode until every finger is up, so the remaining finger doesn't suddenly rotate the view
+          if (!touchIds().length){
+            three.gesture = false;
+            three.dragging = false; three.panning = false;
+            stage3d.classList.remove('dragging');
+          }
+          return;
+        }
+      }
+      // only a press that STARTED on the 3D stage counts as a click on it
+      var wasActive = three.dragging || three.panning;
+      three.dragging = false;
+      three.panning = false;
+      stage3d.classList.remove('dragging');
+      if (!cancelled && wasActive && !three.hasMoved && e.button === 0) handleStageClick(e);
+    }
+    window.addEventListener('pointerup', function(e){ endPointer(e, false); });
+    window.addEventListener('pointercancel', function(e){ endPointer(e, true); });
 
     // Zoom: the wheel only moves a TARGET radius; update3D eases the real radius toward it
     // every frame, so notched mouse wheels and trackpads both feel smooth.
@@ -1869,17 +2049,7 @@ window.addEventListener('pointerup', function(e){
   if (e.deltaMode === 1) d *= 33;        // lines -> pixels
   else if (e.deltaMode === 2) d *= 300;  // pages -> pixels
   d = Math.max(-300, Math.min(300, d));  // one huge flick shouldn't teleport the camera
-  var factor = Math.exp(d*(realDist ? 0.003 : 0.0015));   // true scale spans many orders of magnitude, so zoom faster
-  var minR, maxR;
-  if (three.focusObj){
-    var s = three.focusObj.userData.size || 0.02;
-    minR = realDist ? Math.max(1e-10, s*0.3) : Math.max(0.003, s*0.3);
-    maxR = Math.max(s*90, 5);
-  } else {
-    minR = realDist ? Math.max(1e-6, (three.starObjs[0] ? three.starObjs[0].visualRadius*1.4 : 0)) : 1.2;   // free view: stay outside the central star
-    maxR = Math.max(70, three.extent*3.2);
-  }
-  three.targetRadius = Math.max(minR, Math.min(maxR, three.targetRadius*factor));
+  zoomBy(Math.exp(d*(realDist ? 0.003 : 0.0015)));   // true scale spans many orders of magnitude, so zoom faster
 }, {passive:false});
   }
 
@@ -2110,6 +2280,7 @@ window.addEventListener('pointerup', function(e){
   function resizeThree(){
     if (!three) return;
     var w = stage.clientWidth, h = stage.clientHeight;
+    if (!w || !h) return;
     three.renderer.setSize(w,h);
     three.camera.aspect = w/h;
     three.camera.updateProjectionMatrix();
@@ -2209,6 +2380,9 @@ window.addEventListener('pointerup', function(e){
   function rebuildIfReady(){ if (three) rebuildSystem3D(); }
   function setup3D(){ initThree(); resizeThree(); rebuildSystem3D(); }
   window.addEventListener('resize', resizeThree);
+  window.addEventListener('orientationchange', function(){ setTimeout(resizeThree, 200); });
+  // the stage can change size without a window resize (tablet rotation, browser toolbars sliding away)
+  if (window.ResizeObserver) new ResizeObserver(resizeThree).observe(stage);
 
   var isExpanded = false;
   function setExpanded(val){
@@ -2464,13 +2638,26 @@ showSysStatus('System reset.');
     speedMultiplier = speed/100;
     speedOut.textContent = speed < 10 ? speed.toFixed(speed === 0 ? 0 : 2) : String(Math.round(speed));
   }
-  speedSlider.addEventListener('input', function(){ setSpeed(posToSpeed(parseFloat(speedSlider.value))); });
-  speedSlider.addEventListener('dblclick', function(){
+  function resetSpeed(){
     speedSlider.value = speedToPos(SPEED_DEFAULT);
     setSpeed(SPEED_DEFAULT);
+  }
+  speedSlider.addEventListener('input', function(){ setSpeed(posToSpeed(parseFloat(speedSlider.value))); });
+  speedSlider.addEventListener('dblclick', resetSpeed);
+  // touch screens have no reliable dblclick on a slider: a quick double-tap resets the speed too
+  var lastSliderTap = 0;
+  speedSlider.addEventListener('pointerup', function(e){
+    if (e.pointerType !== 'touch') return;
+    var nowMs = Date.now();
+    if (nowMs - lastSliderTap < 320){ resetSpeed(); lastSliderTap = 0; }
+    else lastSliderTap = nowMs;
   });
-  speedSlider.value = speedToPos(SPEED_DEFAULT);
-  setSpeed(SPEED_DEFAULT);
+  resetSpeed();
+
+  // ---- touch screens: say how to move around ----
+  if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches){
+    document.getElementById('dragHint').textContent = 'TAP: FOCUS · PINCH: ZOOM · 2 FINGERS: PAN';
+  }
 
   // ---- click-and-drag scrubbing for number fields (instead of native spin/scroll) ----
   function enableDragScrub(input){
