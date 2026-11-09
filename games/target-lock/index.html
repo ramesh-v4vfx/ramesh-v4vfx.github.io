@@ -13,7 +13,12 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#05070a">
+<meta name="description" content="Target Lock - time your shot as the ring closes. Moving targets, decoys and bursts in an endless survival run. A free retro game from RameshVerse.">
 <title>TARGET LOCK // RAMESHVERSE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #05070a;
@@ -24,6 +29,7 @@
     --text-dim: #5c6672;
     --green: #2bff8f;
     --amber: #ffb62b;
+    --cyan: #4dd2ff;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -38,6 +44,7 @@
     overscroll-behavior:none;
     touch-action:none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout:none;
     -webkit-user-select:none;
     user-select:none;
   }
@@ -84,6 +91,7 @@
     height:100%;
     background:transparent;
     cursor:none;
+    touch-action:none;
   }
 
   .corner {
@@ -114,6 +122,15 @@
   .hud-block { display:flex; flex-direction:column; gap:4px; }
   .hud-label { color:var(--text-dim); font-size:10px; }
   .hud-value { color:var(--red); font-size:17px; font-weight:700; }
+  .hud-sub { color:var(--text); }
+
+  .hud-lives { display:flex; gap:8px; margin-top:2px; min-height:16px; }
+  .life-icon {
+    width:12px; height:16px;
+    background:var(--red);
+    clip-path: polygon(50% 0%, 100% 100%, 50% 75%, 0% 100%);
+    filter: drop-shadow(0 0 3px rgba(255,43,43,0.6));
+  }
 
   #telemetry {
     position:absolute;
@@ -129,21 +146,25 @@
     text-align:center;
   }
   #telemetry .t-item span { display:block; }
-  #telemetry .t-val { color:var(--green); font-size:14px; margin-top:2px; }
+  #telemetry .t-val { color:var(--green); font-size:14px; margin-top:2px; min-width:34px; }
+  #telemetry .t-val.hot { color:var(--amber); }
 
   #feedback {
     position:absolute;
-    top:40%; left:50%;
+    top:30%; left:50%;
     transform:translate(-50%,-50%);
     z-index:6;
     text-align:center;
     pointer-events:none;
     opacity:0;
+    transition:opacity .12s linear;
+    white-space:nowrap;
   }
   #feedback .fb-title {
     font-size:22px;
     letter-spacing:3px;
     font-weight:700;
+    text-shadow:0 0 14px currentColor;
   }
   #feedback .fb-sub {
     margin-top:4px;
@@ -159,11 +180,14 @@
     text-align:center;
     z-index:7;
     display:none;
-    max-width:90%;
+    max-width:92%;
+    padding:24px 30px;
+    background:rgba(5,7,10,0.78);
+    border:1px solid rgba(255,43,43,0.28);
   }
   #center-msg h1 {
     color:var(--red);
-    font-size:clamp(24px,5.5vw,46px);
+    font-size:clamp(22px,5.5vw,44px);
     letter-spacing:5px;
     text-shadow:0 0 18px rgba(255,43,43,0.6);
   }
@@ -173,29 +197,40 @@
     margin-top:14px;
     font-size:12px;
     letter-spacing:1.5px;
-    line-height:1.6;
+    line-height:1.7;
+    white-space:pre-line;
   }
-  #center-msg .grade {
-    margin-top:16px;
+  #grade {
+    display:none;
+    margin-top:14px;
     font-size:38px;
     letter-spacing:4px;
     color:var(--green);
     text-shadow:0 0 16px rgba(43,255,143,0.5);
   }
+  #chips { margin-top:14px; display:flex; flex-wrap:wrap; justify-content:center; gap:4px; max-width:340px; margin-left:auto; margin-right:auto; }
+  .chip { width:14px; height:14px; border:1px solid var(--text-dim); }
+  .chip.g { background:var(--green); border-color:var(--green); }
+  .chip.a { background:var(--amber); border-color:var(--amber); }
+  .chip.r { background:rgba(255,43,43,0.7); border-color:var(--red); }
+  .chip.x { background:transparent; border-color:var(--red); position:relative; }
+  .chip.x::after { content:"\00d7"; position:absolute; inset:0; color:var(--red); font-size:13px; line-height:12px; text-align:center; }
+  #btn-row { margin-top:22px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
   #center-msg .btn {
-    margin-top:22px;
     display:inline-block;
-    padding:10px 26px;
+    padding:10px 22px;
     border:1px solid var(--red);
     color:var(--red);
     background:rgba(255,43,43,0.06);
     letter-spacing:2px;
-    font-size:13px;
+    font-size:12px;
     cursor:pointer;
     font-family:inherit;
     pointer-events:auto;
   }
+  #center-msg .btn:hover { background:rgba(255,43,43,0.14); }
   #center-msg .btn:active { background:rgba(255,43,43,0.2); }
+  #center-msg .btn small { display:block; margin-top:3px; font-size:9px; letter-spacing:1px; color:var(--text-dim); }
 
   #controls-hint {
     position:absolute;
@@ -206,15 +241,31 @@
     letter-spacing:1px;
     z-index:6;
     text-align:center;
+    pointer-events:none;
+    white-space:nowrap;
   }
 
-  #mute-btn {
-    position:absolute; top:54px; right:16px;
+  #mute-btn, #pause-btn {
+    position:absolute; right:16px;
     z-index:6; background:transparent; border:1px solid rgba(215,221,227,0.3);
     color:var(--text-dim); font-family:inherit; font-size:13px;
     width:32px; height:28px; pointer-events:auto; cursor:pointer;
   }
+  /* sit below the ROUND / lives block so the lives icons never overlap them */
+  #mute-btn { top:92px; }
+  #pause-btn { top:126px; font-size:11px; }
   #mute-btn.on { color:var(--red); border-color:var(--red); }
+
+  @media (max-width: 480px) {
+    #telemetry { gap:12px; font-size:10px; }
+    #telemetry .t-val { font-size:12px; min-width:28px; }
+    #center-msg { padding:20px 18px; }
+    #controls-hint { display:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #wrap::after { display:none; }
+  }
 </style>
 </head>
 <body>
@@ -231,10 +282,12 @@
       <div class="hud-block">
         <span class="hud-label">SCORE</span>
         <span class="hud-value" id="score">0000</span>
+        <span class="hud-label">BEST <span class="hud-sub" id="hi">0000</span></span>
       </div>
       <div class="hud-block" style="align-items:flex-end;">
         <span class="hud-label">ROUND</span>
-        <span class="hud-value" id="round">1 / 10</span>
+        <span class="hud-value" id="round">1</span>
+        <div class="hud-lives" id="lives"></div>
       </div>
     </div>
 
@@ -244,8 +297,8 @@
         <span class="t-val" id="tele-streak">0</span>
       </div>
       <div class="t-item">
-        <span class="hud-label">BEST</span>
-        <span class="t-val" id="tele-best">&mdash;</span>
+        <span class="hud-label">MULT</span>
+        <span class="t-val" id="tele-mult">x1.00</span>
       </div>
       <div class="t-item">
         <span class="hud-label">AVG ACC</span>
@@ -255,30 +308,37 @@
 
     <div id="feedback">
       <div class="fb-title" id="fb-title">PERFECT</div>
-      <div class="fb-sub" id="fb-sub">98% &middot; +142</div>
+      <div class="fb-sub" id="fb-sub"></div>
     </div>
 
-    <button id="mute-btn">&#9834;</button>
+    <button id="mute-btn" aria-label="Toggle sound">&#9834;</button>
+    <button id="pause-btn" aria-label="Pause">II</button>
 
     <div id="center-msg">
       <h1 id="msg-title">TARGET LOCK</h1>
-      <p id="msg-sub">CLICK / TAP WHEN THE CLOSING RING<br>MATCHES THE TARGET SIZE.<br>10 ROUNDS &middot; TIMING + PRECISION SCORED</p>
-      <div class="btn" id="start-btn">START</div>
+      <p id="msg-sub"></p>
+      <div id="grade"></div>
+      <div id="chips"></div>
+      <div id="btn-row"></div>
     </div>
 
-    <div id="controls-hint">CLICK / TAP TO FIRE &nbsp;&middot;&nbsp; TIMING + ACCURACY SCORED</div>
+    <div id="controls-hint">CLICK / TAP / SPACE TO FIRE &nbsp;&middot;&nbsp; P PAUSE &nbsp;&middot;&nbsp; M MUTE</div>
   </div>
 </div>
 
 <script>
 (function(){
+  'use strict';
+
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const stage = document.getElementById('stage');
   const scoreEl = document.getElementById('score');
+  const hiEl = document.getElementById('hi');
   const roundEl = document.getElementById('round');
+  const livesEl = document.getElementById('lives');
   const teleStreak = document.getElementById('tele-streak');
-  const teleBest = document.getElementById('tele-best');
+  const teleMult = document.getElementById('tele-mult');
   const teleAvg = document.getElementById('tele-avg');
   const fbBlock = document.getElementById('feedback');
   const fbTitle = document.getElementById('fb-title');
@@ -286,247 +346,545 @@
   const centerMsg = document.getElementById('center-msg');
   const msgTitle = document.getElementById('msg-title');
   const msgSub = document.getElementById('msg-sub');
-  const startBtn = document.getElementById('start-btn');
-
-  let W, H, DPR;
-  function resize(){
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    const rect = stage.getBoundingClientRect();
-    W = rect.width; H = rect.height;
-    canvas.width = W * DPR;
-    canvas.height = H * DPR;
-    ctx.setTransform(DPR,0,0,DPR,0,0);
-  }
-  window.addEventListener('resize', resize);
-  resize();
+  const gradeEl = document.getElementById('grade');
+  const chipsEl = document.getElementById('chips');
+  const btnRow = document.getElementById('btn-row');
 
   const RED = '#ff2b2b';
   const GREEN = '#2bff8f';
   const AMBER = '#ffb62b';
   const TEXT = '#d7dde3';
+  const CYAN = '#4dd2ff';
+  const FONT = '"Space Mono", "Courier New", monospace';
 
-  // ---- pointer / crosshair ----
-  let pointer = { x: -100, y: -100, active:false };
-  function setPointerFromEvent(e){
-    const rect = canvas.getBoundingClientRect();
-    let cx, cy;
-    if (e.touches && e.touches.length){
-      cx = e.touches[0].clientX; cy = e.touches[0].clientY;
-    } else {
-      cx = e.clientX; cy = e.clientY;
-    }
-    pointer.x = cx - rect.left;
-    pointer.y = cy - rect.top;
-    pointer.active = true;
+  const HI_KEY = 'rv_target_lock_hi_endless';
+  const MUTE_KEY = 'rv_target_lock_muted';
+
+  let REDUCED_MOTION = false;
+  try { REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+
+  function store(key, val){ try { localStorage.setItem(key, String(val)); } catch(e){} }
+  function load(key){ try { return localStorage.getItem(key); } catch(e){ return null; } }
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function pad4(n){ return String(Math.round(n)).padStart(4,'0'); }
+  function setText(el, txt){ if (el._t !== txt){ el._t = txt; el.textContent = txt; } }
+
+  // ---------- Round design ----------
+  // Endless: the mix of round types gets wilder and faster the longer you survive.
+  const START_LIVES = 3;
+  const SYNC_MS = 70;          // how close to the exact moment counts as "in sync"
+  const GRACE_MS = 450;        // extra time after the ring closes before it counts as too slow
+  const FRIENDLY_PENALTY = 50;
+
+  let lastEndless = -1;
+  function endlessSpec(i){
+    const sp = 1 + Math.min(i, 24) * 0.04;
+    const pool = [
+      { name:'STATIC LOCK' },
+      { name:'DRIFTING TARGET', move:'drift', speed:sp },
+      { name:'DECOY FIELD', decoys:2 },
+      { name:'ORBITAL', move:'orbit', speed:sp },
+      { name:'TRIPLE BURST', burst:3 },
+      { name:'DRIFT + DECOYS', move:'drift', speed:sp, decoys:2 },
+      { name:'FAST ORBIT', move:'orbit', speed:sp*1.5 },
+      { name:'BURST x5', move:'drift', speed:sp, burst:5 }
+    ];
+    const maxIdx = i < 2 ? 2 : i < 5 ? 4 : pool.length;     // gentler mix early on
+    let k;
+    do { k = Math.floor(Math.random()*maxIdx); } while (k === lastEndless && maxIdx > 1);
+    lastEndless = k;
+    return pool[k];
   }
-  canvas.addEventListener('mousemove', setPointerFromEvent);
-  canvas.addEventListener('touchmove', e => { e.preventDefault(); setPointerFromEvent(e); }, {passive:false});
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); setPointerFromEvent(e); handleFire(); }, {passive:false});
-  canvas.addEventListener('mousedown', e => { setPointerFromEvent(e); handleFire(); });
 
-  // ---- persistent state ----
-  let state = 'menu'; // menu | waiting | active | feedback | summary
+  // ---------- Canvas sizing ----------
+  let W = 0, H = 0, DPR = 1;
+  const scale = () => Math.min(W,H) / 650;
+  function resize(){
+    const oldW = W, oldH = H;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = stage.getBoundingClientRect();
+    W = rect.width || W || 800;
+    H = rect.height || H || 600;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    if (oldW && oldH && (oldW !== W || oldH !== H)){
+      rescaleWorld(W/oldW, H/oldH, Math.min(W,H)/Math.min(oldW,oldH));
+    }
+  }
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', resize);
+
+  function rescaleWorld(sx, sy, ss){
+    for (const t of targets){
+      t.x *= sx; t.y *= sy; t.radius *= ss; t.ring0 *= ss;
+      if (t.move === 'drift'){ t.vx *= ss; t.vy *= ss; }
+      if (t.move === 'orbit'){ t.cx *= sx; t.cy *= sy; t.or *= ss; }
+    }
+    for (const p of particles){ p.x *= sx; p.y *= sy; }
+    for (const s of shocks){ s.x *= sx; s.y *= sy; }
+    for (const f of floaters){ f.x *= sx; f.y *= sy; }
+  }
+
+  // ---------- State ----------
+  const pointer = { x:-100, y:-100, active:false, type:'mouse' };
+  let state = 'menu';              // menu | intro | active | feedback | summary
+  let paused = false;
   let round = 0;
-  const TOTAL_ROUNDS = 10;
+  let lives = START_LIVES;
   let score = 0;
   let streak = 0;
-  let bestScore = 0;
-  let scoreHistory = [];
-  let target = null;
+  let maxStreak = 0;
+  let friendlyHits = 0;
+  let shots = [];                  // {v, kind, err}
+  let roundResults = [];           // per round: array of shot values
+  let curSpec = { name:'STATIC LOCK' };
+  let burstLeft = 1;
+  let targets = [];
   let roundStart = 0;
-  let roundDuration = 0;
+  let roundDuration = 1000;
+  let lastTick = 0;
+  let pinged = false;
+  let introLeft = 0;
+  let feedbackLeft = 0;
+  let nextAction = null;
+  let lockUntil = 0;
+  let newHi = false;
+  let hi = parseInt(load(HI_KEY),10) || 0;
   let particles = [];
-  let feedbackTimer = 0;
-  let clock = 0;
+  let shocks = [];
+  let floaters = [];
+  let shake = 0;
+  let flash = 0, flashColor = GREEN;
+  let gClock = 0, lastReal = 0;
+  let lastLivesShown = -1;
+  let currentButtons = [];
 
-  function rand(a,b){ return a + Math.random()*(b-a); }
+  // Game clock only advances while the game is running, so a hidden tab or a pause never ruins a round.
+  function gNow(){ return paused ? gClock : gClock + Math.min(performance.now() - lastReal, 50); }
 
+  function addShake(n){ if (!REDUCED_MOTION) shake = Math.max(shake, n); }
   function addParticles(x,y,count,color,spread){
     for (let i=0;i<count;i++){
+      if (particles.length > 300) return;
       const a = rand(0,Math.PI*2);
       const s = rand(0.5, spread||3);
       particles.push({ x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, life: rand(20,40), maxLife:40, color });
     }
   }
+  function addShock(x,y,color,max){ shocks.push({x,y,r:6,max,color}); }
+  function addFloater(x,y,text,color){ floaters.push({x,y,text,color,life:800,maxLife:800}); }
+
+  // ---------- Pointer input ----------
+  function setPointer(e){
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = e.clientX - rect.left;
+    pointer.y = e.clientY - rect.top;
+    pointer.active = true;
+    pointer.type = e.pointerType || 'mouse';
+  }
+  canvas.addEventListener('pointermove', setPointer);
+  canvas.addEventListener('pointerdown', e => { e.preventDefault(); setPointer(e); handleFire(); });
+  canvas.addEventListener('pointerleave', () => { if (pointer.type !== 'touch') pointer.active = false; });
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter'){
+      if (centerMsg.style.display === 'block'){
+        e.preventDefault();
+        if (!e.repeat) pressButton(0);
+      } else if (state === 'active'){
+        e.preventDefault();
+        if (!e.repeat) handleFire();
+      }
+    }
+    if ((e.code === 'KeyP' || e.code === 'Escape') && !e.repeat) togglePause();
+    if (e.code === 'KeyM' && !e.repeat) toggleMute();
+  });
+  window.addEventListener('blur', () => { if (isRunning()) setPaused(true); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && isRunning()) setPaused(true); });
+
+  // ---------- HUD ----------
+  function avgAccuracy(){
+    if (!shots.length) return 0;
+    let sum = 0;
+    for (const s of shots) sum += s.v;
+    return sum / shots.length;
+  }
+  function multiplier(){ return 1 + Math.min(streak, 10) * 0.05; }
 
   function updateHUD(){
-    scoreEl.textContent = String(Math.round(score)).padStart(4,'0');
-    roundEl.textContent = `${Math.min(round+1, TOTAL_ROUNDS)} / ${TOTAL_ROUNDS}`;
-    teleStreak.textContent = streak;
-    teleBest.textContent = bestScore > 0 ? Math.round(bestScore) + '%' : '\u2014';
-    const avg = scoreHistory.length ? (scoreHistory.reduce((a,b)=>a+b,0)/scoreHistory.length) : 0;
-    teleAvg.textContent = Math.round(avg) + '%';
+    setText(scoreEl, pad4(score));
+    setText(hiEl, pad4(Math.max(hi, score)));
+    setText(roundEl, String(round+1));
+    if (lastLivesShown !== lives){
+      lastLivesShown = lives;
+      livesEl.textContent = '';
+      for (let i=0;i<lives;i++){
+        const d = document.createElement('div');
+        d.className = 'life-icon';
+        livesEl.appendChild(d);
+      }
+    }
+    setText(teleStreak, String(streak));
+    setText(teleMult, 'x' + multiplier().toFixed(2));
+    teleMult.classList.toggle('hot', streak >= 5);
+    setText(teleAvg, Math.round(avgAccuracy()) + '%');
   }
 
-  function showMessage(title, sub, btnText, successClass, grade){
+  // ---------- Overlay messages ----------
+  function showMessage(o){
     centerMsg.style.display = 'block';
-    msgTitle.textContent = title;
-    msgTitle.className = successClass ? 'success' : '';
-    msgSub.innerHTML = sub;
-    startBtn.textContent = btnText;
-    let g = document.getElementById('grade-el');
-    if (g) g.remove();
-    if (grade){
-      const div = document.createElement('div');
-      div.className = 'grade';
-      div.id = 'grade-el';
-      div.textContent = grade;
-      centerMsg.insertBefore(div, startBtn);
+    msgTitle.textContent = o.title;
+    msgTitle.className = o.success ? 'success' : '';
+    msgSub.textContent = (o.lines || []).join('\n');
+    gradeEl.textContent = o.grade || '';
+    gradeEl.style.display = o.grade ? 'block' : 'none';
+    chipsEl.textContent = '';
+    if (o.chips){
+      for (const c of o.chips){
+        const d = document.createElement('div');
+        d.className = 'chip ' + c;
+        chipsEl.appendChild(d);
+      }
     }
+    btnRow.textContent = '';
+    currentButtons = o.buttons || [];
+    currentButtons.forEach((b, i) => {
+      const d = document.createElement('div');
+      d.className = 'btn';
+      d.textContent = b.label;
+      if (b.sub){
+        const s = document.createElement('small');
+        s.textContent = b.sub;
+        d.appendChild(s);
+      }
+      d.addEventListener('click', () => pressButton(i));
+      btnRow.appendChild(d);
+    });
   }
   function hideMessage(){ centerMsg.style.display = 'none'; }
 
-  const targetRadiusBase = () => 16 * Math.min(W,H)/650;
-  const margin = () => 90 * Math.min(W,H)/650;
-
-  function spawnTarget(){
-    const tr = targetRadiusBase();
-    const m = Math.max(margin(), tr*3);
-    target = {
-      x: rand(m, W-m),
-      y: rand(m + 60, H-m),
-      radius: tr
-    };
-    roundDuration = Math.max(550, 1350 - round*70);
-    roundStart = performance.now();
-    state = 'active';
+  function pressButton(i){
+    initAudio();
+    if (state === 'summary' && performance.now() < lockUntil) return;   // stops a mashed click from skipping the results
+    const b = currentButtons[i];
+    if (b) b.fn();
   }
 
-  function nextRound(){
-    round++;
-    if (round >= TOTAL_ROUNDS){
-      finishRun();
-      return;
-    }
+  function showMenu(){
+    state = 'menu';
+    paused = false;
+    targets = [];
+    fbBlock.style.opacity = '0';
+    const lines = [
+      'CLICK / TAP WHEN THE CLOSING RING MATCHES THE TARGET',
+      'TIMING AND AIM ARE BOTH SCORED',
+      'CYAN SQUARES ARE FRIENDLIES: DO NOT FIRE'
+    ];
+    lines.push('3 LIVES · EVERY MISS COSTS ONE · HOW LONG CAN YOU LAST?');
+    if (hi > 0) lines.push('BEST SCORE ' + hi);
+    showMessage({
+      title: 'TARGET LOCK',
+      lines,
+      buttons: [ { label:'START', fn: startRun } ]
+    });
     updateHUD();
-    spawnTarget();
   }
+
+  // ---------- Run flow ----------
+  function specFor(i){ return endlessSpec(i); }
 
   function startRun(){
     round = 0;
     score = 0;
     streak = 0;
-    bestScore = 0;
-    scoreHistory = [];
-    state = 'active';
-    updateHUD();
+    maxStreak = 0;
+    friendlyHits = 0;
+    lives = START_LIVES;
+    shots = [];
+    roundResults = [];
+    newHi = false;
+    lastEndless = -1;
+    particles = []; shocks = []; floaters = [];
+    paused = false;
+    lastLivesShown = -1;
     hideMessage();
-    spawnTarget();
+    updateHUD();
+    beginRound();
   }
 
-  function finishRun(){
-    state = 'summary';
-    const avg = scoreHistory.length ? (scoreHistory.reduce((a,b)=>a+b,0)/scoreHistory.length) : 0;
-    let grade = 'D';
-    if (avg >= 95) grade = 'S';
-    else if (avg >= 85) grade = 'A';
-    else if (avg >= 70) grade = 'B';
-    else if (avg >= 50) grade = 'C';
-    playFinalChime(grade);
-    showMessage(
-      'CALIBRATION COMPLETE',
-      `FINAL SCORE ${Math.round(score)}<br>AVG ACCURACY ${Math.round(avg)}% &middot; BEST STREAK ${maxStreak}`,
-      'RUN AGAIN',
-      true,
-      grade
-    );
+  function beginRound(){
+    curSpec = specFor(round);
+    roundResults[round] = [];
+    burstLeft = curSpec.burst || 1;
+    state = 'intro';
+    introLeft = round === 0 ? 1200 : 800;
+    updateHUD();
   }
 
-  let maxStreak = 0;
+  function baseDuration(i){
+    return Math.max(480, 1300 - i*65);
+  }
+
+  function placeTarget(radius, avoid, real){
+    const m = Math.max(90 * scale(), radius*3);
+    const spec = curSpec;
+    const s = scale();
+    const t = { real, radius, ring0: 130*s, move: spec.move || null, dur: roundDuration };
+    if (!real){
+      t.dur = roundDuration * rand(0.75, 1.3);
+      t.phase = rand(0, t.dur);
+    }
+    if (spec.move === 'orbit'){
+      const rr = Math.min(rand(55, 95) * s, Math.min(W,H) * 0.2);
+      const loX = m + rr, hiX = W - m - rr, loY = m + 60 + rr, hiY = H - m - rr;
+      let cx = 0, cy = 0, tries = 0;
+      do {
+        cx = hiX > loX ? rand(loX, hiX) : W/2;
+        cy = hiY > loY ? rand(loY, hiY) : H/2;
+        tries++;
+      } while (tries < 40 && avoid.some(a => Math.hypot(a.cx - cx, a.cy - cy) < 150*s));
+      t.cx = cx; t.cy = cy; t.or = rr;
+      t.ang = rand(0, Math.PI*2);
+      t.w = (spec.speed || 1) * rand(0.9, 1.3) * (Math.random() < 0.5 ? -1 : 1);
+      t.x = cx + Math.cos(t.ang) * rr;
+      t.y = cy + Math.sin(t.ang) * rr;
+    } else {
+      let x = 0, y = 0, tries = 0;
+      do {
+        x = rand(m, Math.max(m+1, W-m));
+        y = rand(m + 60, Math.max(m+61, H-m));
+        tries++;
+      } while (tries < 40 && avoid.some(a => Math.hypot(a.x - x, a.y - y) < 140*s));
+      t.x = x; t.y = y;
+      if (spec.move === 'drift'){
+        const ang = rand(0, Math.PI*2);
+        const sp = (75 + Math.min(round, 12) * 5) * (spec.speed || 1) * s;
+        t.vx = Math.cos(ang) * sp;
+        t.vy = Math.sin(ang) * sp;
+      }
+    }
+    return t;
+  }
+
+  function spawnShot(){
+    const spec = curSpec;
+    let dur = baseDuration(round);
+    if (spec.burst) dur = Math.max(480, dur * 0.72);
+    if (spec.move) dur += 110;
+    roundDuration = dur;
+    const r = 16 * scale() * (spec.move ? 1.15 : 1);
+    const real = placeTarget(r, [], true);
+    targets = [];
+    for (let i=0;i<(spec.decoys || 0);i++){
+      targets.push(placeTarget(r, targets.concat([real]), false));
+    }
+    targets.push(real);                         // real target is last so it draws on top
+    roundStart = gClock;
+    lastTick = 0;
+    pinged = false;
+    state = 'active';
+  }
+
+  function realTarget(){
+    for (const t of targets) if (t.real) return t;
+    return null;
+  }
+
+  function moveTargets(dts){
+    const s = scale();
+    const m = Math.max(90 * s, 16*s*3);
+    for (const t of targets){
+      if (t.move === 'drift'){
+        t.x += t.vx * dts; t.y += t.vy * dts;
+        if (t.x < m){ t.x = m; t.vx = Math.abs(t.vx); }
+        if (t.x > W - m){ t.x = W - m; t.vx = -Math.abs(t.vx); }
+        if (t.y < m + 60){ t.y = m + 60; t.vy = Math.abs(t.vy); }
+        if (t.y > H - m){ t.y = H - m; t.vy = -Math.abs(t.vy); }
+      } else if (t.move === 'orbit'){
+        t.ang += t.w * dts;
+        t.x = t.cx + Math.cos(t.ang) * t.or;
+        t.y = t.cy + Math.sin(t.ang) * t.or;
+      }
+    }
+  }
+
+  function queueNext(delayMs){
+    state = 'feedback';
+    feedbackLeft = delayMs;
+    nextAction = () => {
+      fbBlock.style.opacity = '0';
+      if (lives <= 0){ finishRun(); return; }
+      if (burstLeft > 1){ burstLeft--; spawnShot(); return; }
+      round++;
+      beginRound();
+    };
+  }
 
   function showFeedback(title, sub, color){
     fbTitle.textContent = title;
     fbTitle.style.color = color;
     fbSub.textContent = sub;
     fbBlock.style.opacity = '1';
-    feedbackTimer = 55;
   }
 
+  // ---------- Firing ----------
   function handleFire(){
-    if (state !== 'active') return;
-    const now = performance.now();
-    const elapsed = now - roundStart;
-    const ringRadiusStart = 130 * Math.min(W,H)/650;
-    const t = Math.min(1, elapsed / roundDuration);
-    const ringRadiusNow = ringRadiusStart + (target.radius - ringRadiusStart) * t;
+    if (paused || state !== 'active') return;
+    const elapsed = gNow() - roundStart;
 
-    const dist = Math.hypot(pointer.x - target.x, pointer.y - target.y);
-    const missRadius = ringRadiusStart * 1.3;
-
-    if (dist > missRadius){
-      registerMiss('OFF TARGET');
-      return;
+    let best = null, bestD = Infinity;
+    for (const t of targets){
+      const d = Math.hypot(pointer.x - t.x, pointer.y - t.y);
+      const hitR = Math.max(t.radius * 3.4, 34);
+      if (d <= hitR && d < bestD){ best = t; bestD = d; }
     }
+    if (!best){ registerMiss('OFF TARGET', 'off'); return; }
+    if (!best.real){ registerMiss('FRIENDLY FIRE', 'friendly'); return; }
 
-    const timingErrorMs = Math.abs(elapsed - roundDuration);
-    const timingScore = clamp(100 - timingErrorMs/3.2, 0, 100);
-    const posScore = clamp(100 - (dist/target.radius)*35, 0, 100);
-    const combined = (timingScore*0.55 + posScore*0.45);
-
-    registerHit(combined, timingErrorMs);
+    const err = elapsed - roundDuration;                       // negative = early, positive = late
+    const timingScore = clamp(100 - Math.abs(err)/3.2, 0, 100);
+    const posScore = clamp(100 - (bestD / best.radius) * 35, 0, 100);
+    registerHit(timingScore*0.55 + posScore*0.45, err, best);
   }
 
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function timingLabel(err){
+    const ms = Math.round(Math.abs(err));
+    if (ms < 12) return 'DEAD ON';
+    return (err < 0 ? 'EARLY ' : 'LATE ') + ms + 'ms';
+  }
 
-  function registerHit(combined, timingErrorMs){
-    scoreHistory.push(combined);
+  function registerHit(combined, err, t){
+    shots.push({ v: combined, kind:'hit', err });
+    roundResults[round].push(combined);
     streak++;
     maxStreak = Math.max(maxStreak, streak);
-    bestScore = Math.max(bestScore, combined);
-    const gained = Math.round(combined * (1 + Math.min(streak,10)*0.05));
+    const gained = Math.round(combined * multiplier());
     score += gained;
 
     let tier, color;
-    if (combined >= 90){ tier='PERFECT'; color=GREEN; }
-    else if (combined >= 70){ tier='GOOD'; color=AMBER; }
-    else { tier='OK'; color=RED; }
+    if (combined >= 97){ tier = 'FLAWLESS'; color = GREEN; }
+    else if (combined >= 90){ tier = 'PERFECT'; color = GREEN; }
+    else if (combined >= 70){ tier = 'GOOD'; color = AMBER; }
+    else { tier = 'OK'; color = RED; }
 
-    addParticles(pointer.x, pointer.y, combined>=90?18:10, color, 3);
+    addParticles(t.x, t.y, combined >= 90 ? 24 : 12, color, 3.2);
+    addShock(t.x, t.y, color, combined >= 90 ? 90*scale() : 55*scale());
+    addFloater(t.x, t.y - t.radius*2, '+' + gained, color);
+    if (combined >= 97) addShake(5);
+    flash = 1; flashColor = color;
     playHitSound(combined);
-    showFeedback(tier, `${Math.round(combined)}% \u00b7 +${gained}`, color);
+    showFeedback(tier, Math.round(combined) + '% · +' + gained + ' · ' + timingLabel(err), color);
 
+    targets = [];
     updateHUD();
-    state = 'feedback';
-    setTimeout(() => {
-      fbBlock.style.opacity = '0';
-      nextRound();
-    }, 500);
+    queueNext(burstLeft > 1 ? 260 : 520);
   }
 
-  function registerMiss(reason){
+  function registerMiss(reason, kind){
+    const real = realTarget();
+    const px = kind === 'slow' && real ? real.x : pointer.x;
+    const py = kind === 'slow' && real ? real.y : pointer.y;
+    shots.push({ v: 0, kind, err: null });
+    roundResults[round].push(0);
     streak = 0;
-    scoreHistory.push(0);
+    let sub = reason;
+    if (kind === 'friendly'){
+      friendlyHits++;
+      score = Math.max(0, score - FRIENDLY_PENALTY);
+      sub = reason + ' · -' + FRIENDLY_PENALTY;
+    }
+    lives--;
     playMissSound();
-    addParticles(pointer.x, pointer.y, 8, RED, 2);
-    showFeedback('MISS', reason, RED);
+    addParticles(px, py, 12, RED, 2.4);
+    addShock(px, py, RED, 50*scale());
+    addShake(kind === 'friendly' ? 8 : 4);
+    flash = 1; flashColor = RED;
+    showFeedback(kind === 'friendly' ? 'FRIENDLY' : 'MISS', sub, RED);
+    targets = [];
     updateHUD();
-    state = 'feedback';
-    setTimeout(() => {
-      fbBlock.style.opacity = '0';
-      nextRound();
-    }, 500);
+    queueNext(burstLeft > 1 ? 260 : 520);
   }
 
-  // auto-miss if the ring fully collapses with grace period and no click
-  function checkTimeout(){
-    if (state !== 'active') return;
-    const now = performance.now();
-    const elapsed = now - roundStart;
-    if (elapsed > roundDuration + 450){
-      registerMiss('TOO SLOW');
+  // ---------- Results ----------
+  function gradeFor(rounds){
+    if (rounds >= 25) return 'S';
+    if (rounds >= 18) return 'A';
+    if (rounds >= 12) return 'B';
+    if (rounds >= 7) return 'C';
+    return 'D';
+  }
+
+  function finishRun(){
+    state = 'summary';
+    const avg = avgAccuracy();
+    const hits = shots.filter(s => s.kind === 'hit');
+    const grade = gradeFor(round);
+    let bias = 0;
+    if (hits.length){ for (const h of hits) bias += h.err; bias /= hits.length; }
+
+    if (score > hi){ hi = score; newHi = true; store(HI_KEY, score); }
+
+    const lines = [];
+    lines.push('FINAL SCORE ' + score);
+    lines.push('ROUNDS SURVIVED ' + round + ' · BEST STREAK ' + maxStreak);
+    lines.push('AVG ACCURACY ' + Math.round(avg) + '%');
+    lines.push(hits.length + '/' + shots.length + ' LOCKED' + (friendlyHits ? ' · ' + friendlyHits + ' FRIENDLY FIRE' : ''));
+    if (hits.length){
+      const b = Math.round(Math.abs(bias));
+      lines.push(b < 10 ? 'TIMING BALANCED' : 'YOU FIRE ' + b + 'ms ' + (bias < 0 ? 'EARLY' : 'LATE') + ' ON AVERAGE');
+    }
+    lines.push(newHi ? 'NEW HIGH SCORE' : 'BEST ' + hi);
+
+    const shown = shots.slice(-30);
+    const chips = shown.map(s => s.kind !== 'hit' ? 'x' : s.v >= 90 ? 'g' : s.v >= 70 ? 'a' : 'r');
+
+    playFinalChime(grade);
+    lockUntil = performance.now() + 700;
+    showMessage({
+      title: 'RUN ENDED',
+      lines, grade, chips,
+      success: grade !== 'D',
+      buttons: [ { label:'RUN AGAIN', fn: startRun } ]
+    });
+    updateHUD();
+  }
+
+  // ---------- Pause ----------
+  function isRunning(){ return !paused && (state === 'intro' || state === 'active' || state === 'feedback'); }
+  function setPaused(p){
+    if (p === paused) return;
+    if (p && !isRunning()) return;
+    paused = p;
+    if (p){
+      showMessage({
+        title: 'PAUSED',
+        lines: ['THE CLOCK IS STOPPED'],
+        buttons: [{ label:'RESUME', fn: () => setPaused(false) }]
+      });
+    } else {
+      hideMessage();
+      lastReal = performance.now();
     }
   }
+  function togglePause(){
+    if (paused) setPaused(false);
+    else setPaused(true);
+  }
+  document.getElementById('pause-btn').addEventListener('click', togglePause);
 
-  // ---- Audio (fully synthesized) ----
+  // ---------- Audio (fully synthesized, no external files) ----------
   let audioCtx = null;
   let masterGain, musicGain, sfxGain;
   let musicStep = 0;
-  let muted = false;
+  let muted = load(MUTE_KEY) === '1';
 
   const MUSIC_NOTES = [196, 220, 246.94, 220, 261.63, 220, 246.94, 196];
 
   function playTone(freq, duration, type, dest, vol, delaySec){
-    if (!audioCtx) return;
+    if (!audioCtx || muted) return;
     const start = audioCtx.currentTime + (delaySec || 0);
     const osc = audioCtx.createOscillator();
     const g = audioCtx.createGain();
@@ -535,7 +893,7 @@
     g.gain.setValueAtTime(0, start);
     osc.connect(g);
     g.connect(dest);
-    g.gain.linearRampToValueAtTime(vol, start + 0.015);
+    g.gain.linearRampToValueAtTime(vol, start + 0.012);
     g.gain.linearRampToValueAtTime(0, start + duration);
     osc.start(start);
     osc.stop(start + duration + 0.05);
@@ -543,19 +901,24 @@
 
   function scheduleMusicStep(){
     const stepTime = 0.3;
-    if (audioCtx && !muted){
+    if (audioCtx && !muted && !paused){
       const freq = MUSIC_NOTES[musicStep % MUSIC_NOTES.length];
       playTone(freq, stepTime*0.7, 'square', musicGain, 0.12);
+      musicStep++;
     }
-    musicStep++;
     setTimeout(scheduleMusicStep, stepTime*1000);
   }
 
   function initAudio(){
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx){
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return;
+    }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    audioCtx = new AC();
     masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.5;
+    masterGain.gain.value = muted ? 0 : 0.5;
     masterGain.connect(audioCtx.destination);
 
     musicGain = audioCtx.createGain();
@@ -569,9 +932,15 @@
     scheduleMusicStep();
   }
 
+  // The closing ring ticks faster and higher as it nears the target, then pings at the exact moment.
+  function playTick(t){ playTone(520 + 520*t, 0.05, 'square', sfxGain, 0.10); }
+  function playPing(){
+    playTone(880, 0.14, 'triangle', sfxGain, 0.28);
+    playTone(1320, 0.12, 'sine', sfxGain, 0.14, 0.02);
+  }
+
   function playHitSound(combined){
     if (!audioCtx || muted) return;
-    // pitch scales with accuracy: better hit = higher, brighter tone
     const freq = 420 + combined * 6;
     const now = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
@@ -583,9 +952,8 @@
     g.gain.exponentialRampToValueAtTime(0.001, now+0.18);
     osc.connect(g); g.connect(sfxGain);
     osc.start(now); osc.stop(now+0.2);
-    if (combined >= 90){
-      playTone(freq*1.5, 0.15, 'triangle', sfxGain, 0.25, 0.05);
-    }
+    if (combined >= 90) playTone(freq*1.5, 0.15, 'triangle', sfxGain, 0.25, 0.05);
+    if (combined >= 97) playTone(freq*2, 0.18, 'triangle', sfxGain, 0.2, 0.1);
   }
 
   function playMissSound(){
@@ -603,28 +971,223 @@
   }
 
   function playFinalChime(grade){
-    if (!audioCtx || muted) return;
     const good = grade === 'S' || grade === 'A';
     const notes = good ? [523.25,659.25,783.99,1046.5] : [392,349.23,329.63];
     notes.forEach((f,i) => playTone(f, 0.4, 'triangle', sfxGain, 0.5, i*0.1));
   }
 
   const muteBtn = document.getElementById('mute-btn');
+  function renderMuteBtn(){
+    muteBtn.classList.toggle('on', !muted);
+    muteBtn.innerHTML = muted ? '&#9711;' : '&#9834;';
+  }
   function toggleMute(e){
     if (e) e.preventDefault();
     initAudio();
     muted = !muted;
+    store(MUTE_KEY, muted ? '1' : '0');
     if (masterGain) masterGain.gain.setTargetAtTime(muted ? 0 : 0.5, audioCtx.currentTime, 0.05);
-    muteBtn.classList.toggle('on', !muted);
-    muteBtn.innerHTML = muted ? '&#9711;' : '&#9834;';
+    renderMuteBtn();
   }
   muteBtn.addEventListener('click', toggleMute);
-  muteBtn.addEventListener('touchstart', toggleMute, {passive:false});
-  muteBtn.classList.add('on');
+  renderMuteBtn();
+
+  // ---------- Update ----------
+  function update(dtMs){
+    const dts = dtMs / 1000;
+
+    for (let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.x += p.vx*dts*60; p.y += p.vy*dts*60;
+      p.life -= dts*60;
+      if (p.life <= 0) particles.splice(i,1);
+    }
+    for (let i=shocks.length-1;i>=0;i--){
+      const s = shocks[i];
+      s.r += dtMs * 0.28;
+      if (s.r >= s.max) shocks.splice(i,1);
+    }
+    for (let i=floaters.length-1;i>=0;i--){
+      const f = floaters[i];
+      f.y -= dtMs * 0.04;
+      f.life -= dtMs;
+      if (f.life <= 0) floaters.splice(i,1);
+    }
+    if (shake > 0) shake = Math.max(0, shake * Math.pow(0.9, dts*60) - 0.02);
+    if (flash > 0) flash = Math.max(0, flash - dtMs/320);
+
+    if (state === 'intro'){
+      introLeft -= dtMs;
+      if (introLeft <= 0) spawnShot();
+    } else if (state === 'active'){
+      moveTargets(dts);
+      const el = gClock - roundStart;
+      const t = clamp(el / roundDuration, 0, 1);
+      const n = Math.floor(5*t + 9*t*t);
+      if (n > lastTick){ lastTick = n; playTick(t); }
+      if (!pinged && el >= roundDuration){ pinged = true; playPing(); }
+      if (el > roundDuration + GRACE_MS) registerMiss('TOO SLOW', 'slow');
+    } else if (state === 'feedback'){
+      feedbackLeft -= dtMs;
+      if (feedbackLeft <= 0 && nextAction){
+        const fn = nextAction;
+        nextAction = null;
+        fn();
+      }
+    }
+  }
+
+  // ---------- Rendering ----------
+  let starPositions = [];
+  function makeStars(){
+    starPositions = [];
+    for (let i=0;i<70;i++){
+      starPositions.push({x:Math.random(), y:Math.random(), r:Math.random()*1.4+0.4, a:Math.random()*0.5+0.15, ph:Math.random()*6.28});
+    }
+  }
+  makeStars();
+
+  function drawRadar(){
+    const cx = W/2, cy = H/2;
+    const R = Math.hypot(W,H)/2;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,43,43,0.06)';
+    ctx.lineWidth = 1;
+    for (let i=1;i<=5;i++){
+      ctx.beginPath();
+      ctx.arc(cx, cy, R*i/5, 0, Math.PI*2);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(cx, 0); ctx.lineTo(cx, H);
+    ctx.moveTo(0, cy); ctx.lineTo(W, cy);
+    ctx.stroke();
+    const ang = gClock * 0.0006;
+    ctx.fillStyle = 'rgba(255,43,43,0.035)';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, ang - 0.55, ang);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,43,43,0.12)';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(ang)*R, cy + Math.sin(ang)*R);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Strip of your last 14 shots along the bottom: green / amber / red hits, hollow = miss
+  function drawHistory(){
+    if (state === 'menu' || !shots.length) return;
+    const recent = shots.slice(-14);
+    const w = 14, gap = 5;
+    const total = recent.length*w + (recent.length-1)*gap;
+    const x0 = (W - total)/2;
+    const y = H - 22;
+    for (let i=0;i<recent.length;i++){
+      const s = recent[i];
+      const x = x0 + i*(w+gap);
+      if (s.kind !== 'hit'){
+        ctx.strokeStyle = 'rgba(255,43,43,0.8)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 0.5, y + 0.5, w - 1, 3);
+      } else {
+        ctx.fillStyle = s.v >= 90 ? GREEN : s.v >= 70 ? AMBER : RED;
+        ctx.fillRect(x, y, w, 4);
+      }
+    }
+  }
+
+  function drawTarget(t, el){
+    if (t.real){
+      const tt = clamp(el / roundDuration, 0, 1);
+      const rr = Math.max(t.ring0 + (t.radius - t.ring0) * tt, t.radius);
+      const dErr = el - roundDuration;
+      const synced = Math.abs(dErr) <= SYNC_MS;
+      const late = dErr > SYNC_MS;
+      const color = synced ? GREEN : late ? RED : AMBER;
+
+      // closing ring
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = synced ? 3.5 : 2;
+      ctx.globalAlpha = late ? clamp(1 - (dErr - SYNC_MS)/(GRACE_MS), 0.15, 1) : 0.9;
+      if (synced){ ctx.shadowColor = GREEN; ctx.shadowBlur = 14; }
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, rr, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+
+      // rotating reticle ticks
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      ctx.rotate(gClock * 0.0015);
+      ctx.strokeStyle = 'rgba(255,43,43,0.7)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i=0;i<4;i++){
+        const a = i * Math.PI/2;
+        ctx.moveTo(Math.cos(a)*t.radius*1.9, Math.sin(a)*t.radius*1.9);
+        ctx.lineTo(Math.cos(a)*t.radius*2.4, Math.sin(a)*t.radius*2.4);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      // core
+      ctx.save();
+      ctx.strokeStyle = RED;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, t.radius, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(t.x - t.radius*1.6, t.y);
+      ctx.lineTo(t.x + t.radius*1.6, t.y);
+      ctx.moveTo(t.x, t.y - t.radius*1.6);
+      ctx.lineTo(t.x, t.y + t.radius*1.6);
+      ctx.strokeStyle = 'rgba(255,43,43,0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+
+      // caliper read-out: the ring diameter
+      ctx.save();
+      ctx.fillStyle = TEXT;
+      ctx.font = '11px ' + FONT;
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 0.8;
+      ctx.fillText('Ø ' + (rr*2).toFixed(1) + 'px', t.x, t.y - t.radius*2.7 - 6);
+      ctx.restore();
+    } else {
+      // friendly decoy: square core, cyan, looping ring
+      const cyc = ((el + t.phase) % t.dur) / t.dur;
+      const rr = t.ring0 + (t.radius - t.ring0) * cyc;
+      ctx.save();
+      ctx.strokeStyle = CYAN;
+      ctx.globalAlpha = 0.4;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, Math.max(rr, t.radius), 0, Math.PI*2);
+      ctx.stroke();
+      ctx.globalAlpha = 0.95;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(t.x - t.radius, t.y - t.radius, t.radius*2, t.radius*2);
+      ctx.beginPath();
+      ctx.moveTo(t.x - t.radius*0.5, t.y); ctx.lineTo(t.x + t.radius*0.5, t.y);
+      ctx.stroke();
+      ctx.fillStyle = CYAN;
+      ctx.font = '9px ' + FONT;
+      ctx.textAlign = 'center';
+      ctx.fillText('FRIENDLY', t.x, t.y - t.radius*2.2);
+      ctx.restore();
+    }
+  }
 
   function drawCrosshair(){
-    if (!pointer.active) return;
-    const near = target && state==='active' ? (Math.hypot(pointer.x-target.x, pointer.y-target.y) < target.radius*3) : false;
+    if (!pointer.active || pointer.type === 'touch') return;
+    const rt = state === 'active' ? targets.find(t => t.real) : null;
+    const near = rt ? Math.hypot(pointer.x - rt.x, pointer.y - rt.y) < Math.max(rt.radius*3.4, 34) : false;
     ctx.save();
     ctx.strokeStyle = near ? GREEN : TEXT;
     ctx.globalAlpha = 0.85;
@@ -643,58 +1206,53 @@
     ctx.restore();
   }
 
-  function drawTarget(){
-    if (!target || state !== 'active') return;
-    const now = performance.now();
-    const elapsed = now - roundStart;
-    const t = Math.min(1, elapsed / roundDuration);
-    const ringRadiusStart = 130 * Math.min(W,H)/650;
-    const ringRadiusNow = ringRadiusStart + (target.radius - ringRadiusStart) * t;
-
-    // outer closing ring
+  function drawBanner(){
+    if (state !== 'intro') return;
+    const total = round === 0 ? 1200 : 800;
+    const a = clamp(Math.min(introLeft, total - introLeft) / 160, 0, 1);
     ctx.save();
-    ctx.strokeStyle = AMBER;
-    ctx.lineWidth = 2;
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    ctx.arc(target.x, target.y, Math.max(ringRadiusNow, target.radius), 0, Math.PI*2);
-    ctx.stroke();
-    ctx.restore();
-
-    // target core
-    ctx.save();
-    ctx.strokeStyle = RED;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(target.x, target.y, target.radius, 0, Math.PI*2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(target.x - target.radius*1.6, target.y);
-    ctx.lineTo(target.x + target.radius*1.6, target.y);
-    ctx.moveTo(target.x, target.y - target.radius*1.6);
-    ctx.lineTo(target.x, target.y + target.radius*1.6);
-    ctx.strokeStyle = 'rgba(255,43,43,0.5)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-
-    // caliper-style numeric readout (precision-tool nod)
-    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = RED;
+    ctx.shadowColor = RED;
+    ctx.shadowBlur = 14;
+    ctx.font = '700 ' + Math.round(clamp(W*0.05, 18, 32)) + 'px ' + FONT;
+    ctx.fillText('ROUND ' + (round+1), W/2, H*0.42);
+    ctx.shadowBlur = 0;
     ctx.fillStyle = TEXT;
-    ctx.font = '11px monospace';
-    ctx.globalAlpha = 0.8;
-    ctx.fillText('\u00d8 ' + ringRadiusNow.toFixed(1) + 'px', target.x - 24, target.y - target.radius - 14);
+    ctx.font = '700 ' + Math.round(clamp(W*0.025, 12, 16)) + 'px ' + FONT;
+    ctx.fillText(curSpec.name + (curSpec.burst ? '  ×' + curSpec.burst : ''), W/2, H*0.42 + 30);
+    if (curSpec.decoys){
+      ctx.fillStyle = CYAN;
+      ctx.font = '11px ' + FONT;
+      ctx.fillText('CYAN = FRIENDLY · DO NOT FIRE', W/2, H*0.42 + 54);
+    }
     ctx.restore();
   }
 
   function draw(){
     ctx.clearRect(0,0,W,H);
+    ctx.save();
+    if (shake > 0.1) ctx.translate(rand(-shake,shake), rand(-shake,shake));
 
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    drawRadar();
+
+    ctx.fillStyle = '#ffffff';
     for (let i=0;i<starPositions.length;i++){
       const s = starPositions[i];
-      ctx.globalAlpha = s.a;
+      ctx.globalAlpha = s.a * (0.7 + 0.3*Math.sin(gClock*0.002 + s.ph));
       ctx.fillRect(s.x*W, s.y*H, s.r, s.r);
+    }
+    ctx.globalAlpha = 1;
+
+    for (const s of shocks){
+      ctx.globalAlpha = Math.max(0, 1 - s.r/s.max) * 0.8;
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.stroke();
     }
     ctx.globalAlpha = 1;
 
@@ -705,59 +1263,52 @@
     }
     ctx.globalAlpha = 1;
 
-    drawTarget();
+    if (state === 'active'){
+      const el = (paused ? gClock : gNow()) - roundStart;
+      for (const t of targets) drawTarget(t, el);
+    }
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '700 14px ' + FONT;
+    for (const f of floaters){
+      ctx.globalAlpha = clamp(f.life/(f.maxLife*0.6), 0, 1);
+      ctx.fillStyle = f.color;
+      ctx.fillText(f.text, f.x, f.y);
+    }
+    ctx.globalAlpha = 1;
+
+    drawHistory();
+    drawBanner();
     drawCrosshair();
-  }
 
-  let starPositions = [];
-  function makeStars(){
-    starPositions = [];
-    for (let i=0;i<70;i++){
-      starPositions.push({x:Math.random(), y:Math.random(), r:Math.random()*1.4+0.4, a:Math.random()*0.5+0.15});
-    }
-  }
-  makeStars();
-
-  let lastTime = null;
-  function loop(ts){
-    if (lastTime === null) lastTime = ts;
-    const dt = Math.min((ts - lastTime)/16.67, 2.5);
-    lastTime = ts;
-
-    for (let i=particles.length-1;i>=0;i--){
-      const p = particles[i];
-      p.x += p.vx*dt; p.y += p.vy*dt;
-      p.life -= dt;
-      if (p.life <= 0) particles.splice(i,1);
+    if (flash > 0){
+      ctx.globalAlpha = flash * 0.55;
+      ctx.strokeStyle = flashColor;
+      ctx.lineWidth = 8;
+      ctx.strokeRect(4, 4, W-8, H-8);
+      ctx.globalAlpha = 1;
     }
 
-    checkTimeout();
+    ctx.restore();
+  }
+
+  function loop(){
+    const real = performance.now();
+    const dtMs = lastReal ? Math.min(real - lastReal, 50) : 16;
+    lastReal = real;
+    if (!paused){
+      gClock += dtMs;
+      update(dtMs);
+    }
     draw();
     requestAnimationFrame(loop);
   }
+
+  // ---------- Boot ----------
+  resize();
+  showMenu();
   requestAnimationFrame(loop);
-
-  function handleStartBtn(e){
-    if (e) e.preventDefault();
-    initAudio();
-    resize();
-    startRun();
-  }
-  startBtn.addEventListener('click', handleStartBtn);
-  startBtn.addEventListener('touchstart', handleStartBtn, {passive:false});
-
-  window.addEventListener('keydown', e => {
-    if (e.code === 'Space' && centerMsg.style.display === 'block'){
-      e.preventDefault();
-      handleStartBtn(e);
-    }
-  });
-
-  showMessage(
-    'TARGET LOCK',
-    'CLICK / TAP WHEN THE CLOSING RING<br>MATCHES THE TARGET SIZE.<br>10 ROUNDS &middot; TIMING + PRECISION SCORED',
-    'START'
-  );
 })();
 </script>
 
@@ -766,5 +1317,4 @@
 <script src="../../libraries/hud-home-button.js"></script>
 
 </body>
-
 </html>
