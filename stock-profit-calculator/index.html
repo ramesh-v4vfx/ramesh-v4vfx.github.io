@@ -39,6 +39,7 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
     --loss-dim: #b5453f;
     --copper: #d98d5f;
     --copper-light: #f0ac7e;
+    --blue: #6db8ff;
     --key-face: #292c33;
     --key-face-hi: #34383f;
     --text-primary: #e9edf1;
@@ -228,6 +229,8 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
     font-weight: 500;
     opacity: 0.85;
     margin-left: 4px;
+    display: inline-block;
+    white-space: nowrap;   /* keep "(+5.71%)" together instead of splitting mid-number */
   }
 
   .subline {
@@ -316,8 +319,262 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
     color: var(--text-faint);
   }
 
+  .note {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(217,141,95,0.18);
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    line-height: 1.5;
+    text-align: center;
+    color: rgba(240,172,126,0.8);
+  }
+
+  .note[hidden] { display: none; }
+  .note:not([hidden]) { animation: note-in 0.45s ease-out; }
+  @keyframes note-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- Deduct charges ---------- */
+  button.deduct {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 12px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--loss);
+    background: linear-gradient(160deg, var(--key-face-hi), var(--key-face));
+    box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 -3px 0 rgba(0,0,0,0.35) inset, 0 4px 8px rgba(0,0,0,0.4);
+    transition: transform 0.06s ease, box-shadow 0.15s ease;
+  }
+
+  button.deduct:active { transform: translateY(2px); }
+  button.reset:focus-visible, .unit button:focus-visible { outline: 2px solid var(--loss); outline-offset: 2px; }
+  button.deduct:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  /* enabled (unlocked) = bluish bar; locked stays red and dim */
+  button.deduct:not(:disabled) {
+    color: var(--loss);
+    background: linear-gradient(160deg, #2e4a6b, #1f3350);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 -3px 0 rgba(0,0,0,0.35) inset, 0 4px 8px rgba(0,0,0,0.4), 0 0 0 1px rgba(109,184,255,0.35);
+  }
+
+  button.deduct:not(:disabled) .state { background: rgba(0,0,0,0.3); color: #7fb8f0; }
+
+  /* the short wait before it unlocks: a blue bar fills across the button */
+  button.deduct::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(90deg, rgba(109,184,255,0.38), rgba(109,184,255,0.12));
+    transform: scaleX(0);
+    transform-origin: left center;
+    pointer-events: none;
+  }
+
+  button.deduct.unlocking::before { animation: unlock-fill var(--unlock-ms, 700ms) linear forwards; }
+  button.deduct.unlocking:disabled { opacity: 0.8; }
+
+  @keyframes unlock-fill { to { transform: scaleX(1); } }
+
+  button.deduct { position: relative; transition: transform 0.06s ease, box-shadow 0.15s ease, opacity 0.35s ease; }
+
+  button.deduct:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* little "unlocked" pop: the button bounces and a ring ripples out of it */
+  button.deduct::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    border: 1.5px solid var(--blue);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  button.deduct.unlocked { animation: deduct-pop 0.55s cubic-bezier(.2,1.6,.4,1); }
+  button.deduct.unlocked::after { animation: deduct-ring 0.8s ease-out; }
+
+  @keyframes deduct-pop {
+    0%   { transform: scale(0.97); }
+    45%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes deduct-ring {
+    0%   { opacity: 0.85; transform: scale(1); }
+    100% { opacity: 0;    transform: scale(1.1, 1.45); }
+  }
+
+  /* turning it ON: the charges panel drops in, its fields follow one by one */
+  .charges:not([hidden]) { animation: panel-in 0.35s cubic-bezier(.2,.9,.3,1); }
+  .charges:not([hidden]) .field { animation: field-in 0.4s cubic-bezier(.2,.9,.3,1) both; }
+  .charges:not([hidden]) .field:nth-child(1) { animation-delay: 0.08s; }
+  .charges:not([hidden]) .field:nth-child(2) { animation-delay: 0.16s; }
+  .charges:not([hidden]) .field:nth-child(3) { animation-delay: 0.24s; }
+
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @keyframes field-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* profit / loss result: the screen flashes and the number pops (profit) or shakes (loss) */
+  .screen.fx-profit { animation: flash-profit 0.9s ease-out; }
+  .screen.fx-loss   { animation: flash-loss 0.9s ease-out; }
+  .screen.fx-profit .hero { animation: hero-win 0.7s cubic-bezier(.2,1.4,.4,1); }
+  .screen.fx-loss .hero   { animation: hero-lose 0.6s ease-out; }
+
+  @keyframes flash-profit {
+    0%   { box-shadow: 0 0 0 1px rgba(111,252,177,0.8) inset, 0 0 46px rgba(111,252,177,0.38) inset; }
+    100% { box-shadow: 0 0 0 1px rgba(111,252,177,0) inset, 0 0 0 rgba(111,252,177,0) inset; }
+  }
+
+  @keyframes flash-loss {
+    0%   { box-shadow: 0 0 0 1px rgba(255,107,107,0.8) inset, 0 0 46px rgba(255,107,107,0.38) inset; }
+    100% { box-shadow: 0 0 0 1px rgba(255,107,107,0) inset, 0 0 0 rgba(255,107,107,0) inset; }
+  }
+
+  @keyframes hero-win {
+    0%   { transform: translateY(8px) scale(0.88); text-shadow: 0 0 4px rgba(111,252,177,0.3); }
+    45%  { transform: translateY(-2px) scale(1.08); text-shadow: 0 0 30px rgba(111,252,177,0.95), 0 0 60px rgba(111,252,177,0.5); }
+    100% { transform: none; }
+  }
+
+  @keyframes hero-lose {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-9px); }
+    30% { transform: translateX(8px); }
+    45% { transform: translateX(-6px); }
+    60% { transform: translateX(5px); }
+    75% { transform: translateX(-3px); }
+    90% { transform: translateX(2px); }
+  }
+
+  /* the screen result flashes when it switches between gross and final */
+  .hero.swap, .context.swap { animation: result-swap 0.6s ease-out; }
+
+  @keyframes result-swap {
+    0%   { opacity: 0.2; transform: translateY(6px) scale(0.97); filter: brightness(1.8); }
+    60%  { opacity: 1; transform: translateY(-1px) scale(1.02); }
+    100% { opacity: 1; transform: none; filter: none; }
+  }
+
+  .deduct-hint {
+    margin-top: -4px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+  }
+
+  .deduct-hint[hidden] { display: none; }
+
+  button.deduct .state {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.35);
+    color: var(--text-faint);
+  }
+
+  button.deduct[aria-pressed="true"] {
+    box-shadow: 0 0 0 1px var(--blue), 0 0 16px rgba(109,184,255,0.35), 0 1px 0 rgba(255,255,255,0.12) inset, 0 -3px 0 rgba(0,0,0,0.35) inset;
+  }
+
+  button.deduct[aria-pressed="true"] .state { background: var(--blue); color: #08182a; }
+
+  .charges {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 14px 12px;
+    border-radius: 14px;
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(217,141,95,0.22);
+  }
+
+  .charges[hidden] { display: none; }
+
+  .charges .row { display: flex; gap: 8px; align-items: stretch; }
+  .charges .row input { flex: 1; min-width: 0; }
+
+  .unit {
+    display: flex;
+    flex: none;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bezel);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5) inset;
+  }
+
+  .unit button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    width: 46px;
+    background: transparent;
+    color: var(--text-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .unit button.on { background: var(--copper); color: #1a0f08; font-weight: 700; }
+
+  .charges-help {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.5;
+    color: var(--text-faint);
+  }
+
+  .breakdown {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--copper-light);
+    text-align: right;
+    margin-top: 4px;
+    z-index: 1;
+    min-height: 0;
+  }
+
+  .breakdown:empty { display: none; }
+  .breakdown span { display: inline-block; white-space: nowrap; }
+
+  @media (max-width: 360px) {
+    button.deduct { font-size: 11px; letter-spacing: 0.05em; gap: 7px; padding: 0 8px; white-space: nowrap; }
+    button.deduct .state { padding: 3px 6px; font-size: 9px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .indicator-dot { animation: none; }
+    button.deduct.unlocked, button.deduct.unlocked::after, button.deduct.unlocking::before,
+    .charges:not([hidden]), .charges:not([hidden]) .field,
+    .hero.swap, .context.swap,
+    .screen.fx-profit, .screen.fx-loss, .screen.fx-profit .hero, .screen.fx-loss .hero,
+    .note:not([hidden]) { animation: none; }
     button, .field input, .screen { transition: none; }
   }
 </style>
@@ -341,6 +598,7 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
         <div class="context" id="context">Enter your trade details</div>
         <div class="hero" id="hero">0.00</div>
         <div class="subline" id="subline">Per share: 0.00</div>
+        <div class="breakdown" id="breakdown"></div>
       </div>
     </div>
 
@@ -360,10 +618,54 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
     </div>
 
     <div class="actions">
+      <button class="deduct" id="deductBtn" type="button" aria-pressed="false" aria-controls="charges" aria-describedby="deductHint" disabled onclick="toggleDeduct()">
+        <span id="deductLabel">Deduct charges</span> <span class="state" id="deductState">OFF</span>
+      </button>
+      <div class="deduct-hint" id="deductHint">Enter buying price, selling price and shares first</div>
+
+      <div class="charges" id="charges" hidden>
+        <div class="field" id="field-brok">
+          <label for="brok" id="label-brok">Brokerage in %</label>
+          <div class="row">
+            <input id="brok" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 0.1" oninput="calculate()">
+            <div class="unit" role="group" aria-label="Brokerage unit">
+              <button type="button" data-key="brok" data-unit="amt" onclick="setUnit('brok','amt')">AMT</button>
+              <button type="button" class="on" data-key="brok" data-unit="pct" onclick="setUnit('brok','pct')">%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" id="field-tax">
+          <label for="tax" id="label-tax">Tax in %</label>
+          <div class="row">
+            <input id="tax" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 15" oninput="calculate()">
+            <div class="unit" role="group" aria-label="Tax unit">
+              <button type="button" data-key="tax" data-unit="amt" onclick="setUnit('tax','amt')">AMT</button>
+              <button type="button" class="on" data-key="tax" data-unit="pct" onclick="setUnit('tax','pct')">%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" id="field-other">
+          <label for="other" id="label-other">Other charges in amount</label>
+          <div class="row">
+            <input id="other" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 50.00" oninput="calculate()">
+            <div class="unit" role="group" aria-label="Other charges unit">
+              <button type="button" class="on" data-key="other" data-unit="amt" onclick="setUnit('other','amt')">AMT</button>
+              <button type="button" data-key="other" data-unit="pct" onclick="setUnit('other','pct')">%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="charges-help">Brokerage and other: % of total traded value (buy + sell). Tax: % of profit after charges, none on a loss. Leave blank if not applicable.</div>
+      </div>
+
       <button class="reset" onclick="resetApp()">Reset</button>
     </div>
 
     <div class="hint" id="hint">Tap the screen to copy the result</div>
+
+    <div class="note" id="note" role="note" hidden>ℹ <span id="noteText">Raw result only. Brokerage, tax and other charges are not included.</span></div>
   </div>
 </div>
 
@@ -383,6 +685,33 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
   const fieldBuy = document.getElementById('field-buy');
   const fieldSell = document.getElementById('field-sell');
   const fieldQty = document.getElementById('field-qty');
+
+  const brokEl = document.getElementById('brok');
+  const taxEl = document.getElementById('tax');
+  const otherEl = document.getElementById('other');
+  const fieldBrok = document.getElementById('field-brok');
+  const fieldTax = document.getElementById('field-tax');
+  const fieldOther = document.getElementById('field-other');
+  const chargesEl = document.getElementById('charges');
+  const deductBtn = document.getElementById('deductBtn');
+  const deductState = document.getElementById('deductState');
+  const deductHint = document.getElementById('deductHint');
+  const deductLabel = document.getElementById('deductLabel');
+  const breakdownEl = document.getElementById('breakdown');
+  const noteTextEl = document.getElementById('noteText');
+  const noteEl = document.getElementById('note');
+
+  const UNLOCK_DELAY = 700;                        // ms the button waits before it unlocks
+  const HINT_LOCKED = deductHint.textContent;
+  deductBtn.style.setProperty('--unlock-ms', UNLOCK_DELAY + 'ms');
+  let unlockTimer = null;
+
+  const NOTE_RAW = noteTextEl.textContent;
+  const NOTE_NET = 'Final result after the charges you entered.';
+
+  let deductOn = false;
+  const units = { brok: 'pct', tax: 'pct', other: 'amt' };   // 'amt' = fixed amount, 'pct' = percent
+  const unitPlaceholders = { amt: 'e.g. 100.00' };
 
   let flashTimeout = null;
   let lastCopyText = '';
@@ -404,12 +733,162 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
     }
   }
 
+  // ----- result animation: number counts up/down, screen flashes, profit pops / loss shakes -----
+  let heroRaf = null;
+  let shown = null;          // what the hero currently displays: { pnl, pct, kind }
+
+  function renderHeroValue(v, pc) {
+    const sg = v >= 0 ? '+' : '−';
+    heroEl.innerHTML = `${sg}${fmt(Math.abs(v))}<span class="pct">(${sg}${fmt(Math.abs(pc))}%)</span>`;
+  }
+
+  function animateHero(pnl, pct, kind, prev) {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fromP = prev ? prev.pnl : 0;
+    const fromC = prev ? prev.pct : 0;
+
+    if (!reduce && (!prev || prev.kind !== kind) && kind !== 'even') {
+      screenEl.classList.remove('fx-profit', 'fx-loss');
+      playOnce(screenEl, kind === 'profit' ? 'fx-profit' : 'fx-loss');
+    }
+
+    if (reduce || (fromP === pnl && fromC === pct)) {
+      renderHeroValue(pnl, pct);
+      shown = { pnl, pct, kind };
+      return;
+    }
+
+    const t0 = performance.now(), DUR = 550;
+    renderHeroValue(fromP, fromC);
+    shown = { pnl: fromP, pct: fromC, kind };
+    const step = now => {
+      const t = Math.min(1, (now - t0) / DUR);
+      const e = 1 - Math.pow(1 - t, 3);                       // ease-out
+      if (t < 1) {
+        const v = fromP + (pnl - fromP) * e;
+        const pc = fromC + (pct - fromC) * e;
+        renderHeroValue(v, pc);
+        shown = { pnl: v, pct: pc, kind };
+        heroRaf = requestAnimationFrame(step);
+      } else {
+        heroRaf = null;
+        renderHeroValue(pnl, pct);
+        shown = { pnl, pct, kind };
+      }
+    };
+    heroRaf = requestAnimationFrame(step);
+  }
+
   function clearInvalid() {
-    [fieldBuy, fieldSell, fieldQty].forEach(f => f.classList.remove('invalid'));
+    [fieldBuy, fieldSell, fieldQty, fieldBrok, fieldTax, fieldOther].forEach(f => f.classList.remove('invalid'));
+  }
+
+  // restart a one-shot CSS animation class
+  function playOnce(el, cls) {
+    el.classList.remove(cls);
+    void el.offsetWidth;                       // force reflow so the animation can run again
+    el.classList.add(cls);
+    el.addEventListener('animationend', function done(e) {
+      if (e.target !== el) return;
+      el.classList.remove(cls);
+      el.removeEventListener('animationend', done);
+    });
+  }
+
+  // locked: "Deduct charges" · enabled: "Click to deduct charges" · on: "Charges deducted 😢"
+  function updateDeductLabel() {
+    deductLabel.textContent = deductBtn.disabled ? 'Deduct charges'
+                            : deductOn ? 'Charges deducted 😢'
+                            : 'Click to deduct charges';
+  }
+
+  function applyDeductUI() {
+    updateDeductLabel();
+    deductBtn.setAttribute('aria-pressed', String(deductOn));
+    deductState.textContent = deductOn ? 'ON' : 'OFF';
+    chargesEl.hidden = !deductOn;
+    noteTextEl.textContent = deductOn ? NOTE_NET : NOTE_RAW;
+  }
+
+  function toggleDeduct() {
+    if (deductBtn.disabled) return;
+    deductOn = !deductOn;
+    applyDeductUI();
+    calculate();
+    if (!heroEl.textContent.includes('—')) { playOnce(heroEl, 'swap'); playOnce(contextEl, 'swap'); }
+  }
+
+  // The button only works once the main calculation (buy, sell, shares) is complete and valid.
+  function updateDeductAvailability() {
+    const buy = parseFloat(buyEl.value);
+    const sell = parseFloat(sellEl.value);
+    const qty = parseFloat(qtyEl.value);
+    const ready = buyEl.value !== '' && sellEl.value !== '' && qtyEl.value !== '' &&
+                  !isNaN(buy) && !isNaN(sell) && !isNaN(qty) && buy > 0 && qty > 0 && sell >= 0;
+    if (ready) {
+      // wait a moment (blue bar fills) before unlocking, so it doesn't flicker while you're still typing
+      if (deductBtn.disabled && !unlockTimer) {
+        deductBtn.classList.add('unlocking');
+        deductHint.textContent = 'Unlocking…';
+        deductHint.hidden = false;
+        unlockTimer = setTimeout(() => {
+          unlockTimer = null;
+          deductBtn.classList.remove('unlocking');
+          deductBtn.disabled = false;
+          updateDeductLabel();
+          deductHint.hidden = true;
+          playOnce(deductBtn, 'unlocked');
+        }, UNLOCK_DELAY);
+      }
+    } else {
+      clearTimeout(unlockTimer);
+      unlockTimer = null;
+      deductBtn.classList.remove('unlocking');
+      deductBtn.disabled = true;
+      updateDeductLabel();
+      deductHint.textContent = HINT_LOCKED;
+      deductHint.hidden = false;
+      if (deductOn) {                  // trade became incomplete: switch charges off, keep what was typed
+        deductOn = false;
+        applyDeductUI();
+      }
+    }
+  }
+
+  function setUnit(key, unit) {
+    units[key] = unit;
+    document.querySelectorAll('.unit button[data-key="' + key + '"]').forEach(b => {
+      b.classList.toggle('on', b.dataset.unit === unit);
+    });
+    const names = { brok: 'Brokerage', tax: 'Tax', other: 'Other charges' };
+    document.getElementById('label-' + key).textContent = names[key] + ' in ' + (unit === 'pct' ? '%' : 'amount');
+    const input = { brok: brokEl, tax: taxEl, other: otherEl }[key];
+    input.placeholder = unit === 'pct' ? (key === 'tax' ? 'e.g. 15' : 'e.g. 0.1') : unitPlaceholders.amt;
+    calculate();
+  }
+
+  // Blank = 0. Returns null (and flags the fields) if any entry is negative / not a number / a % above 100.
+  function readCharge(inputEl, fieldEl, key) {
+    const raw = inputEl.value;
+    if (raw === '') return 0;
+    const v = parseFloat(raw);
+    if (isNaN(v) || v < 0 || (units[key] === 'pct' && v > 100)) {
+      fieldEl.classList.add('invalid');
+      return null;
+    }
+    return v;
   }
 
   function calculate() {
     clearInvalid();
+    breakdownEl.textContent = '';
+    noteEl.hidden = true;               // the note only appears once there is a calculated result
+    updateDeductAvailability();
+
+    // stop any running count animation; remember what is on screen so the next one starts from there
+    if (heroRaf) { cancelAnimationFrame(heroRaf); heroRaf = null; }
+    const prev = shown;
+    shown = null;
 
     const buyRaw = buyEl.value;
     const sellRaw = sellEl.value;
@@ -466,28 +945,74 @@ content="Free stock profit calculator. Calculate investment, profit, or loss by 
 
     const invested = buy * qty;
     const returned = sell * qty;
-    const pnl = returned - invested;
+    const gross = returned - invested;
+
+    // ----- optional charges -----
+    let brokerage = 0, other = 0, tax = 0, totalCharges = 0;
+    if (deductOn) {
+      const b = readCharge(brokEl, fieldBrok, 'brok');
+      const t = readCharge(taxEl, fieldTax, 'tax');
+      const o = readCharge(otherEl, fieldOther, 'other');
+      if (b === null || t === null || o === null) {
+        setMode('loss');
+        statusEl.textContent = 'Error';
+        contextEl.textContent = 'Charges must be 0 or more (and a % can\'t exceed 100)';
+        heroEl.innerHTML = '—';
+        sublineEl.textContent = '';
+        breakdownEl.textContent = '';
+        lastCopyText = '';
+        return;
+      }
+      const turnover = invested + returned;
+      brokerage = units.brok === 'pct' ? turnover * b / 100 : b;
+      other = units.other === 'pct' ? turnover * o / 100 : o;
+      const taxable = Math.max(0, gross - brokerage - other);   // no tax when there is no profit
+      tax = units.tax === 'pct' ? taxable * t / 100 : t;
+      totalCharges = brokerage + other + tax;
+    }
+
+    const pnl = gross - totalCharges;            // final result (equals gross when charges are off)
     const pnlPct = (pnl / invested) * 100;
-    const perShare = sell - buy;
+    const perShare = pnl / qty;
 
     const isEven = Math.abs(pnl) < 0.005;
     const isProfit = pnl > 0;
+    const word = isEven ? 'Break-even' : (isProfit ? 'Profit' : 'Loss');
+    const label = deductOn && !isEven ? 'Net ' + word.toLowerCase() : word;
 
     setMode(isEven ? 'standby' : (isProfit ? 'profit' : 'loss'));
-    statusEl.textContent = isEven ? 'Break-even' : (isProfit ? 'Profit' : 'Loss');
-    contextEl.textContent = `Invested ${fmt(invested)} · Returned ${fmt(returned)}`;
+    statusEl.textContent = label;
+
+    const sgn = n => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
+    contextEl.textContent = deductOn
+      ? `Gross ${sgn(gross)} · Charges −${fmt(totalCharges)}`
+      : `Invested ${fmt(invested)} · Returned ${fmt(returned)}`;
 
     const sign = pnl >= 0 ? '+' : '−';
-    heroEl.innerHTML = `${sign}${fmt(Math.abs(pnl))}<span class="pct">(${sign}${fmt(Math.abs(pnlPct))}%)</span>`;
-    sublineEl.textContent = `Per share: ${perShare >= 0 ? '+' : '−'}${fmt(Math.abs(perShare))}`;
+    animateHero(pnl, pnlPct, isEven ? 'even' : (isProfit ? 'profit' : 'loss'), prev);
+    sublineEl.textContent = `Per share${deductOn ? ' (after charges)' : ''}: ${sgn(perShare)}`;
+    breakdownEl.innerHTML = deductOn
+      ? `<span>Brokerage ${fmt(brokerage)}</span> <span>· Tax ${fmt(tax)}</span> <span>· Other ${fmt(other)}</span>`
+      : '';
 
-    lastCopyText = `${isEven ? 'Break-even' : (isProfit ? 'Profit' : 'Loss')}: ${sign}${fmt(Math.abs(pnl))} (${sign}${fmt(Math.abs(pnlPct))}%) | Invested: ${fmt(invested)} | Returned: ${fmt(returned)} | Per share: ${perShare >= 0 ? '+' : '−'}${fmt(Math.abs(perShare))}`;
+    noteEl.hidden = false;
+
+    lastCopyText = deductOn
+      ? `${label}: ${sign}${fmt(Math.abs(pnl))} (${sign}${fmt(Math.abs(pnlPct))}%) | Invested: ${fmt(invested)} | Returned: ${fmt(returned)} | Gross: ${sgn(gross)} | Brokerage: ${fmt(brokerage)} | Tax: ${fmt(tax)} | Other charges: ${fmt(other)} | Per share: ${sgn(perShare)}`
+      : `${word}: ${sign}${fmt(Math.abs(pnl))} (${sign}${fmt(Math.abs(pnlPct))}%) | Invested: ${fmt(invested)} | Returned: ${fmt(returned)} | Per share: ${sgn(perShare)} | Before any brokerage, taxes or charges`;
   }
 
   function resetApp() {
     buyEl.value = '';
     sellEl.value = '';
     qtyEl.value = '';
+    brokEl.value = '';
+    taxEl.value = '';
+    otherEl.value = '';
+    setUnit('brok', 'pct');
+    setUnit('tax', 'pct');
+    setUnit('other', 'amt');
+    if (deductOn) { toggleDeduct(); }   // switches charges off and restores the note
     clearInvalid();
     calculate();
   }
