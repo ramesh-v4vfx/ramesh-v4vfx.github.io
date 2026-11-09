@@ -23,8 +23,8 @@
 <style>
   :root {
     --bg: #070c14;
-    --card-1: #101c2e;
-    --card-2: #0a1420;
+    --card-1: 16,28,46;
+    --card-2: 10,20,32;
     --border: rgba(255,179,71,0.16);
     --text: #eef3f8;
     --text-dim: rgba(238,243,248,0.6);
@@ -37,25 +37,127 @@
 
   * { box-sizing: border-box; }
 
+  html, body { height: 100%; }
+
   body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background:
-      radial-gradient(circle at 15% 0%, rgba(255,179,71,0.06), transparent 55%),
-      var(--bg);
+    background: var(--bg);
     color: var(--text);
     margin: 0;
     padding: 20px;
   }
 
-  html, body { height: 100%; }
+  /* ---------- ANIMATED SKY (pure CSS + inline SVG, no image files) ---------- */
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 45% at 50% 112%, rgba(255,179,71,0.24), transparent 70%),
+      linear-gradient(#050a14 0%, #0a1426 55%, #15192b 100%);
+  }
 
+  .sky::before {                       /* faint stars */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.55), transparent),
+      radial-gradient(1px 1px at 90px 120px, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1.5px 1.5px at 160px 60px, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 230px 150px, rgba(255,255,255,0.35), transparent);
+    background-size: 260px 190px;
+    -webkit-mask-image: linear-gradient(#000 0%, transparent 65%);
+            mask-image: linear-gradient(#000 0%, transparent 65%);
+  }
+
+  .cloud-layer {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 200%;
+    display: flex;
+    animation: cloud-drift var(--t, 120s) linear infinite;
+    will-change: transform;
+  }
+
+  .cloud-layer .grp { position: relative; width: 50%; height: 100%; }
+  .cloud { position: absolute; height: auto; }
+
+  .cloud-far  { --t: 170s; opacity: 0.11; filter: blur(1px); }
+  .cloud-near { --t: 95s;  opacity: 0.15; filter: blur(2.5px); z-index: 3; }
+
+  @keyframes cloud-drift { to { transform: translateX(-50%); } }
+
+  .flight {
+    position: absolute;
+    left: 0;
+    top: var(--alt, 14%);
+    width: 150px;
+    z-index: 2;
+    animation: fly-right var(--dur, 46s) linear infinite;
+    animation-delay: var(--delay, -10s);
+    will-change: transform;
+  }
+
+  .flight .plane {
+    display: block;
+    width: 100%;
+    height: auto;
+    animation: plane-bob 5s ease-in-out infinite;
+  }
+
+  .flight::before {                    /* contrail */
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 47%;
+    width: min(42vw, 400px);
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(to left, rgba(255,255,255,0.5), rgba(255,255,255,0));
+    filter: blur(1.2px);
+  }
+
+  .flight.far {
+    --alt: 66%;
+    --dur: 80s;
+    --delay: -34s;
+    width: 80px;
+    opacity: 0.5;
+    animation-name: fly-left;
+  }
+
+  @keyframes fly-right {
+    0%   { transform: translate3d(-300px, 0, 0) rotate(-3deg); }
+    62%  { transform: translate3d(calc(100vw + 120px), -14vh, 0) rotate(-3deg); }
+    100% { transform: translate3d(calc(100vw + 120px), -14vh, 0) rotate(-3deg); }
+  }
+
+  @keyframes fly-left {
+    0%   { transform: translate3d(calc(100vw + 120px), 0, 0) scaleX(-1) rotate(-2deg); }
+    70%  { transform: translate3d(-300px, -6vh, 0) scaleX(-1) rotate(-2deg); }
+    100% { transform: translate3d(-300px, -6vh, 0) scaleX(-1) rotate(-2deg); }
+  }
+
+  @keyframes plane-bob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-6px) rotate(1deg); }
+  }
+
+  /* ---------- APP CARD ---------- */
   .app {
     position: relative;
+    z-index: 1;
     max-width: 520px;
     width: 100%;
     margin: auto;
     max-height: calc(100vh - 40px);
-    background: linear-gradient(160deg, var(--card-1), var(--card-2));
+    max-height: calc(100dvh - 40px);
+    background: linear-gradient(160deg, rgba(var(--card-1),0.84), rgba(var(--card-2),0.88));
+    -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
     border-radius: 16px;
     border: 1px solid var(--border);
     box-shadow: 0 24px 55px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
@@ -95,7 +197,14 @@
     text-align: center;
     font-size: 12.5px;
     color: var(--text-dim);
-    margin-bottom: 16px;
+    margin-bottom: 6px;
+  }
+
+  .save-note {
+    text-align: center;
+    font-size: 11.5px;
+    color: rgba(52,211,153,0.85);
+    margin-bottom: 14px;
   }
 
   /* ---------- PROGRESS ---------- */
@@ -122,7 +231,13 @@
     height: 100%;
     background: linear-gradient(90deg, var(--accent), #ffd08a);
     border-radius: 999px;
-    transition: width 0.3s ease;
+    transition: width 0.45s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .progress-wrap.complete .progress-label #readyLabel { color: var(--green); font-weight: 700; }
+  .progress-wrap.complete .progress-fill {
+    background: linear-gradient(90deg, #34d399, #8bf0c6);
+    box-shadow: 0 0 14px rgba(52,211,153,0.6);
   }
 
   /* ---------- TICKET PERFORATION DIVIDER ---------- */
@@ -142,7 +257,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: var(--bg);
+    background: #0a1426;
   }
 
   .ticket-divider::before { left: -10px; }
@@ -173,6 +288,8 @@
     letter-spacing: 0;
   }
 
+  .category.all-done .category-header .count { color: var(--green); }
+
   ul {
     list-style: none;
     padding: 0;
@@ -186,6 +303,7 @@
     padding: 10px 2px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     gap: 8px;
+    border-radius: 8px;
   }
 
   li:last-child { border-bottom: none; }
@@ -193,6 +311,13 @@
   li.completed span.task-text {
     text-decoration: line-through;
     color: var(--text-dim);
+  }
+
+  li.just-done { animation: row-flash 1.3s ease-out; }
+
+  @keyframes row-flash {
+    0%   { background: rgba(52,211,153,0.28); }
+    100% { background: rgba(52,211,153,0); }
   }
 
   .left {
@@ -203,7 +328,16 @@
     min-width: 0;
   }
 
-  .left span.task-text {
+  .task-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+  }
+
+  .task-label span.task-text {
     line-height: 1.4;
     word-break: break-word;
   }
@@ -239,13 +373,47 @@
 
   button.delete:hover { opacity: 0.75; }
 
-  /* Bigger touch targets, accent-colored checkbox */
+  /* Custom checkbox with an animated tick */
   input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    accent-color: var(--accent);
+    -webkit-appearance: none;
+            appearance: none;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    margin: 0;
+    border-radius: 7px;
+    border: 2px solid rgba(255,179,71,0.55);
+    background: rgba(255,255,255,0.04);
+    display: grid;
+    place-content: center;
     cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+
+  input[type="checkbox"]::after {
+    content: "";
+    width: 6px;
+    height: 11px;
+    border: solid #1a1006;
+    border-width: 0 2.5px 2.5px 0;
+    transform: translateY(-1px) rotate(45deg) scale(0);
+    transition: transform 0.2s cubic-bezier(.3,1.6,.5,1);
+  }
+
+  input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  input[type="checkbox"]:checked::after { transform: translateY(-1px) rotate(45deg) scale(1); }
+  input[type="checkbox"]:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  li.just-done input[type="checkbox"] { animation: box-pop 0.55s cubic-bezier(.2,1.5,.4,1); }
+
+  @keyframes box-pop {
+    0%   { transform: scale(0.6); }
+    55%  { transform: scale(1.3); box-shadow: 0 0 0 8px rgba(255,179,71,0.25); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,179,71,0); }
   }
 
   .empty-note {
@@ -353,10 +521,106 @@
     border-radius: 9px;
   }
 
+  .hint + .hint { margin-top: 10px; }
+
+  /* ---------- FEEDBACK: toast, praise, banner, confetti ---------- */
+  .fx-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .fx-layer i { position: absolute; display: block; will-change: transform, opacity; }
+
+  .praise {
+    position: absolute;
+    font-weight: 800;
+    font-size: 14px;
+    color: #1a1006;
+    background: linear-gradient(135deg, var(--accent), #ffd08a);
+    padding: 5px 12px;
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 16px rgba(255,179,71,0.55);
+    white-space: nowrap;
+    will-change: transform, opacity;
+  }
+
+  .plane-burst {
+    position: absolute;
+    left: 0;
+    top: 26%;
+    width: 170px;
+    will-change: transform;
+  }
+
+  .plane-burst::before {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 47%;
+    width: 320px;
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(to left, rgba(255,255,255,0.8), rgba(255,255,255,0));
+  }
+
+  .plane-burst svg { display: block; width: 100%; height: auto; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    z-index: 60;
+    width: calc(100% - 32px);
+    max-width: 400px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(8,16,28,0.96);
+    border: 1px solid rgba(52,211,153,0.5);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+    font-size: 13.5px;
+    line-height: 1.4;
+    transform: translate(-50%, 140%);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(.2,.9,.3,1.2), opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .toast.show { transform: translate(-50%, 0); opacity: 1; }
+  .toast strong { color: var(--green); display: block; font-size: 14px; margin-bottom: 1px; }
+  .toast span { color: var(--text-dim); }
+  .toast.warn { border-color: rgba(248,113,113,0.6); }
+  .toast.warn strong { color: var(--danger-bright); }
+
+  .banner {
+    position: fixed;
+    left: 50%;
+    top: 14px;
+    z-index: 60;
+    width: calc(100% - 32px);
+    max-width: 420px;
+    text-align: center;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgba(26,40,62,0.97), rgba(10,20,32,0.97));
+    border: 1px solid var(--accent);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.55), 0 0 26px rgba(255,179,71,0.25);
+    transform: translate(-50%, -160%);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(.2,1.2,.3,1), opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .banner.show { transform: translate(-50%, 0); opacity: 1; }
+  .banner .b-title { font-size: 17px; font-weight: 800; color: var(--accent); }
+  .banner .b-sub { font-size: 12.5px; color: var(--text-dim); margin-top: 3px; }
+
   /* ---------- Small screens ---------- */
   @media (max-width: 480px) {
     body { padding: 12px; }
-    .app { max-height: calc(100vh - 24px); }
+    .app { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); }
     .app-header { padding: 18px 16px 0; }
     .app-scroll { padding: 0 16px 18px; }
     h1 { font-size: 19px; }
@@ -371,18 +635,69 @@
     .hint { font-size: 12.5px; }
     .ticket-divider { margin: 14px -16px; }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cloud-layer, .flight, .flight .plane, li.just-done,
+    li.just-done input[type="checkbox"] { animation: none; }
+    .flight { transform: translate3d(38vw, -4vh, 0) rotate(-3deg); }
+    .flight.far { display: none; }
+    .toast, .banner { transition: opacity 0.2s ease; }
+  }
 </style>
 </head>
 <body>
+
+  <!-- shared drawings for the sky (referenced with <use>) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="cloud" viewBox="0 0 240 100">
+        <g fill="#cfe0ff">
+          <ellipse cx="70" cy="66" rx="60" ry="28"/>
+          <ellipse cx="120" cy="46" rx="50" ry="36"/>
+          <ellipse cx="168" cy="64" rx="56" ry="28"/>
+          <ellipse cx="112" cy="74" rx="96" ry="22"/>
+        </g>
+      </symbol>
+      <symbol id="plane" viewBox="0 0 160 50">
+        <path d="M14 22 L5 3 L21 3 L38 19 Z" fill="#cfd9e8"/>
+        <path d="M5 3 L21 3 L22 6 L7 6 Z" fill="#ffb347"/>
+        <path d="M10 24 Q10 18 24 17 L126 17 Q150 18 157 25 Q150 31 126 32 L24 32 Q10 31 10 24 Z" fill="#eef3f8"/>
+        <rect x="24" y="27" width="114" height="2" rx="1" fill="#ffb347" opacity="0.85"/>
+        <path d="M132 19.5 L142 19.5 L150 24 L132 24 Z" fill="#5b7fb0"/>
+        <path d="M38 22.5 H122" stroke="#5b7fb0" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3 4.2" fill="none"/>
+        <path d="M72 29 L48 47 L66 47 L104 29 Z" fill="#b9c6da"/>
+        <ellipse cx="80" cy="37" rx="10" ry="4.6" fill="#9aa9c0"/>
+        <circle cx="8" cy="4" r="2.2" fill="#ff4d4d">
+          <animate attributeName="opacity" values="1;0.1;1" dur="1.4s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="50" cy="46" r="2" fill="#4dffa0">
+          <animate attributeName="opacity" values="1;0.35;1" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="154" cy="24.5" r="1.6" fill="#fff">
+          <animate attributeName="opacity" values="0;0;1;0;0" dur="2.6s" repeatCount="indefinite"/>
+        </circle>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="sky" id="sky" aria-hidden="true">
+    <div class="flight">
+      <svg class="plane" viewBox="0 0 160 50"><use href="#plane"/></svg>
+    </div>
+    <div class="flight far">
+      <svg class="plane" viewBox="0 0 160 50"><use href="#plane"/></svg>
+    </div>
+  </div>
 
   <div class="app">
     <div class="app-header">
       <h1>✈ International Travel Checklist</h1>
       <div class="subtitle">Everything to sort before you fly</div>
+      <div class="save-note" id="saveNote">💾 Auto-saved on this device — continue anytime</div>
 
-      <div class="progress-wrap">
+      <div class="progress-wrap" id="progressWrap">
         <div class="progress-label">
-          <span>Trip readiness</span>
+          <span id="readyLabel">Trip readiness</span>
           <span><strong id="progressCount">0/0</strong> done</span>
         </div>
         <div class="progress-track">
@@ -397,7 +712,7 @@
       <div id="taskListWrap"></div>
 
       <div class="add-task">
-        <input id="newTaskInput" type="text" placeholder="Add your own item…" />
+        <input id="newTaskInput" type="text" placeholder="Add your own item…" maxlength="200" />
         <button id="addBtn">Add</button>
       </div>
 
@@ -410,8 +725,15 @@
       <div class="hint">
         💡 Some countries require 6 months passport validity and proof of onward travel.
       </div>
+      <div class="hint">
+        💾 Your ticks are saved in this browser only. Clearing site data or switching device or browser starts a fresh list, so use Download to keep a copy.
+      </div>
     </div>
   </div>
+
+  <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"><strong></strong><span></span></div>
+  <div class="banner" id="banner" role="status" aria-live="polite"><div class="b-title"></div><div class="b-sub"></div></div>
 
   <script>
     const taskListWrap = document.getElementById("taskListWrap");
@@ -419,9 +741,17 @@
     const addBtn = document.getElementById("addBtn");
     const progressCount = document.getElementById("progressCount");
     const progressFill = document.getElementById("progressFill");
+    const progressWrap = document.getElementById("progressWrap");
+    const readyLabel = document.getElementById("readyLabel");
+    const fxLayer = document.getElementById("fxLayer");
+    const toastEl = document.getElementById("toast");
+    const bannerEl = document.getElementById("banner");
 
     const STORAGE_KEY = "travelChecklist";
     const CURRENCY_CONVERTER_URL = "https://rameshverse.com/currency-converter/";
+
+    const REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const CAN_ANIMATE = typeof Element.prototype.animate === "function";
 
     const CATEGORY_ORDER = [
       "Documents & Entry",
@@ -468,6 +798,12 @@
       { text: "Health insurance (international coverage)", category: "Insurance" }
     ];
 
+    /* ---------- storage (never throws: private mode / blocked storage) ---------- */
+    const store = {
+      get() { try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; } },
+      set(v) { try { localStorage.setItem(STORAGE_KEY, v); return true; } catch (e) { return false; } }
+    };
+
     function buildDefaultTasks() {
       return defaultTasks.map(t => ({
         id: Date.now() + Math.random(),
@@ -480,21 +816,27 @@
     }
 
     function loadTasks() {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = store.get();
       if (saved) {
-        // Backward-compatible: older saved tasks may not have a category field
-        return JSON.parse(saved).map(t => ({ category: "Other", link: null, linkLabel: null, ...t }));
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            // Backward-compatible: older saved tasks may not have a category field
+            return parsed.map(t => ({ category: "Other", link: null, linkLabel: null, ...t }));
+          }
+        } catch (e) { /* corrupted data: fall back to the default list */ }
       }
 
       const initial = buildDefaultTasks();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+      store.set(JSON.stringify(initial));
       return initial;
     }
 
     let tasks = loadTasks();
+    let justDoneId = null;
 
     function saveTasks() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      return store.set(JSON.stringify(tasks));
     }
 
     function updateProgress() {
@@ -502,6 +844,10 @@
       const done = tasks.filter(t => t.completed).length;
       progressCount.textContent = `${done}/${total}`;
       progressFill.style.width = total === 0 ? "0%" : `${Math.round((done / total) * 100)}%`;
+
+      const complete = total > 0 && done === total;
+      progressWrap.classList.toggle("complete", complete);
+      readyLabel.textContent = complete ? "Ready for take-off! ✈" : "Trip readiness";
     }
 
     function renderTasks() {
@@ -521,12 +867,13 @@
         section.className = "category";
 
         const doneCount = items.filter(t => t.completed).length;
+        if (doneCount === items.length) section.classList.add("all-done");
 
         const header = document.createElement("div");
         header.className = "category-header";
         header.innerHTML = `
           <span>${CATEGORY_ICONS[category] || "📝"} ${category}</span>
-          <span class="count">${doneCount}/${items.length}</span>
+          <span class="count">${doneCount === items.length ? "✓ " : ""}${doneCount}/${items.length}</span>
         `;
         section.appendChild(header);
 
@@ -535,25 +882,27 @@
         items.forEach(task => {
           const li = document.createElement("li");
           if (task.completed) li.classList.add("completed");
+          if (task.id === justDoneId) li.classList.add("just-done");
 
           const left = document.createElement("div");
           left.className = "left";
 
+          // The whole text is clickable, not just the small box
+          const label = document.createElement("label");
+          label.className = "task-label";
+
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.checked = task.completed;
-          checkbox.addEventListener("change", () => {
-            task.completed = checkbox.checked;
-            saveTasks();
-            renderTasks();
-          });
+          checkbox.addEventListener("change", () => onToggle(task, checkbox));
 
           const span = document.createElement("span");
           span.className = "task-text";
           span.textContent = task.text;
 
-          left.appendChild(checkbox);
-          left.appendChild(span);
+          label.appendChild(checkbox);
+          label.appendChild(span);
+          left.appendChild(label);
 
           if (task.link) {
             const link = document.createElement("a");
@@ -568,13 +917,15 @@
           const delBtn = document.createElement("button");
           delBtn.textContent = "✕";
           delBtn.className = "delete";
+          delBtn.setAttribute("aria-label", "Remove item: " + task.text);
           delBtn.addEventListener("click", () => {
             const confirmDelete = confirm("Are you sure you want to remove this checklist item?");
             if (!confirmDelete) return;
 
             tasks = tasks.filter(t => t.id !== task.id);
-            saveTasks();
+            const ok = saveTasks();
             renderTasks();
+            showSaved(ok);
           });
 
           li.appendChild(left);
@@ -585,6 +936,145 @@
         section.appendChild(ul);
         taskListWrap.appendChild(section);
       });
+
+      justDoneId = null;
+    }
+
+    /* ---------- toggling a box: save + celebrate ---------- */
+    function onToggle(task, checkbox) {
+      const rect = checkbox.getBoundingClientRect();
+      const doneBefore = tasks.filter(t => t.completed).length;
+
+      task.completed = checkbox.checked;
+      const ok = saveTasks();
+      if (task.completed) justDoneId = task.id;
+      renderTasks();
+      showSaved(ok);
+
+      if (task.completed) celebrate(rect, task, doneBefore);
+    }
+
+    let toastTimer = null;
+    function showSaved(ok) {
+      const strong = toastEl.querySelector("strong");
+      const span = toastEl.querySelector("span");
+      if (ok) {
+        strong.textContent = "✓ Progress saved";
+        span.textContent = "Come back any time on this device and continue where you left off.";
+        toastEl.classList.remove("warn");
+      } else {
+        strong.textContent = "⚠ Couldn't save here";
+        span.textContent = "Your browser is blocking storage. Use Download checklist to keep a copy.";
+        toastEl.classList.add("warn");
+      }
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 4200);
+    }
+
+    let bannerTimer = null;
+    function showBanner(title, sub, ms) {
+      bannerEl.querySelector(".b-title").textContent = title;
+      bannerEl.querySelector(".b-sub").textContent = sub || "";
+      bannerEl.classList.add("show");
+      clearTimeout(bannerTimer);
+      bannerTimer = setTimeout(() => bannerEl.classList.remove("show"), ms || 3400);
+    }
+
+    const PRAISE = ["Well done!", "Nice one!", "Well done!", "One step closer!", "Great job!", "Boarding soon!"];
+    let praiseIdx = 0;
+    const CONFETTI = ["#ffb347", "#ffd08a", "#34d399", "#eef3f8", "#7cc4ff", "#ff7a7a"];
+
+    function floatText(rect, text) {
+      if (!CAN_ANIMATE) return;
+      const el = document.createElement("div");
+      el.className = "praise";
+      el.textContent = text;
+      fxLayer.appendChild(el);
+      // sit just right of the box (over the row text), kept inside the screen
+      const w = el.offsetWidth;
+      const x = Math.max(8, Math.min(window.innerWidth - w - 8, rect.right + 10));
+      el.style.left = x + "px";
+      el.style.top = (rect.top - 4) + "px";
+      const move = REDUCED_MOTION ? 0 : -42;
+      const a = el.animate([
+        { transform: "translate(0, 6px) scale(0.7)", opacity: 0 },
+        { transform: `translate(0, ${move * 0.4}px) scale(1.08)`, opacity: 1, offset: 0.2 },
+        { transform: `translate(0, ${move * 0.6}px) scale(1)`, opacity: 1, offset: 0.7 },
+        { transform: `translate(0, ${move}px) scale(1)`, opacity: 0 }
+      ], { duration: 1500, easing: "cubic-bezier(.2,.8,.3,1)" });
+      a.onfinish = () => el.remove();
+    }
+
+    function burst(x, y, count, power) {
+      if (!CAN_ANIMATE || REDUCED_MOTION) return;
+      if (fxLayer.childElementCount > 220) return;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement("i");
+        const size = 5 + Math.random() * 6;
+        const ang = Math.random() * Math.PI * 2;
+        const dist = (45 + Math.random() * 95) * power;
+        const dx = Math.cos(ang) * dist;
+        const dy = Math.sin(ang) * dist - 45 * power;
+        const rot = (Math.random() - 0.5) * 720;
+        el.style.cssText =
+          `left:${x}px;top:${y}px;width:${size}px;height:${size * (Math.random() < 0.5 ? 1 : 0.45)}px;` +
+          `background:${CONFETTI[i % CONFETTI.length]};border-radius:${Math.random() < 0.3 ? "50%" : "2px"}`;
+        fxLayer.appendChild(el);
+        const a = el.animate([
+          { transform: "translate(-50%,-50%) translate(0,0) rotate(0deg)", opacity: 1 },
+          { transform: `translate(-50%,-50%) translate(${dx}px,${dy}px) rotate(${rot / 2}deg)`, opacity: 1, offset: 0.45 },
+          { transform: `translate(-50%,-50%) translate(${dx * 1.15}px,${dy + 130 * power}px) rotate(${rot}deg)`, opacity: 0 }
+        ], { duration: 900 + Math.random() * 700, easing: "cubic-bezier(.2,.7,.4,1)" });
+        a.onfinish = () => el.remove();
+      }
+    }
+
+    function planeBurst() {
+      if (!CAN_ANIMATE || REDUCED_MOTION) return;
+      const el = document.createElement("div");
+      el.className = "plane-burst";
+      el.innerHTML = '<svg viewBox="0 0 160 50"><use href="#plane"/></svg>';
+      fxLayer.appendChild(el);
+      const a = el.animate([
+        { transform: "translate3d(-520px, 40px, 0) rotate(4deg)" },
+        { transform: `translate3d(${window.innerWidth + 200}px, -90px, 0) rotate(-6deg)` }
+      ], { duration: 2400, easing: "cubic-bezier(.5,0,.9,.6)" });
+      a.onfinish = () => el.remove();
+    }
+
+    function celebrate(rect, task, doneBefore) {
+      const total = tasks.length;
+      const done = tasks.filter(t => t.completed).length;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      const cat = task.category || "Other";
+      const catItems = tasks.filter(t => (t.category || "Other") === cat);
+      const catComplete = catItems.length > 1 && catItems.every(t => t.completed);
+      const allComplete = total > 0 && done === total;
+      const halfway = !allComplete && doneBefore / total < 0.5 && done / total >= 0.5;
+
+      if (allComplete) {
+        floatText(rect, "Amazing!");
+        showBanner("Ready for take-off! ✈️", "Every item is checked. Have a great trip!", 5200);
+        burst(cx, cy, 34, 1.2);
+        burst(window.innerWidth / 2, 90, 50, 1.6);
+        setTimeout(() => burst(window.innerWidth * 0.25, 140, 30, 1.3), 250);
+        setTimeout(() => burst(window.innerWidth * 0.75, 140, 30, 1.3), 450);
+        planeBurst();
+      } else if (catComplete) {
+        floatText(rect, "Section done!");
+        showBanner(`${CATEGORY_ICONS[cat] || "✓"} ${cat} complete`, "Nicely done, one section fully sorted.", 3600);
+        burst(cx, cy, 34, 1.25);
+      } else if (halfway) {
+        floatText(rect, "Halfway there!");
+        showBanner("Halfway to take-off! 🛫", `${done} of ${total} items done. Keep going!`, 3600);
+        burst(cx, cy, 28, 1.1);
+      } else {
+        floatText(rect, PRAISE[praiseIdx++ % PRAISE.length]);
+        burst(cx, cy, 18, 1);
+      }
     }
 
     function addTask() {
@@ -601,8 +1091,9 @@
       });
 
       newTaskInput.value = "";
-      saveTasks();
+      const ok = saveTasks();
       renderTasks();
+      showSaved(ok);
       newTaskInput.focus();
     }
 
@@ -645,9 +1136,12 @@
       const a = document.createElement("a");
       a.href = url;
       a.download = "international-air-travel-checklist.txt";
+      document.body.appendChild(a);
       a.click();
+      a.remove();
 
-      URL.revokeObjectURL(url);
+      // revoke later: some browsers cancel the download if the URL dies immediately
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
     });
 
     shareBtn.addEventListener("click", async () => {
@@ -703,9 +1197,30 @@
       if (!confirmReset) return;
 
       tasks = buildDefaultTasks();
-      saveTasks();
+      const ok = saveTasks();
       renderTasks();
+      showSaved(ok);
     });
+
+    /* ---------- sky: drifting cloud layers (the plane + contrail are plain CSS above) ---------- */
+    (function buildClouds() {
+      const sky = document.getElementById("sky");
+      function layer(cls, count, topMin, topMax, wMin, wMax, seed) {
+        let s = seed;
+        const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+        let group = "";
+        for (let i = 0; i < count; i++) {
+          const left = (i / count) * 92 + rnd() * 6;
+          const top = topMin + rnd() * (topMax - topMin);
+          const w = Math.round(wMin + rnd() * (wMax - wMin));
+          group += `<svg class="cloud" viewBox="0 0 240 100" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%;width:${w}px"><use href="#cloud"/></svg>`;
+        }
+        return `<div class="cloud-layer ${cls}"><div class="grp">${group}</div><div class="grp">${group}</div></div>`;
+      }
+      // far clouds sit behind the plane, near clouds drift in front of it
+      sky.insertAdjacentHTML("afterbegin", layer("cloud-far", 6, 8, 78, 160, 270, 7));
+      sky.insertAdjacentHTML("beforeend", layer("cloud-near", 4, 16, 86, 280, 440, 31));
+    })();
 
     renderTasks();
   </script>
