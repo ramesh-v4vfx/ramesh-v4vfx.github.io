@@ -4434,7 +4434,27 @@
     const SOURCES = [
       { label: 'Top 10 Tasks',
         url: '/top-10-tasks-monitor/',
-        keys: ['rvTop10Tasks', 'rvTop10', 'top10Tasks', 'top10_tasks', 'top10', 'rv_top10_tasks'] },
+        keys: ['top10_today'],
+        // The tool saves 10 slots; empty slots have no text, and a task is
+        // finished once it has an `end` time (set by "Terminate").
+        extract: function (data) {
+          return (Array.isArray(data) ? data : []).map(function (t) {
+            return t && typeof t === 'object' ? { text: t.text, done: !!t.end } : null;
+          });
+        } },
+      { label: 'Daily Routine',
+        url: '/daily-routine/',
+        keys: ['daily_routine_tasks'],
+        // The tool unchecks every task at the start of each new day, but only
+        // when it gets opened. If it hasn't been opened today, today's ticks
+        // haven't happened yet, so every task counts as still to do.
+        extract: function (data) {
+          let today = false;
+          try { today = localStorage.getItem('daily_routine_date') === new Date().toDateString(); } catch (e) { /* storage unavailable */ }
+          return (Array.isArray(data) ? data : []).map(function (t) {
+            return t && typeof t === 'object' ? { text: t.text, done: today && !!t.done } : null;
+          });
+        } },
       { label: 'Travel Checklist',
         url: '/international-airtravel-checklist/',
         keys: ['rvTravelChecklist', 'rvAirTravelChecklist', 'travelChecklist', 'airTravelChecklist', 'rv_travel_checklist'] }
