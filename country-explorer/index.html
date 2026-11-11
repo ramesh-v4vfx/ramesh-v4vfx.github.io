@@ -803,6 +803,15 @@ header button.active-sort:hover {
   opacity: 0.6;
 }
 
+/* Time ran out: the answer is revealed in amber (dashed), so it never looks
+   like the player picked it — green is only for answers the player chose */
+.quiz-option.timeout-reveal {
+  background: rgba(250,204,21,0.14) !important;
+  color: #facc15;
+  border: 1px dashed #facc15;
+  box-shadow: 0 0 0 3px rgba(250,204,21,0.25);
+}
+
 .certificate-wrap {
   grid-column: 1 / -1;
   min-height: calc(100vh - 140px);
@@ -2256,6 +2265,10 @@ let quizRound = 1;          // 1 | 2 | 3
 let quizTimer = null;
 let timeLeft = 0;
 
+// Correct answers needed (out of 10) to pass a round. Change this one number
+// to make the quiz easier or harder; all the quiz text follows it.
+const PASS_SCORE = 7;
+
 const ROUND_TIME = {
   1: 10,  // Round 1 → 60 sec
   2: 7,   // Round 2 → 60 sec
@@ -2473,7 +2486,7 @@ function showQuizIntro() {
 <p class="quiz-subtitle">
   Test your geography skills across
   <b>3 increasingly difficult rounds</b>.<br>
-  Only <b>perfect scores</b> advance.
+  Score at least <b>${PASS_SCORE} out of 10</b> to advance.
 </p>
 
 
@@ -2516,8 +2529,8 @@ function showQuizIntro() {
       <hr style="margin:24px auto; max-width:420px; opacity:.3">
 
  <div class="quiz-warning">
-  ⚠️ You must score <b>10 / 10</b> to pass a round.<br>
-  Any mistake restarts the challenge from <b>Round 1</b>.
+  ⚠️ You must score at least <b>${PASS_SCORE} / 10</b> to pass a round.<br>
+  Fail a round and the challenge restarts from <b>Round 1</b>.
 </div>
 
 
@@ -2559,7 +2572,7 @@ function failQuiz() {
 
       <p class="final-score">
         You scored <b>${quizScore} / 10</b><br>
-        A perfect score is required to advance.
+        You need at least ${PASS_SCORE} / 10 to advance.
       </p>
 
       <p style="opacity:.75; margin-bottom:24px">
@@ -3988,7 +4001,7 @@ function renderQuizQuestion() {
 
 
 
-function answerQuiz(selected) {
+function answerQuiz(selected, timedOut = false) {
    clearInterval(quizTimer);
   const q = quizQuestions[quizIndex];
 
@@ -4002,8 +4015,14 @@ function answerQuiz(selected) {
 
     // 2️⃣ Correct answer
     if (answer === q.correct) {
-      btn.classList.add("correct");
-      btn.innerHTML += " ✔";
+      if (timedOut) {
+        // time ran out → reveal the answer in amber, not the green "you got it" look
+        btn.classList.add("timeout-reveal");
+        btn.innerHTML += " — correct answer";
+      } else {
+        btn.classList.add("correct");
+        btn.innerHTML += " ✔";
+      }
     }
 
     // 3️⃣ Wrong selected answer
@@ -4035,7 +4054,7 @@ function answerQuiz(selected) {
     } else {
       renderQuizQuestion();
     }
-  }, 900);
+  }, timedOut ? 1800 : 900);   // a little longer after a timeout, so the revealed answer can be read
 }
 
 
@@ -4044,7 +4063,7 @@ function answerQuiz(selected) {
 function endQuiz() {
   clearInterval(quizTimer);
 
-  if (quizScore < 10) {
+  if (quizScore < PASS_SCORE) {
     failQuiz();
     return;
   }
@@ -4075,11 +4094,13 @@ function showRoundCertificate(round) {
     1: {
       title: "EXPLORER CERTIFICATE",
       theme: "bronze",
+      roundName: "Explorer Round",
       subtitle: "For successfully clearing Round 1"
     },
     2: {
       title: "MASTER EXPLORER CERTIFICATE",
       theme: "silver",
+      roundName: "Master Explorer Round",
       subtitle: "For successfully clearing Round 2"
     }
   };
@@ -4107,7 +4128,7 @@ function showRoundCertificate(round) {
         <div class="cert-divider"></div>
 
         <p class="cert-achievement">
-          Achieved a perfect score in the Explorer Round<br>
+          Cleared the ${cert.roundName}<br>
           by demonstrating strong knowledge of world geography
         </p>
 
@@ -4197,8 +4218,8 @@ function showMasterReward() {
         <h2>${quizUserName}</h2>
 
         <p class="cert-text">
-          30 / 30 — Flawless Performance<br>
-          You conquered all 3 rounds of the<br>
+          All 3 Rounds Cleared<br>
+          You conquered every round of the<br>
           Country Quiz Challenge
         </p>
 
@@ -4326,10 +4347,12 @@ function startQuizTimer() {
 
     if (timeLeft <= 0) {
       clearInterval(quizTimer);
-      timerEl.textContent = "⏱ 0s";
+      timerEl.textContent = "⏱ Time's up!";
+      timerEl.style.color = "#facc15";
 
-      // ⛔ time ran out → auto fail question
-      failQuiz();
+      // ⛔ time ran out → counts as a missed question (not an instant fail),
+      // so the round is still decided by the PASS_SCORE total at the end
+      answerQuiz(null, true);
       return;
     }
 
