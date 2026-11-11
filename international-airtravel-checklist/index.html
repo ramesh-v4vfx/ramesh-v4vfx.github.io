@@ -617,6 +617,125 @@
   .banner .b-title { font-size: 17px; font-weight: 800; color: var(--accent); }
   .banner .b-sub { font-size: 12.5px; color: var(--text-dim); margin-top: 3px; }
 
+  /* ---------- TRIP DATE LINE ---------- */
+  .trip-line {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .trip-line[hidden] { display: none; }
+
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    margin-left: 6px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .link-btn:hover { color: var(--text); }
+
+  /* ---------- TRAVEL DATE GATE ---------- */
+  .date-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(4,8,16,0.84);
+    -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+  }
+
+  .date-gate[hidden] { display: none; }
+
+  .gate-card {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    padding: 26px 22px 22px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(160deg, rgba(var(--card-1),0.97), rgba(var(--card-2),0.98));
+    box-shadow: 0 24px 55px rgba(0,0,0,0.55);
+  }
+
+  .gate-plane { font-size: 30px; margin-bottom: 4px; }
+  .gate-card h2 { margin: 0 0 6px; font-size: 20px; }
+
+  .gate-sub {
+    margin: 0 0 18px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-dim);
+  }
+
+  .gate-label {
+    display: block;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .gate-card input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    font-size: 16px;
+    font-family: inherit;
+    color-scheme: dark;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .gate-card input[type="date"]:focus { border-color: var(--accent); background: rgba(255,255,255,0.09); }
+
+  .gate-error {
+    min-height: 18px;
+    margin: 8px 0 4px;
+    font-size: 12.5px;
+    text-align: left;
+    color: var(--danger-bright);
+  }
+
+  .gate-go {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 9px;
+    background: var(--accent);
+    color: #1a1006;
+    font-weight: 700;
+  }
+
+  .gate-go:hover { filter: brightness(1.08); }
+
+  .gate-alt {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 9px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  .gate-alt:hover { color: var(--text); }
+  .gate-alt[hidden] { display: none; }
+
   /* ---------- Small screens ---------- */
   @media (max-width: 480px) {
     body { padding: 12px; }
@@ -694,6 +813,9 @@
       <h1>✈ International Travel Checklist</h1>
       <div class="subtitle">Everything to sort before you fly</div>
       <div class="save-note" id="saveNote">💾 Auto-saved on this device — continue anytime</div>
+      <div class="trip-line" id="tripLine" hidden>
+        <span id="tripText"></span><button type="button" class="link-btn" id="changeDateBtn">Change date</button>
+      </div>
 
       <div class="progress-wrap" id="progressWrap">
         <div class="progress-label">
@@ -728,7 +850,25 @@
       <div class="hint">
         💾 Your ticks are saved in this browser only. Clearing site data or switching device or browser starts a fresh list, so use Download to keep a copy.
       </div>
+      <div class="hint">
+        🔔 Items you haven't ticked off stay on the rameshverse homepage as a reminder until your travel date.
+      </div>
     </div>
+  </div>
+
+  <!-- Travel date: asked before the checklist can be used -->
+  <div class="date-gate" id="dateGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
+    <form class="gate-card" id="gateForm" novalidate>
+      <div class="gate-plane" aria-hidden="true">✈</div>
+      <h2 id="gateTitle">When are you travelling?</h2>
+      <p class="gate-sub" id="gateSub"></p>
+      <label class="gate-label" for="tripDateInput">Date of travel</label>
+      <input id="tripDateInput" type="date" />
+      <div class="gate-error" id="gateError" role="alert"></div>
+      <button type="submit" class="gate-go">Start my checklist</button>
+      <button type="button" class="gate-alt" id="gateCancel" hidden>Cancel</button>
+      <button type="button" class="gate-alt" id="gateFresh" hidden>Start a fresh checklist instead</button>
+    </form>
   </div>
 
   <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
@@ -748,6 +888,9 @@
     const bannerEl = document.getElementById("banner");
 
     const STORAGE_KEY = "travelChecklist";
+    // The travel date (YYYY-MM-DD). The rameshverse homepage reads this together with
+    // STORAGE_KEY to show unfinished items only until the day of travel.
+    const DATE_KEY = "travelChecklistDate";
     const CURRENCY_CONVERTER_URL = "https://rameshverse.com/currency-converter/";
 
     const REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -801,7 +944,11 @@
     /* ---------- storage (never throws: private mode / blocked storage) ---------- */
     const store = {
       get() { try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; } },
-      set(v) { try { localStorage.setItem(STORAGE_KEY, v); return true; } catch (e) { return false; } }
+      set(v) { try { localStorage.setItem(STORAGE_KEY, v); return true; } catch (e) { return false; } },
+      getDate() { try { return localStorage.getItem(DATE_KEY); } catch (e) { return null; } },
+      setDate(v) { try { localStorage.setItem(DATE_KEY, v); return true; } catch (e) { return false; } },
+      // Reset: throw away the saved checklist AND the date, so nothing of this trip is left
+      clear() { try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(DATE_KEY); } catch (e) { /* storage unavailable */ } }
     };
 
     function buildDefaultTasks() {
@@ -827,9 +974,9 @@
         } catch (e) { /* corrupted data: fall back to the default list */ }
       }
 
-      const initial = buildDefaultTasks();
-      store.set(JSON.stringify(initial));
-      return initial;
+      // Nothing is saved yet: the list is stored together with the travel date,
+      // once the traveller has entered it (see the date gate below).
+      return buildDefaultTasks();
     }
 
     let tasks = loadTasks();
@@ -1189,18 +1336,25 @@
 
     const resetBtn = document.getElementById("resetBtn");
 
-    resetBtn.addEventListener("click", () => {
+    // Reset = start over. The saved checklist and the travel date are removed from this
+    // browser (so it also disappears from the homepage reminders), a fresh default list is
+    // shown, and the travel date is asked again. The new list is saved once a date is entered.
+    function resetEverything() {
       const confirmReset = confirm(
-        "Are you sure you want to reset the checklist?\n\nThis will remove all your changes and restore the default list."
+        "Are you sure you want to reset the checklist?\n\nThis removes your saved list and travel date, restores the default list, and clears it from the reminders on the rameshverse homepage."
       );
 
       if (!confirmReset) return;
 
+      store.clear();
       tasks = buildDefaultTasks();
-      const ok = saveTasks();
+      tripDate = null;
+      renderTripLine();
       renderTasks();
-      showSaved(ok);
-    });
+      openGate("required");
+    }
+
+    resetBtn.addEventListener("click", resetEverything);
 
     /* ---------- sky: drifting cloud layers (the plane + contrail are plain CSS above) ---------- */
     (function buildClouds() {
@@ -1222,7 +1376,111 @@
       sky.insertAdjacentHTML("beforeend", layer("cloud-near", 4, 16, 86, 280, 440, 31));
     })();
 
+    /* ---------- travel date gate ---------- */
+    const appEl = document.querySelector(".app");
+    const dateGate = document.getElementById("dateGate");
+    const gateForm = document.getElementById("gateForm");
+    const gateTitle = document.getElementById("gateTitle");
+    const gateSub = document.getElementById("gateSub");
+    const gateError = document.getElementById("gateError");
+    const tripInput = document.getElementById("tripDateInput");
+    const gateCancel = document.getElementById("gateCancel");
+    const gateFresh = document.getElementById("gateFresh");
+    const tripLine = document.getElementById("tripLine");
+    const tripText = document.getElementById("tripText");
+    const changeDateBtn = document.getElementById("changeDateBtn");
+
+    let gateMode = null;   // "required" | "expired" | "change" | null (closed)
+    let tripDate = null;   // Date at local midnight, or null when there is no upcoming date
+
+    function dateToStr(d) {
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function parseDate(s) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
+      if (!m) return null;
+      const d = new Date(+m[1], +m[2] - 1, +m[3]);
+      return (d.getFullYear() === +m[1] && d.getMonth() === +m[2] - 1 && d.getDate() === +m[3]) ? d : null;
+    }
+
+    // whole days from today to d, by local calendar date (0 = today)
+    function daysUntil(d) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((d - today) / 86400000);
+    }
+
+    function renderTripLine() {
+      if (!tripDate) { tripLine.hidden = true; return; }
+      const n = daysUntil(tripDate);
+      const when = n === 0 ? "today" : n === 1 ? "tomorrow" : "in " + n + " days";
+      const pretty = tripDate.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+      tripText.textContent = "🛫 Departure " + pretty + " · " + when;
+      tripLine.hidden = false;
+    }
+
+    const GATE_COPY = {
+      required: ["When are you travelling?", "Enter your departure date. Until then, anything you haven't ticked off stays on the rameshverse homepage as a reminder."],
+      expired:  ["When is your next trip?", "Your last travel date has passed. Enter your next departure date to keep using this checklist."],
+      change:   ["Change travel date", "Pick your new departure date."]
+    };
+
+    function openGate(mode) {
+      gateMode = mode;
+      gateTitle.textContent = GATE_COPY[mode][0];
+      gateSub.textContent = GATE_COPY[mode][1];
+      gateError.textContent = "";
+      tripInput.min = dateToStr(new Date());
+      tripInput.value = (mode === "change" && tripDate) ? dateToStr(tripDate) : "";
+      gateCancel.hidden = mode !== "change";
+      gateFresh.hidden = mode !== "expired";
+      dateGate.hidden = false;
+      appEl.setAttribute("inert", "");           // nothing behind the gate can be used meanwhile
+      setTimeout(() => tripInput.focus(), 0);
+    }
+
+    function closeGate() {
+      gateMode = null;
+      dateGate.hidden = true;
+      appEl.removeAttribute("inert");
+    }
+
+    gateForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const value = tripInput.value;
+      const d = parseDate(value);
+
+      if (!d) { gateError.textContent = "Please choose your travel date."; return; }
+      if (daysUntil(d) < 0) { gateError.textContent = "That date has already passed. Pick today or a later date."; return; }
+
+      tripDate = d;
+      // save the date and the list together: this is what the homepage reminder reads
+      const ok = store.setDate(value) && saveTasks();
+      closeGate();
+      renderTripLine();
+      renderTasks();
+      showSaved(ok);
+    });
+
+    gateCancel.addEventListener("click", closeGate);
+    gateFresh.addEventListener("click", resetEverything);
+    changeDateBtn.addEventListener("click", () => openGate("change"));
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && gateMode === "change") closeGate();   // the first-time gate can't be skipped
+    });
+
     renderTasks();
+
+    // No valid upcoming date saved (first visit, a list saved before dates existed, or a past trip) → ask first
+    (function initTripDate() {
+      const saved = parseDate(store.getDate());
+      if (!saved) openGate("required");
+      else if (daysUntil(saved) < 0) openGate("expired");
+      else tripDate = saved;
+      renderTripLine();
+    })();
   </script>
 
   <script src="/libraries/config.js"></script>
