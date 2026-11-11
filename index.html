@@ -2243,6 +2243,242 @@
   .recent-tools,
   .recent-tools-launch { order: 0; }   /* first thing on phones, above the search bar */
 }
+
+/* ══════════════════════════════════════════════════════
+   UNFINISHED BUSINESS — top of the right rail
+   Lists the tasks this visitor added in Top 10 Tasks and the
+   Travel Checklist but hasn't completed. Same look and the same
+   minimize/launcher behaviour as Recently Used.
+   ══════════════════════════════════════════════════════ */
+.unfinished-panel {
+  position: relative;
+  z-index: 1;
+  width: 300px;
+  background: linear-gradient(180deg, rgba(27, 29, 27, 0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  padding: 16px 20px 14px 14px;
+  clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%, 0 22px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+}
+
+.unfinished-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, #ff2b2b, rgba(255,43,43,0.05));
+  box-shadow: 0 0 10px rgba(255,43,43,0.5);
+}
+
+.unfinished-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(45deg, transparent 49%, rgba(255,43,43,0.55) 50%, transparent 51%);
+  pointer-events: none;
+}
+
+.unfinished-close {
+  position: absolute;
+  top: 2px;
+  left: 28px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255,43,43,0.4);
+  border-radius: 0;
+  background: rgba(0,0,0,.5);
+  color: #ff2b2b;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .2s, box-shadow .2s, transform .2s;
+}
+
+.unfinished-close:hover {
+  background: rgba(255,43,43,.15);
+  box-shadow: 0 0 12px rgba(255,43,43,.5);
+  transform: scale(1.08);
+}
+
+.unfinished-panel h2 {
+  margin: 0 0 12px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  font-weight: 700;
+  padding-bottom: 8px;
+  position: relative;
+  text-align: right;
+}
+
+.unfinished-panel h2::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  height: 1px;
+  background: #ff2b2b;
+  box-shadow: 0 0 6px rgba(255,43,43,0.8);
+}
+
+#unfinishedList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+}
+
+.unf-group {
+  padding: 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,43,43,0.12);
+  border-radius: 4px;
+}
+
+.unf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: rgba(255,43,43,0.9);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color .2s ease, text-shadow .2s ease;
+}
+
+.unf-head:hover,
+.unf-head:focus-visible { color: #fff; text-shadow: 0 0 6px rgba(255,43,43,0.5); }
+.unf-head:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
+
+.unf-head-count { flex-shrink: 0; color: rgba(255,255,255,0.5); }
+
+.unf-bar {
+  height: 3px;
+  margin: 6px 0 7px;
+  background: rgba(255,255,255,0.08);
+}
+.unf-bar i {
+  display: block;
+  height: 100%;
+  background: #ff2b2b;
+  box-shadow: 0 0 6px rgba(255,43,43,0.6);
+}
+
+.unf-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.unf-item {
+  position: relative;
+  padding: 3px 0 3px 15px;
+  color: #d8d5da;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.unf-item::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 0.72em;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #ff2b2b;
+}
+
+.unf-more {
+  display: block;
+  margin-top: 3px;
+  padding-left: 15px;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+.unf-more:hover,
+.unf-more:focus-visible { color: #ff2b2b; }
+
+/* minimized launcher */
+.unfinished-launch {
+  position: relative;
+  width: 300px;
+  height: 44px;
+  padding: 0 20px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+}
+
+.unfinished-launch:hover,
+.unfinished-launch:focus-visible {
+  background: rgba(255,43,43,0.12);
+  border-color: rgba(255,43,43,0.6);
+  color: #fff;
+}
+
+.unfinished-launch b { color: #fff; font-weight: 700; }
+
+.unfinished-panel[hidden],
+.unfinished-launch[hidden],
+.unfinished-panel.is-closed { display: none !important; }
+
+/* Tablet / phone: same stacked order as Recently Used, ahead of it */
+@media (max-width: 1200px) {
+  .unfinished-panel,
+  .unfinished-launch {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 92% !important;
+    min-width: 0;
+    margin: 16px auto 0 !important;
+    order: 3;
+  }
+}
+
+@media (max-width: 700px) {
+  .unfinished-panel,
+  .unfinished-launch { order: 0; }
+}
 </style>
 </head>
 <body>
@@ -2483,6 +2719,17 @@
      ══════════════════════════════════════════════════════ -->
 <!-- RIGHT RAIL: Recently Used sits above System Distribution -->
 <div class="right-rail" id="rightRail">
+
+<!-- UNFINISHED BUSINESS (top of the rail; hidden until the visitor has open tasks; filled by script) -->
+<button type="button" class="unfinished-launch" id="unfinishedOpen"
+        aria-expanded="false" aria-controls="unfinishedPanel" hidden>
+  <span>⏳ Unfinished <b id="unfinishedBadge">0</b></span><span aria-hidden="true">▾</span>
+</button>
+<aside class="unfinished-panel" id="unfinishedPanel" aria-label="Unfinished tasks" hidden>
+  <button type="button" class="unfinished-close" id="unfinishedClose" aria-label="Minimize unfinished business" title="Minimize">▴</button>
+  <h2>Unfinished Business</h2>
+  <div id="unfinishedList"></div>
+</aside>
 
 <!-- RECENTLY USED TOOLS (hidden until the visitor has opened a tool; filled by script) -->
 <button type="button" class="recent-tools-launch" id="recentToolsOpen"
@@ -4168,6 +4415,184 @@
   })();
 </script>
 
+<script>
+  /* ── UNFINISHED BUSINESS ──
+     Shows, at the top of the right rail, the tasks this visitor added in
+     Top 10 Tasks and the Travel Checklist but hasn't completed.
+     Reads only the visitor's own browser storage (localStorage); nothing is
+     sent anywhere. Shows nothing when there is nothing open.
+
+     To connect a tool: put the localStorage key(s) it saves under in `keys`.
+     Not sure of the key? Open the site with ?unfinished-debug on the end of
+     the address and look in the browser console, or run RVUnfinished.scan().
+     If a tool saves a different shape, add  extract: function (data) { ... }
+     returning [{ text: '...', done: true|false }, ...]. */
+  (function () {
+    const COLLAPSE_KEY = 'rvUnfinishedCollapsed';
+    const SHOW_PER_TOOL = 3;
+
+    const SOURCES = [
+      { label: 'Top 10 Tasks',
+        url: '/top-10-tasks-monitor/',
+        keys: ['rvTop10Tasks', 'rvTop10', 'top10Tasks', 'top10_tasks', 'top10', 'rv_top10_tasks'] },
+      { label: 'Travel Checklist',
+        url: '/international-airtravel-checklist/',
+        keys: ['rvTravelChecklist', 'rvAirTravelChecklist', 'travelChecklist', 'airTravelChecklist', 'rv_travel_checklist'] }
+    ];
+
+    const panel    = document.getElementById('unfinishedPanel');
+    const launch   = document.getElementById('unfinishedOpen');
+    const closeBtn = document.getElementById('unfinishedClose');
+    const badge    = document.getElementById('unfinishedBadge');
+    const list     = document.getElementById('unfinishedList');
+    if (!panel || !launch || !closeBtn || !badge || !list) return;
+
+    function parse(key) {
+      try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
+      catch (e) { return null; }
+    }
+
+    // Accepts [ {text,done} ] | { tasks|items|list|todos|checklist: [...] } | { "label": true/false }
+    function toItems(data) {
+      if (Array.isArray(data)) return data;
+      if (data && typeof data === 'object') {
+        for (const n of ['tasks', 'items', 'list', 'todos', 'checklist', 'entries']) {
+          if (Array.isArray(data[n])) return data[n];
+        }
+        const ks = Object.keys(data);
+        if (ks.length && ks.every(k => typeof data[k] === 'boolean')) {
+          return ks.map(k => ({ text: k, done: data[k] }));
+        }
+      }
+      return [];
+    }
+    const isDone = it => !!(it.done || it.completed || it.checked || it.isDone || it.complete ||
+                            it.status === 'done' || it.status === 'completed');
+    const labelOf = it => String(it.text || it.title || it.name || it.task || it.label || it.item || '').trim();
+
+    function readSource(src) {
+      let data = null;
+      for (let i = 0; i < src.keys.length && data === null; i++) data = parse(src.keys[i]);
+      if (data === null) return null;
+      const items = typeof src.extract === 'function' ? src.extract(data) : toItems(data);
+      const rows = [];
+      items.forEach(it => {
+        if (!it || typeof it !== 'object') return;
+        const text = labelOf(it);
+        if (text) rows.push({ text, done: isDone(it) });
+      });
+      if (!rows.length) return null;
+      return { src, total: rows.length, open: rows.filter(r => !r.done) };
+    }
+
+    function isCollapsed() {
+      try {
+        const v = localStorage.getItem(COLLAPSE_KEY);
+        if (v === '1') return true;
+        if (v === '0') return false;
+      } catch (e) { /* storage unavailable */ }
+      // No saved choice: open on desktop, minimized on tablets/phones so it
+      // doesn't push the search bar down.
+      return window.matchMedia('(max-width: 1200px)').matches;
+    }
+    function setCollapsed(on) {
+      try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+    }
+
+    function el(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;     // textContent only: visitor text is never parsed as HTML
+      return n;
+    }
+
+    function render() {
+      const results = SOURCES.map(readSource).filter(r => r && r.open.length);
+      list.textContent = '';
+
+      if (!results.length) {            // nothing open → show nothing
+        panel.hidden = true;
+        launch.hidden = true;
+        return;
+      }
+
+      let totalOpen = 0;
+      results.forEach(r => {
+        totalOpen += r.open.length;
+        const done = r.total - r.open.length;
+
+        const group = el('div', 'unf-group');
+
+        const head = el('a', 'unf-head');
+        head.href = r.src.url;
+        head.append(el('span', null, r.src.label), el('span', 'unf-head-count', done + '/' + r.total + ' done ›'));
+        group.appendChild(head);
+
+        const bar = el('div', 'unf-bar');
+        const fill = el('i');
+        fill.style.width = Math.round((done / r.total) * 100) + '%';
+        bar.appendChild(fill);
+        group.appendChild(bar);
+
+        const ul = el('ul', 'unf-items');
+        r.open.slice(0, SHOW_PER_TOOL).forEach(row => ul.appendChild(el('li', 'unf-item', row.text)));
+        group.appendChild(ul);
+
+        if (r.open.length > SHOW_PER_TOOL) {
+          const more = el('a', 'unf-more', '+' + (r.open.length - SHOW_PER_TOOL) + ' more ›');
+          more.href = r.src.url;
+          group.appendChild(more);
+        }
+        list.appendChild(group);
+      });
+
+      badge.textContent = totalOpen;
+      const collapsed = isCollapsed();
+      panel.hidden = false;
+      panel.classList.toggle('is-closed', collapsed);
+      launch.hidden = !collapsed;
+      launch.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+
+    launch.addEventListener('click', function () {
+      setCollapsed(false);
+      render();
+      closeBtn.focus({ preventScroll: true });
+    });
+    closeBtn.addEventListener('click', function () {
+      setCollapsed(true);
+      render();
+      launch.focus({ preventScroll: true });
+    });
+
+    // Fresh when coming back with the Back button, and when another tab changes the lists
+    window.addEventListener('pageshow', e => { if (e.persisted) render(); });
+    window.addEventListener('storage', render);
+
+    // Finds localStorage entries that look like task lists (to get the right `keys`)
+    function scan() {
+      const found = [];
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const items = toItems(parse(key)).filter(it => it && typeof it === 'object' && labelOf(it));
+          if (items.length) found.push({ key, total: items.length, open: items.filter(it => !isDone(it)).length });
+        }
+      } catch (e) { /* storage unavailable */ }
+      if (console.table) console.table(found);
+      return found;
+    }
+
+    window.RVUnfinished = {
+      register: function (src) { SOURCES.push(src); render(); },
+      refresh: render,
+      scan: scan
+    };
+
+    render();
+    if (/[?&]unfinished-debug/.test(location.search)) scan();
+  })();
+</script>
 
 </body>
 </html>
