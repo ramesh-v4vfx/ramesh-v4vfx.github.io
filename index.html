@@ -2479,6 +2479,12 @@
   .unfinished-panel,
   .unfinished-launch { order: 0; }
 }
+
+/* Live Pomodoro row inside Unfinished Business */
+.unf-head-live { color: #ff2b2b; animation: hudPulse 2.4s ease-in-out infinite; }
+.unf-item.unf-live { color: #fff; font-variant-numeric: tabular-nums; }
+.unf-item.unf-live::before { background: #ff2b2b; box-shadow: 0 0 6px rgba(255,43,43,0.7); }
+@media (prefers-reduced-motion: reduce) { .unf-head-live { animation: none; } }
 </style>
 </head>
 <body>
@@ -4417,21 +4423,92 @@
 
 <script>
   /* ── UNFINISHED BUSINESS ──
-     Shows, at the top of the right rail, the tasks this visitor added in
-     Top 10 Tasks and the Travel Checklist but hasn't completed.
+     Shows, at the top of the right rail, what this visitor has left open:
+       • a running or paused Pomodoro session, as a live countdown
+         (read from localStorage key "rvActiveSession", written by Pomodoro Focus)
+       • tasks added in Top 10 Tasks, Daily Routine and the Travel Checklist
+         that haven't been completed.
      Reads only the visitor's own browser storage (localStorage); nothing is
      sent anywhere. Shows nothing when there is nothing open.
 
-     To connect a tool: put the localStorage key(s) it saves under in `keys`.
+     The Pomodoro countdown is computed from the saved start time, so it is
+     correct even if Pomodoro was closed and this page is opened 5 minutes
+     later. It stays until the session (focus + break) is over; if the focus
+     part finished while Pomodoro was closed, it shows "Session complete ·
+     tap to log it" until Pomodoro is opened and the session is counted.
+
+     To connect another tool: put the localStorage key(s) it saves under in `keys`.
      Not sure of the key? Open the site with ?unfinished-debug on the end of
      the address and look in the browser console, or run RVUnfinished.scan().
      If a tool saves a different shape, add  extract: function (data) { ... }
      returning [{ text: '...', done: true|false }, ...]. */
   (function () {
     const COLLAPSE_KEY = 'rvUnfinishedCollapsed';
+    const ACTIVE_KEY   = 'rvActiveSession';
     const SHOW_PER_TOOL = 3;
 
+    /* ── Live Pomodoro ──
+       Returns null when there is nothing to show, otherwise
+       { key, text, time, frac }:
+         key   changes when the phase changes (triggers a full re-render)
+         text  the line shown in the panel
+         time  short form for the minimized launcher
+         frac  0..1 progress of the current phase */
+    function mmss(ms) {
+      const s = Math.max(0, Math.ceil(ms / 1000));
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+      const mm = String(m).padStart(2, '0'), ss = String(sec).padStart(2, '0');
+      return h ? h + ':' + mm + ':' + ss : mm + ':' + ss;
+    }
+
+    function pomodoroView() {
+      let s = null;
+      try { s = JSON.parse(localStorage.getItem(ACTIVE_KEY)); } catch (e) { return null; }
+      if (!s || s.type !== 'pomodoro') return null;
+
+      const mode = s.mode === 'break' ? 'break' : 'work';
+      const duration = s.duration;
+      if (!isFinite(duration) || duration <= 0) return null;
+      const breakMs = isFinite(s.breakMs) && s.breakMs > 0 ? s.breakMs : 5 * 60 * 1000;
+      const icon = mode === 'break' ? '☕' : '🍅';
+      const name = mode === 'break' ? 'Break' : 'Focus';
+      const now = Date.now();
+
+      if (s.state === 'paused') {
+        const used = Math.max(0, s.elapsedAtPause || 0);
+        const left = mmss(duration - used);
+        return { key: mode + ':paused', text: icon + ' ' + name + ' paused · ' + left + ' left', time: left, frac: used / duration };
+      }
+      if (s.state !== 'running' || !isFinite(s.startedAt)) return null;
+
+      const end = s.startedAt + duration;
+      if (now < end) {
+        const left = mmss(end - now);
+        return { key: mode + ':running', text: icon + ' ' + name + ' · ' + left + ' left', time: left, frac: (now - s.startedAt) / duration };
+      }
+
+      // Focus ended while Pomodoro was closed: the break is running (or finished) by the clock.
+      if (mode === 'work') {
+        const breakEnd = end + breakMs;
+        if (now < breakEnd) {
+          const left = mmss(breakEnd - now);
+          return { key: 'break:running', text: '☕ Break · ' + left + ' left', time: left, frac: (now - end) / breakMs };
+        }
+        return { key: 'done', text: '✅ Session complete · tap to log it', time: '✅', frac: 1 };
+      }
+      return null;   // break is over and the focus session was already counted
+    }
+
+    const pct = f => Math.round(Math.min(1, Math.max(0, f)) * 100) + '%';
+
     const SOURCES = [
+      { label: 'Pomodoro Focus',
+        url: '/pomodoro-focus/',
+        // Live source: returns its own view instead of reading a task list.
+        read: function (src) {
+          const v = pomodoroView();
+          return v ? { src: src, live: v, total: 1, open: [v] } : null;
+        } },
       { label: 'Top 10 Tasks',
         url: '/top-10-tasks-monitor/',
         keys: ['top10_today'],
@@ -4467,6 +4544,9 @@
     const list     = document.getElementById('unfinishedList');
     if (!panel || !launch || !closeBtn || !badge || !list) return;
 
+    let liveKey = '';     // which Pomodoro phase is currently drawn ('' = none)
+    let openCount = 0;    // number shown on the minimized launcher
+
     function parse(key) {
       try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
       catch (e) { return null; }
@@ -4491,6 +4571,7 @@
     const labelOf = it => String(it.text || it.title || it.name || it.task || it.label || it.item || '').trim();
 
     function readSource(src) {
+      if (typeof src.read === 'function') return src.read(src);   // live sources build their own result
       let data = null;
       for (let i = 0; i < src.keys.length && data === null; i++) data = parse(src.keys[i]);
       if (data === null) return null;
@@ -4526,9 +4607,48 @@
       return n;
     }
 
+    function renderLiveGroup(r) {
+      liveKey = r.live.key;
+
+      const group = el('div', 'unf-group');
+
+      const head = el('a', 'unf-head');
+      head.href = r.src.url;
+      head.append(
+        el('span', null, r.src.label),
+        el('span', 'unf-head-count unf-head-live', r.live.key === 'done' ? 'LOG IT ›' : 'LIVE ›')
+      );
+      group.appendChild(head);
+
+      const bar = el('div', 'unf-bar');
+      const fill = el('i');
+      fill.id = 'unfLiveBar';
+      fill.style.width = pct(r.live.frac);
+      bar.appendChild(fill);
+      group.appendChild(bar);
+
+      const ul = el('ul', 'unf-items');
+      const li = el('li', 'unf-item unf-live', r.live.text);
+      li.id = 'unfLiveText';
+      ul.appendChild(li);
+      group.appendChild(ul);
+
+      list.appendChild(group);
+    }
+
+    // Cheap once-a-second refresh of just the countdown text, bar and launcher
+    function updateLive(v) {
+      const t = document.getElementById('unfLiveText');
+      if (t) t.textContent = v.text;
+      const b = document.getElementById('unfLiveBar');
+      if (b) b.style.width = pct(v.frac);
+      badge.textContent = openCount + ' · ' + v.time;   // so the minimized button shows the time too
+    }
+
     function render() {
       const results = SOURCES.map(readSource).filter(r => r && r.open.length);
       list.textContent = '';
+      liveKey = '';
 
       if (!results.length) {            // nothing open → show nothing
         panel.hidden = true;
@@ -4537,8 +4657,16 @@
       }
 
       let totalOpen = 0;
+      let live = null;
       results.forEach(r => {
         totalOpen += r.open.length;
+
+        if (r.live) {
+          live = r.live;
+          renderLiveGroup(r);
+          return;
+        }
+
         const done = r.total - r.open.length;
 
         const group = el('div', 'unf-group');
@@ -4566,7 +4694,10 @@
         list.appendChild(group);
       });
 
+      openCount = totalOpen;
       badge.textContent = totalOpen;
+      if (live) updateLive(live);
+
       const collapsed = isCollapsed();
       panel.hidden = false;
       panel.classList.toggle('is-closed', collapsed);
@@ -4588,6 +4719,17 @@
     // Fresh when coming back with the Back button, and when another tab changes the lists
     window.addEventListener('pageshow', e => { if (e.persisted) render(); });
     window.addEventListener('storage', render);
+
+    // Once a second: tick the Pomodoro countdown, and redraw only when its phase
+    // changed (running → break → complete) or a session started/ended elsewhere.
+    setInterval(function () {
+      if (document.hidden) return;
+      const v = pomodoroView();
+      const key = v ? v.key : '';
+      if (key !== liveKey) { render(); return; }
+      if (v) updateLive(v);
+    }, 1000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
 
     // Finds localStorage entries that look like task lists (to get the right `keys`)
     function scan() {

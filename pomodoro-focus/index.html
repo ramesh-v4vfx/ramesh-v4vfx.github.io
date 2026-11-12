@@ -417,7 +417,8 @@
 
   <div class="panel" id="todayPanel" hidden></div>
   <div class="panel" id="historyPanel" hidden></div>
-  <div id="pushDebug" style="margin-top:10px; font-size:0.7rem; color:var(--text-dim); word-break:break-word;"></div>
+  <!-- Push debug line: hidden for visitors, shown only when the address ends with ?debug -->
+  <div id="pushDebug" hidden style="margin-top:10px; font-size:0.7rem; color:var(--text-dim); word-break:break-word;"></div>
 
   <!-- Task note modal, shown automatically when a focus session ends.
        Nested inside .app so it inherits the live --accent color (work/break). -->
@@ -435,18 +436,39 @@
 </div>
 
 <script>
+/* =====================================================================
+   HOW THIS TIMER WORKS
+   localStorage key "rvActiveSession" is the single source of truth:
+
+     { v:1, type:"pomodoro", mode:"work"|"break", state:"running"|"paused",
+       duration, breakMs, startedAt, elapsedAtPause, push, updatedAt }
+
+   - running: the end time is startedAt + duration (wall-clock timestamps)
+   - paused:  elapsedAtPause holds how much of the phase was used
+   Nothing on screen is "the timer". The display is always recomputed from
+   this saved record, so closing the page, switching tools or killing the
+   PWA never stops the session. The homepage reads the same key.
+   ===================================================================== */
+
 /* ---------------- CONFIG ---------------- */
 const WORK_TIME = 25 * 60 * 1000;
 const BREAK_TIME = 5 * 60 * 1000;
+const FIVE_MIN = 5 * 60 * 1000;
 const TICK_MS = 100; // update frequency; setInterval (not rAF) so it keeps running when the tab is minimized
+const ACTIVE_KEY = "rvActiveSession";
+const LOG_KEY = "pomodoroLog";
+const DEBUG = /[?&]debug/.test(location.search);
 
-/* ---------------- STATE ---------------- */
+/* ---------------- STATE (in-memory copy of the saved session) ---------------- */
 let state = "idle";      // idle | running | paused
 let mode = "work";       // work | break
 let duration = WORK_TIME;
 let elapsedAtPause = 0;
-let startTime = 0;
+let startTime = 0;       // wall-clock ms when the current phase started (running only)
 let intervalId = null;
+
+let pushOn = false;      // true once the Worker has our push notifications scheduled
+let pushToken = 0;       // lets a late push-scheduling result detect it is out of date
 
 let sessionsToday = 0;
 let workMsToday = 0;
@@ -472,17 +494,22 @@ const noteInput = document.getElementById("noteInput");
 
 /* ---------------- UTILS ---------------- */
 function format(ms) {
-  const totalSec = Math.max(ms, 0) / 1000;
+  const safe = Math.max(ms, 0);
+  const totalSec = safe / 1000;
   const min = Math.floor(totalSec / 60);
   const sec = Math.floor(totalSec % 60);
-  const micro = Math.floor(ms % 1000 < 0 ? 0 : ms % 1000);
+  const micro = Math.floor(safe % 1000);
   return `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}.${String(micro).padStart(3,"0")}`;
 }
 
-function todayKey() {
-  return new Date().toLocaleDateString("en-GB", {
+function dayKeyFor(ts) {
+  return new Date(ts).toLocaleDateString("en-GB", {
     day:"2-digit", month:"short", year:"numeric"
   });
+}
+
+function todayKey() {
+  return dayKeyFor(Date.now());
 }
 
 function timeNow() {
@@ -507,14 +534,18 @@ function pulseDial() {
   dialEl.classList.add("pulse");
 }
 
-/* ---------------- NOTIFICATIONS (local fallback, no push) ---------------- */
+/* ---------------- NOTIFICATIONS ---------------- */
 function ensureNotificationPermission() {
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
   }
 }
 
-function sendNotification(title, body) {
+// Local banner, used ONLY when the Worker push isn't scheduled
+// (push denied/unsupported). Otherwise the push already delivers it
+// and showing both would double-notify.
+function notifyLocal(title, body) {
+  if (pushOn) return;
   if (!("Notification" in window)) return;
   if (Notification.permission === "granted") {
     try {
@@ -525,9 +556,18 @@ function sendNotification(title, body) {
   }
 }
 
-/* ---------------- STORAGE ---------------- */
+/* ---------------- LOG STORAGE (daily totals + notes) ---------------- */
+function readLog() {
+  try { return JSON.parse(localStorage.getItem(LOG_KEY) || "{}") || {}; }
+  catch (e) { return {}; }
+}
+
+function writeLog(data) {
+  try { localStorage.setItem(LOG_KEY, JSON.stringify(data)); } catch (e) {}
+}
+
 function loadToday() {
-  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
+  const data = readLog();
   const key = todayKey();
 
   currentDayKey = key;
@@ -546,20 +586,149 @@ function loadToday() {
 }
 
 function saveToday() {
-  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
-  data[todayKey()] = {
+  const data = readLog();
+  data[currentDayKey] = {
     sessions: sessionsToday,
     workMs: workMsToday,
     notes: notesToday
   };
-  localStorage.setItem("pomodoroLog", JSON.stringify(data));
+  writeLog(data);
 }
 
-/* ---------------- PUSH DEBUG HELPER ---------------- */
+/* Count one finished focus session on the day it actually ended
+   (a session that ended before midnight but is noticed after it
+   still lands on the right day). */
+function creditWork(endAt) {
+  if (todayKey() !== currentDayKey) loadToday();   // day rolled over while running; counters are already saved
+
+  const key = dayKeyFor(endAt);
+  if (key === currentDayKey) {
+    sessionsToday++;
+    workMsToday += WORK_TIME;
+    saveToday();
+    updateStats();
+    if (openPanel === "today") renderToday();
+  } else {
+    const data = readLog();
+    const entry = data[key] || { sessions: 0, workMs: 0, notes: [] };
+    entry.sessions = (entry.sessions || 0) + 1;
+    entry.workMs = (entry.workMs || 0) + WORK_TIME;
+    entry.notes = entry.notes || [];
+    data[key] = entry;
+    writeLog(data);
+  }
+}
+
+/* ---------------- ACTIVE SESSION STORAGE (the source of truth) ---------------- */
+function readActive() {
+  try {
+    const s = JSON.parse(localStorage.getItem(ACTIVE_KEY));
+    if (!s || s.type !== "pomodoro") return null;
+    if (s.state !== "running" && s.state !== "paused") return null;
+    if (!Number.isFinite(s.duration) || s.duration <= 0) return null;
+    if (s.state === "running" && !Number.isFinite(s.startedAt)) return null;
+    return s;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveActive() {
+  if (state === "idle") { clearActive(); return; }
+  try {
+    localStorage.setItem(ACTIVE_KEY, JSON.stringify({
+      v: 1,
+      type: "pomodoro",
+      mode: mode,
+      state: state,
+      duration: duration,
+      breakMs: BREAK_TIME,
+      startedAt: state === "running" ? startTime : null,
+      elapsedAtPause: state === "paused" ? elapsedAtPause : 0,
+      push: pushOn,
+      updatedAt: Date.now()
+    }));
+  } catch (e) {}
+}
+
+function clearActive() {
+  try {
+    const raw = localStorage.getItem(ACTIVE_KEY);
+    if (!raw) return;
+    let other = false;
+    try { const s = JSON.parse(raw); other = !!(s && s.type && s.type !== "pomodoro"); } catch (e) {}
+    if (!other) localStorage.removeItem(ACTIVE_KEY);   // never delete another tool's session
+  } catch (e) {}
+}
+
+/* ---------------- PUSH (Cloudflare Worker via RVNotify) ---------------- */
 function rvLog(msg) {
-  const dbg = document.getElementById("pushDebug");
-  if (dbg) dbg.textContent = (dbg.textContent ? dbg.textContent + " | " : "") + msg;
   console.log("[rv-notify]", msg);
+  if (!DEBUG) return;
+  const dbg = document.getElementById("pushDebug");
+  if (!dbg) return;
+  dbg.hidden = false;
+  dbg.textContent = (dbg.textContent ? dbg.textContent + " | " : "") + msg;
+}
+
+// Everything the Worker needs to deliver for the CURRENT phase, scheduled in
+// one go, so it still fires if the app is closed the whole time:
+//   focus phase: 5-minutes-left, session complete, break over
+//   break phase: break over
+function buildPushPlan() {
+  const remaining = duration - (Date.now() - startTime);
+  const plan = [];
+  if (remaining <= 0) return plan;
+
+  if (mode === "work") {
+    if (remaining > FIVE_MIN) {
+      plan.push({ delayMs: remaining - FIVE_MIN, title: "5 minutes left", body: "Final stretch — 5 minutes remaining in this focus session.", tag: "pomodoro-5min" });
+    }
+    plan.push({ delayMs: remaining, title: "Session complete", body: "Focus session finished — time for a 5 minute break.", tag: "pomodoro-done" });
+    plan.push({ delayMs: remaining + BREAK_TIME, title: "Break's over", body: "Ready when you are for the next focus session.", tag: "pomodoro-break-done" });
+  } else {
+    plan.push({ delayMs: remaining, title: "Break's over", body: "Ready when you are for the next focus session.", tag: "pomodoro-break-done" });
+  }
+  return plan;
+}
+
+function schedulePushes() {
+  if (!window.RVNotify) {
+    rvLog("RVNotify not loaded — check script tag / file path");
+    return;
+  }
+  const plan = buildPushPlan();
+  if (!plan.length) return;
+
+  const token = ++pushToken;
+  rvLog("starting subscribe...");
+  RVNotify.ensurePushSubscription()
+    .then(function (sub) {
+      if (!sub) { rvLog("ensurePushSubscription returned null (denied/unsupported)"); return; }
+      if (token !== pushToken) return;               // paused or reset before subscribing finished
+      rvLog("subscribed OK, scheduling...");
+      return RVNotify.scheduleNotifications(plan).then(function () {
+        if (token !== pushToken && state !== "running") {
+          // paused/reset while the request was in flight: undo what just got scheduled
+          Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+          return;
+        }
+        pushOn = true;
+        saveActive();
+        rvLog("scheduled OK");
+      });
+    })
+    .catch(function (err) {
+      rvLog("ERROR: " + (err && err.message ? err.message : String(err)));
+    });
+}
+
+function cancelPushes() {
+  pushToken++;
+  pushOn = false;
+  if (window.RVNotify) {
+    try { Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}); } catch (e) {}
+  }
 }
 
 /* ---------------- TIMER ---------------- */
@@ -570,40 +739,25 @@ function toggleTimer() {
     duration = WORK_TIME;
     elapsedAtPause = 0;
     beginRun();
-
-    // True push notifications — fire even if the phone is locked or the
-    // PWA is fully closed, once the Cloudflare Worker's alarm goes off.
-    if (window.RVNotify) {
-      rvLog("starting subscribe...");
-      RVNotify.ensurePushSubscription()
-        .then(function (sub) {
-          if (!sub) { rvLog("ensurePushSubscription returned null (denied/unsupported)"); return; }
-          rvLog("subscribed OK, scheduling...");
-          return RVNotify.scheduleNotifications([
-            { delayMs: WORK_TIME - 5 * 60 * 1000, title: "5 minutes left", body: "Final stretch — 5 minutes remaining in this focus session.", tag: "pomodoro-5min" },
-            { delayMs: WORK_TIME, title: "Session complete", body: "Focus session finished — time for a 5 minute break.", tag: "pomodoro-done" }
-          ]).then(function () { rvLog("scheduled OK"); });
-        })
-        .catch(function (err) {
-          rvLog("ERROR: " + (err && err.message ? err.message : String(err)));
-        });
-    } else {
-      rvLog("RVNotify not loaded — check script tag / file path");
-    }
+    schedulePushes();          // fires even if the phone is locked or the PWA is closed
   } else if (state === "running") {
+    if (Date.now() >= startTime + duration) { settle(); return; }   // phase already ended; let it roll over
     pauseRun();
   } else if (state === "paused") {
     beginRun();
+    schedulePushes();          // pushes were cancelled on pause; schedule again for the time left
   }
 }
 
 function beginRun() {
   state = "running";
   startTime = Date.now() - elapsedAtPause;
+  elapsedAtPause = 0;
   statusEl.textContent = mode === "work" ? "Focus time" : "Break time";
   toggleBtn.textContent = "⏸ Pause";
   clearInterval(intervalId);
   intervalId = setInterval(tick, TICK_MS);
+  saveActive();
 }
 
 function pauseRun() {
@@ -612,20 +766,27 @@ function pauseRun() {
   clearInterval(intervalId);
   statusEl.textContent = "Paused";
   toggleBtn.textContent = "▶ Resume";
-  if (window.RVNotify) RVNotify.cancelNotifications();
+  cancelPushes();
+  saveActive();
 }
 
-function resetTimer() {
+// Puts the screen in its idle look. Does not touch saved data or pushes.
+function showIdle(statusText) {
   clearInterval(intervalId);
   state = "idle";
   setMode("work");
   duration = WORK_TIME;
   elapsedAtPause = 0;
   display.textContent = format(WORK_TIME);
-  statusEl.textContent = "Ready to focus";
+  statusEl.textContent = statusText || "Ready to focus";
   toggleBtn.textContent = "▶ Start";
   setProgress(0);
-  if (window.RVNotify) RVNotify.cancelNotifications();
+}
+
+function resetTimer() {
+  showIdle();
+  cancelPushes();
+  clearActive();
 }
 
 function tick() {
@@ -633,45 +794,111 @@ function tick() {
   const remaining = duration - elapsed;
 
   if (remaining <= 0) {
-    display.textContent = "00:00.000";
-    setProgress(1);
-    clearInterval(intervalId);
-    pulseDial();
-
-    if (mode === "work") {
-      sessionsToday++;
-      workMsToday += WORK_TIME;
-      saveToday();
-      updateStats();
-      if (openPanel === "today") renderToday();
-
-      // No local sendNotification here on purpose — the real push notification
-      // (scheduled at session start via RVNotify) already delivers this banner.
-      // Calling both would show two notifications for the same moment.
-      if ("vibrate" in navigator) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} }
-      if (window.RVNotify) RVNotify.cancelNotifications();
-      openNotePopup();
-
-      setMode("break");
-      duration = BREAK_TIME;
-      elapsedAtPause = 0;
-      beginRun();
-    } else {
-      state = "idle";
-      setMode("work");
-      duration = WORK_TIME;
-      elapsedAtPause = 0;
-      display.textContent = format(WORK_TIME);
-      setProgress(0);
-      toggleBtn.textContent = "▶ Start";
-      statusEl.textContent = "Ready for next session";
-      sendNotification("Break's over", "Ready when you are for the next focus session.");
-    }
+    settle();
     return;
   }
 
   display.textContent = format(remaining);
   setProgress(elapsed / duration);
+}
+
+/* A focus phase ended. Count it, ask for a note, and continue into the break
+   anchored to when focus ACTUALLY ended (so a break that was already running
+   while the app was closed shows the right time left). */
+function finishWork(endAt) {
+  creditWork(endAt);
+  pulseDial();
+
+  const fresh = Date.now() - endAt < 5000;
+  if (fresh) {
+    if ("vibrate" in navigator) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} }
+    notifyLocal("Session complete", "Focus session finished — time for a 5 minute break.");
+  }
+  openNotePopup();
+
+  setMode("break");
+  duration = BREAK_TIME;
+  startTime = endAt;
+  elapsedAtPause = 0;
+  state = "running";
+  statusEl.textContent = "Break time";
+  toggleBtn.textContent = "⏸ Pause";
+  saveActive();
+}
+
+function finishBreak(endAt) {
+  const fresh = Date.now() - endAt < 5000;
+  if (fresh) {
+    pulseDial();
+    notifyLocal("Break's over", "Ready when you are for the next focus session.");
+  }
+  showIdle("Ready for next session");
+  pushOn = false;
+  clearActive();     // the break push was already delivered by the Worker
+}
+
+/* Moves through every phase that has already ended (focus → break → done),
+   whether it ended a moment ago or while the app was closed. */
+function settle() {
+  clearInterval(intervalId);
+
+  let guard = 0;
+  while (state === "running" && Date.now() >= startTime + duration && guard++ < 5) {
+    const endAt = startTime + duration;
+
+    if (mode === "work") {
+      // If another tab/window already handled this focus phase, adopt its state
+      // instead of counting the session twice.
+      const stored = readActive();
+      if (!stored || stored.mode !== "work" || stored.startedAt !== startTime) {
+        syncFromStorage();
+        return;
+      }
+      finishWork(endAt);
+    } else {
+      finishBreak(endAt);
+    }
+  }
+
+  if (state === "running") {
+    intervalId = setInterval(tick, TICK_MS);
+    tick();
+  }
+}
+
+/* Rebuilds everything on screen from the saved session.
+   Returns true if a saved session was found. */
+function restoreActive() {
+  const s = readActive();
+  if (!s) return false;
+
+  clearInterval(intervalId);
+  setMode(s.mode === "break" ? "break" : "work");
+  duration = s.duration;
+  pushOn = !!s.push;
+
+  if (s.state === "paused") {
+    state = "paused";
+    startTime = 0;
+    elapsedAtPause = Math.max(0, s.elapsedAtPause || 0);
+    display.textContent = format(duration - elapsedAtPause);
+    setProgress(elapsedAtPause / duration);
+    statusEl.textContent = "Paused";
+    toggleBtn.textContent = "▶ Resume";
+    return true;
+  }
+
+  state = "running";
+  startTime = s.startedAt;
+  elapsedAtPause = 0;
+  statusEl.textContent = mode === "work" ? "Focus time" : "Break time";
+  toggleBtn.textContent = "⏸ Pause";
+  settle();     // credits anything that finished while away, then keeps the clock running
+  return true;
+}
+
+function syncFromStorage() {
+  if (!restoreActive() && state !== "idle") showIdle();
 }
 
 /* ---------------- TASK NOTE POPUP ---------------- */
@@ -736,7 +963,7 @@ function renderToday() {
   } else {
     notesHtml = notesToday.slice().reverse().map(n => `
       <div class="note-item">
-        <span class="note-time">${n.time}</span>
+        <span class="note-time">${escapeHtml(n.time)}</span>
         <span class="note-text">${escapeHtml(n.text)}</span>
       </div>
     `).join("");
@@ -754,7 +981,7 @@ function renderToday() {
 }
 
 function renderHistory() {
-  const data = JSON.parse(localStorage.getItem("pomodoroLog") || "{}");
+  const data = readLog();
   const dates = Object.keys(data).sort().reverse();
 
   if (dates.length === 0) {
@@ -764,7 +991,7 @@ function renderHistory() {
 
   historyPanel.innerHTML = dates.map(date => {
     const entry = data[date];
-    const mins = Math.floor(entry.workMs / 60000);
+    const mins = Math.floor((entry.workMs || 0) / 60000);
     const hrs = Math.floor(mins / 60);
     const rem = mins % 60;
     const worked = hrs > 0 ? `${hrs}h ${rem}m` : `${rem}m`;
@@ -774,7 +1001,7 @@ function renderHistory() {
       <div class="panel-row">
         <div class="row-top">
           <span class="date">${date}</span>
-          <span class="meta">${worked} • ${entry.sessions} sessions${noteCount ? ` • ${noteCount} notes` : ""}</span>
+          <span class="meta">${worked} • ${entry.sessions || 0} sessions${noteCount ? ` • ${noteCount} notes` : ""}</span>
         </div>
       </div>
     `;
@@ -794,7 +1021,7 @@ function deleteHistory() {
   );
   if (!ok) return;
 
-  localStorage.removeItem("pomodoroLog");
+  localStorage.removeItem(LOG_KEY);
   sessionsToday = 0;
   workMsToday = 0;
   notesToday = [];
@@ -812,9 +1039,31 @@ setInterval(() => {
   }
 }, 60000);
 
+/* ---------------- KEEP IN SYNC ---------------- */
+// Coming back to the app (unlocking the phone, switching tabs): recompute from
+// the saved session immediately instead of waiting for the next tick.
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) syncFromStorage();
+});
+
+// Restored from the back/forward cache.
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted) { loadToday(); syncFromStorage(); }
+});
+
+// Another tab or installed-app window changed the session or the log.
+window.addEventListener("storage", (e) => {
+  if (e.key === null || e.key === ACTIVE_KEY) syncFromStorage();
+  if (e.key === null || e.key === LOG_KEY) {
+    loadToday();
+    if (openPanel === "today") renderToday();
+    if (openPanel === "history") renderHistory();
+  }
+});
+
 /* ---------------- INIT ---------------- */
 loadToday();
-resetTimer();
+syncFromStorage();   // resumes a running/paused session, or counts one that finished while away
 </script>
 
 <script src="/libraries/config.js"></script>
