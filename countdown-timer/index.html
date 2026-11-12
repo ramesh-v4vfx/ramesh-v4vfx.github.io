@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Free online countdown timer from 1 to 60 minutes. Keeps running when you close the page and sends reminders along the way and when time is up.">
+
+<title>Timer — Countdown up to 1 Hour with Reminders</title>
+
+<link rel="canonical" href="https://rameshverse.com/timer-countdown">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"></noscript>
+<meta name="theme-color" content="#0e0101">
+
+<style>
+  /* Stand-in for Space Mono while it loads (same trick as the homepage) */
+  @font-face {
+    font-family: 'Space Mono Fallback';
+    src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('Cousine'), local('Courier');
+    size-adjust: 102%;
+    ascent-override: 109.8%;
+    descent-override: 35.4%;
+    line-gap-override: 0%;
+  }
+
+  :root {
+    --bg: #0e0101;
+    --text: #f2eeee;
+    --text-dim: #9a9599;
+    --red: #ff2b2b;
+    --accent-run: #ff2b2b;
+    --accent-paused: #f59e0b;
+    --accent-done: #4ade80;
+    --mono: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { background: var(--bg); }
+
+  body {
+    margin: 0;
+    font-family: var(--mono);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 28px 12px;
+    background:
+      radial-gradient(ellipse 600px 420px at 50% -6%, rgba(255,43,43,0.12), transparent 65%),
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+      var(--bg);
+    background-size: auto, 34px 34px, 34px 34px, auto;
+  }
+
+  /* ---------- PANEL (cut corner, like the homepage HUD panels) ---------- */
+  .app {
+    --accent: var(--accent-run);
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    padding: 26px 24px 22px 26px;
+    background:
+      repeating-linear-gradient(to bottom, rgba(255,43,43,0.035) 0px, rgba(255,43,43,0.035) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg, #1b1b1d, #0c0c0d);
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+    transition: border-color .4s ease;
+  }
+
+  .app[data-mode="paused"] { --accent: var(--accent-paused); }
+  .app[data-mode="done"]   { --accent: var(--accent-done); }
+
+  /* glowing left edge */
+  .app::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px; height: 100%;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+    transition: background .4s ease;
+  }
+
+  /* the diagonal that closes the cut corner */
+  .app::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 22px; height: 22px;
+    background: linear-gradient(135deg, transparent 49%, color-mix(in srgb, var(--accent) 60%, transparent) 50%, transparent 51%);
+  }
+
+  /* HUD corner marks */
+  .hud-corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    pointer-events: none;
+    opacity: .7;
+    filter: drop-shadow(0 0 2px var(--accent));
+    transition: border-color .4s ease;
+  }
+  .hud-corner.bl { bottom: 9px; left: 11px;  border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+  .hud-corner.br { bottom: 9px; right: 9px;  border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+  .hud-corner.tl { top: 9px;    left: 11px;  border-top: 2px solid var(--accent);    border-left: 2px solid var(--accent); }
+
+  /* ---------- HEADER ---------- */
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    transition: color .4s ease;
+  }
+
+  .brand .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: hudPulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes hudPulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+
+  /* mode readout, stamped in the corner like the tool-card unit IDs */
+  .badge {
+    position: absolute;
+    top: 12px;
+    right: 30px;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: .85;
+  }
+  .badge::before { content: "N·"; opacity: .6; }
+
+  h1 {
+    margin: 0 0 4px;
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff3b3b;
+    text-shadow: 0 0 10px rgba(255,43,43,0.55);
+  }
+
+  .subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ---------- DIAL ---------- */
+  .dial {
+    position: relative;
+    width: 220px; height: 220px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) calc(var(--progress, 0) * 360deg), rgba(255,255,255,0.07) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 22%, transparent), inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  /* tick marks around the dial */
+  .dial::before {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from -0.4deg, color-mix(in srgb, var(--accent) 55%, transparent) 0 0.8deg, transparent 0.8deg 6deg);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+    pointer-events: none;
+  }
+
+  .dial-inner {
+    width: calc(100% - 18px);
+    height: calc(100% - 18px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 26%, #1d1213, #0a0707 72%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,.7), inset 0 0 24px color-mix(in srgb, var(--accent) 10%, transparent);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .dial.pulse { animation: pulseDial 0.6s ease; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes pulseDial {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.045); }
+      100% { transform: scale(1); }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { .brand .dot { animation: none; opacity: 1; } }
+
+  .timer {
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+
+  .info {
+    margin-top: 6px;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    transition: color .4s ease;
+  }
+
+  /* ---------- TIME INPUT ---------- */
+  .setter { margin-bottom: 16px; }
+  .setter[hidden] { display: none; }
+
+  .field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .field label {
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  #minutes {
+    width: 100px;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: #ff3b3b;
+    text-shadow: 0 0 8px rgba(255,43,43,0.45);
+    background: linear-gradient(180deg, #19181a, #0b0a0b);
+    border: 1.5px solid rgba(255,43,43,0.3);
+    border-radius: 12px;
+    outline: none;
+    box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,43,43,.1);
+    transition: box-shadow .25s ease, border-color .25s ease;
+  }
+
+  #minutes:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 4px rgba(255,43,43,.2), 0 0 20px rgba(255,43,43,.35), 0 8px 22px rgba(0,0,0,.5);
+  }
+
+  #minutes.invalid { border-color: #ff6b52; box-shadow: 0 0 0 3px rgba(255,107,82,.25); }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .chip {
+    width: auto;
+    padding: 6px 13px;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    border-radius: 6px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.03);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.18);
+    border: none;
+    transition: background .3s ease, box-shadow .3s ease, color .3s ease, transform .2s ease;
+  }
+
+  .chip:hover {
+    color: var(--red);
+    background: rgba(255,43,43,0.1);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.5), 0 0 14px rgba(255,43,43,.3);
+    transform: translateY(-2px);
+  }
+
+  .chip.on {
+    color: var(--red);
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255,43,43,0.6);
+    background: rgba(255,43,43,0.18);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 0 2px rgba(255,43,43,0.2);
+  }
+
+  .hint {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 0.62rem;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .hint.error { color: #ff6b52; }
+
+  /* ---------- BUTTONS ---------- */
+  button {
+    width: 100%;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    transition: transform .15s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+  }
+
+  button:active { transform: scale(0.98); }
+
+  .btn-toggle {
+    padding: 14px;
+    font-size: 0.9rem;
+    color: var(--accent);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 22%, #1a0c0c), color-mix(in srgb, var(--accent) 8%, #0e0e0f));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent), 0 0 18px color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+
+  .btn-toggle:hover {
+    box-shadow: inset 0 0 0 1px var(--accent), 0 0 24px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .secondary {
+    margin-top: 8px;
+    padding: 11px 6px;
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.25);
+  }
+
+  .secondary:hover {
+    color: var(--red);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 16px rgba(255,43,43,0.25);
+  }
+
+  button:focus-visible, #minutes:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 3px; }
+</style>
+</head>
+
+<body>
+<div class="app" id="app" data-mode="run" style="--progress:0">
+  <i class="hud-corner tl"></i><i class="hud-corner bl"></i><i class="hud-corner br"></i>
+  <span class="badge" id="modeBadge">Timer</span>
+  <div class="brand"><span class="dot"></span> Rameshverse Systems · Timer</div>
+  <h1>Timer</h1>
+  <div class="subtitle">1–60 minutes · reminders along the way</div>
+
+  <div class="dial" id="dial">
+    <div class="dial-inner">
+      <div class="timer" id="display">10:00</div>
+      <div class="info" id="status" aria-live="polite">Set your time</div>
+    </div>
+  </div>
+
+  <div class="setter" id="setter">
+    <div class="field">
+      <input id="minutes" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Minutes (1 to 60)" value="10">
+      <label for="minutes">minutes</label>
+    </div>
+    <div class="chips" id="chips">
+      <button type="button" class="chip" data-min="5">5</button>
+      <button type="button" class="chip" data-min="10">10</button>
+      <button type="button" class="chip" data-min="15">15</button>
+      <button type="button" class="chip" data-min="30">30</button>
+      <button type="button" class="chip" data-min="45">45</button>
+      <button type="button" class="chip" data-min="60">60</button>
+    </div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <button class="btn-toggle" id="toggleBtn" onclick="toggleTimer()">▶ Start</button>
+  <button class="secondary" id="resetBtn" onclick="resetTimer()">↺ Reset</button>
+</div>
+
+<script>
+/* =====================================================================
+   HOW THIS TIMER WORKS
+   localStorage key "rvActiveTimer" is the single source of truth:
+
+     { v:1, type:"timer", state:"running"|"paused", duration,
+       startedAt, elapsedAtPause, push, updatedAt }
+
+   - running: the end time is startedAt + duration (wall-clock timestamps)
+   - paused:  elapsedAtPause holds how much time was used
+   The display is always recomputed from this record, so closing the page,
+   switching tools or killing the PWA never stops the timer. The homepage
+   reads the same key. Reminders are scheduled up front through the same
+   Cloudflare Worker (RVNotify) the other tools use, so they arrive even if
+   the app is closed.
+   ===================================================================== */
+
+/* ---------------- CONFIG ---------------- */
+const MIN_MINUTES = 1;
+const MAX_MINUTES = 60;
+const MINUTE = 60 * 1000;
+const TICK_MS = 200;
+const ACTIVE_KEY = "rvActiveTimer";
+const LAST_KEY = "rvTimerLast";            // last minutes used, to prefill the box
+const BASE_TITLE = document.title;
+
+/* ---------------- STATE ---------------- */
+let state = "idle";          // idle | running | paused
+let duration = 10 * MINUTE;
+let elapsedAtPause = 0;
+let startTime = 0;           // wall-clock ms the run (re)started, shifted for time already used
+let intervalId = null;
+let pushOn = false;
+let pushToken = 0;
+
+/* ---------------- ELEMENTS ---------------- */
+const appEl = document.getElementById("app");
+const dialEl = document.getElementById("dial");
+const modeBadge = document.getElementById("modeBadge");
+const display = document.getElementById("display");
+const statusEl = document.getElementById("status");
+const setterEl = document.getElementById("setter");
+const minutesEl = document.getElementById("minutes");
+const chipsEl = document.getElementById("chips");
+const hintEl = document.getElementById("hint");
+const toggleBtn = document.getElementById("toggleBtn");
+
+/* ---------------- HELPERS ---------------- */
+const pad = n => String(n).padStart(2, "0");
+function fmt(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return pad(Math.floor(s / 60)) + ":" + pad(s % 60);
+}
+const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
+function clock(ts) {
+  return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+function setProgress(f) { appEl.style.setProperty("--progress", Math.min(Math.max(f, 0), 1)); }
+function pulseDial() {
+  dialEl.classList.remove("pulse");
+  void dialEl.offsetWidth;
+  dialEl.classList.add("pulse");
+}
+function rvLog(msg) { console.log("[rv-notify]", msg); }
+
+/* ---------------- REMINDER RULES ----------------
+   Reminders depend on how long the timer is (m = minutes):
+     60 min → 30 and 10 minutes left, then the end
+     30 min → 15 and  5 minutes left, then the end
+     10 min →  5 and  2 minutes left, then the end
+      5–9   → 1 minute left, then the end
+      1–4   → only the end
+   m >= 10: one at the halfway point and one at m/6 minutes before the end. */
+function reminderMarks(m) {
+  const marks = [];
+  if (m >= 10) {
+    const half = Math.round(m / 2);
+    marks.push({ atMin: half, left: m - half, kind: "half" });
+    const f = Math.round(m / 6);
+    marks.push({ atMin: m - f, left: f, kind: "final" });
+  } else if (m >= 5) {
+    marks.push({ atMin: m - 1, left: 1, kind: "final" });
+  }
+  return marks;
+}
+
+// What the Worker should deliver, given how much of the timer is already used.
+function buildPushPlan(durMs, elapsedMs) {
+  const m = Math.round(durMs / MINUTE);
+  const plan = [];
+  reminderMarks(m).forEach(function (mk) {
+    const at = mk.atMin * MINUTE;
+    if (at <= elapsedMs + 1000) return;               // already past
+    plan.push({
+      delayMs: at - elapsedMs,
+      title: mk.kind === "half" ? "Halfway · " + plural(mk.left, "minute") + " left" : plural(mk.left, "minute") + " left",
+      body: mk.kind === "half"
+        ? plural(mk.left, "minute") + " remaining on your " + m + "-minute timer."
+        : "Almost done — " + plural(mk.left, "minute") + " to go.",
+      tag: "timer-" + mk.kind
+    });
+  });
+  if (durMs - elapsedMs > 0) {
+    plan.push({
+      delayMs: durMs - elapsedMs,
+      title: "Time's up",
+      body: "Your " + m + "-minute timer has finished.",
+      tag: "timer-end"
+    });
+  }
+  return plan;
+}
+
+function describeReminders(m) {
+  const parts = reminderMarks(m).map(mk => mk.left + " min left");
+  parts.push("at the end");
+  return "You'll be notified: " + parts.join(" · ");
+}
+
+/* ---------------- STORAGE ---------------- */
+function readActive() {
+  try {
+    const s = JSON.parse(localStorage.getItem(ACTIVE_KEY));
+    if (!s || s.type !== "timer") return null;
+    if (!isFinite(s.duration) || s.duration <= 0) return null;
+    if (s.state === "running" && isFinite(s.startedAt)) return s;
+    if (s.state === "paused" && isFinite(s.elapsedAtPause) && s.elapsedAtPause >= 0) return s;
+  } catch (e) {}
+  return null;
+}
+
+function saveActive() {
+  try {
+    if (state === "idle") { localStorage.removeItem(ACTIVE_KEY); return; }
+    localStorage.setItem(ACTIVE_KEY, JSON.stringify({
+      v: 1,
+      type: "timer",
+      state: state,
+      duration: duration,
+      startedAt: state === "running" ? startTime : null,
+      elapsedAtPause: state === "paused" ? elapsedAtPause : 0,
+      push: pushOn,
+      updatedAt: Date.now()
+    }));
+  } catch (e) {}
+}
+
+function clearActive() {
+  try { localStorage.removeItem(ACTIVE_KEY); } catch (e) {}
+}
+
+function lastMinutes() {
+  try {
+    const n = parseInt(localStorage.getItem(LAST_KEY), 10);
+    if (n >= MIN_MINUTES && n <= MAX_MINUTES) return n;
+  } catch (e) {}
+  return 10;
+}
+
+/* ---------------- PUSH (Cloudflare Worker via RVNotify) ---------------- */
+function ensureNotificationPermission() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
+// Local banner, used ONLY when the Worker push isn't scheduled (push denied or
+// unsupported). Otherwise the push already delivers it and both would show.
+function notifyLocal(title, body) {
+  if (pushOn) return;
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  try { new Notification(title, { body, tag: "timer" }); } catch (e) {}
+}
+
+function schedulePushes() {
+  if (!window.RVNotify) { rvLog("RVNotify not loaded — check script tag / file path"); return; }
+  const plan = buildPushPlan(duration, Date.now() - startTime);
+  if (!plan.length) return;
+
+  const token = ++pushToken;
+  RVNotify.ensurePushSubscription()
+    .then(function (sub) {
+      if (!sub) { rvLog("push denied/unsupported"); return; }
+      if (token !== pushToken) return;               // paused or reset before subscribing finished
+      return RVNotify.scheduleNotifications(plan).then(function () {
+        if (token !== pushToken && state !== "running") {
+          // paused/reset while the request was in flight: undo what just got scheduled
+          Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+          return;
+        }
+        pushOn = true;
+        saveActive();
+      });
+    })
+    .catch(function (err) { rvLog("ERROR: " + (err && err.message ? err.message : String(err))); });
+}
+
+function cancelPushes() {
+  pushToken++;
+  pushOn = false;
+  if (window.RVNotify) {
+    try { Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}); } catch (e) {}
+  }
+}
+
+/* ---------------- INPUT ---------------- */
+// Whole minutes 1–60, or 0 when the box is empty/invalid
+function readMinutes() {
+  const n = parseInt(minutesEl.value, 10);
+  return n >= MIN_MINUTES && n <= MAX_MINUTES ? n : 0;
+}
+
+function syncChips() {
+  const n = readMinutes();
+  chipsEl.querySelectorAll(".chip").forEach(function (c) {
+    c.classList.toggle("on", +c.dataset.min === n);
+  });
+}
+
+// Idle preview: show the chosen time on the dial and which reminders it gets
+function refreshIdle() {
+  const m = readMinutes();
+  minutesEl.classList.remove("invalid");
+  hintEl.classList.remove("error");
+  if (m) {
+    display.textContent = fmt(m * MINUTE);
+    hintEl.textContent = describeReminders(m);
+  } else {
+    display.textContent = "00:00";
+    hintEl.textContent = "Enter " + MIN_MINUTES + "–" + MAX_MINUTES + " minutes.";
+  }
+  setProgress(0);
+  syncChips();
+}
+
+minutesEl.addEventListener("input", function () {
+  let v = minutesEl.value.replace(/\D/g, "").slice(0, 2);
+  if (v !== "" && +v > MAX_MINUTES) v = String(MAX_MINUTES);       // 1 hour is the maximum
+  minutesEl.value = v;
+  if (state === "idle") {
+    appEl.dataset.mode = "run";
+    statusEl.textContent = "Set your time";
+    refreshIdle();
+  }
+});
+
+minutesEl.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") { e.preventDefault(); toggleTimer(); }
+});
+
+chipsEl.addEventListener("click", function (e) {
+  const b = e.target.closest(".chip");
+  if (!b || state !== "idle") return;
+  minutesEl.value = b.dataset.min;
+  appEl.dataset.mode = "run";
+  statusEl.textContent = "Set your time";
+  refreshIdle();
+});
+
+function lockInputs(on) {
+  setterEl.hidden = on;
+  minutesEl.disabled = on;
+}
+
+/* ---------------- SCREENS ---------------- */
+function showIdle(statusText) {
+  clearInterval(intervalId);
+  state = "idle";
+  elapsedAtPause = 0;
+  document.title = BASE_TITLE;
+  appEl.dataset.mode = "run";
+  modeBadge.textContent = "Timer";
+  minutesEl.value = String(Math.round(duration / MINUTE) || lastMinutes());
+  lockInputs(false);
+  statusEl.textContent = statusText || "Set your time";
+  toggleBtn.textContent = "▶ Start";
+  refreshIdle();
+}
+
+function showRunning() {
+  appEl.dataset.mode = "run";
+  modeBadge.textContent = "Timer";
+  minutesEl.value = String(Math.round(duration / MINUTE));
+  lockInputs(true);
+  statusEl.textContent = "Running";
+  toggleBtn.textContent = "⏸ Pause";
+}
+
+function showPaused() {
+  clearInterval(intervalId);
+  appEl.dataset.mode = "paused";
+  modeBadge.textContent = "Paused";
+  minutesEl.value = String(Math.round(duration / MINUTE));
+  lockInputs(true);
+  display.textContent = fmt(duration - elapsedAtPause);
+  setProgress(elapsedAtPause / duration);
+  statusEl.textContent = "Paused";
+  toggleBtn.textContent = "▶ Resume";
+  document.title = fmt(duration - elapsedAtPause) + " · " + BASE_TITLE;
+}
+
+function showFinished(endAt) {
+  showIdle();
+  appEl.dataset.mode = "done";
+  modeBadge.textContent = "Done";
+  display.textContent = "00:00";
+  setProgress(1);
+  statusEl.textContent = "Time's up · " + clock(endAt);
+  toggleBtn.textContent = "▶ Start again";
+}
+
+/* ---------------- TIMER ---------------- */
+function toggleTimer() {
+  if (state === "idle") {
+    const m = readMinutes();
+    if (!m) {
+      minutesEl.classList.add("invalid");
+      hintEl.classList.add("error");
+      hintEl.textContent = "Enter " + MIN_MINUTES + "–" + MAX_MINUTES + " minutes.";
+      minutesEl.focus();
+      return;
+    }
+    ensureNotificationPermission();
+    try { localStorage.setItem(LAST_KEY, String(m)); } catch (e) {}
+    duration = m * MINUTE;
+    elapsedAtPause = 0;
+    beginRun();
+    schedulePushes();          // fires even if the phone is locked or the PWA is closed
+  } else if (state === "running") {
+    if (Date.now() >= startTime + duration) { settle(); return; }
+    pauseRun();
+  } else if (state === "paused") {
+    beginRun();
+    schedulePushes();          // pushes were cancelled on pause; schedule again for the time left
+  }
+}
+
+function beginRun() {
+  state = "running";
+  startTime = Date.now() - elapsedAtPause;
+  showRunning();
+  saveActive();
+  clearInterval(intervalId);
+  intervalId = setInterval(tick, TICK_MS);
+  tick();
+}
+
+function pauseRun() {
+  elapsedAtPause = Date.now() - startTime;
+  state = "paused";
+  cancelPushes();
+  showPaused();
+  saveActive();
+}
+
+function resetTimer() {
+  showIdle();
+  cancelPushes();
+  clearActive();
+}
+
+function tick() {
+  const elapsed = Date.now() - startTime;
+  const remaining = duration - elapsed;
+  if (remaining <= 0) { settle(); return; }
+  display.textContent = fmt(remaining);
+  setProgress(elapsed / duration);
+  if (!document.hidden) document.title = fmt(remaining) + " · " + BASE_TITLE;
+}
+
+// The timer ran out (possibly while the app was closed)
+function finishTimer(endAt) {
+  clearInterval(intervalId);
+  const fresh = Date.now() - endAt < 5000;
+  if (fresh) {
+    if ("vibrate" in navigator) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} }
+    notifyLocal("Time's up", "Your " + Math.round(duration / MINUTE) + "-minute timer has finished.");
+  }
+  clearActive();
+  pushOn = false;           // the end push has been (or is being) delivered; nothing left to cancel
+  showFinished(endAt);
+  if (fresh) pulseDial();
+}
+
+function settle() {
+  if (state === "running" && Date.now() >= startTime + duration) finishTimer(startTime + duration);
+}
+
+/* ---------------- RESTORE / SYNC ----------------
+   Rebuilds the screen from the saved record. Runs on page load, when the page
+   comes back to the foreground, and when another tab changes the timer. */
+function syncFromStorage() {
+  clearInterval(intervalId);
+  const s = readActive();
+  if (!s) {
+    if (state !== "idle") showIdle();
+    return;
+  }
+  duration = s.duration;
+  pushOn = !!s.push;
+  if (s.state === "running") {
+    state = "running";
+    startTime = s.startedAt;
+    elapsedAtPause = 0;
+    if (Date.now() >= startTime + duration) { finishTimer(startTime + duration); return; }
+    showRunning();
+    intervalId = setInterval(tick, TICK_MS);
+    tick();
+  } else {
+    state = "paused";
+    elapsedAtPause = s.elapsedAtPause;
+    showPaused();
+  }
+}
+
+document.addEventListener("visibilitychange", function () { if (!document.hidden) syncFromStorage(); });
+window.addEventListener("pageshow", function (e) { if (e.persisted) syncFromStorage(); });
+window.addEventListener("storage", function (e) {
+  if (e.key === ACTIVE_KEY || e.key === null) syncFromStorage();
+});
+
+/* ---------------- INIT ---------------- */
+duration = lastMinutes() * MINUTE;
+showIdle();
+syncFromStorage();       // a running or paused timer saved earlier takes over the screen
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
+<script src="/libraries/rv-notify-client.js"></script>
+
+</body>
+</html>

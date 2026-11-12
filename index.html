@@ -2964,6 +2964,11 @@
     <p>A gentle daily checklist for busy schedules</p>
   </a>
 
+  <a class="tool" href="/countdown-timer/" data-search="countdown timer" data-category="productivity">
+    <h3>Timer: The Countdown Begins</h3>
+    <p>Countdown timer with smart reminders, even when the app is closed.</p>
+  </a>
+
   <a class="tool" href="/international-airtravel-checklist/" data-search="international travel checklist productivity tool" data-category="productivity">
     <h3>International Travel Checklist</h3>
     <p>A checklist for stress-free international air travel.</p>
@@ -4428,6 +4433,8 @@
          (read from localStorage key "rvActiveSession", written by Pomodoro Focus)
        • a running or paused Session Logger stopwatch, counting up live
          (read from localStorage key "rvActiveLogger", written by Session Logger)
+       • a running or paused Timer, as a live countdown
+         (read from localStorage key "rvActiveTimer", written by Timer)
        • tasks added in Top 10 Tasks, Daily Routine and the Travel Checklist
          that haven't been completed.
      Reads only the visitor's own browser storage (localStorage); nothing is
@@ -4448,6 +4455,7 @@
     const COLLAPSE_KEY = 'rvUnfinishedCollapsed';
     const ACTIVE_KEY   = 'rvActiveSession';   // Pomodoro Focus
     const LOGGER_KEY   = 'rvActiveLogger';    // Session Logger
+    const TIMER_KEY    = 'rvActiveTimer';     // Timer
     const SHOW_PER_TOOL = 3;
 
     /* ── Live Pomodoro ──
@@ -4538,8 +4546,29 @@
       return null;
     }
 
+    // Timer: a plain countdown. Once it runs out there is nothing left to do (no note
+    // to log), so a finished timer simply disappears from the panel.
+    function timerView() {
+      let s = null;
+      try { s = JSON.parse(localStorage.getItem(TIMER_KEY)); } catch (e) { return null; }
+      if (!s || s.type !== 'timer' || !isFinite(s.duration) || s.duration <= 0) return null;
+
+      if (s.state === 'running' && isFinite(s.startedAt)) {
+        const end = s.startedAt + s.duration;
+        const now = Date.now();
+        if (now >= end) return null;
+        const left = mmss(end - now);
+        return { id: 'timer', key: 'running', text: '⏲ Timer · ' + left + ' left', time: left, frac: (now - s.startedAt) / s.duration };
+      }
+      if (s.state === 'paused' && isFinite(s.elapsedAtPause) && s.elapsedAtPause >= 0) {
+        const left = mmss(s.duration - s.elapsedAtPause);
+        return { id: 'timer', key: 'paused', text: '⏲ Timer paused · ' + left + ' left', time: left, frac: s.elapsedAtPause / s.duration };
+      }
+      return null;
+    }
+
     // Every live source, in the order they appear in the panel
-    const LIVE_VIEWS = [pomodoroView, loggerView];
+    const LIVE_VIEWS = [pomodoroView, loggerView, timerView];
     const liveNow = () => LIVE_VIEWS.map(f => f()).filter(Boolean);
     const keyOf   = vs => vs.map(v => v.id + ':' + v.key).join('|');
 
@@ -4557,6 +4586,12 @@
         url: '/session-logger/',
         read: function (src) {
           const v = loggerView();
+          return v ? { src: src, live: v, total: 1, open: [v] } : null;
+        } },
+      { label: 'Timer',
+        url: '/countdown-timer/',
+        read: function (src) {
+          const v = timerView();
           return v ? { src: src, live: v, total: 1, open: [v] } : null;
         } },
       { label: 'Top 10 Tasks',
