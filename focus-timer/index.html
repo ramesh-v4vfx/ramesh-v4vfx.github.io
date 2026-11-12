@@ -386,6 +386,34 @@
     font-size:11px;
     letter-spacing:0.5px;
   }
+  /* ── Block-finished-while-away note + alerts toggle ── */
+  .away-note{
+    margin-top:14px;
+    font-size:10px;
+    color:var(--amber);
+    letter-spacing:0.5px;
+  }
+  .notify-row{
+    margin-top:18px;
+    font-size:10px;
+    color:var(--text-dim);
+    letter-spacing:0.5px;
+  }
+  .notify-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-family:inherit;
+    font-size:10px;
+    letter-spacing:1.5px;
+    padding:7px 14px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .notify-btn:hover{color:var(--text); border-color:var(--text-dim);}
+  .notify-btn.on{color:var(--green); border-color:var(--green); box-shadow:0 0 10px rgba(35,224,122,0.2);}
+  .notify-btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .notify-hint{display:block; margin-top:8px; line-height:1.5;}
 </style>
 </head>
 <body>
@@ -427,6 +455,13 @@
     <div class="interrupt-note" id="interruptNote" style="display:none;">
       INTERRUPTIONS THIS SESSION: <b id="interruptCount">0</b>
     </div>
+
+    <div class="away-note" id="awayNote" style="display:none;"></div>
+
+    <div class="notify-row" id="notifyRow" style="display:none;">
+      <button class="notify-btn" id="notifyBtn" type="button">ENABLE ALERTS</button>
+      <span class="notify-hint" id="notifyHint"></span>
+    </div>
   </div>
 
   <div class="telemetry" id="telemetry"></div>
@@ -441,44 +476,55 @@
     <div id="sessionLog"></div>
   </div>
 
-  <p class="intro">Track deep work sessions with a distraction-free timer, log interruptions as they happen, and see your focus streak, completion rate, and daily output charted over the last two weeks, all stored locally in your browser.</p>
+  <p class="intro">Track deep work sessions with a distraction-free timer, log interruptions as they happen, and see your focus streak, completion rate, and daily output charted over the last two weeks, all stored locally in your browser. A running session survives a page reload and shows up on the rameshverse homepage, and alerts remind you partway through and when a block ends, even if the page is closed.</p>
 
 </div>
 
 <script>
 (function(){
   const STORAGE_KEY = 'rv_focus_data_v1';
-  const DAYS_SHOWN = 14;
+  const ACTIVE_KEY  = 'rvActiveFocus';   // the open block; read by the rameshverse homepage "Unfinished Business" panel
+  const NOTIFY_KEY  = 'rv_focus_notify'; // '1' once the visitor has turned alerts on
+  const DAYS_SHOWN  = 14;
+  const BASE_TITLE  = document.title;
 
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  // Local calendar date (not UTC), so a late-night or early-morning session lands on the right day
   function todayStr(d){
     d = d || new Date();
-    return d.toISOString().slice(0,10);
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
   }
 
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+  function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+  function lsJSON(k){ try{ return JSON.parse(lsGet(k)); }catch(e){ return null; } }
+
   function loadData(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : { sessions: [] };
-    }catch(e){
-      return { sessions: [] };
-    }
+    const d = lsJSON(STORAGE_KEY);
+    return d && Array.isArray(d.sessions) ? d : { sessions: [] };
   }
-  function saveData(data){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-    catch(e){ console.error('RV·FOCUS: storage write failed', e); }
+  function saveData(d){
+    if(!lsSet(STORAGE_KEY, JSON.stringify(d))) console.error('RV·FOCUS: storage write failed');
   }
 
   let data = loadData();
 
   // ---- timer state ----
- let state = 'idle'; // idle | running | paused
+  let state = 'idle';            // idle | running | paused
   let selectedMin = 25;
-  let totalSeconds = selectedMin * 60;
-  let remainingSeconds = totalSeconds;
+  let remainingSeconds = selectedMin * 60;
   let interruptions = 0;
   let tickHandle = null;
-  let sessionStartTs = null;
-  let sessionEndTs = null; // wall-clock timestamp when the session should end
+  let sid = 0;                   // id of the open block (its original start time); same across pause/resume
+  let durationMs = 0;
+  let sessionStartTs = 0;        // running: wall-clock start, shifted forward on resume so start + duration = end
+  let sessionEndTs = 0;
+  let pausedElapsedMs = 0;       // paused: how much of the block was used
+  let persistOK = true;          // false when localStorage can't be written (private mode)
+  let controlsFor = null;        // which state the control buttons were last built for
+  let pendingTitle = '';         // tab title shown after a block ends in a background tab
 
   const els = {
     missionPanel: document.getElementById('missionPanel'),
@@ -491,19 +537,262 @@
     interruptNote: document.getElementById('interruptNote'),
     interruptCount: document.getElementById('interruptCount'),
     startFlash: document.getElementById('startFlash'),
+    awayNote: document.getElementById('awayNote'),
+    notifyRow: document.getElementById('notifyRow'),
+    notifyBtn: document.getElementById('notifyBtn'),
+    notifyHint: document.getElementById('notifyHint'),
   };
 
   function fmt(sec){
     const m = Math.floor(sec/60);
     const s = sec%60;
-    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    return pad(m) + ':' + pad(s);
   }
 
+  function ago(ms){
+    const m = Math.floor(ms/60000);
+    if(m < 1) return 'MOMENTS AGO';
+    if(m < 60) return m + ' MIN AGO';
+    return Math.floor(m/60) + ' H AGO';
+  }
+
+  // ---- closed-app alerts (Web Push through the shared rv-notify worker) ----
+  // Reminders are queued on the worker when a block starts or resumes, so they still
+  // arrive when this page is closed or the phone is locked. Pausing, abandoning or
+  // turning alerts off cancels them. Same reminder rule as the Timer tool.
+  let pushOn = false;      // worker pushes are queued for the open block
+  let pushToken = 0;       // bumps on every schedule/cancel so a slow request can tell it went stale
+
+  function rvLog(msg){ console.log('[rv-notify]', msg); }
+  function plural(n, w){ return n + ' ' + w + (n === 1 ? '' : 's'); }
+
+  /* Reminder rule by block length (m = minutes):
+       10 or more → one at the halfway point, one at m/6 minutes before the end
+       5 to 9     → 1 minute left
+       1 to 4     → none; the end is always sent */
+  function reminderMarks(m){
+    const marks = [];
+    if(m >= 10){
+      const half = Math.round(m / 2);
+      marks.push({ atMin: half, left: m - half, kind: 'half' });
+      const f = Math.round(m / 6);
+      marks.push({ atMin: m - f, left: f, kind: 'final' });
+    } else if(m >= 5){
+      marks.push({ atMin: m - 1, left: 1, kind: 'final' });
+    }
+    return marks;
+  }
+
+  // What the worker should deliver, given how much of the block is already used
+  function buildPushPlan(durMs, elapsedMs){
+    const m = Math.round(durMs / 60000);
+    const plan = [];
+    reminderMarks(m).forEach(function(mk){
+      const at = mk.atMin * 60000;
+      if(at <= elapsedMs + 1000) return;               // already past
+      plan.push({
+        delayMs: at - elapsedMs,
+        title: mk.kind === 'half' ? 'Halfway · ' + plural(mk.left, 'minute') + ' left' : plural(mk.left, 'minute') + ' left',
+        body: mk.kind === 'half'
+          ? plural(mk.left, 'minute') + ' remaining in your ' + m + '-minute focus block.'
+          : 'Almost there — ' + plural(mk.left, 'minute') + ' to go.',
+        tag: 'focus-' + mk.kind
+      });
+    });
+    if(durMs - elapsedMs > 0){
+      plan.push({
+        delayMs: durMs - elapsedMs,
+        title: 'Focus block complete',
+        body: 'Your ' + m + '-minute block is done. Open Focus Timer to log it.',
+        tag: 'focus-end'
+      });
+    }
+    return plan;
+  }
+
+  function describeReminders(m){
+    const parts = reminderMarks(m).map(function(mk){ return mk.left + ' min left'; });
+    parts.push('at the end');
+    return "You'll be notified: " + parts.join(' · ');
+  }
+
+  // Alerts count as wanted unless the visitor switched them off with the button below
+  function alertsWanted(){ return lsGet(NOTIFY_KEY) !== '0'; }
+
+  function pushSchedule(){
+    if(!alertsWanted()) return;
+    if(state !== 'running') return;
+    if(!window.RVNotify){ rvLog('RVNotify not loaded — check script tag / file path'); return; }
+    const plan = buildPushPlan(durationMs, Date.now() - sessionStartTs);
+    if(!plan.length) return;
+
+    const token = ++pushToken;
+    const forSid = sid;
+    Promise.resolve(RVNotify.ensurePushSubscription())
+      .then(function(sub){
+        if(!sub){ rvLog('push denied/unsupported'); return; }
+        if(token !== pushToken) return;                // paused, ended or re-scheduled before subscribing finished
+        return RVNotify.scheduleNotifications(plan).then(function(){
+          if(token !== pushToken && (state !== 'running' || sid !== forSid)){
+            // paused or ended while the request was in flight: undo what just got scheduled
+            Promise.resolve(RVNotify.cancelNotifications()).catch(function(){});
+            return;
+          }
+          if(token !== pushToken) return;
+          pushOn = true;
+          if(state !== 'idle') saveActive();
+        });
+      })
+      .catch(function(err){ rvLog('ERROR: ' + (err && err.message ? err.message : String(err))); });
+  }
+
+  function pushCancel(){
+    pushToken++;
+    pushOn = false;
+    if(window.RVNotify){
+      try{ Promise.resolve(RVNotify.cancelNotifications()).catch(function(){}); }catch(e){}
+    }
+  }
+
+  // ---- in-page alerts (Notification API) ----
+  const canNotify = 'Notification' in window;
+
+  function notifyReady(){
+    return canNotify && Notification.permission === 'granted' && alertsWanted();
+  }
+
+  function renderNotify(){
+    if(!canNotify){ els.notifyRow.style.display = 'none'; return; }
+    const perm = Notification.permission;
+    const on = notifyReady();
+    els.notifyRow.style.display = 'block';
+    els.notifyBtn.classList.toggle('on', on);
+    els.notifyBtn.disabled = perm === 'denied';
+    els.notifyBtn.textContent = perm === 'denied' ? 'ALERTS BLOCKED' : (on ? 'ALERTS ON' : 'ENABLE ALERTS');
+    els.notifyHint.textContent = perm === 'denied'
+      ? 'Notifications are blocked for this site. Allow them in your browser settings to get alerts.'
+      : (on ? describeReminders(selectedMin) + '. Works with this page closed.'
+            : 'Get reminders while a block runs, even with this page closed.');
+  }
+
+  // Alerts were turned on or off: keep the queued pushes in step with it
+  function alertsChanged(){
+    renderNotify();
+    if(state !== 'running') return;
+    if(notifyReady()) pushSchedule();
+    else { pushCancel(); saveActive(); }
+  }
+
+  function toggleNotify(){
+    if(!canNotify) return;
+    if(notifyReady()){ lsSet(NOTIFY_KEY, '0'); alertsChanged(); return; }
+    if(Notification.permission === 'granted'){ lsSet(NOTIFY_KEY, '1'); alertsChanged(); return; }
+    if(Notification.permission === 'denied'){ renderNotify(); return; }
+    const done = function(p){
+      if(p === 'granted' || Notification.permission === 'granted') lsSet(NOTIFY_KEY, '1');
+      alertsChanged();
+    };
+    try{
+      const r = Notification.requestPermission(done);   // older Safari wants the callback form
+      if(r && typeof r.then === 'function') r.then(done);
+    }catch(e){ renderNotify(); }
+  }
+
+  // Runs from the Begin / Resume tap: asks for permission once (if never asked), then queues the pushes
+  function startAlerts(){
+    const mySid = sid;
+    const asked = (!canNotify || !alertsWanted() || Notification.permission !== 'default')
+      ? Promise.resolve()
+      : new Promise(function(resolve){
+          try{
+            const r = Notification.requestPermission(resolve);
+            if(r && typeof r.then === 'function') r.then(resolve);
+          }catch(e){ resolve(); }
+        });
+    asked.then(function(){
+      if(state !== 'running' || sid !== mySid) return;   // paused or ended while the prompt was open
+      renderNotify();
+      pushSchedule();
+    });
+  }
+
+  function pageIsAway(){
+    return document.hidden || !document.hasFocus();
+  }
+
+  function showAlert(title, body){
+    if(!notifyReady()) return;
+    const opts = { body: body, tag: 'rv-focus', renotify: true, icon: '/icons/apple-touch-icon.png' };
+    try{
+      const n = new Notification(title, opts);
+      n.onclick = function(){ try{ window.focus(); }catch(e){} n.close(); };
+    }catch(e){
+      // Chrome on Android only allows notifications through a service worker
+      if(navigator.serviceWorker && navigator.serviceWorker.getRegistration){
+        navigator.serviceWorker.getRegistration().then(function(reg){
+          if(reg) reg.showNotification(title, Object.assign({ vibrate: [200,100,200] }, opts));
+        }).catch(function(){});
+      }
+    }
+  }
+
+  function showAway(text){
+    els.awayNote.textContent = text;
+    els.awayNote.style.display = 'block';
+  }
+  function hideAway(){
+    els.awayNote.style.display = 'none';
+  }
+
+  // ---- the open block, saved so a reload or a closed tab doesn't lose it ----
+  function saveActive(){
+    const o = { type: 'focus', sid: sid, state: state, duration: durationMs, targetMin: selectedMin, interruptions: interruptions, push: pushOn };
+    if(state === 'running') o.startedAt = sessionStartTs;
+    else o.elapsedAtPause = pausedElapsedMs;
+    persistOK = lsSet(ACTIVE_KEY, JSON.stringify(o));
+  }
+
+  function loadActive(){
+    const s = lsJSON(ACTIVE_KEY);
+    if(!s || s.type !== 'focus' || !Number.isFinite(s.duration) || s.duration <= 0) return null;
+    if(s.state === 'running' && Number.isFinite(s.startedAt)) return s;
+    if(s.state === 'paused' && Number.isFinite(s.elapsedAtPause)) return s;
+    return null;
+  }
+
+  // Take on a saved block. A running block that already ran out is logged by step().
+  function applyActive(cur){
+    clearTimeout(tickHandle);
+    persistOK = true;
+    durationMs = cur.duration;
+    sid = Number.isFinite(cur.sid) ? cur.sid : (Number.isFinite(cur.startedAt) ? cur.startedAt : Date.now());
+    selectedMin = cur.targetMin > 0 ? cur.targetMin : Math.round(cur.duration / 60000);
+    interruptions = cur.interruptions > 0 ? Math.floor(cur.interruptions) : 0;
+    pushOn = !!cur.push;
+    if(cur.state === 'paused'){
+      state = 'paused';
+      pausedElapsedMs = Math.min(durationMs, Math.max(0, cur.elapsedAtPause));
+      remainingSeconds = Math.ceil((durationMs - pausedElapsedMs) / 1000);
+      return;
+    }
+    state = 'running';
+    sessionStartTs = cur.startedAt;
+    sessionEndTs = sessionStartTs + durationMs;
+    step();
+  }
+
+  // ---- rendering ----
   function renderDurationButtons(){
     els.durationSelect.querySelectorAll('.dur-btn').forEach(function(btn){
       btn.classList.toggle('selected', parseInt(btn.dataset.min,10) === selectedMin);
       btn.disabled = state !== 'idle';
     });
+  }
+
+  function renderTitle(){
+    if(state === 'running') document.title = fmt(remainingSeconds) + ' · FOCUS';
+    else if(state === 'paused') document.title = 'PAUSED ' + fmt(remainingSeconds) + ' · FOCUS';
+    else document.title = pendingTitle || BASE_TITLE;
   }
 
   function renderTimer(){
@@ -530,11 +819,15 @@
     els.interruptNote.style.display = (state === 'idle') ? 'none' : 'block';
     els.interruptCount.textContent = interruptions;
 
+    renderTitle();
     renderControls();
     renderDurationButtons();
   }
 
+  // Built once per state, not on every tick, so a click can't be lost to a rebuild mid-press
   function renderControls(){
+    if(controlsFor === state) return;
+    controlsFor = state;
     if(state === 'idle'){
       els.controlRow.innerHTML = '<button class="primary" id="startBtn">BEGIN SESSION</button>';
       document.getElementById('startBtn').addEventListener('click', startSession);
@@ -542,8 +835,7 @@
       els.controlRow.innerHTML =
         '<button class="secondary" id="pauseBtn">PAUSE</button>' +
         '<button class="secondary" id="interruptBtn">LOG INTERRUPTION</button>' +
-        '<button class="secondary" id="abandonBtn">ABANDON</button>' +
-        '<button class="primary" id="completeBtn" style="display:none;">COMPLETE</button>';
+        '<button class="secondary" id="abandonBtn">ABANDON</button>';
       document.getElementById('pauseBtn').addEventListener('click', pauseSession);
       document.getElementById('interruptBtn').addEventListener('click', logInterruption);
       document.getElementById('abandonBtn').addEventListener('click', abandonSession);
@@ -567,85 +859,124 @@
     }, 800);
   }
 
-  function startSession(){
-    state = 'running';
-    totalSeconds = selectedMin * 60;
-    remainingSeconds = totalSeconds;
-    interruptions = 0;
-    sessionStartTs = Date.now();
-    sessionEndTs = sessionStartTs + totalSeconds * 1000;
-    tick();
+  // ---- ticking: always computed from the wall clock, never counted ----
+  function step(){
+    if(state !== 'running') return;
+    if(Date.now() >= sessionEndTs){ remainingSeconds = 0; completeSession(); return; }
+    remainingSeconds = Math.ceil((sessionEndTs - Date.now()) / 1000);
     renderTimer();
+    clearTimeout(tickHandle);
+    const into = (Date.now() - sessionStartTs) % 1000;   // land just after each whole second
+    tickHandle = setTimeout(step, 1000 - into + 10);
+  }
+
+  // ---- session actions ----
+  function startSession(){
+    hideAway();
+    pendingTitle = '';
+    durationMs = selectedMin * 60 * 1000;
+    interruptions = 0;
+    pausedElapsedMs = 0;
+    sid = Date.now();
+    sessionStartTs = sid;
+    sessionEndTs = sid + durationMs;
+    state = 'running';
+    pushOn = false;
+    saveActive();
+    startAlerts();             // reminders still arrive if the phone is locked or this page is closed
+    step();
     triggerStartBurst();
-}
+  }
 
   function pauseSession(){
+    pausedElapsedMs = Math.min(durationMs, Date.now() - sessionStartTs);
     state = 'paused';
     clearTimeout(tickHandle);
+    remainingSeconds = Math.ceil((durationMs - pausedElapsedMs) / 1000);
+    pushCancel();
+    saveActive();
     renderTimer();
   }
 
- function resumeSession(){
+  function resumeSession(){
     state = 'running';
-    sessionEndTs = Date.now() + remainingSeconds * 1000;
-    tick();
-    renderTimer();
-}
+    sessionStartTs = Date.now() - pausedElapsedMs;
+    sessionEndTs = sessionStartTs + durationMs;
+    pausedElapsedMs = 0;
+    saveActive();
+    startAlerts();             // the pushes were cancelled on pause; queue them again for the time left
+    step();
+  }
 
   function logInterruption(){
     interruptions++;
     els.interruptCount.textContent = interruptions;
+    saveActive();
+  }
+
+  // Add a finished block to the log, unless another tab already did.
+  // (Opening the homepage's "log it" link while an older tab of this page is still open
+  // would otherwise count the same block twice.)
+  function recordOnce(session){
+    if(persistOK){
+      const cur = lsJSON(ACTIVE_KEY);
+      if(!cur || cur.sid !== sid) return false;
+    }
+    data = loadData();   // pick up anything logged in other tabs before adding to it
+    data.sessions.push(session);
+    saveData(data);
+    return true;
   }
 
   function abandonSession(){
-    const elapsedMin = Math.round((totalSeconds - remainingSeconds) / 60);
-    recordSession({
+    const elapsedMs = state === 'paused' ? pausedElapsedMs : Math.min(durationMs, Date.now() - sessionStartTs);
+    recordOnce({
       date: todayStr(),
       targetMin: selectedMin,
-      actualMin: elapsedMin,
+      actualMin: Math.round(elapsedMs / 60000),
       interruptions: interruptions,
       completed: false
     });
-    resetTimer();
+    endSession();
   }
 
   function completeSession(){
-    recordSession({
-      date: todayStr(),
-      targetMin: selectedMin,
-      actualMin: selectedMin,
-      interruptions: interruptions,
+    const late = Date.now() - sessionEndTs;
+    const n = interruptions, min = selectedMin;
+    const pushed = pushOn;     // the worker is delivering the end alert, so skip the local one
+    const logged = recordOnce({
+      date: todayStr(new Date(sessionEndTs)),
+      targetMin: min,
+      actualMin: min,
+      interruptions: n,
       completed: true
     });
-    resetTimer();
+    const away = logged && pageIsAway();
+    if(away) pendingTitle = 'Block complete · FOCUS';
+    endSession(true);          // finished: every reminder has fired, so there is nothing to cancel
+    if(!logged) return;
+    if(away && !pushed) showAlert('Focus block complete', min + ' min done · ' + n + (n === 1 ? ' interruption' : ' interruptions'));
+    if(late > 5000) showAway('BLOCK FINISHED ' + ago(late) + ' — LOGGED AS COMPLETE');
   }
 
-  function resetTimer(){
+  // Local reset only: touches no storage
+  function goIdle(){
     clearTimeout(tickHandle);
     state = 'idle';
-    remainingSeconds = selectedMin * 60;
+    sid = 0;
+    sessionStartTs = 0;
+    sessionEndTs = 0;
+    pausedElapsedMs = 0;
     interruptions = 0;
+    remainingSeconds = selectedMin * 60;
     renderTimer();
-    renderAll();
   }
 
-  function tick(){
-    tickHandle = setTimeout(function(){
-      if(state !== 'running') return;
-      remainingSeconds = Math.max(0, Math.round((sessionEndTs - Date.now()) / 1000));
-      if(remainingSeconds <= 0){
-        renderTimer();
-        completeSession();
-        return;
-      }
-      renderTimer();
-      tick();
-    }, 1000);
-}
-
-  function recordSession(session){
-    data.sessions.push(session);
-    saveData(data);
+  function endSession(finished){
+    lsDel(ACTIVE_KEY);
+    if(finished){ pushToken++; pushOn = false; } else pushCancel();
+    goIdle();
+    renderAll();
   }
 
   els.durationSelect.querySelectorAll('.dur-btn').forEach(function(btn){
@@ -654,8 +985,11 @@
       selectedMin = parseInt(btn.dataset.min, 10);
       remainingSeconds = selectedMin * 60;
       renderTimer();
+      renderNotify();
     });
   });
+
+  els.notifyBtn.addEventListener('click', toggleNotify);
 
   // ---- telemetry / chart / log ----
 
@@ -763,6 +1097,41 @@
     renderLog();
   }
 
+  // ---- staying in step with other tabs and with coming back to this one ----
+  function syncFromStorage(){
+    data = loadData();
+    const cur = loadActive();
+    if(!cur){
+      if(state !== 'idle') goIdle();       // finished or abandoned in another tab
+    } else if(state === 'idle' || cur.sid !== sid || cur.state !== state){
+      applyActive(cur);                    // started, paused or resumed in another tab
+    } else {
+      interruptions = cur.interruptions > 0 ? Math.floor(cur.interruptions) : 0;
+      pushOn = !!cur.push;
+    }
+    renderTimer();
+    renderNotify();
+    renderAll();
+  }
+
+  function onReturn(){
+    pendingTitle = '';
+    if(state === 'running') step();        // background tabs tick slowly; catch up straight away
+    else renderTitle();
+  }
+
+  window.addEventListener('storage', function(e){
+    if(e.key === null || e.key === ACTIVE_KEY || e.key === STORAGE_KEY) syncFromStorage();
+  });
+  window.addEventListener('pageshow', function(e){ if(e.persisted) syncFromStorage(); });
+  window.addEventListener('focus', onReturn);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) onReturn(); });
+
+  // ---- start up: pick up an open block if there is one ----
+  const saved = loadActive();
+  if(saved) applyActive(saved);
+  else if(lsGet(ACTIVE_KEY) !== null) lsDel(ACTIVE_KEY);   // drop an unreadable entry
+  renderNotify();
   renderTimer();
   renderAll();
 })();
@@ -771,6 +1140,7 @@
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
 <script src="/libraries/hud-home-button.js"></script>
+<script src="/libraries/rv-notify-client.js"></script>
 
 </body>
 </html>
