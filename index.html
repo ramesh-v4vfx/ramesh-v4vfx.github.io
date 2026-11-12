@@ -2129,25 +2129,44 @@
   border: 1px solid rgba(255,43,43,0.12);
   border-radius: 4px;
 
-  transition: background .25s ease, border-color .25s ease, color .25s ease, transform .25s ease;
+  position: relative;
+  transform-origin: center center;
+
+  transition:
+    color .25s ease,
+    transform .3s cubic-bezier(.22,.61,.36,1),
+    background .3s ease,
+    border-color .3s ease,
+    box-shadow .3s ease;
 }
 
+/* Hover matches Most Popular Tools */
 .recent-tool-item:hover,
 .recent-tool-item:focus-visible {
   color: #fff;
-  background: rgba(255,43,43,0.1);
-  border-color: rgba(255,43,43,0.5);
-  transform: translateX(-2px);
+  background: rgba(255,43,43,0.12);
+  border-color: rgba(255,43,43,0.7);
+
+  transform: scale(1.08);
+  z-index: 5;
+
+  box-shadow:
+    0 0 22px rgba(255,43,43,0.35),
+    inset 0 0 0 1px rgba(255,43,43,0.3);
+}
+
+.recent-tool-item:hover .recent-tool-go,
+.recent-tool-item:focus-visible .recent-tool-go {
+  color: #ff2b2b;
+  text-shadow: 0 0 12px rgba(255,43,43,0.9);
+}
+
+.recent-tool-item:hover .recent-tool-name,
+.recent-tool-item:focus-visible .recent-tool-name {
+  text-shadow: 0 0 6px rgba(255,255,255,0.4);
 }
 
 .recent-tool-item:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
-
-.recent-tool-icon {
-  flex-shrink: 0;
-  width: 1.3em;
-  text-align: center;
-  font-size: 0.85rem;
-}
 
 .recent-tool-name {
   flex: 1;
@@ -2155,12 +2174,14 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: text-shadow .25s ease;
 }
 
 .recent-tool-go {
   flex-shrink: 0;
   color: rgba(255,43,43,0.85);
   font-size: 0.8rem;
+  transition: color .25s ease, text-shadow .25s ease;
 }
 
 .recent-tools-clear {
@@ -2743,7 +2764,7 @@
 <!-- RECENTLY USED TOOLS (hidden until the visitor has opened a tool; filled by script) -->
 <button type="button" class="recent-tools-launch" id="recentToolsOpen"
         aria-expanded="false" aria-controls="recentTools" hidden>
-  <span>🕘 Recently Used</span><span aria-hidden="true">▾</span>
+  <span>Recently Used</span><span aria-hidden="true">▾</span>
 </button>
 <aside class="recent-tools" id="recentTools" aria-label="Recently used tools" hidden>
   <button type="button" class="recent-tools-close" id="recentToolsClose" aria-label="Minimize recently used tools" title="Minimize">▴</button>
@@ -4300,11 +4321,6 @@
     const list     = document.getElementById('recentToolsList');
     if (!panel || !launch || !closeBtn || !clearBtn || !list) return;
 
-    const ICONS = {
-      science: '🔬', productivity: '📋', calculator: '🧮',
-      finance: '💰', geography: '🌍', games: '🎮'
-    };
-
     // "/black-hole-simulator" and "/black-hole-simulator/" count as the same tool
     function normPath(href) {
       try {
@@ -4320,8 +4336,7 @@
       const path = normPath(a.getAttribute('href'));
       const h3 = a.querySelector('h3');
       if (!path || !h3) return;
-      const firstCat = (a.dataset.category || '').trim().split(/\s+/)[0];
-      registry[path] = { name: h3.textContent.trim(), icon: ICONS[firstCat] || '⚡' };
+      registry[path] = { name: h3.textContent.trim() };
     });
 
     function load() {
@@ -4360,11 +4375,6 @@
         a.href = path;
         a.title = info.name;
 
-        const icon = document.createElement('span');
-        icon.className = 'recent-tool-icon';
-        icon.setAttribute('aria-hidden', 'true');
-        icon.textContent = info.icon;
-
         const name = document.createElement('span');
         name.className = 'recent-tool-name';
         name.textContent = info.name;
@@ -4374,7 +4384,7 @@
         go.setAttribute('aria-hidden', 'true');
         go.textContent = '›';
 
-        a.append(icon, name, go);
+        a.append(name, go);
         list.appendChild(a);
       });
 
