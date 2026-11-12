@@ -493,7 +493,7 @@
 
   <div class="header">
     <h1>Session Logger</h1>
-    <div class="subtitle">Track your focus sessions in real time</div>
+    <div class="subtitle">Track your focus sessions in real time · 1 hour max</div>
     <div class="brand-badge"><span class="dot"></span> Rameshverse Systems · MK·02</div>
   </div>
 
@@ -617,21 +617,28 @@ function localDateKey(date) {
 
 /* =====================
    STOPWATCH
+   The running session is kept in localStorage ("rvActiveLogger") as absolute
+   timestamps, so it survives closing the page, killing the PWA, or opening
+   another RameshVerse tool. The display is always recomputed from Date.now().
 ===================== */
 
-let startTime = 0;
+const ACTIVE_KEY = "rvActiveLogger";
+// A session ends by itself at this length: it freezes there and asks for its note.
+// (The homepage panel uses the same number — keep them in sync.)
+const MAX_SESSION_MS = 60 * 60000;
+
+let startTime = 0;            // virtual start: Date.now() - elapsed, while running
 let elapsed = 0;
-let timer = null;
+let timer = null;             // requestAnimationFrame id while running, else null
 let sessionStartISO = null;
+let awaitingNote = false;     // "What did you do?" popup is open
+let endedAt = null;           // when the session really ended (set when it hits the limit)
+let pushOn = false;
+let pushToken = 0;
 
 const display = document.getElementById("display");
 const timerRing = document.getElementById("timerRing");
 const statusLabel = document.getElementById("statusLabel");
-
-// Badge API — lets the home screen icon show a dot while a session is running
-if ('setAppBadge' in navigator && 'Notification' in window && Notification.permission === 'default') {
-  Notification.requestPermission();
-}
 
 function updateDisplay() {
   display.textContent = formatTime(elapsed);
@@ -645,21 +652,36 @@ function setState(state) {
   } else if (state === "paused") {
     timerRing.classList.add("paused");
     statusLabel.textContent = "Paused";
+  } else if (state === "limit") {
+    timerRing.classList.add("paused");
+    statusLabel.textContent = "Limit reached";
   } else {
     statusLabel.textContent = "Idle";
   }
+}
+
+// Badge API — lets the home screen icon show a dot while a session is running
+function setBadge() {
+  try { if ('setAppBadge' in navigator) Promise.resolve(navigator.setAppBadge(1)).catch(() => {}); } catch (e) {}
+}
+function clearBadge() {
+  try { if ('clearAppBadge' in navigator) Promise.resolve(navigator.clearAppBadge()).catch(() => {}); } catch (e) {}
 }
 
 /* =====================
    STORAGE
 ===================== */
 
-let sessions = [];
-try {
-  sessions = JSON.parse(localStorage.getItem("sessions")) || [];
-} catch (e) {
-  sessions = [];
+function loadSessions() {
+  try {
+    const s = JSON.parse(localStorage.getItem("sessions"));
+    return Array.isArray(s) ? s : [];
+  } catch (e) {
+    return [];
+  }
 }
+
+let sessions = loadSessions();
 
 function saveSessions() {
   try {
@@ -669,14 +691,182 @@ function saveSessions() {
   }
 }
 
+// The one running session. Idle = nothing saved.
+function readActive() {
+  try {
+    const s = JSON.parse(localStorage.getItem(ACTIVE_KEY));
+    if (!s || s.type !== "logger") return null;
+    if (s.state === "running" && isFinite(s.startedAt)) return s;
+    if (s.state === "paused" && isFinite(s.elapsed) && s.elapsed >= 0) return s;
+  } catch (e) {}
+  return null;
+}
+
+function saveActive() {
+  try {
+    if (!timer && !elapsed) { localStorage.removeItem(ACTIVE_KEY); return; }
+    localStorage.setItem(ACTIVE_KEY, JSON.stringify({
+      v: 1,
+      type: "logger",
+      state: timer ? "running" : "paused",
+      startedAt: timer ? startTime : null,
+      elapsed: timer ? 0 : elapsed,
+      sessionStartISO: sessionStartISO,
+      awaitingNote: awaitingNote,
+      endedAt: endedAt,
+      push: pushOn,
+      updatedAt: Date.now()
+    }));
+  } catch (e) {}
+}
+
+function clearActive() {
+  try { localStorage.removeItem(ACTIVE_KEY); } catch (e) {}
+}
+
 /* =====================
-   VISIBILITY FIX (Chrome background)
+   PUSH REMINDERS (Cloudflare Worker via RVNotify)
+   Scheduled up front when the stopwatch starts/resumes, so a reminder still
+   arrives if the app is closed. Pause / finish cancels them.
 ===================== */
 
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && timer) {
-    elapsed = Date.now() - startTime;
+function rvLog(msg) { console.log("[rv-notify]", msg); }
+
+// Three reminders: halfway, 10 minutes before the limit, and the limit itself.
+function buildPushPlan() {
+  const now = Date.now() - startTime;     // session time so far
+  const half = Math.round(MAX_SESSION_MS / 120000);
+  const marks = [
+    { at: MAX_SESSION_MS / 2, title: "Session running", body: half + " minutes in. Your session stops at the " + (MAX_SESSION_MS / 3600000) + "-hour limit.", tag: "logger-half" },
+    { at: MAX_SESSION_MS - 10 * 60000, title: "10 minutes left", body: "Your session ends at the " + (MAX_SESSION_MS / 3600000) + "-hour limit.", tag: "logger-10min" },
+    { at: MAX_SESSION_MS, title: (MAX_SESSION_MS / 3600000) + "-hour limit reached", body: "Session stopped. Open Session Logger to add your note.", tag: "logger-limit" }
+  ];
+  return marks
+    .filter(function (m) { return m.at > now + 1000; })
+    .map(function (m) { return { delayMs: m.at - now, title: m.title, body: m.body, tag: m.tag }; });
+}
+
+function schedulePushes() {
+  if (!window.RVNotify) { rvLog("RVNotify not loaded"); return; }
+  const plan = buildPushPlan();
+  if (!plan.length) return;
+
+  const token = ++pushToken;
+  RVNotify.ensurePushSubscription()
+    .then(function (sub) {
+      if (!sub) { rvLog("push denied/unsupported"); return; }
+      if (token !== pushToken) return;               // paused or finished before subscribing finished
+      return RVNotify.scheduleNotifications(plan).then(function () {
+        if (token !== pushToken && !timer) {
+          // paused/finished while the request was in flight: undo what just got scheduled
+          Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+          return;
+        }
+        pushOn = true;
+        saveActive();
+      });
+    })
+    .catch(function (err) { rvLog("ERROR: " + (err && err.message ? err.message : String(err))); });
+}
+
+function cancelPushes() {
+  pushToken++;
+  pushOn = false;
+  if (window.RVNotify) {
+    try { Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}); } catch (e) {}
+  }
+}
+
+/* =====================
+   RESTORE / SYNC
+   Rebuilds everything on screen from what is saved. Runs on page load, when the
+   page comes back to the foreground, and when another tab changes the session.
+===================== */
+
+function openNotePopup(focus) {
+  const atLimit = elapsed >= MAX_SESSION_MS;
+  document.getElementById("popupDuration").textContent =
+    `Duration: ${formatDurationHM(elapsed)}` + (atLimit ? " · limit reached" : "");
+  cancelSession.classList.toggle("hidden", atLimit);   // a session at its limit can't be resumed
+  popup.classList.remove("hidden");
+  if (focus) commentInput.focus();
+}
+
+// The session reached its maximum: freeze at exactly the limit, remember when it
+// really ended, and wait for the note — the same state as pressing Finish.
+function enterLimit(endAt) {
+  if (timer) cancelAnimationFrame(timer);
+  timer = null;
+  elapsed = MAX_SESSION_MS;
+  endedAt = endAt;
+  awaitingNote = true;
+  updateDisplay();
+  setState("limit");
+  clearBadge();
+  cancelPushes();
+  saveActive();
+  openNotePopup(false);
+}
+
+function applyStored() {
+  if (timer) cancelAnimationFrame(timer);
+  timer = null;
+
+  const s = readActive();
+  if (!s) {                                   // nothing saved → idle
+    elapsed = 0;
+    sessionStartISO = null;
+    awaitingNote = false;
+    endedAt = null;
+    pushOn = false;
+    popup.classList.add("hidden");
     updateDisplay();
+    setState("idle");
+    clearBadge();
+    return;
+  }
+
+  sessionStartISO = s.sessionStartISO || new Date(s.startedAt || Date.now()).toISOString();
+  pushOn = !!s.push;
+  endedAt = isFinite(s.endedAt) ? s.endedAt : null;
+
+  if (s.state === "running") {
+    startTime = s.startedAt;
+    const el = Date.now() - startTime;
+    if (el >= MAX_SESSION_MS) {               // hit the limit while the page was closed
+      enterLimit(startTime + MAX_SESSION_MS);
+      return;
+    }
+    elapsed = Math.max(0, el);
+    awaitingNote = false;
+    popup.classList.add("hidden");
+    timer = requestAnimationFrame(tick);
+    updateDisplay();
+    setState("running");
+    setBadge();
+  } else {
+    if (s.elapsed >= MAX_SESSION_MS) {        // at (or past) the limit: needs its note
+      enterLimit(endedAt || Date.now());
+      return;
+    }
+    elapsed = s.elapsed;
+    awaitingNote = !!s.awaitingNote;
+    updateDisplay();
+    setState("paused");
+    clearBadge();
+    if (awaitingNote) openNotePopup(false); else popup.classList.add("hidden");
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) applyStored();
+});
+window.addEventListener("pageshow", (e) => { if (e.persisted) applyStored(); });
+window.addEventListener("storage", (e) => {
+  if (e.key === ACTIVE_KEY || e.key === null) applyStored();
+  if (e.key === "sessions" || e.key === null) {
+    sessions = loadSessions();
+    if (!historyPanel.classList.contains("hidden")) renderHistory();
   }
 });
 
@@ -685,55 +875,62 @@ document.addEventListener("visibilitychange", () => {
 ===================== */
 
 // `timer` holds the requestAnimationFrame id while running (non-null),
-// or null when stopped — same on/off semantics as before, just driven by
-// the display's actual refresh rate instead of a fixed setInterval, which
-// gives smooth millisecond updates without polling faster than anything
-// can actually be seen.
+// or null when stopped.
 function tick() {
   elapsed = Date.now() - startTime;
+  if (elapsed >= MAX_SESSION_MS) { enterLimit(startTime + MAX_SESSION_MS); return; }
   updateDisplay();
   timer = requestAnimationFrame(tick);
 }
 
 start.onclick = () => {
   if (timer) return;
+  if (elapsed >= MAX_SESSION_MS) { openNotePopup(false); return; }
   if (!sessionStartISO) sessionStartISO = new Date().toISOString();
 
   startTime = Date.now() - elapsed;
   timer = requestAnimationFrame(tick);
 
   setState("running");
-  if ('setAppBadge' in navigator) navigator.setAppBadge(1);
+  setBadge();
+  saveActive();
+  schedulePushes();           // reminder pushes fire even if the app gets closed
 };
 
 pause.onclick = () => {
   if (!timer) return;
+  elapsed = Date.now() - startTime;
+  if (elapsed >= MAX_SESSION_MS) { enterLimit(startTime + MAX_SESSION_MS); return; }
   cancelAnimationFrame(timer);
   timer = null;
+  updateDisplay();
   setState("paused");
-  if ('clearAppBadge' in navigator) navigator.clearAppBadge();
+  clearBadge();
+  cancelPushes();
+  saveActive();
 };
 
 reset.onclick = () => {
-  if (!elapsed) return;
+  if (!elapsed && !timer) return;
 
-  // Fixed: this used to unconditionally recompute
-  // `elapsed = Date.now() - startTime`, even when the timer was already
-  // paused. Since startTime is only updated when the timer (re)starts,
-  // doing that math while paused silently added however long you'd been
-  // sitting paused into the saved session length. Now it only
-  // recalculates elapsed if the timer is actually running.
+  // Only recalculate elapsed if the timer is actually running — while paused it
+  // is already frozen, and recomputing would add the paused time to the session.
   if (timer) {
     elapsed = Date.now() - startTime;
+    if (elapsed >= MAX_SESSION_MS) { enterLimit(startTime + MAX_SESSION_MS); return; }
     cancelAnimationFrame(timer);
   }
 
   timer = null;
   updateDisplay();
+  setState("paused");
+  clearBadge();
+  cancelPushes();
 
-  document.getElementById("popupDuration").textContent = `Duration: ${formatDurationHM(elapsed)}`;
-  popup.classList.remove("hidden");
-  commentInput.focus();
+  // Saved as "waiting for a note", so closing the page now doesn't lose the session
+  awaitingNote = true;
+  saveActive();
+  openNotePopup(true);
 };
 
 /* =====================
@@ -741,8 +938,11 @@ reset.onclick = () => {
 ===================== */
 
 saveSession.onclick = () => {
-  const end = new Date();
+  // A session that hit its limit is filed at the moment it actually ended
+  const end = endedAt ? new Date(endedAt) : new Date();
 
+  // Another tab may have logged a session since this page loaded
+  sessions = loadSessions();
   sessions.unshift({
     ms: elapsed,
     time: formatTime(elapsed),
@@ -760,18 +960,24 @@ saveSession.onclick = () => {
 
   elapsed = 0;
   sessionStartISO = null;
+  awaitingNote = false;
+  endedAt = null;
   if (timer) cancelAnimationFrame(timer);
   timer = null;
+  cancelPushes();
+  clearActive();
   updateDisplay();
   setState("idle");
-  if ('clearAppBadge' in navigator) navigator.clearAppBadge();
+  clearBadge();
 };
 
 cancelSession.onclick = () => {
   popup.classList.add("hidden");
   // Session stays paused at its frozen elapsed time — Start resumes it.
+  awaitingNote = false;
   setState("paused");
-  if ('clearAppBadge' in navigator) navigator.clearAppBadge();
+  clearBadge();
+  saveActive();
 };
 
 /* =====================
@@ -920,12 +1126,13 @@ function runFireworks(duration = 2500) {
   loop();
 }
 
-updateDisplay();
+applyStored();      // restore a running/paused session saved earlier (or show idle)
 </script>
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
 <script src="/libraries/hud-home-button.js"></script>
+<script src="/libraries/rv-notify-client.js"></script>
 
 <script src="/tools-data.js"></script>
 <script src="/related-modules.js"></script>

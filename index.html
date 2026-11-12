@@ -4426,6 +4426,8 @@
      Shows, at the top of the right rail, what this visitor has left open:
        • a running or paused Pomodoro session, as a live countdown
          (read from localStorage key "rvActiveSession", written by Pomodoro Focus)
+       • a running or paused Session Logger stopwatch, counting up live
+         (read from localStorage key "rvActiveLogger", written by Session Logger)
        • tasks added in Top 10 Tasks, Daily Routine and the Travel Checklist
          that haven't been completed.
      Reads only the visitor's own browser storage (localStorage); nothing is
@@ -4444,7 +4446,8 @@
      returning [{ text: '...', done: true|false }, ...]. */
   (function () {
     const COLLAPSE_KEY = 'rvUnfinishedCollapsed';
-    const ACTIVE_KEY   = 'rvActiveSession';
+    const ACTIVE_KEY   = 'rvActiveSession';   // Pomodoro Focus
+    const LOGGER_KEY   = 'rvActiveLogger';    // Session Logger
     const SHOW_PER_TOOL = 3;
 
     /* ── Live Pomodoro ──
@@ -4477,14 +4480,14 @@
       if (s.state === 'paused') {
         const used = Math.max(0, s.elapsedAtPause || 0);
         const left = mmss(duration - used);
-        return { key: mode + ':paused', text: icon + ' ' + name + ' paused · ' + left + ' left', time: left, frac: used / duration };
+        return { id: 'pomo', key: mode + ':paused', text: icon + ' ' + name + ' paused · ' + left + ' left', time: left, frac: used / duration };
       }
       if (s.state !== 'running' || !isFinite(s.startedAt)) return null;
 
       const end = s.startedAt + duration;
       if (now < end) {
         const left = mmss(end - now);
-        return { key: mode + ':running', text: icon + ' ' + name + ' · ' + left + ' left', time: left, frac: (now - s.startedAt) / duration };
+        return { id: 'pomo', key: mode + ':running', text: icon + ' ' + name + ' · ' + left + ' left', time: left, frac: (now - s.startedAt) / duration };
       }
 
       // Focus ended while Pomodoro was closed: the break is running (or finished) by the clock.
@@ -4492,12 +4495,53 @@
         const breakEnd = end + breakMs;
         if (now < breakEnd) {
           const left = mmss(breakEnd - now);
-          return { key: 'break:running', text: '☕ Break · ' + left + ' left', time: left, frac: (now - end) / breakMs };
+          return { id: 'pomo', key: 'break:running', text: '☕ Break · ' + left + ' left', time: left, frac: (now - end) / breakMs };
         }
-        return { key: 'done', text: '✅ Session complete · tap to log it', time: '✅', frac: 1 };
+        return { id: 'pomo', key: 'done', text: '✅ Session complete · tap to log it', time: '✅', frac: 1 };
       }
       return null;   // break is over and the focus session was already counted
     }
+
+    // Stopwatch time, counting up: 12:34 or 1:02:03
+    function clock(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+      const mm = String(m).padStart(2, '0'), ss = String(sec).padStart(2, '0');
+      return h ? h + ':' + mm + ':' + ss : mm + ':' + ss;
+    }
+
+    // Session Logger: a stopwatch that ends itself at its limit (1 hour). The bar
+    // shows progress toward that limit. If the limit passed while the logger was
+    // closed, the session is waiting for its note, exactly as the logger shows it.
+    function loggerView() {
+      let s = null;
+      try { s = JSON.parse(localStorage.getItem(LOGGER_KEY)); } catch (e) { return null; }
+      if (!s || s.type !== 'logger') return null;
+      const LIMIT = 3600000;   // keep in sync with MAX_SESSION_MS in the Session Logger page
+
+      const needsNote = function (ms) {
+        const t = clock(Math.min(ms, LIMIT));
+        return { id: 'logger', key: 'note', text: '📝 Session ended · ' + t + ' · tap to add a note', time: '📝', frac: 1 };
+      };
+
+      if (s.state === 'running' && isFinite(s.startedAt)) {
+        const el = Math.max(0, Date.now() - s.startedAt);
+        if (el >= LIMIT) return needsNote(el);
+        const t = clock(el);
+        return { id: 'logger', key: 'running', text: '⏱ Session · ' + t + ' running', time: t, frac: el / LIMIT };
+      }
+      if (s.state === 'paused' && isFinite(s.elapsed) && s.elapsed > 0) {
+        if (s.awaitingNote || s.elapsed >= LIMIT) return needsNote(s.elapsed);   // Finish pressed / limit hit, note unsaved
+        const t = clock(s.elapsed);
+        return { id: 'logger', key: 'paused', text: '⏱ Session paused · ' + t, time: t, frac: s.elapsed / LIMIT };
+      }
+      return null;
+    }
+
+    // Every live source, in the order they appear in the panel
+    const LIVE_VIEWS = [pomodoroView, loggerView];
+    const liveNow = () => LIVE_VIEWS.map(f => f()).filter(Boolean);
+    const keyOf   = vs => vs.map(v => v.id + ':' + v.key).join('|');
 
     const pct = f => Math.round(Math.min(1, Math.max(0, f)) * 100) + '%';
 
@@ -4507,6 +4551,12 @@
         // Live source: returns its own view instead of reading a task list.
         read: function (src) {
           const v = pomodoroView();
+          return v ? { src: src, live: v, total: 1, open: [v] } : null;
+        } },
+      { label: 'Session Logger',
+        url: '/session-logger/',
+        read: function (src) {
+          const v = loggerView();
           return v ? { src: src, live: v, total: 1, open: [v] } : null;
         } },
       { label: 'Top 10 Tasks',
@@ -4544,7 +4594,7 @@
     const list     = document.getElementById('unfinishedList');
     if (!panel || !launch || !closeBtn || !badge || !list) return;
 
-    let liveKey = '';     // which Pomodoro phase is currently drawn ('' = none)
+    let liveKey = '';     // which live phases are currently drawn ('' = none)
     let openCount = 0;    // number shown on the minimized launcher
 
     function parse(key) {
@@ -4608,28 +4658,26 @@
     }
 
     function renderLiveGroup(r) {
-      liveKey = r.live.key;
-
       const group = el('div', 'unf-group');
 
       const head = el('a', 'unf-head');
       head.href = r.src.url;
       head.append(
         el('span', null, r.src.label),
-        el('span', 'unf-head-count unf-head-live', r.live.key === 'done' ? 'LOG IT ›' : 'LIVE ›')
+        el('span', 'unf-head-count unf-head-live', ({ done: 'LOG IT ›', note: 'SAVE ›' })[r.live.key] || 'LIVE ›')
       );
       group.appendChild(head);
 
       const bar = el('div', 'unf-bar');
       const fill = el('i');
-      fill.id = 'unfLiveBar';
+      fill.id = 'unfLiveBar_' + r.live.id;
       fill.style.width = pct(r.live.frac);
       bar.appendChild(fill);
       group.appendChild(bar);
 
       const ul = el('ul', 'unf-items');
       const li = el('li', 'unf-item unf-live', r.live.text);
-      li.id = 'unfLiveText';
+      li.id = 'unfLiveText_' + r.live.id;
       ul.appendChild(li);
       group.appendChild(ul);
 
@@ -4638,11 +4686,15 @@
 
     // Cheap once-a-second refresh of just the countdown text, bar and launcher
     function updateLive(v) {
-      const t = document.getElementById('unfLiveText');
+      const t = document.getElementById('unfLiveText_' + v.id);
       if (t) t.textContent = v.text;
-      const b = document.getElementById('unfLiveBar');
+      const b = document.getElementById('unfLiveBar_' + v.id);
       if (b) b.style.width = pct(v.frac);
-      badge.textContent = openCount + ' · ' + v.time;   // so the minimized button shows the time too
+    }
+    function updateLiveAll(vs) {
+      vs.forEach(updateLive);
+      // minimized button shows the first live session's time too
+      badge.textContent = vs.length ? openCount + ' · ' + vs[0].time : String(openCount);
     }
 
     function render() {
@@ -4657,12 +4709,12 @@
       }
 
       let totalOpen = 0;
-      let live = null;
+      const lives = [];
       results.forEach(r => {
         totalOpen += r.open.length;
 
         if (r.live) {
-          live = r.live;
+          lives.push(r.live);
           renderLiveGroup(r);
           return;
         }
@@ -4695,8 +4747,8 @@
       });
 
       openCount = totalOpen;
-      badge.textContent = totalOpen;
-      if (live) updateLive(live);
+      liveKey = keyOf(lives);
+      updateLiveAll(lives);
 
       const collapsed = isCollapsed();
       panel.hidden = false;
@@ -4720,14 +4772,13 @@
     window.addEventListener('pageshow', e => { if (e.persisted) render(); });
     window.addEventListener('storage', render);
 
-    // Once a second: tick the Pomodoro countdown, and redraw only when its phase
-    // changed (running → break → complete) or a session started/ended elsewhere.
+    // Once a second: tick the live sessions, and redraw only when a phase changed
+    // (running → break → complete, running → paused, ...) or one started/ended elsewhere.
     setInterval(function () {
       if (document.hidden) return;
-      const v = pomodoroView();
-      const key = v ? v.key : '';
-      if (key !== liveKey) { render(); return; }
-      if (v) updateLive(v);
+      const vs = liveNow();
+      if (keyOf(vs) !== liveKey) { render(); return; }
+      if (vs.length) updateLiveAll(vs);
     }, 1000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
 
