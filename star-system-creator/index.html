@@ -281,6 +281,37 @@
     .stage .not-to-scale{top:114px;}
     .stage .physics-log{top:134px;}
   }
+
+  /* ── MOONS ── */
+  .open-row{display:flex; gap:8px;}
+  .open-row .add-btn{flex:1 1 0; width:auto; margin-top:0;}
+  .add-btn:disabled{opacity:0.35; cursor:not-allowed; box-shadow:none; background:transparent; border-color:var(--line); color:var(--text-faint);}
+  .add-btn:disabled:hover{background:transparent; border-color:var(--line); box-shadow:none;}
+  .moon-hint{font-size:9px; color:var(--text-faint); letter-spacing:0.04em; margin:2px 0 10px; line-height:1.5; white-space:pre-line;}
+  input.bad, input[type=number].bad{border-color:#e0a040; box-shadow:0 0 8px rgba(224,160,64,0.35);}
+  .moon-hint.warn{color:#e0a040;}
+  @media (pointer:coarse){ .moon-hint{font-size:11px;} }
+  /* moons get their own color (cool cyan) so they read apart from planets (red) */
+  /* gravity simulation: bigger, clearer on-screen messages, and swallowed bodies struck through in red in the tables */
+  .stage .physics-log{max-width:80%;}
+  .stage .physics-log > div{width:fit-content; max-width:100%; font-size:12px; line-height:1.4; letter-spacing:0.04em; background:rgba(0,0,0,0.65); border-left:3px solid var(--red-dim); padding:4px 9px; margin-bottom:4px; text-shadow:none;}
+  .stage .physics-log > div.swallow-msg{font-size:14px; font-weight:700; color:#ff6b6b; border-left-color:var(--red); box-shadow:0 0 14px rgba(255,43,43,0.35);}
+  .stage .physics-log > div.swallow-msg::before{content:'✕ '}
+  @media (pointer:coarse){ .stage .physics-log > div{font-size:13px;} .stage .physics-log > div.swallow-msg{font-size:15px;} }
+  table.planets td.name.swallowed{color:#ff4d4d !important; text-decoration:line-through; text-decoration-thickness:2px; text-decoration-color:#ff2b2b;}
+  :root{--moon:#5ec8e6; --moon-dim:#1f5a6b;}
+  #openMoonBtn, #addMoonBtn{color:var(--moon); border-color:var(--moon-dim);}
+  #openMoonBtn:hover:not(:disabled), #addMoonBtn:hover{background:rgba(94,200,230,0.08); border-color:var(--moon); box-shadow:0 0 16px rgba(94,200,230,0.25);}
+  #openMoonBtn:disabled{color:var(--text-faint); border-color:var(--line);}
+  #moonManifest .panel-title{color:var(--moon);}
+  #moonTable td.name{color:var(--moon);}
+  #moonTable td.link:hover{color:#a6e8f7;}
+  /* the GRAVITY SIMULATION toggle sits right next to the habitable-zone toggle, bottom-left of the 3D view.
+     One row container keeps them side by side; on a narrow screen the gravity button wraps onto the row above. */
+  .stage .stage-toggles{position:absolute; left:10px; right:10px; bottom:8px; z-index:6; display:flex; flex-wrap:wrap-reverse; align-items:flex-start; align-content:flex-start; gap:8px; pointer-events:none;}   /* wrap-reverse flips the cross axis: flex-start = bottom */
+  .stage .stage-toggles > button{position:static; margin:0; pointer-events:auto;}
+  /* the hint and the watermark share the row, so they wrap above the buttons instead of printing over them */
+  .stage .stage-toggles > .watermark, .stage .stage-toggles > .drag-hint{position:static; transform:none; margin:0 0 0 auto; text-align:right; pointer-events:none;}
 </style>
 </head>
 <body>
@@ -373,12 +404,14 @@
       <div class="stage" id="stage">
         <span class="tag" id="stageTag">SYSTEM VIEW</span>
         <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
-        <button class="hzlabel" id="hzToggleBtn" title="Show or hide the habitable-zone rings">■ HABITABLE ZONE: ON</button>
+        <div class="stage-toggles" id="stageToggles">
+          <button class="hzlabel" id="hzToggleBtn" title="Show or hide the habitable-zone rings">■ HABITABLE ZONE: ON</button>
+          <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a gravity (N-body) simulation">⚛ GRAVITY SIMULATION: OFF</button>
+          <span class="watermark">rameshverse.com</span>
+          <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
+        </div>
         <div class="physics-log" id="physicsLog"></div>
-        <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
-        <span class="watermark">rameshverse.com</span>
         <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
-        <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a real gravity (N-body) simulation">⚛ REALISTIC MODE: OFF</button>
         <div class="speed-ctrl">
           <span>SPEED</span>
           <input type="range" id="speedSlider" min="0" max="200" value="70" step="1" title="Speed (logarithmic, 0 = paused, max 10000). Double-click or double-tap to reset." aria-label="Simulation speed">
@@ -390,12 +423,15 @@
 
     <div>
       <div class="add-row">
-        <button class="add-btn" id="openPlanetBtn" style="margin-top:0;">+ ADD PLANET</button>
+        <div class="open-row" id="openRow">
+          <button class="add-btn" id="openPlanetBtn" style="margin-top:0;">+ ADD PLANET</button>
+          <button class="add-btn" id="openMoonBtn" style="margin-top:0;" disabled title="Add a planet first — moons orbit planets">☾ ADD MOON</button>
+        </div>
           <div id="planetFormWrap" style="display:none; margin-top:10px;">
           <div class="planet-form-row">
           <div class="field pf-name">
             <div class="k"><span>PLANET NAME</span></div>
-            <input type="text" id="pName" placeholder="Unnamed-01" maxlength="18">
+            <input type="text" id="pName" placeholder="Planet-01" maxlength="18">
           </div>
           <div class="field pf-star" id="orbitsStarField" style="display:none;">
             <div class="k"><span>ORBITS STAR</span></div>
@@ -429,6 +465,45 @@
         <button class="add-btn" id="addBtn">✓ ADD PLANET TO SYSTEM</button>
         <button class="add-btn rand-btn" id="cancelEditBtn">✕ CANCEL</button>
       </div>
+      <div id="moonFormWrap" style="display:none; margin-top:10px;">
+        <div class="planet-form-row">
+          <div class="field pf-name">
+            <div class="k"><span>MOON NAME</span></div>
+            <input type="text" id="mName" placeholder="Moon-01" maxlength="18">
+          </div>
+          <div class="field pf-star">
+            <div class="k"><span>ORBITS PLANET</span></div>
+            <select id="moonPlanetSelect"></select>
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>DIST (km)</span></div>
+            <input type="number" id="moonDist" step="1000" min="1" max="100000000">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>ECC</span></div>
+            <input type="number" id="moonEcc" step="0.001" min="0" max="0.9">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>RADIUS (R⊕)</span></div>
+            <input type="number" id="moonRadius" step="0.01" min="0.001" max="5" value="0.27">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>MASS (M⊕)</span></div>
+            <input type="number" id="moonMass" step="0.001" min="0.00001" max="10" value="0.012">
+          </div>
+          <div class="field pf-sm">
+            <div class="k"><span>PERIOD</span></div>
+            <div class="lum-readout" id="moonPeriodOut" style="font-size:11px;">27.3 d</div>
+          </div>
+        </div>
+        <div class="moon-hint" id="moonHint"></div>
+        <div class="field">
+          <div class="k"><span>MOON TYPE</span></div>
+          <div class="type-row" id="moonTypeRow"></div>
+        </div>
+        <button class="add-btn" id="addMoonBtn">✓ ADD MOON TO SYSTEM</button>
+        <button class="add-btn rand-btn" id="cancelMoonBtn">✕ CANCEL</button>
+      </div>
       </div>
 
       <div class="panel-title"><span>SYSTEM MANIFEST</span><span id="planetCount">0 bodies</span></div>
@@ -438,6 +513,14 @@
       </table>
       </div>
       <div class="empty" id="emptyMsg">No planets yet — set a distance and type, then add one.</div>
+      <div id="moonManifest" style="display:none; margin-top:16px;">
+        <div class="panel-title"><span>MOONS</span><span id="moonCount">0 moons</span></div>
+        <div class="table-scroll">
+          <table class="planets" id="moonTable">
+            <tr><th>NAME</th><th>PLANET</th><th>DIST (km)</th><th>PERIOD</th><th>ECC</th><th>R⊕</th><th>TYPE</th><th></th></tr>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -485,6 +568,23 @@
   }
   function generateRing(type){ return Math.random() < type.ringChance; }
 
+  // ---- moons: types and state ----
+  var moonTypes = [
+    {id:'rocky',    label:'ROCKY',    radiusRE:0.27, massME:0.012, hex:0x9a948a, tex:'dwarf'},
+    {id:'icy',      label:'ICY',      radiusRE:0.25, massME:0.008, hex:0xcfe3ee, tex:'rocky'},
+    {id:'volcanic', label:'VOLCANIC', radiusRE:0.29, massME:0.015, hex:0xc9a24a, tex:'rocky'}
+  ];
+  function moonTypeById(id){
+    for (var i=0;i<moonTypes.length;i++){ if (moonTypes[i].id === id) return moonTypes[i]; }
+    return moonTypes[0];
+  }
+  var AU_KM = 149597870.7, EARTH_R_KM = 6371;
+  var moons = [];
+  var nextMoonNum = 1;
+  var editingMoonIndex = null;
+  var swallowSig = '';   // remembers which bodies are marked as swallowed, so the tables are only touched when something changes
+  var currentMoonType = moonTypes[0];
+
   // ---- DOM refs ----
   var systemNameInput = document.getElementById('systemName');
   var stageTag = document.getElementById('stageTag');
@@ -513,9 +613,28 @@
   var addBtn = document.getElementById('addBtn');
   var cancelEditBtn = document.getElementById('cancelEditBtn');
 var openPlanetBtn = document.getElementById('openPlanetBtn');
+var openMoonBtn = document.getElementById('openMoonBtn');
+var openRow = document.getElementById('openRow');
 var planetFormWrap = document.getElementById('planetFormWrap');
-function openPlanetForm(){ planetFormWrap.style.display = 'block'; openPlanetBtn.style.display = 'none'; }
-function closePlanetForm(){ planetFormWrap.style.display = 'none'; openPlanetBtn.style.display = ''; }
+var moonFormWrap = document.getElementById('moonFormWrap');
+function openPlanetForm(){
+  if (moonFormWrap.style.display !== 'none') exitMoonEdit();
+  planetFormWrap.style.display = 'block';
+  openRow.style.display = 'none';
+}
+function closePlanetForm(){
+  planetFormWrap.style.display = 'none';
+  if (moonFormWrap.style.display === 'none') openRow.style.display = '';
+}
+function openMoonForm(){
+  if (planetFormWrap.style.display !== 'none') exitEditMode();
+  moonFormWrap.style.display = 'block';
+  openRow.style.display = 'none';
+}
+function closeMoonForm(){
+  moonFormWrap.style.display = 'none';
+  if (planetFormWrap.style.display === 'none') openRow.style.display = '';
+}
 openPlanetBtn.addEventListener('click', function(){
   resetForm();
   openPlanetForm();
@@ -1049,7 +1168,7 @@ openPlanetBtn.addEventListener('click', function(){
   function readFormAsPlanet(){
     var au = Math.max(0.015, parseFloat(distNumber.value)||1);
     var ecc = Math.max(0, Math.min(0.9, parseFloat(eccNumber.value)||0));
-    var name = pNameInput.value.trim() || ('Unnamed-0'+nextNum);
+    var name = pNameInput.value.trim() || ('Planet-' + (nextNum < 10 ? '0' : '') + nextNum);
     var radiusRE = Math.max(0.05, parseFloat(radiusInput.value)||currentType.radiusRE);
     var massME = Math.max(0.001, parseFloat(massInput.value)||currentType.massME);
     var starIndex = stars.length>1 ? (+orbitsStarSelect.value||0) : 0;
@@ -1063,6 +1182,11 @@ openPlanetBtn.addEventListener('click', function(){
       data.angle = existing.angle;
       data.hasRing = existing.hasRing;
       planets[editingIndex] = data;
+      moons.forEach(function(m){
+        if (m.planetIndex !== editingIndex) return;
+        var f = fitMoonOrbit(m.km, m.ecc, data);   // the planet's size / mass / orbit may have changed
+        m.km = f.km; m.ecc = f.ecc;
+      });
       exitEditMode();
     } else {
       data.angle = Math.random()*Math.PI*2;
@@ -1136,6 +1260,10 @@ openPlanetBtn.addEventListener('click', function(){
       rmBtn.addEventListener('click', function(){
         if (editingIndex === idx) exitEditMode();
         planets.splice(idx,1);
+        // moons go with their planet; moons of later planets keep following theirs
+        moons = moons.filter(function(m){ return m.planetIndex !== idx; });
+        moons.forEach(function(m){ if (m.planetIndex > idx) m.planetIndex -= 1; });
+        if (editingMoonIndex !== null) exitMoonEdit();
         renderTable();
         rebuildIfReady();
       });
@@ -1146,6 +1274,457 @@ openPlanetBtn.addEventListener('click', function(){
 
     planetCount.textContent = planets.length + (planets.length===1?' body':' bodies');
     emptyMsg.style.display = planets.length ? 'none' : 'block';
+    renderMoonTable();
+    updateMoonButtonState();   // enables / disables the ADD MOON button
+    swallowSig = '';
+  }
+
+  // ================= MOONS =================
+  var moonPlanetSelect = document.getElementById('moonPlanetSelect');
+  var mNameInput = document.getElementById('mName');
+  var moonDist = document.getElementById('moonDist');
+  var moonEcc = document.getElementById('moonEcc');
+  var moonRadius = document.getElementById('moonRadius');
+  var moonMass = document.getElementById('moonMass');
+  var moonPeriodOut = document.getElementById('moonPeriodOut');
+  var moonHint = document.getElementById('moonHint');
+  var moonTypeRow = document.getElementById('moonTypeRow');
+  var addMoonBtn = document.getElementById('addMoonBtn');
+  var cancelMoonBtn = document.getElementById('cancelMoonBtn');
+  var moonTable = document.getElementById('moonTable');
+  var moonManifest = document.getElementById('moonManifest');
+  var moonCount = document.getElementById('moonCount');
+
+  // Kepler period (years) with no minimum mass, so a planet-sized central mass gives the right answer
+  function kepPeriodYears(aAU, M){ return Math.sqrt(Math.pow(aAU,3)/Math.max(M,1e-12)); }
+  function moonPeriodYears(mo){
+    var pl = planets[mo.planetIndex];
+    return kepPeriodYears(mo.km/AU_KM, planetMassSolar(pl) + mo.massME/EARTH_MASSES_PER_SOLAR);
+  }
+  function formatMoonPeriod(years){
+    var days = years*365.25;
+    if (days < 1) return (days*24).toFixed(1) + ' h';
+    return formatPeriod(years);
+  }
+  function fmtKm(km){ return Math.round(km).toLocaleString() + ' km'; }
+
+  // Stable range for a moon: from 2.5 planet radii (outside the tidal limit) out to half the planet's Hill sphere.
+  function moonLimits(pl){
+    var star = stars[pl.starIndex] || stars[0];
+    var lo = pl.radiusRE*EARTH_R_KM*2.5;
+    var hill = pl.au*(1-(pl.ecc||0))*AU_KM*Math.cbrt(planetMassSolar(pl)/(3*star.M));
+    var hi = hill*0.5;
+    return { lo:lo, hi:Math.max(hi, lo), stable:hi >= lo };
+  }
+  // pull a distance + eccentricity into the stable range (closest and farthest points of the orbit both stay inside)
+  function fitMoonOrbit(km, ecc, pl){
+    var lim = moonLimits(pl);
+    km = Math.min(lim.hi, Math.max(lim.lo, km));
+    var eMax = Math.max(0, Math.min(lim.hi/km - 1, 1 - lim.lo/km));
+    return { km:km, ecc:Math.min(ecc, eMax) };
+  }
+
+  function fillMoonPlanetSelect(selectedIdx){
+    moonPlanetSelect.innerHTML = '';
+    planets.forEach(function(p, i){
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = p.name;
+      moonPlanetSelect.appendChild(opt);
+    });
+    if (selectedIdx !== undefined && selectedIdx < planets.length) moonPlanetSelect.value = String(selectedIdx);
+  }
+  function selectedMoonPlanet(){ return planets[parseInt(moonPlanetSelect.value,10) || 0] || null; }
+
+  var moonNotice = '';   // warning about a value that is out of range (shown above the range line)
+  function setMoonNotice(msg){ moonNotice = msg || ''; updateMoonHint(); }
+  function clearMoonWarnings(){
+    moonNotice = '';
+    [moonDist, moonEcc, moonRadius, moonMass].forEach(function(el){ el.classList.remove('bad'); });
+  }
+  function updateMoonHint(){
+    var pl = selectedMoonPlanet();
+    if (!pl) return;
+    var lim = moonLimits(pl);
+    var line = lim.stable
+      ? 'STABLE RANGE: ' + fmtKm(lim.lo) + ' – ' + fmtKm(lim.hi) + ' (out to half the planet\u2019s Hill sphere)'
+      : 'This planet is so close to its star that no moon orbit is stable. The moon will be placed at the closest allowed distance.';
+    moonHint.className = 'moon-hint' + ((!lim.stable || moonNotice) ? ' warn' : '');
+    moonHint.textContent = moonNotice ? moonNotice + '\n' + line : line;
+  }
+  // highest eccentricity that keeps both ends of the orbit inside the stable range at this distance
+  function moonEccLimit(km, pl){ return fitMoonOrbit(km, 0.9, pl).ecc; }
+  function trim3(x){ return (Math.floor(x*1000)/1000).toFixed(3); }
+  function updateMoonPeriodPreview(){
+    var pl = selectedMoonPlanet();
+    if (!pl) return;
+    var km = Math.max(1, parseFloat(moonDist.value) || 384400);
+    var m = Math.max(0.00001, parseFloat(moonMass.value) || currentMoonType.massME);
+    moonPeriodOut.textContent = formatMoonPeriod(kepPeriodYears(km/AU_KM, planetMassSolar(pl) + m/EARTH_MASSES_PER_SOLAR));
+    updateMoonHint();
+  }
+
+  function setMoonTypeButtons(){
+    Array.prototype.forEach.call(moonTypeRow.children, function(c, i){ c.classList.toggle('active', moonTypes[i] === currentMoonType); });
+  }
+  function renderMoonTypeButtons(){
+    moonTypes.forEach(function(mt){
+      var b = document.createElement('button');
+      b.className = 'type-btn' + (mt === currentMoonType ? ' active' : '');
+      b.textContent = mt.label;
+      b.addEventListener('click', function(){
+        currentMoonType = mt;
+        setMoonTypeButtons();
+        if (editingMoonIndex === null){ moonRadius.value = mt.radiusRE; moonMass.value = mt.massME; }   // type presets fill size and mass for a new moon
+        updateMoonPeriodPreview();
+      });
+      moonTypeRow.appendChild(b);
+    });
+  }
+
+  function resetMoonForm(planetIdx){
+    clearMoonWarnings();
+    mNameInput.value = '';
+    currentMoonType = moonTypes[0];
+    setMoonTypeButtons();
+    moonRadius.value = currentMoonType.radiusRE;
+    moonMass.value = currentMoonType.massME;
+    moonEcc.value = '0.000';
+    fillMoonPlanetSelect(planetIdx || 0);
+    var pl = selectedMoonPlanet();
+    moonDist.value = pl ? Math.round(fitMoonOrbit(384400, 0, pl).km) : 384400;
+    updateMoonPeriodPreview();
+  }
+  function exitMoonEdit(){
+    editingMoonIndex = null;
+    addMoonBtn.textContent = '✓ ADD MOON TO SYSTEM';
+    closeMoonForm();
+    resetMoonForm();
+  }
+  function readMoonForm(){
+    var pIdx = parseInt(moonPlanetSelect.value,10) || 0;
+    var pl = planets[pIdx];
+    var fit = fitMoonOrbit(
+      Math.max(1, parseFloat(moonDist.value) || 384400),
+      Math.max(0, Math.min(0.9, parseFloat(moonEcc.value) || 0)),
+      pl);
+    return {
+      name: mNameInput.value.trim() || ('Moon-' + (nextMoonNum < 10 ? '0' : '') + nextMoonNum),
+      planetIndex: pIdx, km: fit.km, ecc: fit.ecc, type: currentMoonType,
+      radiusRE: Math.max(0.001, parseFloat(moonRadius.value) || currentMoonType.radiusRE),
+      massME: Math.max(0.00001, parseFloat(moonMass.value) || currentMoonType.massME)
+    };
+  }
+  function loadMoonIntoForm(idx){
+    var mo = moons[idx];
+    editingMoonIndex = idx;
+    clearMoonWarnings();
+    fillMoonPlanetSelect(mo.planetIndex);
+    mNameInput.value = mo.name;
+    currentMoonType = mo.type;
+    setMoonTypeButtons();
+    moonDist.value = Math.round(mo.km);
+    moonEcc.value = (mo.ecc || 0).toFixed(3);
+    moonRadius.value = mo.radiusRE;
+    moonMass.value = mo.massME;
+    addMoonBtn.textContent = '✓ UPDATE MOON';
+    openMoonForm();
+    updateMoonPeriodPreview();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function renderMoonTable(){
+    moonTable.querySelectorAll('tr.data').forEach(function(r){ r.remove(); });
+    moons.forEach(function(mo, idx){
+      var pl = planets[mo.planetIndex];
+      if (!pl) return;
+      var tr = document.createElement('tr');
+      tr.className = 'data';
+      tr.innerHTML =
+        '<td class="name link" title="Click to fly to this moon"></td>' +
+        '<td class="link" title="Click to fly to this planet"></td>' +
+        '<td>' + Math.round(mo.km).toLocaleString() + '</td>' +
+        '<td>' + formatMoonPeriod(moonPeriodYears(mo)) + '</td>' +
+        '<td>' + (mo.ecc || 0).toFixed(2) + '</td>' +
+        '<td>' + mo.radiusRE.toFixed(2) + '</td>' +
+        '<td>' + mo.type.label + '</td>' +
+        '<td></td>';
+      tr.children[0].textContent = mo.name;   // names go in as text, never as HTML
+      tr.children[1].textContent = pl.name;
+      tr.children[0].addEventListener('click', function(){ focusBody(three && three.moonMeshes[idx]); });
+      tr.children[1].addEventListener('click', function(){ focusBody(three && three.planetMeshes[mo.planetIndex]); });
+      var editBtn = document.createElement('button');
+      editBtn.className = 'rm';
+      editBtn.textContent = '✎';
+      editBtn.title = 'Edit';
+      editBtn.addEventListener('click', function(){ loadMoonIntoForm(idx); });
+      var rmBtn = document.createElement('button');
+      rmBtn.className = 'rm';
+      rmBtn.textContent = 'x';
+      rmBtn.addEventListener('click', function(){
+        if (editingMoonIndex !== null) exitMoonEdit();
+        moons.splice(idx, 1);
+        renderMoonTable();
+        rebuildIfReady();
+      });
+      tr.lastElementChild.appendChild(editBtn);
+      tr.lastElementChild.appendChild(rmBtn);
+      moonTable.appendChild(tr);
+    });
+    moonCount.textContent = moons.length + (moons.length === 1 ? ' moon' : ' moons');
+    moonManifest.style.display = moons.length ? '' : 'none';
+    swallowSig = '';
+  }
+
+  // the ADD MOON button only works while there is at least one planet
+  function updateMoonButtonState(){
+    var has = planets.length > 0;
+    openMoonBtn.disabled = !has;
+    openMoonBtn.title = has ? 'Add a moon to one of your planets' : 'Add a planet first — moons orbit planets';
+    if (moonFormWrap.style.display !== 'none'){
+      if (!has) exitMoonEdit();
+      else {   // planets were renamed / removed while the form is open: refresh the list
+        var keep = Math.min(parseInt(moonPlanetSelect.value,10) || 0, planets.length - 1);
+        fillMoonPlanetSelect(keep);
+        updateMoonPeriodPreview();
+      }
+    }
+  }
+
+  openMoonBtn.addEventListener('click', function(){
+    if (!planets.length) return;
+    // preselect the planet (or the moon's planet) the camera is focused on
+    var pre = 0;
+    if (three && three.focusObj){
+      var fp = three.focusObj.userData.planet, fm = three.focusObj.userData.moon;
+      if (fp && planets.indexOf(fp) >= 0) pre = planets.indexOf(fp);
+      else if (fm && fm.planetIndex < planets.length) pre = fm.planetIndex;
+    }
+    editingMoonIndex = null;
+    addMoonBtn.textContent = '✓ ADD MOON TO SYSTEM';
+    resetMoonForm(pre);
+    openMoonForm();
+    mNameInput.focus();
+  });
+  cancelMoonBtn.addEventListener('click', exitMoonEdit);
+  addMoonBtn.addEventListener('click', function(){
+    if (!planets.length) return;
+    var data = readMoonForm();
+    if (editingMoonIndex !== null && moons[editingMoonIndex]){
+      data.angle = moons[editingMoonIndex].angle;
+      moons[editingMoonIndex] = data;
+      exitMoonEdit();
+    } else {
+      data.angle = Math.random()*Math.PI*2;
+      moons.push(data);
+      nextMoonNum++;
+      closeMoonForm();
+      resetMoonForm(data.planetIndex);
+    }
+    renderMoonTable();
+    rebuildIfReady();
+  });
+  // ---- limit warnings: say so while typing, then say what was changed when the field is left ----
+  function distProblem(raw, pl){
+    var lim = moonLimits(pl);
+    if (raw < lim.lo) return { low:true, lim:lim, msg:'\u26a0 TOO CLOSE: ' + fmtKm(raw) + ' is inside the planet\u2019s tidal limit, so the moon would be torn apart (minimum ' + fmtKm(lim.lo) + ').' };
+    if (raw > lim.hi) return { low:false, lim:lim, msg:'\u26a0 TOO FAR: ' + fmtKm(raw) + ' is beyond what the planet can hold onto, so the star would pull the moon away (maximum ' + fmtKm(lim.hi) + ').' };
+    return null;
+  }
+  function eccProblem(raw, km, pl){
+    var max = moonEccLimit(km, pl);
+    if (raw > max + 1e-9) return { max:max, msg:'\u26a0 ECCENTRICITY TOO HIGH: ' + raw + ' would swing the moon outside the stable range at this distance (maximum ' + trim3(max) + ').' };
+    return null;
+  }
+  moonDist.addEventListener('input', function(){
+    var pl = selectedMoonPlanet(), raw = parseFloat(moonDist.value);
+    if (!pl || !isFinite(raw) || raw <= 0){ moonDist.classList.remove('bad'); return; }
+    var prob = distProblem(raw, pl);
+    moonDist.classList.toggle('bad', !!prob);
+    setMoonNotice(prob ? prob.msg + ' It will be set to the limit when you leave the field.' : '');
+    updateMoonPeriodPreview();
+  });
+  function onMoonDistChange(){
+    var pl = selectedMoonPlanet();
+    if (!pl) return;
+    var raw = Math.max(1, parseFloat(moonDist.value) || 384400);
+    var prob = distProblem(raw, pl);
+    var km = Math.round(fitMoonOrbit(raw, 0, pl).km);
+    moonDist.value = km;
+    moonDist.classList.remove('bad');
+    var notice = prob ? '\u26a0 ' + (prob.low ? 'Too close' : 'Too far') + ': ' + fmtKm(raw) + ' was outside the stable range, so it was set to ' + fmtKm(km) + '.' : '';
+    // the eccentricity that was fine at the old distance may not be at the new one
+    var e = parseFloat(moonEcc.value) || 0, emax = moonEccLimit(km, pl);
+    if (e > emax + 1e-9){
+      moonEcc.value = trim3(emax);
+      notice += (notice ? '\n' : '') + '\u26a0 Eccentricity lowered to ' + trim3(emax) + ' so the orbit stays inside the stable range at this distance.';
+    }
+    moonEcc.classList.remove('bad');
+    setMoonNotice(notice);
+    updateMoonPeriodPreview();
+  }
+  moonDist.addEventListener('change', onMoonDistChange);
+  moonPlanetSelect.addEventListener('change', onMoonDistChange);
+
+  moonEcc.addEventListener('input', function(){
+    var pl = selectedMoonPlanet(), raw = parseFloat(moonEcc.value);
+    if (!pl || !isFinite(raw)){ moonEcc.classList.remove('bad'); return; }
+    var km = Math.max(1, parseFloat(moonDist.value) || 384400);
+    var prob = raw < 0 ? { msg:'\u26a0 ECCENTRICITY TOO LOW: it cannot be below 0 (a perfect circle).' } : eccProblem(raw, km, pl);
+    moonEcc.classList.toggle('bad', !!prob);
+    setMoonNotice(prob ? prob.msg + ' It will be set to the limit when you leave the field.' : '');
+  });
+  moonEcc.addEventListener('change', function(){
+    var pl = selectedMoonPlanet();
+    var raw = parseFloat(moonEcc.value);
+    if (!pl || !isFinite(raw)){ moonEcc.value = '0.000'; moonEcc.classList.remove('bad'); setMoonNotice(''); return; }
+    var km = Math.max(1, parseFloat(moonDist.value) || 384400), max = moonEccLimit(km, pl);
+    var c = Math.max(0, Math.min(max, raw));
+    moonEcc.value = trim3(c);
+    moonEcc.classList.remove('bad');
+    setMoonNotice(c !== raw ? '\u26a0 Eccentricity ' + raw + ' was ' + (raw < 0 ? 'below 0' : 'above the stable maximum') + ', so it was set to ' + trim3(c) + '.' : '');
+  });
+
+  // radius and mass: plain minimum / maximum
+  function limitField(el, lo, hi, label, afterFn){
+    el.addEventListener('input', function(){
+      var v = parseFloat(el.value), bad = isFinite(v) && (v < lo || v > hi);
+      el.classList.toggle('bad', bad);
+      setMoonNotice(bad ? '\u26a0 ' + label + ' ' + v + (v < lo ? ' is below the minimum of ' : ' is above the maximum of ') + (v < lo ? lo : hi) + '. It will be set to the limit when you leave the field.' : '');
+      if (afterFn) afterFn();
+    });
+    el.addEventListener('change', function(){
+      var v = parseFloat(el.value);
+      el.classList.remove('bad');
+      if (!isFinite(v)){ setMoonNotice(''); return; }
+      var c = Math.min(hi, Math.max(lo, v));
+      if (c !== v){ el.value = c; setMoonNotice('\u26a0 ' + label + ' ' + v + ' was ' + (v < lo ? 'below the minimum' : 'above the maximum') + ', so it was set to ' + c + '.'); }
+      else setMoonNotice('');
+      if (afterFn) afterFn();
+    });
+  }
+  limitField(moonRadius, 0.001, 5, 'RADIUS', null);
+  limitField(moonMass, 0.00001, 10, 'MASS', updateMoonPeriodPreview);
+
+  // ---- moons in the 3D scene ----
+  // name label: keeps a constant size on screen, and shows only when the camera is near the planet
+  function placeMoonLabel(mm, lab){
+    if (!lab) return;
+    var w = three.radius*0.16;
+    lab.scale.set(w, w*0.255, 1);
+    lab.position.set(mm.position.x, mm.position.y + mm.userData.size + w*0.3, mm.position.z);
+    lab.visible = mm.visible && three.radius < mm.userData.orbitExtent*14;
+  }
+
+  // idealized mode: Kepler orbit around the planet, riding along with it
+  function moveMoonsIdealized(){
+    three.moonMeshes.forEach(function(mm, idx){
+      if (!mm) return;
+      var mo = mm.userData.moon, pm = three.planetMeshes[mo.planetIndex];
+      if (!pm) return;
+      var rel = keplerPos(mo, mm.userData.aUnits, moonPeriodYears(mo));
+      mm.position.set(pm.position.x + rel.x, 0, pm.position.z + rel.z);
+      mm.rotation.y += 0.006*speedMultiplier;
+      var line = three.moonLines[idx];
+      if (line) line.position.set(pm.position.x, 0, pm.position.z);
+      placeMoonLabel(mm, three.moonLabels[idx]);
+    });
+  }
+
+  // realistic mode: draw each moon where the N-body simulation put it, relative to what it orbits
+  // (distances are linear here, so a moon's offset is exactly its true separation x distK)
+  function applyMoonSimPositions(){
+    var B = sim.bodies, S = sim.S, P = planets.length;
+    for (var k=0;k<moons.length;k++){
+      var mi = S + P + k, mb = B[mi], mm = three.moonMeshes[k];
+      if (!mm) continue;
+      var mlab = three.moonLabels[k], mtl = mm.userData.trailLine, mk = mm.userData.marker;
+      if (!mb.alive){
+        mm.visible = false; mm.userData.dead = true;
+        if (mlab) mlab.visible = false;
+        if (mtl) mtl.visible = false;
+        if (mk) mk.visible = false;
+        continue;
+      }
+      var dp = simDisplayParent(mi);           // its planet, or whatever swallowed that planet
+      if (dp < 0) dp = simResolve(0);
+      var anchor, hostGroup, ax = 0, az = 0;
+      if (dp < S){ anchor = three.starObjs[dp].group; hostGroup = anchor; }
+      else {
+        anchor = dp < S + P ? three.planetMeshes[dp - S] : three.moonMeshes[dp - S - P];
+        if (!anchor) continue;
+        hostGroup = anchor.parent;
+        ax = anchor.position.x; az = anchor.position.z;
+      }
+      if (mm.parent !== hostGroup){
+        hostGroup.add(mm);
+        [mlab, mtl, mk].forEach(function(o){ if (o) hostGroup.add(o); });
+        mb.trail.length = 0;
+      }
+      dispOffset(mb.x - B[dp].x, mb.z - B[dp].z, simOff);
+      mm.position.set(ax + simOff.x, 0, az + simOff.z);
+      mm.rotation.y += 0.006*speedMultiplier;
+      placeMoonLabel(mm, mlab);
+      if (dp >= S) writeTrail(mi, mtl, simOff, anchor.position);   // path relative to its planet, ending on the moon
+      else { writeTrail(mi, mtl, simOff, null); if (mtl) mtl.position.set(0, 0, 0); }
+    }
+  }
+
+  // realistic mode: live trails instead of the fixed orbit rings
+  function setupMoonSimVisuals(){
+    three.moonMeshes.forEach(function(mm){
+      if (!mm) return;
+      var host = mm.parent;
+      var line = makeTrailLine(0x8a8f7c, 0.6);
+      host.add(line);
+      mm.userData.trailLine = line;
+    });
+  }
+  // a moon is far smaller than a pixel until you are very close, so a small glowing dot keeps it findable
+  function updateMoonDecor(){
+    var ls = three.radius/11;
+    three.moonMeshes.forEach(function(mm){
+      var mk = mm && mm.userData.marker;
+      if (!mk) return;
+      var ms = Math.max(mm.userData.size*2.5, ls*0.05);
+      mk.scale.set(ms, ms, 1);
+      mk.position.copy(mm.position);
+      mk.visible = mm.visible && three.radius < mm.userData.orbitExtent*14;
+    });
+  }
+
+  // Planets and moons swallowed in the gravity simulation get their name struck through in red in the tables.
+  // Turning the simulation off (or restarting it) clears the marks, just as the bodies themselves come back.
+  function updateSwallowMarks(){
+    var live = !!(realisticMode && sim && sim.bodies.length === sim.S + planets.length + moons.length);
+    var sig = live ? 'L' : 'N';
+    if (live) for (var i = sim.S; i < sim.bodies.length; i++) sig += sim.bodies[i].alive ? '0' : '1';
+    if (sig === swallowSig) return;
+    swallowSig = sig;
+    var B = live ? sim.bodies : null, S = live ? sim.S : 0, P = planets.length;
+    function mark(tr, bi, what){
+      if (!tr) return;
+      var td = tr.children[0], dead = !!(B && !B[bi].alive);
+      td.classList.toggle('swallowed', dead);
+      td.title = dead
+        ? 'Swallowed by ' + (B[bi].by >= 0 ? B[simResolve(bi)].name : 'another body') + ' in the gravity simulation'
+        : 'Click to fly to this ' + what;
+    }
+    var prow = planetTable.querySelectorAll('tr.data'), mrow = moonTable.querySelectorAll('tr.data');
+    for (var j = 0; j < P; j++) mark(prow[j], S + j, 'planet');
+    for (var k = 0; k < moons.length; k++) mark(mrow[k], S + P + k, 'moon');
+  }
+
+  // called once per frame from update3D, after the planets have moved
+  function updateMoons(){
+    if (!three || !three.moonMeshes.length) return;
+    if (realisticMode && sim && three.starObjs.length === sim.S && three.planetMeshes.length === planets.length &&
+        three.moonMeshes.length === moons.length && sim.bodies.length === sim.S + planets.length + moons.length){
+      applyMoonSimPositions();
+    } else {
+      moveMoonsIdealized();
+    }
+    updateMoonDecor();
   }
 
   // ================= HABITABLE-ZONE VISIBILITY + REALISTIC (N-BODY) MODE =================
@@ -1170,7 +1749,7 @@ openPlanetBtn.addEventListener('click', function(){
   var AU_PER_REARTH = 4.26352e-5;
   var SIM_ETA = 0.025;               // time step = ETA x shortest dynamical time (about 250 steps per orbit)
   var SIM_BUDGET_MS = 9;             // CPU time per frame the physics may use before the sim falls behind real time
-  var SIM_SOFT2 = 1e-8;              // tiny softening (AU^2): only prevents numerical blow-ups
+  var SIM_SOFT2 = 1e-8; var SIM_SOFT2_MOON = 1e-12;              // tiny softening (AU^2): only prevents numerical blow-ups
   var TRAIL_N = 300;                 // points kept in each orbit trail
   var sim = null;
   var simPending = [];               // pairs of bodies in contact this step
@@ -1242,6 +1821,13 @@ openPlanetBtn.addEventListener('click', function(){
         trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
     });
 
+    moons.forEach(function(mo){
+      bodies.push({ kind:'moon', name:mo.name, isBH:false, m:mo.massME/EARTH_MASSES_PER_SOLAR, r:mo.radiusRE*AU_PER_REARTH,
+        a:mo.km/AU_KM, e:mo.ecc||0, ang:mo.angle||0, parent: S + Math.min(mo.planetIndex, planets.length-1),
+        x:0, z:0, vx:0, vz:0, ax:0, az:0, alive:true, by:-1, escaped:false,
+        trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
+    });
+
     // mass of a star plus every star orbiting it (directly or indirectly)
     function subtreeMass(si){
       var m = bodies[si].m;
@@ -1262,8 +1848,8 @@ openPlanetBtn.addEventListener('click', function(){
       kids.forEach(function(k){
         var bd = bodies[k];
         var ms = bd.kind==='star' ? subtreeMass(k) : bd.m;
-        var a = Math.max(bd.a, 0.015), e = Math.min(0.9, Math.max(0, bd.e));
-        var periodAn = orbitalPeriodYears(a, P.m + bd.m);   // same phase as the idealized mode
+        var a = bd.kind==='moon' ? Math.max(bd.a, 1e-9) : Math.max(bd.a, 0.015), e = Math.min(0.9, Math.max(0, bd.e));
+        var periodAn = bd.kind==='moon' ? kepPeriodYears(a, P.m + bd.m) : orbitalPeriodYears(a, P.m + bd.m);   // same phase as the idealized mode
         var M = (bd.ang + t*(ORBIT_SPEED/Math.max(periodAn,0.0001))) % (Math.PI*2);
         var E = solveE(M, e), cE = Math.cos(E), sE = Math.sin(E), sq = Math.sqrt(1 - e*e);
         var r = a*(1 - e*cE);
@@ -1280,7 +1866,7 @@ openPlanetBtn.addEventListener('click', function(){
           gm = tm;
         }
       });
-      kids.forEach(function(k){ if (bodies[k].kind === 'star') placeChildren(k); });
+      kids.forEach(function(k){ if (bodies[k].kind !== 'moon') placeChildren(k); });   // stars place their companions, planets place their moons
     }
     placeChildren(0);
 
@@ -1315,7 +1901,7 @@ openPlanetBtn.addEventListener('click', function(){
         var dx = bj.x - bi.x, dz = bj.z - bi.z;
         var r2 = dx*dx + dz*dz;
         if (r2 < sim.contact2[i*n+j]){ simPending.push(i, j); continue; }
-        var rs2 = r2 + SIM_SOFT2;
+        var rs2 = r2 + ((bi.kind === 'moon' || bj.kind === 'moon') ? SIM_SOFT2_MOON : SIM_SOFT2);   // a moon's tiny orbit needs a smaller softening
         var rs3 = rs2*Math.sqrt(rs2);
         var inv = G_AU/rs3;
         bi.ax += bj.m*dx*inv; bi.az += bj.m*dz*inv;
@@ -1428,9 +2014,11 @@ openPlanetBtn.addEventListener('click', function(){
   function logPhysics(msg){
     var d = document.createElement('div');
     d.textContent = msg;
+    var swallowedMsg = / swallowed by /.test(msg);
+    if (swallowedMsg) d.className = 'swallow-msg';   // shown larger, in red, and for longer
     physicsLog.appendChild(d);
     while (physicsLog.children.length > 5) physicsLog.removeChild(physicsLog.firstChild);
-    setTimeout(function(){ if (d.parentNode) d.parentNode.removeChild(d); }, 9000);
+    setTimeout(function(){ if (d.parentNode) d.parentNode.removeChild(d); }, swallowedMsg ? 15000 : 9000);
   }
   function flushSimEvents(){
     while (simEvents.length) logPhysics(simEvents.shift());
@@ -1781,7 +2369,9 @@ openPlanetBtn.addEventListener('click', function(){
   function focusBody(obj){
     if (!three || !obj || obj.userData.dead || !isLive(obj)) return;
     if (!three.focusObj) three.savedRadius = three.targetRadius;
-    three.targetRadius = Math.max(obj.userData.size*6, realDist ? 1e-10 : 0.015);
+    var want = Math.max(obj.userData.size*6, realDist ? 1e-10 : 0.015);
+    if (obj.userData.moonExtent) want = Math.max(want, obj.userData.moonExtent*3);   // a planet with moons: zoom out far enough to see them
+    three.targetRadius = want;
     setFocus(obj);
     three.autoRotate = false;
     try { stage3d.scrollIntoView({behavior:'smooth', block:'nearest'}); } catch(e){}
@@ -1835,6 +2425,7 @@ openPlanetBtn.addEventListener('click', function(){
   renderer:renderer, scene:scene, camera:camera, sky:sky,
   starObjs:[], starOrbitLines:[],
   planetMeshes:[], planetLabels:[], planetAtmos:[], planetRings:[],
+  moonMeshes:[], moonLabels:[], moonLines:[],
   azimuth:0.7, polar:1.05,
   radius:11, targetRadius:11, savedRadius:11,   // radius eases toward targetRadius
   extent:6.5,                                   // outermost orbit radius in scene units (for max zoom-out)
@@ -1855,21 +2446,25 @@ openPlanetBtn.addEventListener('click', function(){
 var raycaster = new THREE.Raycaster();
 var mouseNDC = new THREE.Vector2();
 // what is under the pointer: a name label wins over the body itself (bodies can be tiny at true scale)
+function allLabels(){
+  return three.planetLabels.concat(three.moonLabels).filter(Boolean)
+    .concat(three.starObjs.map(function(so){ return so.fx && so.fx.label; }).filter(Boolean));
+}
 function pickBody(){
   var starMeshes = three.starObjs.map(function(so){ return so.mesh; });
-  var labels = three.planetLabels.filter(Boolean).concat(three.starObjs.map(function(so){ return so.fx && so.fx.label; }).filter(Boolean));
+  var labels = allLabels();
   var ok = function(h){
     var t = h.object.userData.target || h.object;
-    return !t.userData.dead && isLive(t);   // swallowed / hidden bodies can't be clicked
+    return !t.userData.dead && isLive(t) && isLive(h.object);   // swallowed / hidden bodies and labels can't be clicked
   };
   var lh = raycaster.intersectObjects(labels).filter(ok);
   if (lh.length) return lh[0].object.userData.target;
-  var hits = raycaster.intersectObjects(three.planetMeshes.concat(starMeshes)).filter(ok);
+  var hits = raycaster.intersectObjects(three.planetMeshes.concat(three.moonMeshes.filter(Boolean), starMeshes)).filter(ok);
   return hits.length ? hits[0].object : null;
 }
 // touch taps are imprecise and bodies are often a few pixels wide, so a tap near a body (within maxPx) counts as a tap on it
 function nearestBody(e, rect, maxPx){
-  var cands = three.planetMeshes.concat(three.starObjs.map(function(so){ return so.mesh; }));
+  var cands = three.planetMeshes.concat(three.moonMeshes.filter(Boolean), three.starObjs.map(function(so){ return so.mesh; }));
   var best = null, bestD = maxPx, v = new THREE.Vector3(), cv = new THREE.Vector3();
   cands.forEach(function(m){
     if (!m || m.userData.dead || !isLive(m)) return;
@@ -1909,7 +2504,7 @@ function handleStageClick(e){
       mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
       mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
       raycaster.setFromCamera(mouseNDC, three.camera);
-      var labels = three.planetLabels.filter(Boolean).concat(three.starObjs.map(function(so){ return so.fx && so.fx.label; }).filter(Boolean));
+      var labels = allLabels();
       var over = labels.length && raycaster.intersectObjects(labels).some(function(h){ return isLive(h.object); });
       stage3d.classList.toggle('over-label', !!over);
     });
@@ -2093,6 +2688,10 @@ function handleStageClick(e){
     three.planetLabels.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
     three.planetAtmos.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
     three.planetRings.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
+    three.moonMeshes.forEach(function(m){ if(m && m.parent) m.parent.remove(m); });
+    three.moonLabels.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
+    three.moonLines.forEach(function(l){ if(l && l.parent) l.parent.remove(l); });
+    three.moonMeshes = []; three.moonLabels = []; three.moonLines = [];
     three.starObjs = []; three.starOrbitLines = [];
     three.planetMeshes = []; three.planetLabels = []; three.planetAtmos = []; three.planetRings = [];
 
@@ -2268,10 +2867,57 @@ function handleStageClick(e){
       three.planetLabels.push(label);
     });
 
+    // ---- moons: each one orbits its planet ----
+    moons.forEach(function(mo){
+      var pm = three.planetMeshes[mo.planetIndex], pl = planets[mo.planetIndex];
+      if (!pm || !pl){ three.moonMeshes.push(null); three.moonLabels.push(null); three.moonLines.push(null); return; }
+      var host = pm.parent;                       // the star group the planet hangs in
+      var mSize = planetVisualSize(mo, 1);        // same size scale as the planets
+      var mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(mSize, 16, 16),
+        new THREE.MeshStandardMaterial({map:makePlanetTexture(mo.type.tex, mo.type.hex), roughness:0.85, metalness:0.02})
+      );
+      host.add(mesh);
+
+      // orbit radius: the real distance in realistic mode; otherwise kept in true proportion to the planet's own size
+      var aUnits = realDist ? (mo.km/AU_KM)*distK : (mo.km/(pl.radiusRE*EARTH_R_KM))*pm.userData.size;
+      var e = mo.ecc || 0;
+      mesh.userData.moon = mo;
+      mesh.userData.size = mSize;
+      mesh.userData.aUnits = aUnits;
+      mesh.userData.orbitExtent = aUnits*(1 + e);
+      pm.userData.moonExtent = Math.max(pm.userData.moonExtent || 0, mesh.userData.orbitExtent);
+
+      var lab = makeTextSprite(mo.name, 20);
+      lab.userData.target = mesh;
+      lab.visible = false;     // sized and shown each frame by placeMoonLabel
+      lab.material.color.set(0x5ec8e6);   // moon names in the 3D view use the same cyan as the page
+      host.add(lab);
+
+      var marker = new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlowTexture(), color:mo.type.hex, transparent:true, opacity:0.8, blending:THREE.AdditiveBlending, depthWrite:false}));
+      marker.visible = false;
+      host.add(marker);
+      mesh.userData.marker = marker;
+
+      var line = null;
+      if (!realisticMode){
+        var pts = [];
+        for (var i=0;i<=96;i++){
+          var ang = (i/96)*Math.PI*2;
+          var rr = aUnits*(1-e*e)/(1+e*Math.cos(ang));
+          pts.push(new THREE.Vector3(rr*Math.cos(ang), 0, rr*Math.sin(ang)));
+        }
+        line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color:0x4a5560, transparent:true, opacity:0.6}));
+        host.add(line);
+      }
+      three.moonMeshes.push(mesh); three.moonLabels.push(lab); three.moonLines.push(line);
+    });
+
     // realistic mode starts a fresh gravity simulation from the orbits set in the editor
     if (realisticMode){
       initSim();
       setupSimVisuals();
+      setupMoonSimVisuals();
     } else {
       sim = null;
     }
@@ -2327,6 +2973,9 @@ function handleStageClick(e){
       if (ring) ring.position.set(pos.x, 0, pos.z);
     });
     }
+
+    updateMoons();
+    updateSwallowMarks();
 
     // 2) where the camera looks: the focused body (or free target), plus a decaying offset
     //    that turns a focus change into a smooth glide instead of a jump
@@ -2447,6 +3096,9 @@ function handleStageClick(e){
       stars: stars,
       planets: planets.map(function(p){
         return { name:p.name, au:p.au, ecc:p.ecc, typeId:p.type.id, radiusRE:p.radiusRE, massME:p.massME, angle:p.angle, hasRing:p.hasRing, starIndex:p.starIndex||0 };
+      }),
+      moons: moons.map(function(m){
+        return { name:m.name, planetIndex:m.planetIndex, km:m.km, ecc:m.ecc, typeId:m.type.id, radiusRE:m.radiusRE, massME:m.massME, angle:m.angle };
       })
     }, null, 2);
   }
@@ -2468,7 +3120,19 @@ function handleStageClick(e){
       if (!type) type = planetTypes[0];
       return { name:p.name, au:p.au, ecc:p.ecc||0, type:type, radiusRE:p.radiusRE, massME:p.massME, angle:p.angle||0, hasRing:!!p.hasRing, starIndex:p.starIndex||0 };
     });
+    // moons (older saves have none); drop any that point at a planet that doesn't exist
+    moons = (data.moons || []).filter(function(m){
+      return m && m.planetIndex >= 0 && m.planetIndex < planets.length;
+    }).map(function(m){
+      return {
+        name: m.name || 'Moon', planetIndex: m.planetIndex|0, type: moonTypeById(m.typeId),
+        km: Math.max(1, +m.km || 384400), ecc: Math.max(0, Math.min(0.9, +m.ecc || 0)),
+        radiusRE: Math.max(0.001, +m.radiusRE || 0.27), massME: Math.max(0.00001, +m.massME || 0.012),
+        angle: +m.angle || 0
+      };
+    });
     exitEditMode();
+    exitMoonEdit();
     syncStarEditorFromState();
     renderStarChips();
     renderTable();
@@ -2582,7 +3246,7 @@ showSysStatus('System reset.');
       // if the physics can't keep up (very tight orbits / huge masses), say how much slower than real time it runs
       if ((++frameCount % 20) === 0){
         var rate = sim.rate;
-        physicsBtn.textContent = '⚛ REALISTIC MODE: ON' + (rate < 0.9 ? ' (' + Math.max(1, Math.round(rate*100)) + '% SPEED)' : '');
+        physicsBtn.textContent = '⚛ GRAVITY SIMULATION: ON' + (rate < 0.9 ? ' (' + Math.max(1, Math.round(rate*100)) + '% SPEED)' : '');
       }
     }
     if (realDist && (frameCount % 15) === 0) updateViewScaleText();
@@ -2594,7 +3258,7 @@ showSysStatus('System reset.');
   physicsBtn.addEventListener('click', function(){
     realisticMode = !realisticMode;
     physicsBtn.classList.toggle('active', realisticMode);
-    physicsBtn.textContent = realisticMode ? '⚛ REALISTIC MODE: ON' : '⚛ REALISTIC MODE: OFF';
+    physicsBtn.textContent = realisticMode ? '⚛ GRAVITY SIMULATION: ON' : '⚛ GRAVITY SIMULATION: OFF';
     if (three){
       // the two modes use different scales, so go back to the opening view
       three.focusObj = null;
@@ -2605,8 +3269,8 @@ showSysStatus('System reset.');
     rebuildIfReady();   // fresh start: ON begins a gravity simulation from the current orbits, OFF returns to idealized orbits
     updateScaleLabel();
     logPhysics(realisticMode
-      ? 'REALISTIC MODE ON — real gravity and true distances'
-      : 'REALISTIC MODE OFF — idealized Kepler orbits');
+      ? 'GRAVITY SIMULATION ON — bodies pull on each other, distances to scale'
+      : 'GRAVITY SIMULATION OFF — idealized Kepler orbits');
   });
 
   // ---- habitable zone rings on/off (on by default) ----
@@ -2704,6 +3368,7 @@ showSysStatus('System reset.');
 
   renderStarTypeSelect();
   renderTypeButtons();
+  renderMoonTypeButtons();
   syncStarEditorFromState();
   renderStarChips();
   distNumber.value = '1.000';
