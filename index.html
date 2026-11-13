@@ -2906,6 +2906,11 @@
   <a class="tool" href="/focus-timer/" data-search="focus timer" data-category="productivity">
     <h3>Focus Timer</h3>
     <p>Focus timer and deep work session tracker. Log sessions, track interruptions, and monitor your daily focus streak</p>
+  </a>
+
+  <a class="tool" href="/calendar-reminders/" data-search="calendar reminders" data-category="productivity">
+    <h3>Calendar & Reminders</h3>
+    <p>Focus timer and deep work session tracker. Log sessions, track interruptions, and monitor your daily focus streak</p>
   </a> 
 
   <a class="tool" href="/time-block/" data-search="carpe diem time block seize the day" data-category="productivity">
@@ -4450,6 +4455,9 @@
          (read from localStorage key "rvActiveTimer", written by Timer)
        • a running or paused Focus Timer block, as a live countdown
          (read from localStorage key "rvActiveFocus", written by Focus Timer)
+       • the nearest upcoming Calendar event, plus anything else in the next 7 days
+         (read from localStorage key "rvCalendarEvents"; repeats are expanded,
+         each event shows once, at its next occurrence)
        • tasks added in Top 10 Tasks, Daily Routine and the Travel Checklist
          that haven't been completed. The Travel Checklist also shows its departure
          date (key "travelChecklistDate") and stops reminding once that day has passed.
@@ -4623,6 +4631,63 @@
       return { days: days, text: '🛫 Departs ' + pretty + ' · ' + when };
     }
 
+    // Calendar: the tool saves every event under "rvCalendarEvents"
+    //   { id, title, date:'YYYY-MM-DD', time:'HH:MM' | '' (all day), repeat:'none|daily|weekly|monthly|yearly' }
+    // Lists each event once, at its next occurrence. Always shows the nearest upcoming event
+    // (up to a year ahead), plus everything else due in the next 7 days. Timed events drop
+    // off when they start; all-day events stay until the day is over.
+    const CAL_SOON_DAYS = 7, CAL_LOOKAHEAD = 366;
+    function calendarRows() {
+      let raw = null;
+      try { raw = JSON.parse(localStorage.getItem('rvCalendarEvents')); } catch (e) { return []; }
+      if (!Array.isArray(raw)) return [];
+      const pad = n => String(n).padStart(2, '0');
+      const key = (y, m, d) => y + '-' + pad(m + 1) + '-' + pad(d);
+      const dnum = k => { const p = k.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / 864e5; };
+      const dim = (y, m) => new Date(y, m + 1, 0).getDate();
+      const validDate = s => {
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+        if (!m) return null;
+        const d = new Date(+m[1], +m[2] - 1, +m[3]);
+        return d.getFullYear() === +m[1] && d.getMonth() === +m[2] - 1 && d.getDate() === +m[3]
+          ? { y: +m[1], m: +m[2] - 1, d: +m[3] } : null;
+      };
+      const occurs = (ev, s, y, m, d) => {
+        const k = key(y, m, d);
+        if (k < ev.date) return false;
+        switch (ev.repeat) {
+          case 'daily':   return true;
+          case 'weekly':  return (dnum(k) - dnum(ev.date)) % 7 === 0;
+          case 'monthly': return d === Math.min(s.d, dim(y, m));
+          case 'yearly':  return m === s.m && d === Math.min(s.d, dim(y, m));
+          default:        return k === ev.date;
+        }
+      };
+      const now = new Date(), nowMs = now.getTime();
+      const out = [];
+      raw.forEach(ev => {
+        if (!ev || typeof ev !== 'object') return;
+        const title = String(ev.title || '').trim();
+        const s = validDate(ev.date);
+        if (!title || !s) return;
+        const tm = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(ev.time || '');
+        for (let i = 0; i <= CAL_LOOKAHEAD; i++) {
+          const dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+          if (!occurs(ev, s, dt.getFullYear(), dt.getMonth(), dt.getDate())) continue;
+          const start = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), tm ? +tm[1] : 0, tm ? +tm[2] : 0).getTime();
+          if (tm && start <= nowMs) continue;          // already started: look at the next occurrence
+          const opts = { weekday: 'short', day: 'numeric', month: 'short' };
+          if (dt.getFullYear() !== now.getFullYear()) opts.year = 'numeric';
+          const when = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : dt.toLocaleDateString(undefined, opts);
+          out.push({ start: start, days: i, hot: i === 0, text: when + (tm ? ' ' + tm[1] + ':' + tm[2] : '') + ' · ' + title.slice(0, 60) });
+          break;
+        }
+      });
+      out.sort((a, b) => a.start - b.start);
+      const soon = out.filter(r => r.days <= CAL_SOON_DAYS);
+      return soon.length ? soon : out.slice(0, 1);       // nothing this week: still show the nearest one
+    }
+
     // Every live source, in the order they appear in the panel
     const LIVE_VIEWS = [pomodoroView, loggerView, timerView, focusView];
     const liveNow = () => LIVE_VIEWS.map(f => f()).filter(Boolean);
@@ -4655,6 +4720,12 @@
         read: function (src) {
           const v = focusView();
           return v ? { src: src, live: v, total: 1, open: [v] } : null;
+        } },
+      { label: 'Calendar',
+        url: '/calendar-reminders/',
+        read: function (src) {
+          const rows = calendarRows();
+          return rows.length ? { src: src, total: rows.length, open: rows, countText: 'UPCOMING ›', noBar: true } : null;
         } },
       { label: 'Top 10 Tasks',
         url: '/top-10-tasks-monitor/',
@@ -4695,6 +4766,7 @@
 
     let liveKey = '';     // which live phases are currently drawn ('' = none)
     let openCount = 0;    // number shown on the minimized launcher
+    let calShown = false; // is the Calendar group on screen right now
 
     function parse(key) {
       try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
@@ -4808,6 +4880,7 @@
       const results = SOURCES.map(readSource).filter(r => r && r.open.length);
       list.textContent = '';
       liveKey = '';
+      calShown = results.some(r => r.src.label === 'Calendar');
 
       if (!results.length) {            // nothing open → show nothing
         panel.hidden = true;
@@ -4832,18 +4905,20 @@
 
         const head = el('a', 'unf-head');
         head.href = r.src.url;
-        head.append(el('span', null, r.src.label), el('span', 'unf-head-count', done + '/' + r.total + ' done ›'));
+        head.append(el('span', null, r.src.label), el('span', 'unf-head-count', r.countText || (done + '/' + r.total + ' done ›')));
         group.appendChild(head);
 
-        const bar = el('div', 'unf-bar');
-        const fill = el('i');
-        fill.style.width = Math.round((done / r.total) * 100) + '%';
-        bar.appendChild(fill);
-        group.appendChild(bar);
+        if (!r.noBar) {
+          const bar = el('div', 'unf-bar');
+          const fill = el('i');
+          fill.style.width = Math.round((done / r.total) * 100) + '%';
+          bar.appendChild(fill);
+          group.appendChild(bar);
+        }
 
         const ul = el('ul', 'unf-items');
         if (r.note) ul.appendChild(el('li', 'unf-item unf-trip', r.note));
-        r.open.slice(0, SHOW_PER_TOOL).forEach(row => ul.appendChild(el('li', 'unf-item', row.text)));
+        r.open.slice(0, SHOW_PER_TOOL).forEach(row => ul.appendChild(el('li', row.hot ? 'unf-item unf-trip' : 'unf-item', row.text)));
         group.appendChild(ul);
 
         if (r.open.length > SHOW_PER_TOOL) {
@@ -4889,6 +4964,8 @@
       if (vs.length) updateLiveAll(vs);
     }, 1000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
+    // "Today 18:00" must disappear once 18:00 has passed, even if nothing else changes
+    setInterval(function () { if (!document.hidden && calShown) render(); }, 30000);
 
     // Finds localStorage entries that look like task lists (to get the right `keys`)
     function scan() {

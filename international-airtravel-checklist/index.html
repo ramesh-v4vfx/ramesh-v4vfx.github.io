@@ -178,13 +178,45 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     padding: 0 20px 22px;
-    scrollbar-width: none;      /* Firefox */
-    -ms-overflow-style: none;   /* old Edge/IE */
   }
 
-  .app-scroll::-webkit-scrollbar {
-    display: none;              /* Chrome, Safari, new Edge */
+  /* A visible scrollbar, so it is obvious there is more below.
+     (Setting an explicit width also keeps it on screen on iPhone and Android, where the
+     default scrollbar fades out.) */
+  .app-scroll::-webkit-scrollbar { width: 9px; }
+  .app-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.06); border-radius: 9px; margin: 6px 0; }
+  .app-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent), #e08a1a);
+    border-radius: 9px;
+    border: 1px solid rgba(7,12,20,0.6);
   }
+  .app-scroll::-webkit-scrollbar-thumb:hover { background: #ffd08a; }
+  @supports (-moz-appearance: none) {
+    .app-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) rgba(255,255,255,0.08); }
+  }
+
+  /* Soft fade + arrow at the bottom edge while there is more to scroll to */
+  .scroll-more {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 56px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 7px;
+    pointer-events: none;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: linear-gradient(180deg, rgba(10,20,32,0), rgba(10,20,32,0.92));
+    border-radius: 0 0 16px 16px;
+    opacity: 1;
+    transition: opacity .25s ease;
+  }
+  .scroll-more::after { content: "▾ scroll for more"; animation: scrollNudge 1.6s ease-in-out infinite; }
+  .scroll-more.hide { opacity: 0; }
+  @keyframes scrollNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+  @media (prefers-reduced-motion: reduce) { .scroll-more::after { animation: none; } }
 
   h1 {
     text-align: center;
@@ -702,6 +734,58 @@
 
   .gate-card input[type="date"]:focus { border-color: var(--accent); background: rgba(255,255,255,0.09); }
 
+  /* iPhone Safari: an empty date field is drawn blank, ignores width:100% (it sticks out of the
+     card), and can render its value dark. Pin the size, fix the colours, and add a visible hint. */
+  .gate-field { position: relative; }
+
+  .gate-card input[type="date"] {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 48px;
+    margin: 0;
+    text-align: left;
+    -webkit-appearance: none;
+            appearance: none;
+    -webkit-text-fill-color: var(--text);
+    opacity: 1;
+  }
+
+  .gate-card input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1.3em;
+    color: var(--text);
+  }
+
+  .gate-card input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.85;
+    cursor: pointer;
+  }
+
+  /* "Tap to choose a date": only where the browser shows nothing for an empty date (iOS Safari) */
+  .gate-ph {
+    display: none;
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 16px;
+    color: var(--text-dim);
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    .gate-field:not(.has-value) .gate-ph { display: block; }
+  }
+
+  .gate-preview {
+    min-height: 18px;
+    margin: 10px 0 0;
+    font-size: 13px;
+    text-align: left;
+    color: var(--accent);
+  }
+
   .gate-error {
     min-height: 18px;
     margin: 8px 0 4px;
@@ -754,6 +838,53 @@
     .hint { font-size: 12.5px; }
     .ticket-divider { margin: 14px -16px; }
   }
+
+  /* ---------- DEPARTURE REMINDERS ---------- */
+  .remind-card {
+    margin-bottom: 14px;
+    padding: 12px 12px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .remind-card[hidden] { display: none; }
+  .remind-title { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .remind-sub { margin-top: 2px; font-size: 12px; color: var(--text-dim); }
+  .remind-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+  .remind-chip {
+    padding: 9px 13px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .remind-chip:hover { color: var(--text); border-color: rgba(255,179,71,0.5); }
+  .remind-chip.on { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+  .remind-chip.on::before { content: "✓ "; }
+  .remind-chip:disabled { opacity: .32; cursor: not-allowed; border-style: dashed; }
+  .remind-chip:disabled:hover { color: var(--text-dim); border-color: var(--border); }
+  .remind-hint { margin-top: 10px; font-size: 12.5px; line-height: 1.55; color: var(--text-dim); white-space: pre-line; }
+  .remind-alerts {
+    margin-top: 10px;
+    width: 100%;
+    padding: 11px 12px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1204;
+    background: linear-gradient(135deg, var(--accent), #ffd08a);
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  .remind-alerts.on { color: var(--green); background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.5); }
+  .remind-alerts:disabled { opacity: .5; cursor: not-allowed; }
+  .remind-alerts[hidden] { display: none; }
 
   @media (prefers-reduced-motion: reduce) {
     .cloud-layer, .flight, .flight .plane, li.just-done,
@@ -831,6 +962,14 @@
     </div>
 
     <div class="app-scroll">
+      <div class="remind-card" id="remindCard" hidden>
+        <div class="remind-title">🔔 Departure reminders</div>
+        <div class="remind-sub">Tick when you want to be reminded. They ring at 9:00 AM.</div>
+        <div class="remind-chips" id="remindChips"></div>
+        <div class="remind-hint" id="remindHint"></div>
+        <button type="button" class="remind-alerts" id="remindAlertsBtn">🔔 Turn on reminders</button>
+      </div>
+
       <div id="taskListWrap"></div>
 
       <div class="add-task">
@@ -851,9 +990,10 @@
         💾 Your ticks are saved in this browser only. Clearing site data or switching device or browser starts a fresh list, so use Download to keep a copy.
       </div>
       <div class="hint">
-        🔔 Items you haven't ticked off stay on the rameshverse homepage as a reminder until your travel date.
+        🔔 Items you haven't ticked off stay on the rameshverse homepage as a reminder until your travel date. Departure reminders (30 days, 15 days, 1 week, 2 days and 1 day to go) are sent as notifications, even when this page is closed.
       </div>
     </div>
+    <div class="scroll-more" id="scrollMore" aria-hidden="true"></div>
   </div>
 
   <!-- Travel date: asked before the checklist can be used -->
@@ -863,7 +1003,11 @@
       <h2 id="gateTitle">When are you travelling?</h2>
       <p class="gate-sub" id="gateSub"></p>
       <label class="gate-label" for="tripDateInput">Date of travel</label>
-      <input id="tripDateInput" type="date" />
+      <div class="gate-field" id="gateField">
+        <input id="tripDateInput" type="date" />
+        <span class="gate-ph" aria-hidden="true">Tap to choose a date</span>
+      </div>
+      <div class="gate-preview" id="gatePreview" aria-live="polite"></div>
       <div class="gate-error" id="gateError" role="alert"></div>
       <button type="submit" class="gate-go">Start my checklist</button>
       <button type="button" class="gate-alt" id="gateCancel" hidden>Cancel</button>
@@ -1347,6 +1491,7 @@
       if (!confirmReset) return;
 
       store.clear();
+      remindForget();                      // departure reminders go too (also cancelled on the Worker)
       tasks = buildDefaultTasks();
       tripDate = null;
       renderTripLine();
@@ -1383,6 +1528,8 @@
     const gateTitle = document.getElementById("gateTitle");
     const gateSub = document.getElementById("gateSub");
     const gateError = document.getElementById("gateError");
+    const gateField = document.getElementById("gateField");
+    const gatePreview = document.getElementById("gatePreview");
     const tripInput = document.getElementById("tripDateInput");
     const gateCancel = document.getElementById("gateCancel");
     const gateFresh = document.getElementById("gateFresh");
@@ -1412,12 +1559,13 @@
     }
 
     function renderTripLine() {
-      if (!tripDate) { tripLine.hidden = true; return; }
+      if (!tripDate) { tripLine.hidden = true; renderRemindCard(); return; }
       const n = daysUntil(tripDate);
       const when = n === 0 ? "today" : n === 1 ? "tomorrow" : "in " + n + " days";
       const pretty = tripDate.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
       tripText.textContent = "🛫 Departure " + pretty + " · " + when;
       tripLine.hidden = false;
+      renderRemindCard();
     }
 
     const GATE_COPY = {
@@ -1426,6 +1574,20 @@
       change:   ["Change travel date", "Pick your new departure date."]
     };
 
+    // Keeps the hint and the "Departure: …" line in step with the field. The line also makes the
+    // chosen date visible on browsers that draw the field itself badly.
+    function syncGateField() {
+      const d = parseDate(tripInput.value);
+      gateField.classList.toggle("has-value", !!tripInput.value);
+      if (!d) { gatePreview.textContent = ""; return; }
+      const n = daysUntil(d);
+      const when = n === 0 ? "today" : n === 1 ? "tomorrow" : n < 0 ? "already passed" : "in " + n + " days";
+      gatePreview.textContent = "🛫 " + d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" }) + " · " + when;
+    }
+
+    tripInput.addEventListener("input", syncGateField);
+    tripInput.addEventListener("change", syncGateField);
+
     function openGate(mode) {
       gateMode = mode;
       gateTitle.textContent = GATE_COPY[mode][0];
@@ -1433,6 +1595,7 @@
       gateError.textContent = "";
       tripInput.min = dateToStr(new Date());
       tripInput.value = (mode === "change" && tripDate) ? dateToStr(tripDate) : "";
+      syncGateField();
       gateCancel.hidden = mode !== "change";
       gateFresh.hidden = mode !== "expired";
       dateGate.hidden = false;
@@ -1461,6 +1624,7 @@
       renderTripLine();
       renderTasks();
       showSaved(ok);
+      remindSync();                        // new date → new reminder times
     });
 
     gateCancel.addEventListener("click", closeGate);
@@ -1471,6 +1635,235 @@
       if (e.key === "Escape" && gateMode === "change") closeGate();   // the first-time gate can't be skipped
     });
 
+    /* ---------- departure reminders ----------
+       Reminders are "N days before departure, at 9:00 AM". They are queued on the shared
+       Cloudflare Worker (RVNotify) so they arrive with this page closed, and are rebuilt
+       whenever the date or the ticks change here. If push isn't available, the reminder
+       shows on this page when it is opened after the time has passed. */
+    const R_KEY = "travelChecklistRemind";      // JSON array of "days before": subset of [30,15,7,2,1,0]
+    const R_NOTIFY = "rv_travel_notify";        // "0" once reminders were switched off
+    const R_PUSHED = "travelChecklistPushed";   // [{t:tag, at:ms}] queued on the Worker
+    const R_FIRED = "travelChecklistFired";     // {tag: ms} reminders already shown by this page
+    const R_HOUR = 9;                           // reminders ring at 09:00 local time
+    const R_TIERS = [60, 30, 7];                // try to queue this many days ahead, then fewer if the Worker refuses
+    const R_TIER_KEY = "travelChecklistReach";  // {days, t}: the reach the Worker accepted last time (trusted for a day)
+    const R_CHOICES = [
+      { d: 30, label: "30 days to go" },
+      { d: 15, label: "15 days to go" },
+      { d: 7, label: "1 week to go" },
+      { d: 2, label: "2 days to go" },
+      { d: 1, label: "1 day to go" },
+      { d: 0, label: "Departure day" }
+    ];
+    const rGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    const rSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+    const rJSON = (k, fb) => { try { const v = JSON.parse(rGet(k)); return v == null ? fb : v; } catch (e) { return fb; } };
+    const rCanNotify = "Notification" in window;
+    const remindCard = document.getElementById("remindCard");
+    const remindChips = document.getElementById("remindChips");
+    const remindHint = document.getElementById("remindHint");
+    const remindAlertsBtn = document.getElementById("remindAlertsBtn");
+    let rToken = 0;
+
+    function remindDays() {
+      const saved = rJSON(R_KEY, null);
+      const ok = R_CHOICES.map(c => c.d);
+      if (!Array.isArray(saved)) return ok.slice();                       // first time: everything on
+      return ok.filter(d => saved.indexOf(d) !== -1);
+    }
+    const remindAt = (d) => new Date(tripDate.getFullYear(), tripDate.getMonth(), tripDate.getDate() - d, R_HOUR, 0).getTime();
+    const prettyDay = d => d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+    const rTag = d => "travel-" + dateToStr(tripDate) + "-" + d;
+    const rAlertsWanted = () => rGet(R_NOTIFY) !== "0";
+    const rReady = () => rCanNotify && Notification.permission === "granted" && rAlertsWanted();
+
+    function remindText(d) {
+      const dep = prettyDay(tripDate);
+      if (d === 0) return ["✈ Departure day", "Today's the day. Take a last look at your checklist before you leave."];
+      if (d === 1) return ["✈ 1 day to go", "Tomorrow (" + dep + "). Open your checklist and finish what's left."];
+      return ["✈ " + (d === 7 ? "1 week" : d + " days") + " to go", "Departs " + dep + ". Open your checklist and finish what's left."];
+    }
+
+    // Reminders still in the future, soonest first
+    function remindPlan(now, horizonDays) {
+      if (!tripDate || daysUntil(tripDate) < 0) return [];
+      const out = [];
+      remindDays().forEach(d => {
+        const at = remindAt(d), delay = at - now, t = remindText(d);
+        if (delay > 1000 && delay <= horizonDays * 864e5) out.push({ days: d, at: at, delayMs: delay, title: t[0], body: t[1], tag: rTag(d) });
+      });
+      return out.sort((a, b) => a.delayMs - b.delayMs);
+    }
+
+    function renderRemindCard() {
+      if (!tripDate) { remindCard.hidden = true; return; }
+      remindCard.hidden = false;
+      const saved = remindDays(), now = Date.now();
+      const applies = d => remindAt(d) > now;            // a reminder whose time has passed makes no sense for this date
+
+      if (!remindChips.children.length) {
+        R_CHOICES.forEach(c => {
+          const b = document.createElement("button");
+          b.type = "button"; b.className = "remind-chip"; b.textContent = c.label; b.dataset.d = String(c.d);
+          b.setAttribute("aria-pressed", "false");
+          b.addEventListener("click", () => {
+            if (!applies(c.d)) return;
+            const cur = remindDays(), i = cur.indexOf(c.d);
+            if (i === -1) cur.push(c.d); else cur.splice(i, 1);
+            rSet(R_KEY, JSON.stringify(cur));
+            renderRemindCard();
+            remindAsk(cur.some(applies)).then(remindSync);   // permission is asked inside this tap
+          });
+          remindChips.appendChild(b);
+        });
+      }
+      let skipped = 0;
+      Array.prototype.forEach.call(remindChips.children, b => {
+        const d = +b.dataset.d, can = applies(d), isOn = can && saved.indexOf(d) !== -1;
+        if (!can) skipped++;
+        b.disabled = !can;
+        b.title = can ? "" : "Not available: that day has already passed for your travel date";
+        b.classList.toggle("on", isOn);
+        b.setAttribute("aria-pressed", isOn ? "true" : "false");
+      });
+
+      // exact dates, so "2 days to go" is never a guess
+      const active = R_CHOICES.filter(c => applies(c.d) && saved.indexOf(c.d) !== -1);
+      const lines = active.map(c => "🔔 " + prettyDay(new Date(remindAt(c.d))) + " 9:00 AM (" + c.label.toLowerCase() + ")");
+      if (!active.length) lines.push(skipped === R_CHOICES.length
+        ? "No reminders are possible for this date: every reminder time has already passed."
+        : "No reminders ticked. The checklist still shows on the rameshverse homepage.");
+      if (skipped && skipped < R_CHOICES.length) lines.push("Greyed-out reminders are already in the past for your travel date.");
+      remindHint.textContent = lines.join("\n");
+
+      if (!rCanNotify) {
+        remindAlertsBtn.hidden = false; remindAlertsBtn.disabled = true; remindAlertsBtn.classList.remove("on");
+        remindAlertsBtn.textContent = "Notifications aren't available in this browser";
+        remindHint.textContent += "\nOn iPhone, add rameshverse to your Home Screen to get notifications.";
+        return;
+      }
+      const perm = Notification.permission, ready = rReady();
+      remindAlertsBtn.hidden = !active.length;
+      remindAlertsBtn.disabled = perm === "denied";
+      remindAlertsBtn.classList.toggle("on", ready);
+      remindAlertsBtn.textContent = perm === "denied" ? "Notifications are blocked in your browser settings"
+                                  : ready ? "🔔 Reminders on · tap to turn off" : "🔔 Turn on reminders";
+    }
+
+    function remindAsk(want) {
+      if (!want || !rCanNotify || !rAlertsWanted() || Notification.permission !== "default") return Promise.resolve();
+      return new Promise(resolve => {
+        try { const r = Notification.requestPermission(resolve); if (r && typeof r.then === "function") r.then(resolve); }
+        catch (e) { resolve(); }
+      });
+    }
+
+    remindAlertsBtn.addEventListener("click", () => {
+      if (!rCanNotify) return;
+      const done = () => { if (Notification.permission === "granted") rSet(R_NOTIFY, "1"); renderRemindCard(); remindSync(); };
+      if (rReady()) { rSet(R_NOTIFY, "0"); renderRemindCard(); remindSync(); return; }
+      if (Notification.permission === "granted") { rSet(R_NOTIFY, "1"); renderRemindCard(); remindSync(); return; }
+      if (Notification.permission === "denied") { renderRemindCard(); return; }
+      try { const r = Notification.requestPermission(done); if (r && typeof r.then === "function") r.then(done); }
+      catch (e) { renderRemindCard(); }
+    });
+
+    const rQueued = () => { const l = rJSON(R_PUSHED, []); return Array.isArray(l) ? l : []; };
+
+    function remindCancel() {
+      rToken++;
+      const had = rQueued().length > 0;
+      rSet(R_PUSHED, "[]");
+      if (!had || !window.RVNotify) return Promise.resolve();
+      return Promise.resolve(RVNotify.cancelNotifications()).catch(() => {});
+    }
+
+    // Reset: forget the reminder choices as well as cancelling anything queued
+    function remindForget() {
+      remindCancel();
+      try { localStorage.removeItem(R_KEY); localStorage.removeItem(R_PUSHED); localStorage.removeItem(R_FIRED); localStorage.removeItem(R_TIER_KEY); } catch (e) { /* storage unavailable */ }
+    }
+
+    // How far ahead to try: the reach the Worker accepted recently, otherwise the widest
+    function remindReach() {
+      const r = rJSON(R_TIER_KEY, null);
+      return r && R_TIERS.indexOf(r.days) !== -1 && Date.now() - r.t < 864e5 ? r.days : R_TIERS[0];
+    }
+
+    function remindSync() {
+      if (!window.RVNotify) return Promise.resolve();
+      if (!rAlertsWanted()) return remindCancel();
+      if (rCanNotify && Notification.permission !== "granted") return Promise.resolve();
+
+      const reach = remindReach();
+      const wanted = remindPlan(Date.now(), reach);
+      if (!wanted.length) return remindCancel();
+      // already queued exactly this?
+      const now = Date.now(), have = {}, want = {};
+      rQueued().forEach(x => { if (x.at > now) have[x.t] = 1; });
+      wanted.forEach(p => { want[p.tag] = 1; });
+      if (Object.keys(want).every(k => have[k]) && Object.keys(have).every(k => want[k])) return Promise.resolve();
+
+      const token = ++rToken;
+      const send = plan => plan.map(p => ({ delayMs: p.delayMs, title: p.title, body: p.body, tag: p.tag }));
+      const hadQueue = rQueued().some(x => x.at > now);
+
+      // Try the widest reach; if the Worker refuses, narrow it step by step
+      const attempt = i => {
+        const plan = remindPlan(Date.now(), R_TIERS[i]);
+        if (!plan.length || token !== rToken) return;
+        return Promise.resolve(RVNotify.scheduleNotifications(send(plan))).then(() => {
+          if (token !== rToken) return;
+          rSet(R_PUSHED, JSON.stringify(plan.map(p => ({ t: p.tag, at: p.at }))));
+          rSet(R_TIER_KEY, JSON.stringify({ days: R_TIERS[i], t: Date.now() }));
+        }).catch(err => {
+          if (i + 1 < R_TIERS.length && token === rToken) return attempt(i + 1);
+          throw err;
+        });
+      };
+
+      return Promise.resolve(RVNotify.ensurePushSubscription()).then(sub => {
+        if (!sub || token !== rToken) return;
+        const cleared = hadQueue ? Promise.resolve(RVNotify.cancelNotifications()).catch(() => {}) : Promise.resolve();
+        return cleared.then(() => token === rToken ? attempt(R_TIERS.indexOf(reach)) : undefined);
+      }).catch(err => { console.log("[rv-notify]", err && err.message ? err.message : String(err)); }).then(renderRemindCard);
+    }
+
+    // No push? Show a reminder that came due while this page was closed (within the last 4 hours)
+    function remindCheckDue() {
+      if (!tripDate || !rAlertsWanted()) return;
+      const now = Date.now(), fired = rJSON(R_FIRED, {}), queued = {};
+      if (window.RVNotify && rReady()) rQueued().forEach(x => { queued[x.t] = 1; });
+      let changed = false;
+      remindDays().forEach(d => {
+        const at = remindAt(d), tag = rTag(d);
+        if (at <= now && at > now - 4 * 36e5 && !fired[tag] && !queued[tag]) {
+          fired[tag] = now; changed = true;
+          const t = remindText(d);
+          showBanner(t[0], t[1], 8000);
+          if (rReady()) { try { new Notification(t[0], { body: t[1], tag: tag, icon: "/icons/apple-touch-icon.png" }); } catch (e) { /* Android Chrome needs a service worker */ } }
+        }
+      });
+      Object.keys(fired).forEach(k => { if (now - fired[k] > 3 * 864e5) { delete fired[k]; changed = true; } });
+      if (changed) rSet(R_FIRED, JSON.stringify(fired));
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) { renderRemindCard(); remindCheckDue(); remindSync(); }
+    });
+
+    /* ---------- "there is more below" cue ---------- */
+    (function () {
+      const box = document.querySelector(".app-scroll"), cue = document.getElementById("scrollMore");
+      if (!box || !cue) return;
+      const update = () => cue.classList.toggle("hide", box.scrollHeight - box.scrollTop - box.clientHeight < 24);
+      box.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      if (window.ResizeObserver) new ResizeObserver(update).observe(box);
+      if (window.MutationObserver) new MutationObserver(update).observe(box, { childList: true, subtree: true });
+      update();
+    })();
+
     renderTasks();
 
     // No valid upcoming date saved (first visit, a list saved before dates existed, or a past trip) → ask first
@@ -1480,12 +1873,15 @@
       else if (daysUntil(saved) < 0) openGate("expired");
       else tripDate = saved;
       renderTripLine();
+      remindCheckDue();
+      remindSync();         // queue only if something changed since last time
     })();
   </script>
 
   <script src="/libraries/config.js"></script>
   <script src="/libraries/view-counter.js"></script>
   <script src="/libraries/hud-home-button.js"></script>
+  <script src="/libraries/rv-notify-client.js"></script>
 
   <script src="/tools-data.js"></script>
   <script src="/related-modules.js"></script>

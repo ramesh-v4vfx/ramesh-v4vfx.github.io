@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Free online calendar with reminders. Add events, repeat them daily, weekly, monthly or yearly, and get notified before they start, even when the page is closed. No signup.">
+
+<title>Calendar with Reminders — Events &amp; Notifications | rameshverse</title>
+
+<link rel="canonical" href="https://rameshverse.com/calendar-reminders">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"></noscript>
+<meta name="theme-color" content="#0e0101">
+<meta name="color-scheme" content="dark">
+
+<style>
+  /* Stand-in for Space Mono while it loads (same trick as the homepage) */
+  @font-face {
+    font-family: 'Space Mono Fallback';
+    src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('Cousine'), local('Courier');
+    size-adjust: 102%;
+    ascent-override: 109.8%;
+    descent-override: 35.4%;
+    line-gap-override: 0%;
+  }
+
+  :root {
+    --bg: #0e0101;
+    --text: #f2eeee;
+    --text-dim: #9a9599;
+    --red: #ff2b2b;
+    --amber: #f59e0b;
+    --green: #4ade80;
+    --accent: var(--red);
+    --mono: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { background: var(--bg); }
+
+  body {
+    margin: 0;
+    font-family: var(--mono);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 28px 12px 40px;
+    background:
+      radial-gradient(ellipse 600px 420px at 50% -6%, rgba(255,43,43,0.12), transparent 65%),
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+      var(--bg);
+    background-size: auto, 34px 34px, 34px 34px, auto;
+  }
+
+  /* ---------- PANEL (cut corner, like the homepage HUD panels) ---------- */
+  .app {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    padding: 26px 20px 22px 22px;
+    background:
+      repeating-linear-gradient(to bottom, rgba(255,43,43,0.035) 0px, rgba(255,43,43,0.035) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg, #1b1b1d, #0c0c0d);
+    border: 1px solid rgba(255,43,43,0.28);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  }
+
+  .app::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px; height: 100%;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    box-shadow: 0 0 10px rgba(255,43,43,0.6);
+  }
+
+  .app::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 22px; height: 22px;
+    background: linear-gradient(135deg, transparent 49%, rgba(255,43,43,0.6) 50%, transparent 51%);
+  }
+
+  .hud-corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    pointer-events: none;
+    opacity: .7;
+    filter: drop-shadow(0 0 2px var(--accent));
+  }
+  .hud-corner.bl { bottom: 9px; left: 11px;  border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+  .hud-corner.br { bottom: 9px; right: 9px;  border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+  .hud-corner.tl { top: 9px;    left: 11px;  border-top: 2px solid var(--accent);    border-left: 2px solid var(--accent); }
+
+  /* ---------- HEADER ---------- */
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .brand .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: hudPulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes hudPulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .brand .dot { animation: none; opacity: 1; } }
+
+  .badge {
+    position: absolute;
+    top: 12px;
+    right: 30px;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: .85;
+  }
+  .badge::before { content: "N·"; opacity: .6; }
+
+  h1 {
+    margin: 0 0 4px;
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff3b3b;
+    text-shadow: 0 0 10px rgba(255,43,43,0.55);
+  }
+
+  .subtitle {
+    text-align: center;
+    margin-bottom: 18px;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ---------- BUTTONS ---------- */
+  button {
+    cursor: pointer;
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    color: inherit;
+    transition: transform .15s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+  }
+  button:active { transform: scale(0.97); }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
+
+  .btn {
+    padding: 12px 14px;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.25);
+  }
+  .btn:hover { color: var(--red); box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 16px rgba(255,43,43,0.25); }
+
+  .btn.primary {
+    color: var(--red);
+    text-shadow: 0 0 8px rgba(255,43,43,0.6);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--red) 22%, #1a0c0c), color-mix(in srgb, var(--red) 8%, #0e0e0f));
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 18px rgba(255,43,43,0.18);
+  }
+  .btn.primary:hover { box-shadow: inset 0 0 0 1px var(--red), 0 0 24px rgba(255,43,43,0.4); }
+
+  .btn.danger { color: #ff6b52; box-shadow: inset 0 0 0 1px rgba(255,107,82,0.35); }
+  .btn.danger:hover { box-shadow: inset 0 0 0 1px #ff6b52, 0 0 16px rgba(255,107,82,0.3); color: #ff8a75; }
+  .btn.danger.armed { background: rgba(255,107,82,0.18); color: #fff; box-shadow: inset 0 0 0 1px #ff6b52; }
+
+  /* ---------- MONTH NAV ---------- */
+  .nav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .nav .month {
+    flex: 1;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255,43,43,0.4);
+  }
+  .nav .icon { width: 40px; height: 40px; padding: 0; font-size: 1.15rem; line-height: 1; }
+  .nav .today-btn { height: 40px; padding: 0 12px; font-size: 0.64rem; }
+
+  .weekdays, .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .weekdays { margin-bottom: 4px; text-align: center; font-size: 0.58rem; letter-spacing: 0.1em; color: var(--text-dim); }
+  .grid { gap: 3px; }
+
+  .cell {
+    position: relative;
+    min-width: 0;
+    min-height: 46px;
+    padding: 6px 0 12px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    background: rgba(255,255,255,0.03);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.12);
+    border-radius: 5px;
+  }
+  .cell:hover { background: rgba(255,43,43,0.1); box-shadow: inset 0 0 0 1px rgba(255,43,43,0.45); }
+  .cell.other { opacity: 0.38; }
+  .cell.today { color: #ff3b3b; font-weight: 700; box-shadow: inset 0 0 0 1px var(--red); }
+  .cell.sel {
+    background: rgba(255,43,43,0.2);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.75), 0 0 14px rgba(255,43,43,0.25);
+    color: #fff;
+    opacity: 1;
+  }
+  .dots { position: absolute; left: 0; right: 0; bottom: 5px; display: flex; justify-content: center; gap: 3px; }
+  .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--red); box-shadow: 0 0 4px var(--red); }
+  .dots i.allday { background: var(--amber); box-shadow: 0 0 4px var(--amber); }
+
+  /* ---------- DAY + COMING UP ---------- */
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 18px 0 8px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid rgba(255,43,43,0.2);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--red);
+    text-shadow: 0 0 8px rgba(255,43,43,0.45);
+  }
+  .section-head .count { color: var(--text-dim); text-shadow: none; }
+  .add-btn { padding: 8px 12px; font-size: 0.66rem; }
+
+  .ev {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 10px 10px;
+    text-align: left;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    background: rgba(255,255,255,0.03);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.14);
+    border-radius: 6px;
+  }
+  .ev:hover { background: rgba(255,43,43,0.08); box-shadow: inset 0 0 0 1px rgba(255,43,43,0.45); }
+  .ev .t { font-size: 0.74rem; font-weight: 700; color: var(--red); font-variant-numeric: tabular-nums; }
+  .ev .t.allday { color: var(--amber); font-size: 0.6rem; letter-spacing: 0.08em; padding-top: 2px; }
+  .ev .ti { font-size: 0.86rem; color: #fff; overflow-wrap: anywhere; }
+  .ev .meta { margin-top: 3px; font-size: 0.62rem; line-height: 1.5; color: var(--text-dim); overflow-wrap: anywhere; }
+  .ev.past { opacity: 0.5; }
+  .ev .when { color: var(--text-dim); }
+
+  .empty { padding: 14px 4px; text-align: center; font-size: 0.68rem; letter-spacing: 0.04em; color: var(--text-dim); }
+
+  /* ---------- ALERTS ROW ---------- */
+  .notify-row { margin-top: 18px; text-align: center; }
+  .notify-btn {
+    padding: 8px 14px;
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    color: var(--text-dim);
+    background: none;
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.25);
+  }
+  .notify-btn:hover { color: var(--red); }
+  .notify-btn.on { color: var(--green); box-shadow: inset 0 0 0 1px var(--green), 0 0 10px rgba(74,222,128,0.2); }
+  .notify-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .notify-hint { display: block; margin-top: 8px; font-size: 0.62rem; line-height: 1.5; letter-spacing: 0.03em; color: var(--text-dim); }
+
+  /* ---------- ADD / EDIT SHEET ---------- */
+  .sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0,0,0,0.68);
+    -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+  }
+  .sheet.open { display: flex; }
+
+  .sheet-card {
+    width: 100%;
+    max-width: 440px;
+    max-height: 92vh;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 20px 18px calc(18px + env(safe-area-inset-bottom));
+    background:
+      repeating-linear-gradient(to bottom, rgba(255,43,43,0.035) 0px, rgba(255,43,43,0.035) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg, #1b1b1d, #0c0c0d);
+    border: 1px solid rgba(255,43,43,0.3);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -10px 40px rgba(0,0,0,.55), 0 0 30px rgba(255,43,43,0.08);
+  }
+
+  @media (min-width: 560px) {
+    .sheet { align-items: center; padding: 16px; }
+    .sheet-card { border-radius: 14px; }
+  }
+
+  .sheet-card h2 {
+    margin: 0 0 2px;
+    font-size: 0.95rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff3b3b;
+    text-shadow: 0 0 8px rgba(255,43,43,0.5);
+  }
+
+  .lbl {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .inp {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 46px;
+    margin: 0;
+    padding: 11px 12px;
+    font-family: var(--mono);
+    font-size: 16px;               /* 16px stops iPhone Safari zooming into the field */
+    color: var(--text);
+    text-align: left;
+    background: linear-gradient(180deg, #19181a, #0b0a0b);
+    border: 1.5px solid rgba(255,43,43,0.3);
+    border-radius: 10px;
+    outline: none;
+    box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,43,43,.1);
+    transition: box-shadow .25s ease, border-color .25s ease;
+  }
+  .inp:focus { border-color: var(--red); box-shadow: 0 0 0 4px rgba(255,43,43,.2), 0 0 20px rgba(255,43,43,.3); }
+  textarea.inp { min-height: 74px; resize: vertical; line-height: 1.4; }
+
+  /* Date and time fields: pinned size and colours, because iPhone Safari draws them oddly */
+  input[type="date"].inp, input[type="time"].inp {
+    -webkit-appearance: none;
+            appearance: none;
+    -webkit-text-fill-color: var(--text);
+    opacity: 1;
+    color-scheme: dark;
+  }
+  input[type="date"].inp::-webkit-date-and-time-value,
+  input[type="time"].inp::-webkit-date-and-time-value { text-align: left; min-height: 1.3em; }
+
+  .row2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 10px; }
+  .row2 > div[hidden] { display: none; }
+  .row2.single { grid-template-columns: minmax(0, 1fr); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.03);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.18);
+  }
+  .chip:hover { color: var(--red); background: rgba(255,43,43,0.1); box-shadow: inset 0 0 0 1px rgba(255,43,43,0.5); }
+  .chip.on {
+    color: var(--red);
+    text-shadow: 0 0 8px rgba(255,43,43,0.6);
+    background: rgba(255,43,43,0.18);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 0 2px rgba(255,43,43,0.2);
+  }
+
+  #remindChips .chip.on::before { content: "✓ "; }
+  .form-hint { white-space: pre-line; margin-top: 8px; font-size: 0.6rem; line-height: 1.5; letter-spacing: 0.03em; color: var(--text-dim); }
+  .form-error { min-height: 18px; margin-top: 12px; font-size: 0.68rem; color: #ff6b52; }
+
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .actions .save { grid-column: 1 / -1; }
+  .actions .btn[hidden] { display: none; }
+  .actions.no-delete #cancelBtn { grid-column: 1 / -1; }
+
+  /* ---------- IN-PAGE REMINDER BANNER ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    z-index: 200;
+    width: calc(100% - 32px);
+    max-width: 400px;
+    padding: 12px 14px;
+    font-size: 0.74rem;
+    line-height: 1.45;
+    background: rgba(12,12,13,0.97);
+    border: 1px solid rgba(255,43,43,0.6);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.55), 0 0 20px rgba(255,43,43,0.25);
+    transform: translate(-50%, 140%);
+    opacity: 0;
+    transition: transform .35s cubic-bezier(.2,.9,.3,1.2), opacity .25s ease;
+    pointer-events: none;
+  }
+  .toast.show { transform: translate(-50%, 0); opacity: 1; }
+  .toast b { color: var(--red); display: block; font-size: 0.8rem; margin-bottom: 2px; }
+
+  @media (max-width: 380px) {
+    .app { padding: 24px 14px 20px 16px; }
+    .ev { grid-template-columns: 54px minmax(0, 1fr); }
+  }
+</style>
+</head>
+
+<body>
+<div class="app" id="app">
+  <i class="hud-corner tl"></i><i class="hud-corner bl"></i><i class="hud-corner br"></i>
+  <span class="badge">Event Horizon</span>
+  <div class="brand"><span class="dot"></span> Rameshverse Systems · Chrono Grid</div>
+  <h1>Calendar</h1>
+  <div class="subtitle">Events · repeats · reminders</div>
+
+  <div class="nav">
+    <button type="button" class="btn icon" id="prevBtn" aria-label="Previous month">‹</button>
+    <div class="month" id="monthLabel" aria-live="polite"></div>
+    <button type="button" class="btn icon" id="nextBtn" aria-label="Next month">›</button>
+    <button type="button" class="btn today-btn" id="todayBtn">Today</button>
+  </div>
+
+  <div class="weekdays" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="section-head">
+    <span id="dayTitle">Today</span>
+    <button type="button" class="btn primary add-btn" id="addBtn">+ Add event</button>
+  </div>
+  <div id="dayList"></div>
+
+  <div class="section-head"><span>Coming up</span><span class="count" id="upCount"></span></div>
+  <div id="upList"></div>
+
+  <div class="notify-row" id="notifyRow">
+    <button type="button" class="notify-btn" id="notifyBtn">ENABLE ALERTS</button>
+    <span class="notify-hint" id="notifyHint"></span>
+  </div>
+</div>
+
+<!-- Add / edit event -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <form class="sheet-card" id="form" novalidate>
+    <h2 id="sheetTitle">New event</h2>
+
+    <label class="lbl" for="fTitle">Title</label>
+    <input class="inp" id="fTitle" type="text" maxlength="80" autocomplete="off" placeholder="e.g. Dentist, Mom's birthday">
+
+    <div class="row2" id="whenRow">
+      <div>
+        <label class="lbl" for="fDate">Date</label>
+        <input class="inp" id="fDate" type="date">
+      </div>
+      <div id="timeBox">
+        <label class="lbl" for="fTime">Time</label>
+        <input class="inp" id="fTime" type="time">
+      </div>
+    </div>
+
+    <div class="chips" style="margin-top:10px"><button type="button" class="chip" id="allDayChip" aria-pressed="false">All day</button></div>
+
+    <span class="lbl">Repeat</span>
+    <div class="chips" id="repeatChips"></div>
+    <div class="form-hint" id="repeatHint"></div>
+
+    <span class="lbl">Remind me · tick as many as you like</span>
+    <div class="chips" id="remindChips"></div>
+    <div class="form-hint" id="remindHint"></div>
+
+    <label class="lbl" for="fNote">Note (optional)</label>
+    <textarea class="inp" id="fNote" maxlength="300" placeholder="Where, who, what to bring…"></textarea>
+
+    <div class="form-error" id="formError" role="alert"></div>
+
+    <div class="actions">
+      <button type="submit" class="btn primary save" id="saveBtn">Save event</button>
+      <button type="button" class="btn" id="cancelBtn">Cancel</button>
+      <button type="button" class="btn danger" id="deleteBtn" hidden>Delete</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><b></b><span></span></div>
+
+<script>
+/* =====================================================================
+   HOW THIS CALENDAR WORKS
+   localStorage key "rvCalendarEvents" holds every event:
+
+     { id, title, date:"YYYY-MM-DD", time:"HH:MM" | "" (all day),
+       repeat:"none|daily|weekly|monthly|yearly", remind:[minutes before], note }
+
+   Repeating events are stored once; each day is checked against the rule.
+   The rameshverse homepage reads the same key and lists what is coming up
+   in the next 7 days.
+
+   Reminders: every reminder inside the next PUSH_HORIZON_DAYS days is queued
+   on the shared Cloudflare Worker (RVNotify), so it arrives even with this
+   page closed. The queue is rebuilt whenever events change and each time the
+   page is opened, so the window keeps moving forward. If push is not
+   available, reminders fire from this page while it is open.
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  /* ---------------- CONFIG ---------------- */
+  var EVENTS_KEY = "rvCalendarEvents";
+  var NOTIFY_KEY = "rv_calendar_notify";        // "0" once alerts were switched off
+  var PUSHED_KEY = "rvCalendarPushed";          // [{t:tag, at:ms}] queued on the worker
+  var FIRED_KEY = "rvCalendarFired";            // {tag: ms} reminders already shown by this page
+  var ALL_DAY_HOUR = 9;                         // all-day reminders count from 09:00
+  var PUSH_HORIZON_DAYS = 7;                    // how far ahead reminders are queued
+  var MAX_PUSHES = 40;
+  var MIN = 60000;
+
+  var REMIND_OPTIONS = [
+    { m: 0,    label: "At start",       short: "at start" },
+    { m: 10,   label: "10 min before",  short: "10 min before" },
+    { m: 30,   label: "30 min before",  short: "30 min before" },
+    { m: 60,   label: "1 hour before",  short: "1 hour before" },
+    { m: 1440, label: "1 day before",   short: "1 day before" }
+  ];
+  var REMIND_VALUES = REMIND_OPTIONS.map(function (o) { return o.m; });
+  var REPEATS = [["none", "Once"], ["daily", "Daily"], ["weekly", "Weekly"], ["monthly", "Monthly"], ["yearly", "Yearly"]];
+  var REPEAT_LABEL = { none: "", daily: "Daily", weekly: "Weekly", monthly: "Monthly", yearly: "Yearly" };
+
+  /* ---------------- SMALL HELPERS ---------------- */
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function lsJSON(k, fallback) {
+    try { var v = JSON.parse(lsGet(k)); return v == null ? fallback : v; } catch (e) { return fallback; }
+  }
+  function h(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;        // textContent only: event text is never parsed as HTML
+    return n;
+  }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function hash(s) { var x = 5381; for (var i = 0; i < s.length; i++) x = ((x << 5) + x + s.charCodeAt(i)) | 0; return (x >>> 0).toString(36); }
+  function rvLog(msg) { console.log("[rv-notify]", msg); }
+
+  /* ---------------- DATES (all local time) ---------------- */
+  function dkey(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
+  function parseKey(s) {
+    var r = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
+    if (!r) return null;
+    var y = +r[1], m = +r[2] - 1, d = +r[3], t = new Date(y, m, d);
+    if (t.getFullYear() !== y || t.getMonth() !== m || t.getDate() !== d) return null;
+    return { y: y, m: m, d: d };
+  }
+  function parseTime(s) {
+    var r = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(s || "");
+    return r ? { h: +r[1], min: +r[2] } : null;
+  }
+  function dim(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  function dayNum(key) { var p = parseKey(key); return Date.UTC(p.y, p.m, p.d) / 864e5; }
+  function startOf(ev, y, m, d) {
+    var t = parseTime(ev.time);
+    return new Date(y, m, d, t ? t.h : ALL_DAY_HOUR, t ? t.min : 0).getTime();
+  }
+  function todayParts() { var n = new Date(); return { y: n.getFullYear(), m: n.getMonth(), d: n.getDate() }; }
+
+  /* Does this event happen on y-m-d?  (month is 0-based) */
+  function occursOn(ev, y, m, d) {
+    var k = dkey(y, m, d);
+    if (k < ev.date) return false;
+    var s = parseKey(ev.date);
+    switch (ev.repeat) {
+      case "daily":   return true;
+      case "weekly":  return (dayNum(k) - dayNum(ev.date)) % 7 === 0;
+      case "monthly": return d === Math.min(s.d, dim(y, m));                   // the 31st becomes the last day of short months
+      case "yearly":  return m === s.m && d === Math.min(s.d, dim(y, m));      // Feb 29 becomes Feb 28 in other years
+      default:        return k === ev.date;
+    }
+  }
+
+  /* ---------------- STORAGE ---------------- */
+  function cleanEvent(e) {
+    if (!e || typeof e !== "object") return null;
+    var title = String(e.title || "").trim().slice(0, 80);
+    if (!title || !parseKey(e.date)) return null;
+    var remind = Array.isArray(e.remind) ? e.remind.map(Number).filter(function (n) { return REMIND_VALUES.indexOf(n) !== -1; }) : [];
+    remind = remind.filter(function (n, i) { return remind.indexOf(n) === i; }).sort(function (a, b) { return a - b; });
+    return {
+      id: String(e.id || uid()),
+      title: title,
+      date: e.date,
+      time: parseTime(e.time) ? e.time : "",
+      repeat: REPEAT_LABEL.hasOwnProperty(e.repeat) ? e.repeat : "none",
+      remind: remind,
+      note: String(e.note || "").slice(0, 300)
+    };
+  }
+
+  function loadEvents() {
+    var raw = lsJSON(EVENTS_KEY, []);
+    return (Array.isArray(raw) ? raw : []).map(cleanEvent).filter(Boolean);
+  }
+
+  var events = loadEvents();
+  function saveEvents() { return lsSet(EVENTS_KEY, JSON.stringify(events)); }
+
+  /* ---------------- OCCURRENCES ---------------- */
+  // Every occurrence from the start of `from`'s day, for `days` days, in time order
+  function occurrencesInRange(from, days) {
+    var out = [];
+    for (var i = 0; i < days; i++) {
+      var dt = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i);
+      var y = dt.getFullYear(), m = dt.getMonth(), d = dt.getDate();
+      events.forEach(function (ev) {
+        if (occursOn(ev, y, m, d)) out.push({ ev: ev, y: y, m: m, d: d, start: startOf(ev, y, m, d) });
+      });
+    }
+    return out.sort(function (a, b) { return a.start - b.start || a.ev.title.localeCompare(b.ev.title); });
+  }
+
+  function eventsOnDay(y, m, d) {
+    return events.filter(function (ev) { return occursOn(ev, y, m, d); }).sort(function (a, b) {
+      if (!a.time && b.time) return -1;
+      if (a.time && !b.time) return 1;
+      return a.time < b.time ? -1 : a.time > b.time ? 1 : a.title.localeCompare(b.title);
+    });
+  }
+
+  function dayLabel(y, m, d) {
+    var t = todayParts();
+    var diff = dayNum(dkey(y, m, d)) - dayNum(dkey(t.y, t.m, t.d));
+    if (diff === 0) return "Today";
+    if (diff === 1) return "Tomorrow";
+    return new Date(y, m, d).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+  }
+
+  function remindSummary(ev) {
+    if (!ev.remind.length) return "🔕 No reminder";
+    return "🔔 " + ev.remind.map(function (m) {
+      return REMIND_OPTIONS.filter(function (o) { return o.m === m; })[0].short;
+    }).join(" · ");
+  }
+
+  /* ---------------- STATE ---------------- */
+  var tp = todayParts();
+  var view = { y: tp.y, m: tp.m };
+  var sel = { y: tp.y, m: tp.m, d: tp.d };
+  var form = null;               // the open add/edit form's state
+  var lastDay = dkey(tp.y, tp.m, tp.d);
+
+  /* ---------------- RENDER: MONTH GRID ---------------- */
+  function renderMonth() {
+    $("monthLabel").textContent = new Date(view.y, view.m, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    var grid = $("grid");
+    grid.textContent = "";
+    var first = new Date(view.y, view.m, 1).getDay();      // 0 = Sunday
+    var t = todayParts();
+
+    for (var i = 0; i < 42; i++) {
+      var dt = new Date(view.y, view.m, 1 - first + i);
+      var y = dt.getFullYear(), m = dt.getMonth(), d = dt.getDate();
+      var list = eventsOnDay(y, m, d);
+
+      var cell = h("button", "cell");
+      cell.type = "button";
+      if (m !== view.m) cell.classList.add("other");
+      if (y === t.y && m === t.m && d === t.d) cell.classList.add("today");
+      if (y === sel.y && m === sel.m && d === sel.d) cell.classList.add("sel");
+      cell.dataset.date = dkey(y, m, d);
+      cell.setAttribute("aria-label",
+        dt.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }) +
+        (list.length ? ", " + list.length + (list.length === 1 ? " event" : " events") : ""));
+      cell.appendChild(document.createTextNode(String(d)));
+
+      if (list.length) {
+        var dots = h("span", "dots");
+        list.slice(0, 3).forEach(function (ev) { dots.appendChild(h("i", ev.time ? "" : "allday")); });
+        cell.appendChild(dots);
+      }
+      grid.appendChild(cell);
+    }
+  }
+
+  /* ---------------- RENDER: SELECTED DAY ---------------- */
+  function evRow(ev, y, m, d, showDay) {
+    var row = h("button", "ev");
+    row.type = "button";
+    var start = startOf(ev, y, m, d);
+    if (ev.time && start < Date.now()) row.classList.add("past");
+
+    row.appendChild(h("span", ev.time ? "t" : "t allday", ev.time || "ALL DAY"));
+    var body = h("span");
+    body.appendChild(h("span", "ti", ev.title));
+    body.appendChild(document.createElement("br"));
+    var meta = [];
+    if (showDay) meta.push(dayLabel(y, m, d));
+    if (REPEAT_LABEL[ev.repeat]) meta.push("↻ " + REPEAT_LABEL[ev.repeat]);
+    meta.push(remindSummary(ev));
+    var line = h("span", "meta", meta.join(" · "));
+    body.appendChild(line);
+    if (ev.note) { body.appendChild(document.createElement("br")); body.appendChild(h("span", "meta", ev.note)); }
+    row.appendChild(body);
+    return row;
+  }
+
+  function renderDay() {
+    var list = eventsOnDay(sel.y, sel.m, sel.d);
+    var title = dayLabel(sel.y, sel.m, sel.d);
+    var full = new Date(sel.y, sel.m, sel.d).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+    $("dayTitle").textContent = title === "Today" || title === "Tomorrow" ? title + " · " + full : full;
+
+    var box = $("dayList");
+    box.textContent = "";
+    if (!list.length) {
+      box.appendChild(h("div", "empty", "Nothing planned. Tap “+ Add event” to schedule something."));
+      return;
+    }
+    list.forEach(function (ev) {
+      var row = evRow(ev, sel.y, sel.m, sel.d, false);
+      row.addEventListener("click", function () { openSheet(ev); });
+      box.appendChild(row);
+    });
+  }
+
+  /* ---------------- RENDER: COMING UP ---------------- */
+  function renderUp() {
+    var now = Date.now(), t = todayParts(), todayStart = new Date(t.y, t.m, t.d).getTime();
+    var seen = {};
+    var items = occurrencesInRange(new Date(), 60).filter(function (o) {
+      if (seen[o.ev.id]) return false;                              // a repeating event is listed once, at its next date
+      var ahead = o.ev.time ? o.start > now : o.start >= todayStart;   // all-day events stay until the day ends
+      if (ahead) seen[o.ev.id] = 1;
+      return ahead;
+    }).slice(0, 5);
+
+    var box = $("upList");
+    box.textContent = "";
+    $("upCount").textContent = items.length ? "next " + items.length : "";
+    if (!items.length) {
+      box.appendChild(h("div", "empty", "No upcoming events in the next 60 days."));
+      return;
+    }
+    items.forEach(function (o) {
+      var row = evRow(o.ev, o.y, o.m, o.d, true);
+      row.classList.remove("past");
+      row.addEventListener("click", function () {
+        sel = { y: o.y, m: o.m, d: o.d };
+        view = { y: o.y, m: o.m };
+        renderAll();
+        $("dayList").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+      box.appendChild(row);
+    });
+  }
+
+  /* ---------------- ALERTS: PERMISSION + TOGGLE ---------------- */
+  var canNotify = "Notification" in window;
+
+  function alertsWanted() { return lsGet(NOTIFY_KEY) !== "0"; }
+  function notifyReady() { return canNotify && Notification.permission === "granted" && alertsWanted(); }
+
+  function nextReminderText() {
+    var plan = buildPlan(Date.now());
+    if (!plan.length) return "";
+    var p = plan[0];
+    var at = new Date(Date.now() + p.delayMs);
+    var t = todayParts();
+    var label = dayLabel(at.getFullYear(), at.getMonth(), at.getDate());
+    return "Next reminder: " + p.title + " · " + label + " " + pad(at.getHours()) + ":" + pad(at.getMinutes()) + ".";
+  }
+
+  function renderNotify() {
+    var btn = $("notifyBtn"), hint = $("notifyHint");
+    if (!canNotify) {
+      btn.style.display = "none";
+      hint.textContent = "This browser can't show notifications here. Add rameshverse to your Home Screen on iPhone, or reminders only appear while this page is open.";
+      return;
+    }
+    var perm = Notification.permission, on = notifyReady();
+    btn.style.display = "";
+    btn.classList.toggle("on", on);
+    btn.disabled = perm === "denied";
+    btn.textContent = perm === "denied" ? "ALERTS BLOCKED" : on ? "ALERTS ON" : "ENABLE ALERTS";
+    if (perm === "denied") hint.textContent = "Notifications are blocked for this site. Allow them in your browser settings to get reminders.";
+    else if (on) hint.textContent = (nextReminderText() || "Reminders are sent to this device, even if the page is closed.");
+    else hint.textContent = "Get a reminder before your events, even with this page closed.";
+  }
+
+  // Ask once, from a tap, and only if there is something to be reminded about
+  function askPermission(want) {
+    if (!want || !canNotify || !alertsWanted() || Notification.permission !== "default") return Promise.resolve();
+    return new Promise(function (resolve) {
+      try {
+        var r = Notification.requestPermission(resolve);
+        if (r && typeof r.then === "function") r.then(resolve);
+      } catch (e) { resolve(); }
+    });
+  }
+
+  function toggleNotify() {
+    if (!canNotify) return;
+    var done = function (p) {
+      if (p === "granted" || Notification.permission === "granted") lsSet(NOTIFY_KEY, "1");
+      alertsChanged();
+    };
+    if (notifyReady()) { lsSet(NOTIFY_KEY, "0"); alertsChanged(); return; }
+    if (Notification.permission === "granted") { lsSet(NOTIFY_KEY, "1"); alertsChanged(); return; }
+    if (Notification.permission === "denied") { renderNotify(); return; }
+    try {
+      var r = Notification.requestPermission(done);
+      if (r && typeof r.then === "function") r.then(done);
+    } catch (e) { renderNotify(); }
+  }
+
+  function alertsChanged() {
+    renderNotify();
+    syncPushes();
+  }
+
+  /* ---------------- PUSH REMINDERS (Cloudflare Worker via RVNotify) ---------------- */
+  var pushToken = 0;
+
+  function tagFor(ev, start, lead) { return "cal-" + ev.id + "-" + start + "-" + lead + "-" + hash(ev.title + "|" + ev.note); }
+
+  function bodyFor(ev, start, lead, now) {
+    var d = new Date(start);
+    var hm = ev.time ? pad(d.getHours()) + ":" + pad(d.getMinutes()) : "all day";
+    var b;
+    if (now && lead > 0 && ev.time && start > now && start - now < lead * MIN) {   // shown late: say what is true now
+      var left = Math.max(1, Math.round((start - now) / MIN));
+      b = "In " + left + (left === 1 ? " minute" : " minutes") + " · " + hm;
+    }
+    else if (lead === 0) b = ev.time ? "Starting now · " + hm : "Today · all day";
+    else if (lead === 1440) b = "Tomorrow · " + (ev.time ? "at " + hm : "all day");
+    else b = "In " + (lead === 60 ? "1 hour" : lead + " minutes") + " · " + hm;
+    return ev.note ? b + " — " + ev.note.slice(0, 80) : b;
+  }
+
+  // Every reminder due within the push window, soonest first
+  function buildPlan(now) {
+    var plan = [];
+    occurrencesInRange(new Date(now), PUSH_HORIZON_DAYS + 2).forEach(function (o) {
+      o.ev.remind.forEach(function (lead) {
+        var at = o.start - lead * MIN;
+        var delay = at - now;
+        if (delay > 1000 && delay <= PUSH_HORIZON_DAYS * 864e5) {
+          plan.push({ delayMs: delay, title: o.ev.title, body: bodyFor(o.ev, o.start, lead), tag: tagFor(o.ev, o.start, lead), at: at });
+        }
+      });
+    });
+    plan.sort(function (a, b) { return a.delayMs - b.delayMs; });
+    return plan.slice(0, MAX_PUSHES);
+  }
+
+  function pushedList() {
+    var l = lsJSON(PUSHED_KEY, []);
+    return Array.isArray(l) ? l : [];
+  }
+
+  // Is the queue on the worker already what it should be? (avoids needless cancel + re-send)
+  function queueIsCurrent(plan) {
+    var now = Date.now();
+    var queued = {}, wanted = {}, k;
+    pushedList().forEach(function (x) { if (x.at > now) queued[x.t] = 1; });
+    plan.forEach(function (p) { wanted[p.tag] = 1; });
+    for (k in wanted) if (!queued[k]) return false;
+    for (k in queued) if (!wanted[k]) return false;
+    return true;
+  }
+
+  function clearPushes() {
+    pushToken++;
+    var had = pushedList().length > 0;
+    lsSet(PUSHED_KEY, "[]");
+    if (!had || !window.RVNotify) return Promise.resolve();
+    return Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+  }
+
+  function syncPushes() {
+    if (!window.RVNotify) { rvLog("RVNotify not loaded"); renderNotify(); return Promise.resolve(); }
+    if (!alertsWanted()) { return clearPushes().then(renderNotify); }
+    if (canNotify && Notification.permission !== "granted") { renderNotify(); return Promise.resolve(); }
+
+    var plan = buildPlan(Date.now());
+    if (!plan.length) { return clearPushes().then(renderNotify); }
+    if (queueIsCurrent(plan)) { renderNotify(); return Promise.resolve(); }
+
+    var token = ++pushToken;
+    return Promise.resolve(RVNotify.ensurePushSubscription())
+      .then(function (sub) {
+        if (!sub) { rvLog("push denied/unsupported"); return; }
+        if (token !== pushToken) return;
+        // Replace what this page queued before (if anything) with the current list
+        var hadQueue = pushedList().some(function (x) { return x.at > Date.now(); });
+        var cleared = hadQueue ? Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}) : Promise.resolve();
+        return cleared.then(function () {
+          if (token !== pushToken) return;
+          var send = plan.map(function (p) { return { delayMs: p.delayMs, title: p.title, body: p.body, tag: p.tag }; });
+          return RVNotify.scheduleNotifications(send).then(function () {
+            if (token !== pushToken) return;
+            lsSet(PUSHED_KEY, JSON.stringify(plan.map(function (p) { return { t: p.tag, at: p.at }; })));
+          });
+        });
+      })
+      .catch(function (err) { rvLog("ERROR: " + (err && err.message ? err.message : String(err))); })
+      .then(renderNotify);
+  }
+
+  /* ---------------- FALLBACK: reminders while the page is open ---------------- */
+  var toastTimer = null;
+  function showToast(title, body) {
+    var t = $("toast");
+    t.querySelector("b").textContent = "🔔 " + title;
+    t.querySelector("span").textContent = body;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 9000);
+  }
+
+  function showSystemAlert(title, body, tag) {
+    if (!notifyReady()) return;
+    var opts = { body: body, tag: tag, icon: "/icons/apple-touch-icon.png" };
+    try {
+      var n = new Notification(title, opts);
+      n.onclick = function () { try { window.focus(); } catch (e) {} n.close(); };
+    } catch (e) {
+      // Chrome on Android only allows notifications through a service worker
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        navigator.serviceWorker.getRegistration().then(function (reg) {
+          if (reg) reg.showNotification(title, Object.assign({ vibrate: [200, 100, 200] }, opts));
+        }).catch(function () {});
+      }
+    }
+  }
+
+  function checkDue() {
+    if (!notifyReady() && !alertsWanted()) return;  // alerts switched off: no in-page reminders either
+    var now = Date.now();
+    var queued = {};
+    if (window.RVNotify && notifyReady()) pushedList().forEach(function (x) { queued[x.t] = 1; });   // the worker delivers these
+    var fired = lsJSON(FIRED_KEY, {});
+    var changed = false;
+    occurrencesInRange(new Date(), 2).forEach(function (o) {
+      o.ev.remind.forEach(function (lead) {
+        var at = o.start - lead * MIN;
+        var tag = tagFor(o.ev, o.start, lead);
+        if (at <= now && at > now - 5 * MIN && !fired[tag] && !queued[tag]) {
+          fired[tag] = now;
+          changed = true;
+          var body = bodyFor(o.ev, o.start, lead, now);
+          showToast(o.ev.title, body);
+          showSystemAlert(o.ev.title, body, tag);
+        }
+      });
+    });
+    Object.keys(fired).forEach(function (k) { if (now - fired[k] > 2 * 864e5) { delete fired[k]; changed = true; } });
+    if (changed) lsSet(FIRED_KEY, JSON.stringify(fired));
+  }
+
+  /* ---------------- ADD / EDIT SHEET ---------------- */
+  function buildChips() {
+    var rc = $("repeatChips");
+    REPEATS.forEach(function (r) {
+      var b = h("button", "chip", r[1]);
+      b.type = "button"; b.dataset.v = r[0];
+      b.addEventListener("click", function () { form.repeat = r[0]; paintChips(); });
+      rc.appendChild(b);
+    });
+    var mc = $("remindChips");
+    REMIND_OPTIONS.forEach(function (o) {
+      var b = h("button", "chip", o.label);
+      b.type = "button"; b.dataset.v = String(o.m);
+      b.addEventListener("click", function () {
+        var i = form.remind.indexOf(o.m);
+        if (i === -1) form.remind.push(o.m); else form.remind.splice(i, 1);
+        paintChips();
+      });
+      mc.appendChild(b);
+    });
+  }
+
+  function paintChips() {
+    Array.prototype.forEach.call($("repeatChips").children, function (b) { b.classList.toggle("on", b.dataset.v === form.repeat); });
+    Array.prototype.forEach.call($("remindChips").children, function (b) { b.classList.toggle("on", form.remind.indexOf(+b.dataset.v) !== -1); });
+    $("allDayChip").classList.toggle("on", form.allDay);
+    $("allDayChip").setAttribute("aria-pressed", form.allDay ? "true" : "false");
+    $("timeBox").hidden = form.allDay;
+    $("whenRow").classList.toggle("single", form.allDay);
+    paintHints();
+  }
+
+  /* Plain-words summary of what the form will do, so nothing has to be guessed */
+  function longDate(p) { return new Date(p.y, p.m, p.d).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
+  function ordinal(n) { var v = n % 100; return n + (v >= 11 && v <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th"); }
+
+  function paintHints() {
+    if (!form) return;
+    var p = parseKey($("fDate").value);
+    var time = form.allDay ? "" : $("fTime").value;
+    var tm = parseTime(time);
+    var rh = $("repeatHint"), mh = $("remindHint");
+
+    if (!p) { rh.textContent = "Pick a date first."; mh.textContent = ""; return; }
+    var at = form.allDay ? "all day" : tm ? "at " + time : "";
+    var from = longDate(p);
+    var wd = new Date(p.y, p.m, p.d).toLocaleDateString(undefined, { weekday: "long" });
+    var mon = new Date(p.y, p.m, p.d).toLocaleDateString(undefined, { day: "numeric", month: "long" });
+    var text;
+    switch (form.repeat) {
+      case "daily":   text = "Every day, starting " + from; break;
+      case "weekly":  text = "Every " + wd + ", starting " + from; break;
+      case "monthly": text = "On the " + ordinal(p.d) + " of every month, starting " + from; break;
+      case "yearly":  text = "Every year on " + mon + ", starting " + from; break;
+      default:        text = "Happens once, on " + from;
+    }
+    var note = form.repeat === "monthly" && p.d > 28 ? " Shorter months use their last day."
+             : form.repeat === "yearly" && p.m === 1 && p.d === 29 ? " In other years it falls on 28 Feb." : "";
+    rh.textContent = text + (at ? ", " + at : "") + "." + note;
+
+    if (!form.remind.length) { mh.textContent = "No reminder. It will only show on the calendar."; return; }
+    var start = startOf({ time: time }, p.y, p.m, p.d), now = Date.now();
+    if (!form.allDay && !tm) { mh.textContent = ""; return; }
+    var lines = form.remind.slice().sort(function (a, b) { return b - a; }).map(function (lead) {
+      var when = new Date(start - lead * MIN);
+      var label = when.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) + " " + pad(when.getHours()) + ":" + pad(when.getMinutes());
+      var opt = REMIND_OPTIONS.filter(function (o) { return o.m === lead; })[0];
+      return "🔔 " + label + " (" + opt.short + ")" + (when.getTime() <= now ? (form.repeat === "none" ? " · already passed, won't ring" : " · this first one has passed") : "");
+    });
+    if (form.repeat !== "none") lines.push("Same reminders before every repeat.");
+    if (form.allDay) lines.push("All-day events count from 09:00.");
+    mh.textContent = lines.join("\n");
+  }
+
+  var delTimer = null;
+  function disarmDelete() {
+    clearTimeout(delTimer);
+    var b = $("deleteBtn");
+    b.classList.remove("armed");
+    b.textContent = "Delete";
+  }
+
+  function openSheet(ev) {
+    var day = dkey(sel.y, sel.m, sel.d);
+    form = ev
+      ? { id: ev.id, repeat: ev.repeat, remind: ev.remind.slice(), allDay: !ev.time }
+      : { id: null, repeat: "none", remind: [10], allDay: false };      // new event: one reminder, 10 min before
+
+    $("sheetTitle").textContent = ev ? "Edit event" : "New event";
+    $("fTitle").value = ev ? ev.title : "";
+    $("fDate").value = ev ? ev.date : day;
+    $("fTime").value = ev && ev.time ? ev.time : (function () {
+      // new event on today: the next full hour; on another day: 09:00
+      var n = new Date();
+      var isToday = day === dkey(n.getFullYear(), n.getMonth(), n.getDate());
+      return isToday ? pad(Math.min(23, n.getHours() + 1)) + ":00" : "09:00";
+    })();
+    $("fNote").value = ev ? ev.note : "";
+    $("formError").textContent = "";
+    $("deleteBtn").hidden = !ev;
+    document.querySelector(".actions").classList.toggle("no-delete", !ev);
+    disarmDelete();
+    paintChips();
+
+    $("sheet").classList.add("open");
+    document.body.style.overflow = "hidden";
+    if (!ev && window.matchMedia && window.matchMedia("(hover: hover)").matches) setTimeout(function () { $("fTitle").focus(); }, 0);
+  }
+
+  function closeSheet() {
+    $("sheet").classList.remove("open");
+    document.body.style.overflow = "";
+    form = null;
+    disarmDelete();
+  }
+
+  function formError(msg) { $("formError").textContent = msg; }
+
+  function saveForm(e) {
+    e.preventDefault();
+    if (!form) return;
+    var title = $("fTitle").value.trim();
+    var date = $("fDate").value;
+    var time = form.allDay ? "" : $("fTime").value;
+    if (!title) { formError("Give the event a title."); $("fTitle").focus(); return; }
+    if (!parseKey(date)) { formError("Choose a date."); return; }
+    if (!form.allDay && !parseTime(time)) { formError("Choose a time, or switch on All day."); return; }
+
+    var ev = cleanEvent({
+      id: form.id || uid(), title: title, date: date, time: time,
+      repeat: form.repeat, remind: form.remind, note: $("fNote").value.trim()
+    });
+    var i = events.findIndex(function (x) { return x.id === ev.id; });
+    if (i === -1) events.push(ev); else events[i] = ev;
+    saveEvents();
+
+    var p = parseKey(date);
+    sel = { y: p.y, m: p.m, d: p.d };
+    view = { y: p.y, m: p.m };
+    closeSheet();
+    renderAll();
+    askPermission(ev.remind.length > 0).then(syncPushes).then(checkDue);   // permission is requested inside this tap
+  }
+
+  function deleteForm() {
+    if (!form || !form.id) return;
+    var b = $("deleteBtn");
+    if (!b.classList.contains("armed")) {                   // first tap arms it, second tap deletes
+      b.classList.add("armed");
+      b.textContent = form.repeat === "none" ? "Tap again to delete" : "Delete all repeats?";
+      clearTimeout(delTimer);
+      delTimer = setTimeout(disarmDelete, 3500);
+      return;
+    }
+    var id = form.id;
+    events = events.filter(function (x) { return x.id !== id; });
+    saveEvents();
+    closeSheet();
+    renderAll();
+    syncPushes();
+  }
+
+  /* ---------------- WIRING ---------------- */
+  function renderAll() {
+    renderMonth();
+    renderDay();
+    renderUp();
+    renderNotify();
+  }
+
+  function shiftMonth(by) {
+    var d = new Date(view.y, view.m + by, 1);
+    view = { y: d.getFullYear(), m: d.getMonth() };
+    renderMonth();
+  }
+
+  $("prevBtn").addEventListener("click", function () { shiftMonth(-1); });
+  $("nextBtn").addEventListener("click", function () { shiftMonth(1); });
+  $("todayBtn").addEventListener("click", function () {
+    var t = todayParts();
+    sel = { y: t.y, m: t.m, d: t.d };
+    view = { y: t.y, m: t.m };
+    renderAll();
+  });
+
+  $("grid").addEventListener("click", function (e) {
+    var cell = e.target.closest && e.target.closest(".cell");
+    if (!cell) return;
+    var p = parseKey(cell.dataset.date);
+    sel = { y: p.y, m: p.m, d: p.d };
+    if (p.m !== view.m || p.y !== view.y) view = { y: p.y, m: p.m };
+    renderMonth();
+    renderDay();
+  });
+
+  $("addBtn").addEventListener("click", function () { openSheet(null); });
+  $("form").addEventListener("submit", saveForm);
+  $("cancelBtn").addEventListener("click", closeSheet);
+  $("deleteBtn").addEventListener("click", deleteForm);
+  $("fDate").addEventListener("input", paintHints);
+  $("fDate").addEventListener("change", paintHints);
+  $("fTime").addEventListener("input", paintHints);
+  $("fTime").addEventListener("change", paintHints);
+  $("allDayChip").addEventListener("click", function () {
+    if (!form) return;
+    form.allDay = !form.allDay;
+    // the usual default ("10 min before") makes little sense for an all-day event, and the other way round
+    if (form.allDay && form.remind.length === 1 && form.remind[0] === 10) form.remind = [0];
+    else if (!form.allDay && form.remind.length === 1 && form.remind[0] === 0) form.remind = [10];
+    paintChips();
+  });
+  $("sheet").addEventListener("click", function (e) { if (e.target === $("sheet")) closeSheet(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && form) closeSheet(); });
+  $("notifyBtn").addEventListener("click", toggleNotify);
+
+  // Other tabs: events changed elsewhere
+  window.addEventListener("storage", function (e) {
+    if (e.key === null || e.key === EVENTS_KEY) { events = loadEvents(); renderAll(); }
+  });
+
+  // Coming back to the page: new day? new reminders now inside the window?
+  function refresh() {
+    var t = todayParts(), k = dkey(t.y, t.m, t.d);
+    if (k !== lastDay) {                              // midnight passed while the page was open
+      if (dkey(sel.y, sel.m, sel.d) === lastDay) { sel = { y: t.y, m: t.m, d: t.d }; view = { y: t.y, m: t.m }; }
+      lastDay = k;
+    }
+    renderAll();
+    syncPushes();
+  }
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
+  window.addEventListener("pageshow", function (e) { if (e.persisted) refresh(); });
+  window.addEventListener("focus", function () { checkDue(); });
+
+  // Every 20 s: fallback reminders, and keep "past" styling and the midnight rollover current
+  setInterval(function () {
+    if (document.hidden) return;
+    checkDue();
+    var t = todayParts();
+    if (dkey(t.y, t.m, t.d) !== lastDay) refresh();
+  }, 20000);
+
+  /* ---------------- START ---------------- */
+  buildChips();
+  renderAll();
+  checkDue();
+  syncPushes();         // rebuilds the queue only if something changed since last time
+})();
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
+<script src="/libraries/rv-notify-client.js"></script>
+
+</body>
+</html>
