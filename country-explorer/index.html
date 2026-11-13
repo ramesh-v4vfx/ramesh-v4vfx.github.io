@@ -2267,7 +2267,7 @@ let timeLeft = 0;
 
 // Correct answers needed (out of 10) to pass a round. Change this one number
 // to make the quiz easier or harder; all the quiz text follows it.
-const PASS_SCORE = 7;
+const PASS_SCORE = 9;
 
 const ROUND_TIME = {
   1: 10,  // Round 1 → 60 sec
@@ -2500,7 +2500,6 @@ function showQuizIntro() {
     <h3>🥉 Round 1 — Explorer</h3>
     <ul>
       <li>⏱ 10 seconds per question</li>
-      <li>🎁 Explorer Certificate (with your name)</li>
     </ul>
   </div>
 
@@ -2508,7 +2507,6 @@ function showQuizIntro() {
     <h3>🥈 Round 2 — Master Explorer</h3>
     <ul>
       <li>⏱ 7 seconds per question</li>
-      <li>🎁 Master Explorer Certificate</li>
     </ul>
   </div>
 
@@ -4068,114 +4066,37 @@ function endQuiz() {
     return;
   }
 
-  // 👤 Ask name ONLY on success
+  // Rounds 1 & 2: no certificate, just move on to the next round
+  if (quizRound < 3) {
+    showRoundCleared(quizRound);
+    return;
+  }
+
+  // 👤 Ask name only once, for the final certificate
   ensureUserName();
-
-  if (quizRound === 1) {
-    showRoundCertificate(1);
-    return;
-  }
-
-  if (quizRound === 2) {
-    showRoundCertificate(2);
-    return;
-  }
-
   showMasterReward();
 }
 
-
-
-
-
-
-function showRoundCertificate(round) {
-  const certMap = {
-    1: {
-      title: "EXPLORER CERTIFICATE",
-      theme: "bronze",
-      roundName: "Explorer Round",
-      subtitle: "For successfully clearing Round 1"
-    },
-    2: {
-      title: "MASTER EXPLORER CERTIFICATE",
-      theme: "silver",
-      roundName: "Master Explorer Round",
-      subtitle: "For successfully clearing Round 2"
-    }
-  };
-
-  const cert = certMap[round];
-
+// Short transition screen between rounds (no certificate)
+function showRoundCleared(round) {
   document.getElementById("cards").innerHTML = `
-    <div class="certificate-wrap">
-      <div class="certificate vertical ${cert.theme}" id="certificateCard">
-
-      <div class="certificate-bg"></div>
-
-        <div class="certificate-icon badge ${cert.theme}"></div>
-
-        <h1>${cert.title}</h1>
-
-        <p class="cert-name">Awarded to</p>
-        <h2>${quizUserName}</h2>
-
-          <p class="cert-text">
-          ${cert.subtitle}<br>
-          Country Quiz Challenge
-        </p>
-
-        <div class="cert-divider"></div>
-
-        <p class="cert-achievement">
-          Cleared the ${cert.roundName}<br>
-          by demonstrating strong knowledge of world geography
-        </p>
-
-        <div class="cert-divider"></div>
-
-<div class="cert-validation vertical">
-  <div class="cert-block">
-    <div class="cert-label">Issued by</div>
-    <div class="cert-value">Country Explorer Platform</div>
-  </div>
-
-  <div class="cert-block">
-    <div class="cert-label">Date of Issue</div>
-    <div class="cert-value">05 February 2026</div>
-  </div>
-
-  <div class="cert-block">
-    <div class="cert-label">Website</div>
-    <div class="cert-value">rameshverse.com</div>
-  </div>
-</div>
-
-
-
-
-        <div class="cert-footer">
-          Country Explorer · rameshverse.com
-        </div>
-      </div>
-
-      <div style="text-align:center; margin-top:20px">
-        <button class="play-again" onclick="startNextRound()">
-          ▶ Continue to Round ${round + 1}
-        </button>
-
-        <button class="play-again" onclick="downloadCertificateImage()">
-  📸 Download
-</button>
-
-<button class="play-again" onclick="shareCertificate()" style="margin-left:12px">
-  🔗 Share
-</button>
-
-      </div>
+    <div class="game-end win" style="max-width:520px; margin:0 auto">
+      <div class="trophy">✅</div>
+      <h1>Round ${round} Cleared!</h1>
+      <p class="final-score">
+        You scored <b>${quizScore} / 10</b>
+      </p>
+      <button class="play-again" onclick="startNextRound()">
+        ▶ Continue to Round ${round + 1}
+      </button>
     </div>
   `;
 }
+
+
+
+
+
 
 function shareCertificate() {
   if (!navigator.share) {
@@ -4326,8 +4247,6 @@ document.addEventListener("keydown", e => {
 
   quizUserName = quizUserName || "Ramesh Singh";
 
-  if (e.key === "1") showRoundCertificate(1);
-  if (e.key === "2") showRoundCertificate(2);
   if (e.key === "3") showMasterReward();
 });
 
