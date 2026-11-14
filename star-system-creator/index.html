@@ -39,7 +39,7 @@
 
   .frame{position:relative; border:1px solid var(--line);
     background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px), var(--panel);
-    padding:22px; max-width:none; width:100%; margin:0 auto;
+    padding:10px 22px 22px; max-width:none; width:100%; margin:0 auto;
     box-shadow:0 24px 60px rgba(0,0,0,0.5);}
   .corner{position:absolute; width:14px; height:14px;}
   .corner.tl{top:-1px;left:-1px;border-top:2px solid var(--red);border-left:2px solid var(--red);}
@@ -51,7 +51,7 @@
   .brand{font-size:13px; letter-spacing:0.14em; font-weight:700;}
   .brand span{color:var(--red);}
   .sub{font-size:10px; letter-spacing:0.08em; color:var(--text-dim);}
-  .hr{height:1px; background:var(--line); margin:10px 0 14px;}
+  .hr{height:1px; background:var(--line); margin:6px 0 10px;}
 
   .sysname-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
 
@@ -219,8 +219,8 @@
 
   @media (pointer:coarse){
     body{padding:8px;}
-    .frame{padding:18px;}
-    .brand-link{padding:10px 4px;}
+    .frame{padding:8px 18px 18px;}
+    .brand-link{padding:8px 4px;}
     .sub{font-size:11px;}
     .field .k{font-size:10px;}
 
@@ -292,12 +292,33 @@
   .moon-hint.warn{color:#e0a040;}
   @media (pointer:coarse){ .moon-hint{font-size:11px;} }
   /* moons get their own color (cool cyan) so they read apart from planets (red) */
-  /* gravity simulation: bigger, clearer on-screen messages, and swallowed bodies struck through in red in the tables */
+  /* realistic mode: bigger, clearer on-screen messages, and swallowed bodies struck through in red in the tables */
   .stage .physics-log{max-width:80%;}
-  .stage .physics-log > div{width:fit-content; max-width:100%; font-size:12px; line-height:1.4; letter-spacing:0.04em; background:rgba(0,0,0,0.65); border-left:3px solid var(--red-dim); padding:4px 9px; margin-bottom:4px; text-shadow:none;}
-  .stage .physics-log > div.swallow-msg{font-size:14px; font-weight:700; color:#ff6b6b; border-left-color:var(--red); box-shadow:0 0 14px rgba(255,43,43,0.35);}
+  .stage .physics-log > div{width:fit-content; max-width:100%; font-size:10px; line-height:1.4; letter-spacing:0.04em; background:rgba(0,0,0,0.65); border-left:3px solid var(--red-dim); padding:4px 9px; margin-bottom:4px; text-shadow:none;}
+  .stage .physics-log > div.swallow-msg{font-size:11px; font-weight:700; color:#ff6b6b; border-left-color:var(--red); box-shadow:0 0 8px rgba(255,43,43,0.25);}
   .stage .physics-log > div.swallow-msg::before{content:'✕ '}
-  @media (pointer:coarse){ .stage .physics-log > div{font-size:13px;} .stage .physics-log > div.swallow-msg{font-size:15px;} }
+  @media (pointer:coarse){ .stage .physics-log > div{font-size:11px;} .stage .physics-log > div.swallow-msg{font-size:12px;} }
+  /* REALISTIC MODE button: red accent so it stands out, plus a slow pulsing glow until the visitor has tried it once */
+  #physicsBtn:not(.active){color:var(--text); border-color:rgba(255,43,43,0.6); background:rgba(20,6,6,0.75); box-shadow:0 0 10px rgba(255,43,43,0.22);}
+  #physicsBtn:not(.active):hover{border-color:var(--red); box-shadow:0 0 18px rgba(255,43,43,0.45);}
+  #physicsBtn.active{box-shadow:0 0 14px rgba(255,43,43,0.4);}
+  #physicsBtn.attn{animation:rvAttn 1.8s ease-in-out infinite;}
+  @keyframes rvAttn{
+    0%,100%{box-shadow:0 0 6px rgba(255,43,43,0.2); border-color:rgba(255,43,43,0.5);}
+    50%{box-shadow:0 0 20px rgba(255,43,43,0.8); border-color:var(--red);}
+  }
+  @media (prefers-reduced-motion:reduce){ #physicsBtn.attn{animation:none;} }
+  /* keyboard shortcut list under the 3D view (hidden on touch screens, which have no keyboard) */
+  .shortcuts{display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; margin:-6px 0 14px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);}
+  .shortcuts .sc-title{color:var(--text-faint); letter-spacing:0.12em;}
+  .shortcuts kbd{font-family:inherit; font-size:9px; color:var(--text); background:#0c0d0f; border:1px solid var(--line-strong); padding:2px 6px; margin-right:4px;}
+  @media (pointer:coarse){ .shortcuts{display:none;} }
+  /* paused (speed 0): the speed control itself turns red and its label reads PAUSED */
+  .speed-ctrl.paused{border-color:var(--red); box-shadow:0 0 14px rgba(255,43,43,0.35);}
+  .speed-ctrl #speedLabel{white-space:nowrap;}
+  /* phones: the longer PAUSED label takes its extra width from the slider, so the control stays inside the view */
+  @media (max-width:700px){ .speed-ctrl.paused input[type=range]{width:min(320px, calc(100vw - 235px));} }
+  .speed-ctrl.paused #speedLabel{color:var(--red); font-weight:700; letter-spacing:0.1em;}
   table.planets td.name.swallowed{color:#ff4d4d !important; text-decoration:line-through; text-decoration-thickness:2px; text-decoration-color:#ff2b2b;}
   :root{--moon:#5ec8e6; --moon-dim:#1f5a6b;}
   #openMoonBtn, #addMoonBtn{color:var(--moon); border-color:var(--moon-dim);}
@@ -306,10 +327,15 @@
   #moonManifest .panel-title{color:var(--moon);}
   #moonTable td.name{color:var(--moon);}
   #moonTable td.link:hover{color:#a6e8f7;}
-  /* the GRAVITY SIMULATION toggle sits right next to the habitable-zone toggle, bottom-left of the 3D view.
-     One row container keeps them side by side; on a narrow screen the gravity button wraps onto the row above. */
+  /* the REALISTIC MODE toggle sits right next to the habitable-zone toggle, bottom-left of the 3D view.
+     One row container keeps them side by side; on a narrow screen the realistic-mode button wraps onto the row above. */
   .stage .stage-toggles{position:absolute; left:10px; right:10px; bottom:8px; z-index:6; display:flex; flex-wrap:wrap-reverse; align-items:flex-start; align-content:flex-start; gap:8px; pointer-events:none;}   /* wrap-reverse flips the cross axis: flex-start = bottom */
-  .stage .stage-toggles > button{position:static; margin:0; pointer-events:auto;}
+  .stage .stage-toggles > button{position:static; margin:0; pointer-events:auto;
+    /* both toggles get exactly the same box, so they sit level with each other */
+    font-size:9px; letter-spacing:0.06em; line-height:14px; padding:5px 10px; white-space:nowrap;}
+  @media (pointer:coarse){ .stage .stage-toggles > button{font-size:10px; line-height:16px; padding:10px 13px;} }
+  /* phones: slightly tighter so both toggles fit side by side on one row */
+  @media (max-width:480px){ .stage .stage-toggles > button{font-size:9px; letter-spacing:0.03em; padding-left:8px; padding-right:8px;} }
   /* the hint and the watermark share the row, so they wrap above the buttons instead of printing over them */
   .stage .stage-toggles > .watermark, .stage .stage-toggles > .drag-hint{position:static; transform:none; margin:0 0 0 auto; text-align:right; pointer-events:none;}
 </style>
@@ -405,19 +431,27 @@
         <span class="tag" id="stageTag">SYSTEM VIEW</span>
         <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
         <div class="stage-toggles" id="stageToggles">
-          <button class="hzlabel" id="hzToggleBtn" title="Show or hide the habitable-zone rings">■ HABITABLE ZONE: ON</button>
-          <button class="fs-btn" id="physicsBtn" title="Switch between idealized Kepler orbits and a gravity (N-body) simulation">⚛ GRAVITY SIMULATION: OFF</button>
+          <button class="hzlabel" id="hzToggleBtn" aria-pressed="true" title="Show or hide the habitable-zone rings (H)">■ HABITABLE ZONE: ON</button>
+          <button class="fs-btn attn" id="physicsBtn" aria-pressed="false" title="Realistic mode (R): every body pulls on every other one (N-body gravity) and distances are true to scale. OFF = idealized Kepler orbits.">⚛ REALISTIC MODE: OFF</button>
           <span class="watermark">rameshverse.com</span>
           <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         </div>
         <div class="physics-log" id="physicsLog"></div>
-        <button class="fs-btn" id="fsBtn">⛶ FULLSCREEN</button>
-        <div class="speed-ctrl">
-          <span>SPEED</span>
-          <input type="range" id="speedSlider" min="0" max="200" value="70" step="1" title="Speed (logarithmic, 0 = paused, max 10000). Double-click or double-tap to reset." aria-label="Simulation speed">
+        <button class="fs-btn" id="fsBtn" title="Fullscreen (F)">⛶ FULLSCREEN</button>
+        <div class="speed-ctrl" id="speedCtrl">
+          <span id="speedLabel" aria-live="polite">SPEED</span>
+          <input type="range" id="speedSlider" min="0" max="200" value="70" step="1" title="Speed (logarithmic, 0 = paused, max 10000). Double-click or double-tap to reset. Space bar pauses / resumes." aria-label="Simulation speed">
           <b id="speedOut">25</b>
         </div>
         <div id="stage3d"></div>
+      </div>
+      <div class="shortcuts" aria-label="Keyboard shortcuts">
+        <span class="sc-title">SHORTCUTS</span>
+        <span><kbd>SPACE</kbd> pause / resume</span>
+        <span><kbd>R</kbd> realistic mode</span>
+        <span><kbd>H</kbd> habitable zone</span>
+        <span><kbd>F</kbd> fullscreen</span>
+        <span><kbd>ESC</kbd> exit fullscreen</span>
       </div>
     </div>
 
@@ -1027,7 +1061,9 @@ openPlanetBtn.addEventListener('click', function(){
       chip.className = 'star-chip' + (idx===editingStarIndex?' active':'');
       var chipLabel = s.name+' ('+s.cls+')';
       if (idx>0 && stars.length>2) chipLabel += ' → ' + stars[parentOf(s)].name;
-      chip.innerHTML = '<span>'+chipLabel+'</span>';
+      var chipSpan = document.createElement('span');
+      chipSpan.textContent = chipLabel;   // as text, never as HTML
+      chip.appendChild(chipSpan);
       if (idx>0){
         var rm = document.createElement('span');
         rm.className = 'rmstar';
@@ -1232,8 +1268,8 @@ openPlanetBtn.addEventListener('click', function(){
       var tr = document.createElement('tr');
       tr.className = 'data';
       tr.innerHTML =
-        '<td class="name link" title="Click to fly to this planet">'+p.name+'</td>'+
-        (multi ? '<td class="link" title="Click to fly to this star">'+star.name+'</td>' : '') +
+        '<td class="name link" title="Click to fly to this planet"></td>'+
+        (multi ? '<td class="link" title="Click to fly to this star"></td>' : '') +
         '<td>'+p.au.toFixed(3)+'</td>'+
         '<td>'+formatPeriod(period)+'</td>'+
         '<td>'+(p.ecc||0).toFixed(2)+'</td>'+
@@ -1244,6 +1280,8 @@ openPlanetBtn.addEventListener('click', function(){
         '<td></td>';
       var rmTd = tr.lastElementChild;
       var nameTd = tr.children[0];
+      nameTd.textContent = p.name;                       // names go in as text, never as HTML
+      if (multi) tr.children[1].textContent = star.name;
       nameTd.addEventListener('click', function(){ focusBody(three && three.planetMeshes[idx]); });
       if (multi) tr.children[1].addEventListener('click', function(){
         var so = three && three.starObjs[p.starIndex];
@@ -1259,6 +1297,7 @@ openPlanetBtn.addEventListener('click', function(){
       rmBtn.textContent = 'x';
       rmBtn.addEventListener('click', function(){
         if (editingIndex === idx) exitEditMode();
+        else if (editingIndex !== null && editingIndex > idx) editingIndex -= 1;   // the planet being edited moved up one row
         planets.splice(idx,1);
         // moons go with their planet; moons of later planets keep following theirs
         moons = moons.filter(function(m){ return m.planetIndex !== idx; });
@@ -1693,7 +1732,7 @@ openPlanetBtn.addEventListener('click', function(){
     });
   }
 
-  // Planets and moons swallowed in the gravity simulation get their name struck through in red in the tables.
+  // Planets and moons swallowed in realistic mode get their name struck through in red in the tables.
   // Turning the simulation off (or restarting it) clears the marks, just as the bodies themselves come back.
   function updateSwallowMarks(){
     var live = !!(realisticMode && sim && sim.bodies.length === sim.S + planets.length + moons.length);
@@ -1707,7 +1746,7 @@ openPlanetBtn.addEventListener('click', function(){
       var td = tr.children[0], dead = !!(B && !B[bi].alive);
       td.classList.toggle('swallowed', dead);
       td.title = dead
-        ? 'Swallowed by ' + (B[bi].by >= 0 ? B[simResolve(bi)].name : 'another body') + ' in the gravity simulation'
+        ? 'Swallowed by ' + (B[bi].by >= 0 ? B[simResolve(bi)].name : 'another body') + ' in realistic mode'
         : 'Click to fly to this ' + what;
     }
     var prow = planetTable.querySelectorAll('tr.data'), mrow = moonTable.querySelectorAll('tr.data');
@@ -2176,7 +2215,28 @@ openPlanetBtn.addEventListener('click', function(){
     }
   }
 
-  function makeGlowTexture(){
+  // The glow / halo / photon-ring / disk textures look the same for every body, so they are built once and shared.
+  var sharedTex = {};
+  function sharedTexture(key, build){
+    if (!sharedTex[key]){ sharedTex[key] = build(); sharedTex[key]._shared = true; }
+    return sharedTex[key];
+  }
+  function makeGlowTexture(){ return sharedTexture('glow', buildGlowTexture); }
+  function makeHaloTexture(){ return sharedTexture('halo', buildHaloTexture); }
+  function makePhotonRingTexture(){ return sharedTexture('photon', buildPhotonRingTexture); }
+  function makeDiskTexture(){ return sharedTexture('disk', buildDiskTexture); }
+  // free the GPU memory of everything under `root` (the scene is rebuilt on every edit, so without this it piles up)
+  function disposeTree(root){
+    root.traverse(function(o){
+      if (o.geometry && !o.isSprite) o.geometry.dispose();   // sprites share one built-in geometry
+      var m = o.material;
+      if (m){
+        if (m.map && !m.map._shared) m.map.dispose();
+        m.dispose();
+      }
+    });
+  }
+  function buildGlowTexture(){
     var c = document.createElement('canvas'); c.width=128; c.height=128;
     var g2 = c.getContext('2d');
     var g = g2.createRadialGradient(64,64,0,64,64,64);
@@ -2187,7 +2247,7 @@ openPlanetBtn.addEventListener('click', function(){
     g2.fillStyle = g; g2.fillRect(0,0,128,128);
     return new THREE.CanvasTexture(c);
   }
-  function makeHaloTexture(){
+  function buildHaloTexture(){
     var c = document.createElement('canvas'); c.width=128; c.height=128;
     var g2 = c.getContext('2d');
     var g = g2.createRadialGradient(64,64,0,64,64,64);
@@ -2209,7 +2269,7 @@ openPlanetBtn.addEventListener('click', function(){
   }
 
   // thin bright ring (photon ring) used around black holes; the ring peaks at 0.64 of the sprite radius
-  function makePhotonRingTexture(){
+  function buildPhotonRingTexture(){
     var c = document.createElement('canvas'); c.width=256; c.height=256;
     var g2 = c.getContext('2d');
     var g = g2.createRadialGradient(128,128,0,128,128,128);
@@ -2223,7 +2283,7 @@ openPlanetBtn.addEventListener('click', function(){
     return new THREE.CanvasTexture(c);
   }
   // accretion disk: bright white-hot at the inner edge, fading to dull orange outside
-  function makeDiskTexture(){
+  function buildDiskTexture(){
     var c = document.createElement('canvas'); c.width=16; c.height=256;
     var d2 = c.getContext('2d');
     var g = d2.createLinearGradient(0,256,0,0);
@@ -2680,10 +2740,12 @@ function handleStageClick(e){
       distK = REAL_TARGET/maxAU;
     }
 
+    // planets, moons, labels, trails and markers all hang inside a star's group, so this frees them too
     three.starObjs.forEach(function(so){
+      disposeTree(so.group);
       scene.remove(so.group);
     });
-    three.starOrbitLines.forEach(function(l){ scene.remove(l); });
+    three.starOrbitLines.forEach(function(l){ disposeTree(l); scene.remove(l); });
     three.planetMeshes.forEach(function(m){ if(m.parent) m.parent.remove(m); });
     three.planetLabels.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
     three.planetAtmos.forEach(function(s){ if(s && s.parent) s.parent.remove(s); });
@@ -2921,6 +2983,7 @@ function handleStageClick(e){
     } else {
       sim = null;
     }
+    scheduleAutosave();   // every edit ends up here
   }
 
   function resizeThree(){
@@ -3049,6 +3112,7 @@ function handleStageClick(e){
 
   systemNameInput.addEventListener('input', function(){
     stageTag.textContent = systemNameInput.value.trim() || 'SYSTEM VIEW';
+    scheduleAutosave();
   });
 
   // ---- return to rameshverse (centered confirmation modal) ----
@@ -3103,10 +3167,55 @@ function handleStageClick(e){
     }, null, 2);
   }
 
+  // ---- autosave: the system is kept in this browser, so a reload or an accidental close doesn't lose it ----
+  var AUTOSAVE_KEY = 'rv-star-system-creator-v1';
+  var autosaveTimer = null;
+  function scheduleAutosave(){
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(function(){
+      try { localStorage.setItem(AUTOSAVE_KEY, serializeSystem()); } catch(err){}   // private mode / storage full: just skip
+    }, 400);
+  }
+  function restoreAutosave(){
+    try {
+      var raw = localStorage.getItem(AUTOSAVE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (!data || !Array.isArray(data.stars) || !data.stars.length) return;
+      var hasWork = data.stars.length > 1 || (data.planets && data.planets.length) || data.systemName;
+      loadSystemFromData(data);
+      if (hasWork) showSysStatus('Restored your last session.');
+    } catch(err){}
+  }
+
+  // a number from a saved file: a missing / broken value becomes `def`, and it is kept inside [lo, hi]
+  function cleanNum(v, def, lo, hi){
+    v = parseFloat(v);
+    if (!isFinite(v)) v = def;
+    return Math.min(hi, Math.max(lo, v));
+  }
+
   function loadSystemFromData(data){
+    data = data || {};
     systemNameInput.value = data.systemName || '';
     stageTag.textContent = data.systemName || 'SYSTEM VIEW';
-    stars = (data.stars && data.stars.length) ? data.stars : [{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }];
+    // every value is checked, so a hand-edited or damaged file can't break the page
+    var rawStars = (Array.isArray(data.stars) && data.stars.length) ? data.stars : [{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }];
+    stars = rawStars.map(function(s, idx){
+      s = s || {};
+      var cls = 'G';
+      for (var i=0;i<starTypePresets.length;i++){ if (starTypePresets[i].cls === s.cls) cls = s.cls; }
+      var bh = cls === 'BH', M = cleanNum(s.M, 1, 0.05, 1e12);
+      return {
+        name: String(s.name || (idx ? 'Star ' + (idx+1) : 'Primary')), cls: cls, M: M,
+        R: bh ? schwarzschildR(M) : cleanNum(s.R, 1, 0.000001, 1e6),
+        T: bh ? 0 : cleanNum(s.T, 5778, 1000, 1e9),
+        au: idx ? cleanNum(s.au, 20, 0.015, 1e6) : 0,
+        ecc: idx ? cleanNum(s.ecc, 0, 0, 0.9) : 0,
+        angle: cleanNum(s.angle, 0, -1e9, 1e9),
+        parent: s.parent
+      };
+    });
     // older saves have no parent: they orbit the primary. Also guard against bad indices.
     stars.forEach(function(s, idx){
       if (idx===0){ s.parent = undefined; return; }
@@ -3114,18 +3223,21 @@ function handleStageClick(e){
       s.parent = (isFinite(p) && p >= 0 && p < idx) ? p : 0;
     });
     editingStarIndex = 0;
-    planets = (data.planets||[]).map(function(p){
+    planets = (Array.isArray(data.planets) ? data.planets : []).filter(Boolean).map(function(p, idx){
       var type = null;
       for (var i=0;i<planetTypes.length;i++){ if (planetTypes[i].id===p.typeId) type = planetTypes[i]; }
       if (!type) type = planetTypes[0];
-      return { name:p.name, au:p.au, ecc:p.ecc||0, type:type, radiusRE:p.radiusRE, massME:p.massME, angle:p.angle||0, hasRing:!!p.hasRing, starIndex:p.starIndex||0 };
+      return { name:String(p.name || ('Planet-' + (idx+1))), au:cleanNum(p.au, 1, 0.015, 1e6), ecc:cleanNum(p.ecc, 0, 0, 0.9), type:type,
+        radiusRE:cleanNum(p.radiusRE, type.radiusRE, 0.05, 1e4), massME:cleanNum(p.massME, type.massME, 0.001, 1e7),
+        angle:cleanNum(p.angle, 0, -1e9, 1e9), hasRing:!!p.hasRing,
+        starIndex:Math.round(cleanNum(p.starIndex, 0, 0, stars.length-1)) };
     });
     // moons (older saves have none); drop any that point at a planet that doesn't exist
-    moons = (data.moons || []).filter(function(m){
+    moons = (Array.isArray(data.moons) ? data.moons : []).filter(function(m){
       return m && m.planetIndex >= 0 && m.planetIndex < planets.length;
     }).map(function(m){
       return {
-        name: m.name || 'Moon', planetIndex: m.planetIndex|0, type: moonTypeById(m.typeId),
+        name: String(m.name || 'Moon'), planetIndex: m.planetIndex|0, type: moonTypeById(m.typeId),
         km: Math.max(1, +m.km || 384400), ecc: Math.max(0, Math.min(0.9, +m.ecc || 0)),
         radiusRE: Math.max(0.001, +m.radiusRE || 0.27), massME: Math.max(0.00001, +m.massME || 0.012),
         angle: +m.angle || 0
@@ -3246,7 +3358,7 @@ showSysStatus('System reset.');
       // if the physics can't keep up (very tight orbits / huge masses), say how much slower than real time it runs
       if ((++frameCount % 20) === 0){
         var rate = sim.rate;
-        physicsBtn.textContent = '⚛ GRAVITY SIMULATION: ON' + (rate < 0.9 ? ' (' + Math.max(1, Math.round(rate*100)) + '% SPEED)' : '');
+        physicsBtn.textContent = '⚛ REALISTIC MODE: ON' + (rate < 0.9 ? ' (' + Math.max(1, Math.round(rate*100)) + '% SPEED)' : '');
       }
     }
     if (realDist && (frameCount % 15) === 0) updateViewScaleText();
@@ -3255,10 +3367,16 @@ showSysStatus('System reset.');
   }
 
   // ---- realistic mode on/off ----
+  // the button pulses to catch the eye until the visitor has used it once (remembered in this browser)
+  var ATTN_KEY = 'rv-star-system-realistic-seen';
+  try { if (localStorage.getItem(ATTN_KEY)) physicsBtn.classList.remove('attn'); } catch(err){}
   physicsBtn.addEventListener('click', function(){
+    physicsBtn.classList.remove('attn');
+    try { localStorage.setItem(ATTN_KEY, '1'); } catch(err){}
     realisticMode = !realisticMode;
     physicsBtn.classList.toggle('active', realisticMode);
-    physicsBtn.textContent = realisticMode ? '⚛ GRAVITY SIMULATION: ON' : '⚛ GRAVITY SIMULATION: OFF';
+    physicsBtn.setAttribute('aria-pressed', realisticMode ? 'true' : 'false');
+    physicsBtn.textContent = realisticMode ? '⚛ REALISTIC MODE: ON' : '⚛ REALISTIC MODE: OFF';
     if (three){
       // the two modes use different scales, so go back to the opening view
       three.focusObj = null;
@@ -3269,21 +3387,22 @@ showSysStatus('System reset.');
     rebuildIfReady();   // fresh start: ON begins a gravity simulation from the current orbits, OFF returns to idealized orbits
     updateScaleLabel();
     logPhysics(realisticMode
-      ? 'GRAVITY SIMULATION ON — bodies pull on each other, distances to scale'
-      : 'GRAVITY SIMULATION OFF — idealized Kepler orbits');
+      ? 'REALISTIC MODE ON — bodies pull on each other, distances to scale'
+      : 'REALISTIC MODE OFF — idealized Kepler orbits');
   });
 
   // ---- habitable zone rings on/off (on by default) ----
   hzToggleBtn.addEventListener('click', function(){
     showHZ = !showHZ;
     hzToggleBtn.classList.toggle('off', !showHZ);
+    hzToggleBtn.setAttribute('aria-pressed', showHZ ? 'true' : 'false');
     hzToggleBtn.textContent = showHZ ? '■ HABITABLE ZONE: ON' : '□ HABITABLE ZONE: OFF';
     applyHZVisibility();
   });
 
   // ---- speed slider ----
   // Logarithmic, so slow and very fast speeds are both easy to hit: position 0 = paused,
-  // positions 1..100 run from speed 1 up to 1000 (about 7% per step). Speed 25 is the default.
+  // positions 1..200 run from speed 1 up to 10000 (about 5% per step). Speed 25 is the default.
   // (speed / 100 is the time multiplier the animation uses.)
   var SPEED_MIN = 1, SPEED_MAX = 10000, SPEED_DEFAULT = 25, SPEED_POSITIONS = 200;
   var speedSlider = document.getElementById('speedSlider');
@@ -3300,6 +3419,9 @@ showSysStatus('System reset.');
   }
   function setSpeed(speed){
     speedMultiplier = speed/100;
+    var paused = !(speed > 0);   // paused by the Space bar or by dragging the slider to 0
+    document.getElementById('speedLabel').textContent = paused ? '❚❚ PAUSED' : 'SPEED';
+    document.getElementById('speedCtrl').classList.toggle('paused', paused);
     speedOut.textContent = speed < 10 ? speed.toFixed(speed === 0 ? 0 : 2) : String(Math.round(speed));
   }
   function resetSpeed(){
@@ -3317,6 +3439,36 @@ showSysStatus('System reset.');
     else lastSliderTap = nowMs;
   });
   resetSpeed();
+
+  // ---- keyboard shortcuts: SPACE pause / resume, R realistic mode, H habitable zone, F fullscreen ----
+  var pausedSpeed = null;   // the speed to go back to when un-pausing
+  function togglePause(){
+    if (speedMultiplier > 0){
+      pausedSpeed = speedMultiplier*100;
+      speedSlider.value = 0;
+      setSpeed(0);
+    } else {
+      var back = pausedSpeed || SPEED_DEFAULT;
+      speedSlider.value = speedToPos(back);
+      setSpeed(back);
+    }
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    if (leaveConfirm.classList.contains('show')) return;
+    var el = e.target, tag = el && el.tagName;
+    // never while typing in a field (the speed slider is fine)
+    if (tag === 'SELECT' || tag === 'TEXTAREA' || (tag === 'INPUT' && el.type !== 'range') || (el && el.isContentEditable)) return;
+    var k = e.key;
+    if (k === ' ' || k === 'Spacebar'){
+      if (tag === 'BUTTON') return;     // space on a focused button presses that button
+      e.preventDefault();               // don't scroll the page
+      togglePause();
+    }
+    else if (k === 'r' || k === 'R') physicsBtn.click();
+    else if (k === 'h' || k === 'H') hzToggleBtn.click();
+    else if (k === 'f' || k === 'F') fsBtn.click();
+  });
 
   // ---- touch screens: say how to move around ----
   if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches){
@@ -3377,6 +3529,7 @@ showSysStatus('System reset.');
   updatePeriodPreview();
   updateScaleLabel();
   renderTable();
+  restoreAutosave();   // bring back the system from the last visit, if there is one
   setup3D();
   requestAnimationFrame(loop);
 })();

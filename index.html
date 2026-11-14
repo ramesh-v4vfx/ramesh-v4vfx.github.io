@@ -61,9 +61,9 @@
 <meta property="og:url" content="https://rameshverse.com/" />
 <meta name="theme-color" content="#0e0101">
 
-<!-- Start downloading the first hero image immediately on tablets/desktop (it is the LCP element).
+<!-- The first hero image is chosen at random on each visit, so it is not preloaded here.
+     The small script right after the hero section starts its download immediately (tablets/desktop).
      On phones the hero sits at the bottom of the page and loads when it scrolls near. -->
-<link rel="preload" as="image" href="images/hero-images/02 black hole simulator.webp" fetchpriority="high" media="(min-width: 701px)">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -201,6 +201,13 @@
     max-height: 0;
     min-height: 0;
     opacity: 0;
+    visibility: hidden;      /* its buttons can't be reached with the keyboard while it is closed */
+    transition:
+        height .45s ease,
+        max-height .45s ease,
+        min-height .45s ease,
+        opacity .35s ease,
+        visibility 0s linear .45s;
 }
 
 .sticky-top{
@@ -647,7 +654,7 @@
 }
 
 .hero.hidden ~ .popular-tools {
-    top: 180px;
+    top: 222px;
 }
 
 .popular-tools-close {
@@ -1523,7 +1530,7 @@
   color: #fff;
 }
 .popular-tools-launch[hidden] { display: none !important; }
-.hero.hidden ~ .popular-tools-launch { top: 180px; }
+.hero.hidden ~ .popular-tools-launch { top: 222px; }
 
 @media (max-width: 1200px) {
   .popular-tools-launch {
@@ -1676,7 +1683,7 @@
   }
 
   .hero.hidden ~ .category-radar {
-    top: 180px;
+    top: 222px;
   }
 
   .category-radar-close {
@@ -1898,7 +1905,7 @@
     color: #fff;
   }
   .category-radar-launch[hidden] { display: none !important; }
-  .hero.hidden ~ .category-radar-launch { top: 180px; }
+  .hero.hidden ~ .category-radar-launch { top: 222px; }
 
   @media (max-width: 1200px) {
     .category-radar-launch {
@@ -2010,7 +2017,7 @@
   transition: top .45s ease;
 }
 
-.hero.hidden ~ .right-rail { top: 180px; }
+.hero.hidden ~ .right-rail { top: 222px; }
 
 /* Panels inside the rail flow normally; the rail does the positioning */
 .right-rail .category-radar,
@@ -2509,6 +2516,72 @@
 .unf-item.unf-trip { color: #fff; }
 .unf-item.unf-trip::before { background: #ff2b2b; box-shadow: 0 0 6px rgba(255,43,43,0.7); }
 @media (prefers-reduced-motion: reduce) { .unf-head-live { animation: none; } }
+
+/* ══════════════════════════════════════════════════════
+   SHOW BANNER — small button that takes the banner's place
+   after the visitor has closed it (the choice is remembered).
+   Its row is 42px tall on desktop: 10px margin + 32px button.
+   ══════════════════════════════════════════════════════ */
+.hero-show {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  height: 32px;
+  margin: 10px auto 0;
+  padding: 0 16px;
+  align-self: center;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+}
+.hero-show:hover,
+.hero-show:focus-visible {
+  background: rgba(255,43,43,0.12);
+  border-color: rgba(255,43,43,0.6);
+  color: #fff;
+}
+.hero-show[hidden] { display: none !important; }
+
+/* Closed with × during this visit: no SHOW BANNER row until the next visit,
+   so the side panels go back up by that row's height (222px - 42px). */
+.hero.hidden.no-show-row ~ .popular-tools,
+.hero.hidden.no-show-row ~ .popular-tools-launch,
+.hero.hidden.no-show-row ~ .category-radar,
+.hero.hidden.no-show-row ~ .category-radar-launch,
+.hero.hidden.no-show-row ~ .right-rail { top: 180px; }
+
+/* HIDE BANNER button: the same button as SHOW BANNER, in the same spot on screen (top centre),
+   drawn over the open banner. Only the text colour differs. Hides the banner for this visit only. */
+.hero .hero-hide {
+  position: absolute;
+  top: 10px;                      /* = SHOW BANNER's top margin, so the two sit in exactly the same place */
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 10;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255,255,255,0.35);
+}
+.hero .hero-hide:hover,
+.hero .hero-hide:focus-visible { color: #ff2b2b; text-shadow: 0 0 10px rgba(255,43,43,0.6); }
+@media (max-width: 1200px) { .hero-show { order: 1; } }
+/* phones: the banner (which keeps its own 24px top margin, open or closed) is below the tools */
+@media (max-width: 700px)  { .hero-show { order: 3; margin-top: 0; height: 40px; } .hero .hero-hide { top: 0; margin: 0; } }   /* phones: where the banner is, below the tools */
 </style>
 </head>
 <body>
@@ -2523,8 +2596,12 @@
 
   <div class="hero-progress" id="heroProgress"></div>
 
-  <button class="hero-close" id="heroClose" aria-label="Hide featured tools">
+  <button class="hero-close" id="heroClose" aria-label="Close banner (stays closed on future visits)" title="Close — stays closed on future visits">
     ×
+</button>
+
+  <button type="button" class="hero-show hero-hide" id="heroHide" title="Hide for now — it comes back on your next visit">
+    <span aria-hidden="true">▴</span><span>Hide banner</span>
 </button>
 
 <button class="hero-nav hero-prev" id="heroPrev" aria-label="Previous slide">
@@ -2535,22 +2612,20 @@
     ❯
 </button>
 
-  <!-- SLIDE 1 (loads immediately, highest priority — this is the LCP image) -->
-<div class="hero-slide active"
+  <!-- Every slide uses data-src. The banner shown first is picked at random on each visit by the
+       small script right after this section, which sets that one slide's real src straight away;
+       the others are loaded just before they are shown. -->
+
+  <!-- SLIDE 1 -->
+<div class="hero-slide" id="heroSlide1"
      data-title="Black Hole Simulator"
      data-desc="Find event horizon radius, photon sphere, ISCO, and Hawking temperature."
      data-url="/black-hole-simulator/">
-  <picture>
-    <!-- phones: 1×1 placeholder, so the hero image isn't downloaded until the hero scrolls near (see hero script) -->
-    <source media="(max-width: 700px)" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
-    <img src="images/hero-images/02 black hole simulator.webp"
-       alt="Black Hole Simulator"
-       loading="eager"
-       fetchpriority="high">
-  </picture>
+  <img data-src="images/hero-images/02 black hole simulator.webp"
+       alt="Black Hole Simulator" />
+  <!-- without JavaScript: show this slide -->
+  <noscript><style>#heroSlide1{opacity:1;pointer-events:auto;}</style><img src="images/hero-images/02 black hole simulator.webp" alt="Black Hole Simulator"></noscript>
 </div>
-
-  <!-- SLIDES 2–16: use data-src, the hero script sets the real src just before each slide is shown -->
 
   <!-- SLIDE 2 -->
 <div class="hero-slide"
@@ -2699,6 +2774,62 @@
   <div class="hero-dots" id="heroDots" role="tablist" aria-label="Featured tool slides"></div>
 
 </section>
+
+<!-- Shown in the banner's place after the visitor has closed it -->
+<button type="button" class="hero-show" id="heroShow" aria-controls="hero" hidden>
+  <span aria-hidden="true">▾</span><span>Show banner</span>
+</button>
+
+<script>
+  /* ── HERO BOOT ── runs before the rest of the page is drawn, so there is no flash:
+       1. if the visitor closed the banner before (×), or hid it during this visit (HIDE),
+          it stays collapsed and the SHOW BANNER button appears;
+       2. otherwise a banner is picked at random (never the one this visitor saw first last time)
+          and its image starts downloading right away.
+     The slideshow itself is set up by the hero script at the bottom of the page. */
+  (function () {
+    var hero = document.getElementById('hero');
+    var slides = hero.querySelectorAll('.hero-slide');
+    var n = slides.length, closed = false, last = -1;
+    try {
+      closed = localStorage.getItem('rvHeroClosed') === '1';
+      last = parseInt(localStorage.getItem('rvHeroLastStart'), 10);
+    } catch (e) { /* storage unavailable: banner shows, nothing is remembered */ }
+    var quiet = false;   // closed with × during THIS visit: no SHOW BANNER button until the next visit
+    try {
+      if (sessionStorage.getItem('rvHeroHidden') === '1') closed = true;                 // hidden for this visit only
+      quiet = closed && sessionStorage.getItem('rvHeroClosedNow') === '1';
+    } catch (e) {}
+
+    var start = Math.floor(Math.random() * n);
+    if (n > 1 && start === last) start = (start + 1 + Math.floor(Math.random() * (n - 1))) % n;   // a different one than last visit
+    if (!closed) { try { localStorage.setItem('rvHeroLastStart', String(start)); } catch (e) {} }
+    window.__rvHero = { start: start, closed: closed };
+
+    var s = slides[start];
+    s.classList.add('active');
+    document.getElementById('heroTitle').textContent = s.getAttribute('data-title') || '';
+    document.getElementById('heroDesc').textContent  = s.getAttribute('data-desc')  || '';
+    document.getElementById('heroCta').href          = s.getAttribute('data-url')   || '/';
+
+    if (closed) {
+      hero.classList.add('hidden');
+      if (quiet) hero.classList.add('no-show-row');
+      else document.getElementById('heroShow').hidden = false;
+      return;                                   // closed: no banner image is downloaded at all
+    }
+    // tablets / desktop: the banner is at the top, so load its image now with high priority
+    if (!window.matchMedia('(max-width: 700px)').matches) {
+      var img = s.querySelector('img[data-src]');
+      if (img) {
+        img.setAttribute('fetchpriority', 'high');
+        img.loading = 'eager';
+        img.src = img.getAttribute('data-src');
+        img.removeAttribute('data-src');
+      }
+    }
+  })();
+</script>
 
 
 
@@ -3188,18 +3319,52 @@
       } catch (e) {}
     }
 
-    // Hide hero if already closed this session
-    if (sessionStorage.getItem("heroClosed") === "1") {
-    hero.classList.add("hidden");
-    return;
-  }
+    // The boot script right after the hero section already picked the first banner
+    // and applied the remembered open / closed state.
+    const boot = window.__rvHero || { start: 0, closed: false };
+    const heroShow = document.getElementById("heroShow");
+    const CLOSED_KEY = 'rvHeroClosed';     // localStorage: '1' = the visitor closed the banner
+    let closed = boot.closed;
 
-  // Close button
-    heroClose.addEventListener("click", () => {
-    track('hero_close');
-    hero.classList.add("hidden");
-    sessionStorage.setItem("heroClosed", "1");
-});
+    // Two ways to put the banner away:
+    //   ×     close: remembered in this browser. Nothing is shown for the rest of this visit;
+    //                later visits show only the SHOW BANNER button
+    //   HIDE  hide:  for this visit only (this tab), the banner is back on the next visit
+    const heroHide = document.getElementById("heroHide");
+    const HIDDEN_KEY = 'rvHeroHidden';     // sessionStorage: '1' = hidden for this visit
+    function collapse(permanent) {
+      track(permanent ? 'hero_close' : 'hero_hide');
+      closed = true;
+      hovering = false;
+      clearTimeout(timer);
+      try {
+        if (permanent) { localStorage.setItem(CLOSED_KEY, '1'); sessionStorage.setItem('rvHeroClosedNow', '1'); }
+        else sessionStorage.setItem(HIDDEN_KEY, '1');
+      } catch (e) { /* storage unavailable */ }
+      hero.classList.add("hidden");
+      if (permanent) {
+        hero.classList.add("no-show-row");     // closed: the SHOW BANNER button waits for the next visit
+        heroShow.hidden = true;
+      } else {
+        heroShow.hidden = false;
+        heroShow.focus({ preventScroll: true });
+      }
+    }
+    heroClose.addEventListener("click", () => collapse(true));
+    heroHide.addEventListener("click", () => collapse(false));
+
+    // SHOW BANNER button: brings it back, and it shows again on later visits
+    heroShow.addEventListener("click", () => {
+      track('hero_show');
+      closed = false;
+      try { localStorage.removeItem(CLOSED_KEY); } catch (e) { /* storage unavailable */ }
+      try { sessionStorage.removeItem(HIDDEN_KEY); sessionStorage.removeItem('rvHeroClosedNow'); } catch (e) { /* storage unavailable */ }
+      hero.classList.remove("no-show-row");
+      heroShow.hidden = true;
+      hero.classList.remove("hidden");
+      if (!started) startHero(); else startProgress();
+      heroClose.focus({ preventScroll: true });
+    });
 
     
     const slides   = Array.from(document.querySelectorAll('.hero-slide'));
@@ -3214,7 +3379,7 @@
 
     const DURATION = 3750; // ms per slide (was 7500, so twice as fast). Change this one number to tune the speed.
 
-    let current = 0;
+    let current = boot.start < slides.length ? boot.start : 0;   // random first banner (see the boot script)
     let timer = null;
     let started = false;
     let hovering = false;
@@ -3236,7 +3401,7 @@
     // Build dots
     slides.forEach((_, i) => {
       const d = document.createElement('button');
-      d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+      d.className = 'hero-dot' + (i === current ? ' active' : '');
       d.setAttribute('role', 'tab');
       d.setAttribute('aria-label', 'Slide ' + (i + 1));
       d.onclick = () => goTo(i);
@@ -3311,22 +3476,17 @@
     function startHero() {
       if (started) return;
       started = true;
-      // phones: swap the 1×1 placeholder for the real first image
-      const pic = slides[0].querySelector('picture');
-      if (pic) {
-        const placeholder = pic.querySelector('source');
-        if (placeholder) placeholder.remove();
-        const first = pic.querySelector('img');
-        if (first) first.src = first.getAttribute('src');
-      }
-      loadSlide(1);   // preload slide 2 so the first transition is instant
-      updateInfo(0);
+      loadSlide(current);       // already loading on tablets/desktop; on phones (or after SHOW BANNER) it starts here
+      loadSlide(current + 1);   // preload the next slide so the first transition is instant
       startProgress();
     }
 
     // On phones the hero sits at the bottom of the page, so don't download
     // or animate anything until the visitor scrolls close to it.
-    if (window.matchMedia('(max-width: 700px)').matches && 'IntersectionObserver' in window) {
+    // (Closed banner: nothing starts until SHOW BANNER is pressed.)
+    if (closed) {
+      /* wait for the SHOW BANNER button */
+    } else if (window.matchMedia('(max-width: 700px)').matches && 'IntersectionObserver' in window) {
       const heroObserver = new IntersectionObserver((entries) => {
         if (entries.some(e => e.isIntersecting)) {
           heroObserver.disconnect();
@@ -3341,7 +3501,7 @@
     // Pause on hover, resume with the time that was left
     hero.addEventListener('mouseenter', () => {
       hovering = true;
-      if (!started) return;
+      if (!started || closed) return;
       clearTimeout(timer);
       remaining = Math.max(0, remaining - (Date.now() - tickStart));
       const computed = parseFloat(getComputedStyle(progress).width);
@@ -3352,7 +3512,7 @@
 
     hero.addEventListener('mouseleave', () => {
       hovering = false;
-      if (!started) return;
+      if (!started || closed) return;
       progress.style.transition = 'width ' + remaining + 'ms linear';
       progress.style.width = '100%';
       tickStart = Date.now();
