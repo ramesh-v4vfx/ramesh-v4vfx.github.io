@@ -108,6 +108,22 @@
   transition:box-shadow .2s ease, border-color .2s ease, color .2s ease;}
   .sys-btn:hover{border-color:var(--red); box-shadow:0 0 16px rgba(255,43,43,0.3);}
 
+  /* ── RESET SYSTEM — the prominent, red-filled button ── */
+  #resetSystemBtn{
+    background:#e32222; color:#fff; border-color:#ff5a5a;
+    font-weight:700; letter-spacing:0.08em; padding:7px 18px;
+    box-shadow:0 0 14px rgba(255,43,43,0.5);
+  }
+  #resetSystemBtn:hover{background:#ff3b3b; border-color:#ff9a9a; color:#fff; box-shadow:0 0 24px rgba(255,43,43,0.75);}
+  #resetSystemBtn:active{background:#b81818;}
+  #resetSystemBtn:disabled{background:#1a0d0d; color:var(--text-faint); border-color:var(--line); box-shadow:none; cursor:not-allowed; opacity:0.55; font-weight:400;}
+  #resetSystemBtn.armed{background:#ff2b2b; border-color:#fff; animation:rvResetArm 0.7s ease-in-out infinite;}
+  @keyframes rvResetArm{
+    0%,100%{box-shadow:0 0 10px rgba(255,43,43,0.5);}
+    50%{box-shadow:0 0 28px rgba(255,80,80,0.95);}
+  }
+  @media (prefers-reduced-motion:reduce){ #resetSystemBtn.armed{animation:none;} }
+
   .slider-with-num{display:grid; grid-template-columns:1fr 70px; gap:8px; align-items:center;}
   .two-col{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
   .star-fields{display:none;}
@@ -302,6 +318,10 @@
   #physicsBtn:not(.active){color:var(--text); border-color:rgba(255,43,43,0.6); background:rgba(20,6,6,0.75); box-shadow:0 0 10px rgba(255,43,43,0.22);}
   #physicsBtn:not(.active):hover{border-color:var(--red); box-shadow:0 0 18px rgba(255,43,43,0.45);}
   #physicsBtn.active{box-shadow:0 0 14px rgba(255,43,43,0.4);}
+  /* LABELS toggle: plain white text, no fill; dims when off (same idea as the habitable-zone toggle) */
+  #labelsBtn{color:var(--text); border-color:var(--text); background:rgba(0,0,0,0.55);}
+  #labelsBtn:hover{border-color:#fff; color:#fff; box-shadow:0 0 10px rgba(255,255,255,0.25);}
+  #labelsBtn.off{color:var(--text-faint); border-color:var(--line);}
   #physicsBtn.attn{animation:rvAttn 1.8s ease-in-out infinite;}
   @keyframes rvAttn{
     0%,100%{box-shadow:0 0 6px rgba(255,43,43,0.2); border-color:rgba(255,43,43,0.5);}
@@ -433,6 +453,7 @@
         <div class="stage-toggles" id="stageToggles">
           <button class="hzlabel" id="hzToggleBtn" aria-pressed="true" title="Show or hide the habitable-zone rings (H)">■ HABITABLE ZONE: ON</button>
           <button class="fs-btn attn" id="physicsBtn" aria-pressed="false" title="Realistic mode (R): every body pulls on every other one (N-body gravity) and distances are true to scale. OFF = idealized Kepler orbits.">⚛ REALISTIC MODE: OFF</button>
+          <button class="fs-btn" id="labelsBtn" aria-pressed="true" title="Show or hide the name labels on stars, planets and moons (L)">🏷 LABELS: ON</button>
           <span class="watermark">rameshverse.com</span>
           <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         </div>
@@ -450,6 +471,7 @@
         <span><kbd>SPACE</kbd> pause / resume</span>
         <span><kbd>R</kbd> realistic mode</span>
         <span><kbd>H</kbd> habitable zone</span>
+        <span><kbd>L</kbd> labels</span>
         <span><kbd>F</kbd> fullscreen</span>
         <span><kbd>ESC</kbd> exit fullscreen</span>
       </div>
@@ -1652,7 +1674,7 @@ openPlanetBtn.addEventListener('click', function(){
     var w = three.radius*0.16;
     lab.scale.set(w, w*0.255, 1);
     lab.position.set(mm.position.x, mm.position.y + mm.userData.size + w*0.3, mm.position.z);
-    lab.visible = mm.visible && three.radius < mm.userData.orbitExtent*14;
+    lab.visible = showLabels && mm.visible && three.radius < mm.userData.orbitExtent*14;
   }
 
   // idealized mode: Kepler orbit around the planet, riding along with it
@@ -1768,6 +1790,7 @@ openPlanetBtn.addEventListener('click', function(){
 
   // ================= HABITABLE-ZONE VISIBILITY + REALISTIC (N-BODY) MODE =================
   var showHZ = true;          // habitable-zone rings on by default
+  var showLabels = true;      // name labels on stars, planets and moons (on by default)
   var realisticMode = false;  // OFF = idealized Kepler orbits (the original behaviour)
   // In realistic mode distances are TRUE: scene units = AU x distK (distK is chosen so the whole
   // system fits the opening view). Otherwise the stylized log/sqrt distance scale is used.
@@ -2296,45 +2319,153 @@ openPlanetBtn.addEventListener('click', function(){
     tex.wrapS = THREE.RepeatWrapping;
     return tex;
   }
-  
-  function makeStarTexture(){
-  var W = 512, H = 256;
-  var c = document.createElement('canvas'); c.width=W; c.height=H;
-  var tctx = c.getContext('2d');
-  tctx.fillStyle = '#fff3dc'; tctx.fillRect(0,0,W,H);
 
-  function paintBlob(x, y, r, c0, c1){
-    // paint at the original position AND at ±W offset — whichever copies
-    // actually land near the canvas get a proper, correctly-centered gradient
-    [x, x-W, x+W].forEach(function(px){
-      if (px + r < 0 || px - r > W) return; // fully off-canvas, skip
-      var g = tctx.createRadialGradient(px, y, 0, px, y, r);
-      g.addColorStop(0, c0);
-      g.addColorStop(1, c1);
-      tctx.fillStyle = g;
-      tctx.fillRect(px-r, y-r, r*2, r*2);
+  // ---- realistic star surface ----
+  // Built once per variant on a sphere-wide 3D noise field (so it has no seam and no pinching at the poles):
+  //   granulation  = convection cells: bright centers, dark lanes between them, each cell a little different
+  //   mottling     = slow large-scale brightness patches
+  //   starspots    = a few dark spots with a lighter rim, drawn on top
+  // The shader adds limb darkening (the edge of the disc is dimmer and redder than the center).
+  function starHash(x, y, z, s){
+    var h = Math.imul(x, 73856093) ^ Math.imul(y, 19349663) ^ Math.imul(z, 83492791) ^ Math.imul(s, 2654435761);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  function starVNoise(x, y, z, s){
+    var xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+    var fx = x - xi, fy = y - yi, fz = z - zi;
+    fx = fx*fx*(3 - 2*fx); fy = fy*fy*(3 - 2*fy); fz = fz*fz*(3 - 2*fz);
+    var a = starHash(xi, yi, zi, s),       b = starHash(xi+1, yi, zi, s),
+        c = starHash(xi, yi+1, zi, s),     d = starHash(xi+1, yi+1, zi, s),
+        e = starHash(xi, yi, zi+1, s),     f = starHash(xi+1, yi, zi+1, s),
+        g = starHash(xi, yi+1, zi+1, s),   h = starHash(xi+1, yi+1, zi+1, s);
+    var x1 = a + (b - a)*fx, x2 = c + (d - c)*fx, x3 = e + (f - e)*fx, x4 = g + (h - g)*fx;
+    var y1 = x1 + (x2 - x1)*fy, y2 = x3 + (x4 - x3)*fy;
+    return y1 + (y2 - y1)*fz;
+  }
+  var starCell = { f1:0, f2:0, id:0 };
+  function starWorley(x, y, z, s){
+    var xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+    var f1 = 9, f2 = 9, id = 0;
+    for (var k = -1; k <= 1; k++) for (var j = -1; j <= 1; j++) for (var i = -1; i <= 1; i++){
+      var cx = xi + i, cy = yi + j, cz = zi + k;
+      var dx = cx + starHash(cx, cy, cz, s)     - x;
+      var dy = cy + starHash(cx, cy, cz, s + 1) - y;
+      var dz = cz + starHash(cx, cy, cz, s + 2) - z;
+      var d = dx*dx + dy*dy + dz*dz;
+      if (d < f1){ f2 = f1; f1 = d; id = starHash(cx, cy, cz, s + 3); }
+      else if (d < f2) f2 = d;
+    }
+    starCell.f1 = Math.sqrt(f1); starCell.f2 = Math.sqrt(f2); starCell.id = id;
+  }
+  function smooth01(a, b, x){ var t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }
+
+  // returns RGBA pixels (W x H) of the surface, without spots
+  function starSurfacePixels(W, H, seed){
+    var px = new Uint8ClampedArray(W*H*4), FINE = 18, o = 0;
+    for (var y = 0; y < H; y++){
+      var lat = (0.5 - (y + 0.5)/H)*Math.PI, cl = Math.cos(lat), sl = Math.sin(lat);
+      for (var x = 0; x < W; x++){
+        var lon = ((x + 0.5)/W)*Math.PI*2;
+        var nx = cl*Math.cos(lon), ny = sl, nz = cl*Math.sin(lon);
+        starWorley(nx*FINE + seed*13.7, ny*FINE + seed*5.1, nz*FINE + seed*9.3, seed*7);
+        var edge   = starCell.f2 - starCell.f1;
+        var lane   = smooth01(0.0, 0.95, edge);                       // soft dark lanes between cells, 0 on a lane, 1 inside a cell
+        var core   = 1 - Math.min(1, starCell.f1*1.3);               // each cell is brightest in the middle
+        var gran   = Math.pow(lane, 0.8)*(0.4 + 0.6*core);
+        var cellV  = (0.96 + 0.08*starCell.id)*(0.94 + 0.12*starVNoise(nx*44 + seed, ny*44, nz*44, seed + 21));   // per-cell brightness plus fine grain                         // every cell has its own brightness
+        var mott   = 0.5*starVNoise(nx*4 + seed, ny*4, nz*4, seed + 11) + 0.3*starVNoise(nx*9, ny*9 + seed, nz*9, seed + 12) + 0.2*starVNoise(nx*18, ny*18, nz*18 + seed, seed + 13);
+        var v = (0.68 + 0.32*gran)*cellV*(0.9 + 0.2*mott);
+        var g8 = Math.min(255, 255*v*1.4);                           // grey on purpose: the star's color is applied in the shader
+        px[o++] = g8;
+        px[o++] = g8;
+        px[o++] = g8;
+        px[o++] = 255;
+      }
+    }
+    return px;
+  }
+
+  var starTexCache = [];
+  function makeStarTexture(variant){
+    var key = variant % 2;
+    if (starTexCache[key]) return starTexCache[key];
+    var W = 1024, H = 512, rnd = (function(s){ return function(){ s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s/4294967296; }; })(1234 + key*777);
+    var c = document.createElement('canvas'); c.width = W; c.height = H;
+    var tctx = c.getContext('2d');
+    var img = tctx.createImageData(W, H);
+    img.data.set(starSurfacePixels(W, H, key + 1));
+    tctx.putImageData(img, 0, 0);
+
+    // starspots: dark core, softer rim, stretched sideways near the poles so they stay round on the sphere
+    function spot(x, y, r){
+      var lat = (0.5 - y/H)*Math.PI, stretch = 1/Math.max(0.35, Math.cos(lat));
+      [x - W, x, x + W].forEach(function(px){
+        if (px + r*stretch*2 < 0 || px - r*stretch*2 > W) return;
+        tctx.save();
+        tctx.translate(px, y); tctx.scale(stretch, 1);
+        var pen = tctx.createRadialGradient(0, 0, r*0.5, 0, 0, r*1.9);
+        pen.addColorStop(0, 'rgba(70,70,70,0.55)'); pen.addColorStop(0.6, 'rgba(110,110,110,0.3)'); pen.addColorStop(1, 'rgba(110,110,110,0)');
+        tctx.fillStyle = pen; tctx.beginPath(); tctx.arc(0, 0, r*1.9, 0, Math.PI*2); tctx.fill();
+        var umb = tctx.createRadialGradient(0, 0, 0, 0, 0, r*0.9);
+        umb.addColorStop(0, 'rgba(30,30,30,0.8)'); umb.addColorStop(0.7, 'rgba(45,45,45,0.65)'); umb.addColorStop(1, 'rgba(45,45,45,0)');
+        tctx.fillStyle = umb; tctx.beginPath(); tctx.arc(0, 0, r*0.9, 0, Math.PI*2); tctx.fill();
+        var fac = tctx.createRadialGradient(0, 0, r*1.9, 0, 0, r*3.4);   // bright faculae ring around the group
+        fac.addColorStop(0, 'rgba(255,255,255,0)'); fac.addColorStop(0.4, 'rgba(255,255,255,0.14)'); fac.addColorStop(1, 'rgba(255,255,255,0)');
+        tctx.fillStyle = fac; tctx.beginPath(); tctx.arc(0, 0, r*3.4, 0, Math.PI*2); tctx.fill();
+        tctx.restore();
+      });
+    }
+    for (var g = 0; g < 3; g++){
+      var gx = rnd()*W, gy = H*(0.5 + (rnd() < 0.5 ? -1 : 1)*(0.12 + rnd()*0.2));   // active belts at mid latitudes
+      var n = 1 + Math.floor(rnd()*2);
+      for (var k = 0; k < n; k++) spot(gx + (rnd() - 0.5)*50, gy + (rnd() - 0.5)*22, 4 + rnd()*6);
+    }
+
+    var tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+    tex.generateMipmaps = true;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.anisotropy = 4;
+    tex._shared = true;      // shared between rebuilds: never disposed with the scene
+    starTexCache[key] = tex;
+    return tex;
+  }
+
+  // star surface material: the grey texture is turned into emitted light in the star's own color.
+  // Bright granule cores run hotter (toward white), the surface shimmers slowly, the edge of the disc is
+  // darker (limb darkening) with a thin bright rim, so the star reads as a glowing ball, not a painted one.
+  function makeStarMaterial(starColor, variant){
+    return new THREE.ShaderMaterial({
+      uniforms:{ map:{value:makeStarTexture(variant)}, tint:{value:new THREE.Color(starColor)}, time:{value:0} },
+      vertexShader:
+        'varying vec2 vUv; varying vec3 vN; varying vec3 vV;\n' +
+        'void main(){\n' +
+        '  vUv = uv;\n' +
+        '  vN = normalize(normalMatrix*normal);\n' +
+        '  vec4 mv = modelViewMatrix*vec4(position,1.0);\n' +
+        '  vV = -mv.xyz;\n' +
+        '  gl_Position = projectionMatrix*mv;\n' +
+        '}',
+      fragmentShader:
+        'uniform sampler2D map; uniform vec3 tint; uniform float time;\n' +
+        'varying vec2 vUv; varying vec3 vN; varying vec3 vV;\n' +
+        'void main(){\n' +
+        '  float L = texture2D(map, vUv).r;\n' +
+        '  float fl = texture2D(map, vUv*3.0 + vec2(time*0.004, time*0.0025)).r;\n' +
+        '  L *= 1.0 + 0.16*(fl - 0.5)*sin(time*1.1 + fl*18.0);\n' +                     // cells slowly brighten and fade
+        '  vec3 c = tint*L*1.3;\n' +                                                      // emitted light, brighter than the plain texture
+        '  c = mix(c, vec3(1.0), smoothstep(0.75, 1.1, L)*0.5);\n' +                      // hottest cores glow toward white
+        '  float mu = clamp(dot(normalize(vN), normalize(vV)), 0.0, 1.0);\n' +
+        '  float limb = 1.0 - 0.45*(1.0 - mu);\n' +                                       // edge of the disc is dimmer...
+        '  c *= limb*vec3(1.0, mix(0.9, 1.0, mu), mix(0.78, 1.0, mu));\n' +                // ...and a little redder
+        '  c += tint*pow(1.0 - mu, 5.0)*0.4;\n' +                                         // thin bright rim
+        '  gl_FragColor = vec4(c, 1.0);\n' +
+        '}'
     });
   }
-
-  for (var i=0;i<110;i++){
-    var x = Math.random()*W, y = Math.random()*H, r = 18+Math.random()*46;
-    var v = 175 + Math.random()*80;
-    var c0 = 'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0.4)';
-    var c1 = 'rgba('+v+','+Math.round(v*0.94)+','+Math.round(v*0.78)+',0)';
-    paintBlob(x, y, r, c0, c1);
-  }
-  for (var j=0;j<6;j++){
-    var sx = Math.random()*W, sy = Math.random()*H, sr = 12+Math.random()*20;
-    paintBlob(sx, sy, sr, 'rgba(140,80,45,0.3)', 'rgba(140,80,45,0)');
-  }
-
-  var tex = new THREE.CanvasTexture(c);
-  tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
-  tex.generateMipmaps = false;
-  tex.minFilter = THREE.LinearFilter;
-  tex.magFilter = THREE.LinearFilter;
-  return tex;
-}
 
   function makePlanetTexture(typeId, baseHex){
     var c = document.createElement('canvas'); c.width=256; c.height=128;
@@ -2793,7 +2924,7 @@ function handleStageClick(e){
       var starGeo = new THREE.SphereGeometry(0.4, 28, 28);
       var starMat = isBH
         ? new THREE.MeshBasicMaterial({color:0x000000})
-        : new THREE.MeshBasicMaterial({color:starColor, map:makeStarTexture()});
+        : makeStarMaterial(starColor, idx);
       var starMesh = new THREE.Mesh(starGeo, starMat);
       starMesh.scale.setScalar(starScale/0.4);
       starMesh.userData.size = isBH ? starScale*2.5 : starScale;
@@ -3039,6 +3170,17 @@ function handleStageClick(e){
 
     updateMoons();
     updateSwallowMarks();
+    three.starObjs.forEach(function(so){
+      var u = so.mesh.material.uniforms;
+      if (u && u.time) u.time.value = t*6;
+    });
+
+    // name labels: one switch for stars and planets (moon labels are handled in placeMoonLabel)
+    three.starObjs.forEach(function(so){ if (so.fx && so.fx.label) so.fx.label.visible = showLabels; });
+    three.planetLabels.forEach(function(l, i){
+      var pm = three.planetMeshes[i];
+      if (l && pm) l.visible = showLabels && pm.visible && !pm.userData.dead;
+    });
 
     // 2) where the camera looks: the focused body (or free target), plus a decaying offset
     //    that turns a focus change into a smooth glide instead of a jump
@@ -3170,7 +3312,26 @@ function handleStageClick(e){
   // ---- autosave: the system is kept in this browser, so a reload or an accidental close doesn't lose it ----
   var AUTOSAVE_KEY = 'rv-star-system-creator-v1';
   var autosaveTimer = null;
+  // RESET SYSTEM is only usable when the system differs from the empty default
+  function systemIsChanged(){
+    var p = stars[0];
+    return stars.length > 1 || planets.length > 0 || moons.length > 0 ||
+      systemNameInput.value.trim() !== '' ||
+      p.name !== 'Primary' || p.cls !== 'G' || p.M !== 1 || p.R !== 1 || p.T !== 5778;
+  }
+  function updateResetState(){
+    var changed = systemIsChanged();
+    resetSystemBtn.disabled = !changed;
+    resetSystemBtn.title = changed ? 'Clear everything and start a new system' : 'Nothing to reset yet — the system is still in its default state';
+    if (!changed && resetArmed){
+      clearTimeout(resetArmTimer);
+      resetArmed = false;
+      resetSystemBtn.textContent = '\u21ba RESET SYSTEM';
+      resetSystemBtn.classList.remove('armed');
+    }
+  }
   function scheduleAutosave(){
+    updateResetState();
     clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout(function(){
       try { localStorage.setItem(AUTOSAVE_KEY, serializeSystem()); } catch(err){}   // private mode / storage full: just skip
@@ -3332,15 +3493,18 @@ function handleStageClick(e){
     if (!resetArmed){
       resetArmed = true;
       resetSystemBtn.textContent = '⚠ CLICK TO CONFIRM';
+      resetSystemBtn.classList.add('armed');
       resetArmTimer = setTimeout(function(){
         resetArmed = false;
         resetSystemBtn.textContent = '↺ RESET SYSTEM';
+        resetSystemBtn.classList.remove('armed');
       }, 3000);
       return;
     }
     clearTimeout(resetArmTimer);
     resetArmed = false;
     resetSystemBtn.textContent = '↺ RESET SYSTEM';
+    resetSystemBtn.classList.remove('armed');
     loadSystemFromData({ systemName:'', stars:[{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }], planets:[] });
 presetSelect.options[0].textContent = '— LOAD SYSTEM PRESET —';
 presetSelect.value = '';
@@ -3398,6 +3562,15 @@ showSysStatus('System reset.');
     hzToggleBtn.setAttribute('aria-pressed', showHZ ? 'true' : 'false');
     hzToggleBtn.textContent = showHZ ? '■ HABITABLE ZONE: ON' : '□ HABITABLE ZONE: OFF';
     applyHZVisibility();
+  });
+
+  // ---- name labels on/off (on by default) ----
+  var labelsBtn = document.getElementById('labelsBtn');
+  labelsBtn.addEventListener('click', function(){
+    showLabels = !showLabels;
+    labelsBtn.classList.toggle('off', !showLabels);
+    labelsBtn.setAttribute('aria-pressed', showLabels ? 'true' : 'false');
+    labelsBtn.textContent = showLabels ? '🏷 LABELS: ON' : '🏷 LABELS: OFF';
   });
 
   // ---- speed slider ----
@@ -3467,6 +3640,7 @@ showSysStatus('System reset.');
     }
     else if (k === 'r' || k === 'R') physicsBtn.click();
     else if (k === 'h' || k === 'H') hzToggleBtn.click();
+    else if (k === 'l' || k === 'L') labelsBtn.click();
     else if (k === 'f' || k === 'F') fsBtn.click();
   });
 
