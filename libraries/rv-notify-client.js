@@ -2,6 +2,11 @@
 // Include it on any tool's page with:
 //   <script src="/libraries/rv-notify-client.js"></script>
 // then use window.RVNotify from that tool's own script.
+//
+// LANES: scheduleNotifications() and cancelNotifications() take an optional lane name.
+// Without one they use the original lane (Timer, Pomodoro Focus, Focus Timer, unchanged).
+// A tool that passes its own lane (the homepage notes use 'notes') never replaces or
+// cancels another tool's reminders. Needs the rv-notify worker that understands ?ch=.
 
 (function (window) {
   // ⚠️ Replace with your deployed Worker URL after `wrangler deploy`.
@@ -23,6 +28,11 @@
     const output = new Uint8Array(rawData.length);
     for (let i = 0; i < rawData.length; i++) output[i] = rawData.charCodeAt(i);
     return output;
+  }
+
+  // "?id=<visitor>" plus "&ch=<lane>" when a lane is given
+  function query(channel) {
+    return '?id=' + encodeURIComponent(getVisitorId()) + (channel ? '&ch=' + encodeURIComponent(channel) : '');
   }
 
   // Registers the service worker and subscribes for push, asking permission
@@ -56,7 +66,7 @@
     // Always (re)send the subscription to the server — cheap and idempotent.
     // Guarantees the Durable Object actually has it, even if the browser
     // already had a cached subscription from before this endpoint existed.
-    const subRes = await fetch(RV_NOTIFY_ENDPOINT + '/subscribe?id=' + encodeURIComponent(getVisitorId()), {
+    const subRes = await fetch(RV_NOTIFY_ENDPOINT + '/subscribe' + query(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subscription: sub })
@@ -67,14 +77,15 @@
   }
 
   // notifications: [{ delayMs, title, body, tag }]
-  // Replaces any previously scheduled (not-yet-fired) notifications for this visitor.
-  async function scheduleNotifications(notifications) {
+  // Replaces any previously scheduled (not-yet-fired) notifications in the same lane
+  // (the original lane when no channel is given). Other lanes are left alone.
+  async function scheduleNotifications(notifications, channel) {
     const now = Date.now();
     const payload = notifications.map(function (n) {
       return { fireAt: now + n.delayMs, title: n.title, body: n.body, tag: n.tag };
     });
 
-    const res = await fetch(RV_NOTIFY_ENDPOINT + '/schedule?id=' + encodeURIComponent(getVisitorId()), {
+    const res = await fetch(RV_NOTIFY_ENDPOINT + '/schedule' + query(channel), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notifications: payload })
@@ -82,8 +93,9 @@
     if (!res.ok) throw new Error('/schedule failed: ' + res.status);
   }
 
-  async function cancelNotifications() {
-    await fetch(RV_NOTIFY_ENDPOINT + '/cancel?id=' + encodeURIComponent(getVisitorId()), {
+  // Cancels the not-yet-fired notifications of one lane only.
+  async function cancelNotifications(channel) {
+    await fetch(RV_NOTIFY_ENDPOINT + '/cancel' + query(channel), {
       method: 'POST'
     });
   }

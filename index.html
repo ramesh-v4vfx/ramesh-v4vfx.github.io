@@ -2785,6 +2785,294 @@
   .fav-tools,
   .fav-tools-launch { order: 4; }   /* with Most Popular, below the tools; earlier in the page so it comes first */
 }
+
+/* ══════════════════════════════════════════════════════
+   TODAY'S NOTES — button at the top right + small panel
+   A note belongs to the day it was written. It is reminded every
+   hour until it is crossed out. Crossing out never removes it at
+   once: it is removed the next day. A note that was never crossed
+   out moves to Unfinished Business the next day.
+   ══════════════════════════════════════════════════════ */
+.notes-fab {
+  position: fixed;
+  top: 5px;
+  right: 12px;
+  z-index: 2100;
+  height: 28px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 8px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.92), rgba(12,12,13,0.92));
+  border: 1px solid rgba(255,43,43,0.35);
+  border-radius: 0;
+  clip-path: polygon(9px 0, 100% 0, 100% 100%, 0 100%, 0 9px);
+  box-shadow: 0 0 18px rgba(255,43,43,0.12);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+}
+
+.notes-fab:hover,
+.notes-fab:focus-visible,
+.notes-fab[aria-expanded="true"] {
+  background: rgba(255,43,43,0.14);
+  border-color: rgba(255,43,43,0.7);
+  color: #fff;
+}
+
+.notes-fab-badge {
+  min-width: 16px;
+  padding: 0 4px;
+  font-size: 0.62rem;
+  line-height: 16px;
+  text-align: center;
+  color: #0e0101;
+  text-shadow: none;
+  background: #ff2b2b;
+  box-shadow: 0 0 8px rgba(255,43,43,0.7);
+}
+
+.notes-panel {
+  position: fixed;
+  top: 40px;
+  right: 12px;
+  z-index: 2100;
+  width: min(340px, calc(100vw - 24px));
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 16px 16px 14px 18px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  color: #d8d5da;
+  background: linear-gradient(180deg, rgba(27,29,27,0.96), rgba(12,12,13,0.96));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%, 0 22px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+}
+
+.notes-panel[hidden],
+.notes-toast[hidden],
+.notes-fab-badge[hidden] { display: none !important; }
+
+.notes-panel h3 {
+  margin: 0 0 2px;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+}
+
+.notes-date {
+  margin: 0;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.5);
+}
+
+.notes-form {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.notes-form input {
+  flex: 1;
+  min-width: 0;
+  background: #0e0e0f;
+  border: 1px solid rgba(255,43,43,0.2);
+  border-radius: 6px;
+  padding: 9px 10px;
+  color: #ff3b3b;
+  font-family: inherit;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.notes-form input::placeholder { color: rgba(255,43,43,0.6); }
+
+.notes-form input:focus {
+  border-color: #ff2b2b;
+  box-shadow: 0 0 0 3px rgba(255,43,43,.15);
+}
+
+.notes-add {
+  background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+  color: #ff2b2b;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(255,43,43,0.4);
+  border-radius: 6px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow .2s ease;
+}
+
+.notes-add:hover,
+.notes-add:focus-visible { box-shadow: inset 0 0 0 1px rgba(255,43,43,0.75), 0 0 14px rgba(255,43,43,0.3); }
+
+#notesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notes-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,43,43,0.12);
+  border-radius: 4px;
+}
+
+.notes-text {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
+  overflow-wrap: anywhere;
+}
+
+/* crossed out: still on screen, struck through, until tomorrow */
+.notes-item.is-done .notes-text {
+  text-decoration: line-through;
+  text-decoration-color: #ff2b2b;
+  opacity: 0.45;
+}
+
+.notes-x,
+.notes-toast-x {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255,43,43,0.4);
+  border-radius: 0;
+  background: rgba(0,0,0,.5);
+  color: #ff2b2b;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .2s, box-shadow .2s;
+}
+
+.notes-x:hover,
+.notes-x:focus-visible,
+.notes-toast-x:hover,
+.notes-toast-x:focus-visible {
+  background: rgba(255,43,43,.15);
+  box-shadow: 0 0 12px rgba(255,43,43,.5);
+}
+
+.notes-empty {
+  padding: 8px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.45);
+}
+
+.notes-hint {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255,43,43,0.15);
+  font-size: 0.6rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.55);
+  white-space: pre-line;
+}
+
+/* hourly reminder shown on the page itself */
+.notes-toast {
+  position: fixed;
+  top: 40px;
+  right: 12px;
+  z-index: 2200;
+  width: min(320px, calc(100vw - 24px));
+  padding: 12px 44px 12px 14px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(40,10,10,0.97), rgba(14,2,2,0.97));
+  border: 1px solid #ff2b2b;
+  box-shadow: 0 0 24px rgba(255,43,43,.35), 0 14px 34px rgba(0,0,0,.55);
+  cursor: pointer;
+  animation: notesToastIn .35s ease;
+}
+
+.notes-toast strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+}
+
+.notes-toast-body {
+  display: block;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.notes-toast-x {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+@keyframes notesToastIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notes-toast { animation: none; }
+}
+
+/* the banner's × button moves down a little so the NOTES button has the top-right corner */
+.hero-close { top: 44px; }
+
+/* Unfinished Business: notes from earlier days can be clicked to cross them out */
+.unf-item.unf-note { cursor: pointer; transition: color .2s ease; }
+.unf-item.unf-note::after { content: " ✕"; color: rgba(255,43,43,0.75); }
+.unf-item.unf-note:hover,
+.unf-item.unf-note:focus-visible {
+  color: #fff;
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,43,43,0.8);
+}
+.unf-item.unf-note:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
+
+@media (max-width: 700px) {
+  .notes-fab-label { display: none; }
+  .notes-fab { padding: 0 10px; }
+  .notes-form input { font-size: 16px; }   /* 16px stops iPhones zooming in when the box is focused */
+  /* phones: the first block of the page starts below the button instead of behind it */
+  body::before { content: ""; display: block; flex: none; order: -1; height: 34px; }
+}
 </style>
 </head>
 <body>
@@ -3522,6 +3810,26 @@
 </div>
 
 <div id="systemLogTicker" aria-hidden="true"></div>
+
+<!-- TODAY'S NOTES: button (top right), panel and reminder toast. The logic is in the "TODAY'S NOTES" script near the bottom of the page. -->
+<button type="button" class="notes-fab" id="notesFab" aria-expanded="false" aria-controls="notesPanel" title="Today's notes">
+  <span aria-hidden="true">📝</span><span class="notes-fab-label">Notes</span><b class="notes-fab-badge" id="notesBadge" hidden>0</b>
+</button>
+<section class="notes-panel" id="notesPanel" aria-label="Today's notes" hidden>
+  <h3>📝 Today's Notes</h3>
+  <p class="notes-date" id="notesDate"></p>
+  <form class="notes-form" id="notesForm" autocomplete="off">
+    <input type="text" id="notesInput" maxlength="160" placeholder="Note for today…" aria-label="New note">
+    <button type="submit" class="notes-add">Add</button>
+  </form>
+  <ul id="notesList"></ul>
+  <p class="notes-hint" id="notesHint"></p>
+</section>
+<div class="notes-toast" id="notesToast" role="status" aria-live="polite" hidden>
+  <button type="button" class="notes-toast-x" id="notesToastX" aria-label="Dismiss reminder">×</button>
+  <strong id="notesToastTitle"></strong>
+  <span class="notes-toast-body" id="notesToastBody"></span>
+</div>
 
 <script>
   /* ── HERO SLIDESHOW ── */
@@ -4991,6 +5299,344 @@
   })();
 </script>
 
+<script src="/libraries/rv-notify-client.js"></script>
+<script>
+  /* ── TODAY'S NOTES ──
+     A small notepad for the day, opened from the NOTES button at the top right.
+       • Click the button, type a message, press Enter: the note is saved and you are
+         reminded every hour until it is crossed out.
+       • ✕ crosses a note out. It stays on screen, struck through (↺ brings it back),
+         and is removed the NEXT day, not at once.
+       • A note works for the day it was written. If it was never crossed out it goes
+         obsolete at midnight and moves to Unfinished Business, where a click on it
+         crosses it out.
+     Stored only in this browser (localStorage key "rvDailyNotes"); nothing is sent anywhere.
+
+     REMINDERS: the page checks every 30 seconds whether one is due (pop-up on the page, plus a
+     browser notification when push is not available). When notifications are allowed, the
+     hourly reminders for the rest of the day are ALSO handed to the shared rv-notify worker
+     (rv-notify-client.js), which sends them as Web Push even with the page closed or the
+     phone locked. The notes use their own lane ('notes') on that worker, so they never
+     replace or cancel the reminders of Pomodoro Focus, Timer or Focus Timer. The queue is
+     rebuilt on every change (add, cross out, bring back, midnight) and cancelled when no
+     note is left open. When the page is opened an hour or more after the last reminder it
+     shows straight away. */
+  (function () {
+    const KEY  = 'rvDailyNotes';   // [{ id, text, day:'YYYY-MM-DD', created, remind, done, doneDay }]
+    const HOUR = 60 * 60 * 1000;
+    const TICK = 30 * 1000;
+    const MAX_LEN = 160;
+    const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+    const $ = id => document.getElementById(id);
+    const fab = $('notesFab'), badge = $('notesBadge'), panel = $('notesPanel'),
+          dateEl = $('notesDate'), form = $('notesForm'), input = $('notesInput'),
+          listEl = $('notesList'), hintEl = $('notesHint'), toast = $('notesToast'),
+          toastX = $('notesToastX'), toastTitle = $('notesToastTitle'), toastBody = $('notesToastBody');
+    if (!fab || !badge || !panel || !dateEl || !form || !input || !listEl || !hintEl ||
+        !toast || !toastX || !toastTitle || !toastBody) return;
+
+    function el(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;     // textContent only: note text is never parsed as HTML
+      return n;
+    }
+
+    /* ── days (the visitor's own local calendar day) ── */
+    const pad = n => String(n).padStart(2, '0');
+    function dayKey(d) {
+      d = d || new Date();
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+    function dayDate(k) { const p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+    function dayLabel(k) {
+      const now = new Date();
+      const diff = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - dayDate(k)) / 86400000);
+      if (diff === 1) return 'Yesterday';
+      return dayDate(k).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+
+    /* ── storage ── */
+    let storageOk = true;
+    function load() {
+      let raw;
+      try { raw = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { raw = []; }
+      if (!Array.isArray(raw)) return [];
+      const out = [];
+      raw.forEach(n => {
+        if (!n || typeof n.id !== 'string' || typeof n.text !== 'string' || !n.text.trim() || !DAY_RE.test(n.day)) return;
+        const created = Number.isFinite(n.created) ? n.created : Date.now();
+        out.push({
+          id: n.id,
+          text: n.text,
+          day: n.day,
+          created: created,
+          remind: Number.isFinite(n.remind) ? n.remind : created,   // when the last reminder was given
+          done: !!n.done,
+          doneDay: n.done ? (DAY_RE.test(n.doneDay) ? n.doneDay : n.day) : null   // the day it was crossed out
+        });
+      });
+      return out;
+    }
+    function save(notes) {
+      try { localStorage.setItem(KEY, JSON.stringify(notes)); storageOk = true; return true; }
+      catch (e) { storageOk = false; return false; }
+    }
+    // Crossed-out notes are removed the day AFTER they were crossed out
+    function loadFresh() {
+      const notes = load(), today = dayKey();
+      const kept = notes.filter(n => !(n.done && n.doneDay < today));
+      if (kept.length !== notes.length) { save(kept); return kept; }
+      return notes;
+    }
+
+    /* ── actions ── */
+    function refreshUnfinished() {
+      if (window.RVUnfinished && window.RVUnfinished.refresh) window.RVUnfinished.refresh();
+    }
+    function changed() { render(); refreshUnfinished(); syncPush(); }
+
+    function add(text) {
+      text = String(text).replace(/\s+/g, ' ').trim().slice(0, MAX_LEN);
+      if (!text) return;
+      const notes = loadFresh(), now = Date.now();
+      notes.push({
+        id: now.toString(36) + Math.random().toString(36).slice(2, 7),
+        text: text, day: dayKey(), created: now, remind: now, done: false, doneDay: null
+      });
+      save(notes);
+      askPermission().then(syncPush);     // asked inside the click / Enter that added the note, which browsers require
+      changed();
+    }
+
+    function setDone(id, done) {
+      const notes = loadFresh();
+      const n = notes.find(x => x.id === id);
+      if (!n) return;
+      n.done = done;
+      n.doneDay = done ? dayKey() : null;
+      if (!done) n.remind = Date.now();     // brought back: the next reminder is an hour from now
+      save(notes);
+      changed();
+    }
+
+    // Notes from earlier days that were never crossed out, for the Unfinished Business panel
+    function carried() {
+      const today = dayKey();
+      return loadFresh()
+        .filter(n => !n.done && n.day < today)
+        .sort((a, b) => a.created - b.created)
+        .map(n => ({
+          text: dayLabel(n.day) + ' · ' + n.text,
+          title: 'Click to cross it out (it disappears tomorrow)',
+          onClick: function () { setDone(n.id, true); }
+        }));
+    }
+
+    /* ── panel ── */
+    function renderHint() {
+      let msg;
+      if (!storageOk) msg = 'This browser is not letting the page save notes.';
+      else if (!('Notification' in window)) msg = 'This browser cannot show notifications, so reminders pop up on this page only.';
+      else if (Notification.permission === 'granted') msg = pushOn
+        ? 'You get a reminder every hour, even when this page is closed.'
+        : 'You get a reminder every hour while rameshverse is open in your browser.';
+      else if (Notification.permission === 'denied') msg = 'Notifications are blocked for this site, so reminders pop up on this page only.';
+      else msg = 'Allow notifications when your browser asks, so the hourly reminders can reach you.';
+      hintEl.textContent = msg + '\nCrossed-out notes disappear tomorrow. Notes you do not cross out move to Unfinished Business.';
+    }
+
+    function render() {
+      const today = dayKey();
+      const notes = loadFresh().filter(n => n.day === today).sort((a, b) => a.created - b.created);
+      const openCount = notes.filter(n => !n.done).length;
+
+      dateEl.textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+      badge.textContent = String(openCount);
+      badge.hidden = openCount === 0;
+      fab.setAttribute('aria-label', "Today's notes" + (openCount ? ', ' + openCount + ' open' : ''));
+
+      listEl.textContent = '';
+      if (!notes.length) listEl.appendChild(el('li', 'notes-empty', 'Nothing noted for today yet.'));
+      notes.forEach(n => {
+        const li = el('li', 'notes-item' + (n.done ? ' is-done' : ''));
+        const btn = el('button', 'notes-x', n.done ? '↺' : '✕');
+        btn.type = 'button';
+        btn.title = n.done ? 'Bring it back' : 'Done: cross it out (it disappears tomorrow)';
+        btn.setAttribute('aria-label', (n.done ? 'Bring back: ' : 'Cross out: ') + n.text);
+        btn.addEventListener('click', function () { setDone(n.id, !n.done); });
+        li.append(el('span', 'notes-text', n.text), btn);
+        listEl.appendChild(li);
+      });
+      renderHint();
+    }
+
+    function openPanel() {
+      hideToast();
+      panel.hidden = false;
+      fab.setAttribute('aria-expanded', 'true');
+      render();
+      input.focus({ preventScroll: true });
+    }
+    function closePanel() {
+      panel.hidden = true;
+      fab.setAttribute('aria-expanded', 'false');
+    }
+
+    fab.addEventListener('click', function () { if (panel.hidden) openPanel(); else closePanel(); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      add(input.value);
+      input.value = '';
+      input.focus({ preventScroll: true });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (!panel.hidden) { closePanel(); fab.focus({ preventScroll: true }); }
+      else hideToast();
+    });
+    document.addEventListener('click', function (e) {
+      const path = e.composedPath ? e.composedPath() : [];   // the path as it was when clicked, even if a button was redrawn since
+      const link = e.target.closest && e.target.closest('a[href="#notes"]');   // the heading in Unfinished Business
+      if (link) { e.preventDefault(); openPanel(); return; }
+      if (!panel.hidden && path.indexOf(panel) < 0 && path.indexOf(fab) < 0 && path.indexOf(toast) < 0) closePanel();
+    });
+
+    /* ── reminders ── */
+    // Resolves once the visitor has answered (or straight away if there is nothing to ask)
+    function askPermission() {
+      return new Promise(function (resolve) {
+        if (!('Notification' in window) || Notification.permission !== 'default') { resolve(); return; }
+        const done = function () { renderHint(); resolve(); };
+        try {
+          const p = Notification.requestPermission(done);   // older Safari uses the callback
+          if (p && p.then) p.then(done, done);
+        } catch (e) { resolve(); }
+      });
+    }
+
+    function showToast(title, lines) {
+      toastTitle.textContent = title;
+      toastBody.textContent = lines.join('\n');
+      toast.hidden = false;
+    }
+    function hideToast() { toast.hidden = true; }
+    toastX.addEventListener('click', function (e) { e.stopPropagation(); hideToast(); });
+    toast.addEventListener('click', openPanel);
+
+    function systemNotify(title, body) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const opts = { body: body, tag: 'rv-daily-notes', renotify: true, icon: '/icons/apple-touch-icon.png' };
+      try {
+        const n = new Notification(title, opts);
+        n.onclick = function () { window.focus(); openPanel(); n.close(); };
+      } catch (e) {
+        // Android Chrome only shows notifications through the service worker
+        try {
+          navigator.serviceWorker.getRegistration()
+            .then(function (reg) { if (reg && reg.showNotification) reg.showNotification(title, opts); })
+            .catch(function () { /* ignore */ });
+        } catch (e2) { /* ignore */ }
+      }
+    }
+
+    // What a reminder says: every note still open
+    function digest(open) {
+      return {
+        title: open.length === 1 ? '⏰ Note reminder' : '⏰ ' + open.length + ' notes still open',
+        lines: open.map(n => open.length === 1 ? n.text : '• ' + n.text)
+      };
+    }
+
+    /* ── reminders that arrive with the page closed: the shared rv-notify worker ──
+       The notes use their own lane there, so a running Pomodoro / Timer / Focus block is
+       never touched. Work is queued one request at a time so a slow one can't land last. */
+    const PUSH_LANE = 'notes';
+    const PUSH_FLAG = 'rvNotesPushQueued';      // '1' while the worker may hold notes reminders
+    let pushOn = false;                         // the worker holds this page's hourly reminders
+    let pushToken = 0;
+    let pushChain = Promise.resolve();
+
+    function setPushOn(on) { if (pushOn !== on) { pushOn = on; renderHint(); } }
+    function flag(v) { try { if (v) localStorage.setItem(PUSH_FLAG, '1'); else localStorage.removeItem(PUSH_FLAG); } catch (e) { /* ignore */ } }
+    function flagged() { try { return localStorage.getItem(PUSH_FLAG) === '1'; } catch (e) { return false; } }
+
+    // One reminder an hour from the next due time until midnight (a note only works for its own day)
+    function pushPlan() {
+      const now = Date.now(), today = dayKey();
+      const open = loadFresh().filter(n => !n.done && n.day === today).sort((a, b) => a.created - b.created);
+      if (!open.length) return [];
+      const end = new Date(); end.setHours(24, 0, 0, 0);
+      const d = digest(open), body = d.lines.join('\n').slice(0, 800);
+      let t = Math.max(Math.min.apply(null, open.map(n => n.remind)) + HOUR, now + 10000);
+      const plan = [];
+      for (let i = 0; t < end.getTime() && i < 24; i++, t += HOUR) {
+        plan.push({ delayMs: t - now, title: d.title, body: body, tag: 'rv-notes-' + i });   // a different tag each time, so every one alerts
+      }
+      return plan;
+    }
+
+    function runPush(token) {
+      if (token !== pushToken) return;          // a newer change is queued behind this one
+      const R = window.RVNotify;
+      if (!R || !('Notification' in window) || Notification.permission !== 'granted') { setPushOn(false); return; }
+      const plan = pushPlan();
+      if (!plan.length) {                       // nothing open: clear the worker's queue, but only if we ever filled it
+        setPushOn(false);
+        if (!flagged()) return;
+        return Promise.resolve(R.cancelNotifications(PUSH_LANE)).then(function () { flag(false); });
+      }
+      return Promise.resolve(R.ensurePushSubscription())
+        .then(function (sub) {
+          if (!sub) { setPushOn(false); return; }
+          return Promise.resolve(R.scheduleNotifications(plan, PUSH_LANE)).then(function () { flag(true); setPushOn(true); });
+        })
+        .catch(function (err) {
+          setPushOn(false);
+          console.log('[rv-notify] notes: ' + (err && err.message ? err.message : err));
+        });
+    }
+    function syncPush() {
+      const token = ++pushToken;
+      pushChain = pushChain.then(function () { return runPush(token); }).catch(function () { /* ignore */ });
+    }
+
+    // One reminder an hour for everything still open today. It fires when the oldest
+    // reminder is an hour old, and lists every open note.
+    let lastFire = 0;
+    function remindDue() {
+      const today = dayKey(), now = Date.now();
+      const notes = loadFresh();
+      const open = notes.filter(n => !n.done && n.day === today);
+      if (!open.length || !open.some(n => now - n.remind >= HOUR)) return;
+      if (now - lastFire < HOUR - TICK) return;      // safety net if storage refuses to save
+      lastFire = now;
+      open.forEach(n => { n.remind = now; });
+      save(notes);
+      const d = digest(open);
+      showToast(d.title, d.lines);
+      if (!pushOn) systemNotify(d.title, d.lines.join('\n'));   // with push on, the worker already sends the notification
+    }
+
+    let shownDay = dayKey();
+    function tick() {
+      if (dayKey() !== shownDay) { shownDay = dayKey(); changed(); }   // midnight: yesterday's open notes move to Unfinished Business
+      remindDue();
+    }
+    setInterval(tick, TICK);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
+    window.addEventListener('pageshow', function (e) { if (e.persisted) { render(); tick(); syncPush(); } });
+    window.addEventListener('storage', function (e) { if (e.key === KEY) render(); });   // another tab changed the notes
+
+    window.RVNotes = { carried: carried, open: openPanel, refresh: render };
+
+    render();
+    tick();
+    syncPush();      // after tick(), so a reminder that was overdue is already counted from now
+  })();
+</script>
+
 <script>
   /* ── UNFINISHED BUSINESS ──
      Shows, at the top of the right rail, what this visitor has left open:
@@ -5002,6 +5648,8 @@
          (read from localStorage key "rvActiveTimer", written by Timer)
        • a running or paused Focus Timer block, as a live countdown
          (read from localStorage key "rvActiveFocus", written by Focus Timer)
+       • notes from Today's Notes (the NOTES button, top right) that were never crossed out
+         and whose day has passed (key "rvDailyNotes"); a click on one crosses it out
        • the nearest upcoming Calendar event, plus anything else in the next 7 days
          (read from localStorage key "rvCalendarEvents"; repeats are expanded,
          each event shows once, at its next occurrence)
@@ -5243,6 +5891,13 @@
     const pct = f => Math.round(Math.min(1, Math.max(0, f)) * 100) + '%';
 
     const SOURCES = [
+      { label: 'Notes',
+        url: '#notes',     // the heading opens the NOTES panel (see Today's Notes)
+        // Notes from earlier days that were never crossed out. A click on one crosses it out.
+        read: function (src) {
+          const rows = window.RVNotes ? window.RVNotes.carried() : [];
+          return rows.length ? { src: src, total: rows.length, open: rows, countText: 'FROM EARLIER ›', noBar: true, showAll: true } : null;
+        } },
       { label: 'Pomodoro Focus',
         url: '/pomodoro-focus/',
         // Live source: returns its own view instead of reading a task list.
@@ -5465,10 +6120,21 @@
 
         const ul = el('ul', 'unf-items');
         if (r.note) ul.appendChild(el('li', 'unf-item unf-trip', r.note));
-        r.open.slice(0, SHOW_PER_TOOL).forEach(row => ul.appendChild(el('li', row.hot ? 'unf-item unf-trip' : 'unf-item', row.text)));
+        r.open.slice(0, r.showAll ? r.open.length : SHOW_PER_TOOL).forEach(row => {
+          const li = el('li', row.hot ? 'unf-item unf-trip' : 'unf-item', row.text);
+          if (row.onClick) {          // a row that can be clicked (notes from earlier days)
+            li.classList.add('unf-note');
+            li.tabIndex = 0;
+            li.setAttribute('role', 'button');
+            if (row.title) li.title = row.title;
+            li.addEventListener('click', row.onClick);
+            li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.onClick(); } });
+          }
+          ul.appendChild(li);
+        });
         group.appendChild(ul);
 
-        if (r.open.length > SHOW_PER_TOOL) {
+        if (r.open.length > SHOW_PER_TOOL && !r.showAll) {
           const more = el('a', 'unf-more', '+' + (r.open.length - SHOW_PER_TOOL) + ' more ›');
           more.href = r.src.url;
           group.appendChild(more);
