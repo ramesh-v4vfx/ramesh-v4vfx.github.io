@@ -3091,7 +3091,7 @@
     ×
 </button>
 
-  <button type="button" class="hero-show hero-hide" id="heroHide" title="Hide for now — it comes back on your next visit">
+  <button type="button" class="hero-show hero-hide" id="heroHide" title="Hide the banner — stays hidden on your next visit (use Show banner to bring it back)">
     <span aria-hidden="true">▴</span><span>Hide banner</span>
 </button>
 
@@ -3854,20 +3854,22 @@
     const CLOSED_KEY = 'rvHeroClosed';     // localStorage: '1' = the visitor closed the banner
     let closed = boot.closed;
 
-    // Two ways to put the banner away:
-    //   ×     close: remembered in this browser. Nothing is shown for the rest of this visit;
+    // Two ways to put the banner away. BOTH are remembered in this browser (localStorage);
+    // the only difference is the SHOW BANNER button:
+    //   ×     close: nothing is shown for the rest of this visit;
     //                later visits show only the SHOW BANNER button
-    //   HIDE  hide:  for this visit only (this tab), the banner is back on the next visit
+    //   HIDE  hide:  the SHOW BANNER button appears right away, and stays on later visits
     const heroHide = document.getElementById("heroHide");
-    const HIDDEN_KEY = 'rvHeroHidden';     // sessionStorage: '1' = hidden for this visit
+    const HIDDEN_KEY = 'rvHeroHidden';     // old sessionStorage flag, only cleaned up now
     function collapse(permanent) {
       track(permanent ? 'hero_close' : 'hero_hide');
       closed = true;
       hovering = false;
       clearTimeout(timer);
       try {
-        if (permanent) { localStorage.setItem(CLOSED_KEY, '1'); sessionStorage.setItem('rvHeroClosedNow', '1'); }
-        else sessionStorage.setItem(HIDDEN_KEY, '1');
+        localStorage.setItem(CLOSED_KEY, '1');           // remembered for future visits (both buttons)
+        if (permanent) sessionStorage.setItem('rvHeroClosedNow', '1');
+        else sessionStorage.removeItem('rvHeroClosedNow');
       } catch (e) { /* storage unavailable */ }
       hero.classList.add("hidden");
       if (permanent) {
