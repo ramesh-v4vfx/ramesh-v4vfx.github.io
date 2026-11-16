@@ -1473,7 +1473,7 @@
     right:16px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1700px) {
   .popular-tools {
     display: block !important;
     position: relative !important;
@@ -1532,7 +1532,7 @@
 .popular-tools-launch[hidden] { display: none !important; }
 .hero.hidden ~ .popular-tools-launch { top: 222px; }
 
-@media (max-width: 1200px) {
+@media (max-width: 1700px) {
   .popular-tools-launch {
     position: relative !important;
     left: auto !important;
@@ -1907,7 +1907,7 @@
   .category-radar-launch[hidden] { display: none !important; }
   .hero.hidden ~ .category-radar-launch { top: 222px; }
 
-  @media (max-width: 1200px) {
+  @media (max-width: 1700px) {
     .category-radar-launch {
       position: relative !important;
       right: auto !important;
@@ -1921,7 +1921,7 @@
 
   /* Same responsive collapse as the popular-tools panel: stack below
      the grid on narrower screens instead of floating beside it. */
-  @media (max-width: 1200px) {
+  @media (max-width: 1700px) {
     .category-radar {
       display: block !important;
       position: relative !important;
@@ -1960,7 +1960,7 @@
     .tool { opacity: 1; transform: none; transition: none; }
   }
 
-  @media (max-width: 1200px) {
+  @media (max-width: 1700px) {
   body {
     display: flex;
     flex-direction: column;
@@ -2253,7 +2253,7 @@
 
 /* Tablet / phone: the rail dissolves and its panels join the same
    stacked order as the other sections, right above System Distribution. */
-@media (max-width: 1200px) {
+@media (max-width: 1700px) {
   .right-rail { display: contents; }
 
   .recent-tools,
@@ -2491,7 +2491,7 @@
 .unfinished-panel.is-closed { display: none !important; }
 
 /* Tablet / phone: same stacked order as Recently Used, ahead of it */
-@media (max-width: 1200px) {
+@media (max-width: 1700px) {
   .unfinished-panel,
   .unfinished-launch {
     position: relative !important;
@@ -2579,7 +2579,7 @@
 }
 .hero .hero-hide:hover,
 .hero .hero-hide:focus-visible { color: #ff2b2b; text-shadow: 0 0 10px rgba(255,43,43,0.6); }
-@media (max-width: 1200px) { .hero-show { order: 1; } }
+@media (max-width: 1700px) { .hero-show { order: 1; } }
 /* phones: the banner (which keeps its own 24px top margin, open or closed) is below the tools */
 @media (max-width: 700px)  { .hero-show { order: 3; margin-top: 0; height: 40px; } .hero .hero-hide { top: 0; margin: 0; } }   /* phones: where the banner is, below the tools */
 
@@ -2767,7 +2767,7 @@
 .fav-tools.is-closed { display: none !important; }
 
 /* Tablet / phone: the rail dissolves; Favorites stacks right above Most Popular Tools */
-@media (max-width: 1200px) {
+@media (max-width: 1700px) {
   .left-rail { display: contents; }
 
   .fav-tools,
@@ -5202,7 +5202,7 @@
         if (v === '0') return false;
       } catch (e) { /* storage unavailable */ }
       // No saved choice: open on desktop, minimized on tablets/phones
-      return !!(window.matchMedia && window.matchMedia('(max-width: 1200px)').matches);
+      return !!(window.matchMedia && window.matchMedia('(max-width: 1700px)').matches);
     }
     function setCollapsed(on) {
       try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
@@ -6027,7 +6027,7 @@
       } catch (e) { /* storage unavailable */ }
       // No saved choice: open on desktop, minimized on tablets/phones so it
       // doesn't push the search bar down.
-      return window.matchMedia('(max-width: 1200px)').matches;
+      return window.matchMedia('(max-width: 1700px)').matches;
     }
     function setCollapsed(on) {
       try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
