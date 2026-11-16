@@ -14,31 +14,47 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Free cosmic unit converter. Convert between any pair of meters, kilometers, miles, Earth radii, Jupiter radii, solar radii, astronomical units (AU), light-years, megalight-years, gigalight-years, parsecs, kiloparsecs, megaparsecs, and gigaparsecs instantly.">
+<meta name="theme-color" content="#0e0101">
 
 <title>Cosmic Calculator — Astronomical Unit Converter | rameshverse</title>
 
 <link rel="canonical" href="https://rameshverse.com/cosmic-calculator">
 
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 
+  /* Stand-in for Space Mono while it loads (same trick as the homepage) */
+  @font-face {
+    font-family: 'Space Mono Fallback';
+    src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('Cousine'), local('Courier');
+    size-adjust: 102%;
+    ascent-override: 109.8%;
+    descent-override: 35.4%;
+    line-gap-override: 0%;
+  }
+
   :root {
-    --bg-panel: #0a0e1a;
-    --bg-panel-2: #0d1322;
-    --bg-well: #060911;
-    --accent-cyan: #4fd8ff;
-    --accent-cyan-dim: rgba(79, 216, 255, 0.35);
-    --accent-green: #39ff88;
-    --accent-red: #ff5f5f;
-    --border-line: rgba(79, 216, 255, 0.22);
-    --text-primary: #dbe6f5;
-    --text-dim: #6b84a3;
-    --mono: 'JetBrains Mono', monospace;
-    --display: 'Orbitron', sans-serif;
-    --ui: 'Rajdhani', sans-serif;
+    --bg: #0e0101;
+    --panel-a: #1b1b1d;
+    --panel-b: #0c0c0d;
+    --well: #070708;
+    --accent: #ff2b2b;
+    --accent-hot: #ff3b3b;
+    --accent-dim: rgba(255, 43, 43, 0.35);
+    --border-line: rgba(255, 43, 43, 0.22);
+    --text-primary: #d8d5da;
+    --text-dim: #9a9599;
+    --green: #25D366;
+    --amber: #ffb347;
+    --blue: #4da6ff;
+    --mono: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
   }
 
   * {
@@ -48,7 +64,10 @@
 
   html, body {
     margin: 0;
+    color-scheme: dark;
   }
+
+  html { background: var(--bg); overscroll-behavior: none; }
 
   .intro {
     font-family: var(--mono);
@@ -57,13 +76,12 @@
     color: var(--text-dim);
     text-align: center;
     letter-spacing: 0.3px;
-    margin: 0 0 22px;
+    margin: 0 0 6px;
   }
 
-  /* FIX: body no longer locks scrolling (overflow:hidden + 100vh used to
-     clip the panel on short screens, especially with History open). */
+  /* body does not lock scrolling, so the panel is never clipped on short screens */
   body {
-    font-family: var(--ui);
+    font-family: var(--mono);
     color: var(--text-primary);
     display: flex;
     justify-content: center;
@@ -72,10 +90,13 @@
     padding: 24px 12px;
     position: relative;
     overflow-x: hidden;
-    background:
-      radial-gradient(ellipse at 20% 15%, rgba(79,120,216,0.10), transparent 55%),
-      radial-gradient(ellipse at 85% 80%, rgba(150,79,216,0.08), transparent 55%),
-      linear-gradient(180deg, #03040a 0%, #070b16 55%, #04060d 100%);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.10), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(255,43,43,0.05), transparent 55%),
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: auto, auto, 34px 34px, 34px 34px;
     background-attachment: fixed;
   }
 
@@ -107,45 +128,56 @@
     .result { transition: none; }
   }
 
+  /* ── MAIN PANEL: same HUD card language as the homepage tool cards ── */
   .converter {
-    background: linear-gradient(155deg, var(--bg-panel) 0%, var(--bg-panel-2) 100%);
-    border: 1px solid var(--border-line);
-    padding: 28px;
-    border-radius: 6px;
-    width: 470px;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255,43,43,0.035) 0px,
+        rgba(255,43,43,0.035) 1px,
+        transparent 1px,
+        transparent 3px
+      ),
+      linear-gradient(180deg, var(--panel-a), var(--panel-b));
+    border: 1px solid rgba(255,43,43,0.25);
+    padding: 30px 28px 24px;
+    border-radius: 14px;
+    width: 510px;
     max-width: 100%;
     margin: auto; /* centers vertically when there is room, scrolls otherwise */
     position: relative;
     z-index: 1;
     box-shadow:
-      0 0 0 1px rgba(79,216,255,0.04),
-      0 0 40px rgba(79,216,255,0.08),
+      0 0 0 1px rgba(255,43,43,0.04),
+      0 0 40px rgba(255,43,43,0.08),
       0 25px 60px rgba(0,0,0,0.65);
   }
 
-  .converter::before,
-  .converter::after {
-    content: "";
+  /* HUD corner marks (same four-element technique as the homepage cards) */
+  .hud-corner {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    border-color: var(--accent-cyan);
-    border-style: solid;
-    opacity: 0.85;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    pointer-events: none;
+    opacity: .75;
+    filter: drop-shadow(0 0 3px var(--accent));
   }
-  .converter::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
-  .converter::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+  .hud-corner.tl { top: 10px; left: 10px;    border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+  .hud-corner.tr { top: 10px; right: 10px;   border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+  .hud-corner.bl { bottom: 10px; left: 10px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+  .hud-corner.br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 
   .eyebrow {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-family: var(--mono);
     font-size: 10.5px;
-    letter-spacing: 2px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--text-dim);
+    color: var(--accent);
+    text-shadow: 0 0 8px rgba(255,43,43,0.55);
     margin: 0 0 10px;
   }
 
@@ -153,9 +185,9 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--accent-cyan);
-    box-shadow: 0 0 8px var(--accent-cyan);
-    animation: pulse 2.2s ease-in-out infinite;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2.4s ease-in-out infinite;
     flex-shrink: 0;
   }
 
@@ -165,25 +197,25 @@
   }
 
   h1 {
-    font-family: var(--display);
+    font-family: var(--mono);
     text-align: center;
-    margin: 0 0 4px;
-    font-size: 1.5rem;
+    margin: 0 0 6px;
+    font-size: 1.55rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--text-primary);
-    text-shadow: 0 0 18px rgba(79,216,255,0.25);
+    letter-spacing: 0.01em;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8), 0 0 26px rgba(255,43,43,0.4);
   }
 
   .version-tag {
     display: block;
     text-align: center;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--accent-cyan);
-    opacity: 0.75;
-    margin: 0 0 26px;
+    font-size: 10.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.7;
+    margin: 0 0 24px;
   }
 
   .converter > * { margin-bottom: 12px; }
@@ -191,19 +223,18 @@
   .value-input { margin-bottom: 8px; }
   select { margin-bottom: 8px; }
 
-  /* NEW: small "FROM" / "TO" captions above the two unit dropdowns */
   .field-label {
     display: block;
     font-family: var(--mono);
-    font-size: 10.5px;
-    letter-spacing: 2px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--text-dim);
     text-align: left;
     margin-bottom: 6px;
   }
 
-  /* NEW: FROM [swap] TO sit together in one row */
+  /* FROM [swap] TO sit together in one row */
   .unit-row {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -213,8 +244,8 @@
   .unit-field { min-width: 0; }
   .unit-field select {
     margin-bottom: 0;
-    padding: 0 12px;
-    font-size: 16px;
+    padding: 0 8px 0 12px;
+    font-size: 13px;
     text-overflow: ellipsis;
   }
   .swap-btn {
@@ -226,47 +257,57 @@
     line-height: 1;
   }
 
-  .round-buttons button {
-    padding: 12px;
-    font-size: 14px;
-    opacity: 0.95;
-  }
-  .round-buttons button:hover { opacity: 1; }
-
   input, select, button {
     width: 100%;
     padding: 10px;
     margin-top: 0px;
-    border-radius: 4px;
+    border-radius: 6px;
     border: none;
     font-size: 14px;
-    font-family: var(--ui);
+    font-family: var(--mono);
     box-sizing: border-box;
   }
 
   input, select {
-    background: var(--bg-well);
+    background: var(--well);
     color: var(--text-primary);
     border: 1px solid var(--border-line);
   }
 
-  select optgroup { color: var(--text-dim); font-style: normal; }
-  select option { color: var(--text-primary); background: var(--bg-well); }
+  /* Category headings: red, bold, small caps-style; units: plain, normal weight */
+  select optgroup {
+    color: var(--accent);
+    background: #1a0505;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+  select option {
+    color: var(--text-primary);
+    background: var(--well);
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
 
   .value-input {
     font-family: var(--mono);
     letter-spacing: 0.5px;
-    border: 1px solid var(--accent-cyan-dim);
-    box-shadow: 0 0 6px rgba(56, 189, 248, 0.15);
-    background: var(--bg-well);
+    color: var(--accent-hot);
+    text-shadow: 0 0 6px rgba(255,43,43,0.4);
+    border: 1px solid var(--accent-dim);
+    box-shadow: 0 0 6px rgba(255,43,43,0.12);
+    background: var(--well);
     transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   }
+  .value-input::placeholder { color: rgba(255,43,43,0.55); text-shadow: none; }
 
   .value-input:focus {
     outline: none;
-    border: 1px solid var(--accent-cyan);
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-    background: #020617;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 0 3px rgba(255,43,43,0.2), 0 0 18px rgba(255,43,43,0.25);
+    background: #030303;
   }
 
   .value-input::-webkit-inner-spin-button,
@@ -284,16 +325,19 @@
   }
 
   select {
-    font-family: var(--ui);
-    font-weight: 500;
+    font-family: var(--mono);
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease;
   }
+  select:hover { border-color: rgba(255,43,43,0.55); }
 
   button {
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
+    letter-spacing: 0.06em;
+    font-weight: 700;
     cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+    transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
   }
 
   button:active { transform: scale(0.97); }
@@ -301,100 +345,115 @@
   button:focus-visible,
   input:focus-visible,
   select:focus-visible {
-    outline: 2px solid var(--accent-cyan);
+    outline: 2px solid #6aa9ff;
     outline-offset: 2px;
   }
 
-  .convert-btn {
-    background: linear-gradient(135deg, var(--accent-cyan), #1fa9d6);
-    color: #01131a;
-    font-size: 20px;
-    padding: 18px 24px;
-    border-radius: 6px;
-    box-shadow: 0 0 22px rgba(79,216,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.15);
-  }
-  .convert-btn:hover {
-    box-shadow: 0 0 32px rgba(79,216,255,0.6), inset 0 0 0 1px rgba(255,255,255,0.2);
-  }
-
+  /* Secondary actions: same look as the homepage "Open Tool" button */
   .secondary-btn {
-    background: transparent;
-    border: 1px solid var(--border-line);
-    color: var(--text-primary);
+    background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+    color: var(--accent);
+    text-shadow: 0 0 8px rgba(255,43,43,0.55);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.4);
   }
   .secondary-btn:hover {
-    background: rgba(79, 216, 255, 0.08);
-    border-color: var(--accent-cyan);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.75), 0 0 16px rgba(255,43,43,0.35);
   }
 
-  .round-buttons { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 12px; }
+  /* ── ROUNDING: 2 · 3 · 4 · 5 · 6 digits ── */
+  .round-wrap { margin-top: 14px; margin-bottom: 12px; }
+  .round-wrap[hidden] { display: none; }
+  #roundSigWrap { margin-top: 0; }
+  .round-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .round-btn {
+    padding: 11px 0;
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .round-btn.active {
+    color: #fff;
+    background: rgba(255,43,43,0.2);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.85), 0 0 14px rgba(255,43,43,0.4);
+  }
+
+  /* Significant-digits row: blue, so it reads as a different mode from the red decimal row */
+  #roundSigWrap .field-label { color: var(--blue); text-shadow: 0 0 8px rgba(77,166,255,0.45); }
+  #roundSigWrap .round-btn {
+    color: var(--blue);
+    text-shadow: 0 0 8px rgba(77,166,255,0.55);
+    box-shadow: inset 0 0 0 1px rgba(77,166,255,0.4);
+  }
+  #roundSigWrap .round-btn:hover {
+    box-shadow: inset 0 0 0 1px rgba(77,166,255,0.75), 0 0 16px rgba(77,166,255,0.35);
+  }
+  #roundSigWrap .round-btn.active {
+    color: #fff;
+    background: rgba(77,166,255,0.2);
+    box-shadow: inset 0 0 0 1px rgba(77,166,255,0.85), 0 0 14px rgba(77,166,255,0.4);
+  }
 
   .result {
     margin-top: 4px;
     padding: 16px;
-    background: linear-gradient(180deg, var(--bg-well), #0a0f1c);
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,0.02) 0px,
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 3px
+      ),
+      linear-gradient(180deg, var(--well), #0a0a0b);
     border: 1px solid var(--border-line);
-    border-radius: 4px;
+    border-left: 2px solid var(--accent);
+    border-radius: 6px;
     text-align: center;
     font-family: var(--mono);
     font-size: 18px;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--accent-cyan);
-    text-shadow: 0 0 10px rgba(79,216,255,0.45);
+    letter-spacing: 0.3px;
+    color: var(--accent-hot);
+    text-shadow: 0 0 10px rgba(255,43,43,0.55);
     position: relative;
     overflow: hidden;
     overflow-wrap: anywhere; /* long numbers wrap instead of overflowing */
     transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
   }
 
-  .result::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(255,255,255,0.02) 0px,
-      rgba(255,255,255,0.02) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-    pointer-events: none;
-  }
-
   .result.flash {
-    transform: scale(1.08);
-    box-shadow: 0 0 18px rgba(56,189,248,0.9);
+    transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(255,43,43,0.8);
     opacity: 0.85;
   }
 
-  .result.stale {
-    color: var(--text-dim);
-    text-shadow: none;
-  }
-
   .result.error {
-    color: var(--accent-red);
-    text-shadow: none;
+    color: var(--amber);
+    text-shadow: 0 0 8px rgba(255,179,71,0.4);
+    border-left-color: var(--amber);
   }
 
   .copy-btn {
     margin-bottom: 16px;
-    background: linear-gradient(135deg, var(--accent-green), #1fcf68);
-    color: #02150a;
-    box-shadow: 0 0 16px rgba(57,255,136,0.3);
+    background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+    color: var(--green);
+    text-shadow: 0 0 8px rgba(37,211,102,0.45);
+    box-shadow: inset 0 0 0 1px rgba(37,211,102,0.4);
   }
-  .copy-btn:hover { box-shadow: 0 0 24px rgba(57,255,136,0.5); }
-  .copy-btn.copied { background: #16a34a; box-shadow: none; }
-  .copy-btn.copy-failed { background: var(--accent-red); box-shadow: none; color: #1a0505; }
+  .copy-btn:hover { box-shadow: inset 0 0 0 1px rgba(37,211,102,0.75), 0 0 16px rgba(37,211,102,0.3); }
+  .copy-btn.copied { background: rgba(37,211,102,0.18); box-shadow: inset 0 0 0 1px rgba(37,211,102,0.8); }
+  .copy-btn.copy-failed { color: var(--amber); text-shadow: none; box-shadow: inset 0 0 0 1px rgba(255,179,71,0.6); }
 
   .action-row { display: flex; gap: 10px; margin-top: 8px; }
 
   .history {
     margin-top: 15px;
     display: none;
-    border-top: 1px solid var(--border-line);
-    padding-top: 10px;
+    border-top: 1px dashed rgba(255,43,43,0.2);
+    padding-top: 12px;
   }
 
   .history-list {
@@ -403,29 +462,30 @@
     overflow-x: hidden;
     padding-right: 4px;
     scrollbar-width: thin;
-    scrollbar-color: var(--accent-cyan-dim) var(--bg-well);
+    scrollbar-color: var(--accent-dim) var(--well);
   }
   .history-list::-webkit-scrollbar { width: 6px; }
-  .history-list::-webkit-scrollbar-track { background: var(--bg-well); border-radius: 3px; }
-  .history-list::-webkit-scrollbar-thumb { background: var(--accent-cyan-dim); border-radius: 3px; }
-  .history-list::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+  .history-list::-webkit-scrollbar-track { background: var(--well); border-radius: 3px; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 3px; }
+  .history-list::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
   .history-item {
     font-family: var(--mono);
     padding: 8px 10px;
-    background: var(--bg-well);
-    border: 1px solid var(--border-line);
-    border-left: 2px solid var(--accent-cyan);
-    border-radius: 3px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,43,43,0.12);
+    border-left: 2px solid var(--accent);
+    border-radius: 4px;
     margin-bottom: 6px;
     cursor: pointer;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--text-primary);
     overflow-wrap: anywhere;
     word-break: break-word;
     white-space: normal;
+    transition: background .25s ease, border-color .25s ease;
   }
-  .history-item:hover { background: rgba(79, 216, 255, 0.08); }
+  .history-item:hover { background: rgba(255,43,43,0.1); border-color: rgba(255,43,43,0.5); }
 
   .history-empty {
     font-family: var(--mono);
@@ -438,21 +498,22 @@
   .clear-history-btn {
     margin-top: 10px;
     margin-bottom: 0;
-    background: transparent;
-    border: 1px solid rgba(255, 95, 95, 0.35);
-    color: var(--accent-red);
-    font-size: 12.5px;
+    font-size: 12px;
     padding: 9px;
+    color: var(--text-dim);
+    text-shadow: none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
   }
   .clear-history-btn:hover {
-    background: rgba(255, 95, 95, 0.08);
-    border-color: var(--accent-red);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6);
   }
 
   @media (max-width: 480px) {
     body { padding: 12px; }
-    .converter { padding: 22px 18px; }
-    .round-buttons, .action-row { flex-direction: column; }
+    .converter { padding: 26px 18px 20px; }
+    .action-row { flex-direction: column; }
+    .round-grid { gap: 6px; }
     /* narrow phones: stack From / swap / To so the unit names stay readable */
     .unit-row { grid-template-columns: 1fr; gap: 8px; }
     .swap-btn { width: 100%; height: 40px; }
@@ -468,19 +529,23 @@
 
 <div class="converter">
 
+  <span class="hud-corner tl" aria-hidden="true"></span>
+  <span class="hud-corner tr" aria-hidden="true"></span>
+  <span class="hud-corner bl" aria-hidden="true"></span>
+  <span class="hud-corner br" aria-hidden="true"></span>
+
   <div class="eyebrow"><span class="dot"></span>Rameshverse Systems &middot; MK&middot;02</div>
 
   <h1>Cosmic Calculator</h1>
 
-  <span class="version-tag">UNIT CONVERSION MODULE</span>
+  <span class="version-tag">Unit Conversion Module</span>
 
   <button class="secondary-btn" onclick="pasteValue()">Paste Value</button>
 
-  <input type="number" id="value" class="value-input" placeholder="Enter value" step="any" inputmode="decimal" aria-label="Value to convert">
+  <input type="text" id="value" class="value-input" placeholder="Enter value" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Value to convert">
 
-  <!-- NEW: two dropdowns replace the old 24-option "A → B" list.
-       Every unit can now convert to every other unit. Options are built
-       from the UNITS table in the script below. -->
+  <!-- Two dropdowns: every unit can convert to every other unit. Options are
+       built from the UNITS table in the script below. -->
   <div class="unit-row">
     <div class="unit-field">
       <label class="field-label" for="fromUnit">From</label>
@@ -495,11 +560,28 @@
     </div>
   </div>
 
-  <button class="convert-btn" onclick="convert()">Convert</button>
+  <!-- Decimal places row. Swapped for the significant-digits row when 6 decimals would show 0.000000 -->
+  <div class="round-wrap" id="roundDecWrap">
+    <span class="field-label">Round to · decimal places</span>
+    <div class="round-grid">
+      <button class="secondary-btn round-btn" data-mode="dp" data-digits="2" onclick="roundResult('dp', 2)" aria-label="Round result to 2 decimal places">2</button>
+      <button class="secondary-btn round-btn" data-mode="dp" data-digits="3" onclick="roundResult('dp', 3)" aria-label="Round result to 3 decimal places">3</button>
+      <button class="secondary-btn round-btn" data-mode="dp" data-digits="4" onclick="roundResult('dp', 4)" aria-label="Round result to 4 decimal places">4</button>
+      <button class="secondary-btn round-btn" data-mode="dp" data-digits="5" onclick="roundResult('dp', 5)" aria-label="Round result to 5 decimal places">5</button>
+      <button class="secondary-btn round-btn" data-mode="dp" data-digits="6" onclick="roundResult('dp', 6)" aria-label="Round result to 6 decimal places">6</button>
+    </div>
+  </div>
 
-  <div class="round-buttons">
-    <button class="secondary-btn" onclick="roundResult(2)">Round: 2 digits</button>
-    <button class="secondary-btn" onclick="roundResult(3)">Round: 3 digits</button>
+  <!-- Replaces the decimal row (never shown together) when 6 decimal places would show 0.000000: digits counted from the first non-zero digit -->
+  <div class="round-wrap" id="roundSigWrap" hidden title="Counts digits from the first non-zero digit, so very small results stay readable.">
+    <span class="field-label">Round to · significant digits</span>
+    <div class="round-grid">
+      <button class="secondary-btn round-btn" data-mode="sig" data-digits="2" onclick="roundResult('sig', 2)" aria-label="Round result to 2 significant digits">2</button>
+      <button class="secondary-btn round-btn" data-mode="sig" data-digits="3" onclick="roundResult('sig', 3)" aria-label="Round result to 3 significant digits">3</button>
+      <button class="secondary-btn round-btn" data-mode="sig" data-digits="4" onclick="roundResult('sig', 4)" aria-label="Round result to 4 significant digits">4</button>
+      <button class="secondary-btn round-btn" data-mode="sig" data-digits="5" onclick="roundResult('sig', 5)" aria-label="Round result to 5 significant digits">5</button>
+      <button class="secondary-btn round-btn" data-mode="sig" data-digits="6" onclick="roundResult('sig', 6)" aria-label="Round result to 6 significant digits">6</button>
+    </div>
   </div>
 
   <div class="result" id="result" role="status" aria-live="polite">Result waiting...</div>
@@ -543,47 +625,55 @@
 
   // ---- LOGIC START (pure functions, no DOM) ----
 
-  // Reference constants
-  const AU_IN_KM         = 149597870.7;                 // IAU 2012 exact
-  const PC_IN_KM         = AU_IN_KM * 648000 / Math.PI; // parsec, exact definition
-  const LY_IN_KM         = 9460730472580.8;             // exact (Julian year x c)
-  const KM_PER_MILE      = 1.609344;                    // exact
-  const EARTH_RADIUS_KM  = 6371;                        // mean radius
-  const JUPITER_RADIUS_KM = 69911;                      // mean radius (NASA), same convention as Earth
-  const SOLAR_RADIUS_KM  = 695700;                      // IAU 2015 nominal
+  // Every unit is stored ONCE as its size in METERS. Meters (not km) are the base
+  // because then the everyday units are exact whole numbers in binary floating
+  // point: 1 km = 1000 m, 1 AU = 149,597,870,700 m, 1 ly = 9,460,730,472,580,800 m.
+  const AU_M             = 149597870700;               // IAU 2012, exact
+  const LY_M             = 9460730472580800;           // Julian year x c, exact
+  const PC_M             = AU_M * 648000 / Math.PI;    // parsec, exact definition
+  const MILE_M           = 1609.344;                   // exact
+  const EARTH_RADIUS_M   = 6371000;                    // mean radius
+  const JUPITER_RADIUS_M = 69911000;                   // mean radius (NASA), same convention as Earth
+  const SOLAR_RADIUS_M   = 695700000;                  // IAU 2015 nominal
 
-  // Every unit is stored ONCE as its size in kilometers. Any conversion is
-  //   value x (km per FROM unit) / (km per TO unit)
-  // so adding a new unit is a single line here -- nothing else to change.
+  // Adding a new unit is a single line here -- nothing else to change.
   const UNITS = [
     // Everyday
-    { id: "m",   group: "Everyday",                  label: "m · Meters",                 short: "m",         km: 0.001 },
-    { id: "km",  group: "Everyday",                  label: "km · Kilometers",            short: "km",        km: 1 },
-    { id: "mi",  group: "Everyday",                  label: "mi · Miles",                 short: "mi",        km: KM_PER_MILE },
+    { id: "m",   group: "Everyday",                  label: "m · Meters",                 short: "m",         size: 1 },
+    { id: "km",  group: "Everyday",                  label: "km · Kilometers",            short: "km",        size: 1000 },
+    { id: "mi",  group: "Everyday",                  label: "mi · Miles",                 short: "mi",        size: MILE_M },
 
     // Planetary & Stellar
-    { id: "er",  group: "Planetary & Stellar",       label: "Earth radii",                short: "Earth R",   km: EARTH_RADIUS_KM },
-    { id: "jr",  group: "Planetary & Stellar",       label: "Jupiter radii",              short: "Jupiter R", km: JUPITER_RADIUS_KM },
-    { id: "sr",  group: "Planetary & Stellar",       label: "Solar radii",                short: "Solar R",   km: SOLAR_RADIUS_KM },
-    { id: "au",  group: "Planetary & Stellar",       label: "AU · Astronomical units",    short: "AU",        km: AU_IN_KM },
+    { id: "er",  group: "Planetary & Stellar",       label: "Earth radii",                short: "Earth R",   size: EARTH_RADIUS_M },
+    { id: "jr",  group: "Planetary & Stellar",       label: "Jupiter radii",              short: "Jupiter R", size: JUPITER_RADIUS_M },
+    { id: "sr",  group: "Planetary & Stellar",       label: "Solar radii",                short: "Solar R",   size: SOLAR_RADIUS_M },
+    { id: "au",  group: "Planetary & Stellar",       label: "AU · Astronomical units",    short: "AU",        size: AU_M },
 
     // Interstellar & Galactic
-    { id: "ly",  group: "Interstellar & Galactic",   label: "ly · Light-years",           short: "ly",        km: LY_IN_KM },
-    { id: "pc",  group: "Interstellar & Galactic",   label: "pc · Parsecs",               short: "pc",        km: PC_IN_KM },
-    { id: "kpc", group: "Interstellar & Galactic",   label: "kpc · Kiloparsecs",          short: "kpc",       km: PC_IN_KM * 1e3 },
+    { id: "ly",  group: "Interstellar & Galactic",   label: "ly · Light-years",           short: "ly",        size: LY_M },
+    { id: "pc",  group: "Interstellar & Galactic",   label: "pc · Parsecs",               short: "pc",        size: PC_M },
+    { id: "kpc", group: "Interstellar & Galactic",   label: "kpc · Kiloparsecs",          short: "kpc",       size: PC_M * 1e3 },
 
     // Cosmological
-    { id: "mly", group: "Cosmological",              label: "Mly · Megalight-years",      short: "Mly",       km: LY_IN_KM * 1e6 },
-    { id: "gly", group: "Cosmological",              label: "Gly · Gigalight-years",      short: "Gly",       km: LY_IN_KM * 1e9 },
-    { id: "mpc", group: "Cosmological",              label: "Mpc · Megaparsecs",          short: "Mpc",       km: PC_IN_KM * 1e6 },
-    { id: "gpc", group: "Cosmological",              label: "Gpc · Gigaparsecs",          short: "Gpc",       km: PC_IN_KM * 1e9 }
+    { id: "mly", group: "Cosmological",              label: "Mly · Megalight-years",      short: "Mly",       size: LY_M * 1e6 },
+    { id: "gly", group: "Cosmological",              label: "Gly · Gigalight-years",      short: "Gly",       size: LY_M * 1e9 },
+    { id: "mpc", group: "Cosmological",              label: "Mpc · Megaparsecs",          short: "Mpc",       size: PC_M * 1e6 },
+    { id: "gpc", group: "Cosmological",              label: "Gpc · Gigaparsecs",          short: "Gpc",       size: PC_M * 1e9 }
   ];
 
   const UNIT_MAP = {};
   UNITS.forEach(u => { UNIT_MAP[u.id] = u; });
 
+  // Floating-point safe conversion:
+  //  - same unit: returned untouched (exact),
+  //  - the unit ratio is computed FIRST and the value is multiplied/divided by it
+  //    once, so a huge value can't overflow in the middle of the calculation,
+  //  - going to a bigger unit we DIVIDE by the (>1) ratio instead of multiplying
+  //    by its inverse, which keeps m -> km, 3 m -> 0.003 km etc. correctly rounded.
   function convertValue(value, fromId, toId) {
-    return value * UNIT_MAP[fromId].km / UNIT_MAP[toId].km;
+    if (fromId === toId) return value;
+    const f = UNIT_MAP[fromId].size, t = UNIT_MAP[toId].size;
+    return f > t ? value * (f / t) : value / (t / f);
   }
 
   function cleanFloat(num) {
@@ -625,26 +715,100 @@
     return addCommas(toDecimal(num));
   }
 
+  // Decimal "round half up" that is not fooled by binary floating point.
+  // Plain toFixed gets 1.005 -> "1.00" and 2.675 -> "2.67" because those numbers
+  // are stored slightly below the half. Here the number is first read as the
+  // 15 significant digits shown to the user (1.00500000000000), shifted, rounded.
+  function roundFixed(x, dec) {
+    const neg = x < 0;
+    const [m, e] = Math.abs(x).toExponential(14).split("e");
+    const shifted = Math.round(Number(m + "e" + (parseInt(e, 10) + dec)));
+    let digits = BigInt(shifted).toString();
+    if (dec > 0) {
+      digits = digits.padStart(dec + 1, "0");
+      digits = digits.slice(0, -dec) + "." + digits.slice(-dec);
+    }
+    return (neg && /[1-9]/.test(digits) ? "-" : "") + digits;
+  }
+
+  // The case where significant digits are offered: a non-zero result so small
+  // that even 6 decimal places shows only zeros (0.000000), i.e. every decimal-place
+  // button would hide the number completely.
+  function isSmall(n) {
+    const a = Math.abs(cleanFloat(n));
+    return a > 0 && a < 1 && !/[1-9]/.test(roundFixed(a, 6));
+  }
+
+  // "Decimal places" rounding: d digits after the decimal point, always
+  // (1234.5678 -> 1,234.57; 0.00000000037 -> 0.00).
+  function roundDecimal(n, d) {
+    if (Math.abs(cleanFloat(n)) >= 1e21) return toDisplay(n);
+    return addCommas(roundFixed(n, d));
+  }
+
+  // "Significant digits" rounding for results smaller than 1: d digits counted
+  // from the FIRST NON-ZERO digit (0.000000000369950 -> 0.00000000037 for d = 2).
+  function roundSignificant(n, d) {
+    const abs = Math.abs(cleanFloat(n));
+    if (!(abs > 0 && abs < 1)) return roundDecimal(n, d);                // only meant for 0 < |n| < 1
+    const exp = parseInt(abs.toExponential(14).split("e")[1], 10);       // 3.7e-10 -> -10
+    const dec = (-exp - 1) + d;                                          // leading zeros + d digits
+    if (dec > 100) return toDisplay(n);                                  // beyond what can be printed
+    return addCommas(roundFixed(n, dec));
+  }
+
+  // Reads what the user typed. Accepts 12, -3.5, .5, 5., 1e5, 2.5E-3 and
+  // thousands separators (1,000,000) -- but only when the commas really are
+  // thousands separators, so a decimal comma like "1,5" is rejected instead of
+  // being silently read as 15.
+  const NUM_RE     = /^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i;
+  const COMMA_RE   = /^[+-]?\d{1,3}(,\d{3})+(\.\d*)?(e[+-]?\d+)?$/i;
+  const PARTIAL_RE = /^[+-]?\.?$|^[+-]?(\d+\.?\d*|\.\d+)e[+-]?$/i;     // "-", ".", "1e", "1e-" : still typing
+  const PARTIAL_COMMA_RE = /^[+-]?\d{1,3}(,\d{3})+\.?\d*e[+-]?$/i;      // "1,000e", "1,000e-" : still typing
+  function parseInput(raw) {
+    const t = String(raw).trim().replace(/[\s_]/g, "");
+    if (t === "") return { kind: "empty" };
+    if (t.includes(",")) {
+      if (COMMA_RE.test(t))         return { kind: "ok", value: Number(t.replace(/,/g, "")) };
+      if (PARTIAL_COMMA_RE.test(t)) return { kind: "partial" };
+      return { kind: "bad" };
+    }
+    if (NUM_RE.test(t)) return { kind: "ok", value: Number(t) };
+    if (PARTIAL_RE.test(t)) return { kind: "partial" };
+    return { kind: "bad" };
+  }
+
   // ---- LOGIC END ----
 
   const WAITING = "Result waiting...";
 
   let lastResult = null;
+  let roundMode = null;        // null = full precision, or { mode: "dp" | "sig", d: 2..6 } (stays on until clicked again or Reset)
   let history = [];
+  let historyTimer = null;
 
   const $value  = document.getElementById("value");
   const $from   = document.getElementById("fromUnit");
   const $to     = document.getElementById("toUnit");
   const $result = document.getElementById("result");
+  const $roundBtns = document.querySelectorAll(".round-btn");
+
+  // Highlights the one rounding button in use (decimal places OR significant digits).
+  function setRoundActive() {
+    $roundBtns.forEach(b => b.classList.toggle("active",
+      !!roundMode && b.dataset.mode === roundMode.mode && Number(b.dataset.digits) === roundMode.d));
+  }
 
   // Build both dropdowns from the UNITS table, grouped by category.
+  // Category headings are upper-cased with a marker so they stand apart from
+  // the units even in phone pickers that ignore CSS styling of <optgroup>.
   function buildUnitOptions(select, selectedId) {
     const groups = new Map();
     UNITS.forEach(u => {
       let og = groups.get(u.group);
       if (!og) {
         og = document.createElement("optgroup");
-        og.label = u.group;
+        og.label = "▸ " + u.group.toUpperCase();
         groups.set(u.group, og);
         select.appendChild(og);
       }
@@ -664,94 +828,142 @@
     setTimeout(() => $result.classList.remove("flash"), 250);
   }
 
-  function showError(msg) {
-    lastResult = null;
-    $result.classList.remove("stale");
-    $result.classList.add("error");
-    $result.innerText = msg;
+  // The significant-digits row is only offered when it is useful: the result is
+  // so small that 6 decimal places would show 0.000000.
+  const $sigWrap = document.getElementById("roundSigWrap");
+  const $decWrap = document.getElementById("roundDecWrap");
+
+  // Only ONE rounding row is on screen at a time: decimal places normally,
+  // significant digits instead when the result is too small for decimal places.
+  function setResult(text, isError) {
+    $result.classList.toggle("error", !!isError);
+    $result.innerText = text;
+    const sig = lastResult !== null && isSmall(lastResult);
+    $sigWrap.hidden = !sig;
+    $decWrap.hidden = sig;
   }
 
-  function markStale() {
-    if ($result.innerText !== WAITING && !$result.classList.contains("error")) {
-      lastResult = null;
-      $result.classList.add("stale");
+  // When the rows swap, the chosen number carries over (4 decimals <-> 4 significant
+  // digits) so the display never jumps back to full precision on its own.
+  function syncRoundMode(small) {
+    if (!roundMode) return;
+    const want = small ? "sig" : "dp";
+    if (roundMode.mode !== want) { roundMode = { mode: want, d: roundMode.d }; setRoundActive(); }
+  }
+
+  // Live calculation: runs on every keystroke, unit change, paste, swap and
+  // rounding click. There is no Convert button.
+  function recalc(flash) {
+    clearTimeout(historyTimer);
+    const p = parseInput($value.value);
+
+    if (p.kind === "empty" || p.kind === "partial") { lastResult = null; syncRoundMode(false); return setResult(WAITING); }
+    if (p.kind === "bad")                           { lastResult = null; syncRoundMode(false); return setResult("Enter a valid number", true); }
+
+    const result = convertValue(p.value, $from.value, $to.value);
+    if (!isFinite(p.value) || !isFinite(result))    { lastResult = null; syncRoundMode(false); return setResult("Number too large", true); }
+    if (p.value !== 0 && result === 0)              { lastResult = null; syncRoundMode(false); return setResult("Result too small to represent", true); }
+
+    lastResult = result;
+
+    // Results that 6 decimal places would show as 0.000000 use the significant-digits
+    // row; everything else uses the decimal-places row. The chosen number carries over.
+    syncRoundMode(isSmall(result));
+
+    let text = toDisplay(result);
+    if (roundMode) text = roundMode.mode === "sig" ? roundSignificant(result, roundMode.d) : roundDecimal(result, roundMode.d);
+    setResult(text);
+    if (flash) flashResult();
+
+    // Save to history once the visitor pauses typing (not on every keystroke)
+    historyTimer = setTimeout(commitHistory, 900);
+  }
+
+  function commitHistory() {
+    clearTimeout(historyTimer);
+    if (lastResult === null) return;
+    const p = parseInput($value.value);
+    if (p.kind !== "ok") return;
+    const label = UNIT_MAP[$from.value].short + " → " + UNIT_MAP[$to.value].short;
+    const top = history[0];
+    if (top && top.input === p.value && top.label === label) return;   // same conversion as the last entry
+    addToHistory(p.value, label, lastResult);
+  }
+
+  // ---- Live thousands separators in the input box: 1000000000 -> 1,000,000,000 ----
+  // Only the whole-number part is grouped; decimals and an exponent (1e5) are left
+  // alone. Anything that is not number-shaped is left exactly as typed, so the
+  // "Enter a valid number" message still shows.
+  const INPUT_RE = /^([+-]?)(\d*)(\.?\d*)([eE][+-]?\d*)?$/;
+  const NOISE_RE = /[\s,_]/g;
+  function formatInputText(raw) {
+    const m = INPUT_RE.exec(String(raw).replace(NOISE_RE, ""));
+    if (!m) return raw;
+    return m[1] + m[2].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + m[3] + (m[4] || "");
+  }
+
+  // Re-formats the box and keeps the cursor next to the same digit it was beside.
+  function formatInputBox() {
+    const raw = $value.value;
+    const out = formatInputText(raw);
+    if (out === raw) return;
+    const focused = document.activeElement === $value;
+    const keep = focused ? raw.slice(0, $value.selectionStart).replace(NOISE_RE, "").length : 0;
+    $value.value = out;
+    if (focused) {
+      let i = 0, n = 0;
+      while (i < out.length && n < keep) { if (out[i] !== ",") n++; i++; }
+      $value.setSelectionRange(i, i);
     }
   }
 
-  $value.addEventListener("input", () => {
-    $result.classList.remove("error");
-    markStale();
+  // A pasted "1,5" is probably a decimal comma. Don't merge it into 15 silently:
+  // leave it as pasted so the "Enter a valid number" message shows.
+  let skipFormat = false;
+  $value.addEventListener("paste", e => {
+    const txt = (e.clipboardData && e.clipboardData.getData("text")) || "";
+    skipFormat = txt.includes(",") && parseInput(txt).kind === "bad";
   });
-  $from.addEventListener("change", markStale);
-  $to.addEventListener("change", markStale);
 
-  // Press Enter to convert
-  $value.addEventListener("keydown", e => {
-    if (e.key === "Enter") convert();
+  $value.addEventListener("input", () => {
+    if (skipFormat) skipFormat = false; else formatInputBox();
+    recalc(false);
   });
+  $value.addEventListener("keydown", e => { if (e.key === "Enter") commitHistory(); });
+  $value.addEventListener("blur", commitHistory);
+  $from.addEventListener("change", () => recalc(true));
+  $to.addEventListener("change", () => recalc(true));
 
   function pasteValue() {
     navigator.clipboard.readText().then(raw => {
-      // FIX: empty clipboard used to pass isNaN("") and paste a blank;
-      // also now tolerates thousands separators like "1,000,000".
-      const text = raw.trim().replace(/,/g, "");
-      if (text === "" || isNaN(text)) return alert("Clipboard does not contain a valid number");
-      $value.value = text;
-      $result.classList.remove("error");
-      markStale();
-      flashResult();
+      const p = parseInput(raw);
+      if (p.kind !== "ok") return alert("Clipboard does not contain a valid number");
+      $value.value = raw.trim();
+      formatInputBox();
+      recalc(true);
     }).catch(() => {
       alert("Couldn't read the clipboard. Check that this page has clipboard permission.");
     });
   }
 
-  function convert() {
-    const value = parseFloat($value.value);
-    if (isNaN(value)) return showError("Enter a number first");
-
-    const fromId = $from.value;
-    const toId = $to.value;
-
-    const result = convertValue(value, fromId, toId);
-    if (!isFinite(result)) return showError("Number too large");
-
-    lastResult = result;
-    $result.classList.remove("stale", "error");
-    $result.innerText = toDisplay(result);
-    flashResult();
-    addToHistory(value, UNIT_MAP[fromId].short + " → " + UNIT_MAP[toId].short, result);
-  }
-
-  function roundResult(d) {
-    // If the input changed since the last convert, convert first
-    // instead of silently doing nothing.
-    if (lastResult === null) {
-      convert();
-      if (lastResult === null) return;
-    }
-    // Always plain decimal form (never exponential), per user preference.
-    const n = lastResult;
-    $result.classList.remove("stale", "error");
-    $result.innerText = Math.abs(n) >= 1e21
-      ? toDisplay(n)
-      : addCommas(n.toFixed(d));
-    flashResult();
+  // Click a button to round ("dp" = decimal places, "sig" = significant digits);
+  // click the same one again to go back to full precision.
+  function roundResult(mode, d) {
+    const same = roundMode && roundMode.mode === mode && roundMode.d === d;
+    roundMode = same ? null : { mode: mode, d: d };
+    setRoundActive();
+    recalc(true);
   }
 
   // Swap the two units and carry the result over as the new input,
   // so you can round-trip a value (e.g. ly -> pc becomes pc -> ly).
   function swapUnits() {
+    const carry = lastResult;
     const fromId = $from.value;
     $from.value = $to.value;
     $to.value = fromId;
-
-    const carry = lastResult;
-    if (carry !== null) {
-      $value.value = toDecimal(carry);
-      convert();
-    } else {
-      markStale();
-    }
+    if (carry !== null) $value.value = formatInputText(toDecimal(carry));
+    recalc(true);
   }
 
   function copyMainResult() {
@@ -821,9 +1033,9 @@
 
   function resetAll() {
     $value.value = "";
-    $result.innerText = WAITING;
-    $result.classList.remove("stale", "error");
-    lastResult = null;
+    roundMode = null;
+    setRoundActive();
+    recalc(false);
   }
 </script>
 
