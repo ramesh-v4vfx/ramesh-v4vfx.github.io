@@ -1,6 +1,7 @@
 {
   "version": 1,
-  "systemName": "HD 49798 System",
+  "systemName": "HD 49798",
+  "epoch": 2000,
   "stars": [
     {
       "name": "HD 49798 A",
@@ -10,7 +11,11 @@
       "T": 47500,
       "au": 0,
       "ecc": 0,
-      "angle": 0
+      "angle": 0,
+      "inc": null,
+      "node": null,
+      "argp": null,
+      "tp": null
     },
     {
       "name": "HD 49798 B",
@@ -21,6 +26,9 @@
       "au": 0.036,
       "ecc": 0.05,
       "angle": 3.20600009018679,
+      "inc": 54.5,
+      "node": null,
+      "argp": null,
       "parent": 0
     }
   ],

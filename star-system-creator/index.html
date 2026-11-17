@@ -483,6 +483,7 @@
           <button class="hzlabel" id="hzToggleBtn" aria-pressed="true" title="Show or hide the habitable-zone rings (H)">■ HABITABLE ZONE: ON</button>
           <button class="fs-btn attn" id="physicsBtn" aria-pressed="false" title="Realistic mode (R): every body pulls on every other one (N-body gravity) and distances are true to scale. OFF = idealized Kepler orbits.">⚛ REALISTIC MODE: OFF</button>
           <button class="fs-btn" id="labelsBtn" aria-pressed="true" title="Show or hide the name labels on stars, planets and moons (L)">🏷 LABELS: ON</button>
+          <button class="fs-btn" id="resetViewBtn" title="Return the camera to the default view (V)">⟲ RESET VIEW</button>
           <span class="watermark">rameshverse.com</span>
           <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         </div>
@@ -501,6 +502,7 @@
         <span><kbd>R</kbd> realistic mode</span>
         <span><kbd>H</kbd> habitable zone</span>
         <span><kbd>L</kbd> labels</span>
+        <span><kbd>V</kbd> reset view</span>
         <span><kbd>F</kbd> fullscreen</span>
         <span><kbd>ESC</kbd> exit fullscreen</span>
       </div>
@@ -920,6 +922,29 @@ openPlanetBtn.addEventListener('click', function(){
     out.z = c.yx*xp + c.yy*yp;
     out.y = c.zx*xp + c.zy*yp;
     return out;
+  }
+  // Normal of the plane an orbit lies in, in scene coordinates (same maths as orient(): the orbit plane is
+  // spanned by the images of its x axis (toward periastron) and y axis).
+  function orbitNormal(o){
+    var c = orientCoef(o);
+    var P = new THREE.Vector3(c.xx, c.zx, c.yx);   // scene (x, y, z) of the orbit-plane x axis
+    var Q = new THREE.Vector3(c.xy, c.zy, c.yy);   // scene (x, y, z) of the orbit-plane y axis
+    return P.cross(Q).normalize();
+  }
+  // The habitable zone is a ring around a star, so it lies in the plane that star's planets orbit in.
+  // = the average orbital plane of the planets that have tilt data. With no tilt data it stays flat, as before.
+  function hzPlaneNormal(starIdx){
+    var sum = new THREE.Vector3(), ref = null, n = 0;
+    planets.forEach(function(p){
+      if ((p.starIndex || 0) !== starIdx) return;
+      if (p.inc === null || p.inc === undefined || !isFinite(p.inc)) return;   // no tilt data: that planet is drawn flat
+      var v = orbitNormal(p);
+      if (!ref) ref = v.clone();
+      else if (v.dot(ref) < 0) v.negate();           // a retrograde orbit has the opposite normal: same plane
+      sum.add(v); n++;
+    });
+    if (!n || sum.lengthSq() < 1e-12) return new THREE.Vector3(0, 1, 0);
+    return sum.normalize();
   }
   function orbitLinePoints(obj, a, e, n){
     var c = orientCoef(obj), pts = [], o = {x:0,y:0,z:0};
@@ -2958,9 +2983,12 @@ function handleStageClick(e){
       three.lastX = e.clientX; three.lastY = e.clientY;
       var tol = e.pointerType === 'touch' ? 10 : 4;   // fingers wobble more than a mouse
       if (Math.abs(e.clientX-three.clickStartX) > tol || Math.abs(e.clientY-three.clickStartY) > tol) three.hasMoved = true;
-      three.azimuth -= dx*0.006;
+      // vertical drag has no limit: the camera can go over the top and round to upside-down (full 360 deg).
+      // While upside-down the screen's left/right is mirrored relative to the azimuth, so the horizontal drag is flipped to match.
+      var flipH = Math.sin(three.polar) < 0 ? -1 : 1;
+      three.azimuth -= dx*0.006*flipH;
       three.polar -= dy*0.006;
-      three.polar = Math.max(0.25, Math.min(Math.PI-0.25, three.polar));
+      three.polar = ((three.polar % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
     });
 
     function endPointer(e, cancelled){
@@ -3087,7 +3115,13 @@ function handleStageClick(e){
       var starMesh = new THREE.Mesh(starGeo, starMat);
       starMesh.scale.setScalar(starScale/0.4);
       starMesh.userData.size = isBH ? starScale*2.5 : starScale;
-      group.add(starMesh);
+      // The star's spin axis is taken to be the planets' orbital axis (the usual assumption for a system that formed
+      // from one disk). The star spins inside a tilted holder, so the spin code (mesh.rotation.y) is unchanged.
+      var planeN = hzPlaneNormal(idx);
+      var spinHolder = new THREE.Group();
+      spinHolder.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), planeN);
+      spinHolder.add(starMesh);
+      group.add(spinHolder);
 
       var topY;
       if (isBH){
@@ -3134,9 +3168,10 @@ function handleStageClick(e){
           var rOut = realDist ? band[1]*distK : auToUnits(Math.min(band[1],50));
           if (!(rOut > rIn)) return;
           var ringMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
-          ringMesh.rotation.x = -Math.PI/2;
           hzMesh.add(ringMesh);
         });
+        // RingGeometry faces +Z; turn the group so the rings lie in the planets' orbital plane (flat when there is no tilt data)
+        hzMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), planeN);
         hzMesh.visible = showHZ;
         group.add(hzMesh);
       }
@@ -3362,6 +3397,8 @@ function handleStageClick(e){
       three.lookTarget.y + three.radius*Math.cos(three.polar),
       three.lookTarget.z + three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
     );
+    // when the camera is past the pole (polar between 180 and 360 deg) its 'up' flips, so the view turns smoothly instead of snapping
+    three.camera.up.set(0, Math.sin(three.polar) < 0 ? -1 : 1, 0);
     three.camera.lookAt(three.lookTarget);
     if (realDist){
       updateRealisticDecor();
@@ -3601,17 +3638,9 @@ function handleStageClick(e){
   });
 
     // ---- presets ----
-  // Sirius A + B with the published visual-binary orbit (P 50.13 yr, a 7.50", e 0.5914, i 136.53 deg,
-  // node 45.4 deg, periastron epoch 1994.57, omega 149.16 deg for B relative to A; distance 2.64 pc -> a = 19.77 AU)
-  var SIRIUS = { version:1, systemName:'Sirius', epoch:2000,
-    stars:[
-      { name:'Sirius A', cls:'A',  M:2.063, R:1.711,  T:9940,  au:0, ecc:0, angle:0 },
-      { name:'Sirius B', cls:'WD', M:1.018, R:0.0084, T:25200, au:19.77, ecc:0.5914, inc:136.53, node:45.4, argp:149.161, tp:1994.5715, angle:0, parent:0 }
-    ], planets:[], moons:[] };
   var PRESETS = [
     { label:'Kepler-11', file:'presets/kepler-11.json' },
-    { label:'HD 49798', file:'presets/HD 49798.json' },
-    { label:'Sirius A + B (real orbit)', data:SIRIUS }
+    { label:'HD 49798', file:'presets/HD_49798.json' }
     // add more here as you build them, e.g.:
     // { label:'TRAPPIST-1', file:'presets/trappist-1.json' },
   ];
@@ -3756,6 +3785,19 @@ showSysStatus('System reset.');
     labelsBtn.textContent = showLabels ? '🏷 LABELS: ON' : '🏷 LABELS: OFF';
   });
 
+  // ---- reset view: back to the opening camera (angle, distance, centered on the system, nothing focused) ----
+  var resetViewBtn = document.getElementById('resetViewBtn');
+  function resetView(){
+    if (!three) return;
+    three.azimuth = 0.7;
+    three.polar = 1.05;
+    three.focusObj = null;
+    three.baseTarget.set(0,0,0);
+    three.lookOffset.copy(three.lookTarget);   // glides back to the center instead of jumping
+    three.targetRadius = 11; three.savedRadius = 11;
+  }
+  resetViewBtn.addEventListener('click', resetView);
+
   // ---- speed slider ----
   // Logarithmic, so slow and very fast speeds are both easy to hit: position 0 = paused,
   // positions 1..200 run from speed 1 up to 10000 (about 5% per step). Speed 25 is the default.
@@ -3824,6 +3866,7 @@ showSysStatus('System reset.');
     else if (k === 'r' || k === 'R') physicsBtn.click();
     else if (k === 'h' || k === 'H') hzToggleBtn.click();
     else if (k === 'l' || k === 'L') labelsBtn.click();
+    else if (k === 'v' || k === 'V') resetView();
     else if (k === 'f' || k === 'F') fsBtn.click();
   });
 

@@ -1,6 +1,7 @@
 {
   "version": 1,
   "systemName": "Kepler-11 System",
+  "epoch": 2000,
   "stars": [
     {
       "name": "Kepler-11",
@@ -10,7 +11,11 @@
       "T": 5836,
       "au": 0,
       "ecc": 0,
-      "angle": 0
+      "angle": 0,
+      "inc": null,
+      "node": null,
+      "argp": null,
+      "tp": null
     }
   ],
   "planets": [
@@ -23,7 +28,11 @@
       "massME": 2.78,
       "angle": 6.134412060445769,
       "hasRing": false,
-      "starIndex": 0
+      "starIndex": 0,
+      "inc": 89.64,
+      "node": null,
+      "argp": null,
+      "tp": null
     },
     {
       "name": "c",
@@ -34,7 +43,11 @@
       "massME": 5,
       "angle": 1.3554595497106248,
       "hasRing": false,
-      "starIndex": 0
+      "starIndex": 0,
+      "inc": 89.59,
+      "node": null,
+      "argp": null,
+      "tp": null
     },
     {
       "name": "d",
@@ -45,7 +58,11 @@
       "massME": 14,
       "angle": 6.124547378987822,
       "hasRing": false,
-      "starIndex": 0
+      "starIndex": 0,
+      "inc": 89.67,
+      "node": null,
+      "argp": null,
+      "tp": null
     },
     {
       "name": "e",
@@ -56,7 +73,11 @@
       "massME": 14,
       "angle": 5.484761804543316,
       "hasRing": false,
-      "starIndex": 0
+      "starIndex": 0,
+      "inc": 89.89,
+      "node": null,
+      "argp": null,
+      "tp": null
     },
     {
       "name": "f",
@@ -67,7 +88,11 @@
       "massME": 2.43,
       "angle": 1.1100576704150782,
       "hasRing": false,
-      "starIndex": 0
+      "starIndex": 0,
+      "inc": 89.47,
+      "node": null,
+      "argp": null,
+      "tp": null
     },
     {
       "name": "g",
@@ -78,7 +103,12 @@
       "massME": 25,
       "angle": 4.683156578304202,
       "hasRing": true,
-      "starIndex": 0
+      "starIndex": 0,
+      "inc": 89.89,
+      "node": null,
+      "argp": null,
+      "tp": null
     }
-  ]
+  ],
+  "moons": []
 }
