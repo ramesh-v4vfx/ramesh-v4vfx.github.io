@@ -358,6 +358,19 @@
   @media (max-width:480px){ .stage .stage-toggles > button{font-size:9px; letter-spacing:0.03em; padding-left:8px; padding-right:8px;} }
   /* the hint and the watermark share the row, so they wrap above the buttons instead of printing over them */
   .stage .stage-toggles > .watermark, .stage .stage-toggles > .drag-hint{position:static; transform:none; margin:0 0 0 auto; text-align:right; pointer-events:none;}
+
+  /* ── ADVANCED ORBIT (inclination, node, periastron, epoch, period) ── */
+  .adv{margin-top:6px; display:flex; flex-wrap:wrap; align-items:flex-end; gap:4px 14px;}
+  .adv-body{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:flex-end;}
+  .adv-title{font-size:11px; font-weight:700; letter-spacing:0.12em; color:var(--red); padding:0 0 9px; white-space:nowrap;}
+  .adv-grid{flex:0 1 auto; display:grid; grid-template-columns:repeat(4, 120px); gap:8px 14px; min-width:0; align-items:end;}
+  .adv-grid .field{margin-bottom:0;}
+  @media (max-width:620px){ .adv-grid{grid-template-columns:repeat(2, minmax(100px, 1fr)); flex:1 1 100%;} .adv-title{padding-bottom:0;} }
+  .adv-grid .k{min-height:24px; align-items:flex-end; color:#7fb2ff;}
+  .adv-grid .k .sci{display:block; font-size:8px; letter-spacing:0.06em; color:#5f8fd0; margin-top:2px; white-space:nowrap;}
+  .adv .moon-hint{margin:0 0 10px; flex:1 1 220px;}
+  .adv .moon-hint:empty{display:none;}
+  @media (pointer:coarse){ .adv-title{font-size:12px; padding-bottom:12px;} }
 </style>
 </head>
 <body>
@@ -386,6 +399,10 @@
     <div class="field field-inline" style="margin-bottom:0; max-width:420px; flex:1 1 260px;">
       <div class="k"><span>SYSTEM NAME</span></div>
       <input type="text" id="systemName" placeholder="Unnamed System" maxlength="30">
+    </div>
+    <div class="field field-inline" style="margin-bottom:0; flex:0 1 170px;" title="Pick the year you want to see the system in. Only matters when a star or planet has a Closest year entered (Advanced orbit).">
+      <div class="k"><span>TIME TRAVEL (yr)</span></div>
+      <input type="number" id="epochInput" step="any" value="2000" min="-10000" max="10000">
     </div>
     <button class="sys-btn" id="saveSystemBtn">💾 SAVE SYSTEM</button>
     <button class="sys-btn" id="restoreSystemBtn">📂 RESTORE SYSTEM</button>
@@ -422,27 +439,39 @@
         <div class="k"><span>TEMPERATURE (K)</span></div>
         <input type="number" id="starTempInput" step="10" min="1000" max="2000000">
       </div>
-      <div class="field" style="margin-bottom:0;">
-        <div class="k"><span>LUMINOSITY</span></div>
-        <div class="lum-readout" id="starLumOut" style="font-size:13px;">1.000 L☉</div>
-      </div>
       <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
         <div class="k"><span>PARENT STAR (ORBITS)</span></div>
         <select id="starParentSelect"></select>
       </div>
-      <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
-        <div class="k"><span>DIST. FROM PARENT (AU)</span></div>
+      <div class="field star-orbit-field" style="margin-bottom:0; display:none; flex:0 1 190px; min-width:170px;">
+        <div class="k" style="white-space:nowrap;"><span>DIST. FROM PARENT (AU)</span></div>
         <input type="number" id="starOrbitNumber" step="0.001" min="0.015" max="10000">
       </div>
       <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
         <div class="k"><span>ECCENTRICITY</span></div>
         <input type="number" id="starEccNumber" step="0.001" min="0" max="0.9">
       </div>
+      <div class="field" style="margin-bottom:0;">
+        <div class="k"><span>LUMINOSITY</span></div>
+        <div class="lum-readout" id="starLumOut" style="font-size:13px;">1.000 L☉</div>
+      </div>
       <div class="field star-orbit-field" style="margin-bottom:0; display:none;">
         <div class="k"><span>PERIOD AROUND PARENT</span></div>
         <div class="lum-readout" id="starPeriodOut" style="font-size:11px;">1.00 yr</div>
       </div>
     </div>
+        <div class="adv star-orbit-field" id="sAdv" style="display:none;">
+          <div class="adv-body">
+            <div class="adv-title">ADVANCED ORBIT</div>
+            <div class="adv-grid">
+              <div class="field" title="Tilt of the orbit. 0&deg; = lying flat like a coin on a table. 90&deg; = standing on its edge. Over 90&deg; = it goes round the other way."><div class="k"><span>TILT i (&deg;)<em class="sci" style="font-style:normal">Inclination</em></span></div><input type="number" id="sInc" step="0.01" placeholder="no data" min="0" max="180"></div>
+              <div class="field" title="Which way the tilt is facing. Like turning a tilted plate around on the table without changing its tilt."><div class="k"><span>TURN &Omega; (&deg;)<em class="sci" style="font-style:normal">Ascending node</em></span></div><input type="number" id="sNode" step="0.01" placeholder="no data" min="0" max="360"></div>
+              <div class="field" title="Where the closest-to-the-star point sits on the orbit. Spins the oval around inside its own plane."><div class="k"><span>CLOSEST SPOT &omega; (&deg;)<em class="sci" style="font-style:normal">Arg. of periastron</em></span></div><input type="number" id="sArgp" step="0.01" placeholder="no data" min="0" max="360"></div>
+              <div class="field" title="The year the star was at its closest point. No data? Leave it empty: it starts at a random place and Time Travel stays locked."><div class="k"><span>CLOSEST YEAR T<em class="sci" style="font-style:normal">Periastron epoch</em></span></div><input type="number" id="sTp" step="any" placeholder="no data"></div>
+            </div>
+          </div>
+          <div class="moon-hint" id="sAdvHint"></div>
+        </div>
   </div>
 
   <div class="grid">
@@ -514,7 +543,20 @@
             <div class="lum-readout" id="periodOut" style="font-size:11px;">1.00 yr</div>
           </div>
         </div>
-        <div class="field">
+
+        <div class="adv " id="pAdv">
+          <div class="adv-body">
+            <div class="adv-title">ADVANCED ORBIT</div>
+            <div class="adv-grid">
+              <div class="field" title="Tilt of the orbit. 0&deg; = lying flat like a coin on a table. 90&deg; = standing on its edge. Over 90&deg; = it goes round the other way."><div class="k"><span>TILT i (&deg;)<em class="sci" style="font-style:normal">Inclination</em></span></div><input type="number" id="pInc" step="0.01" placeholder="no data" min="0" max="180"></div>
+              <div class="field" title="Which way the tilt is facing. Like turning a tilted plate around on the table without changing its tilt."><div class="k"><span>TURN &Omega; (&deg;)<em class="sci" style="font-style:normal">Ascending node</em></span></div><input type="number" id="pNode" step="0.01" placeholder="no data" min="0" max="360"></div>
+              <div class="field" title="Where the closest-to-the-star point sits on the orbit. Spins the oval around inside its own plane."><div class="k"><span>CLOSEST SPOT &omega; (&deg;)<em class="sci" style="font-style:normal">Arg. of periastron</em></span></div><input type="number" id="pArgp" step="0.01" placeholder="no data" min="0" max="360"></div>
+              <div class="field" title="The year the star was at its closest point. No data? Leave it empty: it starts at a random place and Time Travel stays locked."><div class="k"><span>CLOSEST YEAR T<em class="sci" style="font-style:normal">Periastron epoch</em></span></div><input type="number" id="pTp" step="any" placeholder="no data"></div>
+            </div>
+          </div>
+          <div class="moon-hint" id="pAdvHint"></div>
+        </div>
+        <div class="field" style="margin-top:10px;">
           <div class="k"><span>PLANET TYPE</span></div>
           <div class="type-row" id="typeRow"></div>
         </div>
@@ -582,7 +624,7 @@
 </div>
 
 <h1 style="text-align:center; max-width:1200px; margin:20px auto 0; font-size:10px; letter-spacing:0.1em;line-height: 1.5em; color:var(--text-dim); font-weight:400;">
-  Star system creator: build a system with one or more stars, each with editable mass, radius, and temperature, and planets with editable semi-major axis, eccentricity, radius, mass, and type, all rendered in a rotatable 3D scene with real Kepler orbits and habitable-zone shading.
+  Star system creator: build a system with one or more stars, each with editable mass, radius, and temperature, and planets with editable semi-major axis, eccentricity, inclination, node, periastron, radius, mass, and type, all rendered in a rotatable 3D scene with real Kepler orbits and habitable-zone shading.
 </h1>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -852,17 +894,57 @@ openPlanetBtn.addEventListener('click', function(){
   // real Kepler motion: mean anomaly -> eccentric anomaly (Newton) -> true anomaly + radius
   // angular rate is tied to the true orbital period (a^3/totalMass), so mass genuinely affects motion
   var ORBIT_SPEED = 0.26;
+
+  // ---- orbit orientation (Kepler elements) ----
+  // inc = inclination i (0..180 deg, >90 = retrograde), node = longitude of the ascending node (Omega),
+  // argp = argument of periastron (omega), tp = optional periastron epoch (calendar year).
+  // The reference plane is the sky plane: X = north, Y = east, Z = away from the viewer.
+  // Scene mapping: scene x = X, scene z = Y, scene y = Z, so all-zero angles reproduce the old flat orbits exactly.
+  var EPOCH = 2000;   // calendar year the animation starts at (only matters for bodies that have a periastron epoch)
+  function hasTp(o){ return typeof o.tp === 'number' && isFinite(o.tp); }   // 0 is a valid year; only an empty box means no data
+  // mean anomaly at the start: from the periastron epoch if there is one, otherwise the stored random phase
+  function phase0(o, periodYears){
+    if (hasTp(o)) return 2*Math.PI*(EPOCH - o.tp)/Math.max(periodYears, 0.0001);
+    return o.angle !== undefined ? o.angle : (o.ang || 0);
+  }
+  function orientCoef(o){
+    var D = Math.PI/180, i = (o.inc||0)*D, O = (o.node||0)*D, w = (o.argp||0)*D;
+    var cO = Math.cos(O), sO = Math.sin(O), cw = Math.cos(w), sw = Math.sin(w), ci = Math.cos(i), si = Math.sin(i);
+    return { xx: cO*cw - sO*sw*ci, xy: -(cO*sw + sO*cw*ci),
+             yx: sO*cw + cO*sw*ci, yy: -(sO*sw - cO*cw*ci),
+             zx: sw*si,            zy: cw*si };
+  }
+  // (xp, yp) = position in the orbit plane (xp toward periastron) -> scene coordinates
+  function orient(c, xp, yp, out){
+    out.x = c.xx*xp + c.xy*yp;
+    out.z = c.yx*xp + c.yy*yp;
+    out.y = c.zx*xp + c.zy*yp;
+    return out;
+  }
+  function orbitLinePoints(obj, a, e, n){
+    var c = orientCoef(obj), pts = [], o = {x:0,y:0,z:0};
+    for (var i=0;i<=n;i++){
+      var ang = (i/n)*Math.PI*2;
+      var rr = a*(1-e*e)/(1+e*Math.cos(ang));
+      orient(c, rr*Math.cos(ang), rr*Math.sin(ang), o);
+      pts.push(new THREE.Vector3(o.x, o.y, o.z));
+    }
+    return pts;
+  }
+
+  // real Kepler motion: mean anomaly -> eccentric anomaly (Newton) -> true anomaly + radius
+  // angular rate is tied to the true orbital period (a^3/totalMass), so mass genuinely affects motion
   function keplerPos(obj, aUnits, periodYears){
     var e = obj.ecc || 0;
-    var M = obj.angle + t*(ORBIT_SPEED/Math.max(periodYears,0.0001));
-    M = M % (Math.PI*2);
+    var M = phase0(obj, periodYears) + t*(ORBIT_SPEED/Math.max(periodYears,0.0001));
+    M = ((M % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
     var E = M;
-    for (var i=0;i<6;i++){
+    for (var i=0;i<10;i++){
       E = E - (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E));
     }
     var r = aUnits*(1 - e*Math.cos(E));
     var trueAnom = 2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2), Math.sqrt(1-e)*Math.cos(E/2));
-    return { x:r*Math.cos(trueAnom), z:r*Math.sin(trueAnom) };
+    return orient(orientCoef(obj), r*Math.cos(trueAnom), r*Math.sin(trueAnom), {x:0,y:0,z:0});
   }
 
   // ---- barycentric star layout (idealized mode) ----
@@ -877,41 +959,41 @@ openPlanetBtn.addEventListener('click', function(){
   function layoutStars(){
     var n = stars.length, i;
     starPos.length = 0; starAnchor.length = 0;
-    for (i=0;i<n;i++){ starPos.push({x:0, z:0}); starAnchor.push({x:0, z:0, f:1}); }
+    for (i=0;i<n;i++){ starPos.push({x:0, y:0, z:0}); starAnchor.push({x:0, y:0, z:0, f:1}); }
 
     // mass of each star plus everything orbiting it (children always have a higher index than parents)
     var sub = [];
     for (i=0;i<n;i++) sub.push(stars[i].M);
     for (i=n-1;i>=1;i--) sub[Math.min(parentOf(stars[i]), i-1)] += sub[i];
 
-    // bx,bz = center of mass of star i's sub-system
-    function place(i, bx, bz){
+    // bx,by,bz = center of mass of star i's sub-system
+    function place(i, bx, by, bz){
       var kids = [];
       for (var k=i+1;k<n;k++){ if (Math.min(parentOf(stars[k]), k-1) === i) kids.push(k); }
       kids.sort(function(p, q){ return stars[p].au - stars[q].au; });
 
-      var members = [{ idx:i, x:0, z:0 }], anchors = [], gm = stars[i].M;
+      var members = [{ idx:i, x:0, y:0, z:0 }], anchors = [], gm = stars[i].M;
       kids.forEach(function(k){
         var s = stars[k], ms = sub[k], tm = gm + ms;
         var period = orbitalPeriodYears(s.au, stars[i].M + s.M);
         var rel = keplerPos(s, auToUnits(s.au), period);     // companion relative to what is already inside it
-        var dx = -rel.x*ms/tm, dz = -rel.z*ms/tm;            // everything already placed recoils
-        members.forEach(function(m){ m.x += dx; m.z += dz; });
-        anchors.forEach(function(a){ a.x += dx; a.z += dz; });
+        var dx = -rel.x*ms/tm, dy = -rel.y*ms/tm, dz = -rel.z*ms/tm;   // everything already placed recoils
+        members.forEach(function(m){ m.x += dx; m.y += dy; m.z += dz; });
+        anchors.forEach(function(a){ a.x += dx; a.y += dy; a.z += dz; });
         var an = starAnchor[k];                              // this pair's orbit is centered on the pair's barycenter
-        an.x = 0; an.z = 0; an.f = gm/tm;
+        an.x = 0; an.y = 0; an.z = 0; an.f = gm/tm;
         anchors.push(an);
-        members.push({ idx:k, x:rel.x*gm/tm, z:rel.z*gm/tm });
+        members.push({ idx:k, x:rel.x*gm/tm, y:rel.y*gm/tm, z:rel.z*gm/tm });
         gm = tm;
       });
 
-      anchors.forEach(function(a){ a.x += bx; a.z += bz; });
+      anchors.forEach(function(a){ a.x += bx; a.y += by; a.z += bz; });
       members.forEach(function(m){
-        if (m.idx === i){ starPos[i].x = bx + m.x; starPos[i].z = bz + m.z; }
-        else place(m.idx, bx + m.x, bz + m.z);
+        if (m.idx === i){ starPos[i].x = bx + m.x; starPos[i].y = by + m.y; starPos[i].z = bz + m.z; }
+        else place(m.idx, bx + m.x, by + m.y, bz + m.z);
       });
     }
-    place(0, 0, 0);
+    place(0, 0, 0, 0);
   }
 
     var trueScaleMode = true; // true relative sizes, always (the old 'enhanced' toggle was removed)
@@ -1058,6 +1140,7 @@ openPlanetBtn.addEventListener('click', function(){
     var s = stars[editingStarIndex];
     var totalMass = stars[parentOf(s)].M + s.M;
     starPeriodOut.textContent = formatPeriod(orbitalPeriodYears(s.au, totalMass));
+    updateStarAdv();
   }
 
   starOrbitNumber.addEventListener('change', function(){
@@ -1073,6 +1156,77 @@ openPlanetBtn.addEventListener('click', function(){
     s.ecc = Math.max(0, Math.min(0.9, parseFloat(starEccNumber.value)||0));
     starEccNumber.value = s.ecc.toFixed(3);
     renderTable();
+    rebuildIfReady();
+  });
+
+  // ================= ADVANCED ORBIT: inclination, node, periastron, epoch, period =================
+  var epochInput = document.getElementById('epochInput');
+  var sInc = document.getElementById('sInc'), sNode = document.getElementById('sNode'), sArgp = document.getElementById('sArgp'),
+      sTp = document.getElementById('sTp'), sAdvHint = document.getElementById('sAdvHint');
+  var pInc = document.getElementById('pInc'), pNode = document.getElementById('pNode'), pArgp = document.getElementById('pArgp'),
+      pTp = document.getElementById('pTp'), pAdvHint = document.getElementById('pAdvHint');
+
+  function numOrNull(el){ var v = parseFloat(el.value); return isFinite(v) ? v : null; }
+  function clampDeg(v, lo, hi, def){ v = parseFloat(v); if (!isFinite(v)) v = def; return Math.max(lo, Math.min(hi, v)); }
+  function degOrNull(el, lo, hi, wrap){ var v = parseFloat(el.value); if (!isFinite(v)) return null; return wrap ? (((v % 360) + 360) % 360) : Math.max(lo, Math.min(hi, v)); }
+  function wrap360(v){ v = parseFloat(v); if (!isFinite(v)) return 0; return ((v % 360) + 360) % 360; }
+  function fv(x){ return String(parseFloat(Number(x).toPrecision(7))); }
+  var ADV_NOTE = 'ω is for this body relative to its parent.';
+  function advNote(inc){ return inc > 90 ? 'RETROGRADE orbit (tilt over 90°): it goes round the opposite way.' : ''; }
+
+  // ---- stars ----
+  function drawStarPrev(){
+    if (editingStarIndex === 0) return;
+    sAdvHint.textContent = advNote(parseFloat(sInc.value) || 0);
+  }
+  function updateStarAdv(){
+    if (editingStarIndex === 0) return;
+    var s = stars[editingStarIndex];
+    sInc.value = isFinite(s.inc) && s.inc !== null ? fv(s.inc) : ''; sNode.value = isFinite(s.node) && s.node !== null ? fv(s.node) : ''; sArgp.value = isFinite(s.argp) && s.argp !== null ? fv(s.argp) : '';
+    sTp.value = hasTp(s) ? fv(s.tp) : '';
+    sAdvHint.textContent = advNote(s.inc || 0);
+    sAdvHint.classList.remove('warn');
+    drawStarPrev();
+  }
+  function onStarAdvChange(){
+    if (editingStarIndex === 0) return;
+    var s = stars[editingStarIndex];
+    s.inc = degOrNull(sInc, 0, 180); s.node = degOrNull(sNode, 0, 360, true); s.argp = degOrNull(sArgp, 0, 360, true);
+    var tp = numOrNull(sTp);
+    if (tp === null) delete s.tp; else s.tp = Math.max(-1e5, Math.min(1e5, tp));
+    updateStarAdv();
+    rebuildIfReady();
+  }
+  [sInc, sNode, sArgp, sTp].forEach(function(el){ el.addEventListener('change', onStarAdvChange); });
+  [sInc, sNode, sArgp].forEach(function(el){ el.addEventListener('input', drawStarPrev); });
+
+  // ---- planets ----
+  function drawPlanetPrev(){
+    pAdvHint.textContent = advNote(parseFloat(pInc.value) || 0);
+  }
+  function refreshPlanetAdv(){
+    var au = Math.max(0.015, parseFloat(distNumber.value) || 1);
+    var starIdx = stars.length > 1 ? (+orbitsStarSelect.value || 0) : 0, star = stars[starIdx] || stars[0];
+    drawPlanetPrev();
+  }
+  function loadPlanetAdv(p){
+    pInc.value = (p.inc !== null && isFinite(p.inc)) ? fv(p.inc) : ''; pNode.value = (p.node !== null && isFinite(p.node)) ? fv(p.node) : ''; pArgp.value = (p.argp !== null && isFinite(p.argp)) ? fv(p.argp) : '';
+    pTp.value = hasTp(p) ? fv(p.tp) : '';
+  }
+  [pInc, pNode, pArgp, pTp].forEach(function(el){
+    el.addEventListener('input', drawPlanetPrev);
+    el.addEventListener('change', function(){
+      var a = degOrNull(pInc, 0, 180), b = degOrNull(pNode, 0, 360, true), c = degOrNull(pArgp, 0, 360, true);
+      pInc.value = a === null ? '' : fv(a); pNode.value = b === null ? '' : fv(b); pArgp.value = c === null ? '' : fv(c);
+      drawPlanetPrev();
+    });
+  });
+  distNumber.addEventListener('input', drawPlanetPrev);
+  eccNumber.addEventListener('input', drawPlanetPrev);
+
+  epochInput.addEventListener('change', function(){
+    EPOCH = clampDeg(epochInput.value, -10000, 10000, 2000);
+    epochInput.value = EPOCH;
     rebuildIfReady();
   });
 
@@ -1190,6 +1344,7 @@ openPlanetBtn.addEventListener('click', function(){
     var starIdx = stars.length>1 ? (+orbitsStarSelect.value||0) : 0;
     var star = stars[starIdx] || stars[0];
     periodOut.textContent = formatPeriod(orbitalPeriodYears(au, star.M + currentFormPlanetMassSolar()));
+    refreshPlanetAdv();
   }
   distNumber.addEventListener('change', function(){
     var au = Math.max(0.015, parseFloat(distNumber.value)||1);
@@ -1207,6 +1362,7 @@ openPlanetBtn.addEventListener('click', function(){
     pNameInput.value = '';
     distNumber.value = '1.000';
     eccNumber.value = '0.000';
+    loadPlanetAdv({});
     currentType = planetTypes[0];
     radiusInput.value = currentType.radiusRE;
     massInput.value = currentType.massME;
@@ -1230,7 +1386,8 @@ openPlanetBtn.addEventListener('click', function(){
     var radiusRE = Math.max(0.05, parseFloat(radiusInput.value)||currentType.radiusRE);
     var massME = Math.max(0.001, parseFloat(massInput.value)||currentType.massME);
     var starIndex = stars.length>1 ? (+orbitsStarSelect.value||0) : 0;
-    return { name:name, au:au, ecc:ecc, type:currentType, radiusRE:radiusRE, massME:massME, starIndex:starIndex };
+    return { name:name, au:au, ecc:ecc, type:currentType, radiusRE:radiusRE, massME:massME, starIndex:starIndex,
+      inc:degOrNull(pInc, 0, 180), node:degOrNull(pNode, 0, 360, true), argp:degOrNull(pArgp, 0, 360, true), tp:numOrNull(pTp) };
   }
 
   addBtn.addEventListener('click', function(){
@@ -1266,6 +1423,7 @@ openPlanetBtn.addEventListener('click', function(){
     Array.prototype.forEach.call(typeRow.children, function(c,i){ c.classList.toggle('active', planetTypes[i]===currentType); });
     distNumber.value = p.au.toFixed(3);
     eccNumber.value = (p.ecc||0).toFixed(3);
+    loadPlanetAdv(p);
     radiusInput.value = p.radiusRE;
     massInput.value = p.massME;
     if (stars.length>1) orbitsStarSelect.value = p.starIndex||0;
@@ -1684,10 +1842,10 @@ openPlanetBtn.addEventListener('click', function(){
       var mo = mm.userData.moon, pm = three.planetMeshes[mo.planetIndex];
       if (!pm) return;
       var rel = keplerPos(mo, mm.userData.aUnits, moonPeriodYears(mo));
-      mm.position.set(pm.position.x + rel.x, 0, pm.position.z + rel.z);
+      mm.position.set(pm.position.x + rel.x, pm.position.y + rel.y, pm.position.z + rel.z);
       mm.rotation.y += 0.006*speedMultiplier;
       var line = three.moonLines[idx];
-      if (line) line.position.set(pm.position.x, 0, pm.position.z);
+      if (line) line.position.set(pm.position.x, pm.position.y, pm.position.z);
       placeMoonLabel(mm, three.moonLabels[idx]);
     });
   }
@@ -1709,21 +1867,21 @@ openPlanetBtn.addEventListener('click', function(){
       }
       var dp = simDisplayParent(mi);           // its planet, or whatever swallowed that planet
       if (dp < 0) dp = simResolve(0);
-      var anchor, hostGroup, ax = 0, az = 0;
+      var anchor, hostGroup, ax = 0, ay = 0, az = 0;
       if (dp < S){ anchor = three.starObjs[dp].group; hostGroup = anchor; }
       else {
         anchor = dp < S + P ? three.planetMeshes[dp - S] : three.moonMeshes[dp - S - P];
         if (!anchor) continue;
         hostGroup = anchor.parent;
-        ax = anchor.position.x; az = anchor.position.z;
+        ax = anchor.position.x; ay = anchor.position.y; az = anchor.position.z;
       }
       if (mm.parent !== hostGroup){
         hostGroup.add(mm);
         [mlab, mtl, mk].forEach(function(o){ if (o) hostGroup.add(o); });
         mb.trail.length = 0;
       }
-      dispOffset(mb.x - B[dp].x, mb.z - B[dp].z, simOff);
-      mm.position.set(ax + simOff.x, 0, az + simOff.z);
+      dispOffset(mb.x - B[dp].x, mb.y - B[dp].y, mb.z - B[dp].z, simOff);
+      mm.position.set(ax + simOff.x, ay + simOff.y, az + simOff.z);
       mm.rotation.y += 0.006*speedMultiplier;
       placeMoonLabel(mm, mlab);
       if (dp >= S) writeTrail(mi, mtl, simOff, anchor.position);   // path relative to its planet, ending on the moon
@@ -1804,7 +1962,7 @@ openPlanetBtn.addEventListener('click', function(){
   // Each body starts on the orbit set in the editor; from then on nothing is "on rails":
   // companions perturb planets, orbits precess and can go unstable, bodies can be ejected,
   // and bodies that touch or come inside each other's tidal (Roche) limit are swallowed.
-  // The simulation is flat (all orbits share one plane). The picture still uses the stylized
+  // The simulation is fully 3D (orbits can be inclined). The picture still uses the stylized
   // distance scale, applied to each body's position relative to its parent / host star.
   var G_AU = 4*Math.PI*Math.PI;      // AU^3 / (Msun * yr^2)
   var AU_PER_RSUN = 0.00465047;
@@ -1816,7 +1974,7 @@ openPlanetBtn.addEventListener('click', function(){
   var sim = null;
   var simPending = [];               // pairs of bodies in contact this step
   var simEvents = [];                // messages for the on-screen event log
-  var simOff = { x:0, z:0 };
+  var simOff = { x:0, y:0, z:0 };
 
   function solveE(M, e){
     var E = e < 0.8 ? M : Math.PI;
@@ -1846,11 +2004,11 @@ openPlanetBtn.addEventListener('click', function(){
     return -1;
   }
   // the stylized distance scale, applied to a relative position vector (keeps its direction)
-  function dispOffset(dx, dz, out){
-    var d = Math.sqrt(dx*dx + dz*dz);
-    if (d < 1e-12){ out.x = 0; out.z = 0; return out; }
+  function dispOffset(dx, dy, dz, out){
+    var d = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    if (d < 1e-12){ out.x = 0; out.y = 0; out.z = 0; return out; }
     var u = distUnits(d)/d;
-    out.x = dx*u; out.z = dz*u;
+    out.x = dx*u; out.y = dy*u; out.z = dz*u;
     return out;
   }
 
@@ -1872,21 +2030,21 @@ openPlanetBtn.addEventListener('click', function(){
     var S = stars.length, bodies = [];
     stars.forEach(function(s, i){
       bodies.push({ kind:'star', name:s.name, isBH:s.cls==='BH', m:s.M, r:s.R*AU_PER_RSUN,
-        a:s.au||0, e:s.ecc||0, ang:s.angle||0, parent: i===0 ? -1 : Math.min(parentOf(s), i-1),
-        x:0, z:0, vx:0, vz:0, ax:0, az:0, alive:true, by:-1, escaped:false,
+        a:s.au||0, e:s.ecc||0, ang:s.angle||0, inc:s.inc||0, node:s.node||0, argp:s.argp||0, tp:s.tp, parent: i===0 ? -1 : Math.min(parentOf(s), i-1),
+        x:0, y:0, z:0, vx:0, vy:0, vz:0, ax:0, ay:0, az:0, alive:true, by:-1, escaped:false,
         trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
     });
     planets.forEach(function(p){
       bodies.push({ kind:'planet', name:p.name, isBH:false, m:planetMassSolar(p), r:p.radiusRE*AU_PER_REARTH,
-        a:p.au, e:p.ecc||0, ang:p.angle||0, parent: Math.min(p.starIndex||0, S-1),
-        x:0, z:0, vx:0, vz:0, ax:0, az:0, alive:true, by:-1, escaped:false,
+        a:p.au, e:p.ecc||0, ang:p.angle||0, inc:p.inc||0, node:p.node||0, argp:p.argp||0, tp:p.tp, parent: Math.min(p.starIndex||0, S-1),
+        x:0, y:0, z:0, vx:0, vy:0, vz:0, ax:0, ay:0, az:0, alive:true, by:-1, escaped:false,
         trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
     });
 
     moons.forEach(function(mo){
       bodies.push({ kind:'moon', name:mo.name, isBH:false, m:mo.massME/EARTH_MASSES_PER_SOLAR, r:mo.radiusRE*AU_PER_REARTH,
         a:mo.km/AU_KM, e:mo.ecc||0, ang:mo.angle||0, parent: S + Math.min(mo.planetIndex, planets.length-1),
-        x:0, z:0, vx:0, vz:0, ax:0, az:0, alive:true, by:-1, escaped:false,
+        x:0, y:0, z:0, vx:0, vy:0, vz:0, ax:0, ay:0, az:0, alive:true, by:-1, escaped:false,
         trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
     });
 
@@ -1906,25 +2064,26 @@ openPlanetBtn.addEventListener('click', function(){
       for (var k=0;k<bodies.length;k++){ if (bodies[k].parent === pi) kids.push(k); }
       kids.sort(function(p, q){ return bodies[p].a - bodies[q].a; });
       var P = bodies[pi];
-      var gm = P.m, gx = P.x, gz = P.z, gvx = P.vx, gvz = P.vz;
+      var gm = P.m, gx = P.x, gy = P.y, gz = P.z, gvx = P.vx, gvy = P.vy, gvz = P.vz;
       kids.forEach(function(k){
         var bd = bodies[k];
         var ms = bd.kind==='star' ? subtreeMass(k) : bd.m;
         var a = bd.kind==='moon' ? Math.max(bd.a, 1e-9) : Math.max(bd.a, 0.015), e = Math.min(0.9, Math.max(0, bd.e));
         var periodAn = bd.kind==='moon' ? kepPeriodYears(a, P.m + bd.m) : orbitalPeriodYears(a, P.m + bd.m);   // same phase as the idealized mode
-        var M = (bd.ang + t*(ORBIT_SPEED/Math.max(periodAn,0.0001))) % (Math.PI*2);
+        var M = (((phase0(bd, periodAn) + t*(ORBIT_SPEED/Math.max(periodAn,0.0001))) % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
         var E = solveE(M, e), cE = Math.cos(E), sE = Math.sin(E), sq = Math.sqrt(1 - e*e);
         var r = a*(1 - e*cE);
         var f = Math.sqrt(G_AU*(gm + ms)*a)/r;
-        bd.x  = gx  + a*(cE - e);
-        bd.z  = gz  + a*sq*sE;
-        bd.vx = gvx - f*sE;
-        bd.vz = gvz + f*sq*cE;
+        var oc = orientCoef(bd), po = {x:0,y:0,z:0}, vo = {x:0,y:0,z:0};   // tilt the orbit plane (i, node, argp)
+        orient(oc, a*(cE - e), a*sq*sE, po);
+        orient(oc, -f*sE, f*sq*cE, vo);
+        bd.x  = gx  + po.x;  bd.y  = gy  + po.y;  bd.z  = gz  + po.z;
+        bd.vx = gvx + vo.x;  bd.vy = gvy + vo.y;  bd.vz = gvz + vo.z;
         bd.trailDt = periodAn/90;
         if (bd.kind === 'star'){
           var tm = gm + ms;
-          gx  = (gm*gx  + ms*bd.x )/tm;  gz  = (gm*gz  + ms*bd.z )/tm;
-          gvx = (gm*gvx + ms*bd.vx)/tm;  gvz = (gm*gvz + ms*bd.vz)/tm;
+          gx  = (gm*gx  + ms*bd.x )/tm;  gy  = (gm*gy  + ms*bd.y )/tm;  gz  = (gm*gz  + ms*bd.z )/tm;
+          gvx = (gm*gvx + ms*bd.vx)/tm;  gvy = (gm*gvy + ms*bd.vy)/tm;  gvz = (gm*gvz + ms*bd.vz)/tm;
           gm = tm;
         }
       });
@@ -1933,10 +2092,10 @@ openPlanetBtn.addEventListener('click', function(){
     placeChildren(0);
 
     // remove the whole system's drift so it stays put
-    var Mt = 0, cx = 0, cz = 0, px = 0, pz = 0;
-    bodies.forEach(function(b){ Mt += b.m; cx += b.m*b.x; cz += b.m*b.z; px += b.m*b.vx; pz += b.m*b.vz; });
-    cx /= Mt; cz /= Mt; px /= Mt; pz /= Mt;
-    bodies.forEach(function(b){ b.x -= cx; b.z -= cz; b.vx -= px; b.vz -= pz; });
+    var Mt = 0, cx = 0, cy = 0, cz = 0, px = 0, py = 0, pz = 0;
+    bodies.forEach(function(b){ Mt += b.m; cx += b.m*b.x; cy += b.m*b.y; cz += b.m*b.z; px += b.m*b.vx; py += b.m*b.vy; pz += b.m*b.vz; });
+    cx /= Mt; cy /= Mt; cz /= Mt; px /= Mt; py /= Mt; pz /= Mt;
+    bodies.forEach(function(b){ b.x -= cx; b.y -= cy; b.z -= cz; b.vx -= px; b.vy -= py; b.vz -= pz; });
 
     sim = { bodies:bodies, S:S, tauMin:1e9, rate:1, t:0, contact2:null };
     simPending.length = 0;
@@ -1952,7 +2111,7 @@ openPlanetBtn.addEventListener('click', function(){
   // pairwise gravity; also finds contacts and the shortest dynamical time (which sets the time step)
   function computeAcc(){
     var B = sim.bodies, n = B.length, i, j, bi, bj, tau2 = 1e30;
-    for (i=0;i<n;i++){ B[i].ax = 0; B[i].az = 0; }
+    for (i=0;i<n;i++){ B[i].ax = 0; B[i].ay = 0; B[i].az = 0; }
     simPending.length = 0;
     for (i=0;i<n;i++){
       bi = B[i];
@@ -1960,14 +2119,14 @@ openPlanetBtn.addEventListener('click', function(){
       for (j=i+1;j<n;j++){
         bj = B[j];
         if (!bj.alive) continue;
-        var dx = bj.x - bi.x, dz = bj.z - bi.z;
-        var r2 = dx*dx + dz*dz;
+        var dx = bj.x - bi.x, dy = bj.y - bi.y, dz = bj.z - bi.z;
+        var r2 = dx*dx + dy*dy + dz*dz;
         if (r2 < sim.contact2[i*n+j]){ simPending.push(i, j); continue; }
         var rs2 = r2 + ((bi.kind === 'moon' || bj.kind === 'moon') ? SIM_SOFT2_MOON : SIM_SOFT2);   // a moon's tiny orbit needs a smaller softening
         var rs3 = rs2*Math.sqrt(rs2);
         var inv = G_AU/rs3;
-        bi.ax += bj.m*dx*inv; bi.az += bj.m*dz*inv;
-        bj.ax -= bi.m*dx*inv; bj.az -= bi.m*dz*inv;
+        bi.ax += bj.m*dx*inv; bi.ay += bj.m*dy*inv; bi.az += bj.m*dz*inv;
+        bj.ax -= bi.m*dx*inv; bj.ay -= bi.m*dy*inv; bj.az -= bi.m*dz*inv;
         var t2 = rs3/(G_AU*(bi.m + bj.m));
         if (t2 < tau2) tau2 = t2;
       }
@@ -1980,11 +2139,11 @@ openPlanetBtn.addEventListener('click', function(){
     var B = sim.bodies;
     var hv = B[i].m >= B[j].m ? i : j, lt = hv===i ? j : i;
     var H = B[hv], L = B[lt], M = H.m + L.m;
-    H.x  = (H.m*H.x  + L.m*L.x )/M;  H.z  = (H.m*H.z  + L.m*L.z )/M;
-    H.vx = (H.m*H.vx + L.m*L.vx)/M;  H.vz = (H.m*H.vz + L.m*L.vz)/M;
+    H.x  = (H.m*H.x  + L.m*L.x )/M;  H.y  = (H.m*H.y  + L.m*L.y )/M;  H.z  = (H.m*H.z  + L.m*L.z )/M;
+    H.vx = (H.m*H.vx + L.m*L.vx)/M;  H.vy = (H.m*H.vy + L.m*L.vy)/M;  H.vz = (H.m*H.vz + L.m*L.vz)/M;
     H.r = H.isBH ? schwarzschildR(M)*AU_PER_RSUN : Math.cbrt(H.r*H.r*H.r + L.r*L.r*L.r);
     H.m = M;
-    L.alive = false; L.by = hv; L.vx = 0; L.vz = 0;
+    L.alive = false; L.by = hv; L.vx = 0; L.vy = 0; L.vz = 0;
     simEvents.push(L.name + ' swallowed by ' + H.name);
     buildContact();
   }
@@ -2004,9 +2163,9 @@ openPlanetBtn.addEventListener('click', function(){
     var B = sim.bodies, bd = B[i], dp = simDisplayParent(i);
     if (dp < 0) return;
     if (bd.trailParent !== dp){ bd.trail.length = 0; bd.trailParent = dp; }
-    dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
+    dispOffset(bd.x - B[dp].x, bd.y - B[dp].y, bd.z - B[dp].z, simOff);
     var tr = bd.trail;
-    tr.push(simOff.x, 0, simOff.z);
+    tr.push(simOff.x, simOff.y, simOff.z);
     if (tr.length > TRAIL_N*3) tr.splice(0, 3);
   }
 
@@ -2022,8 +2181,8 @@ openPlanetBtn.addEventListener('click', function(){
       for (i=0;i<n;i++){
         b = B[i];
         if (!b.alive) continue;
-        b.vx += h*b.ax; b.vz += h*b.az;
-        b.x += dt*b.vx; b.z += dt*b.vz;
+        b.vx += h*b.ax; b.vy += h*b.ay; b.vz += h*b.az;
+        b.x += dt*b.vx; b.y += dt*b.vy; b.z += dt*b.vz;
       }
       computeAcc();
       var guard = 0;
@@ -2033,7 +2192,7 @@ openPlanetBtn.addEventListener('click', function(){
       for (i=0;i<n;i++){
         b = B[i];
         if (!b.alive) continue;
-        b.vx += h*b.ax; b.vz += h*b.az;
+        b.vx += h*b.ax; b.vy += h*b.ay; b.vz += h*b.az;
       }
       remaining -= dt; done += dt; sim.t += dt;
       for (i=0;i<n;i++){
@@ -2052,21 +2211,21 @@ openPlanetBtn.addEventListener('click', function(){
 
   // report bodies that have clearly been flung out of the system (unbound and far from the center of mass)
   function checkEscapes(){
-    var B = sim.bodies, Mt = 0, cx = 0, cz = 0, px = 0, pz = 0, i, b;
+    var B = sim.bodies, Mt = 0, cx = 0, cy = 0, cz = 0, px = 0, py = 0, pz = 0, i, b;
     for (i=0;i<B.length;i++){
       b = B[i];
       if (!b.alive) continue;
-      Mt += b.m; cx += b.m*b.x; cz += b.m*b.z; px += b.m*b.vx; pz += b.m*b.vz;
+      Mt += b.m; cx += b.m*b.x; cy += b.m*b.y; cz += b.m*b.z; px += b.m*b.vx; py += b.m*b.vy; pz += b.m*b.vz;
     }
     if (Mt <= 0) return;
-    cx /= Mt; cz /= Mt; px /= Mt; pz /= Mt;
+    cx /= Mt; cy /= Mt; cz /= Mt; px /= Mt; py /= Mt; pz /= Mt;
     for (i=0;i<B.length;i++){
       b = B[i];
       if (!b.alive || b.escaped) continue;
-      var dx = b.x - cx, dz = b.z - cz, r = Math.sqrt(dx*dx + dz*dz);
+      var dx = b.x - cx, dy = b.y - cy, dz = b.z - cz, r = Math.sqrt(dx*dx + dy*dy + dz*dz);
       if (r < 1000) continue;
-      var vx = b.vx - px, vz = b.vz - pz;
-      if (vx*vx + vz*vz > 2*G_AU*Mt/r){
+      var vx = b.vx - px, vy = b.vy - py, vz = b.vz - pz;
+      if (vx*vx + vy*vy + vz*vz > 2*G_AU*Mt/r){
         b.escaped = true;
         simEvents.push(b.name + ' escaped the system');
       }
@@ -2111,7 +2270,7 @@ openPlanetBtn.addEventListener('click', function(){
     if (!line) return;
     var tr = sim.bodies[i].trail, pos = line.geometry.attributes.position, arr = pos.array, len = tr.length, k;
     for (k=0;k<len;k++) arr[k] = tr[k];
-    arr[len] = off.x; arr[len+1] = 0; arr[len+2] = off.z;   // end the trail exactly on the body
+    arr[len] = off.x; arr[len+1] = off.y; arr[len+2] = off.z;   // end the trail exactly on the body
     pos.needsUpdate = true;
     line.geometry.setDrawRange(0, len/3 + 1);
     line.visible = true;
@@ -2164,7 +2323,7 @@ openPlanetBtn.addEventListener('click', function(){
     });
     three.planetMeshes.forEach(function(mesh, j){
       var label = three.planetLabels[j], mk = mesh.userData.marker;
-      if (label){ label.scale.set(1.1*ls, 0.28*ls, 1); label.position.y = mesh.userData.size + 0.22*ls; }
+      if (label){ label.scale.set(1.1*ls, 0.28*ls, 1); label.position.y = mesh.position.y + mesh.userData.size + 0.22*ls; }
       if (mk){
         var ms = Math.max(mesh.userData.size*2.5, ls*0.05);
         mk.scale.set(ms, ms, 1);
@@ -2191,7 +2350,7 @@ openPlanetBtn.addEventListener('click', function(){
     // keeps that point at the origin), so the primary visibly wobbles instead of being pinned.
     // Distances are linear in realistic mode (distUnits = AU x distK), so this equals the old
     // "parent position + relative offset" placement for companions.
-    so.group.position.set(bd.x*distK, 0, bd.z*distK);
+    so.group.position.set(bd.x*distK, bd.y*distK, bd.z*distK);
     var dp = simDisplayParent(i);
     if (dp < 0){
       if (so.trailLine) so.trailLine.visible = false;
@@ -2199,7 +2358,7 @@ openPlanetBtn.addEventListener('click', function(){
     }
     placeStar(dp);
     var pg = three.starObjs[dp].group.position;
-    dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
+    dispOffset(bd.x - B[dp].x, bd.y - B[dp].y, bd.z - B[dp].z, simOff);
     writeTrail(i, so.trailLine, simOff, pg);   // trail = path relative to its parent star, ending on the star
   }
 
@@ -2228,12 +2387,12 @@ openPlanetBtn.addEventListener('click', function(){
         [label, atmo, ring, tl, mesh.userData.marker].forEach(function(o){ if (o) host.add(o); });
         bd.trail.length = 0;
       }
-      dispOffset(bd.x - B[dp].x, bd.z - B[dp].z, simOff);
-      mesh.position.set(simOff.x, 0, simOff.z);
+      dispOffset(bd.x - B[dp].x, bd.y - B[dp].y, bd.z - B[dp].z, simOff);
+      mesh.position.set(simOff.x, simOff.y, simOff.z);
       mesh.rotation.y += 0.006*speedMultiplier;
-      if (label) label.position.set(simOff.x, mesh.userData.size + 0.22, simOff.z);
-      if (atmo) atmo.position.set(simOff.x, 0, simOff.z);
-      if (ring) ring.position.set(simOff.x, 0, simOff.z);
+      if (label) label.position.set(simOff.x, simOff.y + mesh.userData.size + 0.22, simOff.z);
+      if (atmo) atmo.position.set(simOff.x, simOff.y, simOff.z);
+      if (ring) ring.position.set(simOff.x, simOff.y, simOff.z);
       writeTrail(bi, tl, simOff, null);
     }
   }
@@ -2993,13 +3152,7 @@ function handleStageClick(e){
 
       if (idx>0){
         starObjEntry.parentIdx = Math.min(parentOf(s), idx-1);
-        var pts = [];
-        var a = auToUnits(s.au), e = s.ecc||0;
-        for (var i=0;i<=128;i++){
-          var ang = (i/128)*Math.PI*2;
-          var rr = a*(1-e*e)/(1+e*Math.cos(ang));
-          pts.push(new THREE.Vector3(rr*Math.cos(ang), 0, rr*Math.sin(ang)));
-        }
+        var pts = orbitLinePoints(s, auToUnits(s.au), s.ecc||0, 128);
         var og = new THREE.BufferGeometry().setFromPoints(pts);
         var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x5a4038, transparent:true, opacity:0.5}));
         scene.add(line);
@@ -3012,13 +3165,7 @@ function handleStageClick(e){
       var starObj = three.starObjs[p.starIndex] || three.starObjs[0];
       var group = starObj.group;
 
-      var a = auToUnits(p.au), e = p.ecc||0;
-      var pts = [];
-      for (var i=0;i<=128;i++){
-        var ang = (i/128)*Math.PI*2;
-        var rr = a*(1-e*e)/(1+e*Math.cos(ang));
-        pts.push(new THREE.Vector3(rr*Math.cos(ang), 0, rr*Math.sin(ang)));
-      }
+      var pts = orbitLinePoints(p, auToUnits(p.au), p.ecc||0, 128);
       var og = new THREE.BufferGeometry().setFromPoints(pts);
       var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x394048, transparent:true, opacity:0.55}));
       group.add(line);
@@ -3143,11 +3290,11 @@ function handleStageClick(e){
       so.mesh.rotation.y += 0.0032*speedMultiplier;
       var sp = starPos[idx];
       if (!sp) return;
-      so.group.position.set(sp.x, 0, sp.z);
+      so.group.position.set(sp.x, sp.y, sp.z);
       if (idx > 0 && so.orbitLine){
         var an = starAnchor[idx];
-        so.orbitLine.position.set(an.x, 0, an.z);   // orbit ellipse is centered on the pair's barycenter
-        so.orbitLine.scale.set(an.f, 1, an.f);      // and scaled to the companion's share of the separation
+        so.orbitLine.position.set(an.x, an.y, an.z);   // orbit ellipse is centered on the pair's barycenter
+        so.orbitLine.scale.set(an.f, an.f, an.f);      // and scaled to the companion's share of the separation
       }
     });
 
@@ -3157,14 +3304,14 @@ function handleStageClick(e){
       var hostStar = stars[p.starIndex] || stars[0];
       var period = orbitalPeriodYears(p.au, hostStar.M + planetMassSolar(p));
       var pos = keplerPos(p, a, period);
-      mesh.position.set(pos.x, 0, pos.z);
+      mesh.position.set(pos.x, pos.y, pos.z);
       mesh.rotation.y += 0.006*speedMultiplier;
       var label = three.planetLabels[idx];
-      if (label) label.position.set(pos.x, mesh.userData.size + 0.22, pos.z);
+      if (label) label.position.set(pos.x, pos.y + mesh.userData.size + 0.22, pos.z);
       var atmo = three.planetAtmos[idx];
-      if (atmo) atmo.position.set(pos.x, 0, pos.z);
+      if (atmo) atmo.position.set(pos.x, pos.y, pos.z);
       var ring = three.planetRings[idx];
-      if (ring) ring.position.set(pos.x, 0, pos.z);
+      if (ring) ring.position.set(pos.x, pos.y, pos.z);
     });
     }
 
@@ -3299,9 +3446,10 @@ function handleStageClick(e){
     return JSON.stringify({
       version: 1,
       systemName: systemNameInput.value.trim(),
+      epoch: EPOCH,
       stars: stars,
       planets: planets.map(function(p){
-        return { name:p.name, au:p.au, ecc:p.ecc, typeId:p.type.id, radiusRE:p.radiusRE, massME:p.massME, angle:p.angle, hasRing:p.hasRing, starIndex:p.starIndex||0 };
+        return { name:p.name, au:p.au, ecc:p.ecc, typeId:p.type.id, radiusRE:p.radiusRE, massME:p.massME, angle:p.angle, hasRing:p.hasRing, starIndex:p.starIndex||0, inc:isFinite(p.inc) ? p.inc : null, node:isFinite(p.node) ? p.node : null, argp:isFinite(p.argp) ? p.argp : null, tp:hasTp(p) ? p.tp : null };
       }),
       moons: moons.map(function(m){
         return { name:m.name, planetIndex:m.planetIndex, km:m.km, ecc:m.ecc, typeId:m.type.id, radiusRE:m.radiusRE, massME:m.massME, angle:m.angle };
@@ -3316,7 +3464,7 @@ function handleStageClick(e){
   function systemIsChanged(){
     var p = stars[0];
     return stars.length > 1 || planets.length > 0 || moons.length > 0 ||
-      systemNameInput.value.trim() !== '' ||
+      systemNameInput.value.trim() !== '' || EPOCH !== 2000 ||
       p.name !== 'Primary' || p.cls !== 'G' || p.M !== 1 || p.R !== 1 || p.T !== 5778;
   }
   function updateResetState(){
@@ -3330,7 +3478,16 @@ function handleStageClick(e){
       resetSystemBtn.classList.remove('armed');
     }
   }
+  // TIME TRAVEL only does something when a star or planet has a Closest year, so it stays greyed out otherwise
+  var EPOCH_TIP = 'Pick the year you want to see the system in. Only matters when a star or planet has a Closest year entered (Advanced orbit).';
+  function updateEpochState(){
+    var any = stars.some(hasTp) || planets.some(hasTp);
+    epochInput.disabled = !any;
+    epochInput.title = any ? EPOCH_TIP : 'Locked: enter a Closest year in Advanced orbit to use Time Travel.';
+    epochInput.parentNode.title = epochInput.title;
+  }
   function scheduleAutosave(){
+    updateEpochState();
     updateResetState();
     clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout(function(){
@@ -3356,10 +3513,14 @@ function handleStageClick(e){
     return Math.min(hi, Math.max(lo, v));
   }
 
+  function cleanDeg(v, lo, hi){ if (v === null || v === undefined || v === '') return null; var x = parseFloat(v); return isFinite(x) ? Math.max(lo, Math.min(hi, x)) : null; }
+  function cleanTp(v){ var x = parseFloat(v); return isFinite(x) ? Math.max(-1e5, Math.min(1e5, x)) : null; }
   function loadSystemFromData(data){
     data = data || {};
     systemNameInput.value = data.systemName || '';
     stageTag.textContent = data.systemName || 'SYSTEM VIEW';
+    EPOCH = cleanNum(data.epoch, 2000, -10000, 10000);
+    epochInput.value = EPOCH;
     // every value is checked, so a hand-edited or damaged file can't break the page
     var rawStars = (Array.isArray(data.stars) && data.stars.length) ? data.stars : [{ name:'Primary', cls:'G', M:1, R:1, T:5778, au:0, ecc:0, angle:0 }];
     stars = rawStars.map(function(s, idx){
@@ -3374,6 +3535,10 @@ function handleStageClick(e){
         au: idx ? cleanNum(s.au, 20, 0.015, 1e6) : 0,
         ecc: idx ? cleanNum(s.ecc, 0, 0, 0.9) : 0,
         angle: cleanNum(s.angle, 0, -1e9, 1e9),
+        inc: idx ? cleanDeg(s.inc, 0, 180) : null,
+        node: idx ? cleanDeg(s.node, 0, 360) : null,
+        argp: idx ? cleanDeg(s.argp, 0, 360) : null,
+        tp: idx ? cleanTp(s.tp) : null,
         parent: s.parent
       };
     });
@@ -3391,6 +3556,7 @@ function handleStageClick(e){
       return { name:String(p.name || ('Planet-' + (idx+1))), au:cleanNum(p.au, 1, 0.015, 1e6), ecc:cleanNum(p.ecc, 0, 0, 0.9), type:type,
         radiusRE:cleanNum(p.radiusRE, type.radiusRE, 0.05, 1e4), massME:cleanNum(p.massME, type.massME, 0.001, 1e7),
         angle:cleanNum(p.angle, 0, -1e9, 1e9), hasRing:!!p.hasRing,
+        inc:cleanDeg(p.inc, 0, 180), node:cleanDeg(p.node, 0, 360), argp:cleanDeg(p.argp, 0, 360), tp:cleanTp(p.tp),
         starIndex:Math.round(cleanNum(p.starIndex, 0, 0, stars.length-1)) };
     });
     // moons (older saves have none); drop any that point at a planet that doesn't exist
@@ -3435,17 +3601,25 @@ function handleStageClick(e){
   });
 
     // ---- presets ----
+  // Sirius A + B with the published visual-binary orbit (P 50.13 yr, a 7.50", e 0.5914, i 136.53 deg,
+  // node 45.4 deg, periastron epoch 1994.57, omega 149.16 deg for B relative to A; distance 2.64 pc -> a = 19.77 AU)
+  var SIRIUS = { version:1, systemName:'Sirius', epoch:2000,
+    stars:[
+      { name:'Sirius A', cls:'A',  M:2.063, R:1.711,  T:9940,  au:0, ecc:0, angle:0 },
+      { name:'Sirius B', cls:'WD', M:1.018, R:0.0084, T:25200, au:19.77, ecc:0.5914, inc:136.53, node:45.4, argp:149.161, tp:1994.5715, angle:0, parent:0 }
+    ], planets:[], moons:[] };
   var PRESETS = [
     { label:'Kepler-11', file:'presets/kepler-11.json' },
-    { label:'HD 49798', file:'presets/HD 49798.json' }
+    { label:'HD 49798', file:'presets/HD 49798.json' },
+    { label:'Sirius A + B (real orbit)', data:SIRIUS }
     // add more here as you build them, e.g.:
     // { label:'TRAPPIST-1', file:'presets/trappist-1.json' },
   ];
 
   var presetSelect = document.getElementById('presetSelect');
-  PRESETS.forEach(function(p){
+  PRESETS.forEach(function(p, pi){
     var opt = document.createElement('option');
-    opt.value = p.file;
+    opt.value = p.file || ('inline:' + pi);
     opt.textContent = p.label;
     presetSelect.appendChild(opt);
   });
@@ -3455,6 +3629,14 @@ function handleStageClick(e){
     if (!file) return;
     var selectedLabel = presetSelect.options[presetSelect.selectedIndex].textContent;
     var placeholder = presetSelect.options[0];
+    if (file.indexOf('inline:') === 0){
+      var pd = PRESETS[parseInt(file.slice(7), 10)].data;
+      loadSystemFromData(JSON.parse(JSON.stringify(pd)));
+      showSysStatus('Loaded ' + pd.systemName + '.');
+      placeholder.textContent = '✓ ' + selectedLabel.toUpperCase() + ' LOADED';
+      presetSelect.value = '';
+      return;
+    }
     fetch(file)
       .then(function(res){
         if (!res.ok) throw new Error('HTTP ' + res.status);
