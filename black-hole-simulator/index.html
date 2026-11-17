@@ -114,17 +114,46 @@
   }
 
   .mass-input-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
-  #mass-input{
-    flex:1;min-width:0;background:#0d0f14;border:1px solid var(--dim);color:var(--text);
-    font-family:'Space Mono',monospace;font-size:11px;padding:7px 9px;letter-spacing:.5px;
+  .mass-input{
+    flex:1;min-width:0;background:#0d0f14;border:1px solid var(--red);color:var(--amber);
+    font-family:'Space Mono',monospace;font-size:20px;font-weight:700;padding:11px 12px;letter-spacing:.5px;
+    box-shadow:0 0 12px var(--red-dim) inset;
   }
-  #mass-input:focus{outline:none;border-color:var(--red);}
-  .mass-input-unit{font-size:13px;color:var(--text);letter-spacing:1px;display:flex;align-items:center;gap:8px;white-space:nowrap;font-weight:700;}
-  #mass-input-go{
-    background:rgba(255,43,43,0.12);border:1px solid var(--red);color:var(--red);
-    font-family:'Space Mono',monospace;font-size:16px;line-height:1;padding:7px 12px;cursor:pointer;transition:.15s;
+  .mass-input:focus{outline:none;box-shadow:0 0 16px var(--red-dim), 0 0 12px var(--red-dim) inset;}
+  .mass-input::placeholder{font-size:11px;font-weight:400;color:var(--dim);}
+  .mass-input-unit{font-size:15px;color:var(--text);letter-spacing:1px;display:flex;align-items:center;gap:8px;white-space:nowrap;font-weight:700;}
+  .mass-go{
+    background:rgba(255,43,43,0.15);border:1px solid var(--red);color:var(--red);
+    font-family:'Space Mono',monospace;font-size:18px;line-height:1;padding:11px 14px;cursor:pointer;transition:.15s;
   }
-  #mass-input-go:hover{background:rgba(255,43,43,0.22);box-shadow:0 0 10px var(--red-dim);}
+  .mass-go:hover{background:rgba(255,43,43,0.28);box-shadow:0 0 10px var(--red-dim);}
+
+  #mass-hero{
+    margin-bottom:20px;padding:14px 12px 12px;border:1px solid var(--red);
+    background:linear-gradient(180deg,rgba(255,43,43,0.10),rgba(255,43,43,0.02));
+    box-shadow:0 0 18px var(--red-dim);
+  }
+  #mass-hero .mh-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11px;letter-spacing:2px;font-weight:700;color:var(--red);}
+  #mass-hero .mh-top .val{color:var(--amber);font-size:13px;letter-spacing:.5px;text-align:right;}
+  .mass-presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .mass-presets .chip{font-family:inherit;background:transparent;}
+
+  #vtools{position:absolute;top:10px;right:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;z-index:5;max-width:calc(100% - 20px);}
+  .vbtn{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:8px 11px;
+    background:rgba(5,6,8,.72);border:1px solid var(--dim);color:var(--dim);cursor:pointer;backdrop-filter:blur(4px);transition:.15s;}
+  .vbtn:hover{border-color:var(--red);color:var(--red);}
+  .vbtn.on{border-color:var(--red);color:var(--red);background:rgba(255,43,43,.12);}
+  #canvashint{top:auto !important;bottom:10px;}
+  #fs-hud{display:none;position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;flex-direction:column;align-items:stretch;gap:2px;
+    padding:12px 14px;background:rgba(5,6,8,.78);border:1px solid var(--red);backdrop-filter:blur(6px);width:min(520px,calc(100% - 24px));}
+  #fs-hud .mh-top{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;letter-spacing:2px;font-weight:700;color:var(--red);}
+  #fs-hud .mh-top .val{color:var(--amber);}
+  #canvaswrap.fs #fs-hud{display:flex;}
+  #canvaswrap.fs #canvashint{display:none;}
+  #canvaswrap.pseudo{position:fixed;inset:0;z-index:200;width:100vw !important;height:100vh !important;}
+  #blurb,#blurb2{margin-top:14px;font-size:10px;color:var(--dim);line-height:1.7;}
+  #blurb2{margin-top:8px;}
+  #blurb2 b{color:var(--amber);}
 
   #unit-toggle-row{display:flex;align-items:stretch;gap:0;margin-bottom:12px;border:1px solid var(--red);}
   .unit-chip{
@@ -150,6 +179,20 @@
   #blurb b{color:var(--amber);}
 
   #disclaimer{font-size:8.5px;color:var(--dim);letter-spacing:.3px;line-height:1.55;margin-top:14px;padding-top:10px;border-top:1px solid #ffffff10;}
+  #fall-hud{display:none;position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;background:rgba(5,6,8,.82);
+    border:1px solid var(--red);padding:10px 14px;font-size:11px;line-height:1.7;letter-spacing:.5px;text-align:center;color:var(--text);
+    backdrop-filter:blur(4px);max-width:calc(100% - 24px);}
+  #fall-hud b{color:var(--amber);}
+  #canvaswrap.fs #fall-hud{bottom:auto;top:64px;}
+  #canvaswrap.falling #canvashint{display:none;}
+  #canvaswrap.falling #fs-hud{display:none !important;}
+  #scale-panel{display:none;position:absolute;left:10px;bottom:38px;z-index:6;width:min(320px,calc(100% - 20px));background:rgba(5,6,8,.84);
+    border:1px solid var(--red-dim);padding:10px;backdrop-filter:blur(4px);max-height:calc(100% - 110px);overflow:auto;}
+  #scale-panel canvas{width:100%;height:auto;display:block;background:#02030a;border:1px solid #ffffff12;}
+  .sp-h{font-size:9.5px;letter-spacing:2px;color:var(--red);font-weight:700;margin-bottom:8px;}
+  #scale-list{font-size:9.5px;line-height:1.7;color:var(--dim);margin-top:8px;}
+  #scale-list b{color:var(--amber);font-weight:400;}
+  #canvaswrap.pseudo{height:100vh !important;height:100dvh !important;}
 </style>
 </head>
 <body>
@@ -169,12 +212,13 @@
     <div class="ph">SINGULARITY PARAMETERS</div>
     <div class="pb">
 
-      <div class="field">
-        <label>MASS <span class="val" id="mass-val">10 M☉</span></label>
-        <div class="mass-input-row" style="margin-top:0;">
-          <input type="text" id="mass-input" inputmode="decimal" spellcheck="false" placeholder="mass in M☉ (1 to 1e11)">
-          <span class="mass-input-unit">M☉ <button id="mass-input-go" title="apply">↵</button></span>
+      <div id="mass-hero">
+        <div class="mh-top"><span>MASS · TYPE ANY VALUE</span><span class="val" id="mass-val">10 M☉</span></div>
+        <div class="mass-input-row">
+          <input type="text" id="mass-input" class="mass-input" inputmode="decimal" spellcheck="false" placeholder="mass in M☉ (1 to 1e11)">
+          <span class="mass-input-unit">M☉ <button id="mass-input-go" class="mass-go" title="apply">↵</button></span>
         </div>
+        <div class="mass-presets"></div>
       </div>
 
       <div class="field">
@@ -183,8 +227,8 @@
       </div>
 
       <div class="field">
-        <label>LENSING STRENGTH <span class="val" id="lens-val">1.2</span></label>
-        <input type="range" id="lens" min="0" max="3" step="0.05" value="1.2">
+        <label>LENSING <b>(1.0 = GR)</b> <span class="val" id="lens-val">1.00</span></label>
+        <input type="range" id="lens" min="0" max="3" step="0.05" value="1">
       </div>
 
       <div class="field">
@@ -195,10 +239,7 @@
       <div class="subhead">DERIVED PROPERTIES</div>
       <div id="results-body"></div>
 
-      <div class="field" style="margin-top:16px;">
-        <button class="togglebtn on" id="btn-disk">ACCRETION DISK: ON</button>
-        <button class="togglebtn on" id="btn-ring">PHOTON SPHERE REF: ON</button>
-      </div>
+      
 
       <button id="reset-btn">RESET</button>
     </div>
@@ -211,7 +252,32 @@
       <div class="pb" style="padding:0;">
         <div id="canvaswrap">
           <canvas id="bh-canvas"></canvas>
-          <div id="canvashint">DRAG TO ROTATE · RIGHT-DRAG / 2-FINGER TO PAN · SCROLL TO ZOOM</div>
+          <div id="canvashint">DRAG TO ROTATE · RIGHT-DRAG / 2-FINGER TO PAN · SCROLL TO ZOOM · F = FULLSCREEN</div>
+          <div id="vtools">
+            <button class="vbtn on" id="btn-disk">DISK: ON</button>
+            <button class="vbtn" id="btn-ring">PHOTON RING: OFF</button>
+            <button class="vbtn on" id="btn-jets">JETS: ON</button>
+            <button class="vbtn on" id="btn-orbit">AUTO-ORBIT: ON</button>
+            <button class="vbtn" id="btn-fall">FALL IN</button>
+            <button class="vbtn" id="btn-scale">SCALE: OFF</button>
+            <button class="vbtn" id="btn-link">COPY LINK</button>
+            <button class="vbtn" id="btn-shot">SAVE PNG</button>
+            <button class="vbtn" id="btn-fs">⛶ FULLSCREEN</button>
+          </div>
+          <div id="fall-hud"></div>
+          <div id="scale-panel">
+            <div class="sp-h">HORIZON RADIUS, TO SCALE</div>
+            <canvas id="scale-cv" width="300" height="300"></canvas>
+            <div id="scale-list"></div>
+          </div>
+          <div id="fs-hud">
+            <div class="mh-top"><span>MASS</span><span class="val" id="fs-mass-val"></span></div>
+            <div class="mass-input-row">
+              <input type="text" id="fs-mass-input" class="mass-input" inputmode="decimal" spellcheck="false" placeholder="mass in M☉">
+              <span class="mass-input-unit">M☉ <button id="fs-mass-go" class="mass-go" title="apply">↵</button></span>
+            </div>
+            <div class="mass-presets"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -285,6 +351,27 @@ function fmtMass(massSolar){
   return massSolar.toFixed(massSolar<10?1:0)+' M☉';
 }
 
+function fmtDur(sec){
+  if(sec < 1) return sec.toExponential(1)+' s';
+  if(sec < 60) return sec.toFixed(1)+' seconds';
+  if(sec < 3600) return (sec/60).toFixed(1)+' minutes';
+  if(sec < 86400) return (sec/3600).toFixed(1)+' hours';
+  return (sec/86400).toFixed(1)+' days';
+}
+function scaleNote(km){
+  const AU = 1.495978707e8;
+  let t;
+  if(km < 6371) t = `Horizon radius is ${(6371/km).toFixed(0)}× smaller than Earth's — a city-sized sphere of no return.`;
+  else if(km < 695700) t = `Horizon radius is ${(km/6371).toFixed(1)}× Earth's radius.`;
+  else if(km < 0.39*AU) t = `Horizon radius is ${(km/695700).toFixed(1)}× the Sun's radius.`;
+  else if(km < AU) t = `Horizon radius is ${(km/AU).toFixed(2)} AU — reaching past Mercury's orbit.`;
+  else if(km < 5.2*AU) t = `Horizon radius is ${(km/AU).toFixed(1)} AU — it swallows Earth's orbit.`;
+  else if(km < 30.07*AU) t = `Horizon radius is ${(km/AU).toFixed(1)} AU — it swallows Jupiter's orbit.`;
+  else t = `Horizon radius is ${(km/AU).toFixed(0)} AU — wider than the entire planetary Solar System (Neptune is 30 AU).`;
+  if(km >= 0.39*AU) t += ` Light needs ${fmtDur(km/299792.458)} just to cross its radius.`;
+  return t;
+}
+
 function renderStats(r){
   const body = document.getElementById('results-body');
   body.innerHTML = `
@@ -300,7 +387,8 @@ function renderStats(r){
     <div class="stat-row" data-copy="${r.hawkingT.toExponential(2)} K"><div class="k">HAWKING TEMP<span class="u">kelvin</span></div><div class="v">${r.hawkingT.toExponential(2)}</div></div>
     <div class="stat-row" data-copy="c (speed of light)"><div class="k">ESCAPE VELOCITY<span class="u">speed of light</span></div><div class="v">c</div></div>
     <div id="blurb"><b>Tidal outlook:</b> ${r.tidalNote}</div>
-    <div id="disclaimer">VISUAL APPROXIMATION. The lensing effect is a stylized screen-space shader, not a full geodesic ray-tracer. The event horizon and ISCO use the Kerr / Bardeen–Press–Teukolsky formulas (prograde, equatorial). The photon sphere and Hawking temperature are the non-spinning (Schwarzschild) values.</div>
+    <div id="blurb2"><b>Scale:</b> ${scaleNote(r.horizonKm)}</div>
+    <div id="disclaimer">RAY-TRACED. Every pixel follows a light ray through the Schwarzschild (non-spinning) metric, so the shadow, photon ring, lensed disk and Einstein-ring sky are computed, not faked. Spin is approximate: it sets the Kerr horizon, ISCO, disk inner edge and jet power, but frame-dragging asymmetry is not modelled. Disk texture, jets, glow and sky are artistic. Photon sphere and Hawking temperature are the non-spinning values. Mass changes the on-screen size on a log scale.</div>
   `;
   body.querySelectorAll('.unit-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
@@ -334,6 +422,9 @@ document.getElementById('results-body').addEventListener('click', e=>{
 const massVal = document.getElementById('mass-val');
 const massInput = document.getElementById('mass-input');
 const massInputGo = document.getElementById('mass-input-go');
+const fsMassInput = document.getElementById('fs-mass-input');
+const fsMassGo = document.getElementById('fs-mass-go');
+const fsMassVal = document.getElementById('fs-mass-val');
 const spinSlider = document.getElementById('spin');
 const spinVal = document.getElementById('spin-val');
 const lensSlider = document.getElementById('lens');
@@ -342,7 +433,7 @@ const glowSlider = document.getElementById('glow');
 const glowVal = document.getElementById('glow-val');
 
 // Defaults used by the RESET button
-const DEFAULT_MASS = 10, DEFAULT_SPIN = 0, DEFAULT_LENS = 1.2, DEFAULT_GLOW = 1.5;
+const DEFAULT_MASS = 10, DEFAULT_SPIN = 0, DEFAULT_LENS = 1.0, DEFAULT_GLOW = 1.5;
 const MASS_MIN = 1, MASS_MAX = 1e11;
 
 // The mass is stored exactly as typed (no slider / log rounding), in solar masses.
@@ -366,7 +457,9 @@ function refresh(){
   spinVal.textContent = currentSpin().toFixed(3);
   lensVal.textContent = currentLensStrength().toFixed(2);
   glowVal.textContent = currentGlow().toFixed(2);
-  if(document.activeElement !== massInput) massInput.value = massInputDisplay(stats.massSolar);
+  fsMassVal.textContent = fmtMass(stats.massSolar);
+  [massInput, fsMassInput].forEach(el=>{ if(document.activeElement !== el) el.value = massInputDisplay(stats.massSolar); });
+  document.querySelectorAll('.preset').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.mass)===massSolarState));
   renderStats(stats);
   updateBHVisualRadius();
 }
@@ -375,215 +468,86 @@ spinSlider.addEventListener('input', refresh);
 lensSlider.addEventListener('input', ()=>{ lensVal.textContent = currentLensStrength().toFixed(2); });
 glowSlider.addEventListener('input', ()=>{ glowVal.textContent = currentGlow().toFixed(2); });
 
-function applyMassInput(){
-  const v = parseFloat(massInput.value.replace(/,/g,''));
-  if(!isFinite(v) || v<=0){ massInput.value = massInputDisplay(currentMassSolar()); return; }
+function applyMassInput(el){
+  el = el || massInput;
+  const v = parseFloat(el.value.replace(/,/g,''));
+  if(!isFinite(v) || v<=0){ el.value = massInputDisplay(currentMassSolar()); return; }
   massSolarState = Math.max(MASS_MIN, Math.min(MASS_MAX, v));
   refresh();
 }
-massInput.addEventListener('keydown', e=>{
-  if(e.key==='Enter'){ applyMassInput(); massInput.blur(); }
-});
-massInput.addEventListener('blur', applyMassInput);
-massInputGo.addEventListener('click', ()=>{ applyMassInput(); massInput.blur(); });
-
-let diskOn = true, ringOn = true;
-document.getElementById('btn-disk').addEventListener('click', function(){
-  diskOn = !diskOn;
-  this.classList.toggle('on', diskOn);
-  this.textContent = 'ACCRETION DISK: ' + (diskOn?'ON':'OFF');
-  diskGroup.visible = diskOn;
-});
-document.getElementById('btn-ring').addEventListener('click', function(){
-  ringOn = !ringOn;
-  this.classList.toggle('on', ringOn);
-  this.textContent = 'PHOTON SPHERE REF: ' + (ringOn?'ON':'OFF');
-  photonRing.visible = ringOn;
+[[massInput, massInputGo],[fsMassInput, fsMassGo]].forEach(([inp, go])=>{
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ applyMassInput(inp); inp.blur(); } });
+  inp.addEventListener('blur', ()=>applyMassInput(inp));
+  go.addEventListener('click', ()=>{ applyMassInput(inp); inp.blur(); });
 });
 
-// ---------------- THREE.JS SCENE ----------------
+// one-click presets (real objects), shown in the side panel and in fullscreen
+const PRESETS = [['STELLAR',10],['CYG X-1',21],['SGR A*',4.3e6],['M87*',6.5e9],['PHOENIX A',1e11]];
+document.querySelectorAll('.mass-presets').forEach(box=>{
+  PRESETS.forEach(([name,m])=>{
+    const b = document.createElement('button');
+    b.className = 'chip preset'; b.textContent = name; b.dataset.mass = m;
+    b.addEventListener('click', ()=>{ massSolarState = m; refresh(); });
+    box.appendChild(b);
+  });
+});
+
+// ---------------- TOGGLE STATE (buttons live on the viewport) ----------------
+let diskOn = true, ringOn = false, jetsOn = true, autoOrbit = true, scaleOn = false;
+const btnDisk = document.getElementById('btn-disk');
+const btnRing = document.getElementById('btn-ring');
+const btnJets = document.getElementById('btn-jets');
+const btnOrbit = document.getElementById('btn-orbit');
+const btnFall = document.getElementById('btn-fall');
+const btnScale = document.getElementById('btn-scale');
+const btnLink = document.getElementById('btn-link');
+const btnShot = document.getElementById('btn-shot');
+const btnFs = document.getElementById('btn-fs');
+function setBtn(btn, on, label){ btn.classList.toggle('on', on); btn.textContent = label + ': ' + (on ? 'ON' : 'OFF'); }
+function setDisk(on){ diskOn = on; setBtn(btnDisk, on, 'DISK'); }
+function setRing(on){ ringOn = on; setBtn(btnRing, on, 'PHOTON RING'); }
+function setJets(on){ jetsOn = on; setBtn(btnJets, on, 'JETS'); }
+function setOrbit(on){ autoOrbit = on; setBtn(btnOrbit, on, 'AUTO-ORBIT'); }
+btnDisk.addEventListener('click', ()=>setDisk(!diskOn));
+btnRing.addEventListener('click', ()=>setRing(!ringOn));
+btnJets.addEventListener('click', ()=>setJets(!jetsOn));
+btnOrbit.addEventListener('click', ()=>setOrbit(!autoOrbit));
+
+// ---------------- SCENE SET-UP (three.js is only used as a WebGL wrapper; the picture is ray-traced) ----------------
 const wrap = document.getElementById('canvaswrap');
 const canvas = document.getElementById('bh-canvas');
-// The scene is drawn into a render target, so antialiasing is handled by the
-// (multisampled) target below rather than by the default framebuffer.
 const renderer = new THREE.WebGLRenderer({canvas, antialias:false});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-
-const scene = new THREE.Scene();
+const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+renderer.setPixelRatio(DPR);
 const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 3000);
+const TAN_HALF = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
 
-// starfield
-function makeStars(){
-  const geo = new THREE.BufferGeometry();
-  const count = 4000;
-  const pos = new Float32Array(count*3);
-  for(let i=0;i<count;i++){
-    const r = 300 + Math.random()*900;
-    const theta = Math.random()*Math.PI*2;
-    const phi = Math.acos((Math.random()*2)-1);
-    pos[i*3] = r*Math.sin(phi)*Math.cos(theta);
-    pos[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
-    pos[i*3+2] = r*Math.cos(phi);
-  }
-  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-  const mat = new THREE.PointsMaterial({color:0xffffff, size:1.3, sizeAttenuation:true, opacity:0.85, transparent:true});
-  scene.add(new THREE.Points(geo, mat));
-}
-makeStars();
-
-// Visual scale: logMassSolar is log10(solar masses), i.e. 0..11 across the allowed mass range.
-// Linear mapping in log-mass so distinct masses stay visually distinct all the way
-// up to the most extreme supermassive black holes.
-function visualRadiusForMass(logMassSolar){
-  return 2.6 + logMassSolar * 0.85;
-}
-// Scene geometry that depends on mass AND spin, in scene units:
-//   rs   = Schwarzschild radius (reference scale, photon ring)
-//   h    = Kerr outer horizon radius (the black sphere)
-//   isco = inner edge of the accretion disk
+// Visual scale: the camera lives in "scene units"; everything the shader does is in units of the
+// Schwarzschild radius rs. rsVisual converts between them, and grows with log(mass) so that
+// bigger holes look bigger on screen.
+const DISK_OUT = 8.0; // outer disk edge, in rs
+function visualRadiusForMass(logMassSolar){ return 2.6 + logMassSolar * 0.85; }
 function visualGeometry(){
   const rs = visualRadiusForMass(Math.log10(currentMassSolar()));
   const a = currentSpin();
-  return {
-    rs,
-    h: rs * (1 + Math.sqrt(1 - a*a)) / 2,
-    isco: rs * iscoOverM(a) / 2
-  };
+  return { rs, rh: (1 + Math.sqrt(1 - a*a)) / 2, rin: iscoOverM(a) / 2 };
 }
-
 const vis0 = visualGeometry();
-let rsVisual = vis0.rs;
-let bhRadius = vis0.h;
-let iscoVisual = vis0.isco;
-
-// event horizon sphere (pure black occluder)
-const bhGeo = new THREE.SphereGeometry(bhRadius, 48, 48);
-const bhMat = new THREE.MeshBasicMaterial({color:0x000000});
-const bhMesh = new THREE.Mesh(bhGeo, bhMat);
-scene.add(bhMesh);
-
-function updateBHVisualRadius(){
-  const v = visualGeometry();
-  const unchanged = Math.abs(v.rs-rsVisual) < 0.001 &&
-                    Math.abs(v.h-bhRadius) < 0.001 &&
-                    Math.abs(v.isco-iscoVisual) < 0.001;
-  if(unchanged) return;
-  rsVisual = v.rs; bhRadius = v.h; iscoVisual = v.isco;
-  bhMesh.geometry.dispose();
-  bhMesh.geometry = new THREE.SphereGeometry(bhRadius, 48, 48);
-  rebuildDiskAndRing();
-  // auto-frame the camera outward if the disk has grown past the current view
-  const diskOuter = rsVisual * 5.8;
-  const comfortableDist = diskOuter * 1.7;
-  if(targetRadius < comfortableDist) targetRadius = comfortableDist;
-}
-
-// accretion disk: stacked additive-blended color bands, tilted, differentially rotating
-const diskGroup = new THREE.Group();
-diskGroup.rotation.x = Math.PI/2 - 0.34;
-scene.add(diskGroup);
-
-function tempToColor(t){ // t: 1=hottest(inner) .. 0=coolest(outer)
-  const stops = [
-    {t:1.0, c:new THREE.Color(0xdff0ff)},
-    {t:0.66,c:new THREE.Color(0xfff2c8)},
-    {t:0.33,c:new THREE.Color(0xff9a3c)},
-    {t:0.0, c:new THREE.Color(0xb5301c)},
-  ];
-  for(let i=0;i<stops.length-1;i++){
-    const a=stops[i], b=stops[i+1];
-    if(t<=a.t && t>=b.t){
-      const localT = (a.t-t)/(a.t-b.t);
-      return a.c.clone().lerp(b.c, localT);
-    }
-  }
-  return stops[stops.length-1].c.clone();
-}
-
-// Spiral arms + clumps, so the disk's rotation is actually visible.
-// th: angle (rad), u: radius in Schwarzschild radii. All angular frequencies are
-// integers so the pattern has no seam.
-function diskBrightness(th, u){
-  const b = 0.70
-          + 0.20*Math.sin(2*th - 3.2*Math.log(u))
-          + 0.12*Math.sin(5*th + 9*u + 1.3)
-          + 0.10*Math.sin(11*th - 5*u + 0.7);
-  return Math.max(0.2, Math.min(1.1, b));
-}
-
-function buildDisk(){
-  // dispose & remove any existing bands (avoid relying on Object3D.clear which
-  // may not exist on older three.js builds)
-  while(diskGroup.children.length){
-    const child = diskGroup.children[diskGroup.children.length-1];
-    diskGroup.remove(child);
-    child.geometry.dispose();
-    child.material.dispose();
-  }
-  const diskInner = iscoVisual;          // inner edge = ISCO, so the spin slider changes the look
-  const diskOuter = rsVisual * 5.8;
-  const bands = 40;
-  for(let i=0;i<bands;i++){
-    const t = i/(bands-1);
-    const rInner = diskInner + (diskOuter-diskInner)*t;
-    const rOuter = rInner + (diskOuter-diskInner)/bands*1.5;
-    const temp = 1-t;
-    const color = tempToColor(temp);
-    const opacity = 0.55*(0.28+0.72*temp)+0.04;
-    const geo = new THREE.RingGeometry(rInner, rOuter, 128, 1);
-
-    // per-vertex brightness (greyscale multiplier on the band colour)
-    const pos = geo.attributes.position;
-    const cols = new Float32Array(pos.count*3);
-    for(let k=0;k<pos.count;k++){
-      const x = pos.getX(k), y = pos.getY(k);
-      const b = diskBrightness(Math.atan2(y,x), Math.hypot(x,y)/rsVisual);
-      cols[k*3] = b; cols[k*3+1] = b; cols[k*3+2] = b;
-    }
-    geo.setAttribute('color', new THREE.BufferAttribute(cols,3));
-
-    const mat = new THREE.MeshBasicMaterial({
-      color, vertexColors:true, transparent:true, opacity, side:THREE.DoubleSide,
-      blending:THREE.AdditiveBlending, depthWrite:false
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    // Keplerian-style differential rotation: inner bands orbit faster (omega ~ r^-1.5)
-    mesh.userData.omega = 1.2 * Math.pow(rsVisual / ((rInner+rOuter)/2), 1.5);
-    diskGroup.add(mesh);
-  }
-}
-
-// photon sphere reference ring (dashed, flat, HUD-style)
-let photonRing;
-function buildPhotonRing(){
-  const segments = 128;
-  const pts = [];
-  const r = rsVisual * 1.5;
-  for(let s=0;s<=segments;s++){
-    const a=(s/segments)*Math.PI*2;
-    pts.push(new THREE.Vector3(Math.cos(a)*r, 0, Math.sin(a)*r));
-  }
-  const geo = new THREE.BufferGeometry().setFromPoints(pts);
-  const mat = new THREE.LineDashedMaterial({color:0xff2b2b, transparent:true, opacity:0.5, dashSize:1.4, gapSize:1.0});
-  if(photonRing){ scene.remove(photonRing); photonRing.geometry.dispose(); photonRing.material.dispose(); }
-  photonRing = new THREE.Line(geo, mat);
-  photonRing.computeLineDistances();
-  photonRing.visible = ringOn;
-  scene.add(photonRing);
-}
-
-function rebuildDiskAndRing(){
-  buildDisk();
-  buildPhotonRing();
-}
-rebuildDiskAndRing();
-diskGroup.visible = diskOn;
+let rsVisual = vis0.rs, rhVis = vis0.rh, rinVis = vis0.rin;
 
 // ---------------- CAMERA CONTROLS (orbit + pan + zoom) ----------------
 const PHI_MIN = 0.15, PHI_MAX = Math.PI - 0.15;
 let camTheta = 0.7, camPhi = 1.15, camRadius = 55;
 let targetTheta = camTheta, targetPhi = camPhi, targetRadius = camRadius;
 let camFocus = new THREE.Vector3(0,0,0);
+
+function updateBHVisualRadius(){
+  const v = visualGeometry();
+  rsVisual = v.rs; rhVis = v.rh; rinVis = v.rin;
+  const comfortable = rsVisual * DISK_OUT * 1.6;
+  if(!fall.active && targetRadius < comfortable) targetRadius = comfortable;
+  drawScale();
+}
 
 function updateCamera(){
   camTheta += (targetTheta-camTheta)*0.08;
@@ -596,9 +560,8 @@ function updateCamera(){
   camera.position.set(x,y,z);
   camera.lookAt(camFocus);
 }
-
 function clampZoom(){
-  targetRadius = Math.max(rsVisual*2.2, Math.min(260, targetRadius));
+  targetRadius = Math.max(rsVisual*1.8, Math.min(260, targetRadius));
 }
 
 canvas.addEventListener('contextmenu', e=>e.preventDefault());
@@ -611,11 +574,10 @@ function panCamera(dx,dy){
   camFocus.addScaledVector(up, dy*panSpeed);
 }
 canvas.addEventListener('pointerdown', e=>{
-  if(!e.isPrimary) return; // ignore the second finger of a pinch
+  if(!e.isPrimary) return;
   if(e.button===2){ panning=true; panLastX=e.clientX; panLastY=e.clientY; }
   else { dragging=true; lastX=e.clientX; lastY=e.clientY; }
 });
-// pointercancel fires when the browser takes over a touch gesture; without it the drag can stick on
 ['pointerup','pointercancel'].forEach(type=>{
   window.addEventListener(type, ()=>{ dragging=false; panning=false; });
 });
@@ -624,7 +586,7 @@ window.addEventListener('pointermove', e=>{
   if(panning){
     const dx=e.clientX-panLastX, dy=e.clientY-panLastY;
     panLastX=e.clientX; panLastY=e.clientY;
-    panCamera(dx,dy);
+    if(!fall.active) panCamera(dx,dy);
     return;
   }
   if(!dragging) return;
@@ -632,11 +594,11 @@ window.addEventListener('pointermove', e=>{
   lastX=e.clientX; lastY=e.clientY;
   targetTheta -= dx*0.005;
   targetPhi -= dy*0.005;
-  // clamp the TARGET too, otherwise dragging past a pole leaves the view "stuck"
   targetPhi = Math.max(PHI_MIN, Math.min(PHI_MAX, targetPhi));
 });
 canvas.addEventListener('wheel', e=>{
   e.preventDefault();
+  if(fall.active) return;
   targetRadius *= (1+e.deltaY*0.001);
   clampZoom();
 },{passive:false});
@@ -644,16 +606,16 @@ canvas.addEventListener('wheel', e=>{
 let pinchStart=null, touchPanX=null, touchPanY=null;
 canvas.addEventListener('touchmove', e=>{
   if(e.touches.length===2){
-    dragging = false; // two fingers = pinch/pan, never rotate
+    dragging = false;
     const t0=e.touches[0], t1=e.touches[1];
     const dx=t0.clientX-t1.clientX, dy=t0.clientY-t1.clientY;
     const d=Math.hypot(dx,dy);
     const midX=(t0.clientX+t1.clientX)/2, midY=(t0.clientY+t1.clientY)/2;
-    if(pinchStart!=null){
+    if(pinchStart!=null && !fall.active){
       targetRadius *= (pinchStart/d);
       clampZoom();
     }
-    if(touchPanX!=null) panCamera(midX-touchPanX, midY-touchPanY);
+    if(touchPanX!=null && !fall.active) panCamera(midX-touchPanX, midY-touchPanY);
     pinchStart=d; touchPanX=midX; touchPanY=midY;
   }
 },{passive:true});
@@ -663,149 +625,550 @@ function endTouch(e){
 canvas.addEventListener('touchend', endTouch);
 canvas.addEventListener('touchcancel', endTouch);
 
-document.getElementById('reset-btn').addEventListener('click', ()=>{
-  massSolarState = DEFAULT_MASS; spinSlider.value = DEFAULT_SPIN; lensSlider.value = DEFAULT_LENS; glowSlider.value = DEFAULT_GLOW;
-  refresh();
-  if(!diskOn){ diskOn=true; const b=document.getElementById('btn-disk'); b.classList.add('on'); b.textContent='ACCRETION DISK: ON'; diskGroup.visible=true; }
-  if(!ringOn){ ringOn=true; const b=document.getElementById('btn-ring'); b.classList.add('on'); b.textContent='PHOTON SPHERE REF: ON'; photonRing.visible=true; }
-  targetTheta=0.7; targetPhi=1.15; targetRadius=55; camFocus.set(0,0,0);
-});
+// ---------------- RAY-TRACING SHADER (pass 1) ----------------
+// Every pixel traces a light ray backwards from the camera through the Schwarzschild metric.
+// In units of rs the photon orbit equation is  u'' = -u + 1.5 u^2  (u = 1/r, ' = d/dphi),
+// which we integrate with a leapfrog scheme. Along the way the ray can hit the horizon,
+// cross the accretion disk (possibly several times: the lensed "over the top" and "under the
+// bottom" images), pick up relativistic-jet light, or escape to the starry sky.
+const TRACE_FRAG = `
+precision highp float;
+uniform vec3 uCamPos, uRight, uUp, uFwd, uN, uB1;
+uniform float uTanHalf, uAspect, uTime, uBend, uRin, uRout, uRh, uGlow, uDisk, uJets, uJetAmp, uFade;
+varying vec2 vUv;
 
-// ---------------- LENSING POST-PROCESS (render-to-texture + screen-space warp) ----------------
-// Multisampled target (WebGL2) gives anti-aliased edges; falls back to a plain target otherwise.
-const useMSAA = renderer.capabilities.isWebGL2 && typeof THREE.WebGLMultisampleRenderTarget === 'function';
-let rt = useMSAA ? new THREE.WebGLMultisampleRenderTarget(2,2) : new THREE.WebGLRenderTarget(2,2);
-const quadScene = new THREE.Scene();
-const quadCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-const lensUniforms = {
-  uTex: {value: rt.texture},
-  uBH: {value: new THREE.Vector2(0.5,0.5)},
-  uAspect: {value: 1.0},
-  uRs: {value: 0.08},
-  uStrength: {value: 1.2},
-  uGlow: {value: 1.5},
+float h31(vec3 p){ p = fract(p*0.1031); p += dot(p, p.yzx+33.33); return fract((p.x+p.y)*p.z); }
+float vn(vec3 x){
+  vec3 i = floor(x), f = fract(x); f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(h31(i), h31(i+vec3(1.,0.,0.)), f.x), mix(h31(i+vec3(0.,1.,0.)), h31(i+vec3(1.,1.,0.)), f.x), f.y),
+             mix(mix(h31(i+vec3(0.,0.,1.)), h31(i+vec3(1.,0.,1.)), f.x), mix(h31(i+vec3(0.,1.,1.)), h31(i+vec3(1.,1.,1.)), f.x), f.y), f.z);
+}
+vec3 starLayer(vec3 d, float sc, float thr, float size){
+  vec3 p = d*sc; vec3 ip = floor(p); vec3 fp = p-ip;
+  float h = h31(ip);
+  if(h < thr) return vec3(0.0);
+  vec3 off = vec3(h31(ip+7.1), h31(ip+13.3), h31(ip+21.7));
+  float dist = length(fp - (0.25+0.5*off));
+  float b = smoothstep(size, 0.0, dist);
+  float mag = pow(h31(ip+3.3), 3.0);
+  vec3 tint = mix(vec3(0.65,0.78,1.0), vec3(1.0,0.82,0.62), h31(ip+5.5));
+  return tint * b * (0.25 + 2.4*mag);
+}
+vec3 sky(vec3 d){
+  vec3 c = starLayer(d, 90.0, 0.93, 0.2) + 0.9*starLayer(d+0.37, 170.0, 0.965, 0.2) + 0.8*starLayer(d-0.51, 300.0, 0.985, 0.22);
+  vec3 bn = normalize(vec3(0.25,0.9,0.35));
+  float lat = dot(d, bn);
+  float band = exp(-lat*lat*14.0);
+  float n = 0.55*vn(d*4.0) + 0.3*vn(d*9.0+3.0) + 0.15*vn(d*22.0);
+  float dust = smoothstep(0.35, 0.75, vn(d*7.0+11.0));
+  vec3 neb = mix(vec3(0.10,0.12,0.28), vec3(0.55,0.35,0.22), smoothstep(0.4,0.9,n)) * band * (0.25+n) * (1.0-0.6*dust);
+  return c + neb*0.55;
+}
+vec3 ramp(float t){
+  t = clamp(t, 0.0, 1.4);
+  vec3 c0 = vec3(0.71,0.19,0.11), c1 = vec3(1.0,0.60,0.24), c2 = vec3(1.0,0.95,0.78), c3 = vec3(0.87,0.94,1.0), c4 = vec3(0.55,0.75,1.0);
+  if(t < 0.33) return mix(c0, c1, t/0.33);
+  if(t < 0.66) return mix(c1, c2, (t-0.33)/0.33);
+  if(t < 1.0)  return mix(c2, c3, (t-0.66)/0.34);
+  return mix(c3, c4, (t-1.0)/0.4);
+}
+
+void main(){
+  vec2 ndc = vUv*2.0 - 1.0;
+  vec3 rd = normalize(uFwd + uRight*(ndc.x*uAspect*uTanHalf) + uUp*(ndc.y*uTanHalf));
+  vec3 p0 = uCamPos;
+  float r0 = length(p0);
+  vec3 e1 = p0/r0;
+  float cosA = dot(rd, e1);
+  vec3 tg = rd - cosA*e1;
+  float sinA = length(tg);
+
+  vec3 col = vec3(0.0);
+  float T = 1.0;
+  float glow = 0.0;
+  bool esc = false;
+  vec3 outDir = rd;
+  vec3 B2 = cross(uN, uB1);
+
+  if(sinA < 1e-4){
+    if(cosA > 0.0) esc = true;
+  } else {
+    vec3 e2 = tg/sinA;
+    float u = 1.0/r0;
+    float v = -u*cosA/sinA;
+    float phi = 0.0;
+    vec3 prev = p0;
+    float sPrev = dot(p0, uN);
+    float uc = 1.0/max(60.0, r0*1.1);
+
+    for(int i = 0; i < 300; i++){
+      float r = 1.0/u;
+      float ds = clamp(0.045*r, 0.05, 2.5);
+      float dphi = ds/r;
+      float a = -u + 1.5*uBend*u*u;
+      v += 0.5*a*dphi;
+      u += v*dphi;
+      a = -u + 1.5*uBend*u*u;
+      v += 0.5*a*dphi;
+      phi += dphi;
+
+      if(u <= uc && v < 0.0){
+        float ue = max(u, uc*0.5);
+        vec3 pe = (cos(phi)*e1 + sin(phi)*e2)/ue;
+        outDir = normalize(pe - prev);
+        esc = true;
+        break;
+      }
+      float rn = 1.0/u;
+      if(rn < uRh) break;
+
+      vec3 pos = (cos(phi)*e1 + sin(phi)*e2)*rn;
+      vec3 seg = pos - prev;
+      float segLen = length(seg);
+      vec3 tdir = seg/max(segLen, 1e-6);
+
+      // soft halo near the photon sphere (rays that linger there build up the photon ring)
+      float gd = (rn-1.5)/0.32;
+      glow += dphi*exp(-gd*gd);
+
+      // relativistic jets: narrow, Doppler-boosted columns along the spin axis
+      if(uJets > 0.5){
+        vec3 mid = 0.5*(pos+prev);
+        float z = dot(mid, uN);
+        float az = abs(z);
+        float rho = length(mid - z*uN);
+        float w = 0.07 + 0.11*az;
+        float dens = exp(-(rho*rho)/(w*w)) * exp(-az*0.045) * smoothstep(uRh*0.9, uRh*2.6, az);
+        if(dens > 0.003){
+          float beta = 0.85;
+          float nv = -dot(tdir, uN)*sign(z)*beta;
+          float g = 1.0/(sqrt(1.0-beta*beta)*(1.0-nv));
+          col += T * dens * segLen * pow(g, 2.6) * uJetAmp * vec3(0.38,0.58,1.0) * 0.4;
+        }
+      }
+
+      // accretion disk (thin, equatorial plane): sign change of height => crossing
+      float s = dot(pos, uN);
+      if(uDisk > 0.5 && s*sPrev < 0.0){
+        float f = sPrev/(sPrev - s);
+        vec3 hp = mix(prev, pos, f);
+        float rr = length(hp);
+        if(rr > uRin && rr < uRout){
+          float th = atan(dot(hp, B2), dot(hp, uB1));
+          float om = 1.2*pow(rr, -1.5);
+          float tt = th - uTime*om;
+          float pat = 0.70 + 0.20*sin(2.0*tt - 3.2*log(rr)) + 0.12*sin(5.0*tt + 9.0*rr + 1.3) + 0.10*sin(11.0*tt - 5.0*rr + 0.7);
+          pat = clamp(pat, 0.2, 1.1);
+          // orbital velocity -> Doppler beaming; plus gravitational redshift
+          vec3 vdir = normalize(cross(uN, hp));
+          float vv = clamp(sqrt(0.5/max(rr-1.0, 0.5)), 0.0, 0.72);
+          float gam = 1.0/sqrt(1.0 - vv*vv);
+          float gd2 = 1.0/(gam*(1.0 + vv*dot(vdir, tdir)));
+          float gg = sqrt(max(1.0 - 1.0/rr, 0.04));
+          float g = gd2*gg;
+          float rat = uRin/rr;
+          float fin = smoothstep(uRin, uRin*1.10, rr);
+          float fout = 1.0 - smoothstep(uRout*0.62, uRout, rr);
+          float edge = fin*fout;
+          float I = pow(rat, 1.1) * pat * 1.15;
+          vec3 c = ramp(pow(rat, 0.75)*g*1.05) * I * pow(g, 2.6) * edge;
+          float alpha = 0.88*edge;
+          col += T*c;
+          T *= (1.0 - alpha);
+        }
+      }
+      sPrev = s;
+      prev = pos;
+      if(T < 0.01) break;
+    }
+  }
+
+  if(esc){ col += T * sky(outDir) * 0.95; col += glow * uGlow * vec3(1.0,0.78,0.5) * 0.30; }
+  col *= uFade;
+  col = 1.0 - exp(-col*1.25);
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+// ---------------- COMPOSITE SHADER (pass 2): bloom, reference ring, vignette, grain ----------------
+const COMP_FRAG = `
+precision highp float;
+uniform sampler2D uTex;
+uniform vec2 uBH;
+uniform float uAspect, uShadow, uRingOn, uGlow, uPx, uTime;
+varying vec2 vUv;
+float h21(vec2 p){ p = fract(p*vec2(123.34,456.21)); p += dot(p,p+45.32); return fract(p.x*p.y); }
+void main(){
+  vec3 c = texture2D(uTex, vUv).rgb;
+  vec3 b = vec3(0.0);
+  for(int i = 0; i < 8; i++){
+    float ang = 6.2831853*float(i)/8.0;
+    vec2 dv = vec2(cos(ang)/uAspect, sin(ang));
+    b += max(texture2D(uTex, vUv + dv*0.010).rgb - 0.55, 0.0);
+    b += 0.7*max(texture2D(uTex, vUv + dv*0.028).rgb - 0.55, 0.0);
+    b += 0.5*max(texture2D(uTex, vUv + dv*0.065).rgb - 0.55, 0.0);
+    b += 0.3*max(texture2D(uTex, vUv + dv*0.130).rgb - 0.55, 0.0);
+  }
+  c += b/8.0 * 0.5 * uGlow * vec3(1.0,0.92,0.82);
+  if(uRingOn > 0.5){
+    vec2 d = (vUv - uBH)*vec2(uAspect, 1.0);
+    float dist = length(d);
+    float ring = smoothstep(uPx*1.7, 0.0, abs(dist - uShadow));
+    float dash = step(0.5, fract(atan(d.y, d.x)*11.459));
+    c = mix(c, vec3(1.0,0.17,0.17), ring*dash*0.75);
+  }
+  c *= 1.0 - 0.28*pow(length(vUv-0.5)*1.45, 2.0);
+  c += (h21(vUv*1000.0 + uTime) - 0.5)*0.012;
+  gl_FragColor = vec4(c, 1.0);
+}
+`;
+
+const VERT = `
+varying vec2 vUv;
+void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
+`;
+
+const rt = new THREE.WebGLRenderTarget(2, 2, {minFilter:THREE.LinearFilter, magFilter:THREE.LinearFilter, format:THREE.RGBAFormat, depthBuffer:false});
+const DISK_N = new THREE.Vector3(0, Math.cos(0.34), Math.sin(0.34)).normalize();   // spin axis / disk normal
+const DISK_B1 = new THREE.Vector3().crossVectors(DISK_N, new THREE.Vector3(0,0,1)).normalize();
+const traceU = {
+  uCamPos:{value:new THREE.Vector3()}, uRight:{value:new THREE.Vector3()}, uUp:{value:new THREE.Vector3()}, uFwd:{value:new THREE.Vector3()},
+  uN:{value:DISK_N}, uB1:{value:DISK_B1},
+  uTanHalf:{value:TAN_HALF}, uAspect:{value:1}, uTime:{value:0}, uBend:{value:1}, uRin:{value:3}, uRout:{value:DISK_OUT},
+  uRh:{value:1}, uGlow:{value:1.5}, uDisk:{value:1}, uJets:{value:1}, uJetAmp:{value:0.5}, uFade:{value:1}
 };
-const lensMat = new THREE.ShaderMaterial({
-  uniforms: lensUniforms,
-  vertexShader: `
-    varying vec2 vUv;
-    void main(){
-      vUv = uv;
-      gl_Position = vec4(position.xy, 0.0, 1.0);
-    }
-  `,
-  fragmentShader: `
-    precision highp float;
-    uniform sampler2D uTex;
-    uniform vec2 uBH;
-    uniform float uAspect;
-    uniform float uRs;
-    uniform float uStrength;
-    uniform float uGlow;
-    varying vec2 vUv;
-    void main(){
-      vec2 uv = vUv;
-      vec2 d = uv - uBH;
-      d.x *= uAspect;
-      float dist = length(d);
-      if(dist < uRs){
-        gl_FragColor = vec4(0.0,0.0,0.0,1.0);
-        return;
-      }
-      vec2 dir = d / max(dist, 0.0001);
-      float bend = uStrength * (uRs*uRs) / (dist*dist);
-      bend = min(bend, 0.4);
-      vec2 offset = vec2(dir.x/uAspect, dir.y) * bend;
-      vec2 sampleUV = clamp(uv - offset, vec2(0.001), vec2(0.999));
-      vec4 col = texture2D(uTex, sampleUV);
-      // smoothstep requires edge0 < edge1 (reversed edges are undefined in GLSL)
-      float ring = (1.0 - smoothstep(uRs*1.4, uRs*2.3, dist)) * (1.0 - smoothstep(uRs*1.0, uRs*1.35, dist));
-      col.rgb += ring * vec3(1.0,0.82,0.55) * 0.9;
+const traceScene = new THREE.Scene();
+const quadCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+traceScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), new THREE.ShaderMaterial({uniforms:traceU, vertexShader:VERT, fragmentShader:TRACE_FRAG})));
+const compU = {
+  uTex:{value:rt.texture}, uBH:{value:new THREE.Vector2(0.5,0.5)}, uAspect:{value:1}, uShadow:{value:0.1},
+  uRingOn:{value:1}, uGlow:{value:1.5}, uPx:{value:0.002}, uTime:{value:0}
+};
+const compScene = new THREE.Scene();
+compScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), new THREE.ShaderMaterial({uniforms:compU, vertexShader:VERT, fragmentShader:COMP_FRAG})));
 
-      // ---- glow (scaled by the GLOW slider) ----
-      float edge = (dist - uRs) / uRs;   // 0 at the horizon edge, grows outward
-      // thin bright photon-ring rim hugging the horizon
-      float rim = exp(-edge * 24.0);
-      // soft warm halo that fades out over about one horizon radius
-      float halo = 0.55*exp(-edge * 3.0) + 0.9*exp(-edge * 9.0);
-      col.rgb += uGlow * (rim * 1.3 * vec3(1.0,0.93,0.78) + halo * 0.55 * vec3(1.0,0.72,0.38));
-
-      // bloom: blurred copy of the brightest parts of the scene (disk) added back on top
-      vec3 bloom = vec3(0.0);
-      for(int i=0;i<8;i++){
-        float ang = 6.2831853 * float(i) / 8.0;
-        vec2 dv = vec2(cos(ang)/uAspect, sin(ang));
-        vec3 s1 = texture2D(uTex, clamp(sampleUV + dv*0.010, vec2(0.001), vec2(0.999))).rgb;
-        vec3 s2 = texture2D(uTex, clamp(sampleUV + dv*0.028, vec2(0.001), vec2(0.999))).rgb;
-        vec3 s3 = texture2D(uTex, clamp(sampleUV + dv*0.060, vec2(0.001), vec2(0.999))).rgb;
-        bloom += max(s1 - 0.2, 0.0) + 0.7*max(s2 - 0.2, 0.0) + 0.5*max(s3 - 0.2, 0.0);
-      }
-      col.rgb += bloom / 8.0 * 0.9 * uGlow;
-
-      gl_FragColor = col;
-    }
-  `
-});
-const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), lensMat);
-quadScene.add(quad);
-
+// ---------------- SIZING (normal, native fullscreen, CSS-fallback fullscreen) ----------------
+let renderScale = 1;
+let viewW = 2, viewH = 2;
+function applyRTSize(){
+  rt.setSize(Math.max(2, Math.floor(viewW*DPR*renderScale)), Math.max(2, Math.floor(viewH*DPR*renderScale)));
+}
 function getOffsetTop(el){
   let top = 0;
   while(el){ top += el.offsetTop || 0; el = el.offsetParent; }
   return top;
 }
+let pseudoFs = false;
+function isFs(){
+  return document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap || pseudoFs;
+}
 function resizeAll(){
-  const w = wrap.clientWidth;
-  const available = window.innerHeight - getOffsetTop(wrap) - 24; // fill down to bottom of window
-  const h = Math.max(420, available);
-  wrap.style.height = h+'px';
-  renderer.setSize(w,h,false);
-  camera.aspect = w/h;
+  let w, h;
+  if(isFs()){
+    wrap.style.height = '';                       // let the fullscreen CSS decide
+    w = wrap.clientWidth || window.innerWidth;
+    h = wrap.clientHeight || window.innerHeight;
+  } else {
+    w = wrap.clientWidth;
+    const available = window.innerHeight - getOffsetTop(wrap) - 24;
+    h = Math.max(420, available);
+    wrap.style.height = h+'px';
+  }
+  viewW = Math.max(2, w); viewH = Math.max(2, h);
+  renderer.setSize(viewW, viewH, false);
+  camera.aspect = viewW/viewH;
   camera.updateProjectionMatrix();
-  rt.setSize(w*Math.min(devicePixelRatio,2), h*Math.min(devicePixelRatio,2));
-  lensUniforms.uAspect.value = w/h;
+  applyRTSize();
+  traceU.uAspect.value = compU.uAspect.value = viewW/viewH;
+  compU.uPx.value = 1/(viewH*DPR);
 }
 window.addEventListener('resize', resizeAll);
+if(window.ResizeObserver){
+  new ResizeObserver(()=>{ if(isFs()) resizeAll(); }).observe(wrap);
+}
 
-const tmpCenter = new THREE.Vector3();
-function updateLensUniforms(){
-  // Exact angular radius of the sphere's silhouette for a perspective camera:
-  // sin(alpha) = R/d, projected radius = tan(alpha)/tan(fov/2) in NDC (height units).
-  const dCam = camera.position.distanceTo(bhMesh.position);
-  const ratio = Math.min(bhRadius / Math.max(dCam, 1e-6), 0.98);
-  const tanAlpha = ratio / Math.sqrt(1 - ratio*ratio);
-  const tanHalfFov = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
-  const rUv = 0.5 * tanAlpha / tanHalfFov;
+// ---------------- FULLSCREEN ----------------
+// 1) native Fullscreen API on the viewport; 2) if that is refused (iframes without allowfullscreen,
+// iPhone Safari) the viewport is lifted to <body> and stretched over the window. It must leave the
+// panel first because the blurred panel would otherwise trap position:fixed inside itself.
+const fsPlaceholder = document.createComment('viewport');
+function updateFsUI(){
+  const f = isFs();
+  wrap.classList.toggle('fs', f);
+  wrap.classList.toggle('pseudo', pseudoFs);
+  btnFs.textContent = f ? '✕ EXIT FULLSCREEN' : '⛶ FULLSCREEN';
+  resizeAll();
+  setTimeout(resizeAll, 150);
+  setTimeout(resizeAll, 500);
+}
+function enterPseudoFs(){
+  if(pseudoFs) return;
+  pseudoFs = true;
+  wrap.parentNode.insertBefore(fsPlaceholder, wrap);
+  document.body.appendChild(wrap);
+  document.body.style.overflow = 'hidden';
+  updateFsUI();
+}
+function leavePseudoFs(){
+  if(!pseudoFs) return;
+  pseudoFs = false;
+  if(fsPlaceholder.parentNode) fsPlaceholder.parentNode.insertBefore(wrap, fsPlaceholder);
+  fsPlaceholder.remove();
+  document.body.style.overflow = '';
+  updateFsUI();
+}
+function toggleFs(){
+  if(isFs()){
+    if(pseudoFs) leavePseudoFs();
+    else (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    return;
+  }
+  const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+  if(!req){ enterPseudoFs(); return; }
+  try{
+    const p = req.call(wrap);
+    if(p && p.catch) p.catch(enterPseudoFs);
+  }catch(err){ enterPseudoFs(); }
+}
+btnFs.addEventListener('click', toggleFs);
+document.addEventListener('fullscreenchange', updateFsUI);
+document.addEventListener('webkitfullscreenchange', updateFsUI);
+window.addEventListener('keydown', e=>{
+  if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if(e.key === 'f' || e.key === 'F') toggleFs();
+  else if(e.key === 'Escape' && pseudoFs) leavePseudoFs();
+});
 
-  tmpCenter.copy(bhMesh.position).project(camera);
-  const cx = tmpCenter.x*0.5+0.5, cy = tmpCenter.y*0.5+0.5;
-  lensUniforms.uBH.value.set(cx,cy);
-  lensUniforms.uRs.value = Math.max(0.005, rUv);
-  lensUniforms.uStrength.value = currentLensStrength();
-  lensUniforms.uGlow.value = currentGlow();
+// ---------------- FALL-IN MODE ----------------
+const fall = {active:false, t:0, D0:12, crossed:false, crossT:0};
+const fallHud = document.getElementById('fall-hud');
+let fadeVal = 1;
+function currentD(){ return camera.position.length() / rsVisual; }
+function startFall(){
+  if(fall.active){ stopFall(); return; }
+  fall.D0 = Math.min(60, Math.max(currentD(), 8));
+  fall.active = true; fall.t = 0; fall.crossed = false;
+  camFocus.set(0,0,0);
+  btnFall.textContent = 'ABORT FALL'; btnFall.classList.add('on');
+  fallHud.style.display = 'block';
+  wrap.classList.add('falling');
+}
+function stopFall(){
+  fall.active = false; fall.crossed = false; fadeVal = 1;
+  btnFall.textContent = 'FALL IN'; btnFall.classList.remove('on');
+  fallHud.style.display = 'none';
+  wrap.classList.remove('falling');
+  targetRadius = fall.D0 * rsVisual;
+}
+btnFall.addEventListener('click', startFall);
+function updateFall(dt){
+  if(!fall.active) return;
+  if(fall.crossed){
+    fall.crossT += dt;
+    fadeVal = 0;
+    if(fall.crossT > 4) stopFall();
+    return;
+  }
+  fall.t += dt;
+  const s = Math.min(fall.t/26, 1);
+  const D = 1 + (fall.D0-1)*Math.pow(1-s, 2.4);
+  camRadius = targetRadius = D*rsVisual;
+  fadeVal = Math.max(0, Math.min(1, (D-1.002)/0.02));
+  const k = 1/Math.sqrt(Math.max(1-1/D, 1e-6));
+  fallHud.innerHTML = 'FALLING · r = <b>'+D.toFixed(3)+' rs</b><br>Distant clocks tick <b>×'+k.toFixed(1)+'</b> faster than yours<br>Light you send out is redshifted by z = <b>'+(k-1).toFixed(2)+'</b>';
+  if(D < 1.003){
+    fall.crossed = true; fall.crossT = 0;
+    fallHud.innerHTML = '<b>EVENT HORIZON CROSSED</b><br>No signal you send from here can ever get back out.';
+  }
+}
+
+// ---------------- SCALE COMPARISON PANEL ----------------
+const scalePanel = document.getElementById('scale-panel');
+const scaleCv = document.getElementById('scale-cv');
+const scaleList = document.getElementById('scale-list');
+btnScale.addEventListener('click', ()=>{
+  scaleOn = !scaleOn;
+  setBtn(btnScale, scaleOn, 'SCALE');
+  scalePanel.style.display = scaleOn ? 'block' : 'none';
+  drawScale();
+});
+const REFS = [
+  ['a typical city (≈15 km)', 15], ['Earth', 6371], ['the Moon’s orbit', 384400], ['the Sun', 695700],
+  ['Earth’s orbit', 1.496e8], ['Neptune’s orbit', 4.495e9], ['one light-day', 2.59e10], ['one light-year', 9.4607e12]
+];
+function fmtX(x){
+  if(x >= 1e6) return x.toExponential(1).replace('e+','e');
+  if(x >= 100) return Math.round(x).toLocaleString('en-US');
+  if(x >= 10) return x.toFixed(1);
+  return x.toFixed(2);
+}
+function drawScale(){
+  if(!scaleOn || !stats) return;
+  const R = stats.horizonKm;
+  const cx = scaleCv.width/2, cy = scaleCv.height/2, half = scaleCv.width/2 - 8;
+  const next = REFS.find(r => r[1] >= R*1.05);
+  let rmax;
+  if(R < 6371) rmax = 6371;                 // small hole: show it next to Earth
+  else if(R < 695700 && !(next && next[1] <= R*40)) rmax = 695700;   // otherwise next to the Sun
+  else rmax = (next && next[1] <= R*40) ? next[1] : R*1.6;
+  const sc = half / rmax;
+  const g = scaleCv.getContext('2d');
+  g.clearRect(0,0,scaleCv.width,scaleCv.height);
+  g.font = '10px "Space Mono", monospace';
+  REFS.forEach(([name, rad], i)=>{
+    const px = rad*sc;
+    if(px < 1.5 || px > half+1) return;
+    g.strokeStyle = 'rgba(255,176,32,0.8)'; g.lineWidth = 1;
+    g.setLineDash(name.indexOf('orbit') >= 0 ? [4,4] : []);
+    g.beginPath(); g.arc(cx, cy, px, 0, Math.PI*2); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle = '#ffb020'; g.textAlign = 'center';
+    g.fillText(name, cx, cy - px + 12 + (i%2)*11);
+    g.textAlign = 'left';
+  });
+  const bp = Math.max(R*sc, 1.5);
+  g.fillStyle = '#000'; g.strokeStyle = '#ff2b2b'; g.lineWidth = 2;
+  g.shadowColor = '#ff2b2b'; g.shadowBlur = 12;
+  g.beginPath(); g.arc(cx, cy, bp, 0, Math.PI*2); g.fill(); g.stroke();
+  g.shadowBlur = 0;
+  g.fillStyle = '#ff2b2b'; g.textAlign = 'center'; g.fillText(bp > 40 ? 'EVENT HORIZON' : 'EVENT HORIZON (dot, to scale)', cx, cy + (bp > 40 ? 4 : bp + 16)); g.textAlign = 'left';
+  scaleList.innerHTML = REFS.map(([name, rad])=>{
+    const ratio = R/rad;
+    return ratio >= 1
+      ? 'Horizon radius = <b>'+fmtX(ratio)+'×</b> '+name
+      : name+' = <b>'+fmtX(1/ratio)+'×</b> the horizon radius';
+  }).join('<br>');
+}
+
+// ---------------- SHARE LINK + PNG ----------------
+function buildShareURL(){
+  const u = new URL(window.location.href);
+  u.search = '';
+  const p = u.searchParams;
+  p.set('mass', String(massSolarState));
+  p.set('spin', currentSpin().toFixed(3));
+  p.set('lens', currentLensStrength().toFixed(2));
+  p.set('glow', currentGlow().toFixed(2));
+  p.set('disk', diskOn?'1':'0'); p.set('ring', ringOn?'1':'0'); p.set('jets', jetsOn?'1':'0'); p.set('orbit', autoOrbit?'1':'0');
+  p.set('th', targetTheta.toFixed(2)); p.set('ph', targetPhi.toFixed(2)); p.set('zoom', targetRadius.toFixed(1));
+  return u.toString();
+}
+function flashBtn(btn, msg){
+  const old = btn.textContent;
+  btn.textContent = msg;
+  setTimeout(()=>{ btn.textContent = old; }, 1200);
+}
+btnLink.addEventListener('click', ()=>{
+  const url = buildShareURL();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>flashBtn(btnLink,'COPIED ✓')).catch(()=>window.prompt('Copy this link:', url));
+  } else window.prompt('Copy this link:', url);
+});
+let shotReq = false;
+btnShot.addEventListener('click', ()=>{ shotReq = true; });
+
+function readURLState(){
+  const q = new URLSearchParams(window.location.search);
+  const num = k => { const v = parseFloat(q.get(k)); return isFinite(v) ? v : null; };
+  let v;
+  if((v = num('mass')) !== null && v > 0) massSolarState = Math.max(MASS_MIN, Math.min(MASS_MAX, v));
+  if((v = num('spin')) !== null) spinSlider.value = Math.max(0, Math.min(0.998, v));
+  if((v = num('lens')) !== null) lensSlider.value = Math.max(0, Math.min(3, v));
+  if((v = num('glow')) !== null) glowSlider.value = Math.max(0, Math.min(3, v));
+  if(q.has('disk')) setDisk(q.get('disk') === '1');
+  if(q.has('ring')) setRing(q.get('ring') === '1');
+  if(q.has('jets')) setJets(q.get('jets') === '1');
+  if(q.has('orbit')) setOrbit(q.get('orbit') === '1');
+  if((v = num('th')) !== null) camTheta = targetTheta = v;
+  if((v = num('ph')) !== null) camPhi = targetPhi = Math.max(PHI_MIN, Math.min(PHI_MAX, v));
+  if((v = num('zoom')) !== null) camRadius = targetRadius = Math.max(5, Math.min(260, v));
+  if((v = num('rs')) !== null){ renderScale = Math.max(0.2, Math.min(1, v)); fixedScale = true; }
+}
+let fixedScale = false;
+
+document.getElementById('reset-btn').addEventListener('click', ()=>{
+  if(fall.active) stopFall();
+  massSolarState = DEFAULT_MASS; spinSlider.value = DEFAULT_SPIN; lensSlider.value = DEFAULT_LENS; glowSlider.value = DEFAULT_GLOW;
+  setDisk(true); setRing(false); setJets(true); setOrbit(true);
+  refresh();
+  targetTheta=0.7; targetPhi=1.15; targetRadius=55; camFocus.set(0,0,0);
+  updateBHVisualRadius();
+});
+
+// ---------------- PER-FRAME UNIFORMS ----------------
+const tmpV = new THREE.Vector3();
+function updateUniforms(time){
+  camera.updateMatrixWorld();
+  const e = camera.matrixWorld.elements;
+  traceU.uRight.value.set(e[0], e[1], e[2]);
+  traceU.uUp.value.set(e[4], e[5], e[6]);
+  traceU.uFwd.value.set(-e[8], -e[9], -e[10]);
+  traceU.uCamPos.value.copy(camera.position).divideScalar(rsVisual);
+  const D = traceU.uCamPos.value.length();
+  const a = currentSpin();
+  traceU.uTime.value = compU.uTime.value = time;
+  traceU.uBend.value = currentLensStrength();
+  traceU.uRin.value = rinVis; traceU.uRh.value = rhVis;
+  traceU.uGlow.value = compU.uGlow.value = currentGlow();
+  traceU.uDisk.value = diskOn ? 1 : 0;
+  traceU.uJets.value = jetsOn ? 1 : 0;
+  traceU.uJetAmp.value = 0.03 + 0.55*a;
+  traceU.uFade.value = fadeVal;
+  // reference ring = critical curve (apparent edge of the shadow) for a static observer at distance D
+  tmpV.set(0,0,0).project(camera);
+  compU.uBH.value.set(tmpV.x*0.5+0.5, tmpV.y*0.5+0.5);
+  const sinA = Math.min(2.598*Math.sqrt(Math.max(1-1/D, 0))/D, 0.995);
+  compU.uShadow.value = 0.5*(sinA/Math.sqrt(1-sinA*sinA))/TAN_HALF;
+  compU.uRingOn.value = (ringOn && D > 1.7) ? 1 : 0;
 }
 
 // ---------------- ANIMATE ----------------
 const clock = new THREE.Clock();
+let simTime = 0, emaDt = 0.0167, frameCount = 0, lastAdj = 0;
 function animate(){
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const dtRaw = clock.getDelta();
+  const dt = Math.min(dtRaw, 0.05);
+  simTime += dt;
 
-  if(diskOn){
-    const bands = diskGroup.children;
-    for(let i=0;i<bands.length;i++) bands[i].rotation.z += dt*bands[i].userData.omega;
+  // adaptive resolution: keep the ray tracer smooth on weaker GPUs
+  if(dtRaw < 0.2) emaDt = emaDt*0.95 + dtRaw*0.05;
+  frameCount++;
+  if(!fixedScale && frameCount > 60 && simTime - lastAdj > 1.5){
+    if(emaDt > 0.026 && renderScale > 0.4){ renderScale = Math.max(0.4, renderScale*0.85); applyRTSize(); lastAdj = simTime; }
+    else if(emaDt < 0.0175 && renderScale < 1){ renderScale = Math.min(1, renderScale*1.1); applyRTSize(); lastAdj = simTime; }
   }
 
+  if(autoOrbit && !dragging && !panning && !fall.active) targetTheta += dt*0.10;
+  updateFall(dt);
   updateCamera();
-  camera.updateMatrixWorld();
-  updateLensUniforms();
+  updateUniforms(simTime);
 
   renderer.setRenderTarget(rt);
-  renderer.render(scene, camera);
+  renderer.render(traceScene, quadCamera);
   renderer.setRenderTarget(null);
-  renderer.render(quadScene, quadCamera);
+  renderer.render(compScene, quadCamera);
+
+  if(shotReq){
+    shotReq = false;
+    const a = document.createElement('a');
+    a.download = 'black-hole-' + Math.round(currentMassSolar()) + 'Msun.png';
+    const oc = document.createElement('canvas');
+    oc.width = canvas.width; oc.height = canvas.height;
+    const og = oc.getContext('2d');
+    og.drawImage(canvas, 0, 0);
+    const fs = Math.max(14, Math.round(oc.width*0.018));
+    og.font = '700 ' + fs + 'px "Space Mono", monospace';
+    og.textAlign = 'right'; og.textBaseline = 'bottom';
+    og.shadowColor = 'rgba(0,0,0,0.9)'; og.shadowBlur = fs*0.5;
+    og.fillStyle = 'rgba(255,255,255,0.78)';
+    og.fillText('rameshverse.com', oc.width - fs, oc.height - fs*0.8);
+    a.href = oc.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); a.remove();
+  }
 }
 
+readURLState();
 resizeAll();
 refresh();
 updateCamera();
