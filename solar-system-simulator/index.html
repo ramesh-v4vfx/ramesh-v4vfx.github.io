@@ -13,7 +13,7 @@
 </script>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Explore an interactive 3D solar system model drawn fully to scale — real distances and sizes, today's planet positions, Kepler orbits, moons, and data on every planet and dwarf planet.">
 
 <title>Solar System Simulator | rameshverse</title>
@@ -114,6 +114,8 @@
   #moons-row{display:none;}
   #moons-row.show{display:flex;}
   #moons-row .btn{font-size:10px;padding:6px 9px;}
+  #moons-row .btn.k-moon{border-color:var(--c);}
+  #moons-row .row-tag{color:#82FFE0;opacity:.9;}
   .btn.moon{border-color:rgba(255,255,255,.18);}
   #planet-buttons{display:contents;}
   .btn{
@@ -138,8 +140,9 @@
   .btn.k-star{--c:#ffb347;}
   .btn.k-planet{--c:#6fd3ff;}
   .btn.k-dwarf{--c:#b69cff;}
-  .btn.k-distant{--c:#6be3a3;}
+  .btn.k-distant{--c:#C8F542;}
   .btn.k-craft{--c:#ff8fcf;}
+  .btn.k-moon{--c:#82FFE0;}
   .body-btn[class*="k-"]{color:var(--c);border-color:color-mix(in srgb, var(--c) 55%, transparent);}
   .body-btn[class*="k-"]:hover{border-color:var(--c);color:#fff;box-shadow:0 0 8px color-mix(in srgb, var(--c) 50%, transparent);}
   .body-btn[class*="k-"].active{background:var(--c);border-color:var(--c);color:#050608;box-shadow:0 0 10px color-mix(in srgb, var(--c) 60%, transparent);}
@@ -162,8 +165,8 @@
   #legend .lg span{color:var(--text);opacity:.85;}
   #legend .lg b{font-weight:400;opacity:.65;margin-left:auto;padding-left:8px;}
   #legend .lg.k-star{--c:#ffb347;} #legend .lg.k-planet{--c:#6fd3ff;} #legend .lg.k-dwarf{--c:#b69cff;}
-  #legend .lg.k-distant{--c:#6be3a3;} #legend .lg.k-craft{--c:#ff8fcf;}
-  #legend .moonlg i{background:transparent;border-color:rgba(255,255,255,.4);}
+  #legend .lg.k-distant{--c:#C8F542;} #legend .lg.k-craft{--c:#ff8fcf;}
+  #legend .moonlg{--c:#82FFE0;}
 
   /* bottom dock: time controls + view controls */
   #dock{
@@ -323,14 +326,13 @@
   #labels{position:fixed;inset:0;pointer-events:none;z-index:54;overflow:hidden;transition:opacity .6s;}
   .lbl{
     position:absolute;left:0;top:0;display:none;
-    font-size:10px;letter-spacing:1.2px;color:#cfd5dc;opacity:.92;
+    font-size:10px;letter-spacing:1.2px;color:var(--c,#cfd5dc);opacity:.95;
     padding:2px 3px;white-space:nowrap;cursor:pointer;pointer-events:auto;
     text-shadow:0 0 4px #000,0 0 2px #000,0 0 8px #000;will-change:transform;
   }
-  .lbl:hover{color:var(--red);}
-  .lbl.dwarf{color:#9aa2ae;}
-  .lbl.moon{color:#a8b0ba;font-size:9px;letter-spacing:1px;}
-  .lbl.craft{color:#8fd3ff;font-size:9.5px;}
+  .lbl:hover{color:#fff;}
+  .lbl.moon{font-size:9px;letter-spacing:1px;opacity:1;}
+  .lbl.craft{font-size:9.5px;}
   .lbl.sel{color:var(--red);}
   #scalebar{
     position:fixed;right:40px;bottom:22px;z-index:56;text-align:center;
@@ -405,29 +407,69 @@
 
   input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.8);cursor:pointer;}
 
-  @media(max-width:640px){
-    body.has-panel #top-controls{padding-right:14px;}
-    #panel{width:calc(100vw - 24px);right:12px;top:262px;max-height:calc(100vh - 262px - 130px);}
-    #topbar{padding:14px 18px;}
-    #logo{font-size:10px;letter-spacing:1px;}
-    #clock{display:none;}
-    #hint .keys{display:none;}
-    #hint{bottom:128px;}
-    #scale-note{bottom:16px;left:18px;max-width:170px;}
-    #scalebar{right:18px;bottom:16px;}
-    #speed-val{display:none;}
-    .btn{font-size:11px;padding:10px 12px;}
-    .body-row .btn{padding:6px 7px;font-size:9.5px;letter-spacing:.5px;}
-    #bodies-row{gap:4px;row-gap:4px;}
-    #legend{display:none;}
-    #moons-row .btn{padding:8px 10px;}
-    #dock{bottom:58px;width:calc(100vw - 20px);}
-    #dock-toggle{display:inline-block;}
-    #dock .dock-group{display:none;}
+  .mob-only{display:none;}
+  #btn-info{display:none;}
+
+  /* ================= PHONES =================
+     one scrolling row of bodies on top, nothing at the bottom until you ask for it:
+     the gear opens the time / view controls, the info button opens the info panel. */
+  @media (max-width:760px), (max-height:500px) and (pointer:coarse){
+    html,body{overscroll-behavior:none;}
+    .mob-only{display:inline-block;}
+    .corner{display:none;}
+    #topbar{padding:12px 16px;}
+    #logo{font-size:11px;letter-spacing:1px;}
+    #logo .bk{display:none;}
+    #clock{display:block;font-size:10px;letter-spacing:1px;}
+
+    /* the one top row: swipe sideways for the rest */
+    #top-controls{top:42px;padding:0;gap:0;align-items:stretch;}
+    body.has-panel #top-controls{padding-right:0;}
+    #bodies-row{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 14px 6px;gap:6px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;}
+    #bodies-row::-webkit-scrollbar{display:none;}
+    #bodies-row:not(.at-end){-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent);}
+    #bodies-row .btn{flex:none;padding:9px 11px;font-size:10.5px;letter-spacing:.5px;background:rgba(5,6,8,.78);}
+    #bodies-row .body-btn[class*="k-"].active{background:var(--c);color:#050608;}
+    #cat-row,#cat-open-row,#moons-row{display:none !important;}
+    #legend,#scale-note,#watermark{display:none;}
+
+    /* bottom: hidden by default. gear = controls, info button = info panel */
+    #dock{left:10px;right:10px;bottom:calc(68px + env(safe-area-inset-bottom));transform:none;width:auto;max-width:none;display:block;pointer-events:none;}
+    #dock .dock-group{display:none;margin-top:8px;pointer-events:auto;gap:6px;justify-content:flex-start;background:rgba(8,9,12,.9);}
     #dock.open .dock-group{display:flex;}
-    #flight-hud{bottom:58px;}
+    #dock .dock-group .btn{flex:1 0 auto;min-height:40px;font-size:11px;padding:8px 10px;}
+    #dock-toggle{display:flex;align-items:center;justify-content:center;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:46px;height:46px;padding:0;font-size:19px;pointer-events:auto;background:rgba(5,6,8,.82);}
+    #dock-toggle.active{border-color:var(--red);color:var(--red);}
+    #speedwrap{flex:1 1 100%;}
+    #speed{flex:1;width:auto;margin:11px 0;}
+    #speed::-webkit-slider-thumb{width:22px;height:22px;}
+    #speed::-moz-range-thumb{width:22px;height:22px;}
+    #speed-val{display:inline-block;min-width:62px;text-align:right;}
+    #date-input{font-size:16px;padding:8px;flex:1 1 130px;min-height:40px;}
+    #btn-info{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:59;height:46px;padding:0 14px;align-items:center;background:rgba(5,6,8,.82);border-color:var(--red);color:var(--red);}
+    #btn-info.avail{display:flex;}
+    #btn-info.active{background:rgba(255,43,43,.16);}
+    body.intro #btn-info,body.flying #btn-info,body.hud-hidden #btn-info{display:none;}
+    #scalebar{right:auto;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));}
+
+    /* info panel: a bottom sheet that only appears when asked for */
+    #panel{left:10px;right:10px;width:auto;top:auto;bottom:calc(68px + env(safe-area-inset-bottom));max-height:55vh;max-height:55dvh;transform:translateY(16px);}
+    #panel.show{transform:none;}
+    #panel::after{display:none;}
+    #panel-head{padding:10px 14px;}
+    #panel-name{font-size:18px;letter-spacing:2px;}
+    #panel-body{padding:2px 14px 12px;}
+
+    #hint{bottom:calc(74px + env(safe-area-inset-bottom));font-size:9.5px;}
+    #hint .keys{display:none;}
+    #toast{top:104px;}
+    #caption{bottom:22%;}
     #caption .c1{font-size:17px;letter-spacing:4px;}
-    #btn-skip-intro{right:14px;bottom:70px;}
+    #btn-skip-intro{right:14px;bottom:24px;}
+    #flight-hud{left:10px;right:10px;bottom:calc(12px + env(safe-area-inset-bottom));transform:none;min-width:0;padding:10px 12px;}
+    #fl-time{font-size:22px;}
+    #flight-hud .btn{flex:1 0 auto;min-height:38px;}
+    #tour .btn{min-height:40px;}
   }
 
 </style>
@@ -447,7 +489,7 @@
 <div class="corner br"></div>
 
 <div id="topbar">
-  <a id="logo" href="/">‹ BACK TO RAMESHVERSE</a>
+  <a id="logo" href="/">‹ <span class="bk">BACK TO </span>RAMESHVERSE</a>
   <div id="clock"></div>
 </div>
 
@@ -471,6 +513,8 @@
   </div>
   <div id="panel-body"></div>
 </div>
+
+<button class="btn" id="btn-info" aria-label="Show or hide the info panel">ⓘ INFO</button>
 
 <div id="reticle"><span class="tick top"></span><span class="tick bot"></span><span class="tick l"></span><span class="tick r"></span></div>
 
@@ -511,7 +555,7 @@
 <div id="watermark">rameshverse.com</div>
 
 <div id="dock">
-  <button class="btn" id="dock-toggle">⚙ CONTROLS</button>
+  <button class="btn" id="dock-toggle" aria-label="Time and view controls" aria-expanded="false">⚙</button>
   <div class="dock-group" id="time-group">
     <button class="btn" id="btn-rev" title="Run time backwards (R)">◀ REVERSE</button>
     <button class="btn" id="btn-pause" title="Pause / resume (Space)">PAUSE</button>
@@ -783,7 +827,7 @@ catch(err){
   return;
 }
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.matchMedia('(pointer:coarse)').matches ? 1.5 : 2));   // a little lighter on phones
 wrap.appendChild(renderer.domElement);
 
 // starfield (follows the camera, so it stays infinitely far away)
@@ -1273,6 +1317,7 @@ const panelTag = $('panel-tag');
 const panelBody = $('panel-body');
 const panelClose = $('panel-close');
 const reticle = $('reticle');
+const infoBtn = $('btn-info');
 const dockEl = $('dock');
 const moonsRow = $('moons-row');
 let moonsRowParent = null;
@@ -1303,9 +1348,9 @@ function typeBrief(){
 function kindColor(b){
   if(b.kind==='sun') return '#ffb347';
   if(b.kind==='craft') return '#ff8fcf';
-  if(b.kind==='moon') return '#cfd6e4';
+  if(b.kind==='moon') return '#82FFE0';
   const c = catOf[b.name];
-  return c==='dwarf' ? '#b69cff' : c==='distant' ? '#6be3a3' : '#6fd3ff';
+  return c==='dwarf' ? '#b69cff' : c==='distant' ? '#C8F542' : '#6fd3ff';
 }
 
 function selectBody(b){
@@ -1386,7 +1431,8 @@ function selectBody(b){
     panelBody.insertAdjacentHTML('beforeend', '<button class="btn" id="btn-fly" title="Race a photon from the Sun to this body (F)"><span>▶▶</span> FLY THERE AT LIGHT SPEED</button>');
     $('btn-fly').addEventListener('click', ()=>startFlight(b));
   }
-  panel.classList.add('show'); document.body.classList.add('has-panel');
+  if(isMobile()){ infoBtn.classList.add('avail'); setMobilePanel(panel.classList.contains('show')); }   // phones: stays closed unless it was already opened
+  else { panel.classList.add('show'); document.body.classList.add('has-panel'); }
   refreshMoonsRow();
   highlightButtons(b.name);
   updateLive();
@@ -1398,17 +1444,25 @@ function deselect(releaseCamera){
   locked = null;
   if(releaseCamera === true) follow = null;
   panel.classList.remove('show'); document.body.classList.remove('has-panel');
+  infoBtn.classList.remove('avail','active'); infoBtn.textContent = 'ⓘ INFO';
   reticle.style.display = 'none';
   refreshMoonsRow();
   highlightButtons(null);
 }
-panelClose.addEventListener('click', ()=>deselect());   // wrapper: the click event must not be passed in as the argument
+panelClose.addEventListener('click', ()=>{ if(isMobile() && locked) setMobilePanel(false); else deselect(); });   // wrapper: the click event must not be passed in as the argument
+infoBtn.addEventListener('click', ()=>setMobilePanel(!panel.classList.contains('show')));
+function setMobilePanel(on){
+  panel.classList.toggle('show', on); document.body.classList.toggle('has-panel', on);
+  infoBtn.classList.toggle('active', on); infoBtn.textContent = on ? '✕ INFO' : 'ⓘ INFO';
+  if(on && dockEl.classList.contains('open')) setDock(false);
+}
 
 function highlightButtons(name){
   if(name && catOf[name] && catOf[name] !== openCat) showCategory(catOf[name]);
   document.querySelectorAll('#top-controls .body-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.name===name);
   });
+  if(name && isMobile()){ const a = bodiesRow.querySelector('.body-btn.active'); if(a) centerInRow(a); }
 }
 
 // live rows: distance from the Sun, light travel time, speed
@@ -1446,7 +1500,7 @@ function updateLive(){
 const liveVec = new THREE.Vector3();
 
 // ---------- BUTTONS: one scrollable row with every body (no moons); moons appear in a second row only when relevant ----------
-const isMobile = () => window.matchMedia('(max-width:640px)').matches;
+const isMobile = () => window.matchMedia('(max-width:760px), (max-height:500px) and (pointer:coarse)').matches;
 const bodiesRow = $('bodies-row');
 function addBodyButton(container, b, cls, title){
   const el = document.createElement('button');
@@ -1457,6 +1511,13 @@ function addBodyButton(container, b, cls, title){
   container.appendChild(el);
   return el;
 }
+function centerInRow(btn){
+  const r = bodiesRow.getBoundingClientRect(), q = btn.getBoundingClientRect();
+  bodiesRow.scrollBy({left:(q.left+q.width/2)-(r.left+r.width/2), behavior:'smooth'});
+}
+const syncRowEnd = () => bodiesRow.classList.toggle('at-end', bodiesRow.scrollLeft + bodiesRow.clientWidth >= bodiesRow.scrollWidth - 6);
+bodiesRow.addEventListener('scroll', syncRowEnd, {passive:true});
+window.addEventListener('resize', syncRowEnd);
 const mainPlanets = planets.filter(pm=>!pm.data.dwarf);
 // every body on screen at once, colour-coded by kind (moons stay in their own row)
 const GROUPS = [
@@ -1468,6 +1529,12 @@ const GROUPS = [
 ];
 // row 1: the Sun and all eight planets
 GROUPS.slice(0,2).forEach(g=>g.list.forEach(b=>addBodyButton(bodiesRow, b, 'k-'+g.id, b.kind==='sun' ? null : (b.data && b.data.kind) || null)));
+// phones: everything sits in this one scrolling row (dwarf planets, distant objects and spacecraft follow the planets)
+GROUPS.slice(2).forEach(g=>g.list.forEach((b,i)=>{
+  const el = addBodyButton(bodiesRow, b, 'k-'+g.id+' mob-only', (b.data && b.data.kind) || null);
+  if(i === 0) el.style.marginLeft = '8px';
+}));
+syncRowEnd();
 // row 2: category buttons; a category's bodies open in a row below when clicked
 const catRow = $('cat-row'), catOpenRow = $('cat-open-row');
 let openCat = null;
@@ -1496,8 +1563,25 @@ const legendEl = $('legend');
 legendEl.innerHTML = GROUPS.map(g=>'<div class="lg k-'+g.id+'"><i></i><span>'+g.label+'</span><b>'+g.list.length+'</b></div>').join('') +
   '<div class="lg moonlg"><i></i><span>MOONS</span><b>ON SELECT</b></div>';
 
+let inlineParent = null;
+function refreshInlineMoons(parent){
+  if(!isMobile()){ if(inlineParent){ bodiesRow.querySelectorAll('.moon-inline').forEach(e=>e.remove()); inlineParent = null; syncRowEnd(); } return; }
+  if(parent === inlineParent) return;
+  bodiesRow.querySelectorAll('.moon-inline').forEach(e=>e.remove());
+  inlineParent = parent;
+  if(parent && parent.moons.length){
+    const anchor = bodiesRow.querySelector('.body-btn[data-name="'+parent.name+'"]:not(.moon-inline)');
+    if(anchor){
+      const tmp = document.createElement('div');
+      parent.moons.forEach(m=>addBodyButton(tmp, m, 'moon k-moon moon-inline', 'MOON OF '+parent.name));
+      Array.from(tmp.children).reverse().forEach(el=>anchor.after(el));
+    }
+  }
+  syncRowEnd();
+}
 function refreshMoonsRow(){
   const parent = !locked ? null : locked.kind==='planet' ? locked : locked.kind==='moon' ? locked.parent : null;
+  refreshInlineMoons(parent);
   if(parent !== moonsRowParent){
     moonsRowParent = parent;
     moonsRow.innerHTML = '';
@@ -1505,7 +1589,7 @@ function refreshMoonsRow(){
       const tag = document.createElement('span');
       tag.className = 'row-tag'; tag.textContent = 'MOONS OF ' + parent.name;
       moonsRow.appendChild(tag);
-      parent.moons.forEach(m=>addBodyButton(moonsRow, m, 'moon', 'MOON OF '+parent.name));
+      parent.moons.forEach(m=>addBodyButton(moonsRow, m, 'moon k-moon', 'MOON OF '+parent.name));
       moonsRow.classList.add('show');
     } else moonsRow.classList.remove('show');
   }
@@ -1526,6 +1610,7 @@ bodies.forEach(b=>{
   const el = document.createElement('div');
   el.className = 'lbl ' + (b.kind==='moon' ? 'moon' : b.kind==='craft' ? 'craft' : (b.kind==='planet' && b.data.dwarf) ? 'dwarf' : '');
   el.textContent = b.name;
+  el.style.setProperty('--c', kindColor(b));      // same colour as its button and the key
   el.addEventListener('click', ev=>{ ev.stopPropagation(); selectBody(b); });
   labelLayer.appendChild(el);
   b.label = el; b.labelShown = false; b.labelW = b.name.length*6.8 + 10;
@@ -1634,7 +1719,14 @@ function toggleHud(){
 }
 $('btn-hud').addEventListener('click', toggleHud);
 $('btn-showhud').addEventListener('click', toggleHud);
-$('dock-toggle').addEventListener('click', ()=>dockEl.classList.toggle('open'));
+const dockToggle = $('dock-toggle');
+function setDock(on){
+  dockEl.classList.toggle('open', on); dockToggle.classList.toggle('active', on);
+  dockToggle.textContent = on ? '✕' : '⚙'; dockToggle.setAttribute('aria-expanded', on);
+  if(on && isMobile()) setMobilePanel(false);
+}
+dockToggle.addEventListener('click', ()=>setDock(!dockEl.classList.contains('open')));
+renderer.domElement.addEventListener('pointerdown', ()=>{ if(isMobile() && dockEl.classList.contains('open')) setDock(false); });   // tap the sky to put the controls away
 let toastTimer = null;
 function showToast(msg){
   const t = $('toast'); t.textContent = msg; t.classList.add('on');
@@ -1702,21 +1794,22 @@ function applyHash(){
 const TOUR_KEY = 'rv_solar_tour_v1';
 const TOUR_STEPS = [
   {t:'WELCOME TO THE REAL SOLAR SYSTEM', b:'Everything here is drawn true to scale — real distances, real sizes, and where the planets actually are today. Drag to rotate, scroll or pinch to zoom, right-drag or use two fingers to pan.'},
-  {t:'FLY TO ANYTHING', sel:'#top-controls', b:'The Sun and all eight planets are in the top row. Below them, tap DWARF PLANETS, DISTANT & COMETS or SPACECRAFT to open that group — including Voyager 1, now about a light-day from Earth. Colours match the key in the bottom-left corner. Planets with moons also show a moons row.'},
-  {t:'CONTROL TIME', sel:'#time-group', dock:true, b:'Speed time up, run it in reverse, or jump to any date from 1800 to 2100 — see where the planets were on your birthday.'},
-  {t:'RACE THE SPEED OF LIGHT', b:'Select a planet and press “Fly there at light speed” in its panel. A photon leaves the Sun at the true speed of light. It is sped up so the trip is watchable — the clock shows the real light time (8 minutes to Earth, about 4 hours to Neptune). Press REAL TIME to watch it at 1:1.'},
-  {t:'SHARE & RECORD', sel:'#view-group', dock:true, b:'SHARE copies a link to exactly this view and date. Press H to hide the whole HUD for clean screen recordings.'}
+  {t:'FLY TO ANYTHING', sel:'#top-controls', bm:'The Sun, the planets, dwarf planets, distant objects and spacecraft are all in the top row — swipe it sideways to see more. Planets with moons show them right after the planet. Tap any name to fly there.', b:'The Sun and all eight planets are in the top row. Below them, tap DWARF PLANETS, DISTANT & COMETS or SPACECRAFT to open that group — including Voyager 1, now about a light-day from Earth. Colours match the key in the bottom-left corner. Planets with moons also show a moons row.'},
+  {t:'CONTROL TIME', sel:'#time-group', dock:true, bm:'The ⚙ button at the bottom right opens the time controls: speed time up, run it in reverse, or jump to any date from 1800 to 2100.', b:'Speed time up, run it in reverse, or jump to any date from 1800 to 2100 — see where the planets were on your birthday.'},
+  {t:'RACE THE SPEED OF LIGHT', bm:'Select a planet, tap the ⓘ INFO button that appears at the bottom left, then press “Fly there at light speed”. A photon leaves the Sun at the true speed of light — sped up so the trip is watchable, while the clock shows the real light time.', b:'Select a planet and press “Fly there at light speed” in its panel. A photon leaves the Sun at the true speed of light. It is sped up so the trip is watchable — the clock shows the real light time (8 minutes to Earth, about 4 hours to Neptune). Press REAL TIME to watch it at 1:1.'},
+  {t:'SHARE & RECORD', sel:'#view-group', dock:true, bm:'Under ⚙ you will also find SHARE, which copies a link to exactly this view and date, and HIDE HUD for clean screen recordings.', b:'SHARE copies a link to exactly this view and date. Press H to hide the whole HUD for clean screen recordings.'}
 ];
 const tour = {active:false, i:0};
 function showTourStep(){
   const s = TOUR_STEPS[tour.i], hl = $('tour-hl');
   $('tour-n').textContent = 'STEP ' + (tour.i+1) + ' / ' + TOUR_STEPS.length;
   $('tour-t').textContent = s.t;
-  $('tour-b').textContent = s.b;
+  $('tour-b').textContent = (isMobile() && s.bm) ? s.bm : s.b;
   $('tour-next').textContent = tour.i === TOUR_STEPS.length-1 ? 'START EXPLORING' : 'NEXT ▸';
   hl.style.display = 'none';
+  if(isMobile() && !s.dock) setDock(false);
   if(s.sel){
-    if(s.dock && window.matchMedia('(max-width:640px)').matches) dockEl.classList.add('open');
+    if(s.dock && isMobile()) setDock(true);
     const el = document.querySelector(s.sel);
     if(el){
       const r = el.getBoundingClientRect(), pad = 6;
@@ -1737,7 +1830,7 @@ function closeTour(){
   if(!tour.active) return;
   tour.active = false;
   $('tour').classList.remove('show'); $('tour-hl').style.display = 'none';
-  if(window.matchMedia('(max-width:640px)').matches) dockEl.classList.remove('open');
+  if(isMobile()) setDock(false);
   try{ localStorage.setItem(TOUR_KEY, '1'); }catch(e){}
 }
 function maybeStartTour(){
@@ -1964,12 +2057,13 @@ function updateHud(){
   if(targetKm >= 0.1*AU_KM){ const au = nice125(targetKm/AU_KM); km = au*AU_KM; label = (au>=1 ? fmt(au) : String(au)) + ' AU'; }
   else { km = nice125(targetKm); label = fmt(km) + ' km'; }
   scaleBarLine.style.width = (km*KM_U*ppu).toFixed(0) + 'px';
-  scaleBarTxt.textContent = label + '  ·  ' + fmtLight(km/C_KM_S) + ' of light';
+  scaleBarTxt.textContent = isMobile() ? label : label + '  ·  ' + fmtLight(km/C_KM_S) + ' of light';
   // simulated date
   const ms = (simJD-2440587.5)*86400000;
   const dte = new Date(ms);
   const ok = isFinite(dte.getTime());
-  clockEl.textContent = (paused ? '❚❚ PAUSED · ' : '') + (timeDir < 0 ? '◀ REVERSE · ' : '') + (ok ? 'SIM DATE ' + dte.toISOString().replace('T',' ').slice(0,16) + ' UTC' : 'SIM DATE —');
+  const stamp = ok ? dte.toISOString().replace('T',' ').slice(0,16) : '—';
+  clockEl.textContent = (paused ? '❚❚ PAUSED · ' : '') + (timeDir < 0 ? '◀ REVERSE · ' : '') + (isMobile() ? stamp : 'SIM DATE ' + stamp + (ok ? ' UTC' : ''));
   clockEl.classList.toggle('paused', paused);
   // keep the date box in step with the simulation (unless the person is typing in it)
   if(ok && document.activeElement !== dateInput){
@@ -2134,6 +2228,7 @@ applyOrbitVisibility(); applyBeltVisibility();
 updatePositions(0);
 updateCamera();
 updateHud();
+if(isMobile()) $('hint').firstChild.textContent = 'DRAG TO ROTATE · PINCH TO ZOOM · TAP A BODY';
 const sharedView = applyHash();       // a shared link opens straight at that view; otherwise the intro plays
 animate();
 setTimeout(()=>{

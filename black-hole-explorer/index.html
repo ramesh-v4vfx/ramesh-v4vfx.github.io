@@ -13,7 +13,7 @@
 </script>
 
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Black Hole Explorer: Compare Real Black Holes by Mass, Spin &amp; Distance | RV·BLACKHOLE</title>
 <meta name="description" content="Explore nearly 200 real black holes, from stellar-mass Gaia BH1 to the ultramassive Phoenix A*. See mass, spin, distance and Schwarzschild radius, a live 3D graphic of each one, and compare any two at true scale.">
 <link rel="canonical" href="https://rameshverse.com/black-hole-explorer">
@@ -36,6 +36,8 @@ html,body{background:var(--bg);color:var(--tx);font-family:var(--mono);font-size
 body{min-height:100vh}
 a{color:inherit}
 button,input,select{font:inherit;color:inherit}
+button{touch-action:manipulation}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :focus-visible{outline:1px solid var(--red);outline-offset:2px}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
@@ -257,13 +259,113 @@ body.fs-open{overflow:hidden}
 .zenbar #zenExit{background:var(--red);box-shadow:0 0 16px rgba(255,43,43,.55)}
 .zenbar .btn:hover{color:#fff;filter:brightness(1.25)}
 .zen:not(.hint):not(:focus-within),.zen:not(.hint):not(:focus-within) *{cursor:none!important}
-@media (max-width:560px){#panelBtn{display:none}}
+@media (max-width:860px){#panelBtn{display:none}}
 .recording .hud.br{right:14px}
 .disc{padding:10px 16px;border-top:1px solid var(--line);font-size:12px;line-height:1.55;color:var(--dim)}
 .disc b{color:var(--cand);font-weight:400;letter-spacing:.14em;margin-right:8px}
 .foot{padding:14px 16px 28px;color:var(--dim);font-size:11px;max-width:100ch}
 .err{padding:20px;color:var(--red)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---- wrappers added for the phone layout (no visible change on wide screens) ---- */
+.view{position:relative}
+.srow{display:flex;gap:8px}
+.srow .search{flex:1;min-width:0}
+#filtBtn{display:none;flex:none;white-space:nowrap}
+.filt{display:grid;gap:12px}
+.morebtn{display:none}
+.foot summary{display:none}
+.foot p{margin:0}
+#card.fs .view{position:absolute;inset:0}
+
+/* ================= PHONES AND SMALL TABLETS =================
+   order on the page: picture, then controls, then a short summary, then the full list.
+   everything long is folded away behind a button. */
+@media (max-width:860px){
+  html,body{font-size:13px}
+  .top{padding:10px 12px}
+  .hero{padding:6px 12px 0}
+  .app{gap:12px;padding:8px 10px 12px}
+
+  /* the picture comes first, the buttons sit under it instead of covering it */
+  #card:not(.fs) .stage{order:-1;border-top:0;display:flex;flex-direction:column;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  #card:not(.fs) .view{order:0}
+  #card:not(.fs) canvas{aspect-ratio:4/3;max-height:72vh}
+  #card:not(.fs) .nav{position:static;max-width:none;padding:8px 10px 0;gap:6px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;overscroll-behavior-x:contain}
+  #card:not(.fs) .nav::-webkit-scrollbar{display:none}
+  #card:not(.fs) .nav{order:1}
+  #card:not(.fs) #cmpNav{order:2}
+  #card:not(.fs) #toolNav{order:3}
+  #card:not(.fs) #refNav{order:4}
+  #card:not(.fs) .nav .btn{flex:1 0 auto;min-height:40px;padding:6px 10px;font-size:11px;letter-spacing:.03em;background:#0d1017;-webkit-backdrop-filter:none;backdrop-filter:none}
+  #card:not(.fs) .nav .btn[aria-pressed="true"]{background:rgba(255,43,43,.14)}
+  #card:not(.fs) .spd{flex:none;min-height:40px;background:#0d1017;-webkit-backdrop-filter:none;backdrop-filter:none}
+  #card:not(.fs) .spd input{width:84px}
+  #card:not(.fs) .nav4 .lbl{flex:none}
+  /* effect notes (orbits legend, tour) go under the buttons, not over the picture */
+  #card:not(.fs) .fxcol{position:static;order:5;max-width:none;padding:0 10px;gap:0}
+  #card:not(.fs) .fxcol>div{margin-top:8px}
+  /* less text on the picture */
+  #card:not(.fs) .hud.tl,#card:not(.fs) .hud.tr{display:none}
+  #card:not(.fs) .hud.bl{left:10px;bottom:8px}
+  #card:not(.fs) .hud.br{top:8px;bottom:auto;left:10px;right:auto;text-align:left;font-size:9px;letter-spacing:.06em;animation:hintfade 10s 2s forwards}
+  @keyframes hintfade{to{opacity:0}}
+  @media (prefers-reduced-motion:reduce){#card:not(.fs) .hud.br{animation:none}}
+
+  /* summary: six key numbers, the rest behind a button */
+  #card:not(.fs) .ovl{padding:12px 12px 0}
+  .info{padding:0 12px 12px}
+  .head h2{font-size:20px}
+  .grid{margin-top:10px}
+  .cell{padding:8px 10px}
+  .cell b{font-size:9.5px;letter-spacing:.1em}
+  .cell span{font-size:15px}
+  .morebtn{display:block;width:100%;margin-top:10px;padding:11px;background:transparent;border:1px solid var(--line2);font-size:12px;letter-spacing:.08em;cursor:pointer;color:var(--tx)}
+  .morebtn .t-less{display:none}
+  #card.more .morebtn .t-more{display:none}
+  #card.more .morebtn .t-less{display:inline}
+  #card:not(.more) .grid .cell:not(.pri){display:none}
+  #card:not(.more) .grid .cell{grid-column:auto!important}
+  #card:not(.more) .cmp .cr:not(.pri):not(.ch){display:none}
+  #card:not(.more) .when,#card:not(.more) .trust{display:none}
+  .status-line,.notes{font-size:12px}
+  .trust .lk{display:flex;flex-wrap:wrap;gap:8px 14px}
+  .trust a{margin-right:0}
+
+  /* compare table: label on its own line, then A and B side by side */
+  .cr{grid-template-columns:1fr 1fr;gap:2px 10px;padding:7px 0}
+  .cr b{grid-column:1/-1}
+  .cr.ch b{display:none}
+
+  /* list and filters */
+  .tools{padding:12px;gap:10px}
+  #filtBtn{display:block;min-height:44px}
+  .tools:not(.open) .filt{display:none}
+  .search,.sel{font-size:16px}              /* 16px stops iOS from zooming in when a field is tapped */
+  .search{padding:10px 12px}
+  .sel{padding:10px}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;padding:9px 12px}
+  .list{max-height:60vh;min-height:240px}
+  .item{padding:12px;gap:10px}
+  .cur{width:calc(100% - 24px);margin:10px 12px}
+
+  /* footnotes */
+  .disc{padding:10px 12px;font-size:11px}
+  .foot{padding:4px 12px calc(24px + env(safe-area-inset-bottom))}
+  .foot summary{display:block;cursor:pointer;padding:12px 0;font-size:12px;letter-spacing:.08em;color:var(--tx)}
+  .keys{display:none}
+
+  /* full screen on a phone: picture only, one scrolling row per button group */
+  #card.fs{height:100dvh}
+  #card.fs .ovl,.pclose{display:none!important}
+  #card.fs .nav{right:14px;max-width:none;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  #card.fs .nav::-webkit-scrollbar{display:none}
+  #card.fs .nav .btn{flex:none;min-height:36px}
+  #card.fs .nav2,#card.fs .nav3{top:52px}
+  #card.fs .nav4{top:94px}
+}
 </style>
 </head>
 <body>
@@ -278,9 +380,10 @@ body.fs-open{overflow:hidden}
 
 <main class="app">
   <aside class="side hud-box" aria-label="Black hole list">
-    <div class="tools">
+    <div class="tools" id="tools">
       <label class="sr" for="q">Search black holes</label>
-      <input id="q" class="search" type="search" placeholder="Search name or type…  ( / )" autocomplete="off">
+      <div class="srow"><input id="q" class="search" type="search" placeholder="Search name or type…  ( / )" autocomplete="off"><button class="btn" id="filtBtn" type="button" aria-expanded="false" aria-controls="filtBox">Filters ▾</button></div>
+      <div class="filt" id="filtBox">
       <div class="chips" id="chips" role="group" aria-label="Filter by status"></div>
       <div class="row2">
         <select id="fkind" class="sel" aria-label="Filter by activity"></select>
@@ -294,6 +397,7 @@ body.fs-open{overflow:hidden}
         <option value="spin-desc">Sort: spin, high to low</option>
         <option value="name">Sort: name A–Z</option>
       </select>
+      </div>
       <div class="count" id="count"></div>
     </div>
     <button class="cur" id="cur" type="button" aria-label="Scroll the list to the black hole you are viewing">
@@ -342,6 +446,7 @@ body.fs-open{overflow:hidden}
           <button class="btn" type="button" data-ref="solar" aria-pressed="false">Solar system</button>
           <button class="btn" type="button" data-ref="milky" aria-pressed="false">Milky Way</button>
         </div>
+        <div class="view">
         <canvas id="cv" role="img" aria-label="Code-drawn black hole graphic"></canvas>
         <button class="lbl3 la" id="lblA" type="button" hidden></button>
         <button class="lbl3 lb" id="lblB" type="button" hidden></button>
@@ -350,17 +455,18 @@ body.fs-open{overflow:hidden}
         <div class="sbar" id="sbar" hidden><span id="sbarT"></span><i id="sbarL"></i></div>
         <div class="msg3" id="msg3" hidden></div>
         <div id="plLbls"></div>
-        <div class="fxcol" id="fxcol">
-          <div id="solLeg" hidden></div>
-          <div id="tourTxt" hidden></div>
-          <div class="rec" id="recTxt" hidden></div>
-        </div>
         <div class="fsnote" id="fsNote">All values are estimates · artistic render</div>
         <div class="scan"></div>
         <div class="hud tl" id="htl"></div>
         <div class="hud tr" id="htr"></div>
         <div class="hud bl" id="hbl"></div>
         <div class="hud br" id="hbr">Drag to rotate</div>
+        </div>
+        <div class="fxcol" id="fxcol">
+          <div id="solLeg" hidden></div>
+          <div id="tourTxt" hidden></div>
+          <div class="rec" id="recTxt" hidden></div>
+        </div>
       </div>
     </div>
     <p class="disc"><b>ESTIMATES</b> Masses, spins and distances come from published measurements and models. Many are uncertain, so they may vary or be revised. Radii, ISCO, temperature and density are calculated from mass and spin. Predicted and Candidate entries are the least certain.</p>
@@ -383,7 +489,7 @@ body.fs-open{overflow:hidden}
   </section>
 </main>
 
-<p class="foot"><b>Data note:</b> all values are estimates from published research and may vary or be revised as new observations come in. Derived numbers are calculated from mass and spin, so any error in those carries through.<br><br>Graphics are artistic and drawn live in code, not real images. The ◎ Lensing view traces light rays through a simplified model of a non-rotating black hole (spin is only approximated), so it is physically inspired but not a scientific simulation. The disk size follows the spin (a faster spin lets matter orbit closer), the colour follows the mass (lighter black holes run hotter and bluer), and the shape follows the type. In Compare, the two black holes are drawn true to scale against each other: each dark sphere is the event horizon, the solid ring is the photon sphere and the dashed ring is the ISCO.<br><br>Constants: c = 299,792,458 m/s · G = 6.6743 × 10⁻¹¹ N·m²/kg² · M☉ = 1.988416 × 10³⁰ kg · R☉ = 695,700 km · 1 AU = 149,597,870.7 km. Schwarzschild radius = 2GM/c². With a measured spin, the black hole radius is the outer event horizon, GM/c² × (1 + √(1 − a²)). Light-crossing time is the Schwarzschild radius divided by c. The photon sphere is the closest circular orbit for light: 3GM/c² without spin, and 2GM/c² × [1 + cos(⅔ arccos(∓a))] with spin (minus for light moving with the spin). The ISCO is the innermost stable circular orbit for matter: 6GM/c² without spin, and the Bardeen et al. (1972) formula with spin. A negative spin is read as an orbit against the spin, and where spin is not measured (marked with *), no spin is assumed. The Hawking temperature is ħc³ / (8πGMk) without spin, multiplied by 2√(1−a²) / (1 + √(1−a²)) with spin (ħ = 1.0546 × 10⁻³⁴ J·s, k = 1.3806 × 10⁻²³ J/K). Every black hole here is far colder than the 2.7 K cosmic microwave background, so each one takes in more heat than it gives off. Average density is the mass divided by the volume of a sphere with the Schwarzschild radius. Comoving distance is worked out from the light-travel distance with a flat ΛCDM model (H₀ = 67.66 km/s/Mpc, Ωm = 0.3111) and is shown only for objects beyond 10 million light-years.</p>
+<details class="foot" id="foot"><summary>Data notes &amp; methodology</summary><p><b>Data note:</b> all values are estimates from published research and may vary or be revised as new observations come in. Derived numbers are calculated from mass and spin, so any error in those carries through.<br><br>Graphics are artistic and drawn live in code, not real images. The ◎ Lensing view traces light rays through a simplified model of a non-rotating black hole (spin is only approximated), so it is physically inspired but not a scientific simulation. The disk size follows the spin (a faster spin lets matter orbit closer), the colour follows the mass (lighter black holes run hotter and bluer), and the shape follows the type. In Compare, the two black holes are drawn true to scale against each other: each dark sphere is the event horizon, the solid ring is the photon sphere and the dashed ring is the ISCO.<br><br>Constants: c = 299,792,458 m/s · G = 6.6743 × 10⁻¹¹ N·m²/kg² · M☉ = 1.988416 × 10³⁰ kg · R☉ = 695,700 km · 1 AU = 149,597,870.7 km. Schwarzschild radius = 2GM/c². With a measured spin, the black hole radius is the outer event horizon, GM/c² × (1 + √(1 − a²)). Light-crossing time is the Schwarzschild radius divided by c. The photon sphere is the closest circular orbit for light: 3GM/c² without spin, and 2GM/c² × [1 + cos(⅔ arccos(∓a))] with spin (minus for light moving with the spin). The ISCO is the innermost stable circular orbit for matter: 6GM/c² without spin, and the Bardeen et al. (1972) formula with spin. A negative spin is read as an orbit against the spin, and where spin is not measured (marked with *), no spin is assumed. The Hawking temperature is ħc³ / (8πGMk) without spin, multiplied by 2√(1−a²) / (1 + √(1−a²)) with spin (ħ = 1.0546 × 10⁻³⁴ J·s, k = 1.3806 × 10⁻²³ J/K). Every black hole here is far colder than the 2.7 K cosmic microwave background, so each one takes in more heat than it gives off. Average density is the mass divided by the volume of a sphere with the Schwarzschild radius. Comoving distance is worked out from the light-travel distance with a flat ΛCDM model (H₀ = 67.66 km/s/Mpc, Ωm = 0.3111) and is shown only for objects beyond 10 million light-years.</p></details>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -421,6 +527,8 @@ function kindOf(t){
   return'active';
 }
 function classOf(m){return m<100?'stellar':m<1e5?'imbh':m<1e10?'smbh':'ultra'}
+const PRI=new Set(['Mass','Mass class','Schwarzschild radius','Light-travel distance','Radius','Diameter']);
+const moreBtn=()=>`<button class="morebtn" type="button" aria-expanded="${$('#card').classList.contains('more')}"><span class="t-more">Show all details ▾</span><span class="t-less">Show fewer ▴</span></button>`;
 const SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
 function fmtMass(m){
   if(m<1e4)return(+m.toFixed(2)).toLocaleString('en-US');
@@ -536,8 +644,14 @@ function applyFilters(){
   VIEW.sort((a,b)=>{const r=S(a,b);return Number.isNaN(r)?0:r});
   renderList();
 }
+function updFiltBtn(){
+  const b=$('#filtBtn'),t=$('#tools');if(!b||!t)return;
+  const n=(F.status!=='All')+(F.kind!=='all')+(F.cls!=='all')+(F.sort!=='mass-desc');
+  b.textContent='Filters'+(n?' · '+n:'')+(t.classList.contains('open')?' ▴':' ▾');
+  b.setAttribute('aria-pressed',n>0);
+}
 function renderList(){
-  $('#count').textContent=VIEW.length+' of '+DATA.length+' black holes';
+  $('#count').textContent=VIEW.length+' of '+DATA.length+' black holes';updFiltBtn();
   const el=$('#list');
   if(!VIEW.length){el.innerHTML='<div class="empty">No black hole matches these filters.</div>';updateCur();return}
   el.innerHTML=VIEW.map(b=>
@@ -700,7 +814,7 @@ function renderRefCard(){
     <div class="head"><h2>Compare</h2><span class="badge" style="--c:var(--pred)"><i></i>True scale</span></div>
     <div class="cmp">
       <div class="cr ch"><b></b><span class="ca"><i>A</i>${esc(A.name)}</span><span class="cb"><i>B</i>${esc(R.name)}</span></div>
-      ${rows.map(r=>`<div class="cr"><b>${r[0]}</b><span>${r[1]}</span><span>${r[2]}</span></div>`).join('')}
+      ${rows.map(r=>`<div class="cr${PRI.has(r[0])?' pri':''}"><b>${r[0]}</b><span>${r[1]}</span><span>${r[2]}</span></div>`).join('')}
     </div>
     <p class="cmp-ratio">${txt}</p>`;
   $('#info').innerHTML=`<p class="status-line" style="--c:var(--pred)">Drawn to the same scale: the dark sphere is the black hole’s event horizon, the other object is the yardstick. Zoom in or out to see both. Click any black hole in the list to go back to comparing two black holes.${R.key==='milky'?' The Milky Way’s size is approximate (about 100,000 light-years across).':R.key==='solar'?' The circle marks Pluto’s average distance. The solar system is bigger than this: the Kuiper belt and the Oort cloud reach much farther.':''}</p>`;
@@ -739,21 +853,22 @@ function select(b,opts={}){
     </div>
     <div class="sub">${esc(b.type)}</div>
     <div class="grid">
-      <div class="cell"><b>Mass</b><span>${fmtMass(b.massSolar)} M☉</span></div>
-      <div class="cell"><b>Spin (a*)</b><span>${hasSpin?b.spin:'Not measured'}</span>
+      <div class="cell pri"><b>Mass</b><span>${fmtMass(b.massSolar)} M☉</span></div>
+      <div class="cell pri"><b>Spin (a*)</b><span>${hasSpin?b.spin:'Not measured'}</span>
         <div class="bar"><i style="width:${hasSpin?Math.min(100,Math.abs(b.spin)*100):0}%"></i></div></div>
-      <div class="cell"><b>Mass class</b><span>${CLASS_LABEL[b.cls]}</span></div>
-      <div class="cell"><b>Schwarzschild radius</b><span>${m.rs}</span></div>
+      <div class="cell pri"><b>Mass class</b><span>${CLASS_LABEL[b.cls]}</span></div>
+      <div class="cell pri"><b>Schwarzschild radius</b><span>${m.rs}</span></div>
       ${hasSpin?`<div class="cell"><b>Black hole radius<i class="long"> (with spin)</i></b><span>${m.kr}</span></div>`:''}
       <div class="cell"><b>Photon sphere${star}</b><span>${m.phs}</span></div>
       <div class="cell"><b>ISCO<i class="long"> (innermost stable orbit)</i>${star}</b><span>${m.isc}</span></div>
       <div class="cell"><b>Hawking temperature${star}</b><span>${m.hawk}</span></div>
       <div class="cell"><b>Light-crossing time</b><span>${m.tS}</span></div>
       <div class="cell"><b>Average density</b><span>${m.dens}</span></div>
-      <div class="cell"><b>Light-travel distance</b>${missing(m.ds,m.dsSub)}</div>
+      <div class="cell pri"><b>Light-travel distance</b>${missing(m.ds,m.dsSub)}</div>
       <div class="cell"><b>Comoving distance</b>${missing(m.cms,m.cmsSub)}</div>
-      <div class="cell"><b>Activity</b><span>${esc(m.activity)}</span></div>
-    </div>`;
+      <div class="cell pri"><b>Activity</b><span>${esc(m.activity)}</span></div>
+    </div>
+    ${moreBtn()}`;
   $('#info').innerHTML=`
     <p class="status-line s-${b.status}">${esc(info)}</p>
     ${b.notes?`<div class="notes"><b>Notes</b>${esc(b.notes)}</div>`:''}
@@ -812,8 +927,9 @@ function renderCompareCard(){
     <div class="head"><h2>Compare</h2><span class="badge" style="--c:var(--pred)"><i></i>True scale</span></div>
     <div class="cmp">
       <div class="cr ch"><b></b><span class="ca"><i>A</i>${esc(A.name)}</span><span class="cb"><i>B</i>${esc(B.name)}</span></div>
-      ${rows.map(r=>`<div class="cr"><b>${r[0]}</b><span>${r[1]}</span><span>${r[2]}</span></div>`).join('')}
+      ${rows.map(r=>`<div class="cr${PRI.has(r[0])?' pri':''}"><b>${r[0]}</b><span>${r[1]}</span><span>${r[2]}</span></div>`).join('')}
     </div>
+    ${moreBtn()}
     <p class="cmp-ratio">${sizeTxt} ${massTxt}</p>`;
   $('#info').innerHTML=`
     <p class="status-line" style="--c:var(--pred)">Both black holes are drawn true to scale, side by side. The dark sphere is the event horizon (using the spin where it is measured), the solid ring is the photon sphere and the dashed ring is the ISCO. Click another black hole in the list to change B.${(ma.hasSpin&&mb.hasSpin)?'':' * Spin not measured, so no spin is assumed.'}</p>`;
@@ -827,6 +943,9 @@ const cv=$('#cv');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wide=matchMedia('(min-width:1200px)'); // wide layout: results panel floats over the right of the animation
 const coarse=matchMedia('(pointer:coarse)').matches;
+const mobile=matchMedia('(max-width:860px)');          // phone / small tablet layout
+const flowBars=()=>mobile.matches&&!FS;                 // on phones the buttons sit under the picture, not over it
+const topSafe=()=>flowBars()?26:(mobile.matches?140:108); // how far down labels must stay to clear the buttons
 const FOV=45,TANH=Math.tan(FOV/2*Math.PI/180);
 const POL0=74*Math.PI/180,AZ0=0.6;           // opening view: 74° from face-on, as before
 let W=300,H=190,DPR=1,OFF=0,VW=300;
@@ -1199,7 +1318,7 @@ function fxUpdate(dt){
     g.solLbl.forEach((s,i)=>{
       const e=kids[i];if(!e)return;
       pv.set(s.R*Math.cos(s.a),0,s.R*Math.sin(s.a)).project(camera);
-      const sx=(pv.x*.5+.5)*W,sy=(-pv.y*.5+.5)*H,on=s.R*((H/2)/(cam.rad*TANH))>30&&pv.z<1&&sx>0&&sx<W-OFF&&sy>100&&sy<H-14;
+      const sx=(pv.x*.5+.5)*W,sy=(-pv.y*.5+.5)*H,on=s.R*((H/2)/(cam.rad*TANH))>30&&pv.z<1&&sx>0&&sx<W-OFF&&sy>topSafe()-8&&sy<H-14;
       e.style.display=on?'':'none';
       if(on){e.style.left=sx.toFixed(0)+'px';e.style.top=sy.toFixed(0)+'px'}
     });
@@ -1245,7 +1364,7 @@ function stopTour(){
 
 /* ---------- full screen, stats panel, hide-UI ---------- */
 function isFloat(){return FS||wide.matches}
-function panelShown(){return isFloat()&&PANEL&&!(ZEN&&FS)}
+function panelShown(){return isFloat()&&PANEL&&!(ZEN&&FS)&&!(FS&&mobile.matches)}
 function syncLayout(){
   const c=$('#card');
   c.classList.toggle('fl',isFloat());c.classList.toggle('nopanel',!PANEL);
@@ -1544,7 +1663,7 @@ function updateCompare(){
     lbl.hidden=!on;mk.hidden=!(on&&extPx<8);
     if(on){
       lbl.style.left=sx.toFixed(1)+'px';
-      lbl.style.top=Math.max(108,sy-Math.max(Math.min(it.R*ppu,H*.45),10)-6).toFixed(1)+'px';   // just above the sphere, never under the buttons
+      lbl.style.top=Math.max(topSafe(),sy-Math.max(Math.min(it.R*ppu,H*.45),10)-6).toFixed(1)+'px';   // just above the sphere, never under the buttons
       mk.style.left=sx.toFixed(1)+'px';mk.style.top=sy.toFixed(1)+'px';
     }
   });
@@ -1896,10 +2015,16 @@ function initControls(){
     }
   });
   bindFx();
-  $('#hbr').textContent=coarse?'Drag: rotate · 2 fingers: tilt / zoom':'Drag to rotate · scroll to zoom · double-click to reset';
+  $('#filtBtn').onclick=()=>{const o=$('#tools').classList.toggle('open');$('#filtBtn').setAttribute('aria-expanded',o);updFiltBtn()};
+  $('#card').addEventListener('click',e=>{const m=e.target.closest('.morebtn');if(!m)return;const on=$('#card').classList.toggle('more');m.setAttribute('aria-expanded',on)});
+  if(coarse)$('#q').placeholder='Search name or type…';
+  $('#hbr').textContent=coarse?'Drag to rotate · pinch to zoom':'Drag to rotate · scroll to zoom · double-click to reset';
 }
 
 /* ---------- start ---------- */
+const footEl=$('#foot');   // the notes are always open on wide screens, a collapsible section on phones
+const syncFoot=()=>{if(footEl&&!mobile.matches)footEl.open=true};
+syncFoot();mobile.addEventListener?mobile.addEventListener('change',syncFoot):mobile.addListener(syncFoot);
 fetch('data/black-holes.json').then(r=>{if(!r.ok)throw new Error(r.status);const lm=r.headers.get('last-modified');if(lm){const d=new Date(lm);if(!isNaN(d))DATA_UPDATED=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}return r.json()}).then(j=>{
   LENS=!coarse&&!/[?&]lens=0/.test(location.search);setP('#lensBtn',LENS);
   DATA=j.map(b=>Object.assign(b,{kind:kindOf(b.type),cls:classOf(b.massSolar)}));
