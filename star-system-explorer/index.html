@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star System Explorer — 3D Exoplanet Systems: TRAPPIST-1, Kepler-11, HR 8799 | rameshverse</title>
+<meta name="description" content="Explore real exoplanet systems in 3D: TRAPPIST-1, Kepler-11, Kepler-90, HR 8799, 55 Cancri and more. Real orbits, habitable zones and scale comparisons. Free.">
+<link rel="canonical" href="https://rameshverse.com/star-system-explorer/">
+<meta name="theme-color" content="#08090b">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="rameshverse">
+<meta property="og:title" content="Star System Explorer — real exoplanet systems in 3D">
+<meta property="og:description" content="Fly through TRAPPIST-1, Kepler-11, HR 8799 and more. Real orbits, habitable zones and scale comparisons.">
+<meta property="og:url" content="https://rameshverse.com/star-system-explorer/">
+<meta name="twitter:card" content="summary_large_image">
+<!-- add once the image exists: <meta property="og:image" content="https://rameshverse.com/star-system-explorer/og.jpg"> -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap">
+
+<style>
+  :root{
+    --bg:#08090b; --panel:#0d0f12; --line:#22262b; --line-strong:#3a4046;
+    --red:#ff2b2b; --red-dim:#8a1a1a; --green:#39d98a; --amber:#ffc47a;
+    --text:#d9dde0; --text-dim:#71787e; --text-faint:#454b50;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Space Mono', ui-monospace, monospace; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--red); outline-offset:3px;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  button, select, input, a{touch-action:manipulation;}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto;} }
+
+  /* ── top bar ── */
+  .topbar{position:relative; z-index:50; max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:8px clamp(16px,4vw,40px); border-bottom:1px solid transparent; transition:background .3s ease, border-color .3s ease;}
+  .topbar.solid{background:rgba(8,9,11,0.82); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-color:var(--line);}
+  .brand-link{font-family:inherit; font-weight:400; font-size:10px; letter-spacing:0.12em; color:var(--text-dim); opacity:0.7; text-decoration:none; display:flex; align-items:center; gap:8px; padding:6px 0;}
+  .brand-link .arrow{color:var(--text-dim);}
+  .brand-link:hover{color:var(--text); opacity:1;}
+  .sec-row{display:flex; justify-content:space-between; align-items:center; gap:14px 20px; flex-wrap:wrap;}
+  .sec-row h2{margin:8px 0;}
+  .top-cta{white-space:nowrap; font-weight:700; font-size:11px; letter-spacing:0.14em; text-decoration:none; color:#fff; padding:9px 16px; background:rgba(12,13,15,0.7); border:1px solid rgba(255,43,43,0.55); box-shadow:0 0 12px rgba(255,43,43,0.15); transition:box-shadow .2s ease, border-color .2s ease;}
+  .top-cta:hover{border-color:var(--red); box-shadow:0 0 22px rgba(255,43,43,0.4);}
+
+  /* ── sections ── */
+  .wrap{max-width:1280px; margin:0 auto; padding:clamp(56px,9vw,110px) clamp(16px,4vw,40px) 0;}
+  main > .wrap:first-child{padding-top:4px;}
+  .sec-head{margin-bottom:26px;}
+  .sec-tag{font-size:10px; letter-spacing:0.2em; color:var(--red);}
+  .sec-head h2{margin:8px 0 8px; font-size:clamp(1.4rem,3.4vw,2.4rem); letter-spacing:0.06em; text-transform:uppercase; color:#fff;}
+  .sec-head p{margin:0; max-width:700px; font-size:12px; line-height:1.75; color:var(--text-dim);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; margin-bottom:18px;}
+  .search{flex:1 1 220px; max-width:340px; font-family:inherit; font-size:11px; background:#000; border:1px solid var(--line); color:var(--text); padding:9px 10px; transition:border-color .2s ease, box-shadow .2s ease;}
+  .search:focus{outline:none; border-color:var(--red-dim); box-shadow:0 0 10px rgba(255,43,43,0.22);}
+  .chip-row{display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{font-family:inherit; font-size:9.5px; letter-spacing:0.06em; color:var(--text-dim); background:transparent; border:1px solid var(--line); padding:8px 10px; cursor:pointer; text-transform:uppercase;
+    transition:border-color .2s ease, color .2s ease, box-shadow .2s ease;}
+  .chip:hover{border-color:var(--red-dim); color:var(--text);}
+  .chip[aria-pressed="true"]{border-color:var(--red); color:var(--red); box-shadow:0 0 12px rgba(255,43,43,0.22);}
+  .sort{font-family:inherit; font-size:10px; background:#000; border:1px solid var(--line); color:var(--text); padding:8px;}
+  .sort:focus{outline:none; border-color:var(--red-dim);}
+  .count{margin-left:auto; font-size:10px; letter-spacing:0.12em; color:var(--text-dim);}
+  @media (pointer:coarse){ .search, .sort{font-size:16px;} .chip{font-size:11px; padding:11px 12px;} }
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); gap:16px;}
+  .card{position:relative; display:flex; flex-direction:column; text-decoration:none; color:inherit; padding:14px 14px 16px; overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0) 40%), var(--panel); border:1px solid var(--line);
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;}
+  .card::before, .card::after{content:""; position:absolute; width:12px; height:12px; pointer-events:none; transition:width .25s ease, height .25s ease;}
+  .card::before{top:-1px; left:-1px; border-top:2px solid var(--red); border-left:2px solid var(--red);}
+  .card::after{bottom:-1px; right:-1px; border-bottom:2px solid var(--red); border-right:2px solid var(--red);}
+  a.card:hover, a.card:focus-visible{transform:translateY(-4px); border-color:var(--red-dim); box-shadow:0 18px 40px rgba(0,0,0,0.55), 0 0 26px rgba(255,43,43,0.14);}
+  a.card:hover::before, a.card:hover::after, a.card:focus-visible::before, a.card:focus-visible::after{width:24px; height:24px;}
+  .card.soon{opacity:0.55; filter:grayscale(1) brightness(0.8); cursor:default; user-select:none; pointer-events:none;}
+  .card.soon::before, .card.soon::after{border-color:#3a4046;}
+  .card-top{display:flex; justify-content:space-between; align-items:center; font-size:9px; letter-spacing:0.16em; color:var(--text-faint); margin-bottom:6px;}
+  .status{padding:3px 7px; border:1px solid var(--line);}
+  .status.live{color:var(--green); border-color:rgba(57,217,138,0.45);}
+  .viz{margin:0 -14px; background:radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.045), transparent 70%);}
+  .viz svg{display:block; width:100%; height:auto;}
+  .card h3{margin:6px 0 6px; font-size:18px; letter-spacing:0.08em; text-transform:uppercase; color:#fff;}
+  .card .tag{margin:0 0 12px; font-size:11px; line-height:1.6; color:var(--text-dim); min-height:5.2em;}
+  .meta{display:flex; gap:18px; list-style:none; margin:0 0 12px; padding:10px 0 0; border-top:1px solid var(--line);}
+  .meta b{display:block; font-size:15px; color:var(--text); font-variant-numeric:tabular-nums;}
+  .meta span{font-size:8.5px; letter-spacing:0.14em; color:var(--text-faint);}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .chips span{font-size:8.5px; letter-spacing:0.1em; color:var(--text-dim); border:1px solid var(--line); padding:3px 7px; text-transform:uppercase;}
+  .chips .hz{color:var(--green); border-color:rgba(57,217,138,0.4);}
+  .chips .bin{color:var(--amber); border-color:rgba(255,196,122,0.35);}
+  .cta{margin-top:auto; display:flex; justify-content:space-between; font-size:10px; letter-spacing:0.16em; color:var(--red);}
+  .card.soon .cta{color:var(--text-faint);}
+  .empty{display:none; padding:40px 10px; text-align:center; font-size:12px; color:var(--text-dim);}
+
+  /* ── scale comparison ── */
+  .scale{--lab:132px; position:relative; border:1px solid var(--line); background:var(--panel); padding:38px 18px 40px; overflow:hidden;}
+  .srow{display:grid; grid-template-columns:var(--lab) 1fr; align-items:center; height:36px; position:relative; z-index:2;}
+  .srow .lab{font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:8px;}
+  .srow .lab small{display:block; font-size:8px; color:var(--text-faint); letter-spacing:0.1em;}
+  .srow.home .lab{color:var(--green);}
+  .track{position:relative; height:100%;}
+  .track .line{position:absolute; top:50%; height:1px; background:var(--line-strong);}
+  .track .hzb{position:absolute; top:7px; bottom:7px; background:rgba(57,217,138,0.14); border-left:1px solid rgba(57,217,138,0.35); border-right:1px solid rgba(57,217,138,0.35);}
+  .track .pd{position:absolute; top:50%; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; border-radius:50%; background:#dfe5e8;
+    transform:scale(0); transition:transform .5s cubic-bezier(.2,1.4,.4,1); transition-delay:var(--d,0s);}
+  .scale.in .pd{transform:scale(1);}
+  .track .pd.hz{background:var(--green); box-shadow:0 0 8px var(--green);}
+  .refs{position:absolute; left:calc(18px + var(--lab)); right:18px; top:0; bottom:0; z-index:1; pointer-events:none;}
+  .ref{position:absolute; top:0; bottom:30px; border-left:1px dashed rgba(255,43,43,0.3);}
+  .ref span{position:absolute; top:10px; left:5px; font-size:8px; letter-spacing:0.1em; color:rgba(255,120,120,0.8); white-space:nowrap;}
+  .ticks{position:absolute; left:calc(18px + var(--lab)); right:18px; bottom:8px; height:16px; z-index:1;}
+  .tick{position:absolute; bottom:0; font-size:8px; color:var(--text-faint); transform:translateX(-50%); letter-spacing:0.08em; white-space:nowrap;}
+  .legend{margin:12px 0 0; font-size:10px; letter-spacing:0.06em; color:var(--text-dim); line-height:1.7;}
+  .legend i{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--green); margin:0 4px -1px 0;}
+  @media (max-width:640px){ .scale{--lab:84px; padding-left:12px; padding-right:12px;} .refs, .ticks{left:calc(12px + var(--lab)); right:12px;} .ref span{display:none;} .srow .lab{font-size:9px;} }
+
+  /* ── about + footer ── */
+  .about{max-width:860px;}
+  .about p{font-size:12px; line-height:1.85; color:var(--text-dim); margin:0 0 14px;}
+  .about a{color:var(--red); text-decoration:none; border-bottom:1px solid var(--red-dim);}
+  .about a:hover{color:#fff;}
+  footer{max-width:1280px; margin:clamp(56px,9vw,110px) auto 0; padding:22px clamp(16px,4vw,40px) 40px; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px 24px; font-size:10px; letter-spacing:0.06em; color:var(--text-faint); line-height:1.7;}
+  footer .note{max-width:680px;}
+  footer a{color:var(--text-dim); text-decoration:none;}
+  footer a:hover{color:var(--red);}
+</style>
+</head>
+<body>
+
+<header class="topbar solid" id="topbar">
+  <a class="brand-link" href="https://rameshverse.com/"><span class="arrow">←</span> RAMESHVERSE</a>
+</header>
+
+<main>
+<section class="wrap" id="systems" aria-labelledby="systemsTitle">
+  <div class="sec-head">
+    <div class="sec-row"><h2 id="systemsTitle">Choose a system</h2><a class="top-cta" href="/star-system-creator">BUILD YOUR OWN →</a></div>
+  </div>
+
+  <div class="toolbar">
+    <label class="sr-only" for="q">Search systems</label>
+    <input class="search" id="q" type="search" placeholder="Search: trappist, transit, binary…" autocomplete="off">
+    <div class="chip-row" id="chips" role="group" aria-label="Filter systems">
+      <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-f="hz" aria-pressed="false">HZ planet</button>
+      <button class="chip" type="button" data-f="rich" aria-pressed="false">5+ planets</button>
+      <button class="chip" type="button" data-f="near" aria-pressed="false">Under 100 ly</button>
+      <button class="chip" type="button" data-f="multi" aria-pressed="false">Multi-star</button>
+    </div>
+    <label class="sr-only" for="sort">Sort systems</label>
+    <select class="sort" id="sort">
+      <option value="default">Sort: featured</option>
+      <option value="near">Nearest first</option>
+      <option value="planets">Most planets</option>
+      <option value="compact">Most compact</option>
+      <option value="new">Newest</option>
+    </select>
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">No systems match those filters. Clear the search or pick "All".</div>
+  <noscript><p style="font-size:12px;color:#71787e">This page needs JavaScript to list the systems: TRAPPIST-1, Kepler-11, Kepler-90, 55 Cancri, HR 8799, Kepler-16 and PSR B1257+12.</p></noscript>
+</section>
+
+<section class="wrap" aria-labelledby="scaleTitle">
+  <div class="sec-head">
+    <div class="sec-tag">02 // SCALE</div>
+    <h2 id="scaleTitle">How big are these systems?</h2>
+    <p>Where each system's planets orbit, on a log scale from 0.006 to 100 AU. Several fit entirely inside Mercury's orbit, and one fits with room to spare.</p>
+  </div>
+  <div class="scale" id="scaleBox"></div>
+  <p class="legend"><i></i>planet in the habitable zone &nbsp;·&nbsp; green band = habitable zone &nbsp;·&nbsp; dashed lines = Solar System orbits (Mercury, Earth, Jupiter, Neptune)</p>
+</section>
+
+<section class="wrap about" aria-labelledby="aboutTitle">
+  <div class="sec-head">
+    <div class="sec-tag">03 // ABOUT</div>
+    <h2 id="aboutTitle">About this explorer</h2>
+  </div>
+  <p>Star System Explorer is a free 3D guide to real planetary systems beyond the Sun. Pick a system such as TRAPPIST-1, Kepler-11, Kepler-90, HR 8799, 55 Cancri, Kepler-16 or PSR B1257+12 to see its planets in orbit, its habitable zone, and how it compares with our own Solar System.</p>
+  <p>Orbit sizes come from published discovery papers and space-agency releases. Where the exact position of a planet along its orbit isn't known, the starting positions are illustrative. Want to design a system of your own? Open the <a href="/star-system-creator">Star System Creator</a>.</p>
+</section>
+</main>
+
+<footer>
+  <div class="note">Distances and orbits are rounded from published sources. The habitable zone uses a simple flux model (0.53–1.1× the light Earth receives), the same one as the Star System Creator.</div>
+  <div><a href="https://rameshverse.com/">← RAMESHVERSE</a> &nbsp;·&nbsp; rameshverse.com</div>
+</footer>
+
+<script id="systems-data" type="application/json">
+[
+  { "slug":"trappist-1-system", "name":"TRAPPIST-1", "ready":false, "ly":40.7, "year":2017, "method":"Transit", "starCount":1,
+    "stars":[ {"name":"TRAPPIST-1","type":"M8 ultracool dwarf","T":2566,"R":0.119,"M":0.09} ],
+    "planets":[ ["b",0.01154],["c",0.0158],["d",0.02227],["e",0.02925],["f",0.0385],["g",0.04683],["h",0.06189] ],
+    "tag":"Seven Earth-sized planets, all closer to their star than Mercury is to the Sun." },
+
+  { "slug":"kepler-11-system", "name":"Kepler-11", "ready":true, "ly":2110, "year":2011, "method":"Transit", "starCount":1,
+    "stars":[ {"name":"Kepler-11","type":"G-type star","T":5836,"R":1.02,"M":1.04} ],
+    "planets":[ ["b",0.091],["c",0.107],["d",0.155],["e",0.195],["f",0.25],["g",0.466] ],
+    "tag":"Six planets in a flat, tightly packed system. Five of them orbit inside Mercury's distance." },
+
+  { "slug":"kepler-90-system", "name":"Kepler-90", "ready":false, "ly":2790, "year":2017, "method":"Transit", "starCount":1,
+    "stars":[ {"name":"Kepler-90","type":"F9 star","T":6080,"R":1.2,"M":1.2} ],
+    "planets":[ ["b",0.074],["c",0.089],["i",0.107],["d",0.32],["e",0.42],["f",0.48],["g",0.71],["h",1.01] ],
+    "tag":"Eight planets, like ours, but all squeezed within about Earth's distance from the star." },
+
+  { "slug":"55-cancri-system", "name":"55 Cancri", "ready":false, "ly":41, "year":2007, "method":"Radial velocity", "starCount":2,
+    "stars":[ {"name":"55 Cancri A","type":"K-type dwarf","T":5250,"R":0.96,"M":0.95} ],
+    "planets":[ ["e",0.0154],["b",0.1134],["c",0.2373],["f",0.78],["d",5.96] ],
+    "tag":"Five planets around a Sun-like star, with a scorching inner world and a giant at nearly 6 AU." },
+
+  { "slug":"hr-8799-system", "name":"HR 8799", "ready":false, "ly":133, "year":2008, "method":"Direct imaging", "starCount":1,
+    "stars":[ {"name":"HR 8799","type":"A5 star","T":7430,"R":1.44,"M":1.5} ],
+    "planets":[ ["e",16.2],["d",26.7],["c",42.9],["b",68.8] ],
+    "tag":"Four giant planets that were photographed directly as they orbit." },
+
+  { "slug":"kepler-16-system", "name":"Kepler-16", "ready":false, "ly":245, "year":2011, "method":"Transit", "starCount":2, "binary":true,
+    "stars":[ {"name":"Kepler-16 A","type":"K + M binary","T":4450,"R":0.649,"M":0.69}, {"name":"Kepler-16 B","type":"M dwarf","T":3311,"R":0.226,"M":0.2} ],
+    "planets":[ ["b",0.7048] ],
+    "tag":"A Saturn-sized planet that orbits two stars at once, with two suns in its sky." },
+
+  { "slug":"psr-b1257-12-system", "name":"PSR B1257+12", "ready":false, "ly":2300, "year":1992, "method":"Pulsar timing", "starCount":1, "pulsar":true,
+    "stars":[ {"name":"PSR B1257+12","type":"Millisecond pulsar","T":28000,"R":0.00002,"M":1.4,"L":0,"color":"#bcd7ff"} ],
+    "planets":[ ["Draugr",0.19],["Poltergeist",0.36],["Phobetor",0.46] ],
+    "tag":"The first confirmed planets beyond the Solar System, orbiting the remains of a dead star." }
+]
+</script>
+
+<script>
+(function(){
+  'use strict';
+
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var DATA = JSON.parse($('#systems-data').textContent);
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  // same blackbody-to-colour approximation as the Star System Creator
+  function tempToRGB(T){
+    var tt = T/100, r, g, b;
+    if (tt <= 66){ r = 255; g = 99.47*Math.log(tt)-161.12; }
+    else { r = 329.7*Math.pow(tt-60,-0.1332); g = 288.12*Math.pow(tt-60,-0.0755); }
+    if (tt >= 66) b = 255; else if (tt <= 19) b = 0; else b = 138.52*Math.log(tt-10)-305.04;
+    function c(x){ return Math.max(0, Math.min(255, Math.round(x))); }
+    return [c(r), c(g), c(b)];
+  }
+  function starCss(s){ if (s.color) return s.color; var c = tempToRGB(s.T); return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+  function lumOf(s){ return s.L !== undefined ? s.L : s.R*s.R*Math.pow(s.T/5778, 4); }
+
+  // work out the numbers every card needs
+  DATA.forEach(function(sys){
+    sys.L = sys.stars.reduce(function(a, s){ return a + lumOf(s); }, 0);
+    sys.M = sys.stars.reduce(function(a, s){ return a + s.M; }, 0);
+    // habitable zone: total starlight between 0.53 and 1.1 x what Earth gets (same model as the creator)
+    sys.hz = sys.L > 0 ? { lo: Math.sqrt(sys.L/1.1), hi: Math.sqrt(sys.L/0.53) } : null;
+    sys.hzPlanets = sys.hz ? sys.planets.filter(function(p){ return p[1] >= sys.hz.lo && p[1] <= sys.hz.hi; }) : [];
+    var as = sys.planets.map(function(p){ return p[1]; });
+    sys.aMin = Math.min.apply(null, as);
+    sys.aMax = Math.max.apply(null, as);
+  });
+
+  /* ───────────── cards ───────────── */
+  var RX = 142, TILT = 0.36, ROT = -13;   // card diagram geometry
+
+  function ellPath(rx, ry){ return 'M' + rx.toFixed(1) + ' 0A' + rx.toFixed(1) + ' ' + ry.toFixed(1) + ' 0 1 1 ' + (-rx).toFixed(1) + ' 0A' + rx.toFixed(1) + ' ' + ry.toFixed(1) + ' 0 1 1 ' + rx.toFixed(1) + ' 0Z'; }
+
+  function orbitSVG(sys, i){
+    var W = 320, H = 200, cx = 160, cy = 102, id = 'c' + i, col = starCss(sys.stars[0]);
+    var span = Math.log(sys.aMax/sys.aMin);
+    // log scale between the innermost and outermost planet, so tight and wide systems both fill the card
+    function mapR(a){ return span < 0.05 ? 0.55 : Math.min(1.04, Math.max(0.1, 0.2 + 0.78*Math.log(a/sys.aMin)/span)); }
+
+    var hz = '';
+    if (sys.hz){
+      var ri = mapR(sys.hz.lo), ro = mapR(sys.hz.hi);
+      if (ro - ri > 0.03){
+        hz = '<path d="' + ellPath(ro*RX, ro*RX*TILT) + ellPath(ri*RX, ri*RX*TILT) + '" fill="rgba(57,217,138,.17)" fill-rule="evenodd"/>';
+      }
+    }
+
+    var orbits = '', planets = '', pMin = Math.sqrt(Math.pow(sys.aMin, 3)/sys.M);
+    sys.planets.forEach(function(p, k){
+      var r = mapR(p[1]), rx = r*RX, ry = rx*TILT;
+      orbits += '<ellipse rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '" fill="none" stroke="rgba(255,255,255,.13)" stroke-width=".7"/>';
+      var P = Math.sqrt(Math.pow(p[1], 3)/sys.M);                       // Kepler period (years), only its ratio matters here
+      var dur = Math.min(90, Math.max(5, 6*Math.sqrt(P/pMin)));
+      var begin = -((k*2.7 + i*1.3) % dur);
+      var inHz = sys.hzPlanets.indexOf(p) >= 0;
+      planets += '<circle r="' + (1.7 + (k % 3)*0.35).toFixed(2) + '" fill="' + (inHz ? '#39d98a' : '#e4eaed') + '"' +
+        (inHz ? ' stroke="rgba(57,217,138,.35)" stroke-width="3"' : '') + '><animateMotion dur="' + dur.toFixed(1) + 's" begin="' + begin.toFixed(1) +
+        's" repeatCount="indefinite" path="' + ellPath(rx, ry) + '"/></circle>';
+    });
+
+    var Rmax = Math.max.apply(null, sys.stars.map(function(s){ return s.R; }));
+    var sr = 3.4 + Math.min(5, Math.log10(1 + Rmax/0.1)*3);
+    var star;
+    if (sys.pulsar){
+      star = '<circle r="14" fill="url(#g' + id + ')"/>' +
+        '<g><line x1="-62" y1="0" x2="62" y2="0" stroke="rgba(188,215,255,.55)" stroke-width="1.2"/>' +
+        '<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/></g>' +
+        '<circle r="2.4" fill="#fff"/>';
+    } else if (sys.binary){
+      var c2 = starCss(sys.stars[1]);
+      star = '<circle r="26" fill="url(#g' + id + ')"/>' +
+        '<g><circle cx="2.5" r="' + (sr*0.8).toFixed(1) + '" fill="' + col + '"/><circle cx="-9" r="' + (sr*0.5).toFixed(1) + '" fill="' + c2 + '"/>' +
+        '<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="7s" repeatCount="indefinite"/></g>';
+    } else {
+      star = '<circle r="' + (sr*4.2).toFixed(1) + '" fill="url(#g' + id + ')"/><circle r="' + sr.toFixed(1) + '" fill="' + col + '"/><circle r="' + (sr*0.55).toFixed(1) + '" fill="#fff" opacity=".7"/>';
+    }
+
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Animated orbit diagram of the ' + esc(sys.name) + ' system" focusable="false">' +
+      '<defs><radialGradient id="g' + id + '"><stop offset="0" stop-color="' + col + '" stop-opacity=".95"/><stop offset=".3" stop-color="' + col + '" stop-opacity=".35"/><stop offset="1" stop-color="' + col + '" stop-opacity="0"/></radialGradient></defs>' +
+      '<g transform="translate(' + cx + ' ' + cy + ') rotate(' + ROT + ')">' + hz + orbits + '</g>' +
+      '<g transform="translate(' + cx + ' ' + cy + ')">' + star + '</g>' +
+      '<g transform="translate(' + cx + ' ' + cy + ') rotate(' + ROT + ')">' + planets + '</g></svg>';
+  }
+
+  function fmtLy(ly){ if (ly === 0) return 'HOME'; if (ly < 100) return ly.toFixed(1); return ly.toLocaleString('en-US'); }
+
+  function cardHTML(sys, i){
+    var live = sys.ready, href = sys.href || ('./' + sys.slug + '/');
+    var open = live ? '<a class="card" href="' + esc(href) + '" aria-label="Open the ' + esc(sys.name) + ' system">' : '<div class="card soon">';
+    var close = live ? '</a>' : '</div>';
+    var chips = '<span>' + esc(sys.stars[0].type) + '</span>';
+    if (sys.method !== 'Home') chips += '<span>' + esc(sys.method) + '</span>';
+    if (sys.starCount > 1) chips += '<span class="bin">' + sys.starCount + ' stars</span>';
+    if (sys.hzPlanets.length) chips += '<span class="hz">HZ: ' + esc(sys.hzPlanets.map(function(p){ return p[0]; }).join(', ')) + '</span>';
+    return open +
+      '<div class="card-top"><span>' + String(i + 1).padStart(2, '0') + '</span><span class="status ' + (live ? 'live' : '') + '">' + (live ? 'LIVE' : 'COMING SOON') + '</span></div>' +
+      '<div class="viz">' + orbitSVG(sys, i) + '</div>' +
+      '<h3>' + esc(sys.name) + '</h3>' +
+      '<p class="tag">' + esc(sys.tag) + '</p>' +
+      '<ul class="meta"><li><b>' + fmtLy(sys.ly) + '</b><span>' + (sys.ly === 0 ? 'OUR SYSTEM' : 'LIGHT-YEARS') + '</span></li><li><b>' + sys.planets.length + '</b><span>PLANETS</span></li><li><b>' + sys.starCount + '</b><span>' + (sys.starCount === 1 ? 'STAR' : 'STARS') + '</span></li></ul>' +
+      '<div class="chips">' + chips + '</div>' +
+      '<div class="cta"><span>' + (live ? 'ENTER SYSTEM' : 'ARRIVING SOON') + '</span><span>' + (live ? '→' : '···') + '</span></div>' +
+      close;
+  }
+
+  var grid = $('#grid'), emptyEl = $('#empty'), countEl = $('#count');
+  var state = { f:'all', q:'', sort:'default' };
+  var vizObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var svg = e.target;
+      if (!svg.pauseAnimations) return;
+      if (e.isIntersecting) svg.unpauseAnimations(); else svg.pauseAnimations();   // animations only run while the card is on screen
+    });
+  }, { rootMargin:'80px' }) : null;
+
+  var FILTERS = {
+    all:   function(){ return true; },
+    hz:    function(s){ return s.hzPlanets.length > 0; },
+    rich:  function(s){ return s.planets.length >= 5; },
+    near:  function(s){ return s.ly < 100; },
+    multi: function(s){ return s.starCount > 1; }
+  };
+  var SORTS = {
+    'default': function(a, b){ return a.i - b.i; },
+    near:      function(a, b){ return a.s.ly - b.s.ly; },
+    planets:   function(a, b){ return b.s.planets.length - a.s.planets.length || a.i - b.i; },
+    compact:   function(a, b){ return a.s.aMax - b.s.aMax; },
+    'new':     function(a, b){ return (b.s.year || 0) - (a.s.year || 0) || a.i - b.i; }
+  };
+
+  function render(){
+    var q = state.q.trim().toLowerCase();
+    var list = DATA.map(function(s, i){ return { s:s, i:i }; }).filter(function(o){
+      if (!FILTERS[state.f](o.s)) return false;
+      if (!q) return true;
+      var hay = (o.s.name + ' ' + o.s.tag + ' ' + o.s.method + ' ' + o.s.stars.map(function(x){ return x.type + ' ' + x.name; }).join(' ') + (o.s.starCount > 1 ? ' binary multi-star' : '')).toLowerCase();
+      return q.split(/\s+/).every(function(w){ return hay.indexOf(w) >= 0; });
+    }).sort(SORTS[state.sort]);
+    grid.innerHTML = list.map(function(o){ return cardHTML(o.s, o.i); }).join('');
+    emptyEl.style.display = list.length ? 'none' : 'block';
+    countEl.textContent = list.length + ' / ' + DATA.length + ' SYSTEMS';
+    grid.querySelectorAll('.viz svg').forEach(function(svg){
+      if (svg.closest('.card.soon') && svg.pauseAnimations){ svg.pauseAnimations(); try { svg.setCurrentTime(6); } catch(e){} }   // unavailable systems: frozen
+      else if (reduceMotion && svg.pauseAnimations){ svg.pauseAnimations(); try { svg.setCurrentTime(6); } catch(e){} }
+      else if (vizObserver) vizObserver.observe(svg);
+    });
+  }
+
+  $('#q').addEventListener('input', function(e){ state.q = e.target.value; render(); });
+  $('#sort').addEventListener('change', function(e){ state.sort = e.target.value; render(); });
+  $('#chips').addEventListener('click', function(e){
+    var b = e.target.closest('.chip');
+    if (!b) return;
+    state.f = b.dataset.f;
+    document.querySelectorAll('.chip').forEach(function(c){ c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
+    render();
+  });
+  render();
+
+  /* ───────────── scale chart ───────────── */
+  (function(){
+    var LMIN = -2.2, LSPAN = 4.2;   // 0.0063 AU .. 100 AU
+    function pos(a){ return Math.max(0, Math.min(100, (Math.log10(a) - LMIN)/LSPAN*100)); }
+    var rows = DATA.map(function(sys){
+      var dots = sys.planets.map(function(p, k){
+        var hz = sys.hzPlanets.indexOf(p) >= 0;
+        return '<span class="pd' + (hz ? ' hz' : '') + '" style="left:' + pos(p[1]).toFixed(2) + '%;--d:' + (0.15 + k*0.07).toFixed(2) + 's" title="' + esc(sys.name + ' ' + p[0] + ' · ' + p[1] + ' AU') + '"></span>';
+      }).join('');
+      var hzb = '';
+      if (sys.hz){
+        var l = pos(sys.hz.lo), r = pos(sys.hz.hi);
+        if (r - l > 0.4) hzb = '<span class="hzb" style="left:' + l.toFixed(2) + '%;width:' + (r - l).toFixed(2) + '%"></span>';
+      }
+      var a = pos(sys.aMin), b = pos(sys.aMax);
+      return '<div class="srow' + (sys.ly === 0 ? ' home' : '') + '"><div class="lab">' + esc(sys.name) + '<small>' + (sys.ly === 0 ? 'OUR SYSTEM' : fmtLy(sys.ly) + ' LY') + '</small></div>' +
+        '<div class="track">' + hzb + '<span class="line" style="left:' + a.toFixed(2) + '%;width:' + Math.max(0, b - a).toFixed(2) + '%"></span>' + dots + '</div></div>';
+    }).join('');
+    var refs = [['MERCURY', 0.387], ['EARTH', 1], ['JUPITER', 5.204], ['NEPTUNE', 30.07]].map(function(r){
+      return '<div class="ref" style="left:' + pos(r[1]).toFixed(2) + '%"><span>' + r[0] + '</span></div>';
+    }).join('');
+    var ticks = [[0.01, '0.01 AU'], [0.1, '0.1'], [1, '1'], [10, '10'], [100, '100 AU']].map(function(t){
+      return '<span class="tick" style="left:' + pos(t[0]).toFixed(2) + '%">' + t[1] + '</span>';
+    }).join('');
+    var box = $('#scaleBox');
+    box.innerHTML = '<div class="refs" aria-hidden="true">' + refs + '</div>' + rows + '<div class="ticks" aria-hidden="true">' + ticks + '</div>';
+    if ('IntersectionObserver' in window && !reduceMotion){
+      var io = new IntersectionObserver(function(en){ if (en[0].isIntersecting){ box.classList.add('in'); io.disconnect(); } }, { threshold:0.25 });
+      io.observe(box);
+    } else box.classList.add('in');
+  })();
+
+  /* ───────────── top bar + structured data ───────────── */
+  var topbar = $('#topbar');
+  function onScroll(){ topbar.classList.toggle('solid', window.scrollY > 40); }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+
+  (function(){
+    var items = DATA.filter(function(s){ return s.ready; }).map(function(s, i){
+      var url = s.href || ('/star-system-explorer/' + s.slug + '/');
+      return { '@type':'ListItem', position:i + 1, name:s.name, url:'https://rameshverse.com' + url.replace(/^\./, '') };
+    });
+    var ld = { '@context':'https://schema.org', '@type':'CollectionPage', name:'Star System Explorer', url:'https://rameshverse.com/star-system-explorer/',
+      description:'Explore real exoplanet systems in 3D: TRAPPIST-1, Kepler-11, Kepler-90, HR 8799, 55 Cancri and more.',
+      mainEntity:{ '@type':'ItemList', itemListElement:items } };
+    var sc = document.createElement('script');
+    sc.type = 'application/ld+json';
+    sc.textContent = JSON.stringify(ld);
+    document.head.appendChild(sc);
+  })();
+
+})();
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+
+<script src="/tools-data.js"></script>
+<script src="/related-modules.js"></script>
+
+</body>
+</html>

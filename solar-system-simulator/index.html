@@ -79,12 +79,11 @@
     pointer-events:none;
   }
   #logo{
-    font-weight:700;font-size:13px;letter-spacing:2px;color:var(--red);
-    text-shadow:0 0 8px var(--red-dim);
+    font-weight:400;font-size:10px;letter-spacing:2px;color:var(--dim);opacity:.7;
     text-decoration:none;pointer-events:auto;cursor:pointer;
     transition:.15s;
   }
-  #logo:hover{text-shadow:0 0 14px var(--red-dim);}
+  #logo:hover{color:var(--text);opacity:1;}
   #clock{
     font-size:12px;color:var(--dim);letter-spacing:2px;
   }
@@ -155,18 +154,6 @@
   .cat-btn:hover{border-color:var(--c);color:#fff;}
   .cat-btn.active{color:var(--c);border-style:solid;border-color:var(--c);background:color-mix(in srgb, var(--c) 18%, transparent);}
   .cat-btn.active .car{transform:rotate(180deg);}
-  #legend{
-    position:fixed;left:20px;bottom:112px;z-index:56;pointer-events:none;
-    display:flex;flex-direction:column;gap:5px;transition:opacity .5s;
-    font-size:9px;letter-spacing:1.5px;color:var(--dim);
-  }
-  #legend .lg{display:flex;align-items:center;gap:8px;}
-  #legend .lg i{width:9px;height:9px;border:1px solid var(--c,rgba(255,255,255,.5));background:var(--c,transparent);flex:none;}
-  #legend .lg span{color:var(--text);opacity:.85;}
-  #legend .lg b{font-weight:400;opacity:.65;margin-left:auto;padding-left:8px;}
-  #legend .lg.k-star{--c:#ffb347;} #legend .lg.k-planet{--c:#6fd3ff;} #legend .lg.k-dwarf{--c:#b69cff;}
-  #legend .lg.k-distant{--c:#C8F542;} #legend .lg.k-craft{--c:#ff8fcf;}
-  #legend .moonlg{--c:#82FFE0;}
 
   /* bottom dock: time controls + view controls */
   #dock{
@@ -265,12 +252,13 @@
   }
   #panel-desc::before{content:'> ';position:absolute;left:5px;top:11px;color:var(--red);}
   #panel-desc .cur{display:inline-block;width:7px;height:12px;margin-left:2px;vertical-align:-1px;background:var(--red);box-shadow:0 0 8px var(--red);animation:acqBlink .8s steps(2,end) infinite;}
-  #btn-fly{
-    width:100%;margin-top:16px;padding:12px 10px;border-color:var(--red);color:var(--red);
+  #panel-actions{position:sticky;bottom:0;z-index:2;margin-top:16px;padding-top:8px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(180deg,transparent,rgba(7,8,11,.95) 14px);}
+  #btn-fly,#btn-surf{
+    width:100%;padding:9px 10px;border-color:var(--red);color:var(--red);
     letter-spacing:2px;font-size:11px;background:#1a090c;
-    position:sticky;bottom:0;z-index:2;box-shadow:0 -10px 12px -4px rgba(7,8,11,.95);
   }
-  #btn-fly span{font-size:9px;margin-right:6px;}
+  #btn-fly span,#btn-surf span{font-size:9px;margin-right:6px;}
+  #btn-surf:hover{box-shadow:0 0 14px var(--red-dim);background:rgba(255,43,43,.16);color:#fff;}
   #btn-fly:hover{box-shadow:0 0 14px var(--red-dim);background:rgba(255,43,43,.16);color:#fff;}
 
   /* target reticle for locked planet - drawn via canvas overlay div */
@@ -388,6 +376,18 @@
   #tour .tb{font-size:12px;line-height:1.75;color:var(--text);}
   #tour .tbtn{display:flex;justify-content:space-between;gap:10px;margin-top:14px;}
 
+  /* view from a surface */
+  #surfcap{position:fixed;left:50%;bottom:52px;transform:translateX(-50%);z-index:60;width:min(560px,90vw);text-align:center;pointer-events:none;text-shadow:0 0 12px #000,0 0 4px #000;}
+  #surfcap[hidden],#btn-exit-surf[hidden]{display:none;}
+  #surfcap .tg{font-size:9.5px;letter-spacing:3px;color:var(--red);}
+  #surfcap h3{margin:6px 0 8px;font-size:24px;letter-spacing:4px;color:#fff;font-weight:700;}
+  #surfcap p{margin:3px 0;font-size:11px;letter-spacing:1.2px;color:#d6dcdf;}
+  #surfcap small{display:block;margin-top:8px;font-size:8.5px;letter-spacing:2px;color:var(--dim);}
+  #btn-exit-surf{position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:80;padding:13px 26px;font-size:13px;font-weight:700;letter-spacing:3px;color:#fff;
+    border:2px solid var(--red);background:rgba(255,43,43,.22);box-shadow:0 0 22px rgba(255,43,43,.45), inset 0 0 14px rgba(255,43,43,.18);}
+  #btn-exit-surf:hover{background:var(--red);color:#050608;box-shadow:0 0 30px rgba(255,43,43,.7);}
+  body.surf #top-controls, body.surf #dock, body.surf #hint, body.surf #scale-note, body.surf #scalebar, body.surf #panel,
+  body.surf #btn-info, body.surf #dock-toggle, body.surf #reticle, body.surf #labels{opacity:0 !important;pointer-events:none !important;}
   #toast{
     position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:95;
     background:rgba(8,9,12,.92);border:1px solid var(--red-dim);color:var(--text);
@@ -489,7 +489,7 @@
 <div class="corner br"></div>
 
 <div id="topbar">
-  <a id="logo" href="/">‹ <span class="bk">BACK TO </span>RAMESHVERSE</a>
+  <a id="logo" href="/">‹ RAMESHVERSE</a>
   <div id="clock"></div>
 </div>
 
@@ -545,11 +545,13 @@
   </div>
 </div>
 
+<div id="surfcap" hidden></div>
+<button class="btn" id="btn-exit-surf" hidden>✕ EXIT SURFACE VIEW</button>
+
 <div id="toast"></div>
 
 <div id="hint">DRAG TO ROTATE · SCROLL / PINCH TO ZOOM · CLICK A BODY TO FLY TO IT
   <span class="keys"><kbd>←</kbd><kbd>→</kbd>STEP THROUGH BODIES &nbsp; <kbd>SPACE</kbd>PAUSE &nbsp; <kbd>R</kbd>REVERSE &nbsp; <kbd>H</kbd>HIDE HUD &nbsp; <kbd>ESC</kbd>DESELECT</span></div>
-<div id="legend"></div>
 <div id="scale-note">TO SCALE — TRUE DISTANCES &amp; SIZES</div>
 <div id="scalebar"><div class="txt"></div><div class="bar"></div></div>
 <div id="watermark">rameshverse.com</div>
@@ -938,6 +940,12 @@ const sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({
   transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
 sunHalo.scale.setScalar(sunRadius*20);   // fixed world size: a halo hugging the Sun that fades out of sight with distance, like everything else
 scene.add(sunHalo);
+// surface view only: a bright core a few pixels wide, so the Sun is always seen as a brilliant point (its true disc is under one pixel from the outer planets)
+const sunCore = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: radialTexture([[0,'rgba(255,255,255,1)'],[0.28,'rgba(255,244,214,0.95)'],[0.6,'rgba(255,200,110,0.35)'],[1,'rgba(255,170,70,0)']],128),
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
+sunCore.visible = false;
+scene.add(sunCore);
 
 // ---------- BODIES ----------
 const bodies = [];      // everything that can be selected / labelled
@@ -962,13 +970,15 @@ bodies.push(sunBody);
 let timeDir = 1;              // +1 forward, -1 reverse
 let intro = null;             // the cinematic opening fly-through, while it plays
 let flight = null;            // the light-speed flight, while it plays
+let sunGlare = 1;             // surface view: the Sun's glow gets smaller with distance, but slower than the true size so it never fades out of sight
+let surf = null;              // the view from a planet's or moon's surface, while it is open
 let glideRelease = false;     // after skipping the intro the camera glides to the opening view, then lets go of the Sun
 let prevSimJD = simJD;
 const C_U_S = C_KM_S*KM_U;    // scene units the speed of light covers per second
 const MULTS = [1,3,10,30,100,300,1e3,3e3,1e4,3e4,1e5,3e5,1e6];   // light-flight time warps
 
 function ringPointsFor(el){
-  const pts=[], n = el.e > 0.9 ? 1440 : 360;
+  const pts=[], n = el.e > 0.9 ? 7200 : 3600;
   for(let k=0;k<=n;k++) pts.push(orbitPoint(el, k/n*TWO_PI, new THREE.Vector3()));
   return pts;
 }
@@ -1068,7 +1078,7 @@ PLANETS.forEach((p, i)=>{
     } else basis = planeBasis(pole);   // the others orbit in their planet's equatorial plane
     const mmesh = new THREE.Mesh(new THREE.SphereGeometry(mrad, 96, 64), new THREE.MeshStandardMaterial({color:md.color, roughness:0.95}));
     group.add(mmesh);
-    const pts=[]; for(let k=0;k<=128;k++){ const th=k/128*TWO_PI; pts.push(basis.u.clone().multiplyScalar(Math.cos(th)*aU).addScaledVector(basis.v, Math.sin(th)*aU)); }
+    const pts=[]; for(let k=0;k<=1024;k++){ const th=k/1024*TWO_PI; pts.push(basis.u.clone().multiplyScalar(Math.cos(th)*aU).addScaledVector(basis.v, Math.sin(th)*aU)); }
     const oline = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color:0x8a93a1, transparent:true, opacity:0.28, depthWrite:false}));
     oline.visible = false;
     group.add(oline);
@@ -1171,7 +1181,7 @@ function craftPos(cb, jd){
 }
 
 // ---------- CAMERA CONTROLS ----------
-let camTheta = 0.9, camPhi = 1.2, camRadius = 250000;
+let camTheta = 0.9, camPhi = 1.309, camRadius = 250000;
 let targetTheta = camTheta, targetPhi = camPhi, targetRadius = camRadius;
 const camFocus = new THREE.Vector3(0,0,0);
 let locked = null;                      // the selected body (info panel, reticle, highlighted button)
@@ -1221,6 +1231,7 @@ function panCamera(dx, dy){
 // both fingers send move events, and treating them as one drag made the view spin wildly while pinching.
 const touchIds = new Set();
 renderer.domElement.addEventListener('pointerdown', e=>{
+  if(surf) return;
   if(e.pointerType==='touch'){
     touchIds.add(e.pointerId);
     if(touchIds.size >= 2){ dragging=false; panning=false; return; }
@@ -1258,6 +1269,7 @@ window.addEventListener('pointermove', e=>{
 });
 function onWheel(e){
   e.preventDefault();
+  if(surf) return;
   if(intro) skipIntro();
   if(flight){ flight.zoom = Math.max(0.05, Math.min(200, flight.zoom*(1 + e.deltaY*0.003))); return; }
   targetRadius *= (1 + e.deltaY*0.003);
@@ -1270,6 +1282,7 @@ labelLayer.addEventListener('wheel', onWheel, {passive:false});   // wheel keeps
 // touch: 1-finger rotate (pointer events above), 2-finger pinch-zoom + pan
 let pinchStart=null, touchPanX=null, touchPanY=null;
 renderer.domElement.addEventListener('touchmove', e=>{
+  if(surf) return;
   if(e.touches.length===2){
     const t0=e.touches[0], t1=e.touches[1];
     const d=Math.hypot(t0.clientX-t1.clientX, t0.clientY-t1.clientY);
@@ -1293,6 +1306,7 @@ renderer.domElement.addEventListener('touchend', e=>{
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 function onClick(e){
+  if(surf) return;
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
   mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
@@ -1354,7 +1368,7 @@ function kindColor(b){
 }
 
 function selectBody(b){
-  if(intro) skipIntro();
+  if(intro){ skipIntro(); glideRelease = false; }   // picking a body during the intro must not let go of it afterwards
   if(flight) endFlight(false);
   locked = b;
   follow = b;
@@ -1428,8 +1442,12 @@ function selectBody(b){
   panelBody.scrollTop = 0;
   typeBrief();
   if(b.kind !== 'sun'){
-    panelBody.insertAdjacentHTML('beforeend', '<button class="btn" id="btn-fly" title="Race a photon from the Sun to this body (F)"><span>▶▶</span> FLY THERE AT LIGHT SPEED</button>');
+    const canSurf = b.kind === 'planet' || b.kind === 'moon';
+    panelBody.insertAdjacentHTML('beforeend', '<div id="panel-actions">' +
+      (canSurf ? '<button class="btn" id="btn-surf" title="Stand on the surface and look at the Sun"><span>◉</span> VIEW FROM THE SURFACE</button>' : '') +
+      '<button class="btn" id="btn-fly" title="Race a photon from the Sun to this body (F)"><span>▶▶</span> FLY THERE AT LIGHT SPEED</button></div>');
     $('btn-fly').addEventListener('click', ()=>startFlight(b));
+    if(canSurf) $('btn-surf').addEventListener('click', ()=>enterSurface(b));
   }
   if(isMobile()){ infoBtn.classList.add('avail'); setMobilePanel(panel.classList.contains('show')); }   // phones: stays closed unless it was already opened
   else { panel.classList.add('show'); document.body.classList.add('has-panel'); }
@@ -1559,9 +1577,6 @@ function showCategory(id){
     if(locked) catOpenRow.querySelectorAll('.body-btn').forEach(b=>b.classList.toggle('active', b.dataset.name===locked.name));
   } else catOpenRow.classList.remove('show');
 }
-const legendEl = $('legend');
-legendEl.innerHTML = GROUPS.map(g=>'<div class="lg k-'+g.id+'"><i></i><span>'+g.label+'</span><b>'+g.list.length+'</b></div>').join('') +
-  '<div class="lg moonlg"><i></i><span>MOONS</span><b>ON SELECT</b></div>';
 
 let inlineParent = null;
 function refreshInlineMoons(parent){
@@ -1692,7 +1707,7 @@ $('btn-belts').addEventListener('click', function(){
   applyBeltVisibility();
 });
 function openingView(){
-  targetTheta = 0.9; targetPhi = 1.2; targetRadius = 250000;   // the whole system at true scale
+  targetTheta = 0.9; targetPhi = 1.309; targetRadius = 250000;   // the whole system at true scale, from 15° above
   camFocus.set(0,0,0);
   lockOffset.set(0,0,0);
 }
@@ -1820,7 +1835,7 @@ function showTourStep(){
   }
 }
 function startTour(){
-  if(tour.active) return;
+  if(tour.active || surf) return;
   if(intro) skipIntro();
   tour.active = true; tour.i = 0;
   $('tour').classList.add('show');
@@ -1855,7 +1870,7 @@ const INTRO_KEYS = [
   {t:10.0, r:4800,   f:0, p:0.95},
   {t:12.8, r:60,     f:1, p:1.20},
   {t:14.2, r:60,     f:1, p:1.20},
-  {t:17.8, r:250000, f:1, p:1.20}
+  {t:17.8, r:250000, f:1, p:1.309}
 ];
 const INTRO_CAPS = [
   {t:0.3,  a:'EARTH',            b:'12,742 KM ACROSS', d:2.4},
@@ -1920,7 +1935,7 @@ function skipIntro(){           // interrupted: glide to the opening view instea
   leaveIntroMode();
   hideCaption();
   lockOffset.copy(camFocus); follow = sunBody; glideRelease = true;
-  targetRadius = 250000; targetTheta = 0.9; targetPhi = 1.2;
+  targetRadius = 250000; targetTheta = 0.9; targetPhi = 1.309;
   maybeStartTour();
 }
 $('btn-skip-intro').addEventListener('click', skipIntro);
@@ -2011,7 +2026,111 @@ $('fl-slow').addEventListener('click', ()=>{ if(flight) flight.mi = Math.max(0, 
 $('fl-fast').addEventListener('click', ()=>{ if(flight) flight.mi = Math.min(MULTS.length-1, flight.mi+1); });
 $('fl-stop').addEventListener('click', ()=>endFlight(false));
 
+// ---------- VIEW FROM THE SURFACE: stand on a planet or moon and look at the Sun low over the horizon ----------
+const sfN = new THREE.Vector3(), sfS = new THREE.Vector3(), sfP = new THREE.Vector3();
+let surfTxtAt = 0;
+function enterSurface(b){
+  if(!b || (b.kind !== 'planet' && b.kind !== 'moon')) return;
+  if(intro){ skipIntro(); glideRelease = false; }
+  if(flight) endFlight(false);
+  if(surf) exitSurface(true);
+  if(tour.active) closeTour();
+  surf = {b, geo0:b.mesh.geometry, theta:camTheta, phi:camPhi, radius:camRadius, fov:camera.fov};
+  b.mesh.geometry = new THREE.SphereGeometry(b.rad, 512, 320);      // fine mesh: the horizon is a smooth curve, not facets
+  deselect(true);
+  if(isMobile()) setDock(false);
+  orbitLines.forEach(l=>l.visible = false);
+  asteroidBelt.visible = kuiperBelt.visible = false;
+  document.body.classList.add('surf');
+  $('btn-exit-surf').hidden = false; $('surfcap').hidden = false;
+  camera.fov = 70; camera.updateProjectionMatrix(); surfTxtAt = 0;
+}
+function exitSurface(quiet){
+  if(!surf) return;
+  const s = surf, b = s.b; surf = null;
+  document.body.classList.remove('surf');
+  $('btn-exit-surf').hidden = true; $('surfcap').hidden = true;
+  sunGlare = 1; sunCore.visible = false;
+  b.mesh.geometry.dispose(); b.mesh.geometry = s.geo0;
+  camera.fov = s.fov; camera.up.set(0,1,0); camera.updateProjectionMatrix();
+  applyOrbitVisibility(); applyBeltVisibility();
+  if(quiet) return;
+  b.worldPos(camFocus); lockOffset.set(0,0,0); follow = b;
+  camTheta = targetTheta = s.theta; camPhi = targetPhi = s.phi; camRadius = targetRadius = s.radius;
+  selectBody(b);
+}
+$('btn-exit-surf').addEventListener('click', ()=>exitSurface());
+function surfaceCamera(){
+  const b = surf.b;
+  b.worldPos(sfP);
+  sfS.copy(sfP).multiplyScalar(-1);                                  // towards the Sun
+  const dist = sfS.length(); sfS.divideScalar(dist);
+  sfN.set(0,1,0).addScaledVector(sfS, -sfS.y);                       // orbit-plane "north", made perpendicular to the Sun's direction
+  if(sfN.lengthSq() < 1e-8) sfN.set(1,0,0);
+  sfN.normalize();
+  const now = performance.now();
+  const z = (78 + 3*Math.sin(now/5000))*DEG;                         // the Sun sits low in the sky, like a sunrise
+  sfN.multiplyScalar(Math.sin(z)).addScaledVector(sfS, Math.cos(z)).normalize();   // local "up" at the observer's spot
+  sunGlare = Math.sqrt(Math.max(1, dist/AU_U));   // glow shrinks with distance (1/√d), but never disappears
+  camera.position.copy(sfP).addScaledVector(sfN, b.rad*1.02);
+  camera.up.copy(sfN);
+  camera.near = Math.max(1e-9, b.rad*0.004); camera.far = 1e7; camera.updateProjectionMatrix();
+  camera.lookAt(0,0,0);
+  camera.updateMatrixWorld();
+  const sd = camera.position.length(), px = Math.min(40, Math.max(3.2, 26/Math.sqrt(sd/AU_U)));   // core width in pixels: smaller the farther the Sun is
+  sunCore.visible = true; sunCore.scale.setScalar(sd*px/window.innerHeight*2*Math.tan(camera.fov/2*DEG)*2);
+  if(now - surfTxtAt > 800){
+    surfTxtAt = now;
+    const au = (b.kind === 'moon' ? b.parent.mesh.position.length() : sfP.length())/AU_U;
+    const ang = 2*Math.atan(sunRadius/(au*AU_U))/DEG, light = 1/(au*au);
+    const lt = light >= 10 ? light.toFixed(0) : light >= 1 ? light.toFixed(1) : light.toPrecision(2);
+    $('surfcap').innerHTML = '<div class="tg">VIEW FROM THE SURFACE</div><h3></h3>' +
+      '<p>THE SUN SPANS ' + (ang >= 1 ? ang.toFixed(2) : ang.toFixed(3)) + '° OF SKY · ' + (ang/0.533).toFixed(2) + '× ITS WIDTH SEEN FROM EARTH</p>' +
+      '<p>' + lt + '× THE SUNLIGHT EARTH GETS · ' + fmtLight(au*LIGHT_SEC_PER_AU).toUpperCase() + ' FROM THE SUN</p>' +
+      '<small>ARTIST\'S IMPRESSION · ESTIMATED FIGURES</small>';
+    $('surfcap').querySelector('h3').textContent = b.name;
+  }
+}
+
+// ---------- ORBIT LINES THAT STAY SMOOTH WHEN ZOOMED IN ----------
+// The full orbit is stored as 32-bit points far from the origin, so up close it looks jagged (and at Pluto's distance the rounding is bigger than the planet).
+// When the camera is near an orbit, a second line is drawn around the camera's spot only, with its points measured from that spot — dense and exact.
+const LOCAL_N = 1600;
+const lodP = new THREE.Vector3(), lodC = new THREE.Vector3();
+planets.forEach(pm=>{
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(LOCAL_N*3), 3));
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({color:0xff2b2b, transparent:true, opacity:pm.data.dwarf ? 0.28 : 0.22, depthWrite:false}));
+  l.frustumCulled = false; l.visible = false; scene.add(l); pm.localLine = l;
+});
+function lodDist2(el, E){ orbitPoint(el, E, lodP); return lodP.distanceToSquared(camFocus); }
+function updateOrbitLOD(){
+  const on = orbitsVisible && !intro && !surf;
+  planets.forEach(pm=>{
+    const l = pm.localLine, el = pm.el;
+    if(!on){ l.visible = false; return; }
+    if(camRadius > el.a*AU_U*0.05){ l.visible = false; pm.line.visible = true; return; }
+    const S = 720; let bestE = 0, best = Infinity;
+    for(let k=0;k<S;k++){ const d = lodDist2(el, k/S*TWO_PI); if(d < best){ best = d; bestE = k/S*TWO_PI; } }
+    let lo = bestE - TWO_PI/S, hi = bestE + TWO_PI/S;
+    for(let it=0;it<40;it++){ const m1 = lo+(hi-lo)/3, m2 = hi-(hi-lo)/3; if(lodDist2(el,m1) < lodDist2(el,m2)) hi = m2; else lo = m1; }
+    const E0 = (lo+hi)/2;
+    if(Math.sqrt(lodDist2(el, E0)) > camRadius*30){ l.visible = false; pm.line.visible = true; return; }
+    orbitPoint(el, E0, lodC); orbitPoint(el, E0+1e-4, lodP);
+    const speed = lodP.distanceTo(lodC)/1e-4;
+    const dE = Math.min(Math.PI, camRadius*30/Math.max(speed, 1e-9));
+    const arr = l.geometry.attributes.position.array;
+    for(let j=0;j<LOCAL_N;j++){
+      orbitPoint(el, E0 - dE + 2*dE*j/(LOCAL_N-1), lodP);
+      arr[j*3] = lodP.x - lodC.x; arr[j*3+1] = lodP.y - lodC.y; arr[j*3+2] = lodP.z - lodC.z;
+    }
+    l.geometry.attributes.position.needsUpdate = true;
+    l.position.copy(lodC); l.visible = true; pm.line.visible = false;
+  });
+}
+
 // ---------- KEYBOARD ----------
+
 window.addEventListener('keydown', e=>{
   if(intro){ skipIntro(); return; }
   const el = e.target, tag = el && el.tagName;
@@ -2019,12 +2138,14 @@ window.addEventListener('keydown', e=>{
   if(e.key==='Escape'){
     if(tour.active){ closeTour(); return; }
     if(flight){ endFlight(false); return; }
+    if(surf){ exitSurface(); return; }
     if(locked) deselect();
     return;
   }
   if(typing) return;                                     // never while typing in the date field
   if(e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
   const k = e.key;
+  if(surf && !(k===' ' || k==='Spacebar' || k==='h' || k==='H' || k==='r' || k==='R')) return;
   if(k===' ' || k==='Spacebar'){
     e.preventDefault();                       // no page scroll, and no re-press of the button that was clicked last
     if(tag==='BUTTON') el.blur();
@@ -2135,7 +2256,25 @@ function updateScreenSpace(){
       u.uCam.value.copy(camera.position).sub(pm.wp).applyQuaternion(tmpInv);
     }
   });
-  moons.forEach(m=>{ m.orbitLine.visible = m.parent.inRange && orbitsVisible; });
+  moons.forEach(m=>{ m.orbitLine.visible = m.parent.inRange && orbitsVisible && !surf; });
+
+  // bodies big enough on screen to hide something that sits behind them (the Sun, planets, moons)
+  const occ = bodies.filter(o=>o.kind!=='craft' && o.discPx > 1.5 && !(o.kind==='moon' && !o.parent.inRange));
+  const cp = camera.position;
+  function hiddenBehind(b){
+    const L = b.dist; if(!(L > 0)) return false;
+    const ux = (b.wp.x-cp.x)/L, uy = (b.wp.y-cp.y)/L, uz = (b.wp.z-cp.z)/L;
+    for(let k=0;k<occ.length;k++){
+      const o = occ[k]; if(o === b) continue;
+      const cx = o.wp.x-cp.x, cy = o.wp.y-cp.y, cz = o.wp.z-cp.z;
+      const t = cx*ux + cy*uy + cz*uz; if(t <= 0) continue;
+      const d2 = cx*cx + cy*cy + cz*cz - t*t, r2 = o.rad*o.rad;
+      if(d2 >= r2) continue;
+      const entry = t - Math.sqrt(r2 - d2);           // where the line of sight first meets the sphere
+      if(entry > 0 && entry < L) return true;
+    }
+    return false;
+  }
 
   // labels: highest priority first; skip any that would overlap one already placed
   labelRects.length = 0;
@@ -2145,6 +2284,7 @@ function updateScreenSpace(){
     if(seen.has(b)) return; seen.add(b);
     let ok = !b.hidden;
     if(b.kind==='moon' && !b.parent.inRange) ok = false;
+    if(ok && hiddenBehind(b)) ok = false;            // behind the Sun or a planet: no name
     let sx=0, sy=0, x=0, y=0;
     if(ok){
       tmpVec.copy(b.wp).project(camera);
@@ -2182,10 +2322,12 @@ function animate(){
   updatePositions(dt);
   sunMat.uniforms.uTime.value = performance.now()/1000;
   sunCorona.material.rotation += dt*0.012;
-  sunCorona.scale.setScalar(SUN_CORONA_SIZE*(1 + 0.015*Math.sin(performance.now()/900)));
+  sunCorona.scale.setScalar(SUN_CORONA_SIZE*sunGlare*(1 + 0.015*Math.sin(performance.now()/900)));
+  sunHalo.scale.setScalar(sunRadius*20*sunGlare);
 
   if(intro) stepIntro(dt);
   else if(flight) stepFlight(dt);
+  else if(surf){ /* the camera is placed on the surface below */ }
   else if(follow){
     // camera follows the followed body exactly (it moves thousands of units per second here); lockOffset decays so a change of target is a smooth glide
     lockOffset.multiplyScalar(Math.pow(0.85, dt*60));
@@ -2195,7 +2337,7 @@ function animate(){
     if(glideRelease && lockOffset.lengthSq() === 0){ follow = null; glideRelease = false; }
   }
 
-  updateCamera();
+  if(surf) surfaceCamera(); else { updateCamera(); updateOrbitLOD(); }
   starPoints.position.copy(camera.position);
   starPoints.scale.setScalar(Math.max(1, camera.near*3/2200));   // keep the star shell beyond the near plane when zoomed far out
   updateScreenSpace();

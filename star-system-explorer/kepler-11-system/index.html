@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kepler-11 System in 3D — Six Planets Packed Inside Mercury's Orbit | rameshverse</title>
+<meta name="description" content="Explore the Kepler-11 planetary system in 3D: six planets in a flat, tightly packed orbit around a Sun-like star about 2,100 light-years away. Real orbits, periods and habitable zone. Free.">
+<link rel="canonical" href="https://rameshverse.com/star-system-explorer/kepler-11-system/">
+<meta name="theme-color" content="#08090b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="rameshverse">
+<meta property="og:title" content="Kepler-11 System in 3D — six planets packed inside Mercury's orbit">
+<meta property="og:description" content="Fly around Kepler-11 and its six planets. Real orbits, year lengths and habitable zone.">
+<meta property="og:url" content="https://rameshverse.com/star-system-explorer/kepler-11-system/">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="../shared/style.css">
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Kepler-11 System in 3D","url":"https://rameshverse.com/star-system-explorer/kepler-11-system/",
+ "description":"Interactive 3D model of the Kepler-11 planetary system: six planets orbiting a Sun-like star about 2,100 light-years away.",
+ "isPartOf":{"@type":"CollectionPage","name":"Star System Explorer","url":"https://rameshverse.com/star-system-explorer/"},
+ "about":{"@type":"Thing","name":"Kepler-11"}}
+</script>
+</head>
+<body data-json="kepler-11.json">
+
+<main>
+<section class="viewer" id="viewer" aria-label="Interactive 3D model of the Kepler-11 system">
+  <canvas id="gl" aria-label="3D view of the Kepler-11 star and its six planets"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <header class="top">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../"><span class="ar">←</span> STAR SYSTEM EXPLORER</a></nav>
+    <div class="title"><h1>Kepler-11 System</h1><p id="sysStars">KEPLER-11</p><p class="disc" title="Orbits, sizes, masses, year lengths and temperatures are rounded from published values and worked out with simple models. Treat them as estimates.">⚠ ALL FIGURES ARE ESTIMATES</p></div>
+  </header>
+
+  <aside class="panel" aria-label="Bodies in this system">
+    <div class="phead"><span>BODIES</span><b id="listCount"></b></div>
+    <div id="planetList"></div>
+  </aside>
+
+  <aside class="card" id="infoCard" hidden aria-live="polite"></aside>
+
+  <div class="hint">DRAG ROTATE · SCROLL ZOOM · TAP A PLANET OR PICK ONE FROM THE LIST</div>
+
+  <div class="controls">
+    <div class="grp"><button class="b go" id="bPlay" type="button">❚❚ PAUSE</button>
+      <label class="spd" for="speed"><span>SPEED</span><input id="speed" type="range" min="-1.3" max="1.7" step="0.01" value="0" aria-label="Simulation speed"><b id="speedVal">1×</b></label></div>
+    <span id="timeReadout"></span>
+    <div class="grp"><button class="b" type="button" data-view="top">TOP</button><button class="b" type="button" data-view="angled">ANGLED</button><button class="b" type="button" data-view="edge" title="Edge-on, the way transit telescopes see it">EDGE-ON</button><button class="b" id="bReset" type="button">⟲ RESET</button></div>
+    <div class="grp"><button class="b" id="tSpin" type="button" title="Slowly spin the camera around the system (A)">AUTO-SPIN</button><button class="b" id="tOrbits" type="button">ORBITS</button><button class="b" id="tLabels" type="button">LABELS</button><button class="b" id="tHZ" type="button">HAB. ZONE</button><button class="b" id="tSolar" type="button" title="Overlay the orbits of Mercury, Venus and Earth">SOLAR SYSTEM</button><button class="b" id="tScale" type="button" title="TRUE: real distances and real sizes (planets are tiny, so tap one to zoom in). STYLIZED: log-spaced orbits and enlarged bodies.">SCALE: TRUE</button><a class="b" href="#about">ABOUT ↓</a></div>
+  </div>
+
+  <div id="loading">LOADING SYSTEM</div>
+  <noscript><p style="position:absolute;z-index:10;top:40%;left:0;right:0;text-align:center;color:#d9dde0;font-size:12px">This 3D view needs JavaScript. Kepler-11 has six planets, five of them closer to their star than Mercury is to the Sun.</p></noscript>
+</section>
+
+<section class="about" id="about" aria-labelledby="aboutTitle">
+  <div class="sec-tag">ABOUT THIS SYSTEM</div>
+  <h2 id="aboutTitle">Kepler-11: a packed, flat system</h2>
+  <ul class="facts">
+    <li><b>~2,100 ly</b><span>DISTANCE</span></li>
+    <li><b>6</b><span>CONFIRMED PLANETS</span></li>
+    <li><b>2011</b><span>ANNOUNCED</span></li>
+    <li><b>Transit</b><span>DISCOVERY METHOD</span></li>
+  </ul>
+  <p>Kepler-11 is a Sun-like star in the constellation Cygnus. NASA's Kepler space telescope found six planets around it by watching for tiny dips in its light as each planet passed in front. The discovery was announced in 2011, and it was the first known system with six transiting planets.</p>
+  <p>Five of the planets (b to f) orbit closer to the star than Mercury does to our Sun. Their years last from about 10 to 47 days. The sixth, Kepler-11 g, orbits a little farther out than Mercury. Their masses are low for their size, which suggests the bigger ones are wrapped in thick envelopes of light gas rather than being solid rock.</p>
+  <p>The orbits lie almost exactly in one plane, seen almost edge-on from Earth, which is why we can see all six transits. Use <b>EDGE-ON</b> to see the system the way Kepler did, and <b>SOLAR SYSTEM</b> to lay Mercury, Venus and Earth's orbits over it. Everything is drawn to true scale by default, so the planets are tiny next to their orbits: tap one in the list to fly to it. Switch SCALE to STYLIZED for a spread-out view with enlarged bodies.</p>
+  <div class="more"><a href="../#systems">← ALL SYSTEMS</a><a href="/star-system-creator">BUILD YOUR OWN SYSTEM →</a><a href="/solar-system-simulator">SOLAR SYSTEM SIMULATOR →</a></div>
+</section>
+</main>
+
+<footer><b>Figures are estimates.</b> Orbits, sizes, masses and year lengths are rounded from published discovery papers and worked out with simple models; real values carry uncertainties, and some planet properties are inferred. Temperatures are equilibrium estimates with no atmosphere, and planet colours and surfaces are artistic. Habitable zone uses a simple flux model (0.53–1.1× the light Earth receives), the same one as the Star System Creator. Planet temperatures are equilibrium estimates. <a href="https://rameshverse.com/">← RAMESHVERSE</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/engine.js"></script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+
+<script src="/tools-data.js"></script>
+<script src="/related-modules.js"></script>
+
+</body>
+</html>
