@@ -29,7 +29,7 @@
     --bg:#050608;
     --panel:#0a0c10;
     --text:#d8dde3;
-    --dim:#5a6270;
+    --dim:#7a8494;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{
@@ -90,11 +90,11 @@
   }
   /* paused: the date readout turns red and says so */
   #clock.paused{color:var(--red);text-shadow:0 0 8px var(--red-dim);}
-  #hint .keys{display:block;margin-top:5px;opacity:.85;}
-  #hint kbd{font-family:inherit;font-size:9px;color:var(--text);border:1px solid var(--dim);padding:0 4px;margin-right:3px;}
 
-  /* top HUD body-select bar — no panel background, just floating buttons */
+  /* top HUD: one row of the Sun + planets, a search drawer for everything else, and a moons row that only appears when it is relevant */
+  body.has-panel #top-controls{padding-right:410px;}
   #top-controls{
+  transition:padding .25s ease;
     position:fixed;top:52px;left:0;right:0;z-index:56;
     display:flex;flex-direction:column;align-items:center;gap:8px;
     pointer-events:none;
@@ -109,49 +109,96 @@
   }
   .body-row::-webkit-scrollbar{height:3px;}
   .body-row::-webkit-scrollbar-thumb{background:var(--red-dim);}
-  .body-row .btn{padding:5px 8px;font-size:9px;}
-  .body-row .row-tag{font-size:8px;letter-spacing:2px;color:var(--dim);opacity:.7;padding-right:2px;white-space:nowrap;flex:none;}
-  #moons-row .btn,#small-row .btn{font-size:8.5px;padding:4px 7px;}
+  .body-row .btn{padding:8px 11px;font-size:10.5px;}
+  .body-row .row-tag{font-size:9px;letter-spacing:2px;color:var(--dim);opacity:.85;padding-right:2px;white-space:nowrap;flex:none;}
+  #moons-row{display:none;}
+  #moons-row.show{display:flex;}
+  #moons-row .btn{font-size:10px;padding:6px 9px;}
   .btn.moon{border-color:rgba(255,255,255,.18);}
   #planet-buttons{display:contents;}
-  #sim-row{
-    display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;
-    pointer-events:auto;
-    max-width:100%;
-  }
   .btn{
-    background:transparent;
+    background:rgba(5,6,8,.55);
     border:1px solid var(--dim);
     color:var(--text);
     font-family:'Space Mono',monospace;
-    font-size:10px;
+    font-size:11px;
     letter-spacing:1px;
-    padding:7px 11px;
+    padding:8px 12px;
     cursor:pointer;
     transition:.15s;
     white-space:nowrap;
   }
   .btn:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 8px var(--red-dim);}
   .btn.active{border-color:var(--red);color:var(--red);background:rgba(255,43,43,0.08);}
-  .btn.dwarf{border-style:dashed;color:var(--dim);opacity:.85;}
-  .btn.dwarf:hover{color:var(--red);}
-  .btn.dwarf.active{color:var(--red);}
   #btn-reset{border-color:var(--red);color:var(--red);}
   #btn-reset:hover{box-shadow:0 0 10px var(--red-dim);}
 
-  #speedwrap{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--dim);letter-spacing:1px;}
-  #speed{-webkit-appearance:none;width:110px;height:2px;background:var(--dim);outline:none;}
-  #speed::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--red);cursor:pointer;box-shadow:0 0 6px var(--red);}
-  /* Firefox: same red square thumb and thin track as the other browsers */
-  #speed::-moz-range-thumb{width:10px;height:10px;background:var(--red);border:none;border-radius:0;cursor:pointer;box-shadow:0 0 6px var(--red);}
-  #speed::-moz-range-track{height:2px;background:var(--dim);}
+  /* every body on screen at once (about three rows), colour-coded by kind */
+  #bodies-row{flex-wrap:wrap;justify-content:center;overflow:visible;max-width:min(940px,100%);row-gap:6px;}
+  .btn.k-star{--c:#ffb347;}
+  .btn.k-planet{--c:#6fd3ff;}
+  .btn.k-dwarf{--c:#b69cff;}
+  .btn.k-distant{--c:#6be3a3;}
+  .btn.k-craft{--c:#ff8fcf;}
+  .body-btn[class*="k-"]{color:var(--c);border-color:color-mix(in srgb, var(--c) 55%, transparent);}
+  .body-btn[class*="k-"]:hover{border-color:var(--c);color:#fff;box-shadow:0 0 8px color-mix(in srgb, var(--c) 50%, transparent);}
+  .body-btn[class*="k-"].active{background:var(--c);border-color:var(--c);color:#050608;box-shadow:0 0 10px color-mix(in srgb, var(--c) 60%, transparent);}
+  #cat-row{flex-wrap:wrap;justify-content:center;overflow:visible;}
+  #cat-open-row{display:none;flex-wrap:wrap;justify-content:center;overflow:visible;row-gap:6px;max-width:min(940px,100%);}
+  #cat-open-row.show{display:flex;}
+  .cat-btn{color:var(--c);border-color:color-mix(in srgb, var(--c) 55%, transparent);border-style:dashed;}
+  .cat-btn .n{opacity:.6;}
+  .cat-btn .car{display:inline-block;transition:transform .15s;}
+  .cat-btn:hover{border-color:var(--c);color:#fff;}
+  .cat-btn.active{color:var(--c);border-style:solid;border-color:var(--c);background:color-mix(in srgb, var(--c) 18%, transparent);}
+  .cat-btn.active .car{transform:rotate(180deg);}
+  #legend{
+    position:fixed;left:20px;bottom:112px;z-index:56;pointer-events:none;
+    display:flex;flex-direction:column;gap:5px;transition:opacity .5s;
+    font-size:9px;letter-spacing:1.5px;color:var(--dim);
+  }
+  #legend .lg{display:flex;align-items:center;gap:8px;}
+  #legend .lg i{width:9px;height:9px;border:1px solid var(--c,rgba(255,255,255,.5));background:var(--c,transparent);flex:none;}
+  #legend .lg span{color:var(--text);opacity:.85;}
+  #legend .lg b{font-weight:400;opacity:.65;margin-left:auto;padding-left:8px;}
+  #legend .lg.k-star{--c:#ffb347;} #legend .lg.k-planet{--c:#6fd3ff;} #legend .lg.k-dwarf{--c:#b69cff;}
+  #legend .lg.k-distant{--c:#6be3a3;} #legend .lg.k-craft{--c:#ff8fcf;}
+  #legend .moonlg i{background:transparent;border-color:rgba(255,255,255,.4);}
 
-  /* info panel */
+  /* bottom dock: time controls + view controls */
+  #dock{
+    position:fixed;left:50%;bottom:52px;transform:translateX(-50%);z-index:57;
+    display:flex;flex-wrap:wrap;gap:8px 12px;justify-content:center;align-items:center;
+    width:max-content;max-width:calc(100vw - 24px);
+    transition:opacity .5s;
+  }
+  .dock-group{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;
+    background:rgba(8,9,12,.62);border:1px solid #ffffff14;padding:6px 8px;
+    backdrop-filter:blur(6px);
+  }
+  #dock-toggle{display:none;}
+  #speedwrap{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--dim);letter-spacing:1px;}
+  #speed{-webkit-appearance:none;width:110px;height:2px;background:var(--dim);outline:none;}
+  #speed::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--red);cursor:pointer;box-shadow:0 0 6px var(--red);}
+  /* Firefox: same red square thumb and thin track as the other browsers */
+  #speed::-moz-range-thumb{width:12px;height:12px;background:var(--red);border:none;border-radius:0;cursor:pointer;box-shadow:0 0 6px var(--red);}
+  #speed::-moz-range-track{height:2px;background:var(--dim);}
+  #speed-val{min-width:64px;color:var(--text);letter-spacing:1px;}
+  #date-input{
+    background:transparent;border:1px solid var(--dim);color:var(--text);
+    font-family:inherit;font-size:11px;padding:7px 8px;letter-spacing:1px;color-scheme:dark;
+  }
+  #date-input:hover,#date-input:focus{border-color:var(--red);outline:none;}
+
+  /* info panel: Terminator-style target readout */
   #panel{
-    position:fixed;top:184px;right:20px;width:280px;max-height:calc(100vh - 200px);overflow-y:auto;
-    background:rgba(8,9,12,0.88);
+    --c:#6fd3ff;
+    position:fixed;top:52px;right:20px;width:366px;max-height:calc(100vh - 168px);
+    display:flex;flex-direction:column;overflow:hidden;
+    background:linear-gradient(180deg,rgba(20,6,8,.92),rgba(7,8,11,.93) 38%);
     border:1px solid var(--red-dim);
-    padding:0;
+    box-shadow:0 0 24px rgba(255,43,43,.10), inset 0 0 40px rgba(255,43,43,.05);
     z-index:58;
     opacity:0;
     transform:translateX(20px);
@@ -160,18 +207,68 @@
     backdrop-filter:blur(8px);
   }
   #panel.show{opacity:1;transform:translateX(0);pointer-events:auto;}
-  #panel-head{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:10px 14px;border-bottom:1px solid var(--red-dim);
+  /* corner brackets + faint scan lines + a slow sweep */
+  #panel::before{
+    content:'';position:absolute;inset:0;pointer-events:none;z-index:3;
+    background:
+      linear-gradient(var(--red),var(--red)) top left/14px 2px no-repeat,
+      linear-gradient(var(--red),var(--red)) top left/2px 14px no-repeat,
+      linear-gradient(var(--red),var(--red)) top right/14px 2px no-repeat,
+      linear-gradient(var(--red),var(--red)) top right/2px 14px no-repeat,
+      linear-gradient(var(--red),var(--red)) bottom left/14px 2px no-repeat,
+      linear-gradient(var(--red),var(--red)) bottom left/2px 14px no-repeat,
+      linear-gradient(var(--red),var(--red)) bottom right/14px 2px no-repeat,
+      linear-gradient(var(--red),var(--red)) bottom right/2px 14px no-repeat;
   }
-  #panel-name{color:var(--red);font-weight:700;font-size:14px;letter-spacing:2px;}
-  #panel-close{cursor:pointer;color:var(--dim);font-size:14px;}
+  #panel::after{
+    content:'';position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;z-index:2;
+    background:linear-gradient(180deg,transparent,rgba(255,43,43,.07),transparent);
+    animation:panelSweep 5s linear infinite;
+  }
+  @keyframes panelSweep{0%{transform:translateY(-100px);}100%{transform:translateY(520px);}}
+  #panel-head{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex:none;
+    padding:14px 16px 12px;border-bottom:1px solid var(--red-dim);
+    background:linear-gradient(90deg,rgba(255,43,43,.14),transparent 75%);
+  }
+  #panel-acq{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:3px;color:var(--red);opacity:.9;}
+  #panel-acq i{width:6px;height:6px;background:var(--red);box-shadow:0 0 8px var(--red);animation:acqBlink 1.1s steps(2,end) infinite;}
+  @keyframes acqBlink{50%{opacity:.15;}}
+  #panel-title{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:6px;}
+  #panel-name{color:#fff;font-weight:700;font-size:21px;letter-spacing:3px;text-shadow:0 0 12px rgba(255,43,43,.45);line-height:1.15;}
+  #panel-tag{
+    display:inline-block;padding:2px 8px;font-size:9.5px;letter-spacing:2px;
+    color:var(--c);border:1px solid var(--c);background:color-mix(in srgb, var(--c) 12%, transparent);
+  }
+  #panel-close{cursor:pointer;color:var(--dim);font-size:15px;padding:2px 6px;flex:none;}
   #panel-close:hover{color:var(--red);}
-  #panel-body{padding:12px 14px;font-size:11px;line-height:1.9;}
-  .row{display:flex;justify-content:space-between;border-bottom:1px dashed #ffffff12;padding:3px 0;}
-  .row .k{color:var(--dim);letter-spacing:1px;}
-  .row .v{color:var(--text);text-align:right;}
-  #panel-desc{margin-top:10px;font-size:10.5px;color:var(--dim);line-height:1.7;}
+  #panel-body{padding:4px 16px 16px;font-size:12px;line-height:1.5;overflow-y:auto;flex:1;position:relative;z-index:1;scrollbar-width:thin;scrollbar-color:var(--red-dim) transparent;}
+  #panel-body::-webkit-scrollbar{width:4px;}
+  #panel-body::-webkit-scrollbar-thumb{background:var(--red-dim);}
+  .sec{display:flex;align-items:center;gap:10px;margin:16px 0 4px;font-size:9.5px;letter-spacing:3px;color:var(--red);}
+  .sec::before{content:'▸';font-size:9px;}
+  .sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--red-dim),transparent);}
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:1px solid #ffffff0d;padding:6px 0;}
+  .row .k{color:var(--dim);letter-spacing:1.2px;font-size:10px;white-space:nowrap;}
+  .row .v{color:#f1f4f9;text-align:right;font-size:12px;letter-spacing:.2px;}
+  .row.live .v{color:#ffd9d9;text-shadow:0 0 8px rgba(255,43,43,.4);}
+  #panel-brief .sec{margin-top:14px;}
+  #panel-desc{
+    position:relative;margin-top:8px;padding:11px 12px 11px 16px;font-size:12px;color:#ffc9c9;line-height:1.75;
+    min-height:64px;letter-spacing:.3px;
+    border:1px solid var(--red-dim);border-left:3px solid var(--red);
+    background:linear-gradient(90deg,rgba(255,43,43,.12),rgba(255,43,43,.03));
+    text-shadow:0 0 6px rgba(255,43,43,.35);
+  }
+  #panel-desc::before{content:'> ';position:absolute;left:5px;top:11px;color:var(--red);}
+  #panel-desc .cur{display:inline-block;width:7px;height:12px;margin-left:2px;vertical-align:-1px;background:var(--red);box-shadow:0 0 8px var(--red);animation:acqBlink .8s steps(2,end) infinite;}
+  #btn-fly{
+    width:100%;margin-top:16px;padding:12px 10px;border-color:var(--red);color:var(--red);
+    letter-spacing:2px;font-size:11px;background:#1a090c;
+    position:sticky;bottom:0;z-index:2;box-shadow:0 -10px 12px -4px rgba(7,8,11,.95);
+  }
+  #btn-fly span{font-size:9px;margin-right:6px;}
+  #btn-fly:hover{box-shadow:0 0 14px var(--red-dim);background:rgba(255,43,43,.16);color:#fff;}
 
   /* target reticle for locked planet - drawn via canvas overlay div */
   #reticle{
@@ -190,14 +287,18 @@
   #reticle .tick.r{right:-10px;top:50%;height:1px;width:8px;transform:translateY(-50%);}
 
   #hint{
-    position:fixed;bottom:70px;left:50%;transform:translateX(-50%);
+    position:fixed;bottom:156px;left:50%;transform:translateX(-50%);
     font-size:10px;color:var(--dim);letter-spacing:1px;z-index:56;
-    text-align:center;
+    text-align:center;width:max-content;max-width:calc(100vw - 30px);
+    pointer-events:none;transition:opacity .8s;
   }
+  #hint.fade{opacity:0;}
+  #hint .keys{display:block;margin-top:5px;opacity:.9;}
+  #hint kbd{font-family:inherit;font-size:9.5px;color:var(--text);border:1px solid var(--dim);padding:0 4px;margin-right:3px;}
   #scale-note{
     position:fixed;bottom:20px;left:20px;
-    font-size:9px;color:var(--dim);letter-spacing:1px;z-index:56;
-    opacity:.7;pointer-events:none;max-width:300px;
+    font-size:9.5px;color:var(--dim);letter-spacing:1px;z-index:56;
+    opacity:.85;pointer-events:none;max-width:300px;transition:opacity .5s;
   }
   #watermark{
     position:fixed;bottom:8px;left:50%;transform:translateX(-50%);
@@ -219,34 +320,116 @@
   #loading .txt{font-size:11px;letter-spacing:3px;color:var(--dim);}
 
   /* name labels (HTML overlay) */
-  #labels{position:fixed;inset:0;pointer-events:none;z-index:54;overflow:hidden;}
+  #labels{position:fixed;inset:0;pointer-events:none;z-index:54;overflow:hidden;transition:opacity .6s;}
   .lbl{
     position:absolute;left:0;top:0;display:none;
-    font-size:9px;letter-spacing:1.2px;color:#cfd5dc;opacity:.92;
-    padding:1px 3px;white-space:nowrap;cursor:pointer;pointer-events:auto;
+    font-size:10px;letter-spacing:1.2px;color:#cfd5dc;opacity:.92;
+    padding:2px 3px;white-space:nowrap;cursor:pointer;pointer-events:auto;
     text-shadow:0 0 4px #000,0 0 2px #000,0 0 8px #000;will-change:transform;
   }
   .lbl:hover{color:var(--red);}
-  .lbl.dwarf{color:#8d95a1;}
-  .lbl.moon{color:#9aa3ae;font-size:8px;letter-spacing:1px;}
+  .lbl.dwarf{color:#9aa2ae;}
+  .lbl.moon{color:#a8b0ba;font-size:9px;letter-spacing:1px;}
+  .lbl.craft{color:#8fd3ff;font-size:9.5px;}
   .lbl.sel{color:var(--red);}
-  #speed-val{min-width:64px;color:var(--text);letter-spacing:1px;}
   #scalebar{
     position:fixed;right:40px;bottom:22px;z-index:56;text-align:center;
-    font-size:9px;letter-spacing:1px;color:var(--dim);pointer-events:none;
+    font-size:9.5px;letter-spacing:1px;color:var(--dim);pointer-events:none;transition:opacity .5s;
   }
   #scalebar .bar{height:6px;border:1px solid var(--dim);border-top:none;margin:4px auto 0;}
 
+  /* cinematic intro */
+  #caption{
+    position:fixed;left:50%;bottom:20%;transform:translateX(-50%);z-index:70;
+    text-align:center;pointer-events:none;opacity:0;transition:opacity .7s;
+    max-width:92vw;
+  }
+  #caption.on{opacity:1;}
+  #caption .c1{font-size:22px;letter-spacing:6px;color:#fff;text-shadow:0 0 18px #000,0 0 6px #000;}
+  #caption .c2{margin-top:8px;font-size:11px;letter-spacing:3px;color:var(--red);text-shadow:0 0 10px #000;}
+  #btn-skip-intro{display:none;position:fixed;right:24px;bottom:56px;z-index:80;}
+  body.intro #top-controls, body.intro #legend, body.intro #dock, body.intro #hint, body.intro #scale-note,
+  body.intro #scalebar, body.intro #clock{opacity:0;pointer-events:none;}
+  body.intro #top-controls *, body.intro #dock *{pointer-events:none;}
+
+  /* light-speed flight */
+  #flight-hud{
+    position:fixed;left:50%;bottom:52px;transform:translateX(-50%);z-index:60;
+    min-width:min(460px,calc(100vw - 24px));text-align:center;
+    background:rgba(8,9,12,.82);border:1px solid var(--red-dim);padding:12px 16px;
+    backdrop-filter:blur(8px);display:none;
+  }
+  #flight-hud.show{display:block;}
+  #fl-title{font-size:11px;letter-spacing:3px;color:var(--red);}
+  #fl-time{font-size:26px;letter-spacing:2px;margin:6px 0 2px;color:#fff;}
+  #fl-dist{font-size:11px;color:var(--dim);letter-spacing:1px;}
+  .fl-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:10px;}
+  #fl-warp{font-size:10.5px;color:var(--dim);letter-spacing:1px;margin-right:4px;}
+  #fl-real.active{border-color:var(--red);color:var(--red);}
+  body.flying #dock, body.flying #hint, body.flying #legend{opacity:0;pointer-events:none;}
+
+  /* first-visit tour */
+  #tour-hl{
+    position:fixed;z-index:89;display:none;pointer-events:none;
+    border:2px solid var(--red);box-shadow:0 0 0 9999px rgba(0,0,0,.55),0 0 16px var(--red-dim);
+    transition:left .25s,top .25s,width .25s,height .25s;
+  }
+  #tour{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:90;
+    width:min(430px,calc(100vw - 28px));
+    background:rgba(8,9,12,.96);border:1px solid var(--red);padding:16px 18px;
+    display:none;box-shadow:0 0 30px rgba(255,43,43,.18);
+  }
+  #tour.show{display:block;}
+  #tour .tn{font-size:10px;letter-spacing:2px;color:var(--dim);}
+  #tour .tt{margin:6px 0 8px;font-size:14px;letter-spacing:2px;color:var(--red);font-weight:700;}
+  #tour .tb{font-size:12px;line-height:1.75;color:var(--text);}
+  #tour .tbtn{display:flex;justify-content:space-between;gap:10px;margin-top:14px;}
+
+  #toast{
+    position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:95;
+    background:rgba(8,9,12,.92);border:1px solid var(--red-dim);color:var(--text);
+    font-size:11px;letter-spacing:1.5px;padding:9px 14px;opacity:0;pointer-events:none;transition:opacity .3s;
+    max-width:calc(100vw - 24px);text-align:center;
+  }
+  #toast.on{opacity:1;}
+
+  /* H: hide the whole HUD for clean screen recordings */
+  body.hud-hidden #topbar, body.hud-hidden #top-controls, body.hud-hidden #panel,
+  body.hud-hidden #hint, body.hud-hidden #legend, body.hud-hidden #scale-note, body.hud-hidden #scalebar, body.hud-hidden #watermark,
+  body.hud-hidden #dock, body.hud-hidden #labels, body.hud-hidden #reticle, body.hud-hidden .corner,
+  body.hud-hidden #scanlines, body.hud-hidden #vignette, body.hud-hidden #flight-hud{opacity:0 !important;pointer-events:none !important;}
+  #btn-showhud{display:none;position:fixed;right:18px;top:18px;z-index:80;opacity:.28;}
+  #btn-showhud:hover{opacity:1;}
+  body.hud-hidden #btn-showhud{display:block;}
+
+  input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.8);cursor:pointer;}
+
   @media(max-width:640px){
-    #panel{width:calc(100vw - 40px);right:20px;top:64px;}
+    body.has-panel #top-controls{padding-right:14px;}
+    #panel{width:calc(100vw - 24px);right:12px;top:262px;max-height:calc(100vh - 262px - 130px);}
     #topbar{padding:14px 18px;}
     #logo{font-size:10px;letter-spacing:1px;}
     #clock{display:none;}
-    #hint{display:none;}
-    #scale-note{bottom:16px;left:18px;max-width:200px;}
+    #hint .keys{display:none;}
+    #hint{bottom:128px;}
+    #scale-note{bottom:16px;left:18px;max-width:170px;}
     #scalebar{right:18px;bottom:16px;}
     #speed-val{display:none;}
+    .btn{font-size:11px;padding:10px 12px;}
+    .body-row .btn{padding:6px 7px;font-size:9.5px;letter-spacing:.5px;}
+    #bodies-row{gap:4px;row-gap:4px;}
+    #legend{display:none;}
+    #moons-row .btn{padding:8px 10px;}
+    #dock{bottom:58px;width:calc(100vw - 20px);}
+    #dock-toggle{display:inline-block;}
+    #dock .dock-group{display:none;}
+    #dock.open .dock-group{display:flex;}
+    #flight-hud{bottom:58px;}
+    #caption .c1{font-size:17px;letter-spacing:4px;}
+    #btn-skip-intro{right:14px;bottom:70px;}
   }
+
 </style>
 </head>
 <body>
@@ -269,19 +452,10 @@
 </div>
 
 <div id="top-controls">
-  <div class="body-row" id="bodies-row">
-    <button class="btn" id="btn-sun">SUN</button>
-    <div id="planet-buttons"></div>
-  </div>
-  <div class="body-row" id="small-row"><span class="row-tag">DISTANT</span></div>
-  <div class="body-row" id="moons-row"><span class="row-tag">MOONS</span></div>
-  <div id="sim-row">
-    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="26"><span id="speed-val"></span></div>
-    <button class="btn" id="btn-pause" title="Pause / resume (Space)">PAUSE</button>
-    <button class="btn" id="btn-orbits" title="Show / hide orbit lines (O)">ORBITS: ON</button>
-    <button class="btn" id="btn-belts" title="Show / hide the asteroid and Kuiper belts (B)">BELTS: ON</button>
-    <button class="btn" id="btn-reset">RESET</button>
-  </div>
+  <div class="body-row" id="bodies-row"></div>
+  <div class="body-row" id="cat-row"></div>
+  <div class="body-row" id="cat-open-row"></div>
+  <div class="body-row" id="moons-row"></div>
 </div>
 
 <div id="canvas-wrap"></div>
@@ -289,7 +463,10 @@
 
 <div id="panel">
   <div id="panel-head">
-    <div id="panel-name">—</div>
+    <div id="panel-id">
+      <div id="panel-acq"><i></i>TARGET LOCKED</div>
+      <div id="panel-title"><div id="panel-name">—</div><div id="panel-tag"></div></div>
+    </div>
     <div id="panel-close">&#10005;</div>
   </div>
   <div id="panel-body"></div>
@@ -297,11 +474,62 @@
 
 <div id="reticle"><span class="tick top"></span><span class="tick bot"></span><span class="tick l"></span><span class="tick r"></span></div>
 
-<div id="hint">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK A NAME OR BUTTON TO FLY TO IT · CLICK EMPTY SPACE OR PRESS ESC TO DESELECT · RIGHT-DRAG / 2-FINGER TO PAN
-  <span class="keys">SHORTCUTS &nbsp; <kbd>SPACE</kbd>PAUSE / RESUME &nbsp; <kbd>O</kbd>ORBITS &nbsp; <kbd>B</kbd>BELTS &nbsp; <kbd>ESC</kbd>DESELECT</span></div>
+<div id="caption"></div>
+<button class="btn" id="btn-skip-intro">SKIP INTRO ▸</button>
+
+<div id="flight-hud">
+  <div id="fl-title">LIGHT FLIGHT</div>
+  <div id="fl-time">T+ 0.00 s</div>
+  <div id="fl-dist"></div>
+  <div class="fl-row">
+    <span id="fl-warp"></span>
+    <button class="btn" id="fl-real" title="Watch it at true 1:1 speed">REAL TIME</button>
+    <button class="btn" id="fl-slow">◀ SLOWER</button>
+    <button class="btn" id="fl-fast">FASTER ▶</button>
+    <button class="btn" id="fl-stop">STOP</button>
+  </div>
+</div>
+
+<div id="tour-hl"></div>
+<div id="tour">
+  <div class="tn" id="tour-n"></div>
+  <div class="tt" id="tour-t"></div>
+  <div class="tb" id="tour-b"></div>
+  <div class="tbtn">
+    <button class="btn" id="tour-skip">SKIP TOUR</button>
+    <button class="btn active" id="tour-next">NEXT ▸</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="hint">DRAG TO ROTATE · SCROLL / PINCH TO ZOOM · CLICK A BODY TO FLY TO IT
+  <span class="keys"><kbd>←</kbd><kbd>→</kbd>STEP THROUGH BODIES &nbsp; <kbd>SPACE</kbd>PAUSE &nbsp; <kbd>R</kbd>REVERSE &nbsp; <kbd>H</kbd>HIDE HUD &nbsp; <kbd>ESC</kbd>DESELECT</span></div>
+<div id="legend"></div>
 <div id="scale-note">TO SCALE — TRUE DISTANCES &amp; SIZES</div>
 <div id="scalebar"><div class="txt"></div><div class="bar"></div></div>
 <div id="watermark">rameshverse.com</div>
+
+<div id="dock">
+  <button class="btn" id="dock-toggle">⚙ CONTROLS</button>
+  <div class="dock-group" id="time-group">
+    <button class="btn" id="btn-rev" title="Run time backwards (R)">◀ REVERSE</button>
+    <button class="btn" id="btn-pause" title="Pause / resume (Space)">PAUSE</button>
+    <div id="speedwrap">SPEED <input type="range" id="speed" min="0" max="100" value="26"><span id="speed-val"></span></div>
+    <input type="date" id="date-input" min="1800-01-01" max="2100-12-31" title="Jump to any date, 1800–2100">
+    <button class="btn" id="btn-now" title="Jump back to today">NOW</button>
+  </div>
+  <div class="dock-group" id="view-group">
+    <button class="btn" id="btn-orbits" title="Show / hide orbit lines (O)">ORBITS: ON</button>
+    <button class="btn" id="btn-belts" title="Show / hide the asteroid and Kuiper belts (B)">BELTS: ON</button>
+    <button class="btn" id="btn-share" title="Copy a link to this exact view and date">SHARE</button>
+    <button class="btn" id="btn-hud" title="Hide the HUD for clean recordings (H)">HIDE HUD</button>
+    <button class="btn" id="btn-tour" title="Replay the quick tour">?</button>
+    <button class="btn" id="btn-reset">RESET</button>
+  </div>
+</div>
+<button class="btn" id="btn-showhud">SHOW HUD</button>
+
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -422,6 +650,40 @@ const MOONS = {
 };
 
 const SUN = {name:"SUN", radiusKm:SUN_R_KM, massKg:1.989e30, desc:"G-type main-sequence star. Contains 99.8% of the solar system's mass. Core temperature ~15 million °C."};
+
+// ---------- SMALL HELPERS ----------
+const $ = id => document.getElementById(id);
+const jdOfDate = s => Date.parse(s+'T00:00:00Z')/86400000 + 2440587.5;
+const dateOfJD = jd => new Date((jd-2440587.5)*86400000);
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const smooth = x => { x = clamp01(x); return x*x*(3-2*x); };
+
+// ---------- SPACECRAFT ----------
+// The five probes leaving the solar system coast in a straight line, so each is placed from a reference epoch:
+// heliocentric distance + speed (Heavens-Above / NASA Voyager mission status, mid-March 2026) and its J2000 sky position.
+// That is approximate (about ±1 AU: the sky position is seen from Earth, so there is a little parallax) but it is the real place in space.
+// JWST sits at the Sun–Earth L2 point, 1% farther from the Sun than Earth, on the line through the Sun and Earth.
+// Craft are drawn enlarged (a true-scale probe is far smaller than a pixel at any zoom) — the panel says so.
+const CRAFT_EPOCH = jdOfDate('2026-03-15');
+const CRAFT = [
+  {name:"VOYAGER 1", kind:"SPACECRAFT · INTERSTELLAR PROBE", color:0xffe9a8, dispKm:60, sizeNote:"3.7 m DISH", launch:"1977-09-05", good:[2011,2045],
+   ra:[17,16,0], dec:[12,17], r0:170.057, auYr:3.5686, speedKmS:16.92,
+   desc:"Launched in 1977 and now the most distant human-made object. It left the Sun's heliosphere in 2012 and keeps flying out at about 17 km/s — roughly 3.6 AU a year. Around mid-November 2026 it crosses one light-day from Earth: a radio signal takes a full day to reach it."},
+  {name:"VOYAGER 2", kind:"SPACECRAFT · INTERSTELLAR PROBE", color:0xffe9a8, dispKm:60, sizeNote:"3.7 m DISH", launch:"1977-08-20", good:[2011,2045],
+   ra:[20,12,0], dec:[-59,28], r0:142.333, auYr:3.219, speedKmS:15.26,
+   desc:"The only spacecraft to have visited all four giant planets. It entered interstellar space in 2018 and is heading out below the plane of the planets, towards the southern constellation Pavo."},
+  {name:"NEW HORIZONS", kind:"SPACECRAFT · KUIPER BELT PROBE", color:0xffe9a8, dispKm:60, sizeNote:"2.1 m DISH", launch:"2006-01-19", good:[2016,2040],
+   ra:[19,22,0], dec:[-20,5], r0:64.159, auYr:2.867, speedKmS:13.59,
+   desc:"Flew past Pluto in 2015 and the Kuiper Belt object Arrokoth in 2019, and is now coasting through the outer Kuiper Belt. Its sky position was measured from Earth at about 64 AU, so its direction here is good to roughly a degree."},
+  {name:"PIONEER 10", kind:"SPACECRAFT · SILENT PROBE", color:0xe9d7b0, dispKm:60, sizeNote:"2.7 m DISH", launch:"1972-03-03", good:[2011,2045],
+   ra:[5,11,0], dec:[25,57], r0:140.642, auYr:2.504, speedKmS:11.87,
+   desc:"The first spacecraft to cross the asteroid belt and to fly past Jupiter (1973). Contact was lost in 2003; it still coasts silently outward in the direction of Aldebaran, in Taurus."},
+  {name:"PIONEER 11", kind:"SPACECRAFT · SILENT PROBE", color:0xe9d7b0, dispKm:60, sizeNote:"2.7 m DISH", launch:"1973-04-06", good:[2011,2045],
+   ra:[18,57,0], dec:[-8,53], r0:118.126, auYr:2.348, speedKmS:11.13,
+   desc:"The first spacecraft to fly past Saturn (1979). Contact was lost in 1995; it is heading roughly towards the constellation Scutum."},
+  {name:"JWST", kind:"SPACE TELESCOPE · SUN–EARTH L2", color:0xf2c75c, dispKm:100, sizeNote:"21 m SUNSHIELD", launch:"2021-12-25", l2:true,
+   desc:"Parked near the Sun–Earth L2 point, about 1.5 million km beyond Earth on the side facing away from the Sun, so the Sun, Earth and Moon are always on the same side of its sunshield. It follows Earth around the Sun; its small orbit around the L2 point is not modelled."}
+];
 
 // ---------- ORBITAL MECHANICS ----------
 function makeElements(o){
@@ -550,9 +812,47 @@ scene.add(new THREE.AmbientLight(0x6a6a80, 0.8));
 const sunLight = new THREE.PointLight(0xfff2d0, 1.25, 2.5e6, 1.4);   // gentle enough that pale planets (Jupiter, Saturn) don't blow out to white
 scene.add(sunLight);
 
-// SUN
+// SUN — animated granulation shader with limb darkening, wrapped in an additive corona (streamers + halo).
 const sunRadius = 9.5;
-const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(sunRadius, 128, 96), new THREE.MeshBasicMaterial({color:0xffb020}));
+const sunMat = new THREE.ShaderMaterial({
+  uniforms:{ uTime:{value:0} },
+  vertexShader:`
+    varying vec3 vObj; varying vec3 vN; varying vec3 vV;
+    void main(){
+      vObj = position;
+      vN = normalize(normalMatrix * normal);
+      vec4 mv = modelViewMatrix * vec4(position,1.0);
+      vV = normalize(-mv.xyz);
+      gl_Position = projectionMatrix * mv;
+    }`,
+  fragmentShader:`
+    uniform float uTime;
+    varying vec3 vObj; varying vec3 vN; varying vec3 vV;
+    float hash(vec3 p){ p = fract(p*0.3183099 + 0.1); p *= 17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+    float noise(vec3 x){
+      vec3 i = floor(x), f = fract(x); f = f*f*(3.0-2.0*f);
+      return mix(mix(mix(hash(i+vec3(0,0,0)),hash(i+vec3(1,0,0)),f.x), mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x), f.y),
+                 mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x), mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x), f.y), f.z);
+    }
+    float fbm(vec3 p){ float s = 0.0, a = 0.5; for(int k=0;k<5;k++){ s += a*noise(p); p *= 2.03; a *= 0.5; } return s; }
+    void main(){
+      vec3 p = normalize(vObj)*3.0;
+      float t = uTime*0.06;
+      float n1 = fbm(p + vec3(t, -t*0.7, t*0.5));
+      float n2 = fbm(p*2.6 - vec3(t*1.4, t*0.6, -t));
+      float gran = 0.55*n1 + 0.45*n2;                                   // boiling granulation
+      float spots = smoothstep(0.66, 0.76, fbm(p*0.9 + vec3(5.0, t*0.15, 0.0)))*0.4;   // a few cooler sunspot patches
+      vec3 cool = vec3(0.86,0.24,0.03), mid = vec3(1.0,0.63,0.13), hot = vec3(1.0,0.94,0.64);
+      vec3 col = mix(cool, mid, smoothstep(0.25,0.55,gran));
+      col = mix(col, hot, smoothstep(0.50,0.85,gran));
+      col *= 1.0 - spots;
+      float mu = clamp(dot(normalize(vN), normalize(vV)), 0.0, 1.0);
+      col *= 0.38 + 0.62*pow(mu, 0.55);                                 // limb darkening
+      col += vec3(1.0,0.45,0.10)*pow(1.0-mu, 3.0)*0.35;                 // hot rim
+      gl_FragColor = vec4(col*1.15, 1.0);
+    }`
+});
+const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(sunRadius, 128, 96), sunMat);
 scene.add(sunMesh);
 
 function radialTexture(stops, size){
@@ -563,11 +863,38 @@ function radialTexture(stops, size){
   ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
   return new THREE.CanvasTexture(c);
 }
-const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({
-  map: radialTexture([[0,'rgba(255,180,60,0.9)'],[0.4,'rgba(255,120,30,0.35)'],[1,'rgba(255,80,20,0)']],256),
-  transparent:true, depthWrite:false}));
-sunGlow.scale.setScalar(sunRadius*4);   // fixed world size: a halo hugging the Sun that fades out of sight with distance, like everything else
-scene.add(sunGlow);
+// corona: a soft glow plus ~70 thin streamers of random length
+function coronaTexture(size){
+  const c = document.createElement('canvas'); c.width=size; c.height=size;
+  const ctx = c.getContext('2d'), h = size/2;
+  ctx.translate(h,h);
+  const g = ctx.createRadialGradient(0,0,h*0.22,0,0,h);
+  g.addColorStop(0,'rgba(255,190,90,0.95)');
+  g.addColorStop(0.12,'rgba(255,150,50,0.50)');
+  g.addColorStop(0.35,'rgba(255,110,30,0.16)');
+  g.addColorStop(1,'rgba(255,80,20,0)');
+  ctx.fillStyle = g; ctx.fillRect(-h,-h,size,size);
+  let seed = 7; const rnd = ()=>{ seed = (seed*16807) % 2147483647; return seed/2147483647; };
+  for(let k=0;k<70;k++){
+    const a = rnd()*TWO_PI, len = h*(0.45+rnd()*0.42), w = 0.012+rnd()*0.028;
+    ctx.save(); ctx.rotate(a);
+    const lg = ctx.createLinearGradient(h*0.2,0,len,0);
+    lg.addColorStop(0,'rgba(255,200,120,0.15)'); lg.addColorStop(1,'rgba(255,160,60,0)');
+    ctx.fillStyle = lg; ctx.beginPath(); ctx.moveTo(h*0.2,-h*w); ctx.lineTo(len,0); ctx.lineTo(h*0.2,h*w); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  return new THREE.CanvasTexture(c);
+}
+const SUN_CORONA_SIZE = sunRadius*7;
+const sunCorona = new THREE.Sprite(new THREE.SpriteMaterial({map:coronaTexture(512), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, opacity:0.9}));
+sunCorona.scale.setScalar(SUN_CORONA_SIZE);
+scene.add(sunCorona);
+const sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: radialTexture([[0,'rgba(255,170,60,0.35)'],[0.25,'rgba(255,120,30,0.12)'],[1,'rgba(255,80,20,0)']],256),
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
+sunHalo.scale.setScalar(sunRadius*20);   // fixed world size: a halo hugging the Sun that fades out of sight with distance, like everything else
+scene.add(sunHalo);
+
 // ---------- BODIES ----------
 const bodies = [];      // everything that can be selected / labelled
 const planets = [];
@@ -585,6 +912,16 @@ const sunBody = {kind:'sun', name:'SUN', mesh:sunMesh, rad:sunRadius, wp:new THR
   worldPos(out){ return out.set(0,0,0); }};
 sunMesh.userData.body = sunBody;
 bodies.push(sunBody);
+
+
+// ---------- SHARED STATE: time direction, intro, light flight ----------
+let timeDir = 1;              // +1 forward, -1 reverse
+let intro = null;             // the cinematic opening fly-through, while it plays
+let flight = null;            // the light-speed flight, while it plays
+let glideRelease = false;     // after skipping the intro the camera glides to the opening view, then lets go of the Sun
+let prevSimJD = simJD;
+const C_U_S = C_KM_S*KM_U;    // scene units the speed of light covers per second
+const MULTS = [1,3,10,30,100,300,1e3,3e3,1e4,3e4,1e5,3e5,1e6];   // light-flight time warps
 
 function ringPointsFor(el){
   const pts=[], n = el.e > 0.9 ? 1440 : 360;
@@ -671,7 +1008,7 @@ PLANETS.forEach((p, i)=>{
   const group = new THREE.Group();
   scene.add(group);
 
-  const pm = {kind:'planet', name:p.name, data:p, el, mesh, ringMesh, group, rad, pole, qAlign, spin:Math.random()*TWO_PI,
+  const pm = {kind:'planet', name:p.name, data:p, el, mesh, ringMesh, group, rad, pole, qAlign, line:ringLine, spin:Math.random()*TWO_PI,
               wp:new THREE.Vector3(), prio:p.dwarf?2:1, moons:[], moonRange:0, inRange:false,
               worldPos(out){ return out.copy(this.mesh.position); }};
   mesh.userData.body = pm;
@@ -724,6 +1061,70 @@ const asteroidBelt = makeBelt(3500, 2.1, 3.3, 0.22, 8, 0xb4b9c2, 1.2, 0.4);
 const kuiperBelt   = makeBelt(5000, 39, 50, 0.14, 11, 0x8fa6c4, 1.3, 0.42);
 const asteroidRate = TWO_PI/(365.25636*Math.pow(2.7,1.5));
 const kuiperRate   = TWO_PI/(365.25636*Math.pow(43,1.5));
+
+
+// ---------- SPACECRAFT OBJECTS ----------
+const craft = [];
+// a small recognisable model (drawn enlarged — the panel says so): dish + bus + booms, or JWST's hex mirror over its sunshield. +Y is the "front".
+function makeCraftModel(c, rad){
+  const g = new THREE.Group();
+  const lam = (col, em) => new THREE.MeshLambertMaterial({color:col, emissive:em, side:THREE.DoubleSide});
+  const dark = lam(0x9aa0aa, 0x3a3e46);
+  if(c.l2){
+    const shield = new THREE.Mesh(new THREE.BoxGeometry(rad*1.3, rad*0.03, rad*0.8), lam(0x6f7587, 0x161820));
+    shield.position.y = -rad*0.35; g.add(shield);
+    const mirror = new THREE.Mesh(new THREE.CylinderGeometry(rad*0.42, rad*0.42, rad*0.06, 6), lam(0xf2c75c, 0x9a7410));
+    mirror.position.y = rad*0.2; mirror.rotation.x = 0.45; mirror.scale.setScalar(1.15); g.add(mirror);
+    const bus = new THREE.Mesh(new THREE.BoxGeometry(rad*0.5, rad*0.3, rad*0.5), dark);
+    bus.position.y = -rad*0.6; g.add(bus);
+  } else {
+    const dish = new THREE.Mesh(new THREE.SphereGeometry(rad*0.85, 36, 12, 0, TWO_PI, 0, 1.05), lam(c.color, 0x6a5a28));
+    dish.scale.y = 0.55; dish.rotation.x = Math.PI; dish.position.y = rad*0.28; g.add(dish);
+    const bus = new THREE.Mesh(new THREE.CylinderGeometry(rad*0.3, rad*0.3, rad*0.26, 10), dark);
+    bus.position.y = -rad*0.05; g.add(bus);
+    const boom = (len, x) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rad*0.022, rad*0.022, len, 6), dark); m.rotation.z = Math.PI/2; m.position.set(x, -rad*0.1, 0); g.add(m); };
+    boom(rad*1.7, rad*0.95); boom(rad*1.2, -rad*0.7);
+    const rtg = new THREE.Mesh(new THREE.CylinderGeometry(rad*0.08, rad*0.08, rad*0.5, 8), dark);
+    rtg.rotation.z = Math.PI/2; rtg.position.set(rad*1.7, -rad*0.1, 0); g.add(rtg);
+    const pod = new THREE.Mesh(new THREE.BoxGeometry(rad*0.22, rad*0.22, rad*0.22), dark);
+    pod.position.set(-rad*1.3, -rad*0.1, 0); g.add(pod);
+  }
+  return g;
+}
+const craftTmp = new THREE.Vector3();
+CRAFT.forEach(c=>{
+  const rad = c.dispKm*KM_U;
+  const mesh = makeCraftModel(c, rad);
+  scene.add(mesh);
+  let dir = null;
+  if(!c.l2){
+    const raDeg = (c.ra[0] + c.ra[1]/60 + c.ra[2]/3600)*15;
+    const decDeg = c.dec[0] < 0 ? c.dec[0] - c.dec[1]/60 : c.dec[0] + c.dec[1]/60;
+    dir = poleVec(raDeg, decDeg);       // direction in scene coordinates (same ecliptic mapping as the orbits)
+    // the straight path it is on: from 25 years ago to 100 years from now
+    const r1 = Math.max(25, c.r0 - c.auYr*25), r2 = c.r0 + c.auYr*100;
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([dir.clone().multiplyScalar(r1*AU_U), dir.clone().multiplyScalar(r2*AU_U)]),
+      new THREE.LineBasicMaterial({color:0x78c8ff, transparent:true, opacity:0.3, depthWrite:false}));
+    scene.add(line);
+    orbitLines.push(line);
+  }
+  const cb = {kind:'craft', name:c.name, data:c, mesh, rad, dir, launchJD:jdOfDate(c.launch), hidden:false,
+              wp:new THREE.Vector3(), prio:2.5,
+              worldPos(out){ return out.copy(this.mesh.position); }};
+  mesh.traverse(o=>{ o.userData.body = cb; });
+  craft.push(cb); bodies.push(cb);
+});
+function craftPos(cb, jd){
+  const c = cb.data, m = cb.mesh;
+  if(c.l2){
+    m.position.copy(planets[2].mesh.position).multiplyScalar(1.01);                 // Sun–Earth L2
+    m.quaternion.setFromUnitVectors(Y_AXIS, craftTmp.copy(m.position).normalize()); // mirror faces away from the Sun, sunshield towards it
+  } else {
+    m.position.copy(cb.dir).multiplyScalar((c.r0 + c.auYr*(jd-CRAFT_EPOCH)/365.25)*AU_U);
+    m.quaternion.setFromUnitVectors(Y_AXIS, craftTmp.copy(planets[2].mesh.position).sub(m.position).normalize());   // dish points at Earth
+  }
+  cb.hidden = jd < cb.launchJD;
+}
 
 // ---------- CAMERA CONTROLS ----------
 let camTheta = 0.9, camPhi = 1.2, camRadius = 250000;
@@ -813,6 +1214,8 @@ window.addEventListener('pointermove', e=>{
 });
 function onWheel(e){
   e.preventDefault();
+  if(intro) skipIntro();
+  if(flight){ flight.zoom = Math.max(0.05, Math.min(200, flight.zoom*(1 + e.deltaY*0.003))); return; }
   targetRadius *= (1 + e.deltaY*0.003);
   targetRadius = clampRadius(targetRadius);
 }
@@ -853,6 +1256,7 @@ function onClick(e){
   const targets = [sunMesh];
   planets.forEach(p=>{ targets.push(p.mesh); });
   moons.forEach(m=>{ if(m.parent.inRange) targets.push(m.mesh); });
+  craft.forEach(c=>{ if(!c.hidden && c.mesh.visible) targets.push(c.mesh); });
   const hits = raycaster.intersectObjects(targets).filter(h=>h.object.visible);
   if(hits.length) selectBody(hits[0].object.userData.body);
   else if(locked) deselect();           // click on empty space: clear the selection, the camera stays exactly where it is
@@ -862,77 +1266,129 @@ renderer.domElement.addEventListener('pointerdown', e=>{clickStartX=e.clientX;cl
 renderer.domElement.addEventListener('click', e=>{
   if(Math.abs(e.clientX-clickStartX)<4 && Math.abs(e.clientY-clickStartY)<4) onClick(e);   // only a click, not a drag
 });
-window.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ if(locked) deselect(); return; }
-  if(e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
-  const el = e.target, tag = el && el.tagName;
-  if(tag==='TEXTAREA' || tag==='SELECT' || (tag==='INPUT' && el.type!=='range')) return;   // never while typing
-  if(e.key===' ' || e.key==='Spacebar'){
-    e.preventDefault();                       // no page scroll, and no re-press of the button that was clicked last
-    if(tag==='BUTTON') el.blur();
-    togglePause();
-  }
-  else if(e.key==='o' || e.key==='O') document.getElementById('btn-orbits').click();
-  else if(e.key==='b' || e.key==='B') document.getElementById('btn-belts').click();
-});
-
 // ---------- PANEL / SELECTION ----------
-const panel = document.getElementById('panel');
-const panelName = document.getElementById('panel-name');
-const panelBody = document.getElementById('panel-body');
-const panelClose = document.getElementById('panel-close');
-const reticle = document.getElementById('reticle');
+const panel = $('panel');
+const panelName = $('panel-name');
+const panelTag = $('panel-tag');
+const panelBody = $('panel-body');
+const panelClose = $('panel-close');
+const reticle = $('reticle');
+const dockEl = $('dock');
+const moonsRow = $('moons-row');
+let moonsRowParent = null;
 
 function flyTo(body, closeRadius){
   const p = body.worldPos(new THREE.Vector3());
   lockOffset.copy(camFocus).sub(p);     // glide: the offset decays while the camera tracks the body exactly
   targetRadius = closeRadius;
 }
-const row = (k, v, id) => `<div class="row"><span class="k">${k}</span><span class="v"${id?` id="${id}"`:''}>${v}</span></div>`;
+const row = (k, v, id) => `<div class="row${id && id!=='lv-acc' ? ' live' : ''}"><span class="k">${k}</span><span class="v"${id?` id="${id}"`:''}>${v}</span></div>`;
+const sec = t => `<div class="sec"><span>${t}</span></div>`;
+const brief = t => `<div id="panel-brief"><div class="sec"><span>BRIEFING · ANALYSIS</span></div><div id="panel-desc" data-full="${t.replace(/"/g,'&quot;')}"></div></div>`;
+let typeTimer = 0;
+function typeBrief(){
+  clearInterval(typeTimer);
+  const d = $('panel-desc'); if(!d) return;
+  const full = d.dataset.full || '';
+  const cur = '<span class="cur"></span>';
+  let i = 0;
+  d.innerHTML = cur;
+  typeTimer = setInterval(()=>{
+    i = Math.min(full.length, i + 5);
+    d.textContent = full.slice(0, i);
+    d.insertAdjacentHTML('beforeend', cur);
+    if(i >= full.length) clearInterval(typeTimer);
+  }, 16);
+}
+function kindColor(b){
+  if(b.kind==='sun') return '#ffb347';
+  if(b.kind==='craft') return '#ff8fcf';
+  if(b.kind==='moon') return '#cfd6e4';
+  const c = catOf[b.name];
+  return c==='dwarf' ? '#b69cff' : c==='distant' ? '#6be3a3' : '#6fd3ff';
+}
 
 function selectBody(b){
+  if(intro) skipIntro();
+  if(flight) endFlight(false);
   locked = b;
   follow = b;
   flyTo(b, b.kind==='sun' ? sunRadius*5 : Math.max(b.rad*5, 1e-4));
+  panel.style.setProperty('--c', kindColor(b));
   if(b.kind === 'sun'){
     panelName.textContent = 'SUN';
+    panelTag.textContent = 'G-TYPE STAR · SOL';
     panelBody.innerHTML =
-      row('TYPE','G-TYPE STAR') + row('RADIUS', fmt(SUN.radiusKm)+' km') + row('MASS', fmtMass(SUN.massKg)) + row('MASS SHARE','99.8%') +
-      row('LIGHT TIME TO EARTH','—','lv-light') + `<div id="panel-desc">${SUN.desc}</div>`;
+      sec('POSITION · LIVE') + row('LIGHT TIME TO EARTH','—','lv-light') +
+      sec('PHYSICAL') + row('RADIUS', fmt(SUN.radiusKm)+' km') + row('MASS', fmtMass(SUN.massKg)) + row('SHARE OF SYSTEM MASS','99.8%') +
+      row('ROTATION','≈ 25 days at the equator') +
+      brief(SUN.desc);
   } else if(b.kind === 'planet'){
     const p = b.data;
     panelName.textContent = p.name;
+    panelTag.textContent = (p.kind || (p.dwarf ? 'DWARF PLANET' : 'PLANET')) + (p.desig ? ' · ' + p.desig : '');
     panelBody.innerHTML =
-      row('TYPE', p.kind || (p.dwarf ? 'DWARF PLANET' : 'PLANET')) +
-      (p.desig ? row('DESIGNATION', p.desig) : '') +
-      row('MEAN DISTANCE', b.el.a.toFixed(3)+' AU') +
-      row('DISTANCE NOW','—','lv-dist') +
+      sec('POSITION · LIVE') +
+      row('DISTANCE FROM SUN','—','lv-dist') +
       row('LIGHT TIME FROM SUN','—','lv-light') +
-      (p.name==='EARTH' ? '' : row('FROM EARTH NOW','—','lv-edist') + row('LIGHT TIME TO EARTH','—','lv-elight')) +
-      row('ORBITAL SPEED NOW','—','lv-speed') +
-      row('ECCENTRICITY', b.el.e.toFixed(4)) +
-      row('ORBIT TILT', Math.abs(b.el.i/DEG).toFixed(2)+'°') +
-      row('AXIAL TILT', p.tilt==null ? '—' : p.tilt.toFixed(2)+'°') +
+      (p.name==='EARTH' ? '' : row('DISTANCE FROM EARTH','—','lv-edist') + row('LIGHT TIME TO EARTH','—','lv-elight')) +
+      row('ORBITAL SPEED','—','lv-speed') +
+      sec('PHYSICAL') +
       row('RADIUS', (p.radiusKm<100 ? p.radiusKm.toFixed(1) : fmt(Math.round(p.radiusKm)))+' km') +
       row('MASS', p.massKg ? fmtMass(p.massKg) : 'UNKNOWN') +
-      row('ORBITAL PERIOD', fmtPeriod(p.periodDays || 365.25636*Math.pow(b.el.a,1.5))) +
       row('DAY LENGTH', p.dayLenH ? fmt(Math.round(p.dayLenH*10)/10)+' hrs' : 'UNKNOWN') +
+      row('AXIAL TILT', p.tilt==null ? '—' : p.tilt.toFixed(2)+'°') +
       row('MOONS', p.moons + (b.moons.length ? ' ('+b.moons.length+' shown)' : '')) +
-      `<div id="panel-desc">${p.desc}</div>`;
+      sec('ORBIT') +
+      row('MEAN DISTANCE', b.el.a.toFixed(3)+' AU') +
+      row('PERIOD', fmtPeriod(p.periodDays || 365.25636*Math.pow(b.el.a,1.5))) +
+      row('ECCENTRICITY', b.el.e.toFixed(4)) +
+      row('INCLINATION', Math.abs(b.el.i/DEG).toFixed(2)+'°') +
+      brief(p.desc);
+  } else if(b.kind === 'craft'){
+    const c = b.data;
+    panelName.textContent = b.name;
+    panelTag.textContent = c.kind;
+    panelBody.innerHTML =
+      sec('MISSION') +
+      row('LAUNCHED', c.launch) +
+      row('MISSION TIME','—','lv-mission') +
+      sec('POSITION · LIVE') +
+      row('DISTANCE FROM SUN','—','lv-dist') +
+      row('LIGHT TIME FROM SUN','—','lv-light') +
+      row('DISTANCE FROM EARTH','—','lv-edist') +
+      row('SIGNAL DELAY TO EARTH','—','lv-elight') +
+      (c.speedKmS ? row('SPEED VS SUN', c.speedKmS.toFixed(2)+' km/s') : '') +
+      (c.l2 ? '' : row('FIX QUALITY','—','lv-acc')) +
+      sec('CRAFT') +
+      row('REAL SIZE', c.sizeNote) +
+      row('ON SCREEN', 'DRAWN ENLARGED') +
+      brief(c.desc);
   } else {
     panelName.textContent = b.name;
+    panelTag.textContent = 'MOON OF ' + b.parent.name;
     panelBody.innerHTML =
-      row('TYPE','MOON OF '+b.parent.name) +
-      row('ORBIT RADIUS', fmt(b.md.a)+' km') +
-      row('RADIUS', (b.md.r<100 ? b.md.r.toFixed(1) : fmt(Math.round(b.md.r)))+' km') +
-      row('ORBITAL PERIOD', fmtPeriod(b.md.P) + (b.md.P<0 ? ' · RETROGRADE' : '')) +
-      row('ORBITAL SPEED', (TWO_PI*b.md.a/(Math.abs(b.md.P)*86400)).toFixed(2)+' km/s') +
+      sec('POSITION · LIVE') +
       row('LIGHT TIME FROM SUN','—','lv-light') +
-      row('FROM EARTH NOW','—','lv-edist') + row('LIGHT TIME TO EARTH','—','lv-elight') +
-      `<div id="panel-desc">Orbits ${b.parent.name} at a true distance of ${fmt(b.md.a)} km — about ${(b.md.a/b.parent.data.radiusKm).toFixed(1)} planet radii from its centre.${b.md.moon ? ' Position is its real position for the simulated date.' : ' Starting position along its orbit is illustrative.'}</div>`;
+      row('DISTANCE FROM EARTH','—','lv-edist') + row('LIGHT TIME TO EARTH','—','lv-elight') +
+      sec('PHYSICAL') +
+      row('RADIUS', (b.md.r<100 ? b.md.r.toFixed(1) : fmt(Math.round(b.md.r)))+' km') +
+      sec('ORBIT') +
+      row('ORBIT RADIUS', fmt(b.md.a)+' km') +
+      row('PERIOD', fmtPeriod(b.md.P) + (b.md.P<0 ? ' · RETROGRADE' : '')) +
+      row('ORBITAL SPEED', (TWO_PI*b.md.a/(Math.abs(b.md.P)*86400)).toFixed(2)+' km/s') +
+      brief(`Orbits ${b.parent.name} at a true distance of ${fmt(b.md.a)} km — about ${(b.md.a/b.parent.data.radiusKm).toFixed(1)} planet radii from its centre.${b.md.moon ? ' Position is its real position for the simulated date.' : ' Starting position along its orbit is illustrative.'}`);
   }
-  panel.classList.add('show');
-  highlightButtons(b.kind==='moon' ? null : b.name);
+  panelBody.prepend($('panel-brief'));      // the briefing always comes first
+  panelBody.scrollTop = 0;
+  typeBrief();
+  if(b.kind !== 'sun'){
+    panelBody.insertAdjacentHTML('beforeend', '<button class="btn" id="btn-fly" title="Race a photon from the Sun to this body (F)"><span>▶▶</span> FLY THERE AT LIGHT SPEED</button>');
+    $('btn-fly').addEventListener('click', ()=>startFlight(b));
+  }
+  panel.classList.add('show'); document.body.classList.add('has-panel');
+  refreshMoonsRow();
+  highlightButtons(b.name);
   updateLive();
 }
 
@@ -941,49 +1397,57 @@ function selectBody(b){
 function deselect(releaseCamera){
   locked = null;
   if(releaseCamera === true) follow = null;
-  panel.classList.remove('show');
+  panel.classList.remove('show'); document.body.classList.remove('has-panel');
   reticle.style.display = 'none';
+  refreshMoonsRow();
   highlightButtons(null);
 }
 panelClose.addEventListener('click', ()=>deselect());   // wrapper: the click event must not be passed in as the argument
 
 function highlightButtons(name){
+  if(name && catOf[name] && catOf[name] !== openCat) showCategory(catOf[name]);
   document.querySelectorAll('#top-controls .body-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.name===name);
   });
 }
 
-// live rows: distance from the Sun and light travel time
+// live rows: distance from the Sun, light travel time, speed
 function updateLive(){
   if(!locked) return;
-  const lt = document.getElementById('lv-light'), ld = document.getElementById('lv-dist');
+  const k = locked.kind;
+  const lt = $('lv-light'), ld = $('lv-dist');
   let au = null;
-  if(locked.kind === 'planet') au = locked.mesh.position.length()/AU_U;
-  else if(locked.kind === 'moon') au = locked.parent.mesh.position.length()/AU_U;
-  else if(locked.kind === 'sun') au = planets[2].mesh.position.length()/AU_U;   // Earth
+  if(k === 'planet' || k === 'craft') au = locked.mesh.position.length()/AU_U;
+  else if(k === 'moon') au = locked.parent.mesh.position.length()/AU_U;
+  else if(k === 'sun') au = planets[2].mesh.position.length()/AU_U;   // Earth
   if(ld && au!=null) ld.textContent = au.toFixed(au<10?3:2)+' AU · '+fmt(Math.round(au*AU_KM/1e6))+' M km';
   if(lt && au!=null) lt.textContent = fmtLight(au*LIGHT_SEC_PER_AU);
   // distance and light time between the selected body and Earth, right now in the simulation
-  const ed = document.getElementById('lv-edist'), el2 = document.getElementById('lv-elight');
+  const ed = $('lv-edist'), el2 = $('lv-elight');
   if(ed || el2){
     const eAU = locked.worldPos(liveVec).distanceTo(planets[2].mesh.position)/AU_U;   // planets[2] = Earth
     if(ed) ed.textContent = fmtDist(eAU);
     if(el2) el2.textContent = fmtLight(eAU*LIGHT_SEC_PER_AU);
   }
   // speed along its orbit around the Sun at this moment (vis-viva): fastest at closest approach, slowest when farthest
-  const sp = document.getElementById('lv-speed');
-  if(sp && locked.kind === 'planet'){
+  const sp = $('lv-speed');
+  if(sp && k === 'planet'){
     const rKm = au*AU_KM, aKm = locked.el.a*AU_KM;
     const v = Math.sqrt(Math.max(0, GM_SUN*(2/rKm - 1/aKm)));
     sp.textContent = (v < 1 ? v.toFixed(3) : v.toFixed(2)) + ' km/s';
   }
+  if(k === 'craft'){
+    const mt = $('lv-mission');
+    if(mt){ const yrs = (simJD - locked.launchJD)/365.25; mt.textContent = yrs < 0 ? 'NOT LAUNCHED YET' : yrs.toFixed(1) + ' yr'; }
+    const ac = $('lv-acc');
+    if(ac){ const y = dateOfJD(simJD).getUTCFullYear(), g = locked.data.good; ac.textContent = (g && y>=g[0] && y<=g[1]) ? 'ESTIMATED · ±1 AU' : 'ROUGH ESTIMATE'; }
+  }
 }
 const liveVec = new THREE.Vector3();
 
-// buttons
-document.getElementById('btn-sun').dataset.name = 'SUN';
-document.getElementById('btn-sun').classList.add('body-btn');
-document.getElementById('btn-sun').addEventListener('click', ()=>selectBody(sunBody));
+// ---------- BUTTONS: one scrollable row with every body (no moons); moons appear in a second row only when relevant ----------
+const isMobile = () => window.matchMedia('(max-width:640px)').matches;
+const bodiesRow = $('bodies-row');
 function addBodyButton(container, b, cls, title){
   const el = document.createElement('button');
   el.className = 'btn body-btn ' + cls;
@@ -991,18 +1455,76 @@ function addBodyButton(container, b, cls, title){
   if(title) el.title = title;
   el.addEventListener('click', ()=>selectBody(b));
   container.appendChild(el);
+  return el;
 }
-const pbWrap = document.getElementById('planet-buttons'), smallWrap = document.getElementById('small-row'), moonWrap = document.getElementById('moons-row');
-planets.forEach(pm=>{
-  if(pm.data.small) addBodyButton(smallWrap, pm, 'dwarf', pm.data.kind + ' · ' + pm.data.desig);
-  else addBodyButton(pbWrap, pm, pm.data.dwarf ? 'dwarf' : '', null);
+const mainPlanets = planets.filter(pm=>!pm.data.dwarf);
+// every body on screen at once, colour-coded by kind (moons stay in their own row)
+const GROUPS = [
+  {id:'star',    label:'STAR',                list:[sunBody],                                           detail:'THE SUN'},
+  {id:'planet',  label:'PLANETS',             list:mainPlanets,                                         detail:'8 MAJOR PLANETS'},
+  {id:'dwarf',   label:'DWARF PLANETS',       list:planets.filter(pm=>pm.data.dwarf && !pm.data.small), detail:'DWARF PLANETS'},
+  {id:'distant', label:'DISTANT OBJECTS & COMETS', list:planets.filter(pm=>pm.data.small),              detail:'DISTANT OBJECTS & COMETS'},
+  {id:'craft',   label:'SPACECRAFT',          list:craft,                                               detail:'SPACECRAFT'}
+];
+// row 1: the Sun and all eight planets
+GROUPS.slice(0,2).forEach(g=>g.list.forEach(b=>addBodyButton(bodiesRow, b, 'k-'+g.id, b.kind==='sun' ? null : (b.data && b.data.kind) || null)));
+// row 2: category buttons; a category's bodies open in a row below when clicked
+const catRow = $('cat-row'), catOpenRow = $('cat-open-row');
+let openCat = null;
+const catOf = {};
+GROUPS.slice(2).forEach(g=>{
+  g.list.forEach(b=>{ catOf[b.name] = g.id; });
+  const el = document.createElement('button');
+  el.className = 'btn cat-btn k-'+g.id; el.dataset.cat = g.id;
+  el.innerHTML = g.label + ' <span class="n">' + g.list.length + '</span> <span class="car">▾</span>';
+  el.addEventListener('click', ()=>{ if(intro) skipIntro(); showCategory(openCat === g.id ? null : g.id); });
+  catRow.appendChild(el);
 });
-moons.forEach(m=>addBodyButton(moonWrap, m, 'moon', 'MOON OF '+m.parent.name));
+function showCategory(id){
+  if(id === openCat) return;
+  openCat = id;
+  catOpenRow.innerHTML = '';
+  catRow.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active', b.dataset.cat===id));
+  if(id){
+    const g = GROUPS.find(x=>x.id===id);
+    g.list.forEach(b=>addBodyButton(catOpenRow, b, 'k-'+g.id, (b.data && b.data.kind) || null));
+    catOpenRow.classList.add('show');
+    if(locked) catOpenRow.querySelectorAll('.body-btn').forEach(b=>b.classList.toggle('active', b.dataset.name===locked.name));
+  } else catOpenRow.classList.remove('show');
+}
+const legendEl = $('legend');
+legendEl.innerHTML = GROUPS.map(g=>'<div class="lg k-'+g.id+'"><i></i><span>'+g.label+'</span><b>'+g.list.length+'</b></div>').join('') +
+  '<div class="lg moonlg"><i></i><span>MOONS</span><b>ON SELECT</b></div>';
+
+function refreshMoonsRow(){
+  const parent = !locked ? null : locked.kind==='planet' ? locked : locked.kind==='moon' ? locked.parent : null;
+  if(parent !== moonsRowParent){
+    moonsRowParent = parent;
+    moonsRow.innerHTML = '';
+    if(parent && parent.moons.length){
+      const tag = document.createElement('span');
+      tag.className = 'row-tag'; tag.textContent = 'MOONS OF ' + parent.name;
+      moonsRow.appendChild(tag);
+      parent.moons.forEach(m=>addBodyButton(moonsRow, m, 'moon', 'MOON OF '+parent.name));
+      moonsRow.classList.add('show');
+    } else moonsRow.classList.remove('show');
+  }
+  if(locked) highlightButtons(locked.name);
+}
+
+// ←/→ step through bodies (siblings, when a moon is selected)
+const browseList = [sunBody].concat(mainPlanets, planets.filter(pm=>pm.data.dwarf && !pm.data.small), planets.filter(pm=>pm.data.small), craft);
+function stepSelection(dir){
+  const list = (locked && locked.kind==='moon') ? locked.parent.moons : browseList;
+  let idx = locked ? list.indexOf(locked) : -1;
+  if(idx < 0) idx = dir > 0 ? -1 : 0;
+  selectBody(list[(idx + dir + list.length) % list.length]);
+}
 
 // ---------- NAME LABELS (HTML overlay, constant on-screen size, click to fly) ----------
 bodies.forEach(b=>{
   const el = document.createElement('div');
-  el.className = 'lbl ' + (b.kind==='moon' ? 'moon' : (b.kind==='planet' && b.data.dwarf) ? 'dwarf' : '');
+  el.className = 'lbl ' + (b.kind==='moon' ? 'moon' : b.kind==='craft' ? 'craft' : (b.kind==='planet' && b.data.dwarf) ? 'dwarf' : '');
   el.textContent = b.name;
   el.addEventListener('click', ev=>{ ev.stopPropagation(); selectBody(b); });
   labelLayer.appendChild(el);
@@ -1010,9 +1532,11 @@ bodies.forEach(b=>{
 });
 
 // ---------- SIM CONTROLS ----------
-const speedEl = document.getElementById('speed');
-const speedVal = document.getElementById('speed-val');
+const speedEl = $('speed');
+const speedVal = $('speed-val');
+const dateInput = $('date-input');
 const DEFAULT_SPEED = 26;
+const JD_MIN = jdOfDate('1800-01-01'), JD_MAX = jdOfDate('2100-12-31');
 let simDaysPerSec = 2;
 let paused = false;
 // slider 0..100 -> 0.1 day/s .. 10,000 day/s (logarithmic)
@@ -1026,25 +1550,59 @@ setSpeedFromSlider(DEFAULT_SPEED);
 
 function togglePause(){
   paused = !paused;
-  const pb = document.getElementById('btn-pause');
+  const pb = $('btn-pause');
   pb.textContent = paused ? 'RESUME' : 'PAUSE';
   pb.classList.toggle('active', paused);
   updateHud();                                // the date readout shows PAUSED straight away
 }
-document.getElementById('btn-pause').addEventListener('click', togglePause);
+$('btn-pause').addEventListener('click', togglePause);
+
+function setReverse(on){
+  timeDir = on ? -1 : 1;
+  const b = $('btn-rev');
+  b.classList.toggle('active', on);
+  b.textContent = on ? '▶ FORWARD' : '◀ REVERSE';
+  updateHud();
+}
+$('btn-rev').addEventListener('click', ()=>setReverse(timeDir > 0));
+
+// jumping to a date re-evaluates the planets' orbital elements for that date, so positions stay accurate across centuries
+function setSimJD(jd){
+  simJD = Math.max(JD_MIN, Math.min(JD_MAX, jd));
+  rebaseElements(simJD);
+  updatePositions(0);
+}
+function rebaseElements(jd){
+  planets.forEach(pm=>{
+    if(!pm.data.std) return;
+    pm.el = standishElements(pm.data.std, jd);
+    pm.line.geometry.dispose();
+    pm.line.geometry = new THREE.BufferGeometry().setFromPoints(ringPointsFor(pm.el));
+  });
+}
+dateInput.addEventListener('change', ()=>{
+  const v = dateInput.value; if(!v) return;
+  const ms = Date.parse(v+'T12:00:00Z'); if(!isFinite(ms)) return;
+  const jd = ms/86400000 + 2440587.5;
+  if(jd < JD_MIN || jd > JD_MAX) showToast('DATES SUPPORTED: 1800 – 2100');
+  setSimJD(jd);
+  dateInput.blur();
+});
+$('btn-now').addEventListener('click', ()=>{ setSimJD(jdNow()); showToast('JUMPED TO TODAY'); });
+
 function applyOrbitVisibility(){
   orbitLines.forEach(l=>l.visible=orbitsVisible);
-  document.getElementById('btn-orbits').textContent = 'ORBITS: ' + (orbitsVisible?'ON':'OFF');
+  $('btn-orbits').textContent = 'ORBITS: ' + (orbitsVisible?'ON':'OFF');
 }
-document.getElementById('btn-orbits').addEventListener('click', function(){
+$('btn-orbits').addEventListener('click', function(){
   orbitsVisible = !orbitsVisible;
   applyOrbitVisibility();
 });
 function applyBeltVisibility(){
   asteroidBelt.visible = kuiperBelt.visible = beltsVisible;
-  document.getElementById('btn-belts').textContent = 'BELTS: ' + (beltsVisible?'ON':'OFF');
+  $('btn-belts').textContent = 'BELTS: ' + (beltsVisible?'ON':'OFF');
 }
-document.getElementById('btn-belts').addEventListener('click', function(){
+$('btn-belts').addEventListener('click', function(){
   beltsVisible = !beltsVisible;
   applyBeltVisibility();
 });
@@ -1053,25 +1611,347 @@ function openingView(){
   camFocus.set(0,0,0);
   lockOffset.set(0,0,0);
 }
-document.getElementById('btn-reset').addEventListener('click', function(){
+$('btn-reset').addEventListener('click', function(){
+  if(intro) skipIntro();
+  if(flight) endFlight(false);
   openingView();
   deselect(true);                       // Reset also releases the camera
-  // simulation back to today, default speed, running
-  simJD = jdNow();
+  // simulation back to today, default speed, running, forwards
+  setSimJD(jdNow());
   speedEl.value = DEFAULT_SPEED; setSpeedFromSlider(DEFAULT_SPEED);
   paused = false;
-  document.getElementById('btn-pause').textContent = 'PAUSE';
-  document.getElementById('btn-pause').classList.remove('active');
+  $('btn-pause').textContent = 'PAUSE';
+  $('btn-pause').classList.remove('active');
+  setReverse(false);
   orbitsVisible = true; applyOrbitVisibility();
   beltsVisible = true; applyBeltVisibility();
 });
 
+// ---------- HUD toggle, dock (mobile), toast ----------
+function toggleHud(){
+  const on = document.body.classList.toggle('hud-hidden');
+  if(on) showToast('HUD HIDDEN — PRESS H TO BRING IT BACK');
+}
+$('btn-hud').addEventListener('click', toggleHud);
+$('btn-showhud').addEventListener('click', toggleHud);
+$('dock-toggle').addEventListener('click', ()=>dockEl.classList.toggle('open'));
+let toastTimer = null;
+function showToast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('on'), 2600);
+}
+// the on-screen hint fades after the first touch / click
+window.addEventListener('pointerdown', ()=>$('hint').classList.add('fade'), {once:true});
+
+// ---------- SHARE A VIEW ----------
+function buildShareURL(){
+  const p = new URLSearchParams();
+  const tgt = locked || follow;
+  if(tgt) p.set('t', tgt.name);
+  p.set('d', dateOfJD(simJD).toISOString().slice(0,16));
+  p.set('z', camRadius.toPrecision(5));
+  p.set('th', camTheta.toFixed(3)); p.set('ph', camPhi.toFixed(3));
+  if(!tgt){ p.set('fx', camFocus.x.toPrecision(6)); p.set('fy', camFocus.y.toPrecision(6)); p.set('fz', camFocus.z.toPrecision(6)); }
+  p.set('s', speedEl.value);
+  if(paused) p.set('p','1');
+  if(timeDir < 0) p.set('rv','1');
+  return location.origin + location.pathname + '#' + p.toString();
+}
+function copyText(s){
+  if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(s);
+  return new Promise((res, rej)=>{
+    const ta = document.createElement('textarea');
+    ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy') ? res() : rej(); }catch(e){ rej(e); }
+    ta.remove();
+  });
+}
+$('btn-share').addEventListener('click', ()=>{
+  const url = buildShareURL();
+  copyText(url).then(
+    ()=>showToast('LINK COPIED — THIS EXACT VIEW & DATE'),
+    ()=>{ history.replaceState(null, '', url); showToast('COPY THE LINK FROM YOUR ADDRESS BAR'); });
+});
+function applyHash(){
+  if(location.hash.length < 2) return false;
+  let p; try{ p = new URLSearchParams(location.hash.slice(1)); }catch(e){ return false; }
+  if(!p.has('t') && !p.has('d') && !p.has('z')) return false;
+  const num = k => { const v = parseFloat(p.get(k)); return isFinite(v) ? v : null; };
+  const d = p.get('d');
+  if(d){ const ms = Date.parse(d+'Z'); if(isFinite(ms)){ setSimJD(ms/86400000 + 2440587.5); } }
+  const s = num('s'); if(s!=null){ speedEl.value = Math.max(0, Math.min(100, s)); setSpeedFromSlider(+speedEl.value); }
+  if(p.get('p')==='1') togglePause();
+  if(p.get('rv')==='1') setReverse(true);
+  updatePositions(0);
+  const t = p.get('t');
+  const b = t ? bodies.find(x=>x.name===t) : null;
+  if(b){ selectBody(b); lockOffset.set(0,0,0); b.worldPos(camFocus); }
+  else {
+    const fx = num('fx'), fy = num('fy'), fz = num('fz');
+    if(fx!=null && fy!=null && fz!=null) camFocus.set(fx, fy, fz);
+  }
+  const z = num('z'), th = num('th'), ph = num('ph');
+  if(z!=null && z>0) camRadius = targetRadius = Math.min(3e7, Math.max(1e-5, z));
+  if(th!=null) camTheta = targetTheta = th;
+  if(ph!=null) camPhi = targetPhi = ph;
+  return true;
+}
+
+// ---------- THE TOUR (first visit only) ----------
+const TOUR_KEY = 'rv_solar_tour_v1';
+const TOUR_STEPS = [
+  {t:'WELCOME TO THE REAL SOLAR SYSTEM', b:'Everything here is drawn true to scale — real distances, real sizes, and where the planets actually are today. Drag to rotate, scroll or pinch to zoom, right-drag or use two fingers to pan.'},
+  {t:'FLY TO ANYTHING', sel:'#top-controls', b:'The Sun and all eight planets are in the top row. Below them, tap DWARF PLANETS, DISTANT & COMETS or SPACECRAFT to open that group — including Voyager 1, now about a light-day from Earth. Colours match the key in the bottom-left corner. Planets with moons also show a moons row.'},
+  {t:'CONTROL TIME', sel:'#time-group', dock:true, b:'Speed time up, run it in reverse, or jump to any date from 1800 to 2100 — see where the planets were on your birthday.'},
+  {t:'RACE THE SPEED OF LIGHT', b:'Select a planet and press “Fly there at light speed” in its panel. A photon leaves the Sun at the true speed of light. It is sped up so the trip is watchable — the clock shows the real light time (8 minutes to Earth, about 4 hours to Neptune). Press REAL TIME to watch it at 1:1.'},
+  {t:'SHARE & RECORD', sel:'#view-group', dock:true, b:'SHARE copies a link to exactly this view and date. Press H to hide the whole HUD for clean screen recordings.'}
+];
+const tour = {active:false, i:0};
+function showTourStep(){
+  const s = TOUR_STEPS[tour.i], hl = $('tour-hl');
+  $('tour-n').textContent = 'STEP ' + (tour.i+1) + ' / ' + TOUR_STEPS.length;
+  $('tour-t').textContent = s.t;
+  $('tour-b').textContent = s.b;
+  $('tour-next').textContent = tour.i === TOUR_STEPS.length-1 ? 'START EXPLORING' : 'NEXT ▸';
+  hl.style.display = 'none';
+  if(s.sel){
+    if(s.dock && window.matchMedia('(max-width:640px)').matches) dockEl.classList.add('open');
+    const el = document.querySelector(s.sel);
+    if(el){
+      const r = el.getBoundingClientRect(), pad = 6;
+      hl.style.left = (r.left-pad)+'px'; hl.style.top = (r.top-pad)+'px';
+      hl.style.width = (r.width+pad*2)+'px'; hl.style.height = (r.height+pad*2)+'px';
+      hl.style.display = 'block';
+    }
+  }
+}
+function startTour(){
+  if(tour.active) return;
+  if(intro) skipIntro();
+  tour.active = true; tour.i = 0;
+  $('tour').classList.add('show');
+  showTourStep();
+}
+function closeTour(){
+  if(!tour.active) return;
+  tour.active = false;
+  $('tour').classList.remove('show'); $('tour-hl').style.display = 'none';
+  if(window.matchMedia('(max-width:640px)').matches) dockEl.classList.remove('open');
+  try{ localStorage.setItem(TOUR_KEY, '1'); }catch(e){}
+}
+function maybeStartTour(){
+  let seen = false;
+  try{ seen = localStorage.getItem(TOUR_KEY) === '1'; }catch(e){}
+  if(!seen) setTimeout(startTour, 700);
+}
+$('tour-next').addEventListener('click', ()=>{
+  if(tour.i >= TOUR_STEPS.length-1) closeTour(); else { tour.i++; showTourStep(); }
+});
+$('tour-skip').addEventListener('click', closeTour);
+$('btn-tour').addEventListener('click', startTour);
+window.addEventListener('resize', ()=>{ if(tour.active) showTourStep(); });
+
+// ---------- CINEMATIC INTRO: Earth -> Moon -> the Sun 8 light-minutes away -> the whole system, to scale ----------
+const INTRO_KEYS = [
+  {t:0,    r:0.34,   f:0, p:1.42},      // r = camera distance (scene units), f = 0 follow Earth … 1 follow the Sun, p = camera elevation
+  {t:1.8,  r:0.34,   f:0, p:1.42},
+  {t:4.4,  r:13,     f:0, p:1.30},
+  {t:5.4,  r:13,     f:0, p:1.30},
+  {t:8.8,  r:4800,   f:0, p:0.95},
+  {t:10.0, r:4800,   f:0, p:0.95},
+  {t:12.8, r:60,     f:1, p:1.20},
+  {t:14.2, r:60,     f:1, p:1.20},
+  {t:17.8, r:250000, f:1, p:1.20}
+];
+const INTRO_CAPS = [
+  {t:0.3,  a:'EARTH',            b:'12,742 KM ACROSS', d:2.4},
+  {t:2.6,  a:'THE MOON',         b:'384,400 KM AWAY · 1.3 LIGHT-SECONDS', d:2.6},
+  {t:8.4,  a:'THE SUN',          b:'150 MILLION KM AWAY · 8 LIGHT-MINUTES', d:2.8},
+  {t:12.6, a:'109 EARTHS ACROSS', b:'THE SUN, UP CLOSE', d:2.0},
+  {t:15.8, a:'THE SOLAR SYSTEM', b:'ALL OF IT · TO SCALE', d:2.6}
+];
+let capTimer = null;
+function showCaption(a, b, secs){
+  const el = $('caption');
+  el.innerHTML = '<div class="c1"></div><div class="c2"></div>';
+  el.children[0].textContent = a; el.children[1].textContent = b;
+  el.classList.add('on');
+  clearTimeout(capTimer); capTimer = setTimeout(()=>el.classList.remove('on'), secs*1000);
+}
+function hideCaption(){ clearTimeout(capTimer); $('caption').classList.remove('on'); }
+function startIntro(){
+  const ep = planets[2].mesh.position;
+  let th0 = Math.atan2(-ep.z, -ep.x) + 0.7;       // start on Earth's sunlit side
+  while(th0 > 0.9) th0 -= TWO_PI;
+  while(th0 <= 0.9 - TWO_PI) th0 += TWO_PI;
+  intro = {t:0, th0, ci:0, orb:false, lab:false};
+  deselect(true);
+  document.body.classList.add('intro');
+  $('btn-skip-intro').style.display = 'block';
+  orbitLines.forEach(l=>l.visible = false);        // orbit lines only appear once the view has pulled well back
+  labelLayer.style.opacity = '0';
+}
+function stepIntro(dt){
+  intro.t += dt;
+  const T = INTRO_KEYS[INTRO_KEYS.length-1].t, t = Math.min(intro.t, T);
+  let i = 0; while(i < INTRO_KEYS.length-2 && t >= INTRO_KEYS[i+1].t) i++;
+  const a = INTRO_KEYS[i], b = INTRO_KEYS[i+1];
+  const s = smooth((t-a.t)/(b.t-a.t));
+  const r = Math.exp(Math.log(a.r) + (Math.log(b.r)-Math.log(a.r))*s);
+  const f = a.f + (b.f-a.f)*s;
+  camFocus.copy(planets[2].mesh.position).multiplyScalar(1-f);
+  camRadius = targetRadius = r;
+  camTheta = targetTheta = intro.th0 + (0.9-intro.th0)*smooth(t/T);
+  camPhi = targetPhi = a.p + (b.p-a.p)*s;
+  if(!intro.lab && intro.t > 2.4){ intro.lab = true; labelLayer.style.opacity = '1'; }     // names fade in at the Moon
+  if(!intro.orb && intro.t > 7.6){ intro.orb = true; applyOrbitVisibility(); }
+  while(intro.ci < INTRO_CAPS.length && intro.t >= INTRO_CAPS[intro.ci].t){ const c = INTRO_CAPS[intro.ci++]; showCaption(c.a, c.b, c.d); }
+  if(intro.t >= T) endIntro();
+}
+function leaveIntroMode(){
+  intro = null;
+  document.body.classList.remove('intro');
+  $('btn-skip-intro').style.display = 'none';
+  labelLayer.style.opacity = '';
+  applyOrbitVisibility();
+}
+function endIntro(){            // finished: the camera is already exactly at the opening view
+  if(!intro) return;
+  leaveIntroMode();
+  camFocus.set(0,0,0); lockOffset.set(0,0,0);
+  maybeStartTour();
+}
+function skipIntro(){           // interrupted: glide to the opening view instead of snapping
+  if(!intro) return;
+  leaveIntroMode();
+  hideCaption();
+  lockOffset.copy(camFocus); follow = sunBody; glideRelease = true;
+  targetRadius = 250000; targetTheta = 0.9; targetPhi = 1.2;
+  maybeStartTour();
+}
+$('btn-skip-intro').addEventListener('click', skipIntro);
+window.addEventListener('pointerdown', ()=>{ if(intro) skipIntro(); }, true);
+
+// ---------- LIGHT-SPEED FLIGHT: a photon leaves the Sun and races to the selected body ----------
+const photon = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: radialTexture([[0,'rgba(255,255,255,1)'],[0.25,'rgba(255,238,170,0.85)'],[1,'rgba(255,200,80,0)']],128),
+  transparent:true, depthWrite:false, depthTest:false, blending:THREE.AdditiveBlending}));
+photon.visible = false; scene.add(photon);
+// the photon's trail: a string of light points from the Sun to the photon, denser and brighter towards the photon
+const TRAIL_N = 320;
+const trailGeo = new THREE.BufferGeometry();
+trailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(TRAIL_N*3), 3));
+trailGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(TRAIL_N*3), 3));
+const trail = new THREE.Points(trailGeo, new THREE.PointsMaterial({size:2.8, sizeAttenuation:false, vertexColors:true, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
+trail.visible = false; trail.frustumCulled = false; scene.add(trail);
+const flightVec = new THREE.Vector3();
+
+function startFlight(b){
+  if(!b || b.kind === 'sun') return;
+  if(intro) skipIntro();
+  if(flight) endFlight(false);
+  const tp = b.worldPos(new THREE.Vector3());
+  const D = Math.max(sunRadius*1.05, tp.length() - b.rad);           // from the Sun's centre to the target's surface
+  const dir = tp.clone().normalize();
+  const realSec = D/C_U_S;
+  let mi = 0; while(mi < MULTS.length-1 && realSec/MULTS[mi] > 40) mi++;   // pick a time warp that makes the trip ≲ 40 s
+  const side = new THREE.Vector3().crossVectors(dir, Y_AXIS);
+  if(side.lengthSq() < 1e-6) side.set(1,0,0);
+  side.normalize();
+  const v = dir.clone().multiplyScalar(-1).addScaledVector(Y_AXIS, 0.3).addScaledVector(side, 0.45).normalize();
+  deselect(true);                                                    // hides the panel, frees the camera
+  flight = {b, D, dir, mi, el:0, zoom:1, n:0};
+  camPhi = targetPhi = Math.acos(Math.max(-1, Math.min(1, v.y)));
+  camTheta = targetTheta = Math.atan2(v.z, v.x);
+  camFocus.copy(dir).multiplyScalar(sunRadius); lockOffset.set(0,0,0);
+  camRadius = targetRadius = 60;
+  photon.visible = trail.visible = true;
+  document.body.classList.add('flying');
+  $('flight-hud').classList.add('show');
+  $('fl-title').textContent = 'LIGHT FLIGHT · SUN → ' + b.name;
+  updateFlightHud(0);
+}
+function endFlight(arrived){
+  if(!flight) return;
+  const f = flight; flight = null;
+  photon.visible = trail.visible = false;
+  document.body.classList.remove('flying');
+  $('flight-hud').classList.remove('show');
+  if(arrived){
+    showToast('LIGHT TOOK ' + fmtLight(f.D/C_U_S).toUpperCase() + ' TO REACH ' + f.b.name);
+    selectBody(f.b);
+  }
+}
+function updateFlightHud(dC){
+  const f = flight, w = MULTS[f.mi];
+  $('fl-time').textContent = 'T+ ' + fmtLight(f.el);
+  $('fl-dist').textContent = fmt(Math.round(dC/KM_U)) + ' KM  ·  ' + (dC/AU_U).toFixed(dC/AU_U < 10 ? 3 : 1) + ' AU  ·  OF ' + fmt(Math.round(f.D/KM_U)) + ' KM';
+  $('fl-warp').textContent = w === 1 ? 'REAL TIME · 1:1' : 'SPED UP ×' + w.toLocaleString();
+  $('fl-real').classList.toggle('active', w === 1);
+}
+function stepFlight(dt){
+  const f = flight;
+  f.el += dt*MULTS[f.mi];
+  const dC = Math.min(f.D, C_U_S*f.el);
+  const pos = flightVec.copy(f.dir).multiplyScalar(Math.max(dC, sunRadius));
+  camFocus.copy(pos);
+  // camera pulls back as the photon runs out, then swoops in on the body for the arrival
+  const cruise = (25 + dC*0.02)*f.zoom;
+  const close = Math.max(f.b.rad*5, 1e-4);
+  const k = smooth(1 - (f.D - dC)/(0.08*f.D));
+  targetRadius = Math.exp(Math.log(cruise) + (Math.log(close)-Math.log(cruise))*k);
+  photon.position.copy(pos);
+  photon.scale.setScalar(Math.max(1e-7, camRadius*0.04));
+  const pa = trailGeo.attributes.position, ca = trailGeo.attributes.color, span = Math.max(dC, sunRadius) - sunRadius;
+  for(let i=0;i<TRAIL_N;i++){
+    const t = i/(TRAIL_N-1), d = sunRadius + span*(1 - (1-t)*(1-t));
+    pa.setXYZ(i, f.dir.x*d, f.dir.y*d, f.dir.z*d);
+    const c = t*t; ca.setXYZ(i, c, c*0.93, c*0.7);
+  }
+  pa.needsUpdate = true; ca.needsUpdate = true;
+  if((++f.n % 3) === 0) updateFlightHud(dC);
+  if(dC >= f.D){ updateFlightHud(dC); endFlight(true); }
+}
+$('fl-real').addEventListener('click', ()=>{ if(flight) flight.mi = 0; });
+$('fl-slow').addEventListener('click', ()=>{ if(flight) flight.mi = Math.max(0, flight.mi-1); });
+$('fl-fast').addEventListener('click', ()=>{ if(flight) flight.mi = Math.min(MULTS.length-1, flight.mi+1); });
+$('fl-stop').addEventListener('click', ()=>endFlight(false));
+
+// ---------- KEYBOARD ----------
+window.addEventListener('keydown', e=>{
+  if(intro){ skipIntro(); return; }
+  const el = e.target, tag = el && el.tagName;
+  const typing = tag==='TEXTAREA' || tag==='SELECT' || (tag==='INPUT' && el.type!=='range' && el.type!=='checkbox');
+  if(e.key==='Escape'){
+    if(tour.active){ closeTour(); return; }
+    if(flight){ endFlight(false); return; }
+    if(locked) deselect();
+    return;
+  }
+  if(typing) return;                                     // never while typing in the date field
+  if(e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+  const k = e.key;
+  if(k===' ' || k==='Spacebar'){
+    e.preventDefault();                       // no page scroll, and no re-press of the button that was clicked last
+    if(tag==='BUTTON') el.blur();
+    togglePause();
+  }
+  else if(k==='o' || k==='O') $('btn-orbits').click();
+  else if(k==='b' || k==='B') $('btn-belts').click();
+  else if(k==='h' || k==='H') toggleHud();
+  else if(k==='r' || k==='R') setReverse(timeDir > 0);
+  else if(k==='ArrowRight'){ e.preventDefault(); stepSelection(1); }
+  else if(k==='ArrowLeft'){ e.preventDefault(); stepSelection(-1); }
+  else if((k==='f' || k==='F') && locked && locked.kind!=='sun') startFlight(locked);
+});
+
 // ---------- HUD: scale note, scale bar, date ----------
-const scaleNote = document.getElementById('scale-note');
-const scaleBarEl = document.getElementById('scalebar');
+const scaleNote = $('scale-note');
+const scaleBarEl = $('scalebar');
 const scaleBarLine = scaleBarEl.querySelector('.bar');
 const scaleBarTxt = scaleBarEl.querySelector('.txt');
-const clockEl = document.getElementById('clock');
+const clockEl = $('clock');
 
 function updateHud(){
   // how much real distance the screen spans at the focus point
@@ -1088,8 +1968,14 @@ function updateHud(){
   // simulated date
   const ms = (simJD-2440587.5)*86400000;
   const dte = new Date(ms);
-  clockEl.textContent = (paused ? '❚❚ PAUSED · ' : '') + (isFinite(dte.getTime()) ? 'SIM DATE ' + dte.toISOString().replace('T',' ').slice(0,16) + ' UTC' : 'SIM DATE —');
+  const ok = isFinite(dte.getTime());
+  clockEl.textContent = (paused ? '❚❚ PAUSED · ' : '') + (timeDir < 0 ? '◀ REVERSE · ' : '') + (ok ? 'SIM DATE ' + dte.toISOString().replace('T',' ').slice(0,16) + ' UTC' : 'SIM DATE —');
   clockEl.classList.toggle('paused', paused);
+  // keep the date box in step with the simulation (unless the person is typing in it)
+  if(ok && document.activeElement !== dateInput){
+    const y = dte.getUTCFullYear();
+    if(y >= 1000 && y <= 9999){ const s = dte.toISOString().slice(0,10); if(dateInput.value !== s) dateInput.value = s; }
+  }
 }
 
 // ---------- ANIMATE ----------
@@ -1100,11 +1986,21 @@ const tmpInv = new THREE.Quaternion();
 let frame = 0;
 const labelRects = [];
 const labelOrder = bodies.slice().sort((a,b)=>a.prio-b.prio);
+const VMAX_SPIN = TWO_PI*3;     // fastest on-screen spin, rad/s: real rotation rates at slow speeds, a smooth blur at extreme time warp
+function spinStep(dSim, hours, dt){
+  if(!(dt > 0) || !hours) return 0;
+  const trueRate = (dSim*24/hours)*TWO_PI/dt;                 // rad per real second at the current time warp
+  return VMAX_SPIN*Math.tanh(trueRate/VMAX_SPIN)*dt;
+}
 
 function updatePositions(dt){
+  // planets: refresh the orbital elements every ~20 simulated years so positions stay accurate while time runs
+  if(Math.abs(simJD - planets[0].el.jd0) > 7305) rebaseElements(simJD);
+  const dSim = simJD - prevSimJD; prevSimJD = simJD;
   planets.forEach(pm=>{
     orbitPos(pm.el, simJD, pm.mesh.position);
-    if(!paused) pm.spin += dt*0.2;
+    const d = pm.data;
+    pm.spin += spinStep(dSim, d.dayLenH, dt) * (d.retro ? -1 : 1);   // real day length (Venus, Uranus and Pluto spin backwards)
     pm.mesh.quaternion.copy(pm.qAlign).multiply(tmpQ.setFromAxisAngle(Y_AXIS, pm.spin));
     pm.group.position.copy(pm.mesh.position);
     if(pm.ringMesh) pm.ringMesh.position.copy(pm.mesh.position);
@@ -1116,6 +2012,8 @@ function updatePositions(dt){
       .addScaledVector(m.basis.u, Math.cos(th)*m.aU)
       .addScaledVector(m.basis.v, Math.sin(th)*m.aU);
   });
+  craft.forEach(cb=>craftPos(cb, simJD));
+  sunMesh.rotation.y += spinStep(dSim, 25.38*24, dt);                // the Sun turns once in ~25 days at its equator
   asteroidBelt.rotation.y = asteroidRate*(simJD-J2000);
   kuiperBelt.rotation.y = kuiperRate*(simJD-J2000);
 }
@@ -1130,7 +2028,7 @@ function updateScreenSpace(){
     b.discPx = b.rad*2*b.ppu;
     // A body much smaller than one pixel cannot be seen (its name label marks the spot), so skip drawing
     // its finely detailed sphere. In the wide views this is nearly every planet and moon.
-    if(b.kind !== 'sun') b.mesh.visible = b.discPx > 0.2 || b === locked;
+    if(b.kind !== 'sun') b.mesh.visible = (b.discPx > 0.2 || b === locked) && !b.hidden;
   });
 
   planets.forEach(pm=>{
@@ -1151,7 +2049,7 @@ function updateScreenSpace(){
   const seen = new Set();
   order.forEach(b=>{
     if(seen.has(b)) return; seen.add(b);
-    let ok = true;
+    let ok = !b.hidden;
     if(b.kind==='moon' && !b.parent.inRange) ok = false;
     let sx=0, sy=0, x=0, y=0;
     if(ok){
@@ -1162,7 +2060,7 @@ function updateScreenSpace(){
       else if(b.discPx > H*1.3) ok = false;
     }
     if(ok){
-      const off = b.discPx/2 + 9;       // the label sits beside the body; a short leader line points back to it
+      const off = Math.min(b.discPx/2, 4000) + 9;       // the label sits beside the body
       x = sx + off; y = sy - 7;
       const w = b.labelW, h = 14;
       for(let k=0;k<labelRects.length;k++){
@@ -1184,16 +2082,23 @@ function updateScreenSpace(){
 function animate(){
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
-  if(!paused) simJD += dt*simDaysPerSec;
+  const rate = intro ? 0.15 : simDaysPerSec;                 // the opening fly-through runs the clock gently
+  if(!paused && !flight) simJD += dt*rate*timeDir;
 
   updatePositions(dt);
+  sunMat.uniforms.uTime.value = performance.now()/1000;
+  sunCorona.material.rotation += dt*0.012;
+  sunCorona.scale.setScalar(SUN_CORONA_SIZE*(1 + 0.015*Math.sin(performance.now()/900)));
 
-  // camera follows the followed body exactly (it moves thousands of units per second here); lockOffset decays so a change of target is a smooth glide
-  if(follow){
+  if(intro) stepIntro(dt);
+  else if(flight) stepFlight(dt);
+  else if(follow){
+    // camera follows the followed body exactly (it moves thousands of units per second here); lockOffset decays so a change of target is a smooth glide
     lockOffset.multiplyScalar(Math.pow(0.85, dt*60));
     if(lockOffset.lengthSq() < 1e-16) lockOffset.set(0,0,0);
     follow.worldPos(tmpVec2);
     camFocus.copy(tmpVec2).add(lockOffset);
+    if(glideRelease && lockOffset.lengthSq() === 0){ follow = null; glideRelease = false; }
   }
 
   updateCamera();
@@ -1223,21 +2128,23 @@ window.addEventListener('resize', ()=>{
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ---------- LOADING ----------
-setTimeout(()=>{
-  document.getElementById('loading').style.opacity='0';
-  document.getElementById('loading').style.transition='opacity .4s';
-  setTimeout(()=>document.getElementById('loading').remove(), 450);
-}, 500);
-
+// ---------- START ----------
 camRadius = targetRadius = 250000;
 applyOrbitVisibility(); applyBeltVisibility();
 updatePositions(0);
 updateCamera();
 updateHud();
+const sharedView = applyHash();       // a shared link opens straight at that view; otherwise the intro plays
 animate();
+setTimeout(()=>{
+  const ld = $('loading');
+  ld.style.transition = 'opacity .4s'; ld.style.opacity = '0';
+  setTimeout(()=>ld.remove(), 450);
+  if(!sharedView) startIntro();
+}, 500);
 
 })();
+
 </script>
 
 <script src="/libraries/config.js"></script>
