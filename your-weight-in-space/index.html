@@ -14,21 +14,21 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Your Weight in Space</title>
+<title>Weight on Other Planets Calculator | Your Weight in Space</title>
 
-<meta name="description" content="See how much you'd weigh on the Moon, Mars, Jupiter, the Sun, or even at the edge of a supermassive black hole. Free interactive weight-in-space calculator covering 21 planets, dwarf planets, and stars.">
+<meta name="description" content="See how much you'd weigh on the Moon, Mars, Jupiter, the Sun, in orbit, in deep space, or at the edge of a supermassive black hole. Free weight-in-space calculator covering 23 locations.">
 
 <link rel="canonical" href="https://rameshverse.com/your-weight-in-space">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="Your Weight in Space">
-<meta property="og:description" content="How much would you weigh on the Moon, Mars, Jupiter, the Sun — or at the event horizon of a supermassive black hole?">
+<meta property="og:description" content="How much would you weigh on the Moon, Mars, Jupiter, the Sun, in deep space, or at the event horizon of a supermassive black hole?">
 <meta property="og:url" content="https://rameshverse.com/weight-in-space">
 <meta property="og:image" content="https://rameshverse.com/weight-in-space/preview-image/weight-in-space-preview.jpg">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Your Weight in Space">
-<meta name="twitter:description" content="How much would you weigh on the Moon, Mars, Jupiter, the Sun — or at the event horizon of a supermassive black hole?">
+<meta name="twitter:description" content="How much would you weigh on the Moon, Mars, Jupiter, the Sun, in deep space, or at the event horizon of a supermassive black hole?">
 <meta name="twitter:image" content="https://rameshverse.com/weight-in-space/preview-image/weight-in-space-preview.jpg">
 
 <script type="application/ld+json">
@@ -38,7 +38,7 @@
   "name": "Your Weight in Space",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Any",
-  "description": "Free interactive tool that calculates your weight on 21 different space objects — planets, moons, dwarf planets, trans-Neptunian objects, the Sun, and the supermassive black hole at the center of the Milky Way.",
+  "description": "Free interactive tool that calculates your weight on 23 locations: planets, moons, dwarf planets, trans-Neptunian objects, orbit, deep space, the Sun, and the supermassive black hole at the center of the Milky Way.",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "url": "https://rameshverse.com/weight-in-space"
 }
@@ -46,353 +46,306 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #06060f;
-    --panel: #0f0f22;
-    --panel-2: #09091a;
-    --line: rgba(167,139,250,0.18);
-    --line-soft: rgba(167,139,250,0.09);
-    --violet: #a78bfa;
-    --blue: #60a5fa;
-    --emerald: #34d399;
-    --text: #e8e8f2;
-    --text-dim: #75758f;
-    --sans: 'Sora', system-ui, -apple-system, sans-serif;
-    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+    --bg: #040404;
+    --panel: #0a0a0a;
+    --panel-2: #070707;
+    --red: #ff2b2b;
+    --red-dim: rgba(255,43,43,0.55);
+    --line: rgba(255,43,43,0.22);
+    --line-soft: rgba(255,43,43,0.1);
+    --text: #e9e4e4;
+    --text-dim: #8a7c7c;
+    --amber: #ffb02e;
+    --ok: #39ff88;
+    --mono: 'Space Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
   }
 
-  html, body { height: 100%; }
+  html { background: var(--bg); }
 
   body {
-    font-family: var(--sans);
+    font-family: var(--mono);
     background:
-      radial-gradient(ellipse 900px 620px at 50% -8%, rgba(167,139,250,0.12), transparent 62%),
+      radial-gradient(ellipse 900px 560px at 50% -10%, rgba(255,43,43,0.14), transparent 65%),
       var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 2.25rem 1rem;
+    padding: 1.5rem 1rem 3rem;
     position: relative;
     overflow-x: hidden;
   }
 
-  .starfield {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
+  /* Scanlines + vignette */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    z-index: 50;
     pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px);
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    z-index: 49;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%);
   }
 
-  .star {
-    position: absolute;
-    background: #fff;
-    border-radius: 50%;
-  }
-
+  .starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .star { position: absolute; background: #fff; border-radius: 50%; }
   .star.twinkle { animation: twinkle 3.4s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100% { opacity: .12; } 50% { opacity: .85; } }
 
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.15; }
-    50% { opacity: 0.9; }
-  }
+  .page { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .star.twinkle { animation: none; }
-  }
-
-  .page { position: relative; z-index: 1; }
-
-  /* ---------- Header / orrery mark ---------- */
-  .header { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; }
-
-  .orrery {
-    position: relative;
-    width: 104px;
-    height: 104px;
-    margin-bottom: 10px;
-    perspective: 360px;
-  }
-
-  .orrery-core {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 14px; height: 14px;
-    margin: -7px 0 0 -7px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #fff, var(--violet) 42%, var(--blue) 78%, var(--emerald) 100%);
-    box-shadow: 0 0 20px 5px rgba(167,139,250,0.55);
-    z-index: 5;
-    animation: corePulse 2.6s ease-in-out infinite;
-  }
-
-  @keyframes corePulse {
-    0%, 100% { opacity: 0.85; transform: scale(1); }
-    50%      { opacity: 1; transform: scale(1.08); }
-  }
-
-  .orrery-ring {
-    position: absolute;
-    border: 1px dashed;
-    border-radius: 50%;
-    transform: rotateX(70deg);
-  }
-
-  .ring-1 { inset: 32px; border-color: rgba(96,165,250,0.35); }
-  .ring-2 { inset: 15px; border-color: rgba(167,139,250,0.3); }
-  .ring-3 { inset: 0; border-color: rgba(52,211,153,0.28); }
-
-  @keyframes spinTilt {
-    from { transform: rotateX(70deg) rotateZ(0deg); }
-    to   { transform: rotateX(70deg) rotateZ(360deg); }
-  }
-
-  .orrery-arm { position: absolute; }
-  .arm-1 { inset: 32px; animation: spinTilt 4.2s linear infinite; }
-  .arm-2 { inset: 15px; animation: spinTilt 6.6s linear infinite reverse; }
-  .arm-3 { inset: 0; animation: spinTilt 9.4s linear infinite; }
-
-  .orrery-arm::after {
-    content: '';
-    position: absolute;
-    top: -3px; left: 50%;
-    width: 6px; height: 6px;
-    margin-left: -3px;
-    border-radius: 50%;
-  }
-
-  .arm-1::after { background: var(--blue); box-shadow: 0 0 7px var(--blue); }
-  .arm-2::after { background: var(--violet); box-shadow: 0 0 7px var(--violet); }
-  .arm-3::after { width: 5px; height: 5px; margin-left: -2.5px; background: var(--emerald); box-shadow: 0 0 7px var(--emerald); }
-
-  @media (prefers-reduced-motion: reduce) {
-    .orrery-arm, .orrery-core { animation: none; }
-  }
-
-  h1 {
-    text-align: center;
-    font-size: 1.9rem;
-    font-weight: 800;
-    margin-bottom: 6px;
-    background: linear-gradient(90deg, var(--violet), var(--blue), var(--emerald));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .subtitle {
-    text-align: center;
-    font-size: 14px;
-    color: var(--text-dim);
-    margin-bottom: 14px;
-  }
-
-  .brand-badge {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin: 0 auto 2.25rem;
-    width: fit-content;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--violet);
-    border: 1px solid rgba(167,139,250,0.32);
-    background: rgba(167,139,250,0.06);
-    padding: 5px 12px;
-    border-radius: 999px;
-  }
-
-  .brand-badge .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--emerald);
-    box-shadow: 0 0 6px 1px rgba(52,211,153,0.7);
-  }
-
-  /* ---------- Form card ---------- */
-  .form-card {
-    position: relative;
-    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  /* HUD corner brackets (8 gradient layers + panel fill) */
+  .hud {
+    --c: var(--red);
+    background:
+      linear-gradient(var(--c), var(--c)) top left / 16px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) top left / 2px 16px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 16px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 2px 16px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 16px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 2px 16px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 16px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 2px 16px no-repeat,
+      linear-gradient(180deg, var(--panel), var(--panel-2));
     border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 1.75rem;
-    max-width: 480px;
-    margin: 0 auto 1.75rem;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(167,139,250,0.03) inset;
-    overflow: hidden;
+    position: relative;
   }
 
-  .form-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -40%;
-    width: 40%; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--violet), transparent);
-    animation: scan 6s linear infinite;
-    opacity: 0.8;
-  }
-
-  @keyframes scan {
-    0% { left: -40%; }
-    100% { left: 100%; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .form-card::before { animation: none; }
-  }
-
-  .field { margin-bottom: 1.1rem; }
-
-  .field label {
-    display: block;
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+  .tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 6px;
+    color: var(--red);
   }
 
-  .field-hint {
-    font-size: 11.5px;
-    color: var(--text-dim);
-    margin-top: 6px;
-    line-height: 1.5;
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 10px; margin-bottom: 1.6rem;
+    font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
   }
+  .topbar a { color: var(--text-dim); text-decoration: none; transition: color .2s; }
+  .topbar a:hover { color: var(--red); }
+  .status { display: flex; align-items: center; gap: 8px; color: var(--text-dim); }
+  .status .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--red); box-shadow: 0 0 8px 2px rgba(255,43,43,.7);
+    animation: blink 1.6s steps(2, end) infinite;
+  }
+  @keyframes blink { 50% { opacity: .25; } }
+
+  /* ---------- Header ---------- */
+  .header { text-align: center; margin-bottom: 1.8rem; }
+  .header .tag { margin-bottom: 10px; display: block; }
+  h1 {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-shadow: 0 0 18px rgba(255,43,43,.45);
+  }
+  h1 span { color: var(--red); }
+  .subtitle { margin-top: 10px; font-size: 0.78rem; color: var(--text-dim); letter-spacing: 0.04em; }
+
+  /* ---------- Console grid ---------- */
+  .console {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "targets readout";
+    gap: 1.1rem;
+    align-items: start;
+  }
+  #targets-panel { grid-area: targets; }
+  #readout { grid-area: readout; position: sticky; top: 1rem; }
+
+  .panel { padding: 1.3rem 1.2rem; }
+
+  .panel-title {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .panel-title .idx { font-size: .6rem; color: var(--text-dim); letter-spacing: .12em; }
 
   .field-row { display: flex; gap: 8px; }
-
   .field-row input {
-    flex: 1;
-    height: 46px;
-    font-size: 16px;
-    font-family: var(--mono);
+    flex: 1; min-width: 0; height: 48px;
+    font-size: 18px; font-family: var(--mono); font-weight: 700;
     padding: 0 14px;
-    border: 1px solid var(--line-soft);
-    border-radius: 10px;
-    background: #06060f;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .field-row input::placeholder { color: #38384a; }
-
-  .field-row input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(167,139,250,0.16); }
-
-  .field-row select, .field select {
-    height: 46px;
-    font-size: 14px;
-    font-family: var(--mono);
-    padding: 0 12px;
-    border: 1px solid var(--line-soft);
-    border-radius: 10px;
-    background: #06060f;
-    color: var(--text);
-    cursor: pointer;
-    outline: none;
-    width: 100%;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .field-row select { width: auto; min-width: 74px; }
-  .field select:focus, .field-row select:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(167,139,250,0.16); }
-
-  optgroup { color: var(--violet); font-style: normal; }
-  option { color: var(--text); background: #0f0f22; }
-
-  /* ---------- Result ---------- */
-  .result-box { max-width: 480px; margin: 0 auto; }
-
-  .result-card {
-    position: relative;
-    background: linear-gradient(180deg, var(--panel), var(--panel-2));
     border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 2rem 1.75rem;
-    text-align: center;
-    display: none;
-    overflow: hidden;
+    background: #000; color: var(--text);
+    outline: none; border-radius: 0;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field-row input::placeholder { color: #3a2a2a; }
+  .field-row input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(255,43,43,.15); }
+
+  .unit-toggle { display: flex; border: 1px solid var(--line); }
+  .unit-toggle button {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    background: #000; color: var(--text-dim);
+    border: 0; padding: 0 16px; cursor: pointer; transition: background .2s, color .2s;
+  }
+  .unit-toggle button[aria-pressed="true"] { background: var(--red); color: #000; }
+  .unit-toggle button:focus-visible, .chip:focus-visible, .btn:focus-visible {
+    outline: 2px solid var(--amber); outline-offset: 2px;
   }
 
-  .result-card.show { display: block; animation: resultPop 0.35s ease-out; }
+  .hint { font-size: 11px; color: var(--text-dim); margin-top: 9px; line-height: 1.6; }
 
-  @keyframes resultPop {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+  /* ---------- Target chips ---------- */
+  .group { margin-bottom: 14px; }
+  .group:last-child { margin-bottom: 0; }
+  .group-label {
+    font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 7px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .group-label::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--mono); font-size: 12px;
+    padding: 8px 11px;
+    background: #000; color: var(--text);
+    border: 1px solid var(--line-soft);
+    cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+  }
+  .chip:hover { border-color: var(--red-dim); color: #fff; }
+  .chip[aria-pressed="true"] {
+    background: rgba(255,43,43,.14);
+    border-color: var(--red);
+    color: var(--red);
+    box-shadow: 0 0 12px rgba(255,43,43,.25) inset;
   }
 
-  .corner-tl, .corner-br {
-    position: absolute;
-    width: 14px; height: 14px;
-    border-color: var(--violet);
-    opacity: 0.5;
+  /* ---------- Readout ---------- */
+  #readout { padding: 1.5rem 1.3rem 1.3rem; overflow: hidden; text-align: left; }
+  #readout::after {
+    content: '';
+    position: absolute; left: 0; right: 0; top: -20%;
+    height: 18%;
+    background: linear-gradient(to bottom, transparent, rgba(255,43,43,.07), transparent);
+    animation: sweep 5.5s linear infinite;
     pointer-events: none;
   }
-  .corner-tl { top: 10px; left: 10px; border-top: 2px solid var(--violet); border-left: 2px solid var(--violet); }
-  .corner-br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--violet); border-right: 2px solid var(--violet); }
+  @keyframes sweep { from { top: -20%; } to { top: 110%; } }
 
-  .result-icon { font-size: 48px; margin-bottom: 10px; line-height: 1; }
+  .ro-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .ro-name { font-size: 1.15rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .ro-cat { font-size: .6rem; color: var(--text-dim); letter-spacing: .14em; text-transform: uppercase; }
 
-  .result-body-name {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-  }
-
-  .result-weight {
-    font-size: 2.5rem;
-    font-weight: 800;
-    font-family: var(--mono);
-    line-height: 1.15;
-    margin-bottom: 4px;
-    background: linear-gradient(90deg, var(--violet), var(--blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .ro-label { font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text-dim); margin: 16px 0 2px; }
+  .ro-weight {
+    font-size: clamp(1.9rem, 6vw, 2.7rem);
+    font-weight: 700; line-height: 1.1;
+    color: var(--red);
+    text-shadow: 0 0 16px rgba(255,43,43,.5);
     word-break: break-word;
   }
+  .ro-badge {
+    display: inline-block; margin-top: 10px;
+    font-size: .62rem; letter-spacing: .16em; text-transform: uppercase;
+    padding: 4px 9px; border: 1px solid currentColor;
+  }
+  .ro-badge.b-ok { color: var(--ok); }
+  .ro-badge.b-warn { color: var(--amber); }
+  .ro-badge.b-bad { color: var(--red); animation: blink 1s steps(2,end) infinite; }
+  .ro-badge.b-float { color: #7fd6ff; }
 
-  .result-unit { font-size: 12.5px; color: var(--text-dim); margin-bottom: 14px; line-height: 1.55; }
-
-  .result-divider { border: none; border-top: 1px dashed var(--line-soft); margin: 1rem 0; }
+  .ro-divider { border: none; border-top: 1px dashed var(--line); margin: 16px 0 12px; }
 
   .meta-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--text-dim);
-    margin-bottom: 7px;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    font-size: 12px; color: var(--text-dim); margin-bottom: 8px;
   }
-
-  .meta-row span:first-child { text-align: left; }
   .meta-row span:last-child { color: var(--text); text-align: right; }
 
-  .result-note {
-    font-size: 11.5px;
-    color: #6b6b82;
-    margin-top: 12px;
-    line-height: 1.6;
-    font-style: italic;
+  .ro-note { font-size: 11.5px; color: var(--text-dim); line-height: 1.65; margin-top: 12px; min-height: 1.65em; }
+
+  .actions { display: flex; gap: 8px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    background: transparent; color: var(--red);
+    border: 1px solid var(--red); padding: 9px 14px; cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .btn:hover { background: var(--red); color: #000; }
+  .toast { font-size: 11px; color: var(--ok); opacity: 0; transition: opacity .25s; }
+  .toast.show { opacity: 1; }
+
+  .foot {
+    margin-top: 1.6rem; text-align: center;
+    font-size: 10.5px; color: var(--text-dim); line-height: 1.8; letter-spacing: .04em;
   }
 
-  @media (max-width: 480px) {
-    h1 { font-size: 1.5rem; }
-    .form-card, .result-card { padding: 1.5rem 1.25rem; }
+  /* ---------- Jump test ---------- */
+  .jump { margin-bottom: 1.1rem; padding: 1rem 1.2rem 1.1rem; }
+  #jp-full::before { content: attr(data-long); }
+  .jump-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+  .mass-group { display: flex; align-items: center; gap: 6px; margin-right: 10px; }
+  .mass-label { white-space: nowrap; }
+  .mass-group input {
+    width: 84px; height: 26px; font-size: 13px; font-family: var(--mono); font-weight: 700;
+    padding: 0 8px; border: 1px solid var(--line); background: #000; color: var(--text);
+    outline: none; border-radius: 0; transition: border-color .2s, box-shadow .2s;
+  }
+  .mass-group input::placeholder { color: #3a2a2a; font-weight: 400; }
+  .mass-group input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(255,43,43,.15); }
+  .mass-group .unit-toggle button { height: 26px; font-size: 11px; padding: 0 9px; }
+  .jump-bar .btn { padding: 5px 9px; font-size: 10px; letter-spacing: .1em; }
+  .jump-loc { flex: 1; min-width: 0; text-align: right; line-height: 1.3; margin-left: 6px; }
+  .jump-loc #jp-name { display: block; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .jump-loc #jp-count { font-size: .6rem; color: var(--text-dim); letter-spacing: .14em; }
+  #jump-canvas {
+    display: block; width: 100%; height: 340px;
+    background: #000; border: 1px solid var(--line-soft);
+    margin: 0 0 12px;
+  }
+  .jump-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .js-name { font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 8px; }
+  .js.earth .js-name { color: var(--amber); }
+  .js.body .js-name { color: var(--red); }
+  .jump-note { margin-top: 6px; min-height: 1.6em; }
+
+  .jump:fullscreen, .jump:-webkit-full-screen, .jump.pseudo-fs {
+    background: #040404; padding: 1rem 1.2rem; overflow: auto;
+    display: flex; flex-direction: column; margin: 0;
+  }
+  .jump.pseudo-fs { position: fixed; inset: 0; z-index: 100; }
+  .jump:fullscreen #jump-canvas, .jump:-webkit-full-screen #jump-canvas, .jump.pseudo-fs #jump-canvas {
+    flex: 1; height: auto; min-height: 200px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 760px) {
+    .console {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "readout" "targets";
+    }
+    #readout { position: relative; top: 0; }
+    #jump-canvas { height: 280px; }
+    .jump { padding: .9rem .8rem 1rem; }
+    .jump-bar .lbl { display: none; }
+    .mass-label { display: none; }
+    .mass-group { margin-right: 4px; }
+    .mass-group input { width: 66px; font-size: 16px; }
+    .jump-loc { flex-basis: 100%; display: flex; justify-content: space-between; align-items: baseline; margin-left: 0; }
+    .jump-loc #jp-name { display: inline; }
+    #jp-full::before { content: attr(data-short); }
+    .jump-loc #jp-name { font-size: .8rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star.twinkle, .status .dot, #readout::after, .ro-badge.b-bad { animation: none; }
   }
 </style>
 </head>
@@ -402,101 +355,92 @@
 
 <div class="page">
 
-  <div class="header">
-    <div class="orrery">
-      <div class="orrery-ring ring-1"></div>
-      <div class="orrery-ring ring-2"></div>
-      <div class="orrery-ring ring-3"></div>
-      <div class="orrery-arm arm-1"></div>
-      <div class="orrery-arm arm-2"></div>
-      <div class="orrery-arm arm-3"></div>
-      <div class="orrery-core"></div>
-    </div>
-    <h1>Your Weight in Space</h1>
-    <p class="subtitle">How much would you weigh anywhere in the universe?</p>
-    <div class="brand-badge"><span class="dot"></span> Rameshverse Systems · MK·02</div>
+  <div class="topbar">
+    <a href="https://rameshverse.com/">&larr; RAMESHVERSE</a>
+    <div class="status"><span class="dot"></span> RV&middot;WEIGHT // ONLINE</div>
   </div>
 
-  <div class="form-card">
+  <header class="header">
+    <span class="tag">// Gravity Analysis Module</span>
+    <h1>Your Weight <span>in Space</span></h1>
+    <p class="subtitle">Enter your mass. Pick a location. See what an Earth-calibrated scale would read.</p>
+  </header>
 
-    <div class="field">
-      <label for="wval">Your mass</label>
-      <div class="field-row">
-        <input type="number" id="wval" placeholder="e.g. 70" min="0" step="0.1" inputmode="decimal" />
-        <select id="wunit" aria-label="Mass unit">
-          <option value="kg">kg</option>
-          <option value="lb">lb</option>
-        </select>
+  <!-- JUMP TEST (top screen) -->
+  <section class="hud panel jump" id="jump-section" aria-label="Jump test">
+    <div class="jump-bar">
+      <div class="mass-group">
+        <label for="wval" class="tag mass-label">Your mass</label>
+        <input type="number" id="wval" placeholder="mass" min="0" step="0.1" inputmode="decimal" aria-label="Your mass: the number your bathroom scale shows on Earth" />
+        <div class="unit-toggle" role="group" aria-label="Mass unit">
+          <button type="button" id="u-kg" aria-pressed="true">kg</button>
+          <button type="button" id="u-lb" aria-pressed="false">lb</button>
+        </div>
       </div>
-      <p class="field-hint">Enter the number your bathroom scale shows on Earth.</p>
+      <button type="button" class="btn" id="jp-prev" aria-label="Previous location"><span aria-hidden="true">&larr;</span><span class="lbl"> Prev</span></button>
+      <button type="button" class="btn" id="jp-next" aria-label="Next location"><span class="lbl">Next </span><span aria-hidden="true">&rarr;</span></button>
+      <button type="button" class="btn" id="jp-full" aria-label="Toggle fullscreen" data-long="Fullscreen" data-short="Full"></button>
+      <div class="jump-loc"><span id="jp-name"></span><span id="jp-count"></span></div>
     </div>
 
-    <div class="field">
-      <label for="body">Select a space object</label>
-      <select id="body">
-        <optgroup label="── Planets & Moon ──">
-          <option value="Mercury">🌑 Mercury</option>
-          <option value="Venus">🟡 Venus</option>
-          <option value="Earth" selected>🌍 Earth</option>
-          <option value="Moon">🌙 Moon</option>
-          <option value="Mars">🔴 Mars</option>
-          <option value="Jupiter">🟠 Jupiter</option>
-          <option value="Saturn">🪐 Saturn</option>
-          <option value="Uranus">🔵 Uranus</option>
-          <option value="Neptune">🟣 Neptune</option>
-        </optgroup>
-        <optgroup label="── Dwarf Planets ──">
-          <option value="Ceres">⚪ Ceres</option>
-          <option value="Pluto">🧊 Pluto</option>
-          <option value="Haumea">🪨 Haumea</option>
-          <option value="Makemake">❄️ Makemake</option>
-          <option value="Eris">💠 Eris</option>
-        </optgroup>
-        <optgroup label="── Trans-Neptunian Objects ──">
-          <option value="Sedna">🔮 Sedna</option>
-          <option value="Quaoar">🟤 Quaoar</option>
-          <option value="Gonggong">🌘 Gonggong</option>
-          <option value="Orcus">⚫ Orcus</option>
-          <option value="Varuna">💫 Varuna</option>
-        </optgroup>
-        <optgroup label="── Stars & Black Holes ──">
-          <option value="Sun">☀️ The Sun</option>
-          <option value="SagittariusA">🌀 Sagittarius A*</option>
-        </optgroup>
-      </select>
-    </div>
+    <canvas id="jump-canvas" role="img" aria-label="Real-time animation of a person jumping on Earth next to the selected location"></canvas>
 
-  </div>
-
-  <div class="result-box">
-    <div class="result-card" id="result-card">
-      <div class="corner-tl"></div>
-      <div class="corner-br"></div>
-      <div class="result-icon" id="res-icon"></div>
-      <div class="result-body-name" id="res-name"></div>
-      <div class="result-body-name" style="margin-bottom:2px;">Scale reading</div>
-      <div class="result-weight" id="res-weight"></div>
-      <div class="result-unit" id="res-unit"></div>
-      <hr class="result-divider" />
-      <div class="meta-row">
-        <span>Your mass (same everywhere)</span>
-        <span id="res-earth"></span>
+    <div class="jump-stats">
+      <div class="js earth">
+        <div class="js-name">Earth</div>
+        <div class="meta-row"><span>Scale</span><span id="je-w"></span></div>
+        <div class="meta-row"><span>Height</span><span id="je-h"></span></div>
+        <div class="meta-row"><span>Air time</span><span id="je-t"></span></div>
       </div>
-      <div class="meta-row">
-        <span>Actual weight (force)</span>
-        <span id="res-force"></span>
+      <div class="js body">
+        <div class="js-name" id="jb-name"></div>
+        <div class="meta-row"><span>Scale</span><span id="jb-w"></span></div>
+        <div class="meta-row"><span>Height</span><span id="jb-h"></span></div>
+        <div class="meta-row"><span>Air time</span><span id="jb-t"></span></div>
       </div>
-      <div class="meta-row">
-        <span>Surface gravity</span>
-        <span id="res-grav"></span>
-      </div>
-      <div class="meta-row">
-        <span>Gravity multiplier</span>
-        <span id="res-mult"></span>
-      </div>
-      <div class="result-note" id="res-note"></div>
     </div>
-  </div>
+    <p class="hint jump-note" id="jump-note"></p>
+    <p class="hint">Both jumpers launch at the same speed, the speed of a 50 cm jump on Earth. Enter your mass as your bathroom scale shows it on Earth. Playback is real time. The ruler shows height; figures are not to scale. Use the arrow keys to change location.</p>
+  </section>
+
+  <main class="console">
+
+    <!-- TARGETS -->
+    <section class="hud panel" id="targets-panel">
+      <div class="panel-title"><span class="tag">Select location</span><span class="idx">02</span></div>
+      <div id="chips"></div>
+    </section>
+
+    <!-- READOUT -->
+    <section class="hud" id="readout" aria-live="polite">
+      <div class="ro-head">
+        <div class="ro-name" id="res-name">&mdash;</div>
+        <div class="ro-cat" id="res-cat"></div>
+      </div>
+
+      <div class="ro-label">Scale reading</div>
+      <div class="ro-weight" id="res-weight">&mdash;</div>
+      <span class="ro-badge" id="res-badge"></span>
+      <p class="ro-unit hint" style="margin-top:12px">What an Earth-calibrated scale would show. Your mass doesn't change, only gravity's pull does.</p>
+
+      <hr class="ro-divider" />
+
+      <div class="meta-row"><span>Your mass (same everywhere)</span><span id="res-mass"></span></div>
+      <div class="meta-row"><span>Gravity's pull on you</span><span id="res-force"></span></div>
+      <div class="meta-row"><span>Gravity at this location</span><span id="res-grav"></span></div>
+      <div class="meta-row"><span>Gravity multiplier</span><span id="res-mult"></span></div>
+
+      <div class="ro-note" id="res-note"></div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="share-btn">Share result</button>
+        <span class="toast" id="toast" role="status"></span>
+      </div>
+    </section>
+
+  </main>
+
+  <p class="foot">Surface gravity is the pull at the visible surface or 1-bar level. Black hole value is a Newtonian estimate for illustration.<br>RAMESHVERSE &middot; RV&middot;WEIGHT</p>
 
 </div>
 
@@ -504,117 +448,588 @@
   const G_EARTH  = 9.80665;      // m/s², standard gravity
   const LB_TO_KG = 0.45359237;
 
-  const bodies = {
-    Mercury:      { icon: "🌑", g: 0.38,     gStr: "3.7 m/s²",           note: "" },
-    Venus:        { icon: "🟡", g: 0.904,    gStr: "8.87 m/s²",          note: "" },
-    Earth:        { icon: "🌍", g: 1,         gStr: "9.81 m/s²",          note: "" },
-    Moon:         { icon: "🌙", g: 0.1654,   gStr: "1.62 m/s²",          note: "Earth's natural satellite." },
-    Mars:         { icon: "🔴", g: 0.3794,   gStr: "3.72 m/s²",          note: "" },
-    Jupiter:      { icon: "🟠", g: 2.528,    gStr: "24.8 m/s²",          note: "Measured at the 1-bar pressure level — Jupiter has no solid surface." },
-    Saturn:       { icon: "🪐", g: 1.065,    gStr: "10.44 m/s²",         note: "Measured at the 1-bar pressure level — Saturn has no solid surface." },
-    Uranus:       { icon: "🔵", g: 0.886,    gStr: "8.69 m/s²",          note: "Measured at the 1-bar pressure level — Uranus has no solid surface." },
-    Neptune:      { icon: "🟣", g: 1.14,     gStr: "11.15 m/s²",         note: "Measured at the 1-bar pressure level — Neptune has no solid surface." },
-    Ceres:        { icon: "⚪", g: 0.029,    gStr: "0.28 m/s²",          note: "Largest object in the asteroid belt." },
-    Pluto:        { icon: "🧊", g: 0.063,    gStr: "0.62 m/s²",          note: "Reclassified as a dwarf planet in 2006." },
-    Haumea:       { icon: "🪨", g: 0.044,    gStr: "0.44 m/s²",          note: "Has an ellipsoidal shape due to its rapid spin." },
-    Makemake:     { icon: "❄️", g: 0.05,     gStr: "0.49 m/s²",          note: "Located in the Kuiper Belt." },
-    Eris:         { icon: "💠", g: 0.084,    gStr: "0.82 m/s²",          note: "More massive than Pluto; its discovery triggered the dwarf planet debate." },
-    Sedna:        { icon: "🔮", g: 0.0677,   gStr: "0.664 m/s²",         note: "Extremely distant; may be in the inner Oort Cloud." },
-    Quaoar:       { icon: "🟤", g: 0.03,     gStr: "0.29 m/s²",          note: "Has its own ring system." },
-    Gonggong:     { icon: "🌘", g: 0.0443,   gStr: "0.434 m/s²",         note: "Named after a Chinese water god." },
-    Orcus:        { icon: "⚫", g: 0.027,    gStr: "0.27 m/s²",          note: "Sometimes called the 'anti-Pluto' due to its opposite orbit." },
-    Varuna:       { icon: "💫", g: 0.017,    gStr: "0.17 m/s²",          note: "A Kuiper Belt object with a fast rotation." },
-    Sun:          { icon: "☀️", g: 27.96,    gStr: "274 m/s²",           note: "Measured at the visible surface (photosphere). The Sun's gravity is so strong you would be crushed instantly." },
-    /* Fixed: this previously listed g = 1.535e17 and gStr = "~1.5 × 10¹⁸ m/s²",
-       overstating Sagittarius A*'s event-horizon gravity by roughly 11-12
-       orders of magnitude. Using the same Newtonian approximation as the
-       site's Black Hole Radius Calculator (g = GM/Rs²) with a mass of
-       ~4 million solar masses (matching the note text below), the correct
-       figure is about 373,667x Earth gravity — still catastrophic, just not
-       fictionally catastrophic. */
-    SagittariusA: { icon: "🌀", g: 373667,   gStr: "~3.67 × 10⁶ m/s²",   note: "Illustrative Newtonian estimate of gravity at the event horizon of the Milky Way's supermassive black hole (~4 million solar masses). Nothing — not even light — can escape beyond this point." },
-  };
+  // g        = gravity relative to Earth (true pull on you)
+  // apparent = what a scale reads, relative to Earth. Defaults to g.
+  //            Orbiting bodies are in free fall, so apparent = 0 even though g is not.
+  const CATS = [
+    { id: "pm", label: "Planets & Moon" },
+    { id: "dw", label: "Dwarf planets" },
+    { id: "tn", label: "Trans-Neptunian objects" },
+    { id: "ss", label: "Stars & black holes" },
+    { id: "sp", label: "Space itself" },
+  ];
 
-  const displayNames = {
-    SagittariusA: "Sagittarius A*",
-    Sun: "The Sun",
-  };
+  const BODIES = [
+    { id: "Mercury",  name: "Mercury",  cat: "pm", g: 0.38,   gStr: "3.7 m/s²",  note: "" },
+    { id: "Venus",    name: "Venus",    cat: "pm", g: 0.904,  gStr: "8.87 m/s²", note: "" },
+    { id: "Earth",    name: "Earth",    cat: "pm", g: 1,      gStr: "9.81 m/s²", note: "Home. The scale reads your true mass here." },
+    { id: "Moon",     name: "Moon",     cat: "pm", g: 0.1654, gStr: "1.62 m/s²", note: "Earth's natural satellite." },
+    { id: "Mars",     name: "Mars",     cat: "pm", g: 0.3794, gStr: "3.72 m/s²", note: "" },
+    { id: "Jupiter",  name: "Jupiter",  cat: "pm", g: 2.528,  gStr: "24.8 m/s²", note: "Measured at the 1-bar pressure level. Jupiter has no solid surface." },
+    { id: "Saturn",   name: "Saturn",   cat: "pm", g: 1.065,  gStr: "10.44 m/s²", note: "Measured at the 1-bar pressure level. Saturn has no solid surface." },
+    { id: "Uranus",   name: "Uranus",   cat: "pm", g: 0.886,  gStr: "8.69 m/s²", note: "Measured at the 1-bar pressure level. Uranus has no solid surface." },
+    { id: "Neptune",  name: "Neptune",  cat: "pm", g: 1.14,   gStr: "11.15 m/s²", note: "Measured at the 1-bar pressure level. Neptune has no solid surface." },
 
+    { id: "Ceres",    name: "Ceres",    cat: "dw", g: 0.029,  gStr: "0.28 m/s²", note: "Largest object in the asteroid belt." },
+    { id: "Pluto",    name: "Pluto",    cat: "dw", g: 0.063,  gStr: "0.62 m/s²", note: "Reclassified as a dwarf planet in 2006." },
+    { id: "Haumea",   name: "Haumea",   cat: "dw", g: 0.044,  gStr: "0.44 m/s²", note: "Has an ellipsoidal shape due to its rapid spin." },
+    { id: "Makemake", name: "Makemake", cat: "dw", g: 0.05,   gStr: "0.49 m/s²", note: "Located in the Kuiper Belt." },
+    { id: "Eris",     name: "Eris",     cat: "dw", g: 0.084,  gStr: "0.82 m/s²", note: "More massive than Pluto; its discovery triggered the dwarf planet debate." },
+
+    { id: "Sedna",    name: "Sedna",    cat: "tn", g: 0.0677, gStr: "0.664 m/s²", note: "Extremely distant; may be in the inner Oort Cloud." },
+    { id: "Quaoar",   name: "Quaoar",   cat: "tn", g: 0.03,   gStr: "0.29 m/s²", note: "Has its own ring system." },
+    { id: "Gonggong", name: "Gonggong", cat: "tn", g: 0.0443, gStr: "0.434 m/s²", note: "Named after a Chinese water god." },
+    { id: "Orcus",    name: "Orcus",    cat: "tn", g: 0.027,  gStr: "0.27 m/s²", note: "Sometimes called the 'anti-Pluto' due to its opposite orbit." },
+    { id: "Varuna",   name: "Varuna",   cat: "tn", g: 0.017,  gStr: "0.17 m/s²", note: "A Kuiper Belt object with a fast rotation." },
+
+    { id: "Sun",      name: "The Sun",  cat: "ss", g: 27.96,  gStr: "274 m/s²", note: "Measured at the visible surface (photosphere). The Sun's gravity is so strong you would be crushed instantly." },
+    // Newtonian estimate g = GM/Rs² for ~4 million solar masses (same method as the
+    // Black Hole Radius Calculator): about 373,667x Earth gravity.
+    { id: "SagittariusA", name: "Sagittarius A*", cat: "ss", g: 373667, gStr: "~3.67 × 10⁶ m/s²", note: "Illustrative Newtonian estimate of gravity at the event horizon of the Milky Way's supermassive black hole (~4 million solar masses). Nothing, not even light, can escape beyond this point." },
+
+    { id: "ISS", name: "ISS orbit", cat: "sp", g: 0.886, apparent: 0, gStr: "~8.69 m/s²",
+      note: "At about 400 km altitude, Earth's gravity is still roughly 89% of its surface value. Astronauts float because they and the station are in continuous free fall around Earth, so a scale reads zero." },
+    { id: "DeepSpace", name: "Deep space", cat: "sp", g: 0, apparent: 0, gStr: "≈ 0 m/s²",
+      note: "Far from any star or planet, gravity is too weak to feel, so you would be effectively weightless. It never reaches exactly zero, since every mass pulls a little. Your mass is still unchanged, so you'd resist being pushed exactly as on Earth." },
+  ];
+
+  const BY_ID = Object.fromEntries(BODIES.map(b => [b.id, b]));
+  const catLabel = Object.fromEntries(CATS.map(c => [c.id, c.label]));
+
+  const $ = id => document.getElementById(id);
+
+  const state = { mass: 50, unit: "kg", body: "Mercury" };
+
+  /* ---------- Formatting ---------- */
   function fmt(val, unit) {
+    if (val === 0) return "0 " + unit;
     if (val >= 1e15) return (val / 1e15).toFixed(2) + " × 10¹⁵ " + unit;
     if (val >= 1e12) return (val / 1e12).toFixed(2) + " trillion " + unit;
     if (val >= 1e9)  return (val / 1e9).toFixed(2)  + " billion " + unit;
     if (val >= 1e6)  return (val / 1e6).toFixed(2)  + " million " + unit;
     if (val < 0.01)  return val.toFixed(4) + " " + unit;
-    return val.toFixed(2) + " " + unit;
+    return val.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + unit;
   }
 
   const superDigits = { '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻' };
+  const toSuperscript = s => s.split('').map(ch => superDigits[ch] || ch).join('');
 
-  function toSuperscript(str) {
-    return str.split('').map(ch => superDigits[ch] || ch).join('');
-  }
-
-  // Formats the "gravity multiplier" line — plain "×N" for everyday
-  // multipliers, switching to proper scientific notation (with real
-  // superscript digits) once the number gets too large to read
-  // comfortably. No current body value reaches the >=1e6 branch, but
-  // it's exercised here so it stays correct if one ever does.
   function fmtMultiplier(g) {
+    if (g === 0) return "≈ 0×";
     if (g >= 1e6) {
       const [mantissa, exp] = g.toExponential(2).split('e');
-      const expNum = parseInt(exp, 10);
-      return `${mantissa} × 10${toSuperscript(String(expNum))}×`;
+      return `${mantissa} × 10${toSuperscript(String(parseInt(exp, 10)))}×`;
     }
     if (g >= 1000) return Math.round(g).toLocaleString("en-US") + "×";
     return g.toFixed(3) + "×";
   }
 
-  function calculate() {
-    const raw  = parseFloat(document.getElementById("wval").value);
-    const unit = document.getElementById("wunit").value;
-    const key  = document.getElementById("body").value;
-    const b    = bodies[key];
+  function appOf(b) { return b.apparent !== undefined ? b.apparent : b.g; }
 
-    if (!raw || raw <= 0) {
-      document.getElementById("result-card").classList.remove("show");
-      return;
-    }
-
-    const w       = raw * b.g;                         // scale reading (kgf / lbf)
-    const massKg  = unit === "kg" ? raw : raw * LB_TO_KG;
-    const forceN  = massKg * b.g * G_EARTH;            // true weight in newtons
-    const wStr    = fmt(w, unit);
-    const multStr = fmtMultiplier(b.g);
-    const name    = displayNames[key] || key;
-
-    document.getElementById("res-icon").textContent   = b.icon;
-    document.getElementById("res-name").textContent   = name;
-    document.getElementById("res-weight").textContent = wStr;
-    document.getElementById("res-unit").textContent   =
-      "What an Earth-calibrated scale would show. Your mass doesn't change, only gravity's pull does.";
-    document.getElementById("res-earth").textContent  = `${raw.toFixed(2)} ${unit}`;
-    document.getElementById("res-force").textContent  = fmt(forceN, "N");
-    document.getElementById("res-grav").textContent   = b.gStr;
-    document.getElementById("res-mult").textContent   = multStr;
-    document.getElementById("res-note").textContent   = b.note;
-
-    const card = document.getElementById("result-card");
-    card.classList.add("show");
-    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  function badgeFor(b) {
+    const a = appOf(b);
+    if (a === 0)    return ["WEIGHTLESS", "b-float"];
+    if (a < 0.1)    return ["FEATHERWEIGHT", "b-ok"];
+    if (a < 0.8)    return ["LIGHT", "b-ok"];
+    if (a <= 1.2)   return ["EARTH-LIKE", "b-ok"];
+    if (a < 5)      return ["HEAVY", "b-warn"];
+    if (a < 100)    return ["CRUSHING", "b-bad"];
+    return ["LETHAL", "b-bad"];
   }
 
-  document.getElementById("wval").addEventListener("input", calculate);
-  document.getElementById("wunit").addEventListener("change", calculate);
-  document.getElementById("body").addEventListener("change", calculate);
+  /* ---------- Build UI ---------- */
+  function buildChips() {
+    const host = $("chips");
+    CATS.forEach(c => {
+      const group = document.createElement("div");
+      group.className = "group";
+      const label = document.createElement("div");
+      label.className = "group-label";
+      label.textContent = c.label;
+      const row = document.createElement("div");
+      row.className = "chips";
+      BODIES.filter(b => b.cat === c.id).forEach(b => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.dataset.id = b.id;
+        btn.textContent = b.name;
+        btn.setAttribute("aria-pressed", "false");
+        btn.addEventListener("click", () => selectBody(b.id, true));
+        row.appendChild(btn);
+      });
+      group.append(label, row);
+      host.appendChild(group);
+    });
+  }
+
+  /* ---------- Update ---------- */
+  function currentMass() {
+    return state.mass > 0 ? state.mass : null;
+  }
+
+  function render() {
+    const b = BY_ID[state.body];
+    const m = currentMass();
+    const unit = state.unit;
+
+    $("res-name").textContent = b.name;
+    $("res-cat").textContent  = catLabel[b.cat];
+    $("res-grav").textContent = b.gStr;
+    $("res-mult").textContent = fmtMultiplier(b.g);
+    $("res-note").textContent = b.note;
+
+    const [badgeText, badgeCls] = badgeFor(b);
+    const badge = $("res-badge");
+    badge.textContent = badgeText;
+    badge.className = "ro-badge " + badgeCls;
+
+    if (m === null) {
+      $("res-weight").textContent = "-- " + unit;
+      $("res-mass").textContent   = "--";
+      $("res-force").textContent  = "--";
+    } else {
+      const massKg = unit === "kg" ? m : m * LB_TO_KG;
+      const forceN = massKg * b.g * G_EARTH;
+      $("res-weight").textContent = fmt(m * appOf(b), unit);
+      $("res-mass").textContent   = `${m.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${unit}`;
+      $("res-force").textContent  = b.g === 0 ? "≈ 0 N" : fmt(forceN, "N");
+    }
+
+    document.querySelectorAll(".chip").forEach(c =>
+      c.setAttribute("aria-pressed", c.dataset.id === state.body ? "true" : "false"));
+
+    $("u-kg").setAttribute("aria-pressed", unit === "kg");
+    $("u-lb").setAttribute("aria-pressed", unit === "lb");
+
+    jumpUpdate();
+    jumpReadouts();
+    persist();
+  }
+
+  function persist() {
+    try {
+      const p = new URLSearchParams();
+      if (currentMass() !== null) p.set("m", state.mass);
+      p.set("u", state.unit);
+      p.set("b", state.body);
+      history.replaceState(null, "", "?" + p.toString());
+    } catch (e) {}
+    try { localStorage.setItem("rv-weight", JSON.stringify({ m: state.mass, u: state.unit })); } catch (e) {}
+  }
+
+  function selectBody(id, scrollOnMobile) {
+    state.body = id;
+    render();
+    if (scrollOnMobile && window.matchMedia("(max-width: 760px)").matches) {
+      $("readout").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  function setUnit(u) {
+    if (u === state.unit) return;
+    // Convert the entered number so the same mass is kept when switching units.
+    if (currentMass() !== null) {
+      const conv = u === "lb" ? state.mass / LB_TO_KG : state.mass * LB_TO_KG;
+      state.mass = Math.round(conv * 10) / 10;
+      $("wval").value = state.mass;
+    }
+    state.unit = u;
+    render();
+  }
+
+  /* ---------- Share ---------- */
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  async function share() {
+    const b = BY_ID[state.body];
+    const m = currentMass();
+    const text = m === null
+      ? "Your Weight in Space"
+      : `A ${m} ${state.unit} person reads ${fmt(m * appOf(b), state.unit)} on ${b.name}. Try yours:`;
+    const url = location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Your Weight in Space", text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(text + " " + url);
+      toast("LINK COPIED");
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      toast("COPY FAILED");
+    }
+  }
+
+  /* ---------- Jump simulation (real time) ---------- */
+  const JUMP_H_EARTH = 0.5;                                  // m, a typical standing jump on Earth
+  const JUMP_V = Math.sqrt(2 * G_EARTH * JUMP_H_EARTH);      // same takeoff speed everywhere (m/s)
+  const MAN_M = 1.7, ISS_CEIL = 2.5;
+  const ZERO_FLIGHT = 2.4, CROUCH_T = 0.55, LAND_T = 0.25, PAUSE_T = 0.8;
+  const C_EARTH = "#ffb02e", C_BODY = "#ff2b2b";
+  const CRUSH_G = 100;                                         // at or above this many g the jumper is torn apart
+  const CR = { drop: 2.4, period: 3.8 };                       // seconds: the drop, then a pause
+
+  // Dense dots along a falling figure (arms up). d = distance below the head centre, in px.
+  function makeThread() {
+    const pts = [];
+    const seg = (x1, y1, x2, y2) => {
+      const n = Math.max(2, Math.round(Math.hypot(x2 - x1, y2 - y1)));
+      for (let i = 0; i <= n; i++) { const t = i / n; pts.push([x1 + (x2 - x1) * t, 43 - (y1 + (y2 - y1) * t)]); }
+    };
+    seg(-1.5, 0, -1.5, 20); seg(1.5, 0, 1.5, 20); seg(0, 20, 0, 36);
+    seg(0, 36, -9, 49);     seg(0, 36, 9, 49);
+    for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; pts.push([Math.cos(a) * 5, Math.sin(a) * 5]); }
+    return pts;
+  }
+  // Drop progress 0..1 and how stretched the body is at that moment.
+  const dropP = t => Math.min(1, t / CR.drop);
+  const stretchK = p => 14 * Math.pow(Math.max(0, (p - 0.12) / 0.88), 1.6);
+  const crushLabel = t => { const p = dropP(t); return t >= CR.drop ? "SPAGHETTIFIED" : p < 0.25 ? "FALLING" : "STRETCHING"; };
+
+  const jumpSec = $("jump-section");
+  const jumpCv = $("jump-canvas");
+  const jctx = jumpCv.getContext("2d");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let J = null, jStart = 0, jRaf = 0, jDpr = 1, jVisible = true;
+
+  function fmtLen(m, d = 2) {
+    if (m === 0)   return "0 cm";
+    if (m < 1e-3)  return (m * 1e6).toFixed(d) + " μm";
+    if (m < 1e-2)  return (m * 1e3).toFixed(d) + " mm";
+    if (m < 1)     return (m * 100).toFixed(d) + " cm";
+    return m.toFixed(d) + " m";
+  }
+  function fmtTime(s) {
+    if (s === 0)   return "0.00 s";
+    if (s >= 0.1)  return s.toFixed(2) + " s";
+    if (s >= 1e-3) return (s * 1e3).toFixed(1) + " ms";
+    return (s * 1e6).toFixed(2) + " μs";
+  }
+  function niceStep(span) {
+    const raw = span / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
+  }
+
+  // Effective gravity the jumper feels. Free fall (orbit, deep space) means none.
+  function laneOf(b) {
+    const a = appOf(b) * G_EARTH;
+    let L;
+    if (a === 0) {
+      const cap = b.id === "ISS" ? ISS_CEIL - MAN_M : Infinity;   // ISS: floats up until the ceiling
+      L = { a, apex: cap, land: Infinity, cap };
+    } else {
+      L = { a, apex: JUMP_V * JUMP_V / (2 * a), land: 2 * JUMP_V / a, cap: Infinity };
+    }
+    L.crush = appOf(b) >= CRUSH_G;
+    L.period = L.crush ? CR.period : isFinite(L.land) ? CROUCH_T + L.land + LAND_T + PAUSE_T : CROUCH_T + ZERO_FLIGHT;
+    return L;
+  }
+
+  function heightAt(L, t) {
+    if (L.a > 0) return t < L.land ? JUMP_V * t - 0.5 * L.a * t * t : 0;
+    return Math.min(JUMP_V * t, L.cap);
+  }
+
+  function laneState(L, tau) {
+    if (tau < CROUCH_T) return { y: 0, pose: "crouch", k: tau / CROUCH_T, label: "READY" };
+    const t = tau - CROUCH_T;
+    if (t < L.land) {
+      const y = heightAt(L, t);
+      return { y, pose: "air", k: 0, label: "AIR " + fmtTime(t) + " · " + fmtLen(y) };
+    }
+    const since = t - L.land;
+    const label = "LANDED";
+    if (since < LAND_T) return { y: 0, pose: "crouch", k: 0.7 * (1 - since / LAND_T), label };
+    return { y: 0, pose: "stand", k: 0, label };
+  }
+
+  function drawMan(c, x, fy, pose, k, col) {
+    const leg = 20, torso = 16, hr = 5;
+    let hipY = fy - leg, knee = 0, lean = 0, spread = 0, arms = "down";
+    if (pose === "crouch") { hipY = fy - leg * (1 - 0.38 * k); knee = 8 * k; lean = 4 * k; arms = "back"; }
+    else if (pose === "air") { spread = 3; arms = "up"; }
+    const sx = x + lean, sy = hipY - torso, kneeY = (hipY + fy) / 2;
+    c.strokeStyle = col; c.lineWidth = 2.2; c.lineCap = "round"; c.lineJoin = "round";
+    c.shadowColor = col; c.shadowBlur = 8;
+    c.beginPath();
+    c.moveTo(x - spread, fy); c.lineTo(x + knee, kneeY); c.lineTo(x, hipY);
+    c.moveTo(x + spread, fy); c.lineTo(x + knee, kneeY); c.lineTo(x, hipY);
+    c.moveTo(x, hipY); c.lineTo(sx, sy);
+    if (arms === "up")        { c.moveTo(sx, sy); c.lineTo(sx - 9, sy - 13); c.moveTo(sx, sy); c.lineTo(sx + 9, sy - 13); }
+    else if (arms === "back") { c.moveTo(sx, sy); c.lineTo(sx - 10, sy + 8);  c.moveTo(sx, sy); c.lineTo(sx - 7, sy + 13); }
+    else                      { c.moveTo(sx, sy); c.lineTo(sx - 5, sy + 14);  c.moveTo(sx, sy); c.lineTo(sx + 5, sy + 14); }
+    c.stroke();
+    c.beginPath(); c.arc(sx + lean * 0.3, sy - hr - 2, hr, 0, Math.PI * 2); c.stroke();
+    c.shadowBlur = 0;
+  }
+
+  // tE / tB: time within each lane's own jump cycle (seconds, real time)
+  function drawJump(tE, tB) {
+    if (!J) return;
+    const c = jctx, dpr = jDpr;
+    const W = jumpCv.width / dpr, H = jumpCv.height / dpr;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, W, H);
+
+    const left = 46, top = 46, groundY = H - 24;
+    const laneW = (W - left) / 2;
+    const px = (groundY - top - 56) / J.Hview;       // pixels per metre (height only)
+
+    c.font = "10px 'Space Mono', monospace";
+    c.textBaseline = "middle";
+    c.lineWidth = 1;
+
+    // ruler
+    const step = niceStep(J.Hview);
+    for (let i = 0; i * step <= J.Hview * 1.001; i++) {
+      const y = groundY - i * step * px;
+      c.strokeStyle = "rgba(255,43,43,0.12)";
+      c.beginPath(); c.moveTo(left, y); c.lineTo(W, y); c.stroke();
+      c.fillStyle = "#8a7c7c"; c.textAlign = "right";
+      c.fillText(i === 0 ? "0" : fmtLen(i * step, 0), left - 6, y);
+    }
+
+    const lanes = [
+      { L: J.E, t: tE, x0: left,         col: C_EARTH, name: "EARTH" },
+      { L: J.B, t: tB, x0: left + laneW, col: C_BODY,  name: J.name.toUpperCase() },
+    ];
+
+    lanes.forEach((ln, idx) => {
+      const { L, x0, col } = ln, cx = x0 + laneW / 2;
+      const s = L.crush ? { y: 0, label: crushLabel(ln.t) } : laneState(L, ln.t);
+
+      if (idx === 1) {
+        c.strokeStyle = "rgba(255,43,43,0.3)";
+        c.beginPath(); c.moveTo(x0, 6); c.lineTo(x0, groundY + 10); c.stroke();
+      }
+
+      c.textAlign = "center";
+      c.fillStyle = col;
+      c.fillText(ln.name, cx, 14);
+      c.fillStyle = "#b9aeae";
+      c.fillText(s.label, cx, 30);
+
+      // ground (dashed when there is no real floor)
+      const noFloor = L.a === 0 && L.cap === Infinity;
+      c.strokeStyle = col; c.globalAlpha = 0.7;
+      c.setLineDash(noFloor ? [3, 5] : []);
+      c.beginPath(); c.moveTo(x0 + 8, groundY); c.lineTo(x0 + laneW - 8, groundY); c.stroke();
+      c.setLineDash([]); c.globalAlpha = 1;
+
+      // apex marker
+      if (L.a > 0 && !L.crush) {
+        const ay = groundY - L.apex * px;
+        c.strokeStyle = col; c.globalAlpha = 0.5; c.setLineDash([4, 4]);
+        c.beginPath(); c.moveTo(x0 + 8, ay); c.lineTo(x0 + laneW - 8, ay); c.stroke();
+        c.setLineDash([]); c.globalAlpha = 1;
+        c.fillStyle = col; c.textAlign = "right";
+        c.fillText("PEAK " + fmtLen(L.apex), x0 + laneW - 10, ay - 8);
+      }
+      // ISS ceiling
+      if (L.cap !== Infinity) {
+        const ceilY = groundY - L.cap * px - 47;
+        c.strokeStyle = col; c.globalAlpha = 0.7;
+        c.beginPath(); c.moveTo(x0 + 8, ceilY); c.lineTo(x0 + laneW - 8, ceilY); c.stroke();
+        c.globalAlpha = 1; c.fillStyle = col; c.textAlign = "right";
+        c.fillText("CEILING", x0 + laneW - 10, ceilY - 8);
+      }
+
+      // figure (clipped to lane so deep-space jumpers can leave the frame)
+      const fy = groundY - s.y * px;
+      c.save();
+      c.beginPath(); c.rect(x0, top - 8, laneW, groundY - top + 16); c.clip();
+      const r = 14 / (1 + s.y * px / 60);
+      c.fillStyle = "rgba(255,255,255,0.1)";
+      c.beginPath(); c.ellipse(cx, groundY + 2, r, 2.5, 0, 0, Math.PI * 2); c.fill();
+      if (L.crush) {
+        const p = dropP(ln.t), k = stretchK(p);
+        const headTop = top + 14;
+        const headY = headTop + (groundY - headTop) * p * p;      // accelerating fall
+        c.fillStyle = col; c.shadowColor = col; c.shadowBlur = 6;
+        if (ln.t < CR.drop) {
+          for (const [x0, d] of J.thread) {
+            const D = d + k * d * Math.max(d, 0) / 48;             // pull grows toward the feet (closest to the hole)
+            const y = headY + D;
+            if (y > groundY) continue;                             // swallowed by the surface
+            c.globalAlpha = Math.min(1, (groundY - y) / 24);
+            c.fillRect(cx + x0 / (1 + k * 0.35) - 0.8, y - 0.8, 1.6, 1.6);
+          }
+          c.globalAlpha = 1;
+        }
+        // glow where the thread is drawn into the surface
+        if (p > 0.3 && ln.t < CR.drop + 0.6) {
+          const g = Math.min(1, (p - 0.3) / 0.4) * (ln.t < CR.drop ? 1 : 1 - (ln.t - CR.drop) / 0.6);
+          c.globalAlpha = 0.8 * g;
+          c.beginPath(); c.ellipse(cx, groundY, 6 + 14 * g, 2 + 2 * g, 0, 0, Math.PI * 2); c.fill();
+          c.globalAlpha = 1;
+        }
+        c.shadowBlur = 0;
+      } else drawMan(c, cx, fy, s.pose, s.k, col);
+      c.restore();
+    });
+  }
+
+  function jumpFrame(now) {
+    jRaf = requestAnimationFrame(jumpFrame);
+    const el = Math.max(0, (now - jStart) / 1000);
+    drawJump(el % J.E.period, el % J.B.period);
+  }
+  function jumpStart() {
+    if (reduceMotion || jRaf || !jVisible || !J) return;
+    jRaf = requestAnimationFrame(jumpFrame);
+  }
+  function jumpStop() { if (jRaf) { cancelAnimationFrame(jRaf); jRaf = 0; } }
+
+  // Still frame near each jumper's apex (reduced motion, or while off screen)
+  function jumpStatic() {
+    if (!J) return;
+    drawJump(CROUCH_T + J.E.land / 2, J.B.crush ? 1.7 : CROUCH_T + (isFinite(J.B.land) ? J.B.land / 2 : 1));
+  }
+
+  function sizeJump() {
+    jDpr = window.devicePixelRatio || 1;
+    jumpCv.width  = Math.round(jumpCv.clientWidth  * jDpr);
+    jumpCv.height = Math.round(jumpCv.clientHeight * jDpr);
+    if (!jRaf) jumpStatic();
+  }
+
+  // Rebuild only when the selected location changes (mass doesn't affect the jump).
+  function jumpUpdate() {
+    const b = BY_ID[state.body];
+    if (J && J.id === b.id) return;
+
+    const E = laneOf(BY_ID.Earth), B = laneOf(b);
+    const finite = isFinite(B.land);
+    const bApex = isFinite(B.apex) ? B.apex : 4;
+    J = { id: b.id, name: b.name, E, B, Hview: Math.max(E.apex, bApex) * 1.08, thread: B.crush ? makeThread() : null };
+    jStart = performance.now();
+
+    const idx = BODIES.findIndex(x => x.id === b.id);
+    $("jp-name").textContent  = b.name;
+    $("jp-count").textContent = `${idx + 1} / ${BODIES.length}`;
+
+    $("je-h").textContent = fmtLen(E.apex);
+    $("je-t").textContent = fmtTime(E.land);
+    $("jb-name").textContent = b.name;
+    $("jb-h").textContent = B.crush ? "Dropped in" : B.a === 0 ? (B.cap === Infinity ? "Unlimited" : fmtLen(B.cap) + " (ceiling)") : fmtLen(B.apex);
+    $("jb-t").textContent = B.crush ? "Spaghettified" : finite ? fmtTime(B.land) : "Never lands";
+
+    const notes = [];
+    if (B.a === 0 && B.cap === Infinity) notes.push("Nothing pulls him back, so he drifts away at his takeoff speed forever.");
+    else if (B.a === 0) notes.push("Free fall cancels weight, so he floats up at constant speed until he touches the ceiling.");
+    else if (B.crush) notes.push("He drops in and is pulled apart (spaghettification): the pull on his feet is far stronger than on his head, so he is stretched into a thin thread of atoms. Shown slowed down. Illustration only: for a hole this large the real stretching comes after crossing the event horizon, and there is no solid surface.");
+    else if (b.id !== "Earth") {
+      const r = B.apex / E.apex;
+      notes.push(`He jumps ${r >= 0.01 ? (r >= 10 ? Math.round(r) : r.toFixed(2)) + "×" : "under 0.01×"} as high as on Earth.`);
+      if (B.land >= 5) notes.push(`One jump takes ${fmtTime(B.land)}, so watch the Earth jumper repeat.`);
+    }
+    if (appOf(b) >= 5 && !B.crush) notes.push("Illustration only: at this gravity a human body couldn't move, let alone jump.");
+    $("jump-note").textContent = notes.join(" ");
+
+    if (reduceMotion) jumpStatic(); else { jumpStop(); jumpStart(); }
+  }
+
+  // Mass-dependent numbers (scale readings) update on every input change.
+  function jumpReadouts() {
+    const b = BY_ID[state.body], m = currentMass(), u = state.unit;
+    $("je-w").textContent = m === null ? "--" : `${m.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${u}`;
+    $("jb-w").textContent = m === null ? "--" : fmt(m * appOf(b), u);
+  }
+
+  /* ---------- Prev / next / fullscreen ---------- */
+  function stepBody(d) {
+    const i = BODIES.findIndex(b => b.id === state.body);
+    selectBody(BODIES[(i + d + BODIES.length) % BODIES.length].id, false);
+  }
+
+  const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+  const isFull = () => fsElement() === jumpSec || jumpSec.classList.contains("pseudo-fs");
+
+  function syncFullBtn() {
+    const fb = $("jp-full"); fb.dataset.long = isFull() ? "Exit fullscreen" : "Fullscreen"; fb.dataset.short = isFull() ? "Exit" : "Full";
+    document.body.style.overflow = jumpSec.classList.contains("pseudo-fs") ? "hidden" : "";
+  }
+  function pseudoFull(on) { jumpSec.classList.toggle("pseudo-fs", on); syncFullBtn(); sizeJump(); }
+
+  function toggleFull() {
+    if (isFull()) {
+      if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      pseudoFull(false);
+      return;
+    }
+    const req = jumpSec.requestFullscreen || jumpSec.webkitRequestFullscreen;
+    if (!req) { pseudoFull(true); return; }       // e.g. iPhone Safari: fill the screen with CSS instead
+    try {
+      const p = req.call(jumpSec);
+      if (p && p.catch) p.catch(() => pseudoFull(true));
+    } catch (e) { pseudoFull(true); }
+  }
+
+  $("jp-prev").addEventListener("click", () => stepBody(-1));
+  $("jp-next").addEventListener("click", () => stepBody(1));
+  $("jp-full").addEventListener("click", toggleFull);
+  document.addEventListener("fullscreenchange", () => { syncFullBtn(); sizeJump(); });
+  document.addEventListener("webkitfullscreenchange", () => { syncFullBtn(); sizeJump(); });
+
+  document.addEventListener("keydown", e => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const tag = (e.target && e.target.tagName) || "";
+    if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); stepBody(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); stepBody(-1); }
+    else if (e.key === "Escape" && jumpSec.classList.contains("pseudo-fs")) pseudoFull(false);
+  });
+
+  if ("ResizeObserver" in window) new ResizeObserver(sizeJump).observe(jumpCv);
+  window.addEventListener("resize", sizeJump);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(es => {
+      jVisible = es[0].isIntersecting;
+      if (jVisible) { jStart = performance.now(); jumpStart(); } else jumpStop();
+    }).observe(jumpCv);
+  }
+  sizeJump();
+
+  /* ---------- Init ---------- */
+  buildChips();
+
+  (function loadState() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem("rv-weight")); } catch (e) {}
+    if (saved && saved.m > 0 && (saved.u === "kg" || saved.u === "lb")) {
+      state.mass = saved.m; state.unit = saved.u;
+    }
+    const p = new URLSearchParams(location.search);
+    const m = parseFloat(p.get("m"));
+    if (m > 0) state.mass = m;
+    if (p.get("u") === "kg" || p.get("u") === "lb") state.unit = p.get("u");
+    if (BY_ID[p.get("b")]) state.body = p.get("b");
+    $("wval").value = state.mass;
+  })();
+
+  $("wval").addEventListener("input", e => {
+    const v = parseFloat(e.target.value);
+    state.mass = v > 0 ? v : 0;
+    render();
+  });
+  $("u-kg").addEventListener("click", () => setUnit("kg"));
+  $("u-lb").addEventListener("click", () => setUnit("lb"));
+  $("share-btn").addEventListener("click", share);
+
+  render();
 
   // ── STARFIELD ──
   (function generateStars() {
-    const field = document.getElementById("starfield");
-    const count = 80;
+    const field = $("starfield");
     const frag = document.createDocumentFragment();
-
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < 80; i++) {
       const star = document.createElement("div");
       star.className = "star" + (Math.random() < 0.2 ? " twinkle" : "");
       const size = (Math.random() * 1.6 + 0.6).toFixed(2);
@@ -623,9 +1038,7 @@
       star.style.top = (Math.random() * 100) + "%";
       star.style.left = (Math.random() * 100) + "%";
       star.style.opacity = (Math.random() * 0.5 + 0.2).toFixed(2);
-      if (star.classList.contains("twinkle")) {
-        star.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
-      }
+      if (star.classList.contains("twinkle")) star.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
       frag.appendChild(star);
     }
     field.appendChild(frag);
