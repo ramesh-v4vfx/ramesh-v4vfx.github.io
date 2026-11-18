@@ -167,6 +167,152 @@ function atmosphereMaterial(col){
   });
 }
 
+  // ================= SMOOTH PROCEDURAL PLANET / MOON SURFACES =================
+  // The old planet "texture" was a small 256x128 canvas painted with random circles: hard edges, a visible seam,
+  // and it was re-rolled on every edit. Now the surface is computed per pixel on the GPU from 3D noise on the
+  // sphere, so it is seamless, stays sharp at any zoom, and is always the same for a given planet name + type.
+  // It plugs into the normal lit material (onBeforeCompile), so the star lighting is unchanged.
+  var Y_AXIS = new THREE.Vector3(0, 1, 0);
+  var X_AXIS = new THREE.Vector3(1, 0, 0);
+  var Z_AXIS = new THREE.Vector3(0, 0, 1);
+  var _spinQ = new THREE.Quaternion();
+  var _frameTmp = new THREE.Quaternion();
+  var _identityQ = new THREE.Quaternion();
+  var _fe1 = new THREE.Vector3(), _fup = new THREE.Vector3(), _fe2 = new THREE.Vector3();
+
+  var BODY_KIND = { rocky:0, superearth:1, minineptune:2, ice:3, gas:4, dwarf:5, icy:6, volcanic:7 };
+  function strHash(s){
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return h >>> 0;
+  }
+
+  var BODY_GLSL = [
+    'uniform float uKind; uniform vec3 uBase; uniform vec3 uSeed;',
+    'varying vec3 vBodyPos;',
+    'float bHash(vec3 p){ p = 50.0*fract(p*0.3183099 + vec3(0.71,0.113,0.419)); return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }',
+    'float bNoise(vec3 x){',
+    '  vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0 - 2.0*f);',
+    '  return mix(mix(mix(bHash(i), bHash(i+vec3(1.0,0.0,0.0)), f.x), mix(bHash(i+vec3(0.0,1.0,0.0)), bHash(i+vec3(1.0,1.0,0.0)), f.x), f.y),',
+    '             mix(mix(bHash(i+vec3(0.0,0.0,1.0)), bHash(i+vec3(1.0,0.0,1.0)), f.x), mix(bHash(i+vec3(0.0,1.0,1.0)), bHash(i+vec3(1.0,1.0,1.0)), f.x), f.y), f.z);',
+    '}',
+    'float bFbm(vec3 p){ float a = 0.5; float s = 0.0; for (int i=0;i<6;i++){ s += a*bNoise(p); p = p*2.03 + vec3(1.7,9.2,3.1); a *= 0.5; } return s*1.03; }',
+    // nearest-feature distance (x) and a per-cell random id (y), used for craters, pits and calderas
+    'vec2 bCell(vec3 p){',
+    '  vec3 i = floor(p); vec3 f = fract(p); float d1 = 9.0; vec3 best = i;',
+    '  for (int z=-1; z<=1; z++){ for (int y=-1; y<=1; y++){ for (int x=-1; x<=1; x++){',
+    '    vec3 g = vec3(float(x), float(y), float(z)); vec3 c = i + g;',
+    '    vec3 o = vec3(bHash(c), bHash(c+17.0), bHash(c+43.0));',
+    '    vec3 r = g + o - f; float d = dot(r, r);',
+    '    if (d < d1){ d1 = d; best = c; }',
+    '  } } }',
+    '  return vec2(sqrt(d1), bHash(best + 71.0));',
+    '}',
+    // crater shading: dark floor, bright rim (0 where there is no crater)
+    'float bCrater(vec3 p, float freq){',
+    '  vec2 c = bCell(p*freq);',
+    '  float has = step(0.42, fract(c.y*13.7));',
+    '  float rad = 0.16 + 0.3*fract(c.y*5.3);',
+    '  float d = c.x/rad;',
+    '  float fl = smoothstep(1.0, 0.35, d);',
+    '  float rim = exp(-pow((d - 1.05)/0.2, 2.0));',
+    '  return has*(rim*0.42 - fl*0.45);',
+    '}',
+    'vec3 bodyAlbedo(vec3 n){',
+    '  vec3 p = n + uSeed;',
+    '  vec3 base = uBase; float k = uKind; vec3 col;',
+    '  if (k < 1.5){',
+    // ROCKY (0) and SUPER-EARTH (1): terrain tones, grain, craters
+    '    float sup = k;',
+    '    float h = bFbm(p*2.2);',
+    '    float ridge = 1.0 - abs(2.0*bNoise(p*3.5 + 5.0) - 1.0);',
+    '    float terr = mix(h, ridge*0.8 + h*0.3, 0.3 + 0.3*sup);',
+    '    vec3 lo = base*vec3(0.55,0.5,0.46); vec3 hi = base*vec3(1.35,1.28,1.2);',
+    '    col = mix(lo, base, smoothstep(0.25, 0.5, terr));',
+    '    col = mix(col, hi, smoothstep(0.55, 0.85, terr));',
+    '    col *= 0.9 + 0.2*bNoise(p*60.0) + 0.08*(bNoise(p*170.0) - 0.5);',
+    '    float cr = bCrater(p, 6.0)*0.8 + bCrater(p, 17.0)*0.6 + bCrater(p, 48.0)*0.4;',
+    '    col *= 1.0 + cr*(0.65 - 0.3*sup);',
+    '  } else if (k < 3.5){',
+    // MINI-NEPTUNE (2) and ICE GIANT (3): soft bands and haze
+    '    float lat = n.y;',
+    '    float warp = bFbm(vec3(n.x*3.0, n.y*1.5, n.z*3.0) + uSeed)*0.9;',
+    '    float fr = (k < 2.5) ? 9.0 : 13.0;',
+    '    float b = 0.5 + 0.5*sin((lat + warp*0.35)*fr + bFbm(p*4.0)*2.0);',
+    '    vec3 a = base*vec3(0.78,0.86,0.95); vec3 c = base*vec3(1.12,1.1,1.05);',
+    '    col = mix(a, c, b);',
+    '    float w = bNoise(vec3(n.x*2.0, n.y*14.0, n.z*2.0) + uSeed*3.0);',
+    '    col = mix(col, vec3(1.0), smoothstep(0.62, 0.9, w)*0.18);',
+    '  } else if (k < 4.5){',
+    // GAS GIANT (4): strong belts, streaks and a storm
+    '    float lat = n.y;',
+    '    vec3 q = vec3(n.x*2.4, lat*3.0, n.z*2.4) + uSeed;',
+    '    float turb = bFbm(q*2.0 + vec3(0.0, bFbm(q*4.0)*1.5, 0.0));',
+    '    float bands = 0.5 + 0.5*sin(lat*22.0 + turb*5.0 + sin(lat*7.0)*1.5);',
+    '    float streak = bNoise(vec3(n.x*5.0, lat*70.0, n.z*5.0) + uSeed*2.0);',
+    '    vec3 dark = base*vec3(0.62,0.5,0.4); vec3 light = base*vec3(1.2,1.15,1.05);',
+    '    col = mix(dark, light, bands*0.8 + streak*0.2);',
+    '    float lon = atan(n.z, n.x);',
+    '    float sl = fract(uSeed.x*0.137)*6.2831853;',
+    '    float dl = lon - sl; dl = atan(sin(dl), cos(dl));',
+    '    float dy = lat + 0.32;',
+    '    float e = (dl*dl)/(0.3*0.3) + (dy*dy)/(0.11*0.11);',
+    '    float spot = smoothstep(1.0, 0.25, e);',
+    '    float swirl = 0.5 + 0.5*sin(atan(dy, dl*0.4)*3.0 + sqrt(e)*6.0);',
+    '    col = mix(col, base*vec3(1.1,0.55,0.4)*(0.8 + 0.4*swirl), spot*0.75);',
+    '  } else if (k < 5.5){',
+    // DWARF (5): grey regolith, many craters
+    '    float h = bFbm(p*3.0);',
+    '    col = base*(0.6 + 0.7*h)*(0.9 + 0.2*bNoise(p*90.0));',
+    '    float cr = bCrater(p, 5.0) + bCrater(p, 14.0)*0.8 + bCrater(p, 40.0)*0.7 + bCrater(p, 110.0)*0.5;',
+    '    col *= 1.0 + cr*0.75;',
+    '  } else if (k < 6.5){',
+    // ICY MOON (6): pale ice, thin cracks, bright craters
+    '    float f = bFbm(p*3.0);',
+    '    vec3 a = base*vec3(0.78,0.88,1.0); vec3 b2 = base*vec3(1.05,1.05,1.05);',
+    '    col = mix(a, b2, smoothstep(0.3, 0.7, f));',
+    '    float crack = 1.0 - smoothstep(0.0, 0.03, abs(bNoise(p*7.0 + bNoise(p*3.0)*2.0) - 0.5));',
+    '    col = mix(col, base*vec3(0.55,0.5,0.45), crack*0.55);',
+    '    col *= 1.0 + bCrater(p, 8.0)*0.7 + bCrater(p, 26.0)*0.5;',
+    '    col *= 0.92 + 0.16*bNoise(p*70.0);',
+    '  } else {',
+    // VOLCANIC MOON (7): sulfur plains and dark calderas
+    '    float b = bFbm(p*3.0);',
+    '    vec3 yel = base*vec3(1.0,0.95,0.6); vec3 org = base*vec3(1.0,0.55,0.25)*0.9;',
+    '    col = mix(yel, org, smoothstep(0.4, 0.65, b));',
+    '    col = mix(col, vec3(0.95,0.93,0.85), smoothstep(0.62, 0.78, bFbm(p*5.0 + 9.0))*0.7);',
+    '    float pit = bCell(p*14.0).x;',
+    '    col = mix(col, vec3(0.12,0.08,0.06), smoothstep(0.17, 0.08, pit)*0.9);',
+    '    col *= 0.9 + 0.2*bNoise(p*80.0);',
+    '  }',
+    '  return clamp(col, 0.0, 1.0);',
+    '}'
+  ].join('\n');
+
+  function makeBodyMaterial(typeId, hexNum, seedKey, rough, metal){
+    var h = strHash(String(seedKey) + '|' + typeId);
+    var uni = {
+      uKind: { value: BODY_KIND[typeId] !== undefined ? BODY_KIND[typeId] : 0 },
+      uBase: { value: new THREE.Color(hexNum) },
+      uSeed: { value: new THREE.Vector3(((h & 1023)/1023)*30, (((h >>> 10) & 1023)/1023)*30, (((h >>> 20) & 1023)/1023)*30) }
+    };
+    var mat = new THREE.MeshStandardMaterial({ color:0xffffff, roughness:rough, metalness:metal });
+    mat.onBeforeCompile = function(sh){
+      sh.uniforms.uKind = uni.uKind; sh.uniforms.uBase = uni.uBase; sh.uniforms.uSeed = uni.uSeed;
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vBodyPos;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBodyPos = normalize(position);');
+      sh.fragmentShader = sh.fragmentShader
+        .replace('#include <common>', '#include <common>\n' + BODY_GLSL)
+        .replace('#include <map_fragment>', 'diffuseColor.rgb = bodyAlbedo(normalize(vBodyPos));');
+    };
+    mat.customProgramCacheKey = function(){ return 'rv-body-v1'; };
+    mat.userData.seed = h;
+    return mat;
+  }
+  function bodyRoughness(typeId){ return (typeId === 'gas' || typeId === 'ice' || typeId === 'minineptune') ? 0.9 : (typeId === 'icy' ? 0.55 : 0.82); }
+
+
 /* ---------- loading ---------- */
 function loadJSON(){
   var inline = $('#system-json');
@@ -306,7 +452,7 @@ function init(S){
     var g = new THREE.Group(), sr = starSize(s), sprites = [];
     var mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), starMaterial(s.col));
     mesh.scale.setScalar(sr);
-    var saxis = new THREE.Group(); saxis.rotation.z = 0.12; saxis.add(mesh);
+    var saxis = new THREE.Group(); saxis.quaternion.copy(sysGroup.quaternion).invert(); saxis.add(mesh);   // sysGroup is turned to lay the orbits flat; undo that so the star spins about world-up, not sideways
     g.add(saxis);
     [[haloTex, 22, 0.5, 0.2], [glowTex, 9, 0.95, 0.07]].forEach(function(d){
       var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:d[0], color:s.col, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, opacity:d[2] }));
@@ -349,10 +495,11 @@ function init(S){
   // planets
   var planetObjs = planets.map(function(p, i){
     var size = planetSize(p), grp = new THREE.Group();
-    var mat = new THREE.MeshStandardMaterial({ map:planetTexture(p.type, p.hex, i + 1, 2), roughness:0.95, metalness:0 });
-    var mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), mat);
+    var mat = makeBodyMaterial(p.type, p.hex, p.name, bodyRoughness(p.type), 0);
+    var mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat);
     mesh.scale.setScalar(size);
-    var axis = new THREE.Group(); axis.rotation.z = (8 + 22*((i*0.618 + 0.3) % 1))*D2R; axis.rotation.x = (i*0.9)%1.2;   // each planet leans its own way
+    var axis = new THREE.Group(), leanA = (2 + 10*((i*0.618 + 0.3) % 1))*D2R, leanP = i*2.4;   // spin axis: world-up (the orbit normal) with a small lean of its own
+    axis.quaternion.copy(sysGroup.quaternion).invert().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(Math.cos(leanP), 0, Math.sin(leanP)), leanA));
     axis.add(mesh); grp.add(axis);
     var atm = null, tilt = null;
     if (p.type !== 'rocky' && p.type !== 'dwarf' && p.type !== 'superearth'){
@@ -363,7 +510,7 @@ function init(S){
       var ri = 1.55, ro = 2.6, rg = new THREE.RingGeometry(ri, ro, 64);
       fixRingUVs(rg, ri, ro);
       var ring = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map:ringTexture(p.hex, i + 1), side:THREE.DoubleSide, transparent:true, depthWrite:false }));
-      tilt = new THREE.Group(); ring.rotation.x = -Math.PI/2; tilt.add(ring); tilt.rotation.z = 0.45; tilt.scale.setScalar(size); grp.add(tilt);
+      tilt = new THREE.Group(); ring.rotation.x = -Math.PI/2; tilt.add(ring); tilt.scale.setScalar(size); axis.add(tilt);   // rings lie in the planet's equator
     }
     sysGroup.add(grp);
     return { g:grp, mesh:mesh, atm:atm, ring:tilt, size:size, line:null, holder:new THREE.Group() };
@@ -546,17 +693,22 @@ function init(S){
     if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
     var k = e.key.toLowerCase();
     if (k === ' '){ e.preventDefault(); paused = !paused; updTime(); }
-    else if (k === 'a') $('#tSpin').click(); else if (k === 'r') resetView(); else if (k === 'l') $('#tLabels').click(); else if (k === 'o') $('#tOrbits').click();
+    else if (k === 'a') $('#tSpin').click(); else if (k === 'r') resetView(); else if (k === 'l') $('#tLabels').click(); else if (k === 'o') $('#tOrbits').click(); else if (k === 's') $('#bSurf').click();
     else if (k === 'h') $('#tHZ').click(); else if (k === 't') $('#tLC').click(); else if (k === 'escape'){ if (surf) exitSurface(); else select(null); }
   });
 
   // pointer navigation: drag = rotate, wheel / pinch = zoom, tap = pick
   var ptrs = {}, moved = 0;
   var lastMoveT = 0;
-  cv.addEventListener('pointerdown', function(e){ if (surf) return; cv.setPointerCapture(e.pointerId); ptrs[e.pointerId] = { x:e.clientX, y:e.clientY }; moved = 0; cam.azV = cam.polV = 0; lastMoveT = e.timeStamp; });
+  cv.addEventListener('pointerdown', function(e){ cv.setPointerCapture(e.pointerId); ptrs[e.pointerId] = { x:e.clientX, y:e.clientY }; moved = 0; if (!surf) cam.azV = cam.polV = 0; lastMoveT = e.timeStamp; });
   cv.addEventListener('pointermove', function(e){
     var p = ptrs[e.pointerId]; if (!p) return;
     var ids = Object.keys(ptrs);
+    if (surf){                                                           // surface view: drag looks around, pinch zooms
+      if (ids.length === 1){ var kk = surf.fov/70*0.005; surf.yaw -= (e.clientX - p.x)*kk; surf.pitch = clamp(surf.pitch + (e.clientY - p.y)*kk, -1.3, 1.5); moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y); p.x = e.clientX; p.y = e.clientY; }
+      else if (ids.length === 2){ var sa = ptrs[ids[0]], sb2 = ptrs[ids[1]], q0 = Math.hypot(sa.x - sb2.x, sa.y - sb2.y); p.x = e.clientX; p.y = e.clientY; var q1 = Math.hypot(sa.x - sb2.x, sa.y - sb2.y); if (q1 > 0) surf.fov = clamp(surf.fov*q0/q1, 20, 100); moved += 99; }
+      return;
+    }
     if (ids.length === 1){
       var dAz = -(e.clientX - p.x)*0.006, dPol = -(e.clientY - p.y)*0.006, mdt = Math.max(0.008, (e.timeStamp - lastMoveT)/1000);
       cam.azT += dAz; cam.polT = clamp(cam.polT + dPol, 0.04, Math.PI - 0.04);
@@ -575,10 +727,10 @@ function init(S){
     var single = Object.keys(ptrs).length === 1;
     delete ptrs[e.pointerId];
     if (e.timeStamp - lastMoveT > 90 || moved < 6){ cam.azV = cam.polV = 0; }          // held still before letting go: no coasting
-    if (single && moved < 6 && e.type === 'pointerup') pick(e.clientX, e.clientY);
+    if (single && moved < 6 && e.type === 'pointerup' && !surf) pick(e.clientX, e.clientY);
   }
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
-  cv.addEventListener('wheel', function(e){ e.preventDefault(); if (surf) return; var dy = e.deltaY*(e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1); dy = clamp(dy, -150, 150); cam.tr = clamp(cam.tr*Math.exp(dy*0.0014), minR(), 120); }, { passive:false });
+  cv.addEventListener('wheel', function(e){ e.preventDefault(); var dy = e.deltaY*(e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1); dy = clamp(dy, -150, 150); if (surf){ surf.fov = clamp(surf.fov*Math.exp(dy*0.0012), 20, 100); return; } cam.tr = clamp(cam.tr*Math.exp(dy*0.0014), minR(), 120); }, { passive:false });
   cv.addEventListener('dblclick', resetView);
 
   var v3 = new THREE.Vector3();
@@ -609,11 +761,18 @@ function init(S){
     var ctr = $('.controls'), anchor = $('#tOrbits'), grp = document.createElement('div');
     grp.className = 'grp';
     grp.innerHTML = '<button class="b" id="tLC" type="button" title="Brightness of the star as seen from Earth: dips when a planet crosses it (T)">LIGHT CURVE</button>' +
+      '<button class="b" id="bSurf" type="button" title="Stand on a planet and look around (S)">⛰ SURFACE</button>' +
       '<button class="b" id="bShot" type="button" title="Save this view as an image with a watermark">PHOTO</button>';
+    var st = document.createElement('style');
+    st.textContent = '.surfhud{position:absolute;z-index:5;right:clamp(16px,3vw,32px);top:88px;width:250px;padding:12px 14px;background:var(--panel);border:1px solid #3a1515;border-left:2px solid var(--red);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:9px;letter-spacing:0.14em;color:var(--text-dim)}' +
+      '.surfhud[hidden]{display:none}.surfhud #surfInfo{white-space:pre-line;color:#e9edef;line-height:1.7;margin-bottom:8px}.surfhud label{display:flex;align-items:center;gap:8px}.surfhud input{flex:1;accent-color:#ff2b2b;min-width:0}.surfhud b{font-weight:400;color:var(--red);min-width:42px;text-align:right}.surfhud .tip{margin-top:8px;font-size:8px;color:var(--text-faint)}' +
+      '@media (max-width:760px){.surfhud{top:56px;left:10px;right:10px;width:auto}}';
+    document.head.appendChild(st);
     ctr.insertBefore(grp, anchor ? anchor.parentNode : null);
     viewer.insertAdjacentHTML('beforeend',
       '<div class="lc" id="lcPanel" hidden><div class="lc-h"><span>LIGHT CURVE</span><i>AS SEEN FROM EARTH · LIVE</i></div><canvas id="lcCv"></canvas><div class="lc-f" id="lcF"></div></div>' +
       '<div class="surfcap" id="surfCap" hidden></div>' +
+      '<div class="surfhud" id="surfHud" hidden><div id="surfInfo"></div><label>LATITUDE <input id="surfLat" type="range" min="-85" max="85" step="1" value="30" aria-label="Latitude"><b id="surfLatOut">N 30°</b></label><div class="tip">DRAG: LOOK AROUND · WHEEL: ZOOM · S / ESC: EXIT</div></div>' +
       '<button class="b stop" id="bExitSurf" type="button" hidden>✕ EXIT SURFACE VIEW</button>' +
       '<div class="toast" id="toast" role="status"></div>');
   })();
@@ -692,51 +851,470 @@ function init(S){
     cam.azV = cam.polV = 0; cam.azT += diff; cam.polT = clamp(Math.acos(clamp(d.y, -1, 1)), 0.04, Math.PI - 0.04);
   }
 
-  /* ---- 3. view from a planet's surface ---- */
-  var sv1 = new THREE.Vector3(), sv2 = new THREE.Vector3(), sv3 = new THREE.Vector3(), svN = new THREE.Vector3(), surfTxtAt = 0;
+  /* ---- 3. view from a planet's surface: procedural terrain + sky, every star and planet at its TRUE angular size ---- */
+  var SURF_D = 40000, SURF_DOME = 120000;
+  var surfG = null, surfTxtAt = 0;
+  var surfHud = $('#surfHud'), surfInfo = $('#surfInfo'), surfLat = $('#surfLat'), surfLatOut = $('#surfLatOut');
+  var _sv = {
+    ea:new THREE.Vector3(), up:new THREE.Vector3(), no:new THREE.Vector3(), rel:new THREE.Vector3(),
+    M:new THREE.Matrix4(), q:new THREE.Quaternion(), qWL:new THREE.Quaternion(), qTmp:new THREE.Quaternion(),
+    qRx:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI/2), look:new THREE.Vector3()
+  };
+  function sstep(a, b, x){ var u = Math.max(0, Math.min(1, (x - a)/(b - a))); return u*u*(3 - 2*u); }
+
+  var SURF_SKY_GLSL = [
+    'uniform vec3 uSunDir[3]; uniform vec3 uSunCol[3]; uniform float uAtm; uniform vec3 uZen; uniform vec3 uHor;',
+    'vec3 skyColor(vec3 d){',
+    '  if (uAtm < 0.001) return vec3(0.0);',
+    '  vec3 col = vec3(0.0);',
+    '  float up = clamp(d.y, 0.0, 1.0);',
+    '  float g = pow(1.0 - up, 3.0);',
+    '  vec3 dh = normalize(vec3(d.x, 0.0, d.z) + vec3(1e-4, 0.0, 0.0));',
+    '  for (int i=0;i<3;i++){',
+    '    vec3 sc = uSunCol[i];',
+    '    float inten = max(max(sc.r, sc.g), sc.b);',
+    '    if (inten > 0.001){',
+    '      vec3 sd = uSunDir[i];',
+    '      vec3 tint = sc/inten;',
+    '      float day = smoothstep(-0.10, 0.25, sd.y);',
+    '      col += mix(uZen, uHor, g)*tint*day*min(inten, 1.6);',
+    '      float cs = max(dot(d, sd), 0.0);',
+    '      float vis = smoothstep(-0.14, 0.05, sd.y);',
+    '      col += sc*(pow(cs, 16.0)*0.10 + pow(cs, 700.0)*1.2)*vis*uAtm;',
+    '      float tw = exp(-pow((sd.y + 0.01)/0.13, 2.0));',
+    '      vec3 sh = normalize(vec3(sd.x, 0.0, sd.z) + vec3(1e-4, 0.0, 0.0));',
+    '      float side = pow(max(dot(dh, sh), 0.0), 3.0);',
+    '      col += vec3(1.0, 0.42, 0.14)*tint*tw*side*exp(-up*4.0)*0.85;',
+    '    }',
+    '  }',
+    '  return col;',
+    '}',
+    'vec3 tone(vec3 c){ return vec3(1.0) - exp(-c*1.25); }'
+  ].join('\n');
+
+  var SURF_TERRAIN_COMMON = [
+    'uniform float uAmp; uniform float uRidge; uniform float uCrater; uniform vec2 uSeedT;',
+    'float tHash(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y)*p3.z); }',
+    'float tNoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); f = f*f*(3.0 - 2.0*f);',
+    '  return mix(mix(tHash(i), tHash(i + vec2(1.0,0.0)), f.x), mix(tHash(i + vec2(0.0,1.0)), tHash(i + vec2(1.0,1.0)), f.x), f.y); }',
+    // craters: a bowl with a raised rim, one candidate per grid cell
+    'float tCrater(vec2 p, float scale){',
+    '  vec2 q = p/scale; vec2 i = floor(q); vec2 f = fract(q); float h = 0.0;',
+    '  for (int y=-1; y<=1; y++){ for (int x=-1; x<=1; x++){',
+    '    vec2 g = vec2(float(x), float(y)); vec2 id = i + g;',
+    '    if (tHash(id + 31.7) > 0.5){',
+    '      vec2 c = g + vec2(tHash(id + 7.1), tHash(id + 19.3)) - f;',
+    '      float rad = 0.14 + 0.3*tHash(id + 3.3);',
+    '      float d = length(c)/rad;',
+    '      h += ((d < 1.0 ? -(1.0 - d*d) : 0.0) + 0.35*exp(-pow((d - 1.08)/0.22, 2.0)))*rad;',
+    '    }',
+    '  } }',
+    '  return h;',
+    '}',
+    'float tH(vec2 p){',
+    '  float r = length(p);',
+    '  float mask = smoothstep(14.0, 800.0, r);',          // flat clearing around the viewer, hills grow outward
+    '  vec2 q = p*0.00022 + uSeedT;',
+    '  float h = 0.0; float a = 0.5;',
+    '  for (int i=0;i<7;i++){ h += a*tNoise(q); q = q*2.05 + vec2(5.2, 1.3); a *= 0.5; }',
+    '  float rid = 1.0 - abs(2.0*tNoise(p*0.0004 + uSeedT*1.7) - 1.0);',
+    '  float m = mix(h, rid*rid*0.9, uRidge);',
+    '  float hh = (m - 0.3)*uAmp;',
+    '  if (uCrater > 0.001){',
+    '    hh += (tCrater(p, 900.0)*0.22*900.0 + tCrater(p + 13.0, 210.0)*0.2*210.0)*uCrater;',
+    '    if (r < 700.0) hh += tCrater(p + 71.0, 48.0)*0.18*48.0*uCrater;',
+    '  }',
+    '  return hh*mask;',
+    '}'
+  ].join('\n');
+
+  var SURF_TERRAIN_VERT = [
+    'varying vec3 vW; varying vec3 vN; varying float vH; varying vec3 vFog;',
+    'void main(){',
+    '  vec2 p = position.xz;',
+    '  float h = tH(p);',
+    '  float eps = clamp(length(p)*0.003, 0.5, 60.0);',
+    '  float hx = tH(p + vec2(eps, 0.0)) - h;',
+    '  float hz = tH(p + vec2(0.0, eps)) - h;',
+    '  vN = normalize(vec3(-hx, eps, -hz));',
+    '  vW = vec3(p.x, h, p.y); vH = h;',
+    '  vec3 tc = vW - cameraPosition;',
+    '  vFog = (uAtm > 0.001) ? skyColor(normalize(vec3(tc.x, 0.02*length(tc.xz), tc.z))) : vec3(0.0);',
+    '  gl_Position = projectionMatrix*viewMatrix*vec4(vW, 1.0);',
+    '}'
+  ].join('\n');
+
+  var SURF_TERRAIN_FRAG = [
+    'varying vec3 vW; varying vec3 vN; varying float vH; varying vec3 vFog;',
+    'uniform vec3 uC0; uniform vec3 uC1; uniform vec3 uC2; uniform vec3 uCs; uniform float uCloud; uniform float uVis; uniform vec3 uAmb;',
+    'float micro(vec2 p, float k){ return 0.7*tNoise(p*0.35) + 0.3*k*tNoise(p*1.1 + 3.7); }',
+    'void main(){',
+    '  vec3 N0 = normalize(vN);',
+    '  float dist = length(vW - cameraPosition);',
+    '  float mb = smoothstep(260.0, 10.0, dist); float kk = smoothstep(60.0, 6.0, dist);',
+    '  vec2 g = vW.xz; float n0 = micro(g, kk);',
+    '  vec3 N = N0;',
+    '  if (mb > 0.01){ float e = 0.4; N = normalize(N0 + vec3(-(micro(g + vec2(e, 0.0), kk) - n0)/e, 0.0, -(micro(g + vec2(0.0, e), kk) - n0)/e)*0.3*mb); }',
+    '  float pat = 0.6*tNoise(g*0.0035 + uSeedT*3.1) + 0.4*tNoise(g*0.02 + uSeedT*7.0);',
+    '  float hn = clamp(vH/(uAmp + 1.0), -0.6, 1.0);',
+    '  vec3 col;',
+    '  if (uCloud > 0.5){',
+    '    float band = 0.5 + 0.5*sin(g.y*0.00045 + tNoise(g*0.0009 + uSeedT)*7.0);',
+    '    col = mix(uC0, uC1, band*0.7 + pat*0.3);',
+    '    col = mix(col, uC2, smoothstep(0.1, 0.9, hn)*0.5);',
+    '  } else {',
+    '    col = mix(uC0, uC1, smoothstep(0.25, 0.75, pat));',
+    '    col = mix(col, uC2, smoothstep(0.35, 0.95, hn*1.4 + pat*0.25 - 0.1)*0.8);',
+    '    col = mix(col, uCs, smoothstep(0.1, 0.4, 1.0 - N0.y)*0.85);',
+    '  }',
+    '  col *= 0.9 + 0.2*n0;',
+    '  vec3 lit = uAmb;',
+    '  for (int i=0;i<3;i++){',
+    '    vec3 sc = uSunCol[i];',
+    '    if (max(max(sc.r, sc.g), sc.b) > 0.001){',
+    '      vec3 sd = uSunDir[i];',
+    '      float vis = smoothstep(-0.03, 0.05, sd.y);',
+    '      vec3 ext = (uAtm > 0.001) ? exp(-vec3(0.25, 0.55, 1.15)*uAtm*0.28/max(sd.y, 0.05)) : vec3(1.0);',
+    '      lit += sc*ext*max(dot(N, sd), 0.0)*vis*1.15;',
+    '    }',
+    '  }',
+    '  col *= lit;',
+    '  if (uAtm > 0.001){',
+    '    float f = 1.0 - exp(-pow(dist/uVis, 1.35));',
+    '    col = mix(col, vFog, f);',
+    '  }',
+    '  gl_FragColor = vec4(tone(col), 1.0);',
+    '}'
+  ].join('\n');
+
+  // what the ground and sky of each kind of world look like
+  function surfaceProfile(kind, typeId, hexNum){
+    var base = new THREE.Color(hexNum);
+    function tint(r, g, b){ return new THREE.Color(Math.min(1.6, base.r*r), Math.min(1.6, base.g*g), Math.min(1.6, base.b*b)); }
+    function toWhite(c, k){ return c.clone().lerp(new THREE.Color(1, 1, 1), k); }
+    var key = typeId;
+    if (kind === 'moon' && typeId === 'rocky') key = 'dwarf';
+    var P = { atm:0, amp:500, ridge:0.4, crater:0, cloud:0, vis:9000, camH:2,
+      zen:new THREE.Color(0, 0, 0), hor:new THREE.Color(0, 0, 0), label:'SOLID SURFACE · NO ATMOSPHERE' };
+    switch (key){
+      case 'rocky':
+        P.atm = 0.85; P.amp = 320; P.ridge = 0.5; P.crater = 0.18; P.vis = 9000;
+        P.zen.setRGB(0.16, 0.33, 0.8); P.hor.setRGB(0.62, 0.74, 0.92);
+        P.c0 = tint(0.55, 0.5, 0.45); P.c1 = tint(1, 1, 1); P.c2 = tint(1.35, 1.3, 1.2); P.cs = tint(0.42, 0.38, 0.36);
+        P.label = 'SOLID SURFACE · THIN ATMOSPHERE'; break;
+      case 'superearth':
+        P.atm = 1.1; P.amp = 480; P.ridge = 0.65; P.crater = 0.03; P.vis = 7000;
+        P.zen.setRGB(0.14, 0.3, 0.75); P.hor.setRGB(0.6, 0.72, 0.9);
+        P.c0 = tint(0.55, 0.5, 0.45); P.c1 = tint(1, 1, 1); P.c2 = tint(1.3, 1.25, 1.2); P.cs = tint(0.4, 0.36, 0.34);
+        P.label = 'SOLID SURFACE · DENSE ATMOSPHERE'; break;
+      case 'icy':
+        P.atm = 0; P.amp = 260; P.ridge = 0.45; P.crater = 0.55;
+        P.c0 = tint(0.7, 0.8, 0.9); P.c1 = tint(1, 1, 1); P.c2 = toWhite(base, 0.6); P.cs = tint(0.5, 0.62, 0.78); break;
+      case 'volcanic':
+        P.atm = 0; P.amp = 360; P.ridge = 0.6; P.crater = 0.2;
+        P.c0 = tint(0.7, 0.45, 0.25); P.c1 = tint(1, 1, 1); P.c2 = tint(1.2, 1.2, 0.9); P.cs = new THREE.Color(0.2, 0.14, 0.1); break;
+      case 'minineptune': case 'ice': case 'gas':
+        P.cloud = 1; P.atm = key === 'gas' ? 1.8 : 1.5; P.amp = 70; P.ridge = 0; P.vis = 4000; P.camH = 30;
+        if (key === 'gas'){ P.zen = tint(0.5, 0.4, 0.3); P.hor = toWhite(tint(1.05, 0.95, 0.8), 0.15); }
+        else { P.zen = tint(0.4, 0.5, 0.65); P.hor = toWhite(tint(1, 1, 0.98), 0.25); }
+        P.c0 = tint(0.78, 0.78, 0.78); P.c1 = tint(1.1, 1.1, 1.1); P.c2 = toWhite(base, 0.5); P.cs = tint(0.6, 0.6, 0.6);
+        P.label = 'CLOUD TOPS · NO SOLID SURFACE'; break;
+      default: // dwarf / airless rock
+        P.atm = 0; P.amp = 220; P.ridge = 0.25; P.crater = 1.0;
+        P.c0 = tint(0.55, 0.55, 0.55); P.c1 = tint(0.95, 0.95, 0.95); P.c2 = tint(1.3, 1.3, 1.3); P.cs = tint(0.4, 0.4, 0.4);
+    }
+    return P;
+  }
+
+  function surfacePolarGrid(nr, nt, r0, r1){
+    var pos = new Float32Array((nr + 1)*nt*3), idx = [], i, j;
+    for (i = 0; i <= nr; i++){
+      var r = i === 0 ? 0 : r0*Math.pow(r1/r0, (i - 1)/(nr - 1));    // rings spread out exponentially: fine near the viewer, far to the horizon
+      for (j = 0; j < nt; j++){
+        var a = (j/nt)*Math.PI*2, o = (i*nt + j)*3;
+        pos[o] = r*Math.cos(a); pos[o + 1] = 0; pos[o + 2] = r*Math.sin(a);
+      }
+    }
+    for (i = 0; i < nr; i++) for (j = 0; j < nt; j++){
+      var a0 = i*nt + j, b0 = i*nt + (j + 1)%nt, c0 = (i + 1)*nt + j, d0 = (i + 1)*nt + (j + 1)%nt;
+      idx.push(a0, c0, b0, b0, c0, d0);
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    return g;
+  }
+
+  function surfaceBuild(){
+    var G = {};
+    G.skyScene = new THREE.Scene();
+    G.gndScene = new THREE.Scene();
+    G.cam = new THREE.PerspectiveCamera(70, 1, 0.3, 400000);
+    G.sunDir = [new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, -1, 0)];
+    G.sunCol = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+    G.uni = { uSunDir:{value:G.sunDir}, uSunCol:{value:G.sunCol}, uAtm:{value:0}, uZen:{value:new THREE.Color()}, uHor:{value:new THREE.Color()} };
+
+    // sky dome
+    G.dome = new THREE.Mesh(new THREE.SphereGeometry(SURF_DOME, 48, 24), new THREE.ShaderMaterial({
+      uniforms:G.uni, side:THREE.BackSide, depthWrite:false,
+      vertexShader:'varying vec3 vD; void main(){ vD = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.0); }',
+      fragmentShader:SURF_SKY_GLSL + '\nvarying vec3 vD; void main(){ gl_FragColor = vec4(tone(skyColor(normalize(vD))), 1.0); }'
+    }));
+    G.dome.renderOrder = -10; G.dome.frustumCulled = false;
+    G.skyScene.add(G.dome);
+
+    // background stars, with a faint denser band like a galaxy disc
+    var N = 3000, pos = new Float32Array(N*3), col = new Float32Array(N*3), v = new THREE.Vector3(), eu = new THREE.Euler(0.9, 0.3, 0.6);
+    for (var i = 0; i < N; i++){
+      if (i < N*0.45){
+        var th = Math.random()*Math.PI*2, bl = (Math.random() + Math.random() + Math.random() - 1.5)*0.16;
+        v.set(Math.cos(th)*Math.cos(bl), Math.sin(bl), Math.sin(th)*Math.cos(bl)).applyEuler(eu);
+      } else {
+        var u1 = Math.random()*2 - 1, th2 = Math.random()*Math.PI*2, s1 = Math.sqrt(1 - u1*u1);
+        v.set(s1*Math.cos(th2), u1, s1*Math.sin(th2));
+      }
+      v.multiplyScalar(SURF_DOME*0.92);
+      pos[i*3] = v.x; pos[i*3 + 1] = v.y; pos[i*3 + 2] = v.z;
+      var tn = Math.random(), br = 0.3 + Math.pow(Math.random(), 3)*0.7, cr, cg, cb;
+      if (tn < 0.15){ cr = 0.7; cg = 0.8; cb = 1; } else if (tn < 0.3){ cr = 1; cg = 0.88; cb = 0.7; } else { cr = 1; cg = 1; cb = 1; }
+      col[i*3] = cr*br; col[i*3 + 1] = cg*br; col[i*3 + 2] = cb*br;
+    }
+    var sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    sg.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    G.stars = new THREE.Points(sg, new THREE.PointsMaterial({ size:1.8, sizeAttenuation:false, vertexColors:true, transparent:true, depthWrite:false }));
+    G.stars.frustumCulled = false;
+    G.skyScene.add(G.stars);
+
+    // light that falls on the other planets and moons in the sky
+    G.lights = [];
+    for (var k = 0; k < 3; k++){ var dl = new THREE.DirectionalLight(0xffffff, 0); G.skyScene.add(dl); G.lights.push(dl); }
+    G.skyScene.add(new THREE.AmbientLight(0x14151c, 1.0));
+
+    G.sphere = new THREE.SphereGeometry(1, 64, 48);
+    G.bodies = [];
+
+    // terrain
+    var tu = {
+      uAmp:{value:500}, uRidge:{value:0.4}, uCrater:{value:0}, uSeedT:{value:new THREE.Vector2()},
+      uC0:{value:new THREE.Color()}, uC1:{value:new THREE.Color()}, uC2:{value:new THREE.Color()}, uCs:{value:new THREE.Color()},
+      uCloud:{value:0}, uVis:{value:9000}, uAmb:{value:new THREE.Color(0.01, 0.01, 0.012)}
+    };
+    for (var key in G.uni) tu[key] = G.uni[key];
+    G.tu = tu;
+    G.terrain = new THREE.Mesh(surfacePolarGrid(180, 256, 0.6, 28000), new THREE.ShaderMaterial({
+      uniforms:tu, side:THREE.DoubleSide,
+      vertexShader:SURF_SKY_GLSL + '\n' + SURF_TERRAIN_COMMON + '\n' + SURF_TERRAIN_VERT,
+      fragmentShader:SURF_TERRAIN_COMMON + '\n' + SURF_SKY_GLSL + '\n' + SURF_TERRAIN_FRAG
+    }));
+    G.terrain.frustumCulled = false;
+    G.gndScene.add(G.terrain);
+    return G;
+  }
+
+  function makeSkyLabel(text, hex){
+    var c = document.createElement('canvas'); c.width = 512; c.height = 128;
+    var g = c.getContext('2d'); g.font = 'bold 40px Space Mono, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.shadowColor = '#000'; g.shadowBlur = 10; g.fillStyle = '#fff'; g.fillText(String(text).toUpperCase().slice(0, 18), 256, 64);
+    var s = new THREE.Sprite(new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(c), transparent:true, depthTest:false, depthWrite:false, color:hex || 0xffffff }));
+    s.renderOrder = 1000; return s;
+  }
+  function makeSkyGlow(color, opacity){
+    var s = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTex, color:color, transparent:true, opacity:opacity, blending:THREE.AdditiveBlending, depthWrite:false, depthTest:false }));
+    s.renderOrder = 500; return s;
+  }
+  function surfaceClearBodies(){
+    var G = surfG; if (!G || !G.bodies) return;
+    G.bodies.forEach(function(b){
+      [b.mesh, b.ring, b.glow, b.dot, b.label].forEach(function(o){
+        if (!o) return;
+        G.skyScene.remove(o);
+        if (o.material){ if (o.material.map && o !== b.glow && o !== b.dot) o.material.map.dispose(); o.material.dispose(); }
+        if (o.geometry && !o.isSprite && o.geometry !== G.sphere) o.geometry.dispose();
+      });
+    });
+    G.bodies = [];
+  }
+  function surfaceMakeBodies(){
+    var G = surfG; surfaceClearBodies();
+    stars.forEach(function(s, i){
+      var isBH = s.cls === 'BH', col = s.col.clone();
+      var mesh = new THREE.Mesh(G.sphere, isBH ? new THREE.MeshBasicMaterial({ color:0x000000 }) : starMaterial(col));
+      G.skyScene.add(mesh);
+      var glow = null; if (!isBH){ glow = makeSkyGlow(col, 0.85); G.skyScene.add(glow); }
+      var label = makeSkyLabel(s.name); G.skyScene.add(label);
+      G.bodies.push({ kind:'star', idx:i, mesh:mesh, glow:glow, label:label, color:col, rAU:s.R*AU_PER_RSUN, lum:s.L, src:starObjs[i].g, dir:new THREE.Vector3(), alive:false, name:s.name });
+    });
+    planets.forEach(function(p, j){
+      if (j === surf.i) return;
+      var po = planetObjs[j];
+      var mesh = new THREE.Mesh(G.sphere, makeBodyMaterial(p.type, p.hex, p.name, bodyRoughness(p.type), 0.03));
+      G.skyScene.add(mesh);
+      var ring = null;
+      if (p.hasRing){
+        var rg = new THREE.RingGeometry(1.55, 2.6, 128); fixRingUVs(rg, 1.55, 2.6);
+        ring = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map:ringTexture(p.hex, j + 1), transparent:true, opacity:0.85, side:THREE.DoubleSide, depthWrite:false }));
+        G.skyScene.add(ring);
+      }
+      var dot = makeSkyGlow(new THREE.Color(p.hex), 0.8); G.skyScene.add(dot);
+      var label = makeSkyLabel(dispName(p), 0xffffff); G.skyScene.add(label);
+      G.bodies.push({ kind:'planet', idx:j, mesh:mesh, ring:ring, dot:dot, label:label, color:new THREE.Color(p.hex), rAU:p.radiusRE*AU_PER_REARTH, src:po.mesh, dir:new THREE.Vector3(), alive:false, name:p.name });
+    });
+  }
+  function realPositionsAU(){          // surface view always runs at true scale, so world position / KU is AU
+    var res = { stars:[], planets:[] }, v = new THREE.Vector3();
+    starObjs.forEach(function(so){ so.g.getWorldPosition(v); res.stars.push(v.clone().divideScalar(KU)); });
+    planetObjs.forEach(function(po){ po.g.getWorldPosition(v); res.planets.push(v.clone().divideScalar(KU)); });
+    return res;
+  }
+  function setSurfLat(deg){
+    if (surf) surf.lat = deg*D2R;
+    surfLatOut.textContent = (deg >= 0 ? 'N ' : 'S ') + Math.abs(deg).toFixed(0) + '°';
+  }
+  surfLat.addEventListener('input', function(){ setSurfLat(parseFloat(surfLat.value) || 0); });
+
   function enterSurface(i){
+    var p = planets[i]; if (!p) return;
     if (scaleMode !== 'true') setScaleMode('true');                        // the star only has the right apparent size at true scale
-    surf = { i:i };
-    viewer.classList.add('surf'); $('#bExitSurf').hidden = false; surfCap.hidden = false;
-    var pm = planetObjs[i].mesh;
-    surf.geo0 = pm.geometry; surf.map0 = pm.material.map;
-    pm.geometry = new THREE.SphereGeometry(1, 512, 320);                  // fine mesh so the horizon is a smooth curve, not facets
-    pm.material.map = planetTexture(planets[i].type, planets[i].hex, i + 1, 8); pm.material.needsUpdate = true;
-    if (planetObjs[i].atm) planetObjs[i].atm.visible = false;
-    planetObjs.forEach(function(o){ if (o.line) o.line.visible = false; }); if (hzMesh) hzMesh.visible = false; overlay.visible = false;
-    labelsEl.style.display = 'none'; camera.fov = 70; camera.updateProjectionMatrix(); surfTxtAt = 0;
+    if (surf) exitSurface(true);
+    if (!surfG){ try { surfG = surfaceBuild(); } catch (err){ toast('SURFACE VIEW NEEDS WEBGL'); return; } }
+    var G = surfG, prof = surfaceProfile('planet', p.type, p.hex), tu = G.tu, h = strHash('terrain|' + p.name + '|' + p.type);
+    tu.uAmp.value = prof.amp; tu.uRidge.value = prof.ridge; tu.uCrater.value = prof.crater; tu.uCloud.value = prof.cloud; tu.uVis.value = prof.vis;
+    tu.uSeedT.value.set(((h & 1023)/1023)*50, (((h >>> 10) & 1023)/1023)*50);
+    tu.uC0.value.copy(prof.c0); tu.uC1.value.copy(prof.c1); tu.uC2.value.copy(prof.c2); tu.uCs.value.copy(prof.cs);
+    G.uni.uAtm.value = prof.atm; G.uni.uZen.value.copy(prof.zen); G.uni.uHor.value.copy(prof.hor);
+    surf = { i:i, mesh:planetObjs[i].mesh, prof:prof, lat:0, yaw:0, pitch:0.15, fov:70, frame:0, faced:false };
+    setSurfLat(parseFloat(surfLat.value) || 30);
+    // start in daylight: turn the planet until the brightest star stands about 22 degrees above the horizon
+    (function(){
+      var P = realPositionsAU(), sd = P.stars[0].clone().sub(P.planets[i]).normalize(), m = planetObjs[i].mesh, base = m.rotation.y, best = 0, bd = 9, uu = new THREE.Vector3(), qq = new THREE.Quaternion();
+      var c0 = Math.cos(surf.lat), s0 = Math.sin(surf.lat);
+      for (var t = 0; t < 72; t++){
+        m.rotation.y = base + t/72*TAU; m.updateWorldMatrix(true, false); m.getWorldQuaternion(qq);
+        uu.set(c0, s0, 0).applyQuaternion(qq); var d = Math.abs(Math.asin(clamp(uu.dot(sd), -1, 1)) - 22*D2R);
+        if (d < bd){ bd = d; best = t; }
+      }
+      m.rotation.y = base + best/72*TAU;
+    })();
+    surfaceMakeBodies();
+    viewer.classList.add('surf'); $('#bExitSurf').hidden = false; surfCap.hidden = false; surfHud.hidden = false;
+    labelsEl.style.display = 'none'; surfTxtAt = 0;
   }
   function exitSurface(quiet){
     if (!surf) return;
-    var i = surf.i, surf0 = surf; surf = null;
-    viewer.classList.remove('surf'); $('#bExitSurf').hidden = true; surfCap.hidden = true;
-    var pm2 = planetObjs[i].mesh;
-    pm2.geometry.dispose(); pm2.geometry = surf0.geo0; if (pm2.material.map) pm2.material.map.dispose(); pm2.material.map = surf0.map0; pm2.material.needsUpdate = true;
-    if (planetObjs[i].atm) planetObjs[i].atm.visible = true;
-    if (hzMesh) hzMesh.visible = tog.hz; overlay.visible = tog.solar; applySelectionStyle();
-    labelsEl.style.display = tog.labels ? '' : 'none'; camera.up.set(0, 1, 0); resize();
+    var i = surf.i; surf = null;
+    surfaceClearBodies();
+    viewer.classList.remove('surf'); $('#bExitSurf').hidden = true; surfCap.hidden = true; surfHud.hidden = true;
+    labelsEl.style.display = tog.labels ? '' : 'none'; camera.up.set(0, 1, 0); renderer.autoClear = true; resize();
     if (!quiet) select({ kind:'planet', i:i });
   }
   $('#bExitSurf').addEventListener('click', function(){ exitSurface(); });
-  function surfaceCamera(now){
-    var po = planetObjs[surf.i], p = planets[surf.i];
-    po.g.getWorldPosition(sv1); starObjs[0].g.getWorldPosition(sv2);
-    sv3.copy(sv2).sub(sv1); var dist = sv3.length(); sv3.divideScalar(dist);                 // unit vector from the planet to its star
-    svN.set(0, 1, 0).addScaledVector(sv3, -sv3.y);                                            // orbit-plane "north", made perpendicular to the star direction
-    if (svN.lengthSq() < 1e-8) svN.set(1, 0, 0);
-    svN.normalize();
-    var z = (78 + 3*Math.sin(now/5000))*D2R;                                                  // the star sits low in the sky, like a sunrise
-    svN.multiplyScalar(Math.sin(z)).addScaledVector(sv3, Math.cos(z)).normalize();            // local "up" at the observer's spot
-    camera.position.copy(sv1).addScaledVector(svN, po.size*1.02);
-    camera.up.copy(svN); camera.near = Math.max(1e-9, po.size*0.004); camera.far = 1600; camera.updateProjectionMatrix();
-    camera.lookAt(sv2);
+  $('#bSurf').addEventListener('click', function(){ if (surf) exitSurface(); else if (planets.length) enterSurface(sel && sel.kind === 'planet' ? sel.i : 0); });
+
+  function updateSurface(dt, now){
+    var G = surfG, S = surf, prof = S.prof;
+    var w = viewer.clientWidth, h = viewer.clientHeight; if (!w || !h) return false;
+    var P = realPositionsAU(), obs = P.planets[S.i];
+    var pxW = h/(2*SURF_D*Math.tan(S.fov*Math.PI/360));
+    function wpx(px){ return px/pxW; }
+    // observer frame: X = east, Y = up, Z = south. It turns with the planet's spin, so the sky moves.
+    S.mesh.getWorldQuaternion(_sv.q);
+    var cl = Math.cos(S.lat), sl = Math.sin(S.lat);
+    _sv.up.set(cl, sl, 0).applyQuaternion(_sv.q); _sv.no.set(-sl, cl, 0).applyQuaternion(_sv.q); _sv.ea.set(0, 0, -1).applyQuaternion(_sv.q);
+    _sv.M.set(_sv.ea.x, _sv.ea.y, _sv.ea.z, 0,  _sv.up.x, _sv.up.y, _sv.up.z, 0,  -_sv.no.x, -_sv.no.y, -_sv.no.z, 0,  0, 0, 0, 1);
+    _sv.qWL.setFromRotationMatrix(_sv.M);
+
+    G.bodies.forEach(function(b){
+      var pos = b.kind === 'star' ? P.stars[b.idx] : P.planets[b.idx];
+      b.alive = !!pos && b.src.visible !== false; if (!b.alive) return;
+      _sv.rel.copy(pos).sub(obs); b.dist = _sv.rel.length();
+      if (b.dist < 1e-12){ b.alive = false; return; }
+      b.dir.copy(_sv.rel).divideScalar(b.dist).applyMatrix4(_sv.M);
+      b.flux = b.kind === 'star' ? b.lum/(b.dist*b.dist) : 0;
+    });
+    var suns = G.bodies.filter(function(b){ return b.alive && b.kind === 'star' && b.flux > 0; }).sort(function(a, b){ return b.flux - a.flux; });
+    var topFlux = suns.length ? suns[0].flux : 1;
+    for (var k = 0; k < 3; k++){
+      var sb = suns[k], lt = G.lights[k];
+      if (sb){
+        var mx = Math.max(sb.color.r, sb.color.g, sb.color.b, 1e-3);
+        G.sunDir[k].copy(sb.dir);
+        G.sunCol[k].set(sb.color.r/mx, sb.color.g/mx, sb.color.b/mx).multiplyScalar(Math.min(1.6, Math.pow(sb.flux, 0.28)));
+        lt.color.copy(sb.color); lt.intensity = 2.4*Math.pow(sb.flux/topFlux, 0.6)*Math.min(1.4, Math.pow(topFlux, 0.2)); lt.position.copy(sb.dir).multiplyScalar(100);
+      } else { G.sunCol[k].set(0, 0, 0); G.sunDir[k].set(0, -1, 0); lt.intensity = 0; }
+    }
+    var skyDay = suns.length ? sstep(-0.1, 0.25, suns[0].dir.y) : 0;
+    var amb = G.tu.uAmb.value;
+    if (prof.atm > 0.001){
+      amb.setRGB(0.012, 0.012, 0.014);
+      suns.forEach(function(sb, k){
+        if (k > 2) return;
+        var dayK = sstep(-0.1, 0.25, sb.dir.y)*Math.min(1.6, Math.pow(sb.flux, 0.28)), mx = Math.max(sb.color.r, sb.color.g, sb.color.b, 1e-3);
+        amb.r += prof.zen.r*(sb.color.r/mx)*dayK*0.5; amb.g += prof.zen.g*(sb.color.g/mx)*dayK*0.5; amb.b += prof.zen.b*(sb.color.b/mx)*dayK*0.5;
+      });
+    } else amb.setRGB(0.007, 0.008, 0.011);
+    var dim = 1 - Math.min(1, skyDay*prof.atm*1.4);
+    G.stars.material.opacity = 1 - Math.min(1, skyDay*prof.atm*1.1)*0.97;
+    if (!S.faced && suns.length){ S.yaw = Math.atan2(suns[0].dir.x, -suns[0].dir.z); S.faced = true; }
+
+    G.bodies.forEach(function(b){
+      [b.mesh, b.ring, b.glow, b.dot, b.label].forEach(function(o){ if (o) o.visible = false; });
+      if (!b.alive) return;
+      var ang = Math.asin(Math.min(0.999, b.rAU/b.dist)), rW = SURF_D*Math.tan(ang), rpx = rW*pxW;
+      b.mesh.position.copy(b.dir).multiplyScalar(SURF_D);
+      b.mesh.scale.setScalar(Math.max(rW, 1e-3));
+      b.mesh.visible = rpx > 0.45;
+      if (b.kind === 'star'){
+        var u = b.mesh.material.uniforms; if (u && u.time) u.time.value = now/1000;
+        if (b.glow){
+          var gw = Math.max(rW*2*5, wpx(34));
+          b.glow.position.copy(b.mesh.position); b.glow.scale.set(gw, gw, 1);
+          b.glow.material.opacity = 0.85*(1 - 0.6*Math.min(1, prof.atm)); b.glow.visible = true;
+        }
+      } else {
+        b.src.getWorldQuaternion(_sv.qTmp);
+        b.mesh.quaternion.copy(_sv.qWL).multiply(_sv.qTmp);
+        if (b.ring && b.mesh.visible){
+          b.ring.position.copy(b.mesh.position); b.ring.scale.copy(b.mesh.scale);
+          b.ring.quaternion.copy(_sv.qWL).multiply(_sv.qTmp).multiply(_sv.qRx); b.ring.visible = true;
+        }
+        if (rpx < 1.4){
+          var dw = wpx(3.6); b.dot.position.copy(b.mesh.position); b.dot.scale.set(dw, dw, 1);
+          b.dot.material.opacity = 0.8*dim; b.dot.visible = dim > 0.02;
+        }
+      }
+      var lw = wpx(130);
+      b.label.scale.set(lw, lw*0.25, 1);
+      b.label.position.copy(b.mesh.position).multiplyScalar((SURF_D - 50)/SURF_D); b.label.position.y += rW + wpx(16);
+      b.label.visible = tog.labels && b.dir.y > -0.03 && (b.kind === 'star' || dim > 0.02 || b.mesh.visible);
+    });
+
+    var cam3 = G.cam;
+    cam3.fov = S.fov; cam3.aspect = w/h; cam3.updateProjectionMatrix();
+    cam3.position.set(0, prof.camH, 0);
+    var cp = Math.cos(S.pitch);
+    _sv.look.set(Math.sin(S.yaw)*cp, prof.camH + Math.sin(S.pitch), -Math.cos(S.yaw)*cp);
+    cam3.lookAt(_sv.look);
+
     if (now - surfTxtAt > 800){
       surfTxtAt = now;
-      var aAU = dist/KU, ang = 2*Math.atan(RsAU/aAU)/D2R;
-      surfCap.innerHTML = '<div class="tc-tag">VIEW FROM THE SURFACE</div><h3>' + esc(dispName(p)) + '</h3>' +
-        '<p>THE STAR SPANS ' + fmtN(ang, 1) + '° OF SKY · ' + fmtN(ang/0.533, 1) + '× THE SUN\'S WIDTH SEEN FROM EARTH</p>' +
-        '<p>' + fmtN(p.flux, p.flux < 10 ? 1 : 0) + '× THE STARLIGHT EARTH GETS</p><small>ARTIST\'S IMPRESSION · ESTIMATED FIGURES</small>';
+      var s0 = suns[0], p = planets[S.i], line2 = 'NO STAR IN THE SKY';
+      if (s0){
+        var el = Math.asin(clamp(s0.dir.y, -1, 1))/D2R, angD = 2*Math.asin(Math.min(0.999, s0.rAU/s0.dist))/D2R;
+        line2 = s0.name.toUpperCase() + ' ' + (el >= 0 ? '+' : '') + el.toFixed(0) + '° · ' + (el > 6 ? 'DAY' : (el > -8 ? 'TWILIGHT' : 'NIGHT'));
+        surfCap.innerHTML = '<div class="tc-tag">VIEW FROM THE SURFACE</div><h3>' + esc(dispName(p)) + '</h3>' +
+          '<p>THE STAR SPANS ' + fmtN(angD, 1) + '° OF SKY · ' + fmtN(angD/0.533, 1) + '× THE SUN\'S WIDTH SEEN FROM EARTH</p>' +
+          '<p>' + fmtN(p.flux, p.flux < 10 ? 1 : 0) + '× THE STARLIGHT EARTH GETS</p><small>ARTIST\'S IMPRESSION · ESTIMATED FIGURES</small>';
+      }
+      surfInfo.textContent = prof.label + '\n' + line2;
     }
+    return true;
+  }
+  function renderSurface(){
+    var G = surfG, r = renderer;
+    r.autoClear = false; r.clear();
+    r.render(G.skyScene, G.cam); r.clearDepth(); r.render(G.gndScene, G.cam);
+    r.autoClear = true;
   }
 
   /* ---- 4. photo with watermark ---- */
@@ -812,14 +1390,14 @@ function init(S){
     requestAnimationFrame(frame);
     var dt = Math.min(0.05, (now - last)/1000); last = now;
     if (!visible || document.hidden) return;
-    if (!paused) tSim += dt*baseYps*speedMul;
+    if (!paused) tSim += dt*baseYps*speedMul*(surf ? 0.1 : 1);   // slower clock on the surface so the sky is not a blur
 
     placeStars();
     starObjs.forEach(function(so, i){ so.g.position.copy(starPos[i]); so.mesh.rotation.y += dt*0.12; so.mesh.material.uniforms.time.value = now/1000; });
     planets.forEach(function(p, i){
       var po = planetObjs[i], hp = hostPos(p), rp = relPos(p, rad(p.au), p.P);
       po.g.position.set(hp.x + rp.x, hp.y + rp.y, hp.z + rp.z); po.holder.position.copy(hp);
-      po.mesh.rotation.y += dt*0.5;
+      po.mesh.rotation.y += dt*(surf ? 0.06 : 0.5);
     });
     if (hzMesh) hzMesh.position.set(0, 0, 0);
 
@@ -838,8 +1416,7 @@ function init(S){
     else cam.target.lerp(v3.set(0, 0, 0), k);
     var sp = Math.sin(cam.pol);
     camera.position.set(cam.target.x + cam.r*sp*Math.sin(cam.az), cam.target.y + cam.r*Math.cos(cam.pol), cam.target.z + cam.r*sp*Math.cos(cam.az));
-    if (surf) surfaceCamera(now);
-    else { camera.up.set(0, 1, 0); camera.near = Math.max(1e-5, cam.r*0.02); camera.updateProjectionMatrix(); camera.lookAt(cam.target); }
+    if (!surf){ camera.up.set(0, 1, 0); camera.near = Math.max(1e-5, cam.r*0.02); camera.updateProjectionMatrix(); camera.lookAt(cam.target); }
     sky.position.copy(camera.position); if (skyStarMat) skyStarMat.uniforms.time.value = now/1000;
 
     // star glow follows its distance from the camera so even a true-size star reads as a bright point
@@ -869,7 +1446,9 @@ function init(S){
       else { markerPos[i*3] = markerPos[i*3 + 1] = markerPos[i*3 + 2] = 1e9; }
     });
     markerGeo.attributes.position.needsUpdate = true;
-    renderer.render(scene, camera);
+    var drewSurf = false;
+    if (surf){ drewSurf = updateSurface(dt, now); if (drewSurf) renderSurface(); }
+    if (!drewSurf) renderer.render(scene, camera);
 
     // labels
     if (tog.labels && !surf){

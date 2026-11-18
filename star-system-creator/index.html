@@ -371,6 +371,21 @@
   .adv .moon-hint{margin:0 0 10px; flex:1 1 220px;}
   .adv .moon-hint:empty{display:none;}
   @media (pointer:coarse){ .adv-title{font-size:12px; padding-bottom:12px;} }
+
+  /* ── LEVEL ORBITS + SURFACE VIEW ── */
+  #levelBtn{color:var(--text); border-color:var(--text-faint); background:rgba(0,0,0,0.55);}
+  #levelBtn:hover{border-color:#fff; color:#fff;}
+  #levelBtn.on{color:var(--green); border-color:rgba(57,217,138,0.7); box-shadow:0 0 10px rgba(57,217,138,0.2);}
+  #surfaceBtn{color:#ffd27a; border-color:rgba(255,210,122,0.55); background:rgba(20,14,4,0.75); box-shadow:0 0 10px rgba(255,210,122,0.15);}
+  #surfaceBtn:hover{border-color:#ffd27a; box-shadow:0 0 18px rgba(255,210,122,0.4);}
+  #surfaceBtn.active{background:rgba(255,210,122,0.16); color:#fff; box-shadow:0 0 16px rgba(255,210,122,0.45);}
+  .surf-hud{display:none; position:absolute; top:44px; right:10px; z-index:6; width:215px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);
+    background:rgba(0,0,0,0.6); border:1px solid var(--line); padding:8px 10px;}
+  .surf-hud .surf-info{white-space:pre-line; line-height:1.55; color:var(--text); margin-bottom:6px;}
+  .surf-hud .surf-lat{display:flex; align-items:center; gap:8px;}
+  .surf-hud .surf-lat b{color:var(--red); min-width:44px; text-align:right; font-weight:700;}
+  @media (max-width:700px){ .surf-hud{top:auto; bottom:48px; right:8px; width:185px;} }
+  @media (pointer:coarse){ .surf-hud{font-size:10px;} }
 </style>
 </head>
 <body>
@@ -484,10 +499,16 @@
           <button class="fs-btn attn" id="physicsBtn" aria-pressed="false" title="Realistic mode (R): every body pulls on every other one (N-body gravity) and distances are true to scale. OFF = idealized Kepler orbits.">⚛ REALISTIC MODE: OFF</button>
           <button class="fs-btn" id="labelsBtn" aria-pressed="true" title="Show or hide the name labels on stars, planets and moons (L)">🏷 LABELS: ON</button>
           <button class="fs-btn" id="resetViewBtn" title="Return the camera to the default view (V)">⟲ RESET VIEW</button>
+          <button class="fs-btn" id="levelBtn" aria-pressed="false" title="Orbit tilt is measured from the sky plane, so a tilted system can look sideways. LEVEL makes the planets' orbit plane the floor of the camera (O).">⊥ LEVEL ORBITS: OFF</button>
+          <button class="fs-btn" id="surfaceBtn" aria-pressed="false" title="Stand on the selected planet or moon and look at the sky (S). Click a planet first, or use the ⛰ button in the manifest.">⛰ SURFACE VIEW</button>
           <span class="watermark">rameshverse.com</span>
           <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         </div>
         <div class="physics-log" id="physicsLog"></div>
+        <div class="surf-hud" id="surfHud">
+          <div class="surf-info" id="surfInfo"></div>
+          <div class="surf-lat"><span>LATITUDE</span><input type="range" id="surfLat" min="-85" max="85" step="1" value="30" aria-label="Latitude on the planet"><b id="surfLatOut">N 30°</b></div>
+        </div>
         <button class="fs-btn" id="fsBtn" title="Fullscreen (F)">⛶ FULLSCREEN</button>
         <div class="speed-ctrl" id="speedCtrl">
           <span id="speedLabel" aria-live="polite">SPEED</span>
@@ -503,6 +524,8 @@
         <span><kbd>H</kbd> habitable zone</span>
         <span><kbd>L</kbd> labels</span>
         <span><kbd>V</kbd> reset view</span>
+        <span><kbd>O</kbd> level orbits</span>
+        <span><kbd>S</kbd> surface view</span>
         <span><kbd>F</kbd> fullscreen</span>
         <span><kbd>ESC</kbd> exit fullscreen</span>
       </div>
@@ -671,8 +694,8 @@
   // ---- moons: types and state ----
   var moonTypes = [
     {id:'rocky',    label:'ROCKY',    radiusRE:0.27, massME:0.012, hex:0x9a948a, tex:'dwarf'},
-    {id:'icy',      label:'ICY',      radiusRE:0.25, massME:0.008, hex:0xcfe3ee, tex:'rocky'},
-    {id:'volcanic', label:'VOLCANIC', radiusRE:0.29, massME:0.015, hex:0xc9a24a, tex:'rocky'}
+    {id:'icy',      label:'ICY',      radiusRE:0.25, massME:0.008, hex:0xcfe3ee, tex:'icy'},
+    {id:'volcanic', label:'VOLCANIC', radiusRE:0.29, massME:0.015, hex:0xc9a24a, tex:'volcanic'}
   ];
   function moonTypeById(id){
     for (var i=0;i<moonTypes.length;i++){ if (moonTypes[i].id === id) return moonTypes[i]; }
@@ -948,10 +971,10 @@ openPlanetBtn.addEventListener('click', function(){
   }
   function orbitLinePoints(obj, a, e, n){
     var c = orientCoef(obj), pts = [], o = {x:0,y:0,z:0};
+    var sq = Math.sqrt(1 - e*e);
     for (var i=0;i<=n;i++){
-      var ang = (i/n)*Math.PI*2;
-      var rr = a*(1-e*e)/(1+e*Math.cos(ang));
-      orient(c, rr*Math.cos(ang), rr*Math.sin(ang), o);
+      var E = (i/n)*Math.PI*2;                       // eccentric anomaly: even spacing along the whole ellipse
+      orient(c, a*(Math.cos(E) - e), a*sq*Math.sin(E), o);
       pts.push(new THREE.Vector3(o.x, o.y, o.z));
     }
     return pts;
@@ -1511,6 +1534,12 @@ openPlanetBtn.addEventListener('click', function(){
         renderTable();
         rebuildIfReady();
       });
+      var srfBtn = document.createElement('button');
+      srfBtn.className = 'rm';
+      srfBtn.textContent = '⛰';
+      srfBtn.title = 'Surface view: stand on this planet';
+      srfBtn.addEventListener('click', function(){ surfaceEnter('planet', idx); });
+      rmTd.appendChild(srfBtn);
       rmTd.appendChild(editBtn);
       rmTd.appendChild(rmBtn);
       planetTable.appendChild(tr);
@@ -1711,6 +1740,12 @@ openPlanetBtn.addEventListener('click', function(){
         renderMoonTable();
         rebuildIfReady();
       });
+      var msrfBtn = document.createElement('button');
+      msrfBtn.className = 'rm';
+      msrfBtn.textContent = '⛰';
+      msrfBtn.title = 'Surface view: stand on this moon';
+      msrfBtn.addEventListener('click', function(){ surfaceEnter('moon', idx); });
+      tr.lastElementChild.appendChild(msrfBtn);
       tr.lastElementChild.appendChild(editBtn);
       tr.lastElementChild.appendChild(rmBtn);
       moonTable.appendChild(tr);
@@ -1868,7 +1903,7 @@ openPlanetBtn.addEventListener('click', function(){
       if (!pm) return;
       var rel = keplerPos(mo, mm.userData.aUnits, moonPeriodYears(mo));
       mm.position.set(pm.position.x + rel.x, pm.position.y + rel.y, pm.position.z + rel.z);
-      mm.rotation.y += 0.006*speedMultiplier;
+      spinBody(mm, 0.006*speedMultiplier);
       var line = three.moonLines[idx];
       if (line) line.position.set(pm.position.x, pm.position.y, pm.position.z);
       placeMoonLabel(mm, three.moonLabels[idx]);
@@ -1907,7 +1942,7 @@ openPlanetBtn.addEventListener('click', function(){
       }
       dispOffset(mb.x - B[dp].x, mb.y - B[dp].y, mb.z - B[dp].z, simOff);
       mm.position.set(ax + simOff.x, ay + simOff.y, az + simOff.z);
-      mm.rotation.y += 0.006*speedMultiplier;
+      spinBody(mm, 0.006*speedMultiplier);
       placeMoonLabel(mm, mlab);
       if (dp >= S) writeTrail(mi, mtl, simOff, anchor.position);   // path relative to its planet, ending on the moon
       else { writeTrail(mi, mtl, simOff, null); if (mtl) mtl.position.set(0, 0, 0); }
@@ -1995,7 +2030,7 @@ openPlanetBtn.addEventListener('click', function(){
   var SIM_ETA = 0.025;               // time step = ETA x shortest dynamical time (about 250 steps per orbit)
   var SIM_BUDGET_MS = 9;             // CPU time per frame the physics may use before the sim falls behind real time
   var SIM_SOFT2 = 1e-8; var SIM_SOFT2_MOON = 1e-12;              // tiny softening (AU^2): only prevents numerical blow-ups
-  var TRAIL_N = 300;                 // points kept in each orbit trail
+  var TRAIL_N = 1200;                 // points kept in each orbit trail
   var sim = null;
   var simPending = [];               // pairs of bodies in contact this step
   var simEvents = [];                // messages for the on-screen event log
@@ -2068,7 +2103,7 @@ openPlanetBtn.addEventListener('click', function(){
 
     moons.forEach(function(mo){
       bodies.push({ kind:'moon', name:mo.name, isBH:false, m:mo.massME/EARTH_MASSES_PER_SOLAR, r:mo.radiusRE*AU_PER_REARTH,
-        a:mo.km/AU_KM, e:mo.ecc||0, ang:mo.angle||0, parent: S + Math.min(mo.planetIndex, planets.length-1),
+        a:mo.km/AU_KM, e:mo.ecc||0, ang:mo.angle||0, inc:mo.inc||0, node:mo.node||0, argp:mo.argp||0, parent: S + Math.min(mo.planetIndex, planets.length-1),
         x:0, y:0, z:0, vx:0, vy:0, vz:0, ax:0, ay:0, az:0, alive:true, by:-1, escaped:false,
         trail:[], trailAcc:0, trailDt:1, trailParent:-2 });
     });
@@ -2104,7 +2139,7 @@ openPlanetBtn.addEventListener('click', function(){
         orient(oc, -f*sE, f*sq*cE, vo);
         bd.x  = gx  + po.x;  bd.y  = gy  + po.y;  bd.z  = gz  + po.z;
         bd.vx = gvx + vo.x;  bd.vy = gvy + vo.y;  bd.vz = gvz + vo.z;
-        bd.trailDt = periodAn/90;
+        bd.trailDt = periodAn/360;
         if (bd.kind === 'star'){
           var tm = gm + ms;
           gx  = (gm*gx  + ms*bd.x )/tm;  gy  = (gm*gy  + ms*bd.y )/tm;  gz  = (gm*gz  + ms*bd.z )/tm;
@@ -2272,6 +2307,7 @@ openPlanetBtn.addEventListener('click', function(){
 
   // ---- three.js ----
   var three = null;
+  var surf = null;   // surface view state (null = normal system view)
 
   // true when the object and everything above it is visible (hidden bodies must not be clickable / focusable)
   function isLive(o){
@@ -2414,7 +2450,7 @@ openPlanetBtn.addEventListener('click', function(){
       }
       dispOffset(bd.x - B[dp].x, bd.y - B[dp].y, bd.z - B[dp].z, simOff);
       mesh.position.set(simOff.x, simOff.y, simOff.z);
-      mesh.rotation.y += 0.006*speedMultiplier;
+      spinBody(mesh, 0.006*speedMultiplier);
       if (label) label.position.set(simOff.x, simOff.y + mesh.userData.size + 0.22, simOff.z);
       if (atmo) atmo.position.set(simOff.x, simOff.y, simOff.z);
       if (ring) ring.position.set(simOff.x, simOff.y, simOff.z);
@@ -2651,6 +2687,185 @@ openPlanetBtn.addEventListener('click', function(){
     });
   }
 
+  // ================= SMOOTH PROCEDURAL PLANET / MOON SURFACES =================
+  // The old planet "texture" was a small 256x128 canvas painted with random circles: hard edges, a visible seam,
+  // and it was re-rolled on every edit. Now the surface is computed per pixel on the GPU from 3D noise on the
+  // sphere, so it is seamless, stays sharp at any zoom, and is always the same for a given planet name + type.
+  // It plugs into the normal lit material (onBeforeCompile), so the star lighting is unchanged.
+  var Y_AXIS = new THREE.Vector3(0, 1, 0);
+  var X_AXIS = new THREE.Vector3(1, 0, 0);
+  var Z_AXIS = new THREE.Vector3(0, 0, 1);
+  var _spinQ = new THREE.Quaternion();
+  var _frameTmp = new THREE.Quaternion();
+  var _identityQ = new THREE.Quaternion();
+  var _fe1 = new THREE.Vector3(), _fup = new THREE.Vector3(), _fe2 = new THREE.Vector3();
+
+  var BODY_KIND = { rocky:0, superearth:1, minineptune:2, ice:3, gas:4, dwarf:5, icy:6, volcanic:7 };
+  function strHash(s){
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return h >>> 0;
+  }
+
+  var BODY_GLSL = [
+    'uniform float uKind; uniform vec3 uBase; uniform vec3 uSeed;',
+    'varying vec3 vBodyPos;',
+    'float bHash(vec3 p){ p = 50.0*fract(p*0.3183099 + vec3(0.71,0.113,0.419)); return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }',
+    'float bNoise(vec3 x){',
+    '  vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0 - 2.0*f);',
+    '  return mix(mix(mix(bHash(i), bHash(i+vec3(1.0,0.0,0.0)), f.x), mix(bHash(i+vec3(0.0,1.0,0.0)), bHash(i+vec3(1.0,1.0,0.0)), f.x), f.y),',
+    '             mix(mix(bHash(i+vec3(0.0,0.0,1.0)), bHash(i+vec3(1.0,0.0,1.0)), f.x), mix(bHash(i+vec3(0.0,1.0,1.0)), bHash(i+vec3(1.0,1.0,1.0)), f.x), f.y), f.z);',
+    '}',
+    'float bFbm(vec3 p){ float a = 0.5; float s = 0.0; for (int i=0;i<6;i++){ s += a*bNoise(p); p = p*2.03 + vec3(1.7,9.2,3.1); a *= 0.5; } return s*1.03; }',
+    // nearest-feature distance (x) and a per-cell random id (y), used for craters, pits and calderas
+    'vec2 bCell(vec3 p){',
+    '  vec3 i = floor(p); vec3 f = fract(p); float d1 = 9.0; vec3 best = i;',
+    '  for (int z=-1; z<=1; z++){ for (int y=-1; y<=1; y++){ for (int x=-1; x<=1; x++){',
+    '    vec3 g = vec3(float(x), float(y), float(z)); vec3 c = i + g;',
+    '    vec3 o = vec3(bHash(c), bHash(c+17.0), bHash(c+43.0));',
+    '    vec3 r = g + o - f; float d = dot(r, r);',
+    '    if (d < d1){ d1 = d; best = c; }',
+    '  } } }',
+    '  return vec2(sqrt(d1), bHash(best + 71.0));',
+    '}',
+    // crater shading: dark floor, bright rim (0 where there is no crater)
+    'float bCrater(vec3 p, float freq){',
+    '  vec2 c = bCell(p*freq);',
+    '  float has = step(0.42, fract(c.y*13.7));',
+    '  float rad = 0.16 + 0.3*fract(c.y*5.3);',
+    '  float d = c.x/rad;',
+    '  float fl = smoothstep(1.0, 0.35, d);',
+    '  float rim = exp(-pow((d - 1.05)/0.2, 2.0));',
+    '  return has*(rim*0.42 - fl*0.45);',
+    '}',
+    'vec3 bodyAlbedo(vec3 n){',
+    '  vec3 p = n + uSeed;',
+    '  vec3 base = uBase; float k = uKind; vec3 col;',
+    '  if (k < 1.5){',
+    // ROCKY (0) and SUPER-EARTH (1): terrain tones, grain, craters
+    '    float sup = k;',
+    '    float h = bFbm(p*2.2);',
+    '    float ridge = 1.0 - abs(2.0*bNoise(p*3.5 + 5.0) - 1.0);',
+    '    float terr = mix(h, ridge*0.8 + h*0.3, 0.3 + 0.3*sup);',
+    '    vec3 lo = base*vec3(0.55,0.5,0.46); vec3 hi = base*vec3(1.35,1.28,1.2);',
+    '    col = mix(lo, base, smoothstep(0.25, 0.5, terr));',
+    '    col = mix(col, hi, smoothstep(0.55, 0.85, terr));',
+    '    col *= 0.9 + 0.2*bNoise(p*60.0) + 0.08*(bNoise(p*170.0) - 0.5);',
+    '    float cr = bCrater(p, 6.0)*0.8 + bCrater(p, 17.0)*0.6 + bCrater(p, 48.0)*0.4;',
+    '    col *= 1.0 + cr*(0.65 - 0.3*sup);',
+    '  } else if (k < 3.5){',
+    // MINI-NEPTUNE (2) and ICE GIANT (3): soft bands and haze
+    '    float lat = n.y;',
+    '    float warp = bFbm(vec3(n.x*3.0, n.y*1.5, n.z*3.0) + uSeed)*0.9;',
+    '    float fr = (k < 2.5) ? 9.0 : 13.0;',
+    '    float b = 0.5 + 0.5*sin((lat + warp*0.35)*fr + bFbm(p*4.0)*2.0);',
+    '    vec3 a = base*vec3(0.78,0.86,0.95); vec3 c = base*vec3(1.12,1.1,1.05);',
+    '    col = mix(a, c, b);',
+    '    float w = bNoise(vec3(n.x*2.0, n.y*14.0, n.z*2.0) + uSeed*3.0);',
+    '    col = mix(col, vec3(1.0), smoothstep(0.62, 0.9, w)*0.18);',
+    '  } else if (k < 4.5){',
+    // GAS GIANT (4): strong belts, streaks and a storm
+    '    float lat = n.y;',
+    '    vec3 q = vec3(n.x*2.4, lat*3.0, n.z*2.4) + uSeed;',
+    '    float turb = bFbm(q*2.0 + vec3(0.0, bFbm(q*4.0)*1.5, 0.0));',
+    '    float bands = 0.5 + 0.5*sin(lat*22.0 + turb*5.0 + sin(lat*7.0)*1.5);',
+    '    float streak = bNoise(vec3(n.x*5.0, lat*70.0, n.z*5.0) + uSeed*2.0);',
+    '    vec3 dark = base*vec3(0.62,0.5,0.4); vec3 light = base*vec3(1.2,1.15,1.05);',
+    '    col = mix(dark, light, bands*0.8 + streak*0.2);',
+    '    float lon = atan(n.z, n.x);',
+    '    float sl = fract(uSeed.x*0.137)*6.2831853;',
+    '    float dl = lon - sl; dl = atan(sin(dl), cos(dl));',
+    '    float dy = lat + 0.32;',
+    '    float e = (dl*dl)/(0.3*0.3) + (dy*dy)/(0.11*0.11);',
+    '    float spot = smoothstep(1.0, 0.25, e);',
+    '    float swirl = 0.5 + 0.5*sin(atan(dy, dl*0.4)*3.0 + sqrt(e)*6.0);',
+    '    col = mix(col, base*vec3(1.1,0.55,0.4)*(0.8 + 0.4*swirl), spot*0.75);',
+    '  } else if (k < 5.5){',
+    // DWARF (5): grey regolith, many craters
+    '    float h = bFbm(p*3.0);',
+    '    col = base*(0.6 + 0.7*h)*(0.9 + 0.2*bNoise(p*90.0));',
+    '    float cr = bCrater(p, 5.0) + bCrater(p, 14.0)*0.8 + bCrater(p, 40.0)*0.7 + bCrater(p, 110.0)*0.5;',
+    '    col *= 1.0 + cr*0.75;',
+    '  } else if (k < 6.5){',
+    // ICY MOON (6): pale ice, thin cracks, bright craters
+    '    float f = bFbm(p*3.0);',
+    '    vec3 a = base*vec3(0.78,0.88,1.0); vec3 b2 = base*vec3(1.05,1.05,1.05);',
+    '    col = mix(a, b2, smoothstep(0.3, 0.7, f));',
+    '    float crack = 1.0 - smoothstep(0.0, 0.03, abs(bNoise(p*7.0 + bNoise(p*3.0)*2.0) - 0.5));',
+    '    col = mix(col, base*vec3(0.55,0.5,0.45), crack*0.55);',
+    '    col *= 1.0 + bCrater(p, 8.0)*0.7 + bCrater(p, 26.0)*0.5;',
+    '    col *= 0.92 + 0.16*bNoise(p*70.0);',
+    '  } else {',
+    // VOLCANIC MOON (7): sulfur plains and dark calderas
+    '    float b = bFbm(p*3.0);',
+    '    vec3 yel = base*vec3(1.0,0.95,0.6); vec3 org = base*vec3(1.0,0.55,0.25)*0.9;',
+    '    col = mix(yel, org, smoothstep(0.4, 0.65, b));',
+    '    col = mix(col, vec3(0.95,0.93,0.85), smoothstep(0.62, 0.78, bFbm(p*5.0 + 9.0))*0.7);',
+    '    float pit = bCell(p*14.0).x;',
+    '    col = mix(col, vec3(0.12,0.08,0.06), smoothstep(0.17, 0.08, pit)*0.9);',
+    '    col *= 0.9 + 0.2*bNoise(p*80.0);',
+    '  }',
+    '  return clamp(col, 0.0, 1.0);',
+    '}'
+  ].join('\n');
+
+  function makeBodyMaterial(typeId, hexNum, seedKey, rough, metal){
+    var h = strHash(String(seedKey) + '|' + typeId);
+    var uni = {
+      uKind: { value: BODY_KIND[typeId] !== undefined ? BODY_KIND[typeId] : 0 },
+      uBase: { value: new THREE.Color(hexNum) },
+      uSeed: { value: new THREE.Vector3(((h & 1023)/1023)*30, (((h >>> 10) & 1023)/1023)*30, (((h >>> 20) & 1023)/1023)*30) }
+    };
+    var mat = new THREE.MeshStandardMaterial({ color:0xffffff, roughness:rough, metalness:metal });
+    mat.onBeforeCompile = function(sh){
+      sh.uniforms.uKind = uni.uKind; sh.uniforms.uBase = uni.uBase; sh.uniforms.uSeed = uni.uSeed;
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vBodyPos;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBodyPos = normalize(position);');
+      sh.fragmentShader = sh.fragmentShader
+        .replace('#include <common>', '#include <common>\n' + BODY_GLSL)
+        .replace('#include <map_fragment>', 'diffuseColor.rgb = bodyAlbedo(normalize(vBodyPos));');
+    };
+    mat.customProgramCacheKey = function(){ return 'rv-body-v1'; };
+    mat.userData.seed = h;
+    return mat;
+  }
+  function bodyRoughness(typeId){ return (typeId === 'gas' || typeId === 'ice' || typeId === 'minineptune') ? 0.9 : (typeId === 'icy' ? 0.55 : 0.82); }
+
+  // ---- spin axis: a planet spins about its ORBIT NORMAL (so its equator, rings and moons lie in the orbit plane) ----
+  // Before, every planet spun about the scene's vertical axis whatever its orbit did, so a planet on a tilted
+  // orbit looked tipped on its side. Moons share their planet's equatorial plane.
+  function bodyTiltQuat(o){
+    return new THREE.Quaternion().setFromUnitVectors(Y_AXIS, orbitNormal(o));
+  }
+  function spinBody(mesh, amount){
+    var u = mesh.userData;
+    if (!u.tiltQ){ mesh.rotation.y += amount; return; }
+    u.spin = (u.spin || 0) + amount;
+    mesh.quaternion.copy(u.tiltQ).multiply(_spinQ.setFromAxisAngle(Y_AXIS, u.spin));
+  }
+  function initBodySpin(mesh, tiltQ, seed){
+    mesh.userData.tiltQ = tiltQ;
+    mesh.userData.spin = (seed % 628)/100;
+    mesh.quaternion.copy(tiltQ).multiply(_spinQ.setFromAxisAngle(Y_AXIS, mesh.userData.spin));
+  }
+
+  // ---- LEVEL view: use the planets' orbit plane as the floor of the camera instead of the sky plane ----
+  function levelUpVector(){
+    var sum = new THREE.Vector3(), ref = null, n = 0;
+    planets.forEach(function(p){
+      if (p.inc === null || p.inc === undefined || !isFinite(p.inc)) return;   // no tilt data: that planet is flat
+      var v = orbitNormal(p);
+      if (!ref) ref = v.clone();
+      else if (v.dot(ref) < 0) v.negate();
+      sum.add(v); n++;
+    });
+    if (!n || sum.lengthSq() < 1e-12) return new THREE.Vector3(0, 1, 0);
+    sum.normalize();
+    if (sum.y < 0) sum.negate();
+    return sum;
+  }
+
   function makePlanetTexture(typeId, baseHex){
     var c = document.createElement('canvas'); c.width=256; c.height=128;
     var tctx = c.getContext('2d');
@@ -2742,6 +2957,7 @@ openPlanetBtn.addEventListener('click', function(){
 
   // fly the camera to a star / planet mesh (same behaviour as clicking it in the scene)
   function focusBody(obj){
+    if (surf) surfaceExit();   // clicking a planet / star / moon name leaves the surface view
     if (!three || !obj || obj.userData.dead || !isLive(obj)) return;
     if (!three.focusObj) three.savedRadius = three.targetRadius;
     var want = Math.max(obj.userData.size*6, realDist ? 1e-10 : 0.015);
@@ -2811,6 +3027,7 @@ openPlanetBtn.addEventListener('click', function(){
   // two-finger touch gesture (pinch to zoom, drag to pan)
   gesture:false, pinchDist:0, pinchCX:0, pinchCY:0, pinchStartCX:0, pinchStartCY:0, pinchPan:false,
   focusObj:null,
+  frameQ:new THREE.Quaternion(), levelQ:new THREE.Quaternion(), level:false,   // camera frame (LEVEL ORBITS)
   baseTarget:new THREE.Vector3(0,0,0),
   lookOffset:new THREE.Vector3(0,0,0),
   lookTarget:new THREE.Vector3(0,0,0),
@@ -2854,6 +3071,7 @@ function nearestBody(e, rect, maxPx){
   return best;
 }
 function handleStageClick(e){
+  if (surf) return;
   var rect = stage3d.getBoundingClientRect();
   mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
   mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
@@ -2874,7 +3092,7 @@ function handleStageClick(e){
     // pointer cursor while hovering a name label (mouse only)
     stage3d.addEventListener('pointermove', function(e){
       if (e.pointerType === 'touch') return;
-      if (three.dragging || three.panning) return;
+      if (surf || three.dragging || three.panning) return;
       var rect = stage3d.getBoundingClientRect();
       mouseNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
       mouseNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
@@ -2892,6 +3110,7 @@ function handleStageClick(e){
 
     // zoom by a factor (>1 zooms out, <1 zooms in), within the limits that apply right now
     function zoomBy(factor){
+      if (surf){ surf.fov = Math.max(6, Math.min(110, surf.fov*factor)); return; }   // surface view: zoom = field of view
       var minR, maxR;
       if (three.focusObj){
         var s = three.focusObj.userData.size || 0.02;
@@ -2906,6 +3125,7 @@ function handleStageClick(e){
 
     // slide the camera target sideways in screen space (panning releases any focus lock)
     function panBy(dx, dy){
+      if (surf) return;
       if (three.focusObj){
         three.baseTarget.copy(three.lookTarget);
         setFocus(null);
@@ -2983,6 +3203,12 @@ function handleStageClick(e){
       three.lastX = e.clientX; three.lastY = e.clientY;
       var tol = e.pointerType === 'touch' ? 10 : 4;   // fingers wobble more than a mouse
       if (Math.abs(e.clientX-three.clickStartX) > tol || Math.abs(e.clientY-three.clickStartY) > tol) three.hasMoved = true;
+      if (surf){   // surface view: drag to look around (grab the sky)
+        var lk = 0.0045*(surf.fov/70);
+        surf.yaw -= dx*lk;
+        surf.pitch = Math.max(-1.2, Math.min(1.5, surf.pitch + dy*lk));
+        return;
+      }
       // vertical drag has no limit: the camera can go over the top and round to upside-down (full 360 deg).
       // While upside-down the screen's left/right is mirrored relative to the azimuth, so the horizontal drag is flipped to match.
       var flipH = Math.sin(three.polar) < 0 ? -1 : 1;
@@ -3032,6 +3258,10 @@ function handleStageClick(e){
 
   function rebuildSystem3D(){
     if (!three) return;
+    // an edit rebuilds the scene: leave the surface and come back to the same world afterwards if it still exists
+    var surfResume = null;
+    if (surf){ surfResume = { kind:surf.kind, ref:surf.ref, lat:surf.lat, yaw:surf.yaw, pitch:surf.pitch, fov:surf.fov }; surfaceExit(true); }
+    three.levelQ.setFromUnitVectors(Y_AXIS, levelUpVector());
     if (three.focusObj){
       // the focused mesh is about to be replaced, so ease back to the overview
       three.focusObj = null;
@@ -3108,7 +3338,7 @@ function handleStageClick(e){
         starColor = new THREE.Color(starRGB[0]/255, starRGB[1]/255, starRGB[2]/255);
       }
 
-      var starGeo = new THREE.SphereGeometry(0.4, 28, 28);
+      var starGeo = new THREE.SphereGeometry(0.4, 64, 48);
       var starMat = isBH
         ? new THREE.MeshBasicMaterial({color:0x000000})
         : makeStarMaterial(starColor, idx);
@@ -3167,7 +3397,7 @@ function handleStageClick(e){
           var rIn = realDist ? band[0]*distK : auToUnits(Math.max(band[0],0.05));
           var rOut = realDist ? band[1]*distK : auToUnits(Math.min(band[1],50));
           if (!(rOut > rIn)) return;
-          var ringMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 80), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
+          var ringMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 256), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
           hzMesh.add(ringMesh);
         });
         // RingGeometry faces +Z; turn the group so the rings lie in the planets' orbital plane (flat when there is no tilt data)
@@ -3187,7 +3417,7 @@ function handleStageClick(e){
 
       if (idx>0){
         starObjEntry.parentIdx = Math.min(parentOf(s), idx-1);
-        var pts = orbitLinePoints(s, auToUnits(s.au), s.ecc||0, 128);
+        var pts = orbitLinePoints(s, auToUnits(s.au), s.ecc||0, 720);
         var og = new THREE.BufferGeometry().setFromPoints(pts);
         var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x5a4038, transparent:true, opacity:0.5}));
         scene.add(line);
@@ -3200,15 +3430,16 @@ function handleStageClick(e){
       var starObj = three.starObjs[p.starIndex] || three.starObjs[0];
       var group = starObj.group;
 
-      var pts = orbitLinePoints(p, auToUnits(p.au), p.ecc||0, 128);
+      var pts = orbitLinePoints(p, auToUnits(p.au), p.ecc||0, 720);
       var og = new THREE.BufferGeometry().setFromPoints(pts);
       var line = new THREE.Line(og, new THREE.LineBasicMaterial({color:0x394048, transparent:true, opacity:0.55}));
       group.add(line);
 
       var size = planetVisualSize(p, starObj.star.R);
-      var geo = new THREE.SphereGeometry(size, 20, 20);
-      var mat = new THREE.MeshStandardMaterial({map:makePlanetTexture(p.type.id, p.type.hex), roughness:0.7, metalness:0.06});
+      var geo = new THREE.SphereGeometry(size, 64, 48);
+      var mat = makeBodyMaterial(p.type.id, p.type.hex, p.name, bodyRoughness(p.type.id), 0.04);
       var mesh = new THREE.Mesh(geo, mat);
+      initBodySpin(mesh, bodyTiltQuat(p), mat.userData.seed);   // spin axis = the orbit's normal
       group.add(mesh);
       three.planetMeshes.push(mesh);
       mesh.userData.planet = p;
@@ -3227,11 +3458,11 @@ function handleStageClick(e){
       var ring = null;
       if (p.hasRing){
         var ringInner = size*1.6, ringOuter = size*2.7;
-        var ringGeo = new THREE.RingGeometry(ringInner, ringOuter, 48);
+        var ringGeo = new THREE.RingGeometry(ringInner, ringOuter, 128);
         fixRingUVs(ringGeo, ringInner, ringOuter);
         var ringMat = new THREE.MeshBasicMaterial({map:makeRingTexture(p.type.hex), transparent:true, opacity:0.85, side:THREE.DoubleSide});
         ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = -Math.PI/2 + 0.35;
+        ring.quaternion.copy(mesh.userData.tiltQ).multiply(new THREE.Quaternion().setFromAxisAngle(X_AXIS, -Math.PI/2));   // rings lie in the planet's equator
         group.add(ring);
       }
       three.planetRings.push(ring);
@@ -3248,10 +3479,11 @@ function handleStageClick(e){
       if (!pm || !pl){ three.moonMeshes.push(null); three.moonLabels.push(null); three.moonLines.push(null); return; }
       var host = pm.parent;                       // the star group the planet hangs in
       var mSize = planetVisualSize(mo, 1);        // same size scale as the planets
-      var mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(mSize, 16, 16),
-        new THREE.MeshStandardMaterial({map:makePlanetTexture(mo.type.tex, mo.type.hex), roughness:0.85, metalness:0.02})
-      );
+      // a moon orbits in its planet's equatorial plane (= the planet's orbit plane here)
+      mo.inc = pl.inc || 0; mo.node = pl.node || 0; mo.argp = 0;
+      var mMat = makeBodyMaterial(mo.type.tex, mo.type.hex, mo.name, bodyRoughness(mo.type.tex), 0.02);
+      var mesh = new THREE.Mesh(new THREE.SphereGeometry(mSize, 48, 32), mMat);
+      initBodySpin(mesh, pm.userData.tiltQ, mMat.userData.seed);
       host.add(mesh);
 
       // orbit radius: the real distance in realistic mode; otherwise kept in true proportion to the planet's own size
@@ -3276,12 +3508,7 @@ function handleStageClick(e){
 
       var line = null;
       if (!realisticMode){
-        var pts = [];
-        for (var i=0;i<=96;i++){
-          var ang = (i/96)*Math.PI*2;
-          var rr = aUnits*(1-e*e)/(1+e*Math.cos(ang));
-          pts.push(new THREE.Vector3(rr*Math.cos(ang), 0, rr*Math.sin(ang)));
-        }
+        var pts = orbitLinePoints(mo, aUnits, e, 360);
         line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color:0x4a5560, transparent:true, opacity:0.6}));
         host.add(line);
       }
@@ -3295,6 +3522,10 @@ function handleStageClick(e){
       setupMoonSimVisuals();
     } else {
       sim = null;
+    }
+    if (surfResume){
+      var ri = surfResume.kind === 'moon' ? moons.indexOf(surfResume.ref) : planets.indexOf(surfResume.ref);
+      if (ri >= 0) surfaceEnter(surfResume.kind, ri, surfResume);
     }
     scheduleAutosave();   // every edit ends up here
   }
@@ -3340,7 +3571,7 @@ function handleStageClick(e){
       var period = orbitalPeriodYears(p.au, hostStar.M + planetMassSolar(p));
       var pos = keplerPos(p, a, period);
       mesh.position.set(pos.x, pos.y, pos.z);
-      mesh.rotation.y += 0.006*speedMultiplier;
+      spinBody(mesh, 0.006*speedMultiplier);
       var label = three.planetLabels[idx];
       if (label) label.position.set(pos.x, pos.y + mesh.userData.size + 0.22, pos.z);
       var atmo = three.planetAtmos[idx];
@@ -3392,13 +3623,20 @@ function handleStageClick(e){
     }
 
     if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
-    three.camera.position.set(
-      three.lookTarget.x + three.radius*Math.sin(three.polar)*Math.cos(three.azimuth),
-      three.lookTarget.y + three.radius*Math.cos(three.polar),
-      three.lookTarget.z + three.radius*Math.sin(three.polar)*Math.sin(three.azimuth)
-    );
+    // the camera orbits around the "up" of the current frame: the scene's own vertical normally,
+    // or the planets' orbit normal when LEVEL ORBITS is on (the change glides smoothly)
+    _frameTmp.copy(three.level ? three.levelQ : _identityQ);
+    three.frameQ.slerp(_frameTmp, 1 - Math.exp(-dt*5));
+    _fe1.copy(X_AXIS).applyQuaternion(three.frameQ);
+    _fup.copy(Y_AXIS).applyQuaternion(three.frameQ);
+    _fe2.copy(Z_AXIS).applyQuaternion(three.frameQ);
+    var sPol = Math.sin(three.polar), cPol = Math.cos(three.polar);
+    three.camera.position.copy(three.lookTarget)
+      .addScaledVector(_fe1, three.radius*sPol*Math.cos(three.azimuth))
+      .addScaledVector(_fup, three.radius*cPol)
+      .addScaledVector(_fe2, three.radius*sPol*Math.sin(three.azimuth));
     // when the camera is past the pole (polar between 180 and 360 deg) its 'up' flips, so the view turns smoothly instead of snapping
-    three.camera.up.set(0, Math.sin(three.polar) < 0 ? -1 : 1, 0);
+    three.camera.up.copy(_fup).multiplyScalar(sPol < 0 ? -1 : 1);
     three.camera.lookAt(three.lookTarget);
     if (realDist){
       updateRealisticDecor();
@@ -3412,7 +3650,566 @@ function handleStageClick(e){
     }
     three.sky.position.copy(three.camera.position);
 
-    three.renderer.render(three.scene, three.camera);
+    var drewSurface = false;
+    if (surf){ drewSurface = updateSurface(dt); if (drewSurface) renderSurface(); }
+    if (!drewSurface) three.renderer.render(three.scene, three.camera);
+  }
+
+  // ================= SURFACE VIEW =================
+  // Stand on a planet or moon and look around. The ground is a procedural terrain (mountains, craters, or a cloud deck
+  // on gas / ice giants), the sky is lit by every star (blue day sky and red sunsets if the world has an atmosphere,
+  // black sky and bright stars if it does not), and every star, planet and moon in the system is drawn at its TRUE
+  // angular size and direction. Day and night come from the planet's spin (the same spin you see in the system view).
+  var SURF_D = 40000;        // distance sky bodies are drawn at (only the angle matters)
+  var SURF_DOME = 120000;
+  var surfG = null;          // renderer-side objects, built the first time the view is opened
+  var surfaceBtn = document.getElementById('surfaceBtn');
+  var levelBtn = document.getElementById('levelBtn');
+  var surfHud = document.getElementById('surfHud');
+  var surfInfo = document.getElementById('surfInfo');
+  var surfLat = document.getElementById('surfLat');
+  var surfLatOut = document.getElementById('surfLatOut');
+  var dragHintEl = document.getElementById('dragHint');
+  var _sv = {
+    ea:new THREE.Vector3(), up:new THREE.Vector3(), no:new THREE.Vector3(), rel:new THREE.Vector3(),
+    M:new THREE.Matrix4(), q:new THREE.Quaternion(), qWL:new THREE.Quaternion(), qTmp:new THREE.Quaternion(),
+    qRx:new THREE.Quaternion().setFromAxisAngle(X_AXIS, -Math.PI/2), look:new THREE.Vector3()
+  };
+  function sstep(a, b, x){ var u = Math.max(0, Math.min(1, (x - a)/(b - a))); return u*u*(3 - 2*u); }
+
+  var SURF_SKY_GLSL = [
+    'uniform vec3 uSunDir[3]; uniform vec3 uSunCol[3]; uniform float uAtm; uniform vec3 uZen; uniform vec3 uHor;',
+    'vec3 skyColor(vec3 d){',
+    '  if (uAtm < 0.001) return vec3(0.0);',
+    '  vec3 col = vec3(0.0);',
+    '  float up = clamp(d.y, 0.0, 1.0);',
+    '  float g = pow(1.0 - up, 3.0);',
+    '  vec3 dh = normalize(vec3(d.x, 0.0, d.z) + vec3(1e-4, 0.0, 0.0));',
+    '  for (int i=0;i<3;i++){',
+    '    vec3 sc = uSunCol[i];',
+    '    float inten = max(max(sc.r, sc.g), sc.b);',
+    '    if (inten > 0.001){',
+    '      vec3 sd = uSunDir[i];',
+    '      vec3 tint = sc/inten;',
+    '      float day = smoothstep(-0.10, 0.25, sd.y);',
+    '      col += mix(uZen, uHor, g)*tint*day*min(inten, 1.6);',
+    '      float cs = max(dot(d, sd), 0.0);',
+    '      float vis = smoothstep(-0.14, 0.05, sd.y);',
+    '      col += sc*(pow(cs, 16.0)*0.10 + pow(cs, 700.0)*1.2)*vis*uAtm;',
+    '      float tw = exp(-pow((sd.y + 0.01)/0.13, 2.0));',
+    '      vec3 sh = normalize(vec3(sd.x, 0.0, sd.z) + vec3(1e-4, 0.0, 0.0));',
+    '      float side = pow(max(dot(dh, sh), 0.0), 3.0);',
+    '      col += vec3(1.0, 0.42, 0.14)*tint*tw*side*exp(-up*4.0)*0.85;',
+    '    }',
+    '  }',
+    '  return col;',
+    '}',
+    'vec3 tone(vec3 c){ return vec3(1.0) - exp(-c*1.25); }'
+  ].join('\n');
+
+  var SURF_TERRAIN_COMMON = [
+    'uniform float uAmp; uniform float uRidge; uniform float uCrater; uniform vec2 uSeedT;',
+    'float tHash(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y)*p3.z); }',
+    'float tNoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); f = f*f*(3.0 - 2.0*f);',
+    '  return mix(mix(tHash(i), tHash(i + vec2(1.0,0.0)), f.x), mix(tHash(i + vec2(0.0,1.0)), tHash(i + vec2(1.0,1.0)), f.x), f.y); }',
+    // craters: a bowl with a raised rim, one candidate per grid cell
+    'float tCrater(vec2 p, float scale){',
+    '  vec2 q = p/scale; vec2 i = floor(q); vec2 f = fract(q); float h = 0.0;',
+    '  for (int y=-1; y<=1; y++){ for (int x=-1; x<=1; x++){',
+    '    vec2 g = vec2(float(x), float(y)); vec2 id = i + g;',
+    '    if (tHash(id + 31.7) > 0.5){',
+    '      vec2 c = g + vec2(tHash(id + 7.1), tHash(id + 19.3)) - f;',
+    '      float rad = 0.14 + 0.3*tHash(id + 3.3);',
+    '      float d = length(c)/rad;',
+    '      h += ((d < 1.0 ? -(1.0 - d*d) : 0.0) + 0.35*exp(-pow((d - 1.08)/0.22, 2.0)))*rad;',
+    '    }',
+    '  } }',
+    '  return h;',
+    '}',
+    'float tH(vec2 p){',
+    '  float r = length(p);',
+    '  float mask = smoothstep(14.0, 800.0, r);',          // flat clearing around the viewer, hills grow outward
+    '  vec2 q = p*0.00022 + uSeedT;',
+    '  float h = 0.0; float a = 0.5;',
+    '  for (int i=0;i<7;i++){ h += a*tNoise(q); q = q*2.05 + vec2(5.2, 1.3); a *= 0.5; }',
+    '  float rid = 1.0 - abs(2.0*tNoise(p*0.0004 + uSeedT*1.7) - 1.0);',
+    '  float m = mix(h, rid*rid*0.9, uRidge);',
+    '  float hh = (m - 0.3)*uAmp;',
+    '  if (uCrater > 0.001){',
+    '    hh += (tCrater(p, 900.0)*0.22*900.0 + tCrater(p + 13.0, 210.0)*0.2*210.0)*uCrater;',
+    '    if (r < 700.0) hh += tCrater(p + 71.0, 48.0)*0.18*48.0*uCrater;',
+    '  }',
+    '  return hh*mask;',
+    '}'
+  ].join('\n');
+
+  var SURF_TERRAIN_VERT = [
+    'varying vec3 vW; varying vec3 vN; varying float vH; varying vec3 vFog;',
+    'void main(){',
+    '  vec2 p = position.xz;',
+    '  float h = tH(p);',
+    '  float eps = clamp(length(p)*0.003, 0.5, 60.0);',
+    '  float hx = tH(p + vec2(eps, 0.0)) - h;',
+    '  float hz = tH(p + vec2(0.0, eps)) - h;',
+    '  vN = normalize(vec3(-hx, eps, -hz));',
+    '  vW = vec3(p.x, h, p.y); vH = h;',
+    '  vec3 tc = vW - cameraPosition;',
+    '  vFog = (uAtm > 0.001) ? skyColor(normalize(vec3(tc.x, 0.02*length(tc.xz), tc.z))) : vec3(0.0);',
+    '  gl_Position = projectionMatrix*viewMatrix*vec4(vW, 1.0);',
+    '}'
+  ].join('\n');
+
+  var SURF_TERRAIN_FRAG = [
+    'varying vec3 vW; varying vec3 vN; varying float vH; varying vec3 vFog;',
+    'uniform vec3 uC0; uniform vec3 uC1; uniform vec3 uC2; uniform vec3 uCs; uniform float uCloud; uniform float uVis; uniform vec3 uAmb;',
+    'float micro(vec2 p, float k){ return 0.7*tNoise(p*0.35) + 0.3*k*tNoise(p*1.1 + 3.7); }',
+    'void main(){',
+    '  vec3 N0 = normalize(vN);',
+    '  float dist = length(vW - cameraPosition);',
+    '  float mb = smoothstep(260.0, 10.0, dist); float kk = smoothstep(60.0, 6.0, dist);',
+    '  vec2 g = vW.xz; float n0 = micro(g, kk);',
+    '  vec3 N = N0;',
+    '  if (mb > 0.01){ float e = 0.4; N = normalize(N0 + vec3(-(micro(g + vec2(e, 0.0), kk) - n0)/e, 0.0, -(micro(g + vec2(0.0, e), kk) - n0)/e)*0.3*mb); }',
+    '  float pat = 0.6*tNoise(g*0.0035 + uSeedT*3.1) + 0.4*tNoise(g*0.02 + uSeedT*7.0);',
+    '  float hn = clamp(vH/(uAmp + 1.0), -0.6, 1.0);',
+    '  vec3 col;',
+    '  if (uCloud > 0.5){',
+    '    float band = 0.5 + 0.5*sin(g.y*0.00045 + tNoise(g*0.0009 + uSeedT)*7.0);',
+    '    col = mix(uC0, uC1, band*0.7 + pat*0.3);',
+    '    col = mix(col, uC2, smoothstep(0.1, 0.9, hn)*0.5);',
+    '  } else {',
+    '    col = mix(uC0, uC1, smoothstep(0.25, 0.75, pat));',
+    '    col = mix(col, uC2, smoothstep(0.35, 0.95, hn*1.4 + pat*0.25 - 0.1)*0.8);',
+    '    col = mix(col, uCs, smoothstep(0.1, 0.4, 1.0 - N0.y)*0.85);',
+    '  }',
+    '  col *= 0.9 + 0.2*n0;',
+    '  vec3 lit = uAmb;',
+    '  for (int i=0;i<3;i++){',
+    '    vec3 sc = uSunCol[i];',
+    '    if (max(max(sc.r, sc.g), sc.b) > 0.001){',
+    '      vec3 sd = uSunDir[i];',
+    '      float vis = smoothstep(-0.03, 0.05, sd.y);',
+    '      vec3 ext = (uAtm > 0.001) ? exp(-vec3(0.25, 0.55, 1.15)*uAtm*0.28/max(sd.y, 0.05)) : vec3(1.0);',
+    '      lit += sc*ext*max(dot(N, sd), 0.0)*vis*1.15;',
+    '    }',
+    '  }',
+    '  col *= lit;',
+    '  if (uAtm > 0.001){',
+    '    float f = 1.0 - exp(-pow(dist/uVis, 1.35));',
+    '    col = mix(col, vFog, f);',
+    '  }',
+    '  gl_FragColor = vec4(tone(col), 1.0);',
+    '}'
+  ].join('\n');
+
+  // what the ground and sky of each kind of world look like
+  function surfaceProfile(kind, typeId, hexNum){
+    var base = new THREE.Color(hexNum);
+    function tint(r, g, b){ return new THREE.Color(Math.min(1.6, base.r*r), Math.min(1.6, base.g*g), Math.min(1.6, base.b*b)); }
+    function toWhite(c, k){ return c.clone().lerp(new THREE.Color(1, 1, 1), k); }
+    var key = typeId;
+    if (kind === 'moon' && typeId === 'rocky') key = 'dwarf';
+    var P = { atm:0, amp:500, ridge:0.4, crater:0, cloud:0, vis:9000, camH:2,
+      zen:new THREE.Color(0, 0, 0), hor:new THREE.Color(0, 0, 0), label:'SOLID SURFACE · NO ATMOSPHERE' };
+    switch (key){
+      case 'rocky':
+        P.atm = 0.85; P.amp = 320; P.ridge = 0.5; P.crater = 0.18; P.vis = 9000;
+        P.zen.setRGB(0.16, 0.33, 0.8); P.hor.setRGB(0.62, 0.74, 0.92);
+        P.c0 = tint(0.55, 0.5, 0.45); P.c1 = tint(1, 1, 1); P.c2 = tint(1.35, 1.3, 1.2); P.cs = tint(0.42, 0.38, 0.36);
+        P.label = 'SOLID SURFACE · THIN ATMOSPHERE'; break;
+      case 'superearth':
+        P.atm = 1.1; P.amp = 480; P.ridge = 0.65; P.crater = 0.03; P.vis = 7000;
+        P.zen.setRGB(0.14, 0.3, 0.75); P.hor.setRGB(0.6, 0.72, 0.9);
+        P.c0 = tint(0.55, 0.5, 0.45); P.c1 = tint(1, 1, 1); P.c2 = tint(1.3, 1.25, 1.2); P.cs = tint(0.4, 0.36, 0.34);
+        P.label = 'SOLID SURFACE · DENSE ATMOSPHERE'; break;
+      case 'icy':
+        P.atm = 0; P.amp = 260; P.ridge = 0.45; P.crater = 0.55;
+        P.c0 = tint(0.7, 0.8, 0.9); P.c1 = tint(1, 1, 1); P.c2 = toWhite(base, 0.6); P.cs = tint(0.5, 0.62, 0.78); break;
+      case 'volcanic':
+        P.atm = 0; P.amp = 360; P.ridge = 0.6; P.crater = 0.2;
+        P.c0 = tint(0.7, 0.45, 0.25); P.c1 = tint(1, 1, 1); P.c2 = tint(1.2, 1.2, 0.9); P.cs = new THREE.Color(0.2, 0.14, 0.1); break;
+      case 'minineptune': case 'ice': case 'gas':
+        P.cloud = 1; P.atm = key === 'gas' ? 1.8 : 1.5; P.amp = 70; P.ridge = 0; P.vis = 4000; P.camH = 30;
+        if (key === 'gas'){ P.zen = tint(0.5, 0.4, 0.3); P.hor = toWhite(tint(1.05, 0.95, 0.8), 0.15); }
+        else { P.zen = tint(0.4, 0.5, 0.65); P.hor = toWhite(tint(1, 1, 0.98), 0.25); }
+        P.c0 = tint(0.78, 0.78, 0.78); P.c1 = tint(1.1, 1.1, 1.1); P.c2 = toWhite(base, 0.5); P.cs = tint(0.6, 0.6, 0.6);
+        P.label = 'CLOUD TOPS · NO SOLID SURFACE'; break;
+      default: // dwarf / airless rock
+        P.atm = 0; P.amp = 220; P.ridge = 0.25; P.crater = 1.0;
+        P.c0 = tint(0.55, 0.55, 0.55); P.c1 = tint(0.95, 0.95, 0.95); P.c2 = tint(1.3, 1.3, 1.3); P.cs = tint(0.4, 0.4, 0.4);
+    }
+    return P;
+  }
+
+  function surfacePolarGrid(nr, nt, r0, r1){
+    var pos = new Float32Array((nr + 1)*nt*3), idx = [], i, j;
+    for (i = 0; i <= nr; i++){
+      var r = i === 0 ? 0 : r0*Math.pow(r1/r0, (i - 1)/(nr - 1));    // rings spread out exponentially: fine near the viewer, far to the horizon
+      for (j = 0; j < nt; j++){
+        var a = (j/nt)*Math.PI*2, o = (i*nt + j)*3;
+        pos[o] = r*Math.cos(a); pos[o + 1] = 0; pos[o + 2] = r*Math.sin(a);
+      }
+    }
+    for (i = 0; i < nr; i++) for (j = 0; j < nt; j++){
+      var a0 = i*nt + j, b0 = i*nt + (j + 1)%nt, c0 = (i + 1)*nt + j, d0 = (i + 1)*nt + (j + 1)%nt;
+      idx.push(a0, c0, b0, b0, c0, d0);
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    return g;
+  }
+
+  function surfaceBuild(){
+    var G = {};
+    G.skyScene = new THREE.Scene();
+    G.gndScene = new THREE.Scene();
+    G.cam = new THREE.PerspectiveCamera(70, 1, 0.3, 400000);
+    G.sunDir = [new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, -1, 0)];
+    G.sunCol = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+    G.uni = { uSunDir:{value:G.sunDir}, uSunCol:{value:G.sunCol}, uAtm:{value:0}, uZen:{value:new THREE.Color()}, uHor:{value:new THREE.Color()} };
+
+    // sky dome
+    G.dome = new THREE.Mesh(new THREE.SphereGeometry(SURF_DOME, 48, 24), new THREE.ShaderMaterial({
+      uniforms:G.uni, side:THREE.BackSide, depthWrite:false,
+      vertexShader:'varying vec3 vD; void main(){ vD = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.0); }',
+      fragmentShader:SURF_SKY_GLSL + '\nvarying vec3 vD; void main(){ gl_FragColor = vec4(tone(skyColor(normalize(vD))), 1.0); }'
+    }));
+    G.dome.renderOrder = -10; G.dome.frustumCulled = false;
+    G.skyScene.add(G.dome);
+
+    // background stars, with a faint denser band like a galaxy disc
+    var N = 3000, pos = new Float32Array(N*3), col = new Float32Array(N*3), v = new THREE.Vector3(), eu = new THREE.Euler(0.9, 0.3, 0.6);
+    for (var i = 0; i < N; i++){
+      if (i < N*0.45){
+        var th = Math.random()*Math.PI*2, bl = (Math.random() + Math.random() + Math.random() - 1.5)*0.16;
+        v.set(Math.cos(th)*Math.cos(bl), Math.sin(bl), Math.sin(th)*Math.cos(bl)).applyEuler(eu);
+      } else {
+        var u1 = Math.random()*2 - 1, th2 = Math.random()*Math.PI*2, s1 = Math.sqrt(1 - u1*u1);
+        v.set(s1*Math.cos(th2), u1, s1*Math.sin(th2));
+      }
+      v.multiplyScalar(SURF_DOME*0.92);
+      pos[i*3] = v.x; pos[i*3 + 1] = v.y; pos[i*3 + 2] = v.z;
+      var tn = Math.random(), br = 0.3 + Math.pow(Math.random(), 3)*0.7, cr, cg, cb;
+      if (tn < 0.15){ cr = 0.7; cg = 0.8; cb = 1; } else if (tn < 0.3){ cr = 1; cg = 0.88; cb = 0.7; } else { cr = 1; cg = 1; cb = 1; }
+      col[i*3] = cr*br; col[i*3 + 1] = cg*br; col[i*3 + 2] = cb*br;
+    }
+    var sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    sg.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    G.stars = new THREE.Points(sg, new THREE.PointsMaterial({ size:1.8, sizeAttenuation:false, vertexColors:true, transparent:true, depthWrite:false }));
+    G.stars.frustumCulled = false;
+    G.skyScene.add(G.stars);
+
+    // light that falls on the other planets and moons in the sky
+    G.lights = [];
+    for (var k = 0; k < 3; k++){ var dl = new THREE.DirectionalLight(0xffffff, 0); G.skyScene.add(dl); G.lights.push(dl); }
+    G.skyScene.add(new THREE.AmbientLight(0x14151c, 1.0));
+
+    G.sphere = new THREE.SphereGeometry(1, 64, 48);
+    G.bodies = [];
+
+    // terrain
+    var tu = {
+      uAmp:{value:500}, uRidge:{value:0.4}, uCrater:{value:0}, uSeedT:{value:new THREE.Vector2()},
+      uC0:{value:new THREE.Color()}, uC1:{value:new THREE.Color()}, uC2:{value:new THREE.Color()}, uCs:{value:new THREE.Color()},
+      uCloud:{value:0}, uVis:{value:9000}, uAmb:{value:new THREE.Color(0.01, 0.01, 0.012)}
+    };
+    for (var key in G.uni) tu[key] = G.uni[key];
+    G.tu = tu;
+    G.terrain = new THREE.Mesh(surfacePolarGrid(180, 256, 0.6, 28000), new THREE.ShaderMaterial({
+      uniforms:tu, side:THREE.DoubleSide,
+      vertexShader:SURF_SKY_GLSL + '\n' + SURF_TERRAIN_COMMON + '\n' + SURF_TERRAIN_VERT,
+      fragmentShader:SURF_TERRAIN_COMMON + '\n' + SURF_SKY_GLSL + '\n' + SURF_TERRAIN_FRAG
+    }));
+    G.terrain.frustumCulled = false;
+    G.gndScene.add(G.terrain);
+    return G;
+  }
+
+  function makeSkyLabel(text, hex){
+    var s = makeTextSprite(text, 20);
+    s.material.depthTest = false; s.material.depthWrite = false;
+    if (hex) s.material.color.set(hex);
+    s.renderOrder = 1000;
+    return s;
+  }
+  function makeSkyGlow(color, opacity){
+    var s = new THREE.Sprite(new THREE.SpriteMaterial({ map:makeGlowTexture(), color:color, transparent:true, opacity:opacity, blending:THREE.AdditiveBlending, depthWrite:false, depthTest:false }));
+    s.renderOrder = 500;
+    return s;
+  }
+
+  function surfaceClearBodies(){
+    var G = surfG;
+    if (!G || !G.bodies) return;
+    G.bodies.forEach(function(b){
+      [b.mesh, b.ring, b.glow, b.photon, b.dot, b.label].forEach(function(o){
+        if (!o) return;
+        G.skyScene.remove(o);
+        if (o.material){ if (o.material.map && !o.material.map._shared) o.material.map.dispose(); o.material.dispose(); }
+        if (o.geometry && !o.isSprite && o.geometry !== G.sphere) o.geometry.dispose();
+      });
+    });
+    G.bodies = [];
+  }
+
+  // one sky object per star, planet and moon (except the world you are standing on)
+  function surfaceMakeBodies(){
+    var G = surfG;
+    surfaceClearBodies();
+    stars.forEach(function(s, i){
+      var so = three.starObjs[i];
+      if (!so) return;
+      var isBH = s.cls === 'BH', col;
+      if (isBH) col = new THREE.Color(1.0, 0.62, 0.3);
+      else { var rgb = tempToRGB(s.T); col = new THREE.Color(rgb[0]/255, rgb[1]/255, rgb[2]/255); }
+      var mesh = new THREE.Mesh(G.sphere, isBH ? new THREE.MeshBasicMaterial({ color:0x000000 }) : makeStarMaterial(col, i));
+      G.skyScene.add(mesh);
+      var glow = null, photon = null;
+      if (isBH){
+        photon = new THREE.Sprite(new THREE.SpriteMaterial({ map:makePhotonRingTexture(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, depthTest:false }));
+        photon.renderOrder = 500; G.skyScene.add(photon);
+      } else { glow = makeSkyGlow(col, 0.85); G.skyScene.add(glow); }
+      var label = makeSkyLabel(s.name); G.skyScene.add(label);
+      G.bodies.push({ kind:'star', idx:i, name:s.name, mesh:mesh, glow:glow, photon:photon, label:label, color:col, isBH:isBH,
+        rAU:s.R*AU_PER_RSUN, lum:starLuminosity(s), src:so.mesh, dir:new THREE.Vector3(), alive:false });
+    });
+    function addRock(kind, idx, o){
+      var pm = kind === 'moon' ? three.moonMeshes[idx] : three.planetMeshes[idx];
+      if (!pm) return;
+      var mesh = new THREE.Mesh(G.sphere, makeBodyMaterial(o.type.id, o.type.hex, o.name, bodyRoughness(o.type.id), 0.03));
+      G.skyScene.add(mesh);
+      var ring = null;
+      if (kind === 'planet' && o.hasRing){
+        var rg = new THREE.RingGeometry(1.6, 2.7, 128); fixRingUVs(rg, 1.6, 2.7);
+        ring = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map:makeRingTexture(o.type.hex), transparent:true, opacity:0.85, side:THREE.DoubleSide, depthWrite:false }));
+        G.skyScene.add(ring);
+      }
+      var dot = makeSkyGlow(new THREE.Color(o.type.hex), 0.8); G.skyScene.add(dot);
+      var label = makeSkyLabel(o.name, kind === 'moon' ? 0x5ec8e6 : 0xffffff); G.skyScene.add(label);
+      G.bodies.push({ kind:kind, idx:idx, name:o.name, mesh:mesh, ring:ring, dot:dot, label:label, color:new THREE.Color(o.type.hex),
+        rAU:o.radiusRE*AU_PER_REARTH, src:pm, dir:new THREE.Vector3(), alive:false });
+    }
+    planets.forEach(function(p, j){ if (!(surf.kind === 'planet' && surf.idx === j)) addRock('planet', j, p); });
+    moons.forEach(function(m, k){ if (!(surf.kind === 'moon' && surf.idx === k)) addRock('moon', k, m); });
+  }
+
+  // Real positions (AU) of every body. In realistic mode the scene already is true scale. In the stylized mode the
+  // drawn distances are squashed, so each body's direction is kept and its distance is put back from its orbit size.
+  function realPositionsAU(){
+    var res = { stars:[], planets:[], moons:[] }, v = new THREE.Vector3(), i;
+    if (realDist){
+      three.starObjs.forEach(function(so){ so.group.getWorldPosition(v); res.stars.push(v.clone().divideScalar(distK)); });
+      three.planetMeshes.forEach(function(m){ m.getWorldPosition(v); res.planets.push(v.clone().divideScalar(distK)); });
+      three.moonMeshes.forEach(function(m){ if (!m){ res.moons.push(null); return; } m.getWorldPosition(v); res.moons.push(v.clone().divideScalar(distK)); });
+      return res;
+    }
+    for (i = 0; i < three.starObjs.length; i++){
+      if (i === 0){ res.stars.push(new THREE.Vector3()); continue; }
+      var s = stars[i], pi = Math.min(parentOf(s), i - 1);
+      var d = three.starObjs[i].group.position.clone().sub(three.starObjs[pi].group.position), len = d.length();
+      var au = len > 1e-9 ? s.au*len/auToUnits(s.au) : 0;
+      res.stars.push(len > 1e-9 ? res.stars[pi].clone().addScaledVector(d, au/len) : res.stars[pi].clone());
+    }
+    three.planetMeshes.forEach(function(m){
+      var p = m.userData.planet, hi = Math.min(p.starIndex || 0, res.stars.length - 1), len = m.position.length();
+      var au = len > 1e-9 ? p.au*len/auToUnits(p.au) : 0;
+      res.planets.push(len > 1e-9 ? res.stars[hi].clone().addScaledVector(m.position, au/len) : res.stars[hi].clone());
+    });
+    three.moonMeshes.forEach(function(mm){
+      if (!mm){ res.moons.push(null); return; }
+      var mo = mm.userData.moon, pm = three.planetMeshes[mo.planetIndex], pp = res.planets[mo.planetIndex];
+      if (!pm || !pp){ res.moons.push(null); return; }
+      v.copy(mm.position).sub(pm.position);
+      var len = v.length(), au = len > 1e-12 ? (mo.km/AU_KM)*len/mm.userData.aUnits : 0;
+      res.moons.push(len > 1e-12 ? pp.clone().addScaledVector(v, au/len) : pp.clone());
+    });
+    return res;
+  }
+
+  function surfaceEnter(kind, idx, keep){
+    if (!three) return;
+    var mesh = kind === 'moon' ? three.moonMeshes[idx] : three.planetMeshes[idx];
+    var src = kind === 'moon' ? moons[idx] : planets[idx];
+    if (!mesh || !src || mesh.userData.dead){ logPhysics('Pick a planet or moon that is still in the system'); return; }
+    if (surf) surfaceExit(true);
+    if (!surfG){
+      try { surfG = surfaceBuild(); }
+      catch (err){ logPhysics('Surface view needs WebGL: ' + err.message); return; }
+    }
+    var G = surfG, prof = surfaceProfile(kind, src.type.id, src.type.hex);
+    var tu = G.tu, h = strHash('terrain|' + src.name + '|' + src.type.id);
+    tu.uAmp.value = prof.amp; tu.uRidge.value = prof.ridge; tu.uCrater.value = prof.crater; tu.uCloud.value = prof.cloud; tu.uVis.value = prof.vis;
+    tu.uSeedT.value.set(((h & 1023)/1023)*50, (((h >>> 10) & 1023)/1023)*50);
+    tu.uC0.value.copy(prof.c0); tu.uC1.value.copy(prof.c1); tu.uC2.value.copy(prof.c2); tu.uCs.value.copy(prof.cs);
+    G.uni.uAtm.value = prof.atm; G.uni.uZen.value.copy(prof.zen); G.uni.uHor.value.copy(prof.hor);
+    var latDeg = keep ? keep.lat*180/Math.PI : (parseFloat(surfLat.value) || 30);
+    surf = { kind:kind, idx:idx, ref:src, mesh:mesh, prof:prof, lat:latDeg*Math.PI/180, yaw:0, pitch:0.15, fov:70, frame:0, faced:false };
+    if (keep){ surf.yaw = keep.yaw; surf.pitch = keep.pitch; surf.fov = keep.fov; surf.faced = true; }
+    surfLat.value = latDeg;
+    surfLatOut.textContent = (latDeg >= 0 ? 'N ' : 'S ') + Math.abs(latDeg).toFixed(0) + '°';
+    surfaceMakeBodies();
+    three.autoRotate = false;
+    if (!G.hintOrig) G.hintOrig = dragHintEl.textContent;
+    dragHintEl.textContent = (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) ? 'DRAG: LOOK AROUND · PINCH: ZOOM' : 'DRAG: LOOK AROUND · WHEEL: ZOOM · S / ESC: EXIT';
+    surfaceBtn.classList.add('active');
+    surfaceBtn.textContent = '✕ EXIT SURFACE VIEW';
+    surfaceBtn.setAttribute('aria-pressed', 'true');
+    surfHud.style.display = 'block';
+    notToScaleEl.style.display = 'none';
+    stageTag.textContent = 'SURFACE · ' + src.name.toUpperCase();
+    try { stage3d.scrollIntoView({ behavior:'smooth', block:'nearest' }); } catch (e){}
+  }
+
+  function surfaceExit(silent){
+    if (!surf) return;
+    surf = null;
+    surfaceClearBodies();
+    surfaceBtn.classList.remove('active');
+    surfaceBtn.textContent = '⛰ SURFACE VIEW';
+    surfaceBtn.setAttribute('aria-pressed', 'false');
+    surfHud.style.display = 'none';
+    notToScaleEl.style.display = '';
+    stageTag.textContent = systemNameInput.value.trim() || 'SYSTEM VIEW';
+    if (surfG && surfG.hintOrig) dragHintEl.textContent = surfG.hintOrig;
+    if (three) three.renderer.autoClear = true;
+  }
+
+  // returns false when the view had to close (the world was swallowed, removed...)
+  function updateSurface(dt){
+    var G = surfG, S = surf, mesh = S.mesh, prof = S.prof;
+    if (!mesh.parent || mesh.userData.dead){ surfaceExit(); return false; }
+    var P = realPositionsAU();
+    var obs = S.kind === 'moon' ? P.moons[S.idx] : P.planets[S.idx];
+    if (!obs){ surfaceExit(); return false; }
+    var w = stage.clientWidth, h = stage.clientHeight;
+    if (!w || !h) return false;
+    var pxW = h/(2*SURF_D*Math.tan(S.fov*Math.PI/360));
+    function wpx(px){ return px/pxW; }
+
+    // local frame of the observer: X = east, Y = up, Z = south. It turns with the planet's spin, so the sky moves.
+    mesh.getWorldQuaternion(_sv.q);
+    var cl = Math.cos(S.lat), sl = Math.sin(S.lat);
+    _sv.up.set(cl, sl, 0).applyQuaternion(_sv.q);
+    _sv.no.set(-sl, cl, 0).applyQuaternion(_sv.q);
+    _sv.ea.set(0, 0, -1).applyQuaternion(_sv.q);
+    _sv.M.set(_sv.ea.x, _sv.ea.y, _sv.ea.z, 0,  _sv.up.x, _sv.up.y, _sv.up.z, 0,  -_sv.no.x, -_sv.no.y, -_sv.no.z, 0,  0, 0, 0, 1);
+    _sv.qWL.setFromRotationMatrix(_sv.M);
+
+    // direction and distance of every body
+    G.bodies.forEach(function(b){
+      var pos = b.kind === 'star' ? P.stars[b.idx] : (b.kind === 'planet' ? P.planets[b.idx] : P.moons[b.idx]);
+      var gone = !pos || (b.src.userData && b.src.userData.dead) || (b.kind === 'star' && three.starObjs[b.idx].group.visible === false);
+      b.alive = !gone;
+      if (gone) return;
+      _sv.rel.copy(pos).sub(obs);
+      b.dist = _sv.rel.length();
+      if (b.dist < 1e-12){ b.alive = false; return; }
+      b.dir.copy(_sv.rel).divideScalar(b.dist).applyMatrix4(_sv.M);
+      b.flux = b.kind === 'star' ? b.lum/(b.dist*b.dist) : 0;
+    });
+
+    // the (up to three) brightest stars light the sky, the ground and the other worlds
+    var suns = G.bodies.filter(function(b){ return b.alive && b.kind === 'star' && !b.isBH && b.flux > 0; }).sort(function(a, b){ return b.flux - a.flux; });
+    var topFlux = suns.length ? suns[0].flux : 1;
+    for (var k = 0; k < 3; k++){
+      var sb = suns[k], lt = G.lights[k];
+      if (sb){
+        var mx = Math.max(sb.color.r, sb.color.g, sb.color.b, 1e-3);
+        G.sunDir[k].copy(sb.dir);
+        G.sunCol[k].set(sb.color.r/mx, sb.color.g/mx, sb.color.b/mx).multiplyScalar(Math.min(1.6, Math.pow(sb.flux, 0.28)));
+        lt.color.copy(sb.color);
+        lt.intensity = 2.4*Math.pow(sb.flux/topFlux, 0.6)*Math.min(1.4, Math.pow(topFlux, 0.2));
+        lt.position.copy(sb.dir).multiplyScalar(100);
+      } else { G.sunCol[k].set(0, 0, 0); G.sunDir[k].set(0, -1, 0); lt.intensity = 0; }
+    }
+    var skyDay = suns.length ? sstep(-0.1, 0.25, suns[0].dir.y) : 0;
+    // ambient light on the ground: the blue of the sky above (atmosphere) or a faint glow (airless)
+    var amb = G.tu.uAmb.value;
+    if (prof.atm > 0.001){
+      amb.setRGB(0.012, 0.012, 0.014);
+      suns.forEach(function(sb, k){
+        if (k > 2) return;
+        var dayK = sstep(-0.1, 0.25, sb.dir.y)*Math.min(1.6, Math.pow(sb.flux, 0.28)), mx = Math.max(sb.color.r, sb.color.g, sb.color.b, 1e-3);
+        amb.r += prof.zen.r*(sb.color.r/mx)*dayK*0.5; amb.g += prof.zen.g*(sb.color.g/mx)*dayK*0.5; amb.b += prof.zen.b*(sb.color.b/mx)*dayK*0.5;
+      });
+    } else amb.setRGB(0.007, 0.008, 0.011);
+    var dim = 1 - Math.min(1, skyDay*prof.atm*1.4);
+    G.stars.material.opacity = 1 - Math.min(1, skyDay*prof.atm*1.1)*0.97;
+
+    if (!S.faced && suns.length){ S.yaw = Math.atan2(suns[0].dir.x, -suns[0].dir.z); S.faced = true; }
+
+    // draw each body at its true angular size
+    G.bodies.forEach(function(b){
+      var show = b.alive;
+      [b.mesh, b.ring, b.glow, b.photon, b.dot, b.label].forEach(function(o){ if (o) o.visible = false; });
+      if (!show) return;
+      var ang = Math.asin(Math.min(0.999, b.rAU/b.dist));
+      var rW = SURF_D*Math.tan(ang), rpx = rW*pxW;
+      b.mesh.position.copy(b.dir).multiplyScalar(SURF_D);
+      b.mesh.scale.setScalar(Math.max(rW, 1e-3));
+      b.mesh.visible = rpx > 0.45;
+      if (b.kind === 'star'){
+        var u = b.mesh.material.uniforms;
+        if (u && u.time) u.time.value = t*6;
+        if (b.glow){
+          var gw = Math.max(rW*2*5, wpx(34));
+          b.glow.position.copy(b.mesh.position); b.glow.scale.set(gw, gw, 1);
+          b.glow.material.opacity = 0.85*(1 - 0.6*Math.min(1, prof.atm));
+          b.glow.visible = true;
+        }
+        if (b.photon){
+          var pw = Math.max(rW*5.3, wpx(8));
+          b.photon.position.copy(b.mesh.position); b.photon.scale.set(pw, pw, 1); b.photon.visible = true;
+        }
+      } else {
+        b.mesh.quaternion.copy(_sv.qWL).multiply(b.src.quaternion);
+        if (b.ring && b.mesh.visible){
+          b.ring.position.copy(b.mesh.position); b.ring.scale.copy(b.mesh.scale);
+          b.ring.quaternion.copy(_sv.qWL).multiply(b.src.userData.tiltQ).multiply(_sv.qRx);
+          b.ring.visible = true;
+        }
+        if (rpx < 1.4){
+          var dw = wpx(3.6);
+          b.dot.position.copy(b.mesh.position); b.dot.scale.set(dw, dw, 1);
+          b.dot.material.opacity = 0.8*dim; b.dot.visible = dim > 0.02;
+        }
+      }
+      var lw = wpx(130);
+      b.label.scale.set(lw, lw*0.255, 1);
+      b.label.position.copy(b.mesh.position).multiplyScalar((SURF_D - 50)/SURF_D);
+      b.label.position.y += rW + wpx(16);
+      b.label.visible = showLabels && b.dir.y > -0.03 && (b.kind === 'star' || dim > 0.02 || b.mesh.visible);
+    });
+
+    // camera: you stand on the ground and look in the direction yaw (compass heading, 0 = north) / pitch
+    var cam = G.cam;
+    cam.fov = S.fov; cam.aspect = w/h; cam.updateProjectionMatrix();
+    cam.position.set(0, prof.camH, 0);
+    var cp = Math.cos(S.pitch);
+    _sv.look.set(Math.sin(S.yaw)*cp, prof.camH + Math.sin(S.pitch), -Math.cos(S.yaw)*cp);
+    cam.lookAt(_sv.look);
+
+    if ((++S.frame % 6) === 1){
+      var s0 = suns[0], line1 = prof.label, line2 = '';
+      if (s0){
+        var el = Math.asin(Math.max(-1, Math.min(1, s0.dir.y)))*180/Math.PI;
+        line2 = s0.name.toUpperCase() + ' ' + (el >= 0 ? '+' : '') + el.toFixed(0) + '° · ' + (el > 6 ? 'DAY' : (el > -8 ? 'TWILIGHT' : 'NIGHT'));
+      } else line2 = 'NO STAR IN THE SKY';
+      surfInfo.textContent = line1 + '\n' + line2;
+    }
+    return true;
+  }
+
+  function renderSurface(){
+    var G = surfG, r = three.renderer;
+    r.autoClear = false;
+    r.clear();
+    r.render(G.skyScene, G.cam);
+    r.clearDepth();
+    r.render(G.gndScene, G.cam);
+    r.autoClear = true;
   }
 
   function rebuildIfReady(){ if (three) rebuildSystem3D(); }
@@ -3798,6 +4595,35 @@ showSysStatus('System reset.');
   }
   resetViewBtn.addEventListener('click', resetView);
 
+  // ---- level orbits: the planets' orbit plane becomes the floor of the camera (instead of the sky plane) ----
+  levelBtn.addEventListener('click', function(){
+    if (!three) return;
+    three.level = !three.level;
+    levelBtn.classList.toggle('on', three.level);
+    levelBtn.setAttribute('aria-pressed', three.level ? 'true' : 'false');
+    levelBtn.textContent = three.level ? '⊥ LEVEL ORBITS: ON' : '⊥ LEVEL ORBITS: OFF';
+  });
+
+  // ---- surface view ----
+  surfaceBtn.addEventListener('click', function(){
+    if (surf){ surfaceExit(); return; }
+    var f = three && three.focusObj, kind = null, idx = -1;
+    if (f && f.userData.planet){ kind = 'planet'; idx = three.planetMeshes.indexOf(f); }
+    else if (f && f.userData.moon){ kind = 'moon'; idx = three.moonMeshes.indexOf(f); }
+    if (idx < 0 && planets.length){
+      kind = 'planet'; idx = 0;
+      logPhysics('SURFACE VIEW of ' + planets[0].name + ' (click another planet or moon first to pick a different world)');
+    }
+    if (idx < 0){ logPhysics('Add a planet first, then open the surface view'); return; }
+    surfaceEnter(kind, idx);
+  });
+  surfLat.addEventListener('input', function(){
+    var v = parseFloat(surfLat.value) || 0;
+    surfLatOut.textContent = (v >= 0 ? 'N ' : 'S ') + Math.abs(v).toFixed(0) + '°';
+    if (surf) surf.lat = v*Math.PI/180;
+  });
+
+
   // ---- speed slider ----
   // Logarithmic, so slow and very fast speeds are both easy to hit: position 0 = paused,
   // positions 1..200 run from speed 1 up to 10000 (about 5% per step). Speed 25 is the default.
@@ -3868,6 +4694,9 @@ showSysStatus('System reset.');
     else if (k === 'l' || k === 'L') labelsBtn.click();
     else if (k === 'v' || k === 'V') resetView();
     else if (k === 'f' || k === 'F') fsBtn.click();
+    else if (k === 's' || k === 'S') surfaceBtn.click();
+    else if (k === 'o' || k === 'O') levelBtn.click();
+    else if (k === 'Escape' && surf && !isExpanded) surfaceExit();
   });
 
   // ---- touch screens: say how to move around ----

@@ -313,7 +313,8 @@
   .jump-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
   .js-name { font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 8px; }
   .js.earth .js-name { color: var(--amber); }
-  .js.body .js-name { color: var(--red); }
+  .js.body .js-name { color: var(--bodyc, #4aa3ff); }
+  .js.body .meta-row span:last-child { color: var(--bodyc, #8cc8ff); }
   .jump-note { margin-top: 6px; min-height: 1.6em; }
 
   .jump:fullscreen, .jump:-webkit-full-screen, .jump.pseudo-fs {
@@ -670,9 +671,12 @@
   /* ---------- Jump simulation (real time) ---------- */
   const JUMP_H_EARTH = 0.5;                                  // m, a typical standing jump on Earth
   const JUMP_V = Math.sqrt(2 * G_EARTH * JUMP_H_EARTH);      // same takeoff speed everywhere (m/s)
-  const MAN_M = 1.7, ISS_CEIL = 2.5;
+  const MAN_M = 1.7, ISS_CEIL = 4;   // ISS modules are roughly 4 m across; an illustrative floor-to-ceiling height, not a fixed real value
   const ZERO_FLIGHT = 2.4, CROUCH_T = 0.55, LAND_T = 0.25, PAUSE_T = 0.8;
-  const C_EARTH = "#ffb02e", C_BODY = "#ff2b2b";
+  const C_EARTH = "#ffb02e";
+  // Every location gets its own colour (jumper, ground, labels, stats), so pressing Next visibly changes the screen.
+  const BODY_COLORS = ["#4aa3ff", "#39ff88", "#ff5ad1", "#2de2e6", "#a78bfa", "#ff6b6b", "#c6f23a"];
+  let C_BODY = BODY_COLORS[0];
   const CRUSH_G = 100;                                         // at or above this many g the jumper is torn apart
   const CR = { drop: 2.4, period: 3.8 };                       // seconds: the drop, then a pause
 
@@ -712,23 +716,43 @@
     if (s >= 1e-3) return (s * 1e3).toFixed(1) + " ms";
     return (s * 1e6).toFixed(2) + " μs";
   }
+  function rulerLen(m) {            // whole cm below 1 m, otherwise metres with a decimal only when needed
+    if (m < 1) return Math.round(m * 100) + " cm";
+    const r = Math.round(m * 10) / 10;
+    return (Number.isInteger(r) ? r.toFixed(0) : r.toFixed(1)) + " m";
+  }
   function niceStep(span) {
     const raw = span / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
     return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
   }
 
   // Effective gravity the jumper feels. Free fall (orbit, deep space) means none.
+  const ACTS = ["reels", "shake", "call", "book", "selfie", "watch"];
+  const FACTS = ["GRAVITY BENDS SPACE", "STARS ARE DISTANT SUNS", "LIGHT: 300,000 KM/S", "E = MC SQUARED", "A DAY ON VENUS > ITS YEAR", "SPACE IS ALMOST SILENT", "GRAVITY SLOWS TIME", "SUNSETS ON MARS ARE BLUE", "UNIVERSE: 13.8B YEARS OLD", "WE ARE MADE OF STARDUST", "JUPITER HAS 90+ MOONS", "NEUTRINOS PASS THROUGH US", "ESCAPE SPEED: 11.2 KM/S", "ORBIT = ENDLESS FALLING", "SATURN FLOATS ON WATER", "MILKY WAY: 100B+ STARS", "1 LIGHT-YEAR = 9.5T KM", "BLACK HOLES BEND LIGHT", "THE SUN IS 99.8% OF MASS", "NEUTRON STARS: SUPER DENSE"];
+  const SHAKES = [
+    { name: "MANGO", col: "#ffb347", say: ["", "SLUUURP...", "", "MMM, MANGO SHAKE!"] },
+    { name: "STRAWBERRY", col: "#ff6f91", say: ["", "SLUUURP...", "", "STRAWBERRY, YUM!"] },
+    { name: "COLD COFFEE", col: "#8a5a3a", say: ["", "SLUUURP...", "", "COLD COFFEE!"] },
+    { name: "COCONUT", col: "#e8f5e0", say: ["", "SLUUURP...", "", "COCONUT WATER!"] }
+  ];   // one pastime per distant world
   function laneOf(b) {
     const a = appOf(b) * G_EARTH;
     let L;
     if (a === 0) {
       const cap = b.id === "ISS" ? ISS_CEIL - MAN_M : Infinity;   // ISS: floats up until the ceiling
-      L = { a, apex: cap, land: Infinity, cap };
+      L = { a, apex: cap, land: Infinity, cap, leave: cap === Infinity, stick: cap !== Infinity };
     } else {
       L = { a, apex: JUMP_V * JUMP_V / (2 * a), land: 2 * JUMP_V / a, cap: Infinity };
     }
+    L.id = b.id;
+    { const bi = Math.max(0, BODIES.findIndex(x => x.id === b.id)); L.act = ACTS[bi % ACTS.length]; L.v = bi % SHAKES.length;
+      const DRINK_WORLD = { Pluto: 3, Haumea: 0, Gonggong: 2, Orcus: 1 };   // these four open with a drink instead of selfie / watch
+      if (b.id in DRINK_WORLD) { L.act = "shake"; L.v = DRINK_WORLD[b.id]; }
+      if (b.id === "Orcus") { L.seq = ["music", "snack", "shake"]; L.v = 1; }   // Orcus has a pastime list of its own
+      L.fo = (bi * 5) % FACTS.length; }   // each world has its own first pastime and its own drink
     L.crush = appOf(b) >= CRUSH_G;
-    L.period = L.crush ? CR.period : isFinite(L.land) ? CROUCH_T + L.land + LAND_T + PAUSE_T : CROUCH_T + ZERO_FLIGHT;
+    L.ext = b.id === "Sun";                                      // the Sun: he arrives with a fire extinguisher
+    L.period = L.crush ? CR.period : isFinite(L.land) ? CROUCH_T + L.land + LAND_T + PAUSE_T : L.stick ? ISS_T.pullEnd + ISS_T.thanks : Infinity;   // Infinity: plays once (deep space)
     return L;
   }
 
@@ -737,37 +761,340 @@
     return Math.min(JUMP_V * t, L.cap);
   }
 
+  const ISS_T = { crew: 2.2, reachEnd: 6.6, grabEnd: 7.2, pullEnd: 10.2, thanks: 2.4 };   // seconds into the ISS scene
+  const easeInOut = p => p < 0.5 ? 2 * p * p : 1 - 2 * (1 - p) * (1 - p);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const cap1 = t => t.charAt(0) + t.slice(1).toLowerCase();
+
+  // ISS: he floats up, sticks to the ceiling and cries for help. Two crew members drift in slowly from different
+  // directions (tilted, tumbling a little, not lined up), grab him and pull him down. He thanks them.
+  function issState(L, tau) {
+    const T = ISS_T;
+    if (tau < CROUCH_T) return { y: 0, pose: "crouch", k: tau / CROUCH_T, label: "READY", air: "—" };
+    const t = tau - CROUCH_T, cap = L.cap;
+    const up = Math.min(JUMP_V * t, cap), stuck = up >= cap;
+    const bob = side => -0.015 * (1 + Math.sin(tau * 2 + side));            // gentle floating bob
+    const air = fmtTime(Math.min(t, T.pullEnd - CROUCH_T));
+    if (tau < T.crew) return { y: up, pose: stuck ? "flywave" : "air", k: tau, label: stuck ? "STUCK TO CEILING" : "FLOATING UP", air: fmtTime(t), bubble: stuck ? "HELP!" : undefined };
+    if (tau < T.grabEnd) {
+      const u = Math.min(1, (tau - T.crew) / (T.reachEnd - T.crew)), uB = clamp((u - 0.12) / 0.88, 0, 1);
+      const ea = 2.2 * (1 - easeInOut(u)), eb = 2.2 * (1 - easeInOut(uB));   // start far outside the frame
+      return { y: cap, pose: "flywave", k: tau, label: tau < T.reachEnd ? "CREW FLOATING IN" : "CREW GRABS HIM", air, bubble: "HELP!",
+               crew: [
+                 { side: -1, e: ea, y: cap * (0.5 + 0.5 * easeInOut(u)) + bob(-1), rot: -1.0 * (1 - u) - 0.35 * u + 0.1 * Math.sin(tau * 1.1), pose: "reach" },     // from the lower left, tilted
+                 { side: 1, e: eb, y: cap * (0.08 + 0.92 * easeInOut(uB)) + bob(1), rot: 1.5 * (1 - uB) + 0.5 * uB + 0.1 * Math.sin(tau * 0.9 + 2), pose: "reach" }  // from the far lower right, upside-down-ish
+               ] };
+    }
+    if (tau < T.pullEnd) {
+      const p = easeInOut((tau - T.grabEnd) / (T.pullEnd - T.grabEnd)), y = cap * (1 - p);
+      return { y, pose: "air", k: 0, label: "PULLING HIM DOWN", air,
+               crew: [{ side: -1, e: 0, y, rot: -0.35 * (1 - p), pose: "reach" }, { side: 1, e: 0, y, rot: 0.5 * (1 - p), pose: "reach" }] };
+    }
+    return { y: 0, pose: "flywave", k: tau, label: "BACK ON THE FLOOR", air, bubble: "THANKS GUYS!",
+             crew: [{ side: -1, e: 0, y: 0, pose: "stand" }, { side: 1, e: 0, y: 0, pose: "stand" }] };
+  }
+
+  // Air time is reported exactly as the animation shows it: live while in the air,
+  // and the final value only once he is back down.
   function laneState(L, tau) {
-    if (tau < CROUCH_T) return { y: 0, pose: "crouch", k: tau / CROUCH_T, label: "READY" };
+    if (L.stick) return issState(L, tau);
+    if (tau < CROUCH_T) return { y: 0, pose: "crouch", k: tau / CROUCH_T, label: L.leave ? "LEAVING" : "READY", air: "—" };
     const t = tau - CROUCH_T;
     if (t < L.land) {
       const y = heightAt(L, t);
-      return { y, pose: "air", k: 0, label: "AIR " + fmtTime(t) + " · " + fmtLen(y) };
+      if (L.leave) return { y, pose: "flywave", k: t, label: "DRIFTING AWAY", air: fmtTime(t), bubble: t < 2.5 ? "BYE BYE!" : t < 5 ? "TAKE CARE!" : "CIAO!" };
+      let pose = "air";
+      let bubble;
+      if (L.land >= 6 && t > 0.8 && t < L.land - 1.2) {                 // a long flight: he gets bored and does something different on every world
+        const SEQ = L.seq || ACTS, win = L.land - 2, seg = Math.max(L.seq ? 5.5 : 10, win / SEQ.length);          // several pastimes in a row, never the same one twice in a flight; the phone call is him telling a friend about RameshVerse and the new black hole video
+        const si = Math.min(SEQ.length - 1, Math.floor((t - 0.8) / seg)), t0 = 0.8 + si * seg;
+        pose = L.seq ? L.seq[si] : ACTS[(ACTS.indexOf(L.act) + si) % ACTS.length];
+        if (pose === "shake") pose = "shake" + L.v;
+        if (pose === "call") { const L5 = L.id === "Varuna" ? ["BRO, YOU KNOW", "RAMESHVERSE.COM?", "FREE SPACE TOOLS!", "AND RAMESH SINGH'S", "NEW BLACK HOLE", "VIDEO IS WILD!", "WATCH IT. BYE!"] : ["HELLO? MOM?", "YES, I ATE LUNCH", "I'M ON SEDNA", "NO, NOT KIDDING", "THE SUN IS A DOT", "I'LL CALL BACK!"]; bubble = L5[Math.min(L5.length - 1, Math.floor((t - t0) / 1.4))]; }
+        if (pose === "reels") bubble = ["HAHAHAHA!", "LOL!!", "HAHA! WHAT?!", "I CAN'T!!"][Math.floor((t - t0) / 1.2) % 4];
+        if (pose === "book") { const fi = Math.floor((t - t0) / 2.4); bubble = fi < 4 ? FACTS[(L.fo + fi) % FACTS.length] : undefined; }   // consecutive facts, none repeated within a flight; each world starts at a different one
+        if (pose === "music") bubble = ["", "THIS BEAT!", "", "TURN IT UP!"][Math.floor((t - t0) / 1.4) % 4] || undefined;
+        if (pose === "snack") bubble = ["", "CRUNCH CRUNCH", "", "BEST POPCORN EVER"][Math.floor((t - t0) / 1.4) % 4] || undefined;
+        if (pose.startsWith("shake")) bubble = SHAKES[L.v].say[Math.floor((t - t0) / 1.6) % 4] || undefined;
+        if (pose === "watch") bubble = ["", "", "STILL UP HERE", "", "", "", "STILL FLYING...", "", ""][Math.floor((t - t0) / 1.8) % 9] || undefined;
+      }
+      return { y, pose, k: 0, label: "AIR " + fmtTime(t) + " · " + fmtLen(y), air: fmtTime(t), bubble };
     }
-    const since = t - L.land;
-    const label = "LANDED";
-    if (since < LAND_T) return { y: 0, pose: "crouch", k: 0.7 * (1 - since / LAND_T), label };
-    return { y: 0, pose: "stand", k: 0, label };
+    const since = t - L.land, air = fmtTime(L.land);
+    if (since < LAND_T) return { y: 0, pose: "crouch", k: 0.7 * (1 - since / LAND_T), label: "LANDED", air };
+    return { y: 0, pose: "stand", k: 0, label: "LANDED", air };
   }
 
-  function drawMan(c, x, fy, pose, k, col) {
+  function drawMan(c, x, fy, pose, k, col, ext, rot) {
     const leg = 20, torso = 16, hr = 5;
+    const laugh = pose === "reels", wob = laugh || pose === "music";
+    if (pose === "music") { const tt = performance.now() / 1000; c.save(); c.translate(Math.sin(tt * 6) * 1.4, -Math.abs(Math.sin(tt * 6)) * 2.2); }   // dancing
+    else if (laugh) { const tt = performance.now() / 1000; c.save(); c.translate(Math.sin(tt * 26) * 0.9, -Math.abs(Math.sin(tt * 13)) * 1.6); }   // shaking with laughter
+    if (rot) { const pv = fy - leg; c.save(); c.translate(x, pv); c.rotate(rot); c.translate(-x, -pv); }   // floating crew are not upright
     let hipY = fy - leg, knee = 0, lean = 0, spread = 0, arms = "down";
     if (pose === "crouch") { hipY = fy - leg * (1 - 0.38 * k); knee = 8 * k; lean = 4 * k; arms = "back"; }
     else if (pose === "air") { spread = 3; arms = "up"; }
+    else if (pose === "flywave") { spread = 3; arms = "flywave"; }
+    else if (pose === "reach") { arms = "reach"; }
+    else if (ACTS.includes(pose) || pose === "music" || pose === "snack" || pose.startsWith("shake")) { spread = 3; arms = pose; }
+    let fl = -spread, fr = spread, ll = 0, lr = 0;
+    if (pose === "walk") { const ph = k; arms = "walk"; fl = Math.sin(ph) * 6; fr = -Math.sin(ph) * 6; ll = Math.max(0, Math.cos(ph)) * 3; lr = Math.max(0, -Math.cos(ph)) * 3; }
+    if (ext) arms = "ext";
     const sx = x + lean, sy = hipY - torso, kneeY = (hipY + fy) / 2;
     c.strokeStyle = col; c.lineWidth = 2.2; c.lineCap = "round"; c.lineJoin = "round";
     c.shadowColor = col; c.shadowBlur = 8;
     c.beginPath();
-    c.moveTo(x - spread, fy); c.lineTo(x + knee, kneeY); c.lineTo(x, hipY);
-    c.moveTo(x + spread, fy); c.lineTo(x + knee, kneeY); c.lineTo(x, hipY);
+    c.moveTo(x + fl, fy - ll); c.lineTo(x + knee, kneeY); c.lineTo(x, hipY);
+    c.moveTo(x + fr, fy - lr); c.lineTo(x + knee, kneeY); c.lineTo(x, hipY);
     c.moveTo(x, hipY); c.lineTo(sx, sy);
     if (arms === "up")        { c.moveTo(sx, sy); c.lineTo(sx - 9, sy - 13); c.moveTo(sx, sy); c.lineTo(sx + 9, sy - 13); }
+    else if (arms === "flywave") { c.moveTo(sx, sy); c.lineTo(sx - 9, sy - 13); c.moveTo(sx, sy); c.lineTo(sx + 10 + Math.sin(k * 10) * 4, sy - 13); }
+    else if (arms === "reach")   { c.moveTo(sx, sy); c.lineTo(sx + k * 13, sy - 2); c.moveTo(sx, sy); c.lineTo(sx + k * 11, sy + 7); }
+    else if (arms === "ext")     { c.moveTo(sx, sy); c.lineTo(sx + 12, sy + 3); c.moveTo(sx, sy); c.lineTo(sx - 12, sy + 3); }   // an extinguisher in each hand
+    else if (arms === "walk")    { const w = Math.sin(k) * 6; c.moveTo(sx, sy); c.lineTo(sx + w, sy + 12); c.moveTo(sx, sy); c.lineTo(sx - w, sy + 12); }
+    else if (arms === "reels")   { c.moveTo(sx, sy); c.lineTo(sx + 8, sy + 3); c.moveTo(sx, sy); c.lineTo(sx + 9, sy + 8); }
+    else if (arms === "call")    { c.moveTo(sx, sy); c.lineTo(sx + 8, sy - 2); c.lineTo(sx + hr + 1, sy - hr - 3); c.moveTo(sx, sy); c.lineTo(sx - 5, sy + 14); }
+    else if (arms === "book")    { c.moveTo(sx, sy); c.lineTo(sx + 4, sy + 6); c.lineTo(sx + 9, sy + 3); c.moveTo(sx, sy); c.lineTo(sx + 2, sy + 8); c.lineTo(sx + 8, sy + 5); }
+    else if (arms === "selfie")  { c.moveTo(sx, sy); c.lineTo(sx + 9, sy - 6); c.lineTo(sx + 16, sy - 12); selfieGesture(c, sx, sy); }
+    else if (arms === "watch")   { c.moveTo(sx, sy); c.lineTo(sx + 9, sy + 3); c.lineTo(sx + 6, sy - 4); c.moveTo(sx, sy); c.lineTo(sx - 5, sy + 14); }
+    else if (arms === "music")   { const w = Math.sin(performance.now() / 1000 * 6) * 3; c.moveTo(sx, sy); c.lineTo(sx + 7, sy - 4 + w); c.lineTo(sx + 10, sy - 10 + w); c.moveTo(sx, sy); c.lineTo(sx - 7, sy - 4 - w); c.lineTo(sx - 10, sy - 10 - w); }
+    else if (arms === "snack")   { c.moveTo(sx, sy); c.lineTo(sx + 8, sy + 3); c.lineTo(sx + 9, sy + 6); c.moveTo(sx, sy); c.lineTo(sx + 6, sy - 1); c.lineTo(sx + 3.5, sy - 6); }
+    else if (arms.startsWith("shake")) { c.moveTo(sx, sy); c.lineTo(sx + 8, sy + 1); c.lineTo(sx + 8, sy - 4); c.moveTo(sx, sy); c.lineTo(sx - 5, sy + 14); }
+    else if (arms === "coffee")  { c.moveTo(sx, sy); c.lineTo(sx + 9, sy + 1); c.lineTo(sx + 8, sy - 8); c.moveTo(sx, sy); c.lineTo(sx - 5, sy + 14); }
     else if (arms === "back") { c.moveTo(sx, sy); c.lineTo(sx - 10, sy + 8);  c.moveTo(sx, sy); c.lineTo(sx - 7, sy + 13); }
     else                      { c.moveTo(sx, sy); c.lineTo(sx - 5, sy + 14);  c.moveTo(sx, sy); c.lineTo(sx + 5, sy + 14); }
     c.stroke();
     c.beginPath(); c.arc(sx + lean * 0.3, sy - hr - 2, hr, 0, Math.PI * 2); c.stroke();
     c.shadowBlur = 0;
+    if (laugh) {   // wide open laughing mouth and squeezed eyes
+      const hx = sx + lean * 0.3 + 1.5, hy = sy - hr - 2, open = 1.4 + Math.abs(Math.sin(performance.now() / 1000 * 13)) * 1.3;
+      c.save(); c.fillStyle = col; c.beginPath(); c.ellipse(hx + 1, hy + 1.8, 2.2, open, 0, 0, Math.PI * 2); c.fill();
+      c.lineWidth = 1; c.strokeStyle = col; c.beginPath(); c.moveTo(hx - 0.5, hy - 1.8); c.lineTo(hx + 1.5, hy - 2.6); c.moveTo(hx + 2.5, hy - 1.8); c.lineTo(hx + 4, hy - 2.6); c.stroke(); c.restore();
+    }
+    if (ext) {
+      drawExtinguisher(c, sx + 12, sy + 3, 1);
+      drawExtinguisher(c, sx - 12, sy + 3, -1);
+      drawDrink(c, sx + lean * 0.3, sy - hr - 2, hr);
+    }
+    if (arms === "music") drawHeadphones(c, sx + lean * 0.3, sy - hr - 2, hr);
+    if (arms === "snack") drawPopcorn(c, sx + 11, sy + 7);
+    if (arms === "reels") drawPhone(c, sx + 8, sy + 2, col);
+    if (arms === "call") drawPhone(c, sx + hr + 1, sy - hr - 5, col, true);
+    if (arms === "book") drawBook(c, sx + 13, sy + 5);
+    if (arms === "selfie") drawSelfie(c, sx + 17, sy - 13);
+    if (arms === "watch") drawWatch(c, sx + 7, sy - 4);
+    if (arms.startsWith("shake")) drawShake(c, sx + 8, sy - 4, sx + hr - 1, sy - hr - 2, +arms.slice(5));
+    if (arms === "coffee") drawCoffee(c, sx + 8, sy - 8);
+    if (rot) c.restore();
+    if (wob) c.restore();
+  }
+
+  // Phone held in front of him, screen glowing, content scrolling.
+  function drawPhone(c, px0, py0, col, call) {
+    const t = performance.now() / 1000;
+    c.save(); c.shadowBlur = 0;
+    if (call) {   // phone held to the ear
+      c.fillStyle = "#050505"; c.strokeStyle = "#dfeaff"; c.lineWidth = 1.2;
+      c.fillRect(px0 - 1, py0 - 1, 3.2, 9); c.strokeRect(px0 - 1, py0 - 1, 3.2, 9);
+      c.restore(); return;
+    }
+    // Big vertical phone playing short videos: each clip swipes up and the next one slides in.
+    const W = 13, H = 23, x0 = px0 + 1, y0 = py0 - 14, per = 1.5, n = Math.floor(t / per), f = (t % per) / per;
+    const sw = f > 0.72 ? easeInOut((f - 0.72) / 0.28) : 0;           // swipe during the last part of each cycle
+    const HUES = [200, 330, 40, 150, 270, 10];
+    c.fillStyle = "#050505"; c.strokeStyle = "#dfeaff"; c.lineWidth = 1.3;
+    c.fillRect(x0 - 1, y0 - 1, W + 2, H + 2); c.strokeRect(x0 - 1, y0 - 1, W + 2, H + 2);
+    c.save(); c.beginPath(); c.rect(x0, y0, W, H); c.clip();
+    for (let k = 0; k < 2; k++) {
+      const oy = y0 + (k - sw) * H, hue = HUES[(n + k) % HUES.length];
+      c.fillStyle = "hsl(" + hue + ",75%,45%)"; c.fillRect(x0, oy, W, H);
+      c.fillStyle = "rgba(255,255,255,0.9)"; c.beginPath(); c.arc(x0 + W / 2, oy + 9, 3.2, 0, 6.3); c.fill();      // a tiny funny face in the clip
+      c.fillStyle = "#222"; c.fillRect(x0 + W / 2 - 1.5, oy + 8, 1, 1); c.fillRect(x0 + W / 2 + 0.7, oy + 8, 1, 1);
+      c.beginPath(); c.arc(x0 + W / 2, oy + 10.2, 1.3, 0, Math.PI); c.fill();
+      c.fillStyle = "rgba(255,255,255,0.8)"; c.fillRect(x0 + 2, oy + H - 6, 8, 1.2); c.fillRect(x0 + 2, oy + H - 3.5, 5, 1.2);   // caption
+      c.fillStyle = "#ff3b6b"; c.beginPath(); c.arc(x0 + W - 3.2, oy + 15, 1.6, 0, 6.3); c.fill();                  // like heart
+    }
+    c.restore();
+    c.fillStyle = "#dfeaff"; c.beginPath(); c.arc(x0 + W - 3, y0 + H - 5 - sw * 12, 1.8, 0, 6.3); c.fill();     // thumb flicking upward
+    c.fillStyle = "#ff3b6b";                                                                                   // hearts floating up from the phone
+    for (let i = 0; i < 3; i++) { const ph = (t * 0.9 + i / 3) % 1; c.globalAlpha = 1 - ph; c.font = "9px sans-serif"; c.fillText("\u2665", x0 + W + 2 + i * 3 + Math.sin(ph * 6) * 2, y0 + 2 - ph * 16); }
+    c.globalAlpha = 1;
+    c.restore();
+  }
+
+  // Free hand of the selfie-taker: peace sign, fist pump, then a wave, over and over.
+  function selfieGesture(c, sx, sy) {
+    const t = performance.now() / 1000, g = Math.floor(t / 1.4) % 3;
+    c.moveTo(sx, sy);
+    if (g === 0) {          // peace sign
+      const hx = sx - 9, hy = sy - 10; c.lineTo(sx - 6, sy - 3); c.lineTo(hx, hy);
+      c.moveTo(hx, hy); c.lineTo(hx - 2.5, hy - 5); c.moveTo(hx, hy); c.lineTo(hx + 1.5, hy - 5.5);
+    } else if (g === 1) {   // fist pump: arm up, clenched fist, pumping
+      const hx = sx - 9, hy = sy - 11 + Math.sin(t * 12) * 2; c.lineTo(sx - 6, sy - 3); c.lineTo(hx, hy);
+      c.moveTo(hx + 2.4, hy); c.arc(hx, hy, 2.4, 0, Math.PI * 2);
+    } else {                // wave
+      const hx = sx - 9 + Math.sin(t * 14) * 2.5, hy = sy - 11; c.lineTo(sx - 6, sy - 3); c.lineTo(hx, hy);
+      c.moveTo(hx, hy); c.lineTo(hx - 2, hy - 4); c.moveTo(hx, hy); c.lineTo(hx, hy - 5); c.moveTo(hx, hy); c.lineTo(hx + 2, hy - 4);
+    }
+  }
+
+  // Headphones on his head and music notes floating up.
+  function drawHeadphones(c, hx, hy, hr) {
+    const t = performance.now() / 1000;
+    c.save(); c.shadowBlur = 0; c.strokeStyle = "#dfeaff"; c.fillStyle = "#dfeaff"; c.lineWidth = 1.6;
+    c.beginPath(); c.arc(hx, hy, hr + 1.2, Math.PI * 1.02, Math.PI * 1.98); c.stroke();
+    c.fillRect(hx - hr - 3, hy - 2, 3, 5); c.fillRect(hx + hr, hy - 2, 3, 5);
+    c.font = "bold 9px sans-serif";
+    for (let i = 0; i < 3; i++) { const ph = (t * 0.8 + i / 3) % 1; c.globalAlpha = 1 - ph; c.fillText(i % 2 ? "\u266B" : "\u266A", hx + hr + 4 + i * 4 + Math.sin(ph * 7) * 3, hy - 4 - ph * 18); }
+    c.restore();
+  }
+
+  // Striped popcorn bucket; kernels pop out of it.
+  function drawPopcorn(c, bx, by) {
+    const t = performance.now() / 1000;
+    c.save(); c.shadowBlur = 0;
+    c.fillStyle = "#fff6dd"; for (let i = 0; i < 5; i++) { c.beginPath(); c.arc(bx - 4 + i * 2, by - 7 + (i % 2) * 1.2, 1.9, 0, 6.3); c.fill(); }
+    for (let i = 0; i < 6; i++) { c.fillStyle = i % 2 ? "#ffffff" : "#e0342b"; c.beginPath(); c.moveTo(bx - 5 + i * 1.7, by - 6); c.lineTo(bx - 4.1 + i * 1.7, by - 6); c.lineTo(bx - 3.2 + i * 1.5, by + 5); c.lineTo(bx - 4.5 + i * 1.5, by + 5); c.closePath(); c.fill(); }
+    c.fillStyle = "#fff6dd"; for (let i = 0; i < 2; i++) { const ph = (t * 1.4 + i / 2) % 1; c.globalAlpha = 1 - ph; c.beginPath(); c.arc(bx - 1 + i * 3 - ph * 4, by - 8 - Math.sin(ph * Math.PI) * 7, 1.2, 0, 6.3); c.fill(); }
+    c.restore();
+  }
+
+  // Paperback held open, a page turning now and then.
+  function drawBook(c, bx, by) {
+    const t = performance.now() / 1000, f = (t % 2.4) / 2.4;
+    const x0 = bx - 1, y0 = by - 9, w = 9, h = 13;               // open book held up in front of his face
+    c.save(); c.shadowBlur = 0; c.lineWidth = 1;
+    c.fillStyle = "#f4efe0"; c.strokeStyle = "#7a5a2a";
+    c.fillRect(x0 - w, y0, w * 2, h); c.strokeRect(x0 - w, y0, w * 2, h);          // two pages
+    c.fillStyle = "#b8412e"; c.fillRect(x0 - w - 1, y0 + h, w * 2 + 2, 1.8);       // cover
+    c.strokeStyle = "#7a5a2a"; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0, y0 + h); c.stroke();
+    c.strokeStyle = "#9a8a6a";
+    for (let i = 0; i < 4; i++) { const ly = y0 + 2.5 + i * 2.6; c.beginPath(); c.moveTo(x0 - w + 1.5, ly); c.lineTo(x0 - 1.5, ly); c.moveTo(x0 + 1.5, ly); c.lineTo(x0 + w - 1.5, ly); c.stroke(); }
+    if (f > 0.7) { const p = (f - 0.7) / 0.3, wd = Math.cos(p * Math.PI) * w;      // a page turning
+      c.fillStyle = "#ffffff"; c.strokeStyle = "#7a5a2a"; c.beginPath(); c.rect(Math.min(x0, x0 + wd), y0 - 1, Math.abs(wd), h + 2); c.fill(); c.stroke(); }
+    c.restore();
+  }
+
+  // Selfie: phone at arm's length, a flash now and then.
+  function drawSelfie(c, px0, py0) {
+    const t = performance.now() / 1000, flash = (t % 2.6) > 2.35;
+    c.save(); c.shadowBlur = 0;
+    c.fillStyle = "#050505"; c.strokeStyle = "#dfeaff"; c.lineWidth = 1.1;
+    c.fillRect(px0 - 1, py0 - 5, 5, 9); c.strokeRect(px0 - 1, py0 - 5, 5, 9);
+    if (flash) { c.fillStyle = "rgba(255,255,255,0.9)"; c.beginPath(); c.arc(px0 + 5, py0 - 1, 4, 0, 6.3); c.fill(); }
+    c.restore();
+  }
+
+  // Looking at his watch.
+  function drawWatch(c, wx, wy) {
+    const t = performance.now() / 1000;
+    c.save(); c.shadowBlur = 0; c.fillStyle = "#050505"; c.strokeStyle = "#dfeaff"; c.lineWidth = 1.1;
+    c.beginPath(); c.arc(wx, wy, 2.6, 0, 6.3); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(wx, wy); c.lineTo(wx + Math.cos(t * 3) * 2, wy + Math.sin(t * 3) * 2); c.stroke();
+    c.restore();
+  }
+
+  // Milkshake in a tall glass with a straw up to his mouth; the level drops as he sips.
+  function drawShake(c, hx0, hy, mx, my, v) {
+    const t = performance.now() / 1000, lvl = 1 - ((t % 6) / 6) * 0.7, hx = hx0 + 4, K = SHAKES[v];
+    c.save(); c.shadowBlur = 0; c.lineCap = "round";
+    const top = hy - 13, bot = hy + 3, wT = 4.8, wB = 3.4;
+    if (v === 3) {                 // coconut with a straw
+      const cy = hy - 5;
+      c.fillStyle = "#5aa845"; c.beginPath(); c.ellipse(hx, cy, 5.6, 6.6, 0, 0, 6.3); c.fill();
+      c.fillStyle = "#e8f5e0"; c.beginPath(); c.ellipse(hx, cy - 5.2, 3.2, 1.4, 0, 0, 6.3); c.fill();     // cut-open top
+      c.strokeStyle = "#2f6f2a"; c.lineWidth = 1; c.beginPath(); c.ellipse(hx, cy, 5.6, 6.6, 0, 0, 6.3); c.stroke();
+      c.strokeStyle = "#ff4d6d"; c.lineWidth = 1.4; c.beginPath(); c.moveTo(hx, cy - 4); c.lineTo(hx - 1.5, cy - 10); c.lineTo(mx + 0.5, my + 1.5); c.stroke();
+      c.restore(); return;
+    }
+    c.save(); c.beginPath(); c.moveTo(hx - wT, top); c.lineTo(hx + wT, top); c.lineTo(hx + wB, bot); c.lineTo(hx - wB, bot); c.closePath(); c.clip();
+    c.fillStyle = K.col; c.fillRect(hx - 6, top + (1 - lvl) * (bot - top), 12, bot - top);
+    if (v === 2) { c.fillStyle = "rgba(255,255,255,0.5)"; for (let i = 0; i < 3; i++) c.fillRect(hx - 3 + i * 2.6, top + 3 + (i % 2) * 4 + Math.sin(t * 2 + i) * 0.6, 2, 2); }   // ice cubes
+    c.fillStyle = "rgba(255,255,255,0.35)"; c.fillRect(hx - wT + 1, top + 1, 1.2, bot - top - 2);
+    c.restore();
+    c.fillStyle = v === 2 ? "#e9d9c2" : "#fff6dd"; c.beginPath(); c.arc(hx - 2.2, top - 0.5, 2.4, Math.PI, 0); c.arc(hx + 1.4, top - 0.5, 2.4, Math.PI, 0); c.fill();
+    if (v === 1) { c.fillStyle = "#d81b3c"; c.beginPath(); c.arc(hx + 3.3, top - 3, 1.6, 0, 6.3); c.fill(); }   // cherry on the strawberry shake
+    c.strokeStyle = "#dfeaff"; c.lineWidth = 1.2; c.beginPath(); c.moveTo(hx - wT, top); c.lineTo(hx - wB, bot); c.lineTo(hx + wB, bot); c.lineTo(hx + wT, top); c.stroke();
+    c.strokeStyle = "#ff4d6d"; c.lineWidth = 1.4; c.beginPath(); c.moveTo(hx - 1, bot - 2); c.lineTo(hx - 1.5, top - 5); c.lineTo(mx + 0.5, my + 1.5); c.stroke();
+    c.fillStyle = K.col; for (let i = 0; i < 3; i++) { const ph = (t * 1.3 + i / 3) % 1; c.globalAlpha = 1 - ph; c.fillRect(hx - 1.6, bot - 2 - ph * (bot - top + 3), 1.3, 1.3); }
+    c.restore();
+  }
+
+  // Cup of coffee at his hand (hx, hy), with a little steam.
+  function drawCoffee(c, hx, hy) {
+    const t = performance.now() / 1000;
+    c.save(); c.shadowBlur = 0; c.lineCap = "round";
+    c.fillStyle = "#f2f2f2"; c.beginPath(); c.moveTo(hx - 3.5, hy - 5); c.lineTo(hx + 3.5, hy - 5); c.lineTo(hx + 2.5, hy + 2); c.lineTo(hx - 2.5, hy + 2); c.closePath(); c.fill();
+    c.fillStyle = "#6b3a1a"; c.fillRect(hx - 3.2, hy - 5, 6.4, 1.8);
+    c.strokeStyle = "#f2f2f2"; c.lineWidth = 1.1; c.beginPath(); c.arc(hx + 4, hy - 2, 1.8, -1.2, 1.2); c.stroke();
+    c.strokeStyle = "rgba(255,255,255,0.55)"; c.lineWidth = 1;
+    for (let i = 0; i < 2; i++) {
+      const sxp = hx - 1.2 + i * 2.6, ph = t * 2 + i * 1.7;
+      c.beginPath(); c.moveTo(sxp, hy - 6); c.quadraticCurveTo(sxp + Math.sin(ph) * 2, hy - 9, sxp, hy - 12 - Math.sin(ph + 1) * 1.5); c.stroke();
+    }
+    c.restore();
+  }
+
+  // A red fire extinguisher held in the hand at (hx, hy), blasting white foam away from him (dir = +1 right, -1 left).
+  function drawExtinguisher(c, hx, hy, dir) {
+    c.save();
+    c.translate(hx, hy); c.scale(dir, 1);
+    c.shadowBlur = 0; c.lineCap = "round";
+    // body, collar and valve
+    c.fillStyle = "#ff2b2b"; c.fillRect(-3, -3, 7, 16);
+    c.fillStyle = "#222";    c.fillRect(-3, 6, 7, 2);
+    c.fillStyle = "#c9c9c9"; c.fillRect(-2, -6, 5, 3);
+    // squeeze handle and hose to the nozzle
+    c.strokeStyle = "#c9c9c9"; c.lineWidth = 1.4;
+    c.beginPath(); c.moveTo(-2, -6); c.lineTo(4, -8); c.stroke();
+    c.strokeStyle = "#111"; c.lineWidth = 1.8;
+    const nx = 11, ny = -3;
+    c.beginPath(); c.moveTo(3, -4); c.quadraticCurveTo(6, 4, nx, ny); c.stroke();
+    // foam: soft white puffs that spread out and fall
+    const t = performance.now() / 1000;
+    for (let i = 0; i < 18; i++) {
+      const age = (t * 1.7 + i / 18) % 1;
+      const fx = nx + age * 62 + Math.sin(i * 12.9) * 3;
+      const fy2 = ny + age * age * 38 + Math.sin(i * 7.3 + t * 9) * age * 6;
+      c.globalAlpha = 0.9 * (1 - age);
+      c.fillStyle = i % 3 ? "#ffffff" : "#bfe6ff";
+      c.beginPath(); c.arc(fx, fy2, 1 + age * 3.2, 0, Math.PI * 2); c.fill();
+    }
+    c.restore();
+  }
+
+  // A cold drink worn like a drinking hat: cup with ice on his head, straw bent down to his mouth.
+  function drawDrink(c, hx, hy, hr) {
+    const top = hy - hr;
+    c.save();
+    c.shadowBlur = 0; c.lineCap = "round"; c.lineJoin = "round";
+    // cup (dark cola with ice)
+    c.beginPath(); c.moveTo(hx - 5, top - 11); c.lineTo(hx + 5, top - 11); c.lineTo(hx + 3.5, top - 1); c.lineTo(hx - 3.5, top - 1); c.closePath();
+    c.fillStyle = "#6b2e0f"; c.fill();
+    c.strokeStyle = "#e8f4ff"; c.lineWidth = 1.2; c.stroke();
+    c.fillStyle = "rgba(220,240,255,0.85)";
+    c.fillRect(hx - 3.5, top - 10, 3, 3); c.fillRect(hx + 0.5, top - 8, 3, 3);
+    // straw: up out of the cup, over, and down to the mouth
+    c.strokeStyle = "#ffd24a"; c.lineWidth = 1.4;
+    c.beginPath(); c.moveTo(hx + 1, top - 6); c.lineTo(hx + 3, top - 16); c.lineTo(hx + 9, top - 13); c.lineTo(hx + 9, hy + 1.5); c.lineTo(hx + 4.5, hy + 1.5); c.stroke();
+    c.restore();
+  }
+
+  // The Sun's surface is fire: flickering flames all along the ground.
+  function drawFlames(c, xa, xb, gy) {
+    const t = performance.now() / 1000, n = Math.max(1, Math.floor((xb - xa) / 9));
+    c.save();
+    c.shadowColor = "#ff6a1a"; c.shadowBlur = 8;
+    for (let i = 0; i < n; i++) {
+      const fx = xa + 4.5 + i * 9;
+      const h = 9 + 8 * Math.abs(Math.sin(t * 5 + i * 1.7)) + 3 * Math.sin(t * 11 + i * 3.1);
+      const sway = Math.sin(t * 6 + i) * 2;
+      c.fillStyle = "rgba(255,90,26,0.85)";
+      c.beginPath(); c.moveTo(fx - 5, gy); c.quadraticCurveTo(fx - 3, gy - h * 0.5, fx + sway, gy - h); c.quadraticCurveTo(fx + 3, gy - h * 0.5, fx + 5, gy); c.fill();
+      c.fillStyle = "rgba(255,196,46,0.9)";
+      c.beginPath(); c.moveTo(fx - 2.5, gy); c.quadraticCurveTo(fx - 1.5, gy - h * 0.3, fx + sway * 0.6, gy - h * 0.55); c.quadraticCurveTo(fx + 1.5, gy - h * 0.3, fx + 2.5, gy); c.fill();
+    }
+    c.restore();
   }
 
   // tE / tB: time within each lane's own jump cycle (seconds, real time)
@@ -793,17 +1120,39 @@
       c.strokeStyle = "rgba(255,43,43,0.12)";
       c.beginPath(); c.moveTo(left, y); c.lineTo(W, y); c.stroke();
       c.fillStyle = "#8a7c7c"; c.textAlign = "right";
-      c.fillText(i === 0 ? "0" : fmtLen(i * step, 0), left - 6, y);
+      c.fillText(i === 0 ? "0" : rulerLen(i * step), left - 6, y);
     }
+
+    // watermark: very subtle (10%), centred in the space-object lane, between the top and the ground line, behind the figure
+    c.save(); c.shadowBlur = 0; c.globalAlpha = 0.1; c.fillStyle = "#dfeaff";
+    c.font = "10px 'Space Mono', monospace"; c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillText("rameshverse.com", left + laneW * 1.5, (top + groundY) / 2);
+    c.restore();
 
     const lanes = [
       { L: J.E, t: tE, x0: left,         col: C_EARTH, name: "EARTH" },
       { L: J.B, t: tB, x0: left + laneW, col: C_BODY,  name: J.name.toUpperCase() },
     ];
 
+    // Deep space: once the drifting jumper is gone, the Earth man (who has been jumping all along) gets tired and walks off.
+    let outro = -1;
+    if (J.id === "DeepSpace") {
+      if (J.goneAt === undefined) { for (let q = 0; q < 400; q += 0.1) { if (laneState(J.B, q).y * px > groundY - top + 40) { J.goneAt = q; break; } } }
+      if (J.goneAt !== undefined) { const P = J.E.period, oS = Math.ceil((J.goneAt + 0.3) / P) * P; if (tB >= oS) outro = tB - oS; }
+    }
     lanes.forEach((ln, idx) => {
       const { L, x0, col } = ln, cx = x0 + laneW / 2;
-      const s = L.crush ? { y: 0, label: crushLabel(ln.t) } : laneState(L, ln.t);
+      let s = L.crush ? { y: 0, label: crushLabel(ln.t), air: cap1(crushLabel(ln.t)) } : laneState(L, ln.t);
+      let dx = 0;
+      if (idx === 0 && outro >= 0) {
+        const u = outro, WALK = 7.5, WD = 7.5;
+        const say = u < 2.4 ? "PHEW... I'M TIRED!" : u < 5 ? "MY LEGS ARE JELLY" : u < WALK ? "JUMPED ON EVERY WORLD!" : u < WALK + 2.5 ? "NO MORE! GOING HOME" : u < WALK + WD ? "VISIT RAMESHVERSE.COM!" : undefined;
+        if (u < WALK) s = { y: 0, pose: "stand", k: 0, label: "TIRED", air: "—", bubble: say };
+        else if (u < WALK + WD) { const p = easeInOut((u - WALK) / WD); dx = p * (laneW / 2 + 40); s = { y: 0, pose: "walk", k: (u - WALK) * 8, label: "HEADING HOME", air: "—", bubble: say }; }
+        else s = { y: 0, pose: "stand", k: 0, label: "RAMESHVERSE.COM", air: "—", hidden: true };
+      }
+      const fy = groundY - s.y * px;
+      if (L.leave && fy < top - 40) s.label = "GONE FOREVER";
 
       if (idx === 1) {
         c.strokeStyle = "rgba(255,43,43,0.3)";
@@ -842,7 +1191,6 @@
       }
 
       // figure (clipped to lane so deep-space jumpers can leave the frame)
-      const fy = groundY - s.y * px;
       c.save();
       c.beginPath(); c.rect(x0, top - 8, laneW, groundY - top + 16); c.clip();
       const r = 14 / (1 + s.y * px / 60);
@@ -871,9 +1219,28 @@
           c.globalAlpha = 1;
         }
         c.shadowBlur = 0;
-      } else drawMan(c, cx, fy, s.pose, s.k, col);
+      } else {
+        if (L.ext) drawFlames(c, x0 + 8, x0 + laneW - 8, groundY);
+        if (!s.hidden) drawMan(c, cx + dx, fy, s.pose, s.k, col, L.ext);
+        if (s.bubble) {
+          c.font = "bold 11px 'Space Mono', monospace";
+          const tw = c.measureText(s.bubble).width + 16, bx = Math.min(cx + dx + 18, x0 + laneW - tw - 4), by = fy - 70;
+          c.fillStyle = "#000"; c.strokeStyle = col; c.lineWidth = 1.5;
+          c.beginPath(); c.rect(bx, by, tw, 22); c.fill(); c.stroke();
+          c.beginPath(); c.moveTo(bx, by + 6); c.lineTo(bx - 8, by + 14); c.lineTo(bx, by + 17); c.fill(); c.stroke();
+          c.fillStyle = col; c.textAlign = "center"; c.fillText(s.bubble, bx + tw / 2, by + 12);
+          c.font = "10px 'Space Mono', monospace";
+        }
+        if (s.crew) {
+          for (const m of s.crew) {
+            const mx = cx + m.side * (20 + m.e * (laneW / 2 - 50));
+            drawMan(c, mx, groundY - m.y * px, m.pose, m.pose === "reach" ? -m.side : 0, "#dfeaff", false, m.rot);
+          }
+        }
+      }
       c.restore();
     });
+
   }
 
   function jumpFrame(now) {
@@ -907,29 +1274,32 @@
 
     const E = laneOf(BY_ID.Earth), B = laneOf(b);
     const finite = isFinite(B.land);
-    const bApex = isFinite(B.apex) ? B.apex : 4;
+    const bApex = isFinite(B.apex) ? B.apex : 28;          // deep space: a tall ruler (about 30 m) so his drift looks slow
     J = { id: b.id, name: b.name, E, B, Hview: Math.max(E.apex, bApex) * 1.08, thread: B.crush ? makeThread() : null };
     jStart = performance.now();
 
     const idx = BODIES.findIndex(x => x.id === b.id);
+    C_BODY = b.id === "Earth" ? C_EARTH : b.id === "Sun" ? "#4aa3ff" : BODY_COLORS[idx % BODY_COLORS.length];   // Earth vs Earth: both amber; the Sun stays blue so he stands out against the flames
+    jumpSec.style.setProperty("--bodyc", C_BODY);
     $("jp-name").textContent  = b.name;
     $("jp-count").textContent = `${idx + 1} / ${BODIES.length}`;
 
     $("je-h").textContent = fmtLen(E.apex);
     $("je-t").textContent = fmtTime(E.land);
+    $("jb-t").textContent = B.crush ? "Spaghettified" : B.leave ? "Never returns" : B.stick ? fmtTime(ISS_T.pullEnd - CROUCH_T) : finite ? fmtTime(B.land) : "Never lands";
     $("jb-name").textContent = b.name;
-    $("jb-h").textContent = B.crush ? "Dropped in" : B.a === 0 ? (B.cap === Infinity ? "Unlimited" : fmtLen(B.cap) + " (ceiling)") : fmtLen(B.apex);
-    $("jb-t").textContent = B.crush ? "Spaghettified" : finite ? fmtTime(B.land) : "Never lands";
+    $("jb-h").textContent = B.crush ? "Dropped in" : B.a === 0 ? (B.cap === Infinity ? "Unlimited" : "Until the ceiling") : fmtLen(B.apex);
 
     const notes = [];
-    if (B.a === 0 && B.cap === Infinity) notes.push("Nothing pulls him back, so he drifts away at his takeoff speed forever.");
-    else if (B.a === 0) notes.push("Free fall cancels weight, so he floats up at constant speed until he touches the ceiling.");
+    if (B.a === 0 && B.cap === Infinity) notes.push("He waves bye bye as he drifts away at his takeoff speed. Nothing pulls him back, so he never returns. Step to another location and back to replay.");
+    else if (B.a === 0) notes.push("Free fall cancels weight, so he floats up and sticks to the ceiling, crying for help. Two crew members drift in slowly from different directions and pull him down, and he thanks them. Then it repeats.");
     else if (B.crush) notes.push("He drops in and is pulled apart (spaghettification): the pull on his feet is far stronger than on his head, so he is stretched into a thin thread of atoms. Shown slowed down. Illustration only: for a hole this large the real stretching comes after crossing the event horizon, and there is no solid surface.");
     else if (b.id !== "Earth") {
       const r = B.apex / E.apex;
       notes.push(`He jumps ${r >= 0.01 ? (r >= 10 ? Math.round(r) : r.toFixed(2)) + "×" : "under 0.01×"} as high as on Earth.`);
       if (B.land >= 5) notes.push(`One jump takes ${fmtTime(B.land)}, so watch the Earth jumper repeat.`);
     }
+    if (b.id === "Sun") notes.push("He brought two fire extinguishers and a cold drink. Neither helps: the surface is about 5,500 °C.");
     if (appOf(b) >= 5 && !B.crush) notes.push("Illustration only: at this gravity a human body couldn't move, let alone jump.");
     $("jump-note").textContent = notes.join(" ");
 
@@ -992,7 +1362,7 @@
   if ("IntersectionObserver" in window) {
     new IntersectionObserver(es => {
       jVisible = es[0].isIntersecting;
-      if (jVisible) { jStart = performance.now(); jumpStart(); } else jumpStop();
+      if (jVisible) jumpStart(); else jumpStop();
     }).observe(jumpCv);
   }
   sizeJump();
@@ -1047,7 +1417,7 @@
 
 <script src="/libraries/config.js"></script>
 <script src="/libraries/view-counter.js"></script>
-<script src="/libraries/hud-home-button.js"></script>
+
 
 <script src="/tools-data.js"></script>
 <script src="/related-modules.js"></script>

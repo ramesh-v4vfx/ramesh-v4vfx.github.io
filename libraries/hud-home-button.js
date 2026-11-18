@@ -67,19 +67,21 @@
 
                 position: fixed;
 
-                top: max(14px, env(safe-area-inset-top));
-                left: max(14px, env(safe-area-inset-left));
+                top: max(10px, env(safe-area-inset-top));
+                left: max(10px, env(safe-area-inset-left));
 
                 z-index: 99999;
 
                 display: flex;
                 align-items: center;
 
-                gap: 8px;
+                gap: 6px;
 
-                min-height: 34px;
+                min-height: 22px;
 
-                padding: 8px 14px 8px 27px;
+                padding: 4px 10px 4px 17px;
+
+                opacity: 0.5;
 
                 color: #ff3b30;
 
@@ -90,11 +92,11 @@
                     Consolas,
                     monospace;
 
-                font-size: 11px;
+                font-size: 9px;
 
                 font-weight: 700;
 
-                letter-spacing: 1.2px;
+                letter-spacing: 1px;
 
                 line-height: 1;
 
@@ -102,20 +104,21 @@
                 -webkit-tap-highlight-color: transparent;
 
                 box-shadow:
-                    0 0 8px rgba(255, 59, 48, 0.18);
+                    none;
 
                 /*
                  * LEFT-POINTING ARROW SHAPE
                  */
                 clip-path: polygon(
                     0 50%,
-                    20px 0,
+                    12px 0,
                     100% 0,
                     100% 100%,
-                    20px 100%
+                    12px 100%
                 );
 
                 transition:
+                    opacity 0.2s ease,
                     color 0.2s ease,
                     background 0.2s ease,
                     box-shadow 0.2s ease,
@@ -143,10 +146,10 @@
 
                 clip-path: polygon(
                     0 50%,
-                    18.5px 0,
+                    10.5px 0,
                     100% 0,
                     100% 100%,
-                    18.5px 100%
+                    10.5px 100%
                 );
 
                 pointer-events: none;
@@ -183,8 +186,8 @@
 
                 z-index: 1;
 
-                width: 6px;
-                height: 6px;
+                width: 4px;
+                height: 4px;
 
                 flex-shrink: 0;
 
@@ -193,8 +196,7 @@
                 border-radius: 50%;
 
                 box-shadow:
-                    0 0 5px #ff3b30,
-                    0 0 10px rgba(255, 59, 48, 0.7);
+                    0 0 3px #ff3b30;
 
                 animation:
                     rvHudPulse 1.8s ease-in-out infinite;
@@ -212,8 +214,8 @@
                 display: flex;
                 align-items: center;
 
-                width: 12px;
-                height: 12px;
+                width: 9px;
+                height: 9px;
 
                 flex-shrink: 0;
 
@@ -256,6 +258,8 @@
 
             .rv-hud-sub {
 
+                display: none;
+
                 opacity: 0.55;
 
                 font-size: 9px;
@@ -270,19 +274,18 @@
 
             .rv-hud-home:hover {
 
+                opacity: 1;
+
                 color: #ff6258;
 
-                padding-left: 23px;
+                padding-left: 15px;
 
                 background: rgba(255, 59, 48, 1);
 
                 box-shadow:
 
-                    0 0 12px
-                    rgba(255, 59, 48, 0.4),
-
-                    0 0 25px
-                    rgba(255, 59, 48, 0.15);
+                    0 0 8px
+                    rgba(255, 59, 48, 0.3);
             }
 
             .rv-hud-home:hover .rv-hud-arrow {
@@ -315,20 +318,12 @@
                 0%,
                 100% {
 
-                    opacity: 0.65;
-
-                    box-shadow:
-                        0 0 4px #ff3b30,
-                        0 0 8px rgba(255, 59, 48, 0.5);
+                    opacity: 0.5;
                 }
 
                 50% {
 
                     opacity: 1;
-
-                    box-shadow:
-                        0 0 6px #ff3b30,
-                        0 0 14px rgba(255, 59, 48, 0.85);
                 }
             }
 
@@ -365,18 +360,18 @@
 
                 .rv-hud-home {
 
-                    min-height: 24px;
+                    min-height: 18px;
 
-                    padding: 5px 9px 5px 15px;
+                    padding: 3px 7px 3px 12px;
 
-                    gap: 5px;
+                    gap: 4px;
 
                     clip-path: polygon(
                         0 50%,
-                        13px 0,
+                        9px 0,
                         100% 0,
                         100% 100%,
-                        13px 100%
+                        9px 100%
                     );
                 }
 
@@ -384,10 +379,10 @@
 
                     clip-path: polygon(
                         0 50%,
-                        11.5px 0,
+                        7.5px 0,
                         100% 0,
                         100% 100%,
-                        11.5px 100%
+                        7.5px 100%
                     );
                 }
 
@@ -398,14 +393,14 @@
 
                 .rv-hud-dot {
 
-                    width: 4px;
-                    height: 4px;
+                    width: 3px;
+                    height: 3px;
                 }
 
                 .rv-hud-arrow {
 
-                    width: 9px;
-                    height: 9px;
+                    width: 7px;
+                    height: 7px;
                 }
             }
 
