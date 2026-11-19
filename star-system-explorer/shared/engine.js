@@ -3,6 +3,11 @@
  *   <body data-json="system.json"> ... <script src="../shared/engine.js"></script>
  * An inline <script type="application/json" id="system-json"> is used instead if present (works from file://).
  * Same maths as the creator: sky-plane reference frame, Kepler motion, flux-based habitable zone (0.53-1.1 x Earth).
+ *
+ * Search for these section markers to find things quickly:
+ *   ===== SURFACE BAR =====     exit button, speed slider and planet-to-planet buttons in surface view
+ *   ===== SURFACE TERRAIN =====  the ground shader (latitude moves you to different ground)
+ *   ===== SURFACE VIEW =====     enter / exit / per-frame update (planets) and the star hover view (enterStarView)
  */
 (function(){
 'use strict';
@@ -159,11 +164,28 @@ function starMaterial(col){
       ' float mu=clamp(dot(normalize(vN),normalize(vV)),0.0,1.0); c*=(1.0-0.45*(1.0-mu))*vec3(1.0,mix(0.9,1.0,mu),mix(0.78,1.0,mu)); c+=tint*pow(1.0-mu,5.0)*0.4; gl_FragColor=vec4(c,1.0); }'
   });
 }
-function atmosphereMaterial(col){
+function hzRingMaterial(rIn, rOut){
+  // habitable-zone band: a very faint green wash that fades out softly at both edges (no hard ring line)
   return new THREE.ShaderMaterial({
-    uniforms:{ tint:{ value:col } }, transparent:true, side:THREE.BackSide, blending:THREE.AdditiveBlending, depthWrite:false,
-    vertexShader:'varying vec3 vN; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=-mv.xyz; gl_Position=projectionMatrix*mv; }',
-    fragmentShader:'uniform vec3 tint; varying vec3 vN; varying vec3 vV; void main(){ float k=pow(clamp(0.78-dot(normalize(vN),normalize(vV)),0.0,1.0),2.4); gl_FragColor=vec4(tint,1.0)*k*0.42; }'
+    uniforms:{ col:{ value:new THREE.Color(0x39d98a) }, rIn:{ value:rIn }, rOut:{ value:rOut }, k:{ value:0.05 } },
+    transparent:true, side:THREE.DoubleSide, depthWrite:false,
+    vertexShader:'varying float vR; void main(){ vR = length(position.xy); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader:'uniform vec3 col; uniform float rIn; uniform float rOut; uniform float k; varying float vR;\n' +
+      'void main(){ float t = (vR - rIn)/max(rOut - rIn, 1e-6); float a = smoothstep(0.0, 0.4, t)*smoothstep(1.0, 0.6, t); gl_FragColor = vec4(col, a*k); }'
+  });
+}
+function atmosphereMaterial(col){
+  // a thin shell just above the surface: bright only at the limb, fading smoothly outward,
+  // strong on the side facing the star and almost gone on the night side (no flat halo)
+  return new THREE.ShaderMaterial({
+    uniforms:{ tint:{ value:col }, sun:{ value:new THREE.Vector3(1, 0, 0) } }, transparent:true, side:THREE.FrontSide, blending:THREE.AdditiveBlending, depthWrite:false,
+    vertexShader:'varying vec3 vN; varying vec3 vV; varying vec3 vWN; void main(){ vN=normalize(normalMatrix*normal); vWN=normalize(mat3(modelMatrix)*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=-mv.xyz; gl_Position=projectionMatrix*mv; }',
+    fragmentShader:'uniform vec3 tint; uniform vec3 sun; varying vec3 vN; varying vec3 vV; varying vec3 vWN;\n' +
+      'void main(){ float mu=clamp(dot(normalize(vN),normalize(vV)),0.0,1.0);\n' +
+      ' float rim=pow(1.0-mu,3.0)*smoothstep(0.0,0.3,mu);\n' +
+      ' float ndl=dot(normalize(vWN),normalize(sun)); float lit=smoothstep(-0.3,0.55,ndl);\n' +
+      ' vec3 c=mix(tint,vec3(1.0,0.62,0.42),smoothstep(0.35,-0.05,ndl)*0.4);\n' +
+      ' gl_FragColor=vec4(c*rim*(0.04+lit)*1.2,1.0); }'
   });
 }
 
@@ -503,7 +525,7 @@ function init(S){
     axis.add(mesh); grp.add(axis);
     var atm = null, tilt = null;
     if (p.type !== 'rocky' && p.type !== 'dwarf' && p.type !== 'superearth'){
-      atm = new THREE.Mesh(new THREE.SphereGeometry(1.14, 32, 20), atmosphereMaterial(new THREE.Color(p.hex).lerp(new THREE.Color(1, 1, 1), 0.3)));
+      atm = new THREE.Mesh(new THREE.SphereGeometry(1.07, 64, 48), atmosphereMaterial(new THREE.Color(p.hex).lerp(new THREE.Color(1, 1, 1), 0.3)));
       atm.scale.setScalar(size); grp.add(atm);
     }
     if (p.hasRing){
@@ -548,7 +570,7 @@ function init(S){
     if (!hz) return;
     var ri = rad(hz.lo), ro = rad(hz.hi);
     if (ro - ri < 0.04){ ri = Math.max(0.05, ri - 0.03); ro = ro + 0.03; }
-    hzMesh = new THREE.Mesh(new THREE.RingGeometry(ri, ro, 160, 1), new THREE.MeshBasicMaterial({ color:0x39d98a, transparent:true, opacity:0.05, side:THREE.DoubleSide, depthWrite:false }));
+    hzMesh = new THREE.Mesh(new THREE.RingGeometry(ri, ro, 160, 1), hzRingMaterial(ri, ro));
     hzMesh.rotation.x = -Math.PI/2; hzMesh.visible = tog.hz; scene.add(hzMesh);
   }
   var solarRefs = [['MERCURY', 0.387], ['VENUS', 0.723], ['EARTH', 1.0]], solarLabels = [];
@@ -626,6 +648,7 @@ function init(S){
     card.hidden = false;
     $('.x', card).addEventListener('click', function(){ select(null); });
     if (sel.kind === 'planet'){ var sb = document.createElement('button'); sb.className = 'b go full'; sb.type = 'button'; sb.textContent = 'VIEW FROM THE SURFACE'; sb.addEventListener('click', function(){ enterSurface(sel.i); }); card.appendChild(sb); }
+    else if (sel.kind === 'star'){ var sb2 = document.createElement('button'); sb2.className = 'b go full'; sb2.type = 'button'; sb2.textContent = 'HOVER OVER THE STAR'; sb2.addEventListener('click', function(){ enterStarView(sel.i); }); card.appendChild(sb2); }
   }
 
   var cam = { az:0.7, pol:1.1, azT:0.7, polT:1.1, azV:0, polV:0, r:10, tr:10, target:new THREE.Vector3(), focus:null, off:new THREE.Vector3() };
@@ -649,7 +672,7 @@ function init(S){
       if (!po.line) return;
       var on = !!sel && sel.kind === 'planet' && sel.i === i;
       po.line.material.color.setHex(on ? 0xff2b2b : (planets[i].hz ? 0x39d98a : 0xffffff));
-      po.line.material.opacity = on ? 0.95 : (planets[i].hz ? 0.5 : 0.2);
+      po.line.material.opacity = on ? 0.95 : (planets[i].hz ? 0.32 : 0.2);
       po.line.visible = tog.orbits || on;
     });
   }
@@ -663,6 +686,7 @@ function init(S){
     var dps = baseYps*speedMul*365.25;
     timeEl.textContent = paused ? 'PAUSED' : '1 SEC = ' + (dps < 1 ? fmtN(dps*24, 1) + ' HRS' : (dps < 400 ? fmtN(dps, dps < 10 ? 1 : 0) + ' DAYS' : fmtN(dps/365.25, 1) + ' YEARS'));
     playBtn.textContent = paused ? '▶ PLAY' : '❚❚ PAUSE';
+    syncSurfBar();                                   // keep the surface-view bar in step with the main controls
   }
   playBtn.addEventListener('click', function(){ paused = !paused; updTime(); });
   var speedEl = $('#speed'), speedVal = $('#speedVal');
@@ -676,7 +700,7 @@ function init(S){
     b.setAttribute('aria-pressed', tog[key]); b.classList.toggle('on', tog[key]);
   }
   bindToggle('#tOrbits', 'orbits', applySelectionStyle);
-  bindToggle('#tLabels', 'labels', function(){ labelsEl.style.display = tog.labels ? '' : 'none'; });
+  bindToggle('#tLabels', 'labels', function(){ labelsEl.style.display = (tog.labels && !surf) ? '' : 'none'; syncSurfBar(); });
   bindToggle('#tHZ', 'hz', function(){ if (hzMesh) hzMesh.visible = tog.hz; });
   bindToggle('#tSpin', 'spin', function(){});
   bindToggle('#tSolar', 'solar', function(){ overlay.visible = tog.solar; R0 = fitRadius(); if (!cam.focus) cam.tr = R0; });
@@ -695,6 +719,12 @@ function init(S){
     if (k === ' '){ e.preventDefault(); paused = !paused; updTime(); }
     else if (k === 'a') $('#tSpin').click(); else if (k === 'r') resetView(); else if (k === 'l') $('#tLabels').click(); else if (k === 'o') $('#tOrbits').click(); else if (k === 's') $('#bSurf').click();
     else if (k === 'h') $('#tHZ').click(); else if (k === 't') $('#tLC').click(); else if (k === 'escape'){ if (surf) exitSurface(); else select(null); }
+    else if (k === 'c' && surf && !e.ctrlKey && !e.metaKey) setClean(!surfClean);
+    else if (surf && surfWorlds.length > 1 && (k === 'arrowright' || k === 'arrowleft')){            // surface view: left / right arrow = previous / next world (stars first, then planets)
+      e.preventDefault();
+      var cur = -1; surfWorlds.forEach(function(w, j){ if (w.kind === surf.kind && w.i === surf.i) cur = j; });
+      enterWorld(surfWorlds[(cur + (k === 'arrowright' ? 1 : surfWorlds.length - 1)) % surfWorlds.length]);
+    }
   });
 
   // pointer navigation: drag = rotate, wheel / pinch = zoom, tap = pick
@@ -706,7 +736,7 @@ function init(S){
     var ids = Object.keys(ptrs);
     if (surf){                                                           // surface view: drag looks around, pinch zooms
       if (ids.length === 1){ var kk = surf.fov/70*0.005; surf.yaw -= (e.clientX - p.x)*kk; surf.pitch = clamp(surf.pitch + (e.clientY - p.y)*kk, -1.3, 1.5); moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y); p.x = e.clientX; p.y = e.clientY; }
-      else if (ids.length === 2){ var sa = ptrs[ids[0]], sb2 = ptrs[ids[1]], q0 = Math.hypot(sa.x - sb2.x, sa.y - sb2.y); p.x = e.clientX; p.y = e.clientY; var q1 = Math.hypot(sa.x - sb2.x, sa.y - sb2.y); if (q1 > 0) surf.fov = clamp(surf.fov*q0/q1, 20, 100); moved += 99; }
+      else if (ids.length === 2){ var sa = ptrs[ids[0]], sb2 = ptrs[ids[1]], q0 = Math.hypot(sa.x - sb2.x, sa.y - sb2.y); p.x = e.clientX; p.y = e.clientY; var q1 = Math.hypot(sa.x - sb2.x, sa.y - sb2.y); if (q1 > 0){ surf.targetFov = clamp(surf.targetFov*q0/q1, 20, 100); surf.fov = surf.targetFov; } moved += 99; }
       return;
     }
     if (ids.length === 1){
@@ -730,7 +760,7 @@ function init(S){
     if (single && moved < 6 && e.type === 'pointerup' && !surf) pick(e.clientX, e.clientY);
   }
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
-  cv.addEventListener('wheel', function(e){ e.preventDefault(); var dy = e.deltaY*(e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1); dy = clamp(dy, -150, 150); if (surf){ surf.fov = clamp(surf.fov*Math.exp(dy*0.0012), 20, 100); return; } cam.tr = clamp(cam.tr*Math.exp(dy*0.0014), minR(), 120); }, { passive:false });
+  cv.addEventListener('wheel', function(e){ e.preventDefault(); var dy = e.deltaY*(e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1); dy = clamp(dy, -150, 150); if (surf){ surf.targetFov = clamp(surf.targetFov*Math.exp(dy*0.0012), 20, 100); return; } cam.tr = clamp(cam.tr*Math.exp(dy*0.0014), minR(), 120); }, { passive:false });
   cv.addEventListener('dblclick', resetView);
 
   var v3 = new THREE.Vector3();
@@ -766,19 +796,98 @@ function init(S){
     var st = document.createElement('style');
     st.textContent = '.surfhud{position:absolute;z-index:5;right:clamp(16px,3vw,32px);top:88px;width:250px;padding:12px 14px;background:var(--panel);border:1px solid #3a1515;border-left:2px solid var(--red);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:9px;letter-spacing:0.14em;color:var(--text-dim)}' +
       '.surfhud[hidden]{display:none}.surfhud #surfInfo{white-space:pre-line;color:#e9edef;line-height:1.7;margin-bottom:8px}.surfhud label{display:flex;align-items:center;gap:8px}.surfhud input{flex:1;accent-color:#ff2b2b;min-width:0}.surfhud b{font-weight:400;color:var(--red);min-width:42px;text-align:right}.surfhud .tip{margin-top:8px;font-size:8px;color:var(--text-faint)}' +
-      '@media (max-width:760px){.surfhud{top:56px;left:10px;right:10px;width:auto}}';
+      '@media (max-width:760px){.surfhud{top:56px;left:10px;right:10px;width:auto}}' +
+      /* ===== SURFACE BAR (top of the screen in surface view) ===== */
+      '.surfbar{position:absolute;z-index:7;bottom:12px;left:50%;transform:translateX(-50%);width:min(700px,calc(100% - 460px));display:flex;flex-direction:column;gap:8px}' +
+      '.surfbar[hidden]{display:none}' +
+      '.sb-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}' +
+      '.sb-exit[hidden]{display:none}' +
+      '.sb-exit{position:absolute;z-index:7;right:16px;bottom:16px;font:inherit;font-size:11px;font-weight:700;letter-spacing:.1em;padding:11px 18px;background:#e32222;color:#fff;border:1px solid #ff7a7a;cursor:pointer;box-shadow:0 0 16px rgba(255,43,43,.55)}' +
+      '.sb-exit:hover{background:#ff3b3b;box-shadow:0 0 26px rgba(255,43,43,.8)}' +
+      '.sb-play{font:inherit;font-size:10px;letter-spacing:.1em;padding:11px 14px;background:rgba(0,0,0,.6);color:#d9dde0;border:1px solid #3a4046;cursor:pointer}' +
+      '.sb-play:hover{border-color:#ff2b2b}' +
+      '.sb-play.on{color:#ff4a4a;border-color:#ff2b2b;background:rgba(255,43,43,.14)}' +
+      '.viewer.clean .surfbar,.viewer.clean .surfcap,.viewer.clean .sb-exit{display:none!important}' +
+      '.sb-show{position:absolute;z-index:7;left:50%;bottom:10px;transform:translateX(-50%);font:inherit;font-size:9px;letter-spacing:.12em;padding:7px 12px;background:rgba(0,0,0,.35);color:#d9dde0;border:1px solid rgba(255,255,255,.18);cursor:pointer;opacity:.35;transition:opacity .2s}' +
+      '.sb-show:hover,.sb-show:focus{opacity:1}.sb-show[hidden]{display:none}' +
+      '.sb-spd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(0,0,0,.6);border:1px solid #3a4046;font-size:9px;letter-spacing:.12em;color:#ff2b2b;font-weight:700}' +
+      '.sb-spd input{width:min(130px,26vw);accent-color:#ff2b2b;min-width:0}' +
+      '.sb-spd b{font-weight:400;color:#ff2b2b;min-width:38px;text-align:right}' +
+      '.sb-chips{display:flex;gap:6px;overflow-x:auto;max-width:100%;justify-content:center;padding-bottom:2px}' +
+      '.sb-chip{font:inherit;font-size:10px;letter-spacing:.06em;white-space:nowrap;display:flex;align-items:center;gap:6px;padding:8px 11px;background:rgba(0,0,0,.6);color:#9aa2a7;border:1px solid #3a4046;cursor:pointer}' +
+      '.sb-chip i{width:8px;height:8px;border-radius:50%;display:inline-block}' +
+      '.sb-chip:hover{color:#fff;border-color:#8a1a1a}' +
+      '.sb-chip.on{color:#ff4a4a;border-color:#ff2b2b;background:rgba(255,43,43,.14)}' +
+      '.sb-info{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:9px;letter-spacing:.12em;color:#e9edef;text-shadow:0 0 10px #000,0 0 6px #000,0 0 3px #000}' +
+      '.sb-tip{color:#8a9298}' +
+      '@media (max-width:900px){.sb-tip{display:none}}' +
+      '.viewer:not(.starview) #sbAltCtl{display:none}' +
+      '.sb-chip.star{color:#ffd27a}' +
+      '.sb-chip.star.on{border-color:#ffd27a;background:rgba(255,210,122,.14)}' +
+      '.viewer .surfcap{bottom:140px}' +
+      '@media (max-width:900px){.surfbar{left:12px;right:170px;width:auto;transform:none}}' +
+      '@media (max-width:760px){.viewer .surfcap{bottom:205px}.sb-chips{justify-content:flex-start}.sb-exit{right:8px;bottom:12px;padding:11px 12px}.surfbar{left:8px;right:150px}}';
     document.head.appendChild(st);
     ctr.insertBefore(grp, anchor ? anchor.parentNode : null);
     viewer.insertAdjacentHTML('beforeend',
       '<div class="lc" id="lcPanel" hidden><div class="lc-h"><span>LIGHT CURVE</span><i>AS SEEN FROM EARTH · LIVE</i></div><canvas id="lcCv"></canvas><div class="lc-f" id="lcF"></div></div>' +
       '<div class="surfcap" id="surfCap" hidden></div>' +
-      '<div class="surfhud" id="surfHud" hidden><div id="surfInfo"></div><label>LATITUDE <input id="surfLat" type="range" min="-85" max="85" step="1" value="30" aria-label="Latitude"><b id="surfLatOut">N 30°</b></label><div class="tip">DRAG: LOOK AROUND · WHEEL: ZOOM · S / ESC: EXIT</div></div>' +
-      '<button class="b stop" id="bExitSurf" type="button" hidden>✕ EXIT SURFACE VIEW</button>' +
+      '<div class="surfbar" id="surfBar" hidden>' +
+        '<div class="sb-info"><span id="surfInfo"></span><span class="sb-tip">DRAG: LOOK AROUND · WHEEL: ZOOM · ← → : OTHER WORLD · ESC: EXIT</span></div>' +
+        '<div class="sb-row">' +
+        '<button class="sb-play" id="sbPlay" type="button">❚❚ PAUSE</button>' +
+        '<button class="sb-play" id="sbLabels" type="button" title="Show or hide the names in the sky (L)">LABELS: ON</button>' +
+        '<button class="sb-play" id="sbClean" type="button" title="Hide every control and label for a clean view (C)">HIDE ALL</button>' +
+        '<label class="sb-spd">SPEED <input id="sbSpeed" type="range" min="-1.3" max="1.7" step="0.01" value="0" aria-label="Simulation speed"><b id="sbSpeedVal">1×</b></label>' +
+        '<label class="sb-spd">LATITUDE <input id="surfLat" type="range" min="-85" max="85" step="1" value="30" aria-label="Latitude"><b id="surfLatOut">N 30°</b></label>' +
+        '<label class="sb-spd" id="sbAltCtl">ALTITUDE <input id="sbAlt" type="range" min="0" max="100" value="45" step="1" aria-label="Height above the star" title="How high you hover above the star, in star radii"><b id="sbAltOut">0.24×R</b></label></div>' +
+        '<div class="sb-chips" id="sbChips" aria-label="Switch planet"></div>' +
+      '</div>' +
+      '<button class="sb-exit" id="sbExit" type="button" hidden>✕ EXIT SURFACE VIEW</button>' +
+      '<button class="sb-show" id="sbShow" type="button" hidden>SHOW CONTROLS · C</button>' +
       '<div class="toast" id="toast" role="status"></div>');
   })();
   var surfCap = $('#surfCap'), lcPanel = $('#lcPanel'), lcCv = $('#lcCv'), lcF = $('#lcF'), toastEl = $('#toast');
 
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function(){ toastEl.classList.remove('on'); }, 2400); }
+
+  /* ===== SURFACE BAR: exit button, pause + speed slider, one button per planet ===== */
+  var surfBarEl = $('#surfBar'), sbSpeed = $('#sbSpeed'), sbSpeedVal = $('#sbSpeedVal'), sbPlay = $('#sbPlay'), sbLabels = $('#sbLabels'), sbClean = $('#sbClean'), sbShow = $('#sbShow'), sbChips = $('#sbChips'), surfClean = false;
+  var surfWorlds = [];
+  stars.forEach(function(s, i){ surfWorlds.push({ kind:'star', i:i }); });
+  planets.forEach(function(p, i){ surfWorlds.push({ kind:'planet', i:i }); });
+  function enterWorld(w){ if (w.kind === 'star') enterStarView(w.i); else enterSurface(w.i); }
+  surfWorlds.forEach(function(w){
+    var b = document.createElement('button'); b.type = 'button';
+    var label, color;
+    if (w.kind === 'star'){ var st = stars[w.i]; b.className = 'sb-chip star'; b.title = 'Hover above ' + st.name; label = '☀ ' + st.name; color = st.col.getStyle(); }
+    else { var pl = planets[w.i]; b.className = 'sb-chip'; b.title = 'Stand on ' + dispName(pl); label = dispName(pl).replace(stars[0].name, '').trim() || pl.name; color = hex6(pl.hex); }
+    b.innerHTML = '<i style="background:' + color + '"></i>' + esc(label);
+    b.addEventListener('click', function(){ if (!(surf && surf.kind === w.kind && surf.i === w.i)) enterWorld(w); });   // jump straight to another world
+    sbChips.appendChild(b);
+  });
+  function syncSurfBar(){
+    if (!surfBarEl) return;
+    sbSpeed.value = speedEl.value; sbSpeedVal.textContent = speedVal.textContent;
+    sbPlay.textContent = paused ? '▶ PLAY' : '❚❚ PAUSE';
+    sbLabels.textContent = tog.labels ? 'LABELS: ON' : 'LABELS: OFF'; sbLabels.classList.toggle('on', tog.labels);
+    [].forEach.call(sbChips.children, function(c, j){ var w = surfWorlds[j]; c.classList.toggle('on', !!surf && !!w && surf.kind === w.kind && surf.i === w.i); });
+  }
+  sbSpeed.addEventListener('input', function(){ speedEl.value = sbSpeed.value; paused = false; readSpeed(); });
+  sbSpeed.addEventListener('dblclick', function(){ speedEl.value = 0; readSpeed(); });
+  sbPlay.addEventListener('click', function(){ paused = !paused; updTime(); });
+  sbLabels.addEventListener('click', function(){ $('#tLabels').click(); });      // same switch as the main LABELS button and the L key
+  // clean view: hides the whole bar, the caption, the exit button and every sky label. C or the faint button at the bottom brings it back.
+  function setClean(on){ surfClean = !!on; viewer.classList.toggle('clean', surfClean); sbShow.hidden = !(surf && surfClean); }
+  sbClean.addEventListener('click', function(){ setClean(true); });
+  sbShow.addEventListener('click', function(){ setClean(false); });
+  $('#sbExit').addEventListener('click', function(){ exitSurface(); });
+  // altitude for the star hover view, in star radii (logarithmic: 0.02 to 5)
+  var sbAlt = $('#sbAlt'), sbAltOut = $('#sbAltOut');
+  function posToAlt(pos){ return 0.02*Math.pow(250, pos/100); }
+  function altToPos(a){ return 100*Math.log(a/0.02)/Math.log(250); }
+  function fmtAlt(a){ return (a < 1 ? a.toFixed(2) : a.toFixed(1)) + '×R'; }
+  sbAlt.addEventListener('input', function(){ var a = posToAlt(parseFloat(sbAlt.value)); if (surf) surf.alt = a; sbAltOut.textContent = fmtAlt(a); });
 
   /* ---- 1. light curve: the star's brightness along the line of sight from Earth ---- */
   var Pmax = planets.length ? Math.max.apply(null, planets.map(function(p){ return p.P; })) : 1;
@@ -851,12 +960,12 @@ function init(S){
     cam.azV = cam.polV = 0; cam.azT += diff; cam.polT = clamp(Math.acos(clamp(d.y, -1, 1)), 0.04, Math.PI - 0.04);
   }
 
-  /* ---- 3. view from a planet's surface: procedural terrain + sky, every star and planet at its TRUE angular size ---- */
+  /* ===== SURFACE VIEW: procedural terrain + sky, every star and planet at its TRUE angular size ===== */
   var SURF_D = 40000, SURF_DOME = 120000;
   var surfG = null, surfTxtAt = 0;
-  var surfHud = $('#surfHud'), surfInfo = $('#surfInfo'), surfLat = $('#surfLat'), surfLatOut = $('#surfLatOut');
+  var surfInfo = $('#surfInfo'), surfLat = $('#surfLat'), surfLatOut = $('#surfLatOut');
   var _sv = {
-    ea:new THREE.Vector3(), up:new THREE.Vector3(), no:new THREE.Vector3(), rel:new THREE.Vector3(),
+    ea:new THREE.Vector3(), up:new THREE.Vector3(), no:new THREE.Vector3(), rel:new THREE.Vector3(), e1:new THREE.Vector3(), nA:new THREE.Vector3(),
     M:new THREE.Matrix4(), q:new THREE.Quaternion(), qWL:new THREE.Quaternion(), qTmp:new THREE.Quaternion(),
     qRx:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI/2), look:new THREE.Vector3()
   };
@@ -892,8 +1001,9 @@ function init(S){
     'vec3 tone(vec3 c){ return vec3(1.0) - exp(-c*1.25); }'
   ].join('\n');
 
+  /* ===== SURFACE TERRAIN: uOff moves the sampling point, so each latitude is different ground ===== */
   var SURF_TERRAIN_COMMON = [
-    'uniform float uAmp; uniform float uRidge; uniform float uCrater; uniform vec2 uSeedT;',
+    'uniform float uAmp; uniform float uRidge; uniform float uCrater; uniform vec2 uSeedT; uniform vec2 uOff;',
     'float tHash(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y)*p3.z); }',
     'float tNoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); f = f*f*(3.0 - 2.0*f);',
     '  return mix(mix(tHash(i), tHash(i + vec2(1.0,0.0)), f.x), mix(tHash(i + vec2(0.0,1.0)), tHash(i + vec2(1.0,1.0)), f.x), f.y); }',
@@ -914,6 +1024,7 @@ function init(S){
     'float tH(vec2 p){',
     '  float r = length(p);',
     '  float mask = smoothstep(14.0, 800.0, r);',          // flat clearing around the viewer, hills grow outward
+    '  p += uOff;',                                         // latitude: stand on different ground (the clearing stays centred on you)
     '  vec2 q = p*0.00022 + uSeedT;',
     '  float h = 0.0; float a = 0.5;',
     '  for (int i=0;i<7;i++){ h += a*tNoise(q); q = q*2.05 + vec2(5.2, 1.3); a *= 0.5; }',
@@ -952,7 +1063,7 @@ function init(S){
     '  vec3 N0 = normalize(vN);',
     '  float dist = length(vW - cameraPosition);',
     '  float mb = smoothstep(260.0, 10.0, dist); float kk = smoothstep(60.0, 6.0, dist);',
-    '  vec2 g = vW.xz; float n0 = micro(g, kk);',
+    '  vec2 g = vW.xz + uOff; float n0 = micro(g, kk);',   // same shift as the terrain shape, so colours follow the land
     '  vec3 N = N0;',
     '  if (mb > 0.01){ float e = 0.4; N = normalize(N0 + vec3(-(micro(g + vec2(e, 0.0), kk) - n0)/e, 0.0, -(micro(g + vec2(0.0, e), kk) - n0)/e)*0.3*mb); }',
     '  float pat = 0.6*tNoise(g*0.0035 + uSeedT*3.1) + 0.4*tNoise(g*0.02 + uSeedT*7.0);',
@@ -1096,7 +1207,7 @@ function init(S){
 
     // terrain
     var tu = {
-      uAmp:{value:500}, uRidge:{value:0.4}, uCrater:{value:0}, uSeedT:{value:new THREE.Vector2()},
+      uAmp:{value:500}, uRidge:{value:0.4}, uCrater:{value:0}, uSeedT:{value:new THREE.Vector2()}, uOff:{value:new THREE.Vector2()},
       uC0:{value:new THREE.Color()}, uC1:{value:new THREE.Color()}, uC2:{value:new THREE.Color()}, uCs:{value:new THREE.Color()},
       uCloud:{value:0}, uVis:{value:9000}, uAmb:{value:new THREE.Color(0.01, 0.01, 0.012)}
     };
@@ -1139,6 +1250,10 @@ function init(S){
     var G = surfG; surfaceClearBodies();
     stars.forEach(function(s, i){
       var isBH = s.cls === 'BH', col = s.col.clone();
+      if (surf.kind === 'star' && surf.i === i){   // the star you hover over is the ground below you: it only lights the other bodies
+        G.bodies.push({ kind:'star', idx:i, mesh:null, glow:null, label:null, color:col, rAU:s.R*AU_PER_RSUN, lum:s.L, src:starObjs[i].g, dir:new THREE.Vector3(), alive:false, name:s.name, hidden:true });
+        return;
+      }
       var mesh = new THREE.Mesh(G.sphere, isBH ? new THREE.MeshBasicMaterial({ color:0x000000 }) : starMaterial(col));
       G.skyScene.add(mesh);
       var glow = null; if (!isBH){ glow = makeSkyGlow(col, 0.85); G.skyScene.add(glow); }
@@ -1146,7 +1261,7 @@ function init(S){
       G.bodies.push({ kind:'star', idx:i, mesh:mesh, glow:glow, label:label, color:col, rAU:s.R*AU_PER_RSUN, lum:s.L, src:starObjs[i].g, dir:new THREE.Vector3(), alive:false, name:s.name });
     });
     planets.forEach(function(p, j){
-      if (j === surf.i) return;
+      if (surf.kind === 'planet' && j === surf.i) return;
       var po = planetObjs[j];
       var mesh = new THREE.Mesh(G.sphere, makeBodyMaterial(p.type, p.hex, p.name, bodyRoughness(p.type), 0.03));
       G.skyScene.add(mesh);
@@ -1173,6 +1288,137 @@ function init(S){
   }
   surfLat.addEventListener('input', function(){ setSurfLat(parseFloat(surfLat.value) || 0); });
 
+  // ---- hovering over a star: surface of the star (granulation computed per pixel, so it stays sharp up close) ----
+  function makeStarGroundMaterial(col){
+    return new THREE.ShaderMaterial({
+      uniforms:{ tint:{ value:new THREE.Color(col) }, time:{ value:0 } },
+      vertexShader:'varying vec3 vP; varying vec3 vN; varying vec3 vV; void main(){ vP = normalize(position); vN = normalize(normalMatrix*normal); vec4 mv = modelViewMatrix*vec4(position,1.0); vV = -mv.xyz; gl_Position = projectionMatrix*mv; }',
+      fragmentShader:[
+        'uniform vec3 tint; uniform float time; varying vec3 vP; varying vec3 vN; varying vec3 vV;',
+        'float hh(vec3 p){ p = 50.0*fract(p*0.3183099 + vec3(0.71,0.113,0.419)); return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }',
+        'float vn(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0 - 2.0*f);',
+        '  return mix(mix(mix(hh(i), hh(i+vec3(1.0,0.0,0.0)), f.x), mix(hh(i+vec3(0.0,1.0,0.0)), hh(i+vec3(1.0,1.0,0.0)), f.x), f.y),',
+        '             mix(mix(hh(i+vec3(0.0,0.0,1.0)), hh(i+vec3(1.0,0.0,1.0)), f.x), mix(hh(i+vec3(0.0,1.0,1.0)), hh(i+vec3(1.0,1.0,1.0)), f.x), f.y), f.z); }',
+        // x = distance to the nearest cell point, y = (second nearest - nearest), z = random id of the nearest cell
+        'vec3 wor(vec3 p){',
+        '  vec3 i = floor(p); vec3 f = fract(p); float d1 = 9.0; float d2 = 9.0; float id = 0.0;',
+        '  for (int z=-1; z<=1; z++){ for (int y=-1; y<=1; y++){ for (int x=-1; x<=1; x++){',
+        '    vec3 g = vec3(float(x), float(y), float(z)); vec3 c = i + g;',
+        '    vec3 o = vec3(hh(c), hh(c + 17.0), hh(c + 43.0));',
+        '    vec3 r = g + o - f; float d = dot(r, r);',
+        '    if (d < d1){ d2 = d1; d1 = d; id = hh(c + 71.0); } else if (d < d2){ d2 = d; }',
+        '  } } }',
+        '  return vec3(sqrt(d1), sqrt(d2) - sqrt(d1), id);',
+        '}',
+        'void main(){',
+        '  vec3 p = normalize(vP);',
+        '  vec3 w = vec3(vn(p*9.0), vn(p*9.0 + 5.2), vn(p*9.0 + 9.1)) - 0.5;',
+        '  vec3 a = wor(p*120.0 + w*5.0);',                                // cells, warped so they are not a regular tiling
+        '  vec3 b = wor(p*480.0 + w*14.0 + 3.7);',                         // fine grain
+        '  float edge = smoothstep(0.0, 1.1, a.y);',                      // 0 on the lanes between cells, 1 inside a cell
+        '  float core = 1.0 - smoothstep(0.0, 0.85, a.x);',
+        '  float cellL = (0.9 + 0.18*core)*(0.93 + 0.14*a.z)*(0.95 + 0.1*b.z);',
+        '  cellL *= 0.9 + 0.2*vn(p*7.0 + 2.0);',                           // slow mottling
+        '  cellL *= 1.0 - 0.4*smoothstep(0.64, 0.74, vn(p*3.2 + 9.0));',   // a few cooler starspot regions
+        '  cellL *= 1.0 + 0.07*sin(time*1.3 + a.z*40.0);',                 // the cells slowly boil
+        '  vec3 hot = tint*1.7*cellL;',
+        '  hot = mix(hot, vec3(1.0), smoothstep(1.0, 1.5, cellL)*0.12);',
+        '  vec3 lane = tint*vec3(1.0, 0.76, 0.56)*1.0;',                   // the lanes are cooler and redder, not grey
+        '  vec3 c = mix(lane, hot, edge);',
+        '  float mu = clamp(dot(normalize(vN), normalize(vV)), 0.0, 1.0);',
+        '  c *= (1.0 - 0.22*(1.0 - mu))*vec3(1.0, mix(0.95, 1.0, mu), mix(0.88, 1.0, mu));',
+        '  c += tint*pow(1.0 - mu, 5.0)*0.4;',
+        '  c = vec3(1.0) - exp(-c*1.15);',                                // soft tone curve: hot cells glow towards white
+        '  gl_FragColor = vec4(c, 1.0);',
+        '}'
+      ].join('\n')
+    });
+  }
+  // soft glow hugging the star's edge (works from outside and from inside the shell)
+  function makeCoronaMaterial(col, strength){
+    return new THREE.ShaderMaterial({
+      uniforms:{ tint:{ value:new THREE.Color(col) }, k:{ value:strength } },
+      transparent:true, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false,
+      vertexShader:'varying vec3 vN; varying vec3 vV; void main(){ vN = normalize(normalMatrix*normal); vec4 mv = modelViewMatrix*vec4(position,1.0); vV = -mv.xyz; gl_Position = projectionMatrix*mv; }',
+      fragmentShader:'uniform vec3 tint; uniform float k; varying vec3 vN; varying vec3 vV;\n' +
+        'void main(){ float mu = abs(dot(normalize(vN), normalize(vV)));\n' +
+        ' float rim = pow(1.0 - mu, 2.2)*smoothstep(0.0, 0.35, mu);\n' +
+        ' gl_FragColor = vec4(mix(tint, vec3(1.0), 0.35)*rim*k, 1.0); }'
+    });
+  }
+
+  // ---- hovering over a star: the star is a huge sphere below you, drawn in the ground pass so it hides whatever is behind the horizon ----
+  var STAR_R_U = 1000;     // the star's radius in view units (sky bodies keep their true angular sizes)
+  function starProfile(s){
+    var label = s.cls === 'BH' ? 'EVENT HORIZON · NO LIGHT OF ITS OWN' : ('PHOTOSPHERE · ' + Math.round(s.T).toLocaleString('en-US') + ' K');
+    return { atm:0, camH:0, label:label, zen:new THREE.Color(0, 0, 0), hor:new THREE.Color(0, 0, 0) };
+  }
+  function disposeStarGround(){
+    var G = surfG;
+    if (!G || !G.starGnd) return;
+    G.gndScene.remove(G.starGnd.grp);
+    G.starGnd.grp.traverse(function(o){ if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+    G.starGnd = null;
+  }
+  function buildStarGround(s){
+    var G = surfG;
+    disposeStarGround();
+    var isBH = s.cls === 'BH', col = isBH ? new THREE.Color(1.0, 0.62, 0.3) : s.col.clone();
+    var grp = new THREE.Group();
+    var sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), isBH ? new THREE.MeshBasicMaterial({ color:0x000000 }) : makeStarGroundMaterial(col));
+    sphere.scale.setScalar(STAR_R_U);
+    grp.add(sphere);
+    var c1 = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), makeCoronaMaterial(col, isBH ? 1.7 : 1.7)); c1.scale.setScalar(STAR_R_U*1.035); grp.add(c1);
+    var c2 = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), makeCoronaMaterial(col, isBH ? 0.5 : 0.95)); c2.scale.setScalar(STAR_R_U*1.6); grp.add(c2);
+    var c3 = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), makeCoronaMaterial(col, isBH ? 0.2 : 0.4)); c3.scale.setScalar(STAR_R_U*2.6); grp.add(c3);
+    var beamA = null, beamB = null;
+    if (s.cls === 'PSR'){
+      // a pulsar's two lighthouse beams, sweeping round as it spins
+      var bg = new THREE.CylinderGeometry(STAR_R_U*0.22, STAR_R_U*0.015, STAR_R_U*14, 16, 1, true);
+      bg.translate(0, STAR_R_U*7, 0);
+      var bm = new THREE.MeshBasicMaterial({ color:0xaee0ff, transparent:true, opacity:0.22, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+      beamA = new THREE.Mesh(bg, bm); beamB = new THREE.Mesh(bg, bm);
+      grp.add(beamA); grp.add(beamB);
+    }
+    G.gndScene.add(grp);
+    G.starGnd = { grp:grp, sphere:sphere, beamA:beamA, beamB:beamB };
+  }
+  function updateStarGround(S, G){
+    var sg = G.starGnd;
+    if (!sg) return;
+    sg.grp.position.set(0, -(STAR_R_U + S.alt*STAR_R_U), 0);
+    // the star's surface is fixed to the star: turn it to match where you hover (latitude) and let it slowly rotate beneath you
+    sg.sphere.quaternion.copy(_sv.qWL).multiply(new THREE.Quaternion().setFromAxisAngle(_sv.nA, S.clock*0.07));
+    var u = sg.sphere.material.uniforms;
+    if (u && u.time) u.time.value = S.clock*1.5;
+    if (sg.beamA){
+      var axis = _sv.nA.clone().applyMatrix4(_sv.M), p = _sv.e1.clone().applyMatrix4(_sv.M);
+      var ang = S.clock*1.9, tilt = 0.9;
+      var pr = p.clone().multiplyScalar(Math.cos(ang)).addScaledVector(axis.clone().cross(p), Math.sin(ang));
+      var bd = axis.clone().multiplyScalar(Math.cos(tilt)).addScaledVector(pr, Math.sin(tilt)).normalize();
+      sg.beamA.quaternion.setFromUnitVectors(Y_AXIS, bd);
+      sg.beamB.quaternion.setFromUnitVectors(Y_AXIS, bd.clone().negate());
+    }
+  }
+  function enterStarView(i){
+    var s = stars[i]; if (!s) return;
+    if (scaleMode !== 'true') setScaleMode('true');                        // true distances, so the other bodies sit at their real angles
+    if (surf) exitSurface(true);
+    if (!surfG){ try { surfG = surfaceBuild(); } catch (err){ toast('SURFACE VIEW NEEDS WEBGL'); return; } }
+    var G = surfG, prof = starProfile(s);
+    G.terrain.visible = false;                                             // a star has no ground: the star itself is the ground
+    G.uni.uAtm.value = 0;
+    surf = { kind:'star', i:i, mesh:starObjs[i].mesh, prof:prof, lat:0, yaw:0, pitch:-0.62, fov:70, targetFov:70, frame:0, faced:false, alt:0.24, clock:0 };
+    setSurfLat(parseFloat(surfLat.value) || 30);
+    buildStarGround(s);
+    viewer.classList.add('starview');
+    sbAlt.value = altToPos(surf.alt); sbAltOut.textContent = fmtAlt(surf.alt);
+    surfaceMakeBodies();
+    viewer.classList.add('surf'); surfCap.hidden = false;
+    surfBarEl.hidden = false; $('#sbExit').hidden = false; syncSurfBar();
+    labelsEl.style.display = 'none'; surfTxtAt = 0;
+  }
+
   function enterSurface(i){
     var p = planets[i]; if (!p) return;
     if (scaleMode !== 'true') setScaleMode('true');                        // the star only has the right apparent size at true scale
@@ -1183,8 +1429,9 @@ function init(S){
     tu.uSeedT.value.set(((h & 1023)/1023)*50, (((h >>> 10) & 1023)/1023)*50);
     tu.uC0.value.copy(prof.c0); tu.uC1.value.copy(prof.c1); tu.uC2.value.copy(prof.c2); tu.uCs.value.copy(prof.cs);
     G.uni.uAtm.value = prof.atm; G.uni.uZen.value.copy(prof.zen); G.uni.uHor.value.copy(prof.hor);
-    surf = { i:i, mesh:planetObjs[i].mesh, prof:prof, lat:0, yaw:0, pitch:0.15, fov:70, frame:0, faced:false };
-    setSurfLat(parseFloat(surfLat.value) || 30);
+    G.terrain.visible = true;
+    surf = { kind:'planet', i:i, mesh:planetObjs[i].mesh, prof:prof, lat:0, yaw:0, pitch:0.15, fov:70, targetFov:70, frame:0, faced:false };
+    setSurfLat(parseFloat(surfLat.value) || 30);                           // the latitude you chose carries over to the next planet
     // start in daylight: turn the planet until the brightest star stands about 22 degrees above the horizon
     (function(){
       var P = realPositionsAU(), sd = P.stars[0].clone().sub(P.planets[i]).normalize(), m = planetObjs[i].mesh, base = m.rotation.y, best = 0, bd = 9, uu = new THREE.Vector3(), qq = new THREE.Quaternion();
@@ -1197,30 +1444,52 @@ function init(S){
       m.rotation.y = base + best/72*TAU;
     })();
     surfaceMakeBodies();
-    viewer.classList.add('surf'); $('#bExitSurf').hidden = false; surfCap.hidden = false; surfHud.hidden = false;
+    viewer.classList.add('surf'); surfCap.hidden = false;
+    surfBarEl.hidden = false; $('#sbExit').hidden = false; syncSurfBar();
     labelsEl.style.display = 'none'; surfTxtAt = 0;
   }
   function exitSurface(quiet){
     if (!surf) return;
-    var i = surf.i; surf = null;
+    var i = surf.i, kind = surf.kind || 'planet'; surf = null;
     surfaceClearBodies();
-    viewer.classList.remove('surf'); $('#bExitSurf').hidden = true; surfCap.hidden = true; surfHud.hidden = true;
+    disposeStarGround();
+    viewer.classList.remove('starview');
+    if (!quiet) setClean(false);
+    viewer.classList.remove('surf'); surfCap.hidden = true; surfBarEl.hidden = true; $('#sbExit').hidden = true;
     labelsEl.style.display = tog.labels ? '' : 'none'; camera.up.set(0, 1, 0); renderer.autoClear = true; resize();
-    if (!quiet) select({ kind:'planet', i:i });
+    if (!quiet) select({ kind:kind, i:i });
   }
-  $('#bExitSurf').addEventListener('click', function(){ exitSurface(); });
-  $('#bSurf').addEventListener('click', function(){ if (surf) exitSurface(); else if (planets.length) enterSurface(sel && sel.kind === 'planet' ? sel.i : 0); });
+  $('#bSurf').addEventListener('click', function(){
+    if (surf) exitSurface();
+    else if (sel && sel.kind === 'star') enterStarView(sel.i);
+    else if (planets.length) enterSurface(sel && sel.kind === 'planet' ? sel.i : 0);
+  });
 
   function updateSurface(dt, now){
     var G = surfG, S = surf, prof = S.prof;
     var w = viewer.clientWidth, h = viewer.clientHeight; if (!w || !h) return false;
-    var P = realPositionsAU(), obs = P.planets[S.i];
+    var P = realPositionsAU(), obs = S.kind === 'star' ? null : P.planets[S.i];
+    // ease the zoom in log space so each wheel notch glides instead of jumping
+    var lf = Math.log(S.fov), ltf = Math.log(S.targetFov);
+    S.fov = Math.abs(ltf - lf) > 0.0005 ? Math.exp(lf + (ltf - lf)*(1 - Math.exp(-dt*9))) : S.targetFov;
+    G.tu.uOff.value.set(0, S.lat*34377);          // latitude moves you across the planet: about 600 terrain units per degree
     var pxW = h/(2*SURF_D*Math.tan(S.fov*Math.PI/360));
     function wpx(px){ return px/pxW; }
     // observer frame: X = east, Y = up, Z = south. It turns with the planet's spin, so the sky moves.
-    S.mesh.getWorldQuaternion(_sv.q);
     var cl = Math.cos(S.lat), sl = Math.sin(S.lat);
-    _sv.up.set(cl, sl, 0).applyQuaternion(_sv.q); _sv.no.set(-sl, cl, 0).applyQuaternion(_sv.q); _sv.ea.set(0, 0, -1).applyQuaternion(_sv.q);
+    if (S.kind === 'star'){
+      // hovering over a star: "up" points away from its centre; latitude 0 lies in the planets' orbit plane (the scene is laid flat, so that plane's normal is world up)
+      _sv.nA.copy(Y_AXIS);
+      _sv.e1.copy(X_AXIS).cross(_sv.nA).normalize();
+      _sv.up.copy(_sv.e1).multiplyScalar(cl).addScaledVector(_sv.nA, sl);
+      _sv.no.copy(_sv.e1).multiplyScalar(-sl).addScaledVector(_sv.nA, cl);
+      _sv.ea.crossVectors(_sv.no, _sv.up);
+      obs = P.stars[S.i].clone().addScaledVector(_sv.up, stars[S.i].R*AU_PER_RSUN*(1 + S.alt));
+      S.clock = (S.clock || 0) + (paused ? 0 : dt*speedMul);
+    } else {
+      S.mesh.getWorldQuaternion(_sv.q);
+      _sv.up.set(cl, sl, 0).applyQuaternion(_sv.q); _sv.no.set(-sl, cl, 0).applyQuaternion(_sv.q); _sv.ea.set(0, 0, -1).applyQuaternion(_sv.q);
+    }
     _sv.M.set(_sv.ea.x, _sv.ea.y, _sv.ea.z, 0,  _sv.up.x, _sv.up.y, _sv.up.z, 0,  -_sv.no.x, -_sv.no.y, -_sv.no.z, 0,  0, 0, 0, 1);
     _sv.qWL.setFromRotationMatrix(_sv.M);
 
@@ -1255,11 +1524,19 @@ function init(S){
     } else amb.setRGB(0.007, 0.008, 0.011);
     var dim = 1 - Math.min(1, skyDay*prof.atm*1.4);
     G.stars.material.opacity = 1 - Math.min(1, skyDay*prof.atm*1.1)*0.97;
-    if (!S.faced && suns.length){ S.yaw = Math.atan2(suns[0].dir.x, -suns[0].dir.z); S.faced = true; }
+    if (!S.faced){
+      if (S.kind === 'star'){
+        var fp = null;                    // start by looking toward the nearest planet
+        G.bodies.forEach(function(b){ if (!fp && b.alive && b.kind === 'planet') fp = b; });
+        if (fp){ S.yaw = Math.atan2(fp.dir.x, -fp.dir.z); S.faced = true; }
+        else if (G.bodies.length) S.faced = true;
+      } else if (suns.length){ S.yaw = Math.atan2(suns[0].dir.x, -suns[0].dir.z); S.faced = true; }
+    }
 
     G.bodies.forEach(function(b){
       [b.mesh, b.ring, b.glow, b.dot, b.label].forEach(function(o){ if (o) o.visible = false; });
       if (!b.alive) return;
+      if (b.hidden) return;
       var ang = Math.asin(Math.min(0.999, b.rAU/b.dist)), rW = SURF_D*Math.tan(ang), rpx = rW*pxW;
       b.mesh.position.copy(b.dir).multiplyScalar(SURF_D);
       b.mesh.scale.setScalar(Math.max(rW, 1e-3));
@@ -1286,7 +1563,7 @@ function init(S){
       var lw = wpx(130);
       b.label.scale.set(lw, lw*0.25, 1);
       b.label.position.copy(b.mesh.position).multiplyScalar((SURF_D - 50)/SURF_D); b.label.position.y += rW + wpx(16);
-      b.label.visible = tog.labels && b.dir.y > -0.03 && (b.kind === 'star' || dim > 0.02 || b.mesh.visible);
+      b.label.visible = tog.labels && !surfClean && b.dir.y > -0.03 && (b.kind === 'star' || dim > 0.02 || b.mesh.visible);
     });
 
     var cam3 = G.cam;
@@ -1295,9 +1572,18 @@ function init(S){
     var cp = Math.cos(S.pitch);
     _sv.look.set(Math.sin(S.yaw)*cp, prof.camH + Math.sin(S.pitch), -Math.cos(S.yaw)*cp);
     cam3.lookAt(_sv.look);
+    if (S.kind === 'star') updateStarGround(S, G);
 
     if (now - surfTxtAt > 800){
       surfTxtAt = now;
+      surfCap.style.bottom = (surfBarEl.offsetHeight + 28) + 'px';
+      if (S.kind === 'star'){
+        var sObj = stars[S.i], km = Math.round(sObj.R*S.alt*695700);
+        surfCap.innerHTML = '<div class="tc-tag">HOVERING ABOVE THE STAR</div><h3>' + esc(sObj.name) + '</h3>' +
+          '<p>' + fmtN(km, 0) + ' km ABOVE THE SURFACE · ' + fmtN(sObj.T, 0) + ' K</p><small>ARTIST\'S IMPRESSION · ESTIMATED FIGURES</small>';
+        surfInfo.textContent = prof.label + ' · HOVERING ' + fmtN(km, 0) + ' km ABOVE';
+        return true;
+      }
       var s0 = suns[0], p = planets[S.i], line2 = 'NO STAR IN THE SKY';
       if (s0){
         var el = Math.asin(clamp(s0.dir.y, -1, 1))/D2R, angD = 2*Math.asin(Math.min(0.999, s0.rAU/s0.dist))/D2R;
@@ -1306,7 +1592,7 @@ function init(S){
           '<p>THE STAR SPANS ' + fmtN(angD, 1) + '° OF SKY · ' + fmtN(angD/0.533, 1) + '× THE SUN\'S WIDTH SEEN FROM EARTH</p>' +
           '<p>' + fmtN(p.flux, p.flux < 10 ? 1 : 0) + '× THE STARLIGHT EARTH GETS</p><small>ARTIST\'S IMPRESSION · ESTIMATED FIGURES</small>';
       }
-      surfInfo.textContent = prof.label + '\n' + line2;
+      surfInfo.textContent = prof.label + ' · ' + line2;
     }
     return true;
   }
@@ -1342,7 +1628,7 @@ function init(S){
     g.fillStyle = gr; g.fillRect(0, H - bh*1.4, W, bh*1.4);
     g.textBaseline = 'alphabetic'; g.textAlign = 'left';
     var title = (S.systemName || 'Star system').toUpperCase(), sub = sel && sel.kind === 'planet' ? dispName(planets[sel.i]).toUpperCase() + ' · YEAR ' + fmtPeriod(planets[sel.i].P).toUpperCase() : planets.length + ' PLANETS · ' + (scaleMode === 'true' ? 'TRUE SCALE' : 'STYLIZED SCALE');
-    if (surf) sub = 'VIEW FROM THE SURFACE OF ' + dispName(planets[surf.i]).toUpperCase();
+    if (surf) sub = surf.kind === 'star' ? 'HOVERING OVER ' + stars[surf.i].name.toUpperCase() : 'VIEW FROM THE SURFACE OF ' + dispName(planets[surf.i]).toUpperCase();
     g.fillStyle = '#ffffff'; g.font = 'bold ' + 26*u + 'px Space Mono, monospace'; g.fillText(title, 34*u, H - 60*u);
     g.fillStyle = '#9aa2a7'; g.font = 13*u + 'px Space Mono, monospace'; g.fillText(sub, 34*u, H - 36*u);
     g.fillStyle = '#ffc47a'; g.font = 10*u + 'px Space Mono, monospace'; g.fillText('FIGURES ARE ESTIMATES', 34*u, H - 18*u);
@@ -1397,7 +1683,7 @@ function init(S){
     planets.forEach(function(p, i){
       var po = planetObjs[i], hp = hostPos(p), rp = relPos(p, rad(p.au), p.P);
       po.g.position.set(hp.x + rp.x, hp.y + rp.y, hp.z + rp.z); po.holder.position.copy(hp);
-      po.mesh.rotation.y += dt*(surf ? 0.06 : 0.5);
+      if (!(surf && paused)) po.mesh.rotation.y += dt*(surf ? 0.06*speedMul : 0.5);   // on the surface the planet's spin (day / night) follows the speed slider and pause
     });
     if (hzMesh) hzMesh.position.set(0, 0, 0);
 
@@ -1423,7 +1709,12 @@ function init(S){
     starObjs.forEach(function(so){
       so.g.getWorldPosition(wp);
       var dist = camera.position.distanceTo(wp);
-      so.sprites.forEach(function(d){ d.sp.scale.setScalar(Math.max(so.size*d.k, dist*d.kd)); });
+      // Put the glow sprites just BEHIND the star's sphere (along the line of sight). A flat sprite at the star's centre is cut by the
+      // sphere's own depth on the side facing the middle of the screen, which showed up as a hard white crescent, like a second star peeking out.
+      var off = so.size*1.05, k2 = (dist + off)/Math.max(dist, 1e-12);   // k2 keeps the glow the same size on screen after the shift
+      v3.copy(wp).sub(camera.position).normalize().multiplyScalar(off).add(wp);
+      so.g.worldToLocal(v3);
+      so.sprites.forEach(function(d){ d.sp.position.copy(v3); d.sp.scale.setScalar(Math.max(so.size*d.k, dist*d.kd)*k2); });
     });
     // small dot on each planet while it is too small to see
     var halfH = renderer.domElement.height/renderer.getPixelRatio()/2, tanF = Math.tan(camera.fov*D2R/2);
@@ -1441,6 +1732,7 @@ function init(S){
     var hiddenP = planetObjs.map(function(po){ return behindStar(po.g); });
     planetObjs.forEach(function(po, i){
       po.g.getWorldPosition(wp);
+      if (po.atm) po.atm.material.uniforms.sun.value.copy(starObjs[planets[i].si].g.getWorldPosition(pv)).sub(wp);   // light direction for the atmosphere
       var d = Math.max(camera.position.distanceTo(wp), 1e-9), pxR = po.size/(d*tanF)*halfH;
       if (pxR < 3 && !hiddenP[i] && !surf){ markerPos[i*3] = wp.x; markerPos[i*3 + 1] = wp.y; markerPos[i*3 + 2] = wp.z; }
       else { markerPos[i*3] = markerPos[i*3 + 1] = markerPos[i*3 + 2] = 1e9; }

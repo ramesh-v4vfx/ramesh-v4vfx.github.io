@@ -378,14 +378,47 @@
   #levelBtn.on{color:var(--green); border-color:rgba(57,217,138,0.7); box-shadow:0 0 10px rgba(57,217,138,0.2);}
   #surfaceBtn{color:#ffd27a; border-color:rgba(255,210,122,0.55); background:rgba(20,14,4,0.75); box-shadow:0 0 10px rgba(255,210,122,0.15);}
   #surfaceBtn:hover{border-color:#ffd27a; box-shadow:0 0 18px rgba(255,210,122,0.4);}
-  #surfaceBtn.active{background:rgba(255,210,122,0.16); color:#fff; box-shadow:0 0 16px rgba(255,210,122,0.45);}
-  .surf-hud{display:none; position:absolute; top:44px; right:10px; z-index:6; width:215px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);
-    background:rgba(0,0,0,0.6); border:1px solid var(--line); padding:8px 10px;}
-  .surf-hud .surf-info{white-space:pre-line; line-height:1.55; color:var(--text); margin-bottom:6px;}
-  .surf-hud .surf-lat{display:flex; align-items:center; gap:8px;}
-  .surf-hud .surf-lat b{color:var(--red); min-width:44px; text-align:right; font-weight:700;}
-  @media (max-width:700px){ .surf-hud{top:auto; bottom:48px; right:8px; width:185px;} }
-  @media (pointer:coarse){ .surf-hud{font-size:10px;} }
+  /* while in surface view this same button is the EXIT button: red and glowing so it is easy to find */
+  #surfaceBtn.active{background:#e32222; color:#fff; border-color:#ff7a7a; font-weight:700; letter-spacing:0.1em; box-shadow:0 0 16px rgba(255,43,43,0.55);}
+  #surfaceBtn.active:hover{background:#ff3b3b; box-shadow:0 0 26px rgba(255,43,43,0.8);}
+
+  /* ── SURFACE BAR: bottom of the 3D view, so it never covers the sky ── */
+  .surf-bar{display:none; position:absolute; left:50%; transform:translateX(-50%); bottom:46px; z-index:6; width:min(780px, calc(100% - 20px)); flex-direction:column; gap:7px; pointer-events:none;}
+  .stage.surf .surf-bar{display:flex;}
+  .surf-bar > *{pointer-events:auto;}
+  .sb-info{align-self:center; font-size:9px; letter-spacing:0.12em; color:var(--text); text-align:center; text-shadow:0 0 10px #000, 0 0 6px #000, 0 0 3px #000;}
+  .sb-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
+  .sb-ctl{display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(0,0,0,0.6); border:1px solid var(--line); font-size:9px; letter-spacing:0.08em; color:var(--text-dim);}
+  .sb-ctl input[type=range]{width:min(150px, 30vw); flex:none;}
+  .sb-ctl b{color:var(--red); min-width:42px; text-align:right; font-weight:700;}
+  .sb-ctl > span{color:var(--red); font-weight:700; letter-spacing:0.1em; text-shadow:0 0 6px #000;}
+  .sb-ctl #sbSpeedLabel{white-space:nowrap;}
+  .sb-ctl.paused{border-color:var(--red); box-shadow:0 0 14px rgba(255,43,43,0.35);}
+  .sb-ctl.paused #sbSpeedLabel{color:var(--red); font-weight:700;}
+  .sb-chips{display:flex; gap:6px; justify-content:center; overflow-x:auto; max-width:100%; padding-bottom:2px;}
+  .sb-chip{font-family:inherit; font-size:9.5px; letter-spacing:0.05em; white-space:nowrap; display:flex; align-items:center; gap:6px; padding:6px 10px; background:rgba(0,0,0,0.6); color:var(--text-dim); border:1px solid var(--line); cursor:pointer;}
+  .sb-chip i{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  .sb-chip:hover{color:var(--text); border-color:var(--red-dim);}
+  .sb-chip.on{color:var(--red); border-color:var(--red); background:rgba(255,43,43,0.14);}
+  .sb-chip.moon{color:var(--moon);}
+  .sb-chip.moon.on{border-color:var(--moon); background:rgba(94,200,230,0.14);}
+  /* in surface view the buttons that do nothing there are hidden, and the top speed control moves into the bar */
+  .stage.surf #hzToggleBtn, .stage.surf #physicsBtn, .stage.surf #resetViewBtn, .stage.surf #levelBtn{display:none;}
+  .stage.surf .speed-ctrl{display:none;}
+  @media (pointer:coarse){ .surf-bar{bottom:58px;} .sb-chip{font-size:11px; padding:10px 12px;} .sb-ctl{font-size:10px;} .sb-info{font-size:10px;} }
+  @media (max-width:700px){ .surf-bar{bottom:96px;} .sb-chips{justify-content:flex-start;} }
+  /* ── STAR HOVER VIEW + camera preset buttons ── */
+  .stage:not(.starview) #sbAltCtl{display:none;}
+  .stage.surf #viewTopBtn, .stage.surf #viewAngBtn, .stage.surf #viewEdgeBtn{display:none;}
+  .stage.surf #labelsBtn:not(.off){color:#ff4a4a; border-color:#ff2b2b; background:rgba(255,43,43,0.14);}
+  .sb-clean{font-family:inherit; cursor:pointer; color:var(--red); font-weight:700; letter-spacing:0.1em;}
+  .sb-clean:hover{border-color:var(--red);}
+  .stage.clean .surf-bar, .stage.clean .stage-toggles, .stage.clean .tag, .stage.clean .physics-log, .stage.clean #fsBtn, .stage.clean .speed-ctrl{display:none !important;}
+  .sb-show{position:absolute; z-index:7; left:50%; bottom:10px; transform:translateX(-50%); font-family:inherit; font-size:9px; letter-spacing:0.12em; padding:7px 12px; background:rgba(0,0,0,0.35); color:var(--text); border:1px solid rgba(255,255,255,0.18); cursor:pointer; opacity:0.35; transition:opacity .2s;}
+  .sb-show:hover, .sb-show:focus{opacity:1;}
+  .sb-show[hidden]{display:none;}
+  .sb-chip.star{color:#ffd27a;}
+  .sb-chip.star.on{border-color:#ffd27a; background:rgba(255,210,122,0.14);}
 </style>
 </head>
 <body>
@@ -499,16 +532,26 @@
           <button class="fs-btn attn" id="physicsBtn" aria-pressed="false" title="Realistic mode (R): every body pulls on every other one (N-body gravity) and distances are true to scale. OFF = idealized Kepler orbits.">⚛ REALISTIC MODE: OFF</button>
           <button class="fs-btn" id="labelsBtn" aria-pressed="true" title="Show or hide the name labels on stars, planets and moons (L)">🏷 LABELS: ON</button>
           <button class="fs-btn" id="resetViewBtn" title="Return the camera to the default view (V)">⟲ RESET VIEW</button>
+          <button class="fs-btn" id="viewTopBtn" title="Look straight down on the orbits">TOP</button>
+          <button class="fs-btn" id="viewAngBtn" title="Angled view of the orbits">ANGLED</button>
+          <button class="fs-btn" id="viewEdgeBtn" title="Edge-on: look along the orbit plane, the way a transit telescope sees the system">EDGE-ON</button>
           <button class="fs-btn" id="levelBtn" aria-pressed="false" title="Orbit tilt is measured from the sky plane, so a tilted system can look sideways. LEVEL makes the planets' orbit plane the floor of the camera (O).">⊥ LEVEL ORBITS: OFF</button>
           <button class="fs-btn" id="surfaceBtn" aria-pressed="false" title="Stand on the selected planet or moon and look at the sky (S). Click a planet first, or use the ⛰ button in the manifest.">⛰ SURFACE VIEW</button>
           <span class="watermark">rameshverse.com</span>
           <span class="drag-hint" id="dragHint">click any star or planet to jump to it, click empty space to return</span>
         </div>
         <div class="physics-log" id="physicsLog"></div>
-        <div class="surf-hud" id="surfHud">
-          <div class="surf-info" id="surfInfo"></div>
-          <div class="surf-lat"><span>LATITUDE</span><input type="range" id="surfLat" min="-85" max="85" step="1" value="30" aria-label="Latitude on the planet"><b id="surfLatOut">N 30°</b></div>
+        <div class="surf-bar" id="surfBar">
+          <div class="sb-info" id="surfInfo"></div>
+          <div class="sb-row">
+            <label class="sb-ctl" id="sbSpeedCtl"><span id="sbSpeedLabel">SPEED</span><input type="range" id="sbSpeed" min="0" max="200" value="70" step="1" aria-label="Simulation speed" title="Speed (logarithmic, 0 = paused). Double-click to reset."><b id="sbSpeedOut">25</b></label>
+            <label class="sb-ctl"><span>LATITUDE</span><input type="range" id="surfLat" min="-85" max="85" step="1" value="30" aria-label="Latitude on the planet"><b id="surfLatOut">N 30°</b></label>
+            <label class="sb-ctl" id="sbAltCtl"><span>ALTITUDE</span><input type="range" id="sbAlt" min="0" max="100" value="45" step="1" aria-label="Height above the star" title="How high you hover above the star, in star radii"><b id="sbAltOut">0.24×R</b></label>
+            <button type="button" class="sb-ctl sb-clean" id="sbClean" title="Hide every control and label for a clean view (C)">HIDE ALL</button>
+          </div>
+          <div class="sb-chips" id="sbChips" aria-label="Switch to another planet or moon"></div>
         </div>
+        <button class="sb-show" id="sbShow" type="button" hidden>SHOW CONTROLS · C</button>
         <button class="fs-btn" id="fsBtn" title="Fullscreen (F)">⛶ FULLSCREEN</button>
         <div class="speed-ctrl" id="speedCtrl">
           <span id="speedLabel" aria-live="polite">SPEED</span>
@@ -526,6 +569,8 @@
         <span><kbd>V</kbd> reset view</span>
         <span><kbd>O</kbd> level orbits</span>
         <span><kbd>S</kbd> surface view</span>
+        <span><kbd>← →</kbd> other world (surface view)</span>
+        <span><kbd>C</kbd> clean view (surface view)</span>
         <span><kbd>F</kbd> fullscreen</span>
         <span><kbd>ESC</kbd> exit fullscreen</span>
       </div>
@@ -1312,9 +1357,16 @@ openPlanetBtn.addEventListener('click', function(){
     addBtn2.textContent = '+ ADD STAR';
     addBtn2.addEventListener('click', addStar);
     starChipRow.appendChild(addBtn2);
+    var hoverBtn = document.createElement('button');
+    hoverBtn.className = 'add-star-btn';
+    hoverBtn.textContent = '☀ HOVER OVER THIS STAR';
+    hoverBtn.title = 'Hover just above the selected star and look out at the system';
+    hoverBtn.addEventListener('click', function(){ surfaceEnter('star', editingStarIndex); });
+    starChipRow.appendChild(hoverBtn);
     starCountOut.textContent = stars.length + (stars.length===1?' star':' stars');
     renderParentSelect(); // keeps the parent list in step with renamed / added / removed stars
     updateOrbitsStarUI();
+    if (sbChips) buildSurfChips();   // the surface bar lists the stars too
   }
 
   function addStar(){
@@ -1753,6 +1805,7 @@ openPlanetBtn.addEventListener('click', function(){
     moonCount.textContent = moons.length + (moons.length === 1 ? ' moon' : ' moons');
     moonManifest.style.display = moons.length ? '' : 'none';
     swallowSig = '';
+    buildSurfChips();   // the surface view's planet / moon buttons follow the manifest
   }
 
   // the ADD MOON button only works while there is at least one planet
@@ -2687,6 +2740,93 @@ openPlanetBtn.addEventListener('click', function(){
     });
   }
 
+  // ---- hovering over a star: surface of the star (granulation computed per pixel, so it stays sharp up close) ----
+  function makeStarGroundMaterial(col){
+    return new THREE.ShaderMaterial({
+      uniforms:{ tint:{ value:new THREE.Color(col) }, time:{ value:0 } },
+      vertexShader:'varying vec3 vP; varying vec3 vN; varying vec3 vV; void main(){ vP = normalize(position); vN = normalize(normalMatrix*normal); vec4 mv = modelViewMatrix*vec4(position,1.0); vV = -mv.xyz; gl_Position = projectionMatrix*mv; }',
+      fragmentShader:[
+        'uniform vec3 tint; uniform float time; varying vec3 vP; varying vec3 vN; varying vec3 vV;',
+        'float hh(vec3 p){ p = 50.0*fract(p*0.3183099 + vec3(0.71,0.113,0.419)); return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }',
+        'float vn(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0 - 2.0*f);',
+        '  return mix(mix(mix(hh(i), hh(i+vec3(1.0,0.0,0.0)), f.x), mix(hh(i+vec3(0.0,1.0,0.0)), hh(i+vec3(1.0,1.0,0.0)), f.x), f.y),',
+        '             mix(mix(hh(i+vec3(0.0,0.0,1.0)), hh(i+vec3(1.0,0.0,1.0)), f.x), mix(hh(i+vec3(0.0,1.0,1.0)), hh(i+vec3(1.0,1.0,1.0)), f.x), f.y), f.z); }',
+        // x = distance to the nearest cell point, y = (second nearest - nearest), z = random id of the nearest cell
+        'vec3 wor(vec3 p){',
+        '  vec3 i = floor(p); vec3 f = fract(p); float d1 = 9.0; float d2 = 9.0; float id = 0.0;',
+        '  for (int z=-1; z<=1; z++){ for (int y=-1; y<=1; y++){ for (int x=-1; x<=1; x++){',
+        '    vec3 g = vec3(float(x), float(y), float(z)); vec3 c = i + g;',
+        '    vec3 o = vec3(hh(c), hh(c + 17.0), hh(c + 43.0));',
+        '    vec3 r = g + o - f; float d = dot(r, r);',
+        '    if (d < d1){ d2 = d1; d1 = d; id = hh(c + 71.0); } else if (d < d2){ d2 = d; }',
+        '  } } }',
+        '  return vec3(sqrt(d1), sqrt(d2) - sqrt(d1), id);',
+        '}',
+        'void main(){',
+        '  vec3 p = normalize(vP);',
+        '  vec3 w = vec3(vn(p*9.0), vn(p*9.0 + 5.2), vn(p*9.0 + 9.1)) - 0.5;',
+        '  vec3 a = wor(p*120.0 + w*5.0);',                                // cells, warped so they are not a regular tiling
+        '  vec3 b = wor(p*480.0 + w*14.0 + 3.7);',                         // fine grain
+        '  float edge = smoothstep(0.0, 1.1, a.y);',                      // 0 on the lanes between cells, 1 inside a cell
+        '  float core = 1.0 - smoothstep(0.0, 0.85, a.x);',
+        '  float cellL = (0.9 + 0.18*core)*(0.93 + 0.14*a.z)*(0.95 + 0.1*b.z);',
+        '  cellL *= 0.9 + 0.2*vn(p*7.0 + 2.0);',                           // slow mottling
+        '  cellL *= 1.0 - 0.4*smoothstep(0.64, 0.74, vn(p*3.2 + 9.0));',   // a few cooler starspot regions
+        '  cellL *= 1.0 + 0.07*sin(time*1.3 + a.z*40.0);',                 // the cells slowly boil
+        '  vec3 hot = tint*1.7*cellL;',
+        '  hot = mix(hot, vec3(1.0), smoothstep(1.0, 1.5, cellL)*0.12);',
+        '  vec3 lane = tint*vec3(1.0, 0.76, 0.56)*1.0;',                   // the lanes are cooler and redder, not grey
+        '  vec3 c = mix(lane, hot, edge);',
+        '  float mu = clamp(dot(normalize(vN), normalize(vV)), 0.0, 1.0);',
+        '  c *= (1.0 - 0.22*(1.0 - mu))*vec3(1.0, mix(0.95, 1.0, mu), mix(0.88, 1.0, mu));',
+        '  c += tint*pow(1.0 - mu, 5.0)*0.4;',
+        '  c = vec3(1.0) - exp(-c*1.15);',                                // soft tone curve: hot cells glow towards white
+        '  gl_FragColor = vec4(c, 1.0);',
+        '}'
+      ].join('\n')
+    });
+  }
+  // soft glow hugging the star's edge (works from outside and from inside the shell)
+  function makeCoronaMaterial(col, strength){
+    return new THREE.ShaderMaterial({
+      uniforms:{ tint:{ value:new THREE.Color(col) }, k:{ value:strength } },
+      transparent:true, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false,
+      vertexShader:'varying vec3 vN; varying vec3 vV; void main(){ vN = normalize(normalMatrix*normal); vec4 mv = modelViewMatrix*vec4(position,1.0); vV = -mv.xyz; gl_Position = projectionMatrix*mv; }',
+      fragmentShader:'uniform vec3 tint; uniform float k; varying vec3 vN; varying vec3 vV;\n' +
+        'void main(){ float mu = abs(dot(normalize(vN), normalize(vV)));\n' +
+        ' float rim = pow(1.0 - mu, 2.2)*smoothstep(0.0, 0.35, mu);\n' +
+        ' gl_FragColor = vec4(mix(tint, vec3(1.0), 0.35)*rim*k, 1.0); }'
+    });
+  }
+
+  function hzRingMaterial(rIn, rOut){
+    // habitable-zone band: a very faint green wash that fades out softly at both edges (no hard ring line)
+    return new THREE.ShaderMaterial({
+      uniforms:{ col:{ value:new THREE.Color(0x39d98a) }, rIn:{ value:rIn }, rOut:{ value:rOut }, k:{ value:0.05 } },
+      transparent:true, side:THREE.DoubleSide, depthWrite:false,
+      vertexShader:'varying float vR; void main(){ vR = length(position.xy); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+      fragmentShader:'uniform vec3 col; uniform float rIn; uniform float rOut; uniform float k; varying float vR;\n' +
+        'void main(){ float t = (vR - rIn)/max(rOut - rIn, 1e-6); float a = smoothstep(0.0, 0.4, t)*smoothstep(1.0, 0.6, t); gl_FragColor = vec4(col, a*k); }'
+    });
+  }
+
+  // Planet atmosphere: a thin shell just above the surface. It glows only at the limb, fades smoothly outward,
+  // is strong on the side facing the star and almost gone on the night side (the old flat round halo looked fake).
+  // `sun` is the direction from the planet to its star, updated every frame.
+  function makeAtmosphereMaterial(col){
+    return new THREE.ShaderMaterial({
+      uniforms:{ tint:{ value:col }, sun:{ value:new THREE.Vector3(1, 0, 0) } },
+      transparent:true, side:THREE.FrontSide, blending:THREE.AdditiveBlending, depthWrite:false,
+      vertexShader:'varying vec3 vN; varying vec3 vV; varying vec3 vWN; void main(){ vN=normalize(normalMatrix*normal); vWN=normalize(mat3(modelMatrix)*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=-mv.xyz; gl_Position=projectionMatrix*mv; }',
+      fragmentShader:'uniform vec3 tint; uniform vec3 sun; varying vec3 vN; varying vec3 vV; varying vec3 vWN;\n' +
+        'void main(){ float mu=clamp(dot(normalize(vN),normalize(vV)),0.0,1.0);\n' +
+        ' float rim=pow(1.0-mu,3.0)*smoothstep(0.0,0.3,mu);\n' +
+        ' float ndl=dot(normalize(vWN),normalize(sun)); float lit=smoothstep(-0.3,0.55,ndl);\n' +
+        ' vec3 c=mix(tint,vec3(1.0,0.62,0.42),smoothstep(0.35,-0.05,ndl)*0.4);\n' +
+        ' gl_FragColor=vec4(c*rim*(0.04+lit)*1.2,1.0); }'
+    });
+  }
+
   // ================= SMOOTH PROCEDURAL PLANET / MOON SURFACES =================
   // The old planet "texture" was a small 256x128 canvas painted with random circles: hard edges, a visible seam,
   // and it was re-rolled on every edit. Now the surface is computed per pixel on the GPU from 3D noise on the
@@ -2699,6 +2839,7 @@ openPlanetBtn.addEventListener('click', function(){
   var _frameTmp = new THREE.Quaternion();
   var _identityQ = new THREE.Quaternion();
   var _fe1 = new THREE.Vector3(), _fup = new THREE.Vector3(), _fe2 = new THREE.Vector3();
+  var _gv = new THREE.Vector3();   // scratch vector for the star-glow placement
 
   var BODY_KIND = { rocky:0, superearth:1, minineptune:2, ice:3, gas:4, dwarf:5, icy:6, volcanic:7 };
   function strHash(s){
@@ -3032,6 +3173,7 @@ openPlanetBtn.addEventListener('click', function(){
   lookOffset:new THREE.Vector3(0,0,0),
   lookTarget:new THREE.Vector3(0,0,0),
   goalVec:new THREE.Vector3(),
+  camTween:null,                                // smooth fly to the TOP / ANGLED / EDGE-ON presets
   lastT:performance.now()
 };
 
@@ -3110,7 +3252,7 @@ function handleStageClick(e){
 
     // zoom by a factor (>1 zooms out, <1 zooms in), within the limits that apply right now
     function zoomBy(factor){
-      if (surf){ surf.fov = Math.max(6, Math.min(110, surf.fov*factor)); return; }   // surface view: zoom = field of view
+      if (surf){ surf.targetFov = Math.max(6, Math.min(110, surf.targetFov*factor)); return; }   // surface view: zoom = field of view (eased in updateSurface)
       var minR, maxR;
       if (three.focusObj){
         var s = three.focusObj.userData.size || 0.02;
@@ -3139,6 +3281,7 @@ function handleStageClick(e){
 
     stage3d.addEventListener('pointerdown', function(e){
       three.autoRotate = false;
+      three.camTween = null;                     // grabbing the view cancels a running camera fly
       if (e.pointerType === 'touch'){
         touches[e.pointerId] = { x:e.clientX, y:e.clientY };
         var ids = touchIds();
@@ -3180,6 +3323,7 @@ function handleStageClick(e){
             if (three.pinchDist > 4 && dist > 4){
               zoomBy(three.pinchDist/dist);          // fingers apart = zoom in
               three.radius = three.targetRadius;     // follow the fingers directly, no easing lag
+              if (surf) surf.fov = surf.targetFov;   // same for the surface view
             }
             // pan only once the midpoint has clearly moved, so a pure pinch keeps a focus lock
             if (!three.pinchPan){
@@ -3260,7 +3404,7 @@ function handleStageClick(e){
     if (!three) return;
     // an edit rebuilds the scene: leave the surface and come back to the same world afterwards if it still exists
     var surfResume = null;
-    if (surf){ surfResume = { kind:surf.kind, ref:surf.ref, lat:surf.lat, yaw:surf.yaw, pitch:surf.pitch, fov:surf.fov }; surfaceExit(true); }
+    if (surf){ surfResume = { kind:surf.kind, ref:surf.ref, lat:surf.lat, yaw:surf.yaw, pitch:surf.pitch, fov:surf.fov, alt:surf.alt }; surfaceExit(true); }
     three.levelQ.setFromUnitVectors(Y_AXIS, levelUpVector());
     if (three.focusObj){
       // the focused mesh is about to be replaced, so ease back to the overview
@@ -3397,7 +3541,7 @@ function handleStageClick(e){
           var rIn = realDist ? band[0]*distK : auToUnits(Math.max(band[0],0.05));
           var rOut = realDist ? band[1]*distK : auToUnits(Math.min(band[1],50));
           if (!(rOut > rIn)) return;
-          var ringMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 256), new THREE.MeshBasicMaterial({color:0x39d98a, transparent:true, opacity:0.035, side:THREE.DoubleSide, depthWrite:false}));
+          var ringMesh = new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 256), hzRingMaterial(rIn, rOut));
           hzMesh.add(ringMesh);
         });
         // RingGeometry faces +Z; turn the group so the rings lie in the planets' orbital plane (flat when there is no tilt data)
@@ -3412,7 +3556,8 @@ function handleStageClick(e){
       group.add(label);
 
       var starObjEntry = { group:group, mesh:starMesh, star:s, visualRadius:starScale, parentIdx:0, orbitLine:null, hzMesh:hzMesh||null, trailLine:null,
-        fx:{ glowInner:glowInner||null, glowOuter:glowOuter||null, photon:photon||null, disk:disk||null, label:label, topY:topY, isBH:isBH } };
+        fx:{ glowInner:glowInner||null, glowOuter:glowOuter||null, photon:photon||null, disk:disk||null, label:label, topY:topY, isBH:isBH,
+             baseInner:(typeof glowBase === 'number') ? glowBase*4.6 : 0, baseOuter:(typeof glowBase === 'number') ? glowBase*11 : 0 } };
       three.starObjs.push(starObjEntry);
 
       if (idx>0){
@@ -3446,11 +3591,11 @@ function handleStageClick(e){
       mesh.userData.size = size;
       mesh.userData.orbitLine = line;
 
+      // atmosphere: a thin limb-lit shell (gas giants, ice giants, mini-Neptunes), not a flat round glow
       var atmo = null;
-      if (p.type.id==='gas' || p.type.id==='ice'){
-        var atmoMat = new THREE.SpriteMaterial({map:makeGlowTexture(), color:p.type.hex, transparent:true, opacity:0.5, blending:THREE.AdditiveBlending, depthWrite:false});
-        atmo = new THREE.Sprite(atmoMat);
-        atmo.scale.set(size*4.2, size*4.2, 1);
+      if (p.type.id==='gas' || p.type.id==='ice' || p.type.id==='minineptune'){
+        atmo = new THREE.Mesh(new THREE.SphereGeometry(1.07, 48, 32), makeAtmosphereMaterial(new THREE.Color(p.type.hex).lerp(new THREE.Color(1, 1, 1), 0.3)));
+        atmo.scale.setScalar(size);
         group.add(atmo);
       }
       three.planetAtmos.push(atmo);
@@ -3524,7 +3669,7 @@ function handleStageClick(e){
       sim = null;
     }
     if (surfResume){
-      var ri = surfResume.kind === 'moon' ? moons.indexOf(surfResume.ref) : planets.indexOf(surfResume.ref);
+      var ri = surfResume.kind === 'star' ? stars.indexOf(surfResume.ref) : (surfResume.kind === 'moon' ? moons.indexOf(surfResume.ref) : planets.indexOf(surfResume.ref));
       if (ri >= 0) surfaceEnter(surfResume.kind, ri, surfResume);
     }
     scheduleAutosave();   // every edit ends up here
@@ -3581,6 +3726,13 @@ function handleStageClick(e){
     });
     }
 
+    // atmosphere shells are lit from the side the star is on (the planet sits inside its star's group, so "toward the star" is minus its own position)
+    three.planetAtmos.forEach(function(a, i){
+      var pm = three.planetMeshes[i];
+      if (!a || !pm) return;
+      a.material.uniforms.sun.value.set(-pm.position.x, -pm.position.y, -pm.position.z);
+    });
+
     updateMoons();
     updateSwallowMarks();
     three.starObjs.forEach(function(so){
@@ -3622,6 +3774,12 @@ function handleStageClick(e){
       three.radius = three.targetRadius;
     }
 
+    if (three.camTween){
+      var tw = three.camTween; tw.t += dt/0.9;
+      var te = Math.min(1, tw.t); te = te*te*(3 - 2*te);
+      three.azimuth = tw.az0 + (tw.az1 - tw.az0)*te; three.polar = tw.pol0 + (tw.pol1 - tw.pol0)*te;
+      if (tw.t >= 1) three.camTween = null;
+    }
     if (three.autoRotate && !three.dragging) three.azimuth += 0.0016;
     // the camera orbits around the "up" of the current frame: the scene's own vertical normally,
     // or the planets' orbit normal when LEVEL ORBITS is on (the change glides smoothly)
@@ -3650,6 +3808,20 @@ function handleStageClick(e){
     }
     three.sky.position.copy(three.camera.position);
 
+    // Star glow sprites: put them just BEHIND the star's sphere along the line of sight. A flat sprite at the star's centre is cut
+    // by the sphere's own depth on the side facing the middle of the screen, which showed up as a hard white crescent
+    // (like a second star peeking out). The scale is boosted a little so the glow keeps the same size on screen.
+    three.starObjs.forEach(function(so){
+      var fx = so.fx;
+      if (!fx || fx.isBH || !fx.glowInner) return;
+      var gp = so.group.position, dist = three.camera.position.distanceTo(gp);
+      var off = so.visualRadius*1.05, k2 = (dist + off)/Math.max(dist, 1e-12);
+      _gv.copy(gp).sub(three.camera.position).normalize().multiplyScalar(off);   // star groups sit at the scene root, so this is also the local offset
+      var si = realDist ? fx.glowInner.scale.x : fx.baseInner, so2 = realDist ? fx.glowOuter.scale.x : fx.baseOuter;
+      fx.glowInner.position.copy(_gv); fx.glowInner.scale.set(si*k2, si*k2, 1);
+      fx.glowOuter.position.copy(_gv); fx.glowOuter.scale.set(so2*k2, so2*k2, 1);
+    });
+
     var drewSurface = false;
     if (surf){ drewSurface = updateSurface(dt); if (drewSurface) renderSurface(); }
     if (!drewSurface) three.renderer.render(three.scene, three.camera);
@@ -3665,17 +3837,86 @@ function handleStageClick(e){
   var surfG = null;          // renderer-side objects, built the first time the view is opened
   var surfaceBtn = document.getElementById('surfaceBtn');
   var levelBtn = document.getElementById('levelBtn');
-  var surfHud = document.getElementById('surfHud');
   var surfInfo = document.getElementById('surfInfo');
   var surfLat = document.getElementById('surfLat');
   var surfLatOut = document.getElementById('surfLatOut');
   var dragHintEl = document.getElementById('dragHint');
+  var sbSpeed = document.getElementById('sbSpeed');
+  var sbSpeedOut = document.getElementById('sbSpeedOut');
+  var sbSpeedLabel = document.getElementById('sbSpeedLabel');
+  var sbSpeedCtl = document.getElementById('sbSpeedCtl');
+  var sbChips = document.getElementById('sbChips');
+  // clean view: hides the bar, every button and every sky label. C or the faint button at the bottom brings them back.
+  var surfClean = false;
+  var sbCleanBtn = document.getElementById('sbClean'), sbShowBtn = document.getElementById('sbShow');
+  function setClean(on){ surfClean = !!on; stage.classList.toggle('clean', surfClean); sbShowBtn.hidden = !(surf && surfClean); }
+  sbCleanBtn.addEventListener('click', function(){ setClean(true); });
+  sbShowBtn.addEventListener('click', function(){ setClean(false); });
   var _sv = {
-    ea:new THREE.Vector3(), up:new THREE.Vector3(), no:new THREE.Vector3(), rel:new THREE.Vector3(),
+    ea:new THREE.Vector3(), up:new THREE.Vector3(), no:new THREE.Vector3(), rel:new THREE.Vector3(), e1:new THREE.Vector3(), nA:new THREE.Vector3(),
     M:new THREE.Matrix4(), q:new THREE.Quaternion(), qWL:new THREE.Quaternion(), qTmp:new THREE.Quaternion(),
     qRx:new THREE.Quaternion().setFromAxisAngle(X_AXIS, -Math.PI/2), look:new THREE.Vector3()
   };
   function sstep(a, b, x){ var u = Math.max(0, Math.min(1, (x - a)/(b - a))); return u*u*(3 - 2*u); }
+
+  // ---- surface bar: one button per planet and moon, so you can hop from world to world without leaving the surface ----
+  function surfWorlds(){
+    var a = [];
+    stars.forEach(function(s, i){ a.push({ kind:'star', idx:i }); });
+    planets.forEach(function(p, i){ a.push({ kind:'planet', idx:i }); });
+    moons.forEach(function(m, i){ a.push({ kind:'moon', idx:i }); });
+    return a;
+  }
+  function syncSurfBar(){
+    var w = surfWorlds();
+    [].forEach.call(sbChips.children, function(c, i){
+      var x = w[i];
+      c.classList.toggle('on', !!surf && !!x && surf.kind === x.kind && surf.idx === x.idx);
+    });
+  }
+  function starCssColor(s){
+    if (s.cls === 'BH') return '#ff9e4d';
+    var rgb = tempToRGB(s.T);
+    return '#' + new THREE.Color(rgb[0]/255, rgb[1]/255, rgb[2]/255).getHexString();
+  }
+  function buildSurfChips(){
+    sbChips.innerHTML = '';
+    surfWorlds().forEach(function(w){
+      var o = w.kind === 'star' ? stars[w.idx] : (w.kind === 'moon' ? moons[w.idx] : planets[w.idx]);
+      if (!o) return;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sb-chip' + (w.kind === 'moon' ? ' moon' : (w.kind === 'star' ? ' star' : ''));
+      b.title = (w.kind === 'star' ? 'Hover above ' : 'Stand on ') + o.name;
+      var dot = document.createElement('i');
+      dot.style.background = w.kind === 'star' ? starCssColor(o) : '#' + ('000000' + o.type.hex.toString(16)).slice(-6);
+      var sp = document.createElement('span');
+      sp.textContent = (w.kind === 'star' ? '☀ ' : '') + o.name;     // names go in as text, never as HTML
+      b.appendChild(dot); b.appendChild(sp);
+      b.addEventListener('click', function(){ surfaceEnter(w.kind, w.idx); });
+      sbChips.appendChild(b);
+    });
+    syncSurfBar();
+  }
+  function cycleSurface(d){
+    var w = surfWorlds();
+    if (w.length < 2 || !surf) return;
+    var cur = -1;
+    w.forEach(function(x, i){ if (x.kind === surf.kind && x.idx === surf.idx) cur = i; });
+    var n = w[(cur + d + w.length) % w.length];
+    surfaceEnter(n.kind, n.idx);
+  }
+
+  // ---- altitude control for the star hover view (in star radii, logarithmic: 0.02 to 5) ----
+  var sbAlt = document.getElementById('sbAlt'), sbAltOut = document.getElementById('sbAltOut');
+  function posToAlt(pos){ return 0.02*Math.pow(250, pos/100); }
+  function altToPos(a){ return 100*Math.log(a/0.02)/Math.log(250); }
+  function fmtAlt(a){ return (a < 1 ? a.toFixed(2) : a.toFixed(1)) + '×R'; }
+  sbAlt.addEventListener('input', function(){
+    var a = posToAlt(parseFloat(sbAlt.value));
+    if (surf) surf.alt = a;
+    sbAltOut.textContent = fmtAlt(a);
+  });
 
   var SURF_SKY_GLSL = [
     'uniform vec3 uSunDir[3]; uniform vec3 uSunCol[3]; uniform float uAtm; uniform vec3 uZen; uniform vec3 uHor;',
@@ -3707,8 +3948,9 @@ function handleStageClick(e){
     'vec3 tone(vec3 c){ return vec3(1.0) - exp(-c*1.25); }'
   ].join('\n');
 
+  // uOff moves the point the terrain is sampled at, so each latitude is different ground
   var SURF_TERRAIN_COMMON = [
-    'uniform float uAmp; uniform float uRidge; uniform float uCrater; uniform vec2 uSeedT;',
+    'uniform float uAmp; uniform float uRidge; uniform float uCrater; uniform vec2 uSeedT; uniform vec2 uOff;',
     'float tHash(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y)*p3.z); }',
     'float tNoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); f = f*f*(3.0 - 2.0*f);',
     '  return mix(mix(tHash(i), tHash(i + vec2(1.0,0.0)), f.x), mix(tHash(i + vec2(0.0,1.0)), tHash(i + vec2(1.0,1.0)), f.x), f.y); }',
@@ -3729,6 +3971,7 @@ function handleStageClick(e){
     'float tH(vec2 p){',
     '  float r = length(p);',
     '  float mask = smoothstep(14.0, 800.0, r);',          // flat clearing around the viewer, hills grow outward
+    '  p += uOff;',                                         // latitude: stand on different ground (the clearing stays centred on you)
     '  vec2 q = p*0.00022 + uSeedT;',
     '  float h = 0.0; float a = 0.5;',
     '  for (int i=0;i<7;i++){ h += a*tNoise(q); q = q*2.05 + vec2(5.2, 1.3); a *= 0.5; }',
@@ -3767,7 +4010,7 @@ function handleStageClick(e){
     '  vec3 N0 = normalize(vN);',
     '  float dist = length(vW - cameraPosition);',
     '  float mb = smoothstep(260.0, 10.0, dist); float kk = smoothstep(60.0, 6.0, dist);',
-    '  vec2 g = vW.xz; float n0 = micro(g, kk);',
+    '  vec2 g = vW.xz + uOff; float n0 = micro(g, kk);',   // same shift as the terrain shape, so colours follow the land
     '  vec3 N = N0;',
     '  if (mb > 0.01){ float e = 0.4; N = normalize(N0 + vec3(-(micro(g + vec2(e, 0.0), kk) - n0)/e, 0.0, -(micro(g + vec2(0.0, e), kk) - n0)/e)*0.3*mb); }',
     '  float pat = 0.6*tNoise(g*0.0035 + uSeedT*3.1) + 0.4*tNoise(g*0.02 + uSeedT*7.0);',
@@ -3911,7 +4154,7 @@ function handleStageClick(e){
 
     // terrain
     var tu = {
-      uAmp:{value:500}, uRidge:{value:0.4}, uCrater:{value:0}, uSeedT:{value:new THREE.Vector2()},
+      uAmp:{value:500}, uRidge:{value:0.4}, uCrater:{value:0}, uSeedT:{value:new THREE.Vector2()}, uOff:{value:new THREE.Vector2()},
       uC0:{value:new THREE.Color()}, uC1:{value:new THREE.Color()}, uC2:{value:new THREE.Color()}, uCs:{value:new THREE.Color()},
       uCloud:{value:0}, uVis:{value:9000}, uAmb:{value:new THREE.Color(0.01, 0.01, 0.012)}
     };
@@ -3964,6 +4207,11 @@ function handleStageClick(e){
       var isBH = s.cls === 'BH', col;
       if (isBH) col = new THREE.Color(1.0, 0.62, 0.3);
       else { var rgb = tempToRGB(s.T); col = new THREE.Color(rgb[0]/255, rgb[1]/255, rgb[2]/255); }
+      if (surf.kind === 'star' && surf.idx === i){   // the star you hover over is the ground below you: it only lights the other bodies
+        G.bodies.push({ kind:'star', idx:i, name:s.name, mesh:null, glow:null, photon:null, label:null, color:col, isBH:isBH,
+          rAU:s.R*AU_PER_RSUN, lum:starLuminosity(s), src:so.mesh, dir:new THREE.Vector3(), alive:false, hidden:true });
+        return;
+      }
       var mesh = new THREE.Mesh(G.sphere, isBH ? new THREE.MeshBasicMaterial({ color:0x000000 }) : makeStarMaterial(col, i));
       G.skyScene.add(mesh);
       var glow = null, photon = null;
@@ -4028,48 +4276,120 @@ function handleStageClick(e){
     return res;
   }
 
+  // ---- hovering over a star: the star is a huge sphere below you, drawn in the ground pass so it hides whatever is behind the horizon ----
+  var STAR_R_U = 1000;     // the star's radius in view units (sky bodies keep their true angular sizes)
+  function starProfile(s){
+    var label = s.cls === 'BH' ? 'EVENT HORIZON · NO LIGHT OF ITS OWN' : ('PHOTOSPHERE · ' + Math.round(s.T).toLocaleString('en-US') + ' K');
+    return { atm:0, camH:0, label:label, zen:new THREE.Color(0, 0, 0), hor:new THREE.Color(0, 0, 0) };
+  }
+  function disposeStarGround(){
+    var G = surfG;
+    if (!G || !G.starGnd) return;
+    G.gndScene.remove(G.starGnd.grp);
+    disposeTree(G.starGnd.grp);
+    G.starGnd = null;
+  }
+  function buildStarGround(s){
+    var G = surfG;
+    disposeStarGround();
+    var isBH = s.cls === 'BH', col;
+    if (isBH) col = new THREE.Color(1.0, 0.62, 0.3);
+    else { var rgb = tempToRGB(s.T); col = new THREE.Color(rgb[0]/255, rgb[1]/255, rgb[2]/255); }
+    var grp = new THREE.Group();
+    var sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), isBH ? new THREE.MeshBasicMaterial({ color:0x000000 }) : makeStarGroundMaterial(col));
+    sphere.scale.setScalar(STAR_R_U);
+    grp.add(sphere);
+    var c1 = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), makeCoronaMaterial(col, isBH ? 1.7 : 1.7)); c1.scale.setScalar(STAR_R_U*1.035); grp.add(c1);
+    var c2 = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), makeCoronaMaterial(col, isBH ? 0.5 : 0.95)); c2.scale.setScalar(STAR_R_U*1.6); grp.add(c2);
+    var c3 = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), makeCoronaMaterial(col, isBH ? 0.2 : 0.4)); c3.scale.setScalar(STAR_R_U*2.6); grp.add(c3);
+    var beamA = null, beamB = null;
+    if (s.cls === 'PSR'){
+      // a pulsar's two lighthouse beams, sweeping round as it spins
+      var bg = new THREE.CylinderGeometry(STAR_R_U*0.22, STAR_R_U*0.015, STAR_R_U*14, 16, 1, true);
+      bg.translate(0, STAR_R_U*7, 0);
+      var bm = new THREE.MeshBasicMaterial({ color:0xaee0ff, transparent:true, opacity:0.22, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+      beamA = new THREE.Mesh(bg, bm); beamB = new THREE.Mesh(bg, bm);
+      grp.add(beamA); grp.add(beamB);
+    }
+    G.gndScene.add(grp);
+    G.starGnd = { grp:grp, sphere:sphere, beamA:beamA, beamB:beamB };
+  }
+  function updateStarGround(S, G){
+    var sg = G.starGnd;
+    if (!sg) return;
+    sg.grp.position.set(0, -(STAR_R_U + S.alt*STAR_R_U), 0);
+    // the star's surface is fixed to the star: turn it to match where you hover (latitude) and let it slowly rotate beneath you
+    sg.sphere.quaternion.copy(_sv.qWL).multiply(new THREE.Quaternion().setFromAxisAngle(_sv.nA, t*0.3));
+    var u = sg.sphere.material.uniforms;
+    if (u && u.time) u.time.value = t*6;
+    if (sg.beamA){
+      var axis = _sv.nA.clone().applyMatrix4(_sv.M), p = _sv.e1.clone().applyMatrix4(_sv.M);
+      var ang = t*8, tilt = 0.9;
+      var pr = p.clone().multiplyScalar(Math.cos(ang)).addScaledVector(axis.clone().cross(p), Math.sin(ang));
+      var bd = axis.clone().multiplyScalar(Math.cos(tilt)).addScaledVector(pr, Math.sin(tilt)).normalize();
+      sg.beamA.quaternion.setFromUnitVectors(Y_AXIS, bd);
+      sg.beamB.quaternion.setFromUnitVectors(Y_AXIS, bd.clone().negate());
+    }
+  }
+
   function surfaceEnter(kind, idx, keep){
     if (!three) return;
-    var mesh = kind === 'moon' ? three.moonMeshes[idx] : three.planetMeshes[idx];
-    var src = kind === 'moon' ? moons[idx] : planets[idx];
-    if (!mesh || !src || mesh.userData.dead){ logPhysics('Pick a planet or moon that is still in the system'); return; }
+    var mesh = kind === 'star' ? (three.starObjs[idx] && three.starObjs[idx].mesh) : (kind === 'moon' ? three.moonMeshes[idx] : three.planetMeshes[idx]);
+    var src = kind === 'star' ? stars[idx] : (kind === 'moon' ? moons[idx] : planets[idx]);
+    if (!mesh || !src || mesh.userData.dead){ logPhysics('Pick a star, planet or moon that is still in the system'); return; }
     if (surf) surfaceExit(true);
     if (!surfG){
       try { surfG = surfaceBuild(); }
       catch (err){ logPhysics('Surface view needs WebGL: ' + err.message); return; }
     }
-    var G = surfG, prof = surfaceProfile(kind, src.type.id, src.type.hex);
-    var tu = G.tu, h = strHash('terrain|' + src.name + '|' + src.type.id);
-    tu.uAmp.value = prof.amp; tu.uRidge.value = prof.ridge; tu.uCrater.value = prof.crater; tu.uCloud.value = prof.cloud; tu.uVis.value = prof.vis;
-    tu.uSeedT.value.set(((h & 1023)/1023)*50, (((h >>> 10) & 1023)/1023)*50);
-    tu.uC0.value.copy(prof.c0); tu.uC1.value.copy(prof.c1); tu.uC2.value.copy(prof.c2); tu.uCs.value.copy(prof.cs);
-    G.uni.uAtm.value = prof.atm; G.uni.uZen.value.copy(prof.zen); G.uni.uHor.value.copy(prof.hor);
-    var latDeg = keep ? keep.lat*180/Math.PI : (parseFloat(surfLat.value) || 30);
-    surf = { kind:kind, idx:idx, ref:src, mesh:mesh, prof:prof, lat:latDeg*Math.PI/180, yaw:0, pitch:0.15, fov:70, frame:0, faced:false };
-    if (keep){ surf.yaw = keep.yaw; surf.pitch = keep.pitch; surf.fov = keep.fov; surf.faced = true; }
+    var G = surfG, prof, tu = G.tu;
+    if (kind === 'star'){
+      prof = starProfile(src);
+      G.terrain.visible = false;         // a star has no ground: the star itself is the ground
+      G.uni.uAtm.value = 0;
+    } else {
+      prof = surfaceProfile(kind, src.type.id, src.type.hex);
+      G.terrain.visible = true;
+      var h = strHash('terrain|' + src.name + '|' + src.type.id);
+      tu.uAmp.value = prof.amp; tu.uRidge.value = prof.ridge; tu.uCrater.value = prof.crater; tu.uCloud.value = prof.cloud; tu.uVis.value = prof.vis;
+      tu.uSeedT.value.set(((h & 1023)/1023)*50, (((h >>> 10) & 1023)/1023)*50);
+      tu.uC0.value.copy(prof.c0); tu.uC1.value.copy(prof.c1); tu.uC2.value.copy(prof.c2); tu.uCs.value.copy(prof.cs);
+      G.uni.uAtm.value = prof.atm; G.uni.uZen.value.copy(prof.zen); G.uni.uHor.value.copy(prof.hor);
+    }
+    var latDeg = keep ? keep.lat*180/Math.PI : (parseFloat(surfLat.value) || 30);   // the latitude you chose carries over to the next world
+    surf = { kind:kind, idx:idx, ref:src, mesh:mesh, prof:prof, lat:latDeg*Math.PI/180, yaw:0, pitch:(kind === 'star' ? -0.62 : 0.15), fov:70, targetFov:70, frame:0, faced:false, alt:(keep && keep.alt) ? keep.alt : 0.24 };
+    if (keep){ surf.yaw = keep.yaw; surf.pitch = keep.pitch; surf.fov = keep.fov; surf.targetFov = keep.fov; surf.faced = true; }
+    if (kind === 'star') buildStarGround(src);
+    stage.classList.toggle('starview', kind === 'star');
+    sbAlt.value = altToPos(surf.alt); sbAltOut.textContent = fmtAlt(surf.alt);
     surfLat.value = latDeg;
     surfLatOut.textContent = (latDeg >= 0 ? 'N ' : 'S ') + Math.abs(latDeg).toFixed(0) + '°';
     surfaceMakeBodies();
     three.autoRotate = false;
     if (!G.hintOrig) G.hintOrig = dragHintEl.textContent;
-    dragHintEl.textContent = (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) ? 'DRAG: LOOK AROUND · PINCH: ZOOM' : 'DRAG: LOOK AROUND · WHEEL: ZOOM · S / ESC: EXIT';
+    dragHintEl.textContent = (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) ? 'DRAG: LOOK AROUND · PINCH: ZOOM' : 'DRAG: LOOK AROUND · WHEEL: ZOOM · ← →: OTHER WORLD · S / ESC: EXIT';
     surfaceBtn.classList.add('active');
     surfaceBtn.textContent = '✕ EXIT SURFACE VIEW';
     surfaceBtn.setAttribute('aria-pressed', 'true');
-    surfHud.style.display = 'block';
+    stage.classList.add('surf');          // shows the bottom bar, hides the buttons that do nothing here
+    syncSurfBar();
     notToScaleEl.style.display = 'none';
-    stageTag.textContent = 'SURFACE · ' + src.name.toUpperCase();
+    stageTag.textContent = (kind === 'star' ? 'HOVERING OVER · ' : 'SURFACE · ') + src.name.toUpperCase();
     try { stage3d.scrollIntoView({ behavior:'smooth', block:'nearest' }); } catch (e){}
   }
 
   function surfaceExit(silent){
     if (!surf) return;
     surf = null;
+    if (!silent) setClean(false);   // leaving for real resets the clean view; switching worlds keeps it
     surfaceClearBodies();
     surfaceBtn.classList.remove('active');
     surfaceBtn.textContent = '⛰ SURFACE VIEW';
     surfaceBtn.setAttribute('aria-pressed', 'false');
-    surfHud.style.display = 'none';
+    stage.classList.remove('surf');
+    stage.classList.remove('starview');
+    disposeStarGround();
+    syncSurfBar();
     notToScaleEl.style.display = '';
     stageTag.textContent = systemNameInput.value.trim() || 'SYSTEM VIEW';
     if (surfG && surfG.hintOrig) dragHintEl.textContent = surfG.hintOrig;
@@ -4081,19 +4401,35 @@ function handleStageClick(e){
     var G = surfG, S = surf, mesh = S.mesh, prof = S.prof;
     if (!mesh.parent || mesh.userData.dead){ surfaceExit(); return false; }
     var P = realPositionsAU();
-    var obs = S.kind === 'moon' ? P.moons[S.idx] : P.planets[S.idx];
-    if (!obs){ surfaceExit(); return false; }
+    var obs = S.kind === 'star' ? null : (S.kind === 'moon' ? P.moons[S.idx] : P.planets[S.idx]);
+    if (!obs && S.kind !== 'star'){ surfaceExit(); return false; }
     var w = stage.clientWidth, h = stage.clientHeight;
     if (!w || !h) return false;
+    // ease the zoom in log space, so every wheel notch glides instead of jumping
+    var lf = Math.log(S.fov), ltf = Math.log(S.targetFov);
+    if (Math.abs(ltf - lf) > 0.0005) S.fov = Math.exp(lf + (ltf - lf)*(1 - Math.exp(-dt*9)));
+    else S.fov = S.targetFov;
+    G.tu.uOff.value.set(0, S.lat*34377);          // latitude moves you across the world: about 600 terrain units per degree
     var pxW = h/(2*SURF_D*Math.tan(S.fov*Math.PI/360));
     function wpx(px){ return px/pxW; }
 
     // local frame of the observer: X = east, Y = up, Z = south. It turns with the planet's spin, so the sky moves.
-    mesh.getWorldQuaternion(_sv.q);
     var cl = Math.cos(S.lat), sl = Math.sin(S.lat);
-    _sv.up.set(cl, sl, 0).applyQuaternion(_sv.q);
-    _sv.no.set(-sl, cl, 0).applyQuaternion(_sv.q);
-    _sv.ea.set(0, 0, -1).applyQuaternion(_sv.q);
+    if (S.kind === 'star'){
+      // hovering over a star: "up" points away from its centre; latitude 0 lies in the planets' orbit plane
+      _sv.nA.copy(hzPlaneNormal(S.idx));
+      _sv.e1.copy(Math.abs(_sv.nA.y) < 0.9 ? Y_AXIS : X_AXIS).cross(_sv.nA).normalize();
+      _sv.up.copy(_sv.e1).multiplyScalar(cl).addScaledVector(_sv.nA, sl);
+      _sv.no.copy(_sv.e1).multiplyScalar(-sl).addScaledVector(_sv.nA, cl);
+      _sv.ea.crossVectors(_sv.no, _sv.up);
+      var rAUs = stars[S.idx].R*AU_PER_RSUN;
+      obs = P.stars[S.idx].clone().addScaledVector(_sv.up, rAUs*(1 + S.alt));
+    } else {
+      mesh.getWorldQuaternion(_sv.q);
+      _sv.up.set(cl, sl, 0).applyQuaternion(_sv.q);
+      _sv.no.set(-sl, cl, 0).applyQuaternion(_sv.q);
+      _sv.ea.set(0, 0, -1).applyQuaternion(_sv.q);
+    }
     _sv.M.set(_sv.ea.x, _sv.ea.y, _sv.ea.z, 0,  _sv.up.x, _sv.up.y, _sv.up.z, 0,  -_sv.no.x, -_sv.no.y, -_sv.no.z, 0,  0, 0, 0, 1);
     _sv.qWL.setFromRotationMatrix(_sv.M);
 
@@ -4138,13 +4474,21 @@ function handleStageClick(e){
     var dim = 1 - Math.min(1, skyDay*prof.atm*1.4);
     G.stars.material.opacity = 1 - Math.min(1, skyDay*prof.atm*1.1)*0.97;
 
-    if (!S.faced && suns.length){ S.yaw = Math.atan2(suns[0].dir.x, -suns[0].dir.z); S.faced = true; }
+    if (!S.faced){
+      if (S.kind === 'star'){
+        var fp = null;                    // start by looking toward the nearest planet
+        G.bodies.forEach(function(b){ if (!fp && b.alive && b.kind === 'planet') fp = b; });
+        if (fp){ S.yaw = Math.atan2(fp.dir.x, -fp.dir.z); S.faced = true; }
+        else if (G.bodies.length) S.faced = true;
+      } else if (suns.length){ S.yaw = Math.atan2(suns[0].dir.x, -suns[0].dir.z); S.faced = true; }
+    }
 
     // draw each body at its true angular size
     G.bodies.forEach(function(b){
       var show = b.alive;
       [b.mesh, b.ring, b.glow, b.photon, b.dot, b.label].forEach(function(o){ if (o) o.visible = false; });
       if (!show) return;
+      if (b.hidden) return;
       var ang = Math.asin(Math.min(0.999, b.rAU/b.dist));
       var rW = SURF_D*Math.tan(ang), rpx = rW*pxW;
       b.mesh.position.copy(b.dir).multiplyScalar(SURF_D);
@@ -4180,7 +4524,7 @@ function handleStageClick(e){
       b.label.scale.set(lw, lw*0.255, 1);
       b.label.position.copy(b.mesh.position).multiplyScalar((SURF_D - 50)/SURF_D);
       b.label.position.y += rW + wpx(16);
-      b.label.visible = showLabels && b.dir.y > -0.03 && (b.kind === 'star' || dim > 0.02 || b.mesh.visible);
+      b.label.visible = showLabels && !surfClean && b.dir.y > -0.03 && (b.kind === 'star' || dim > 0.02 || b.mesh.visible);
     });
 
     // camera: you stand on the ground and look in the direction yaw (compass heading, 0 = north) / pitch
@@ -4190,6 +4534,7 @@ function handleStageClick(e){
     var cp = Math.cos(S.pitch);
     _sv.look.set(Math.sin(S.yaw)*cp, prof.camH + Math.sin(S.pitch), -Math.cos(S.yaw)*cp);
     cam.lookAt(_sv.look);
+    if (S.kind === 'star') updateStarGround(S, G);
 
     if ((++S.frame % 6) === 1){
       var s0 = suns[0], line1 = prof.label, line2 = '';
@@ -4197,7 +4542,8 @@ function handleStageClick(e){
         var el = Math.asin(Math.max(-1, Math.min(1, s0.dir.y)))*180/Math.PI;
         line2 = s0.name.toUpperCase() + ' ' + (el >= 0 ? '+' : '') + el.toFixed(0) + '° · ' + (el > 6 ? 'DAY' : (el > -8 ? 'TWILIGHT' : 'NIGHT'));
       } else line2 = 'NO STAR IN THE SKY';
-      surfInfo.textContent = line1 + '\n' + line2;
+      if (S.kind === 'star') line2 = 'HOVERING ' + Math.round(stars[S.idx].R*S.alt*695700).toLocaleString('en-US') + ' km ABOVE';
+      surfInfo.textContent = line1 + ' · ' + line2;
     }
     return true;
   }
@@ -4596,13 +4942,40 @@ showSysStatus('System reset.');
   resetViewBtn.addEventListener('click', resetView);
 
   // ---- level orbits: the planets' orbit plane becomes the floor of the camera (instead of the sky plane) ----
-  levelBtn.addEventListener('click', function(){
+  function setLevel(on){
     if (!three) return;
-    three.level = !three.level;
-    levelBtn.classList.toggle('on', three.level);
-    levelBtn.setAttribute('aria-pressed', three.level ? 'true' : 'false');
-    levelBtn.textContent = three.level ? '⊥ LEVEL ORBITS: ON' : '⊥ LEVEL ORBITS: OFF';
-  });
+    three.level = on;
+    levelBtn.classList.toggle('on', on);
+    levelBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    levelBtn.textContent = on ? '⊥ LEVEL ORBITS: ON' : '⊥ LEVEL ORBITS: OFF';
+  }
+  levelBtn.addEventListener('click', function(){ if (three) setLevel(!three.level); });
+
+  // ---- TOP / ANGLED / EDGE-ON: camera presets measured against the planets' orbit plane (same idea as the Kepler-11 explorer) ----
+  function flyCamera(kind){
+    if (!three) return;
+    if (surf) surfaceExit();
+    setLevel(true);                 // the orbit plane becomes the floor, so "top" and "edge-on" mean what they say
+    three.autoRotate = false;
+    var az0 = three.azimuth, az1 = az0;
+    var pol1 = kind === 'top' ? 0.06 : (kind === 'edge' ? Math.PI/2 : 1.05);
+    if (kind === 'edge'){
+      // when the orbits have tilt data, look along the line from Earth: that is how a transit telescope sees the system
+      var hasTilt = planets.some(function(p){ return p.inc !== null && p.inc !== undefined && isFinite(p.inc); });
+      if (hasTilt){
+        var f1 = X_AXIS.clone().applyQuaternion(three.levelQ), f2 = Z_AXIS.clone().applyQuaternion(three.levelQ);
+        var d1 = -f1.y, d3 = -f2.y;      // Earth lies on the -y side of the sky-plane frame
+        if (d1*d1 + d3*d3 > 1e-6){
+          az1 = Math.atan2(d3, d1);
+          az1 = az0 + ((((az1 - az0 + Math.PI) % (Math.PI*2)) + Math.PI*2) % (Math.PI*2) - Math.PI);   // shortest way round
+        }
+      }
+    }
+    three.camTween = { az0:az0, az1:az1, pol0:((three.polar % (Math.PI*2)) + Math.PI*2) % (Math.PI*2), pol1:pol1, t:0 };
+  }
+  document.getElementById('viewTopBtn').addEventListener('click', function(){ flyCamera('top'); });
+  document.getElementById('viewAngBtn').addEventListener('click', function(){ flyCamera('angled'); });
+  document.getElementById('viewEdgeBtn').addEventListener('click', function(){ flyCamera('edge'); });
 
   // ---- surface view ----
   surfaceBtn.addEventListener('click', function(){
@@ -4610,6 +4983,7 @@ showSysStatus('System reset.');
     var f = three && three.focusObj, kind = null, idx = -1;
     if (f && f.userData.planet){ kind = 'planet'; idx = three.planetMeshes.indexOf(f); }
     else if (f && f.userData.moon){ kind = 'moon'; idx = three.moonMeshes.indexOf(f); }
+    else if (f){ var si = three.starObjs.map(function(so){ return so.mesh; }).indexOf(f); if (si >= 0){ kind = 'star'; idx = si; } }
     if (idx < 0 && planets.length){
       kind = 'planet'; idx = 0;
       logPhysics('SURFACE VIEW of ' + planets[0].name + ' (click another planet or moon first to pick a different world)');
@@ -4647,6 +5021,11 @@ showSysStatus('System reset.');
     document.getElementById('speedLabel').textContent = paused ? '❚❚ PAUSED' : 'SPEED';
     document.getElementById('speedCtrl').classList.toggle('paused', paused);
     speedOut.textContent = speed < 10 ? speed.toFixed(speed === 0 ? 0 : 2) : String(Math.round(speed));
+    // the speed control inside the surface-view bar mirrors the main one
+    sbSpeed.value = speedToPos(speed);
+    sbSpeedOut.textContent = speedOut.textContent;
+    sbSpeedLabel.textContent = paused ? '❚❚ PAUSED' : 'SPEED';
+    sbSpeedCtl.classList.toggle('paused', paused);
   }
   function resetSpeed(){
     speedSlider.value = speedToPos(SPEED_DEFAULT);
@@ -4654,14 +5033,18 @@ showSysStatus('System reset.');
   }
   speedSlider.addEventListener('input', function(){ setSpeed(posToSpeed(parseFloat(speedSlider.value))); });
   speedSlider.addEventListener('dblclick', resetSpeed);
+  sbSpeed.addEventListener('input', function(){ speedSlider.value = sbSpeed.value; setSpeed(posToSpeed(parseFloat(sbSpeed.value))); });
+  sbSpeed.addEventListener('dblclick', resetSpeed);
   // touch screens have no reliable dblclick on a slider: a quick double-tap resets the speed too
   var lastSliderTap = 0;
-  speedSlider.addEventListener('pointerup', function(e){
+  function sliderTapReset(e){
     if (e.pointerType !== 'touch') return;
     var nowMs = Date.now();
     if (nowMs - lastSliderTap < 320){ resetSpeed(); lastSliderTap = 0; }
     else lastSliderTap = nowMs;
-  });
+  }
+  speedSlider.addEventListener('pointerup', sliderTapReset);
+  sbSpeed.addEventListener('pointerup', sliderTapReset);
   resetSpeed();
 
   // ---- keyboard shortcuts: SPACE pause / resume, R realistic mode, H habitable zone, F fullscreen ----
@@ -4696,6 +5079,8 @@ showSysStatus('System reset.');
     else if (k === 'f' || k === 'F') fsBtn.click();
     else if (k === 's' || k === 'S') surfaceBtn.click();
     else if (k === 'o' || k === 'O') levelBtn.click();
+    else if ((k === 'c' || k === 'C') && surf) setClean(!surfClean);
+    else if ((k === 'ArrowRight' || k === 'ArrowLeft') && surf && tag !== 'INPUT'){ e.preventDefault(); cycleSurface(k === 'ArrowRight' ? 1 : -1); }   // surface view: previous / next world
     else if (k === 'Escape' && surf && !isExpanded) surfaceExit();
   });
 
