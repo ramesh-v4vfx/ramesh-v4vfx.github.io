@@ -3066,9 +3066,72 @@
 }
 .unf-item.unf-note:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
 
+/* "remind me every N minutes" row */
+.notes-every {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+.notes-every input {
+  width: 64px;
+  background: #0e0e0f;
+  border: 1px solid rgba(255,43,43,0.2);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #ff3b3b;
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-align: center;
+  outline: none;
+}
+.notes-every input:focus { border-color: #ff2b2b; box-shadow: 0 0 0 3px rgba(255,43,43,.15); }
+
+/* notification notice: shown until notifications are allowed */
+.notes-perm {
+  margin: 0 0 12px;
+  padding: 10px 10px 10px 12px;
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: #fff;
+  background: rgba(255,176,32,0.07);
+  border: 1px solid rgba(255,176,32,0.55);
+  border-left: 3px solid #ffb020;
+}
+.notes-perm strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #ffb020;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.notes-perm-btn {
+  margin-top: 8px;
+  background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+  color: #ffb020;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(255,176,32,0.55);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.notes-perm-btn:hover,
+.notes-perm-btn:focus-visible { box-shadow: inset 0 0 0 1px #ffb020, 0 0 14px rgba(255,176,32,0.3); }
+.notes-perm[hidden], .notes-perm-btn[hidden] { display: none !important; }
+
 @media (max-width: 700px) {
-  .notes-fab-label { display: none; }
   .notes-fab { padding: 0 10px; }
+  .notes-every input { font-size: 16px; }
   .notes-form input { font-size: 16px; }   /* 16px stops iPhones zooming in when the box is focused */
   /* phones: the first block of the page starts below the button instead of behind it */
   body::before { content: ""; display: block; flex: none; order: -1; height: 34px; }
@@ -3817,16 +3880,26 @@
 <div id="systemLogTicker" aria-hidden="true"></div>
 
 <!-- TODAY'S NOTES: button (top right), panel and reminder toast. The logic is in the "TODAY'S NOTES" script near the bottom of the page. -->
-<button type="button" class="notes-fab" id="notesFab" aria-expanded="false" aria-controls="notesPanel" title="Today's notes">
-  <span aria-hidden="true">📝</span><span class="notes-fab-label">Notes</span><b class="notes-fab-badge" id="notesBadge" hidden>0</b>
+<button type="button" class="notes-fab" id="notesFab" aria-expanded="false" aria-controls="notesPanel" title="Today's note">
+  <span aria-hidden="true">📝</span><span class="notes-fab-label">Today's Note</span><b class="notes-fab-badge" id="notesBadge" hidden>0</b>
 </button>
 <section class="notes-panel" id="notesPanel" aria-label="Today's notes" hidden>
-  <h3>📝 Today's Notes</h3>
+  <h3>📝 Today's Note</h3>
   <p class="notes-date" id="notesDate"></p>
   <form class="notes-form" id="notesForm" autocomplete="off">
     <input type="text" id="notesInput" maxlength="160" placeholder="Note for today…" aria-label="New note">
     <button type="submit" class="notes-add">Add</button>
   </form>
+  <label class="notes-every" for="notesEvery">
+    Remind me every
+    <input type="number" id="notesEvery" min="1" max="720" step="1" value="60" inputmode="numeric">
+    minutes
+  </label>
+  <div class="notes-perm" id="notesPerm" role="note" hidden>
+    <strong id="notesPermTitle">⚠ Notifications are off</strong>
+    <span id="notesPermText"></span>
+    <button type="button" class="notes-perm-btn" id="notesPermBtn">Enable notifications</button>
+  </div>
   <ul id="notesList"></ul>
   <p class="notes-hint" id="notesHint"></p>
 </section>
@@ -5309,9 +5382,12 @@
 <script src="/libraries/rv-notify-client.js"></script>
 <script>
   /* ── TODAY'S NOTES ──
-     A small notepad for the day, opened from the NOTES button at the top right.
+     A small notepad for the day, opened from the TODAY'S NOTE button at the top right.
        • Click the button, type a message, press Enter: the note is saved and you are
-         reminded every hour until it is crossed out.
+         reminded every N minutes (the visitor's choice, 1–720, default 60; key
+         "rvNotesEveryMin") until it is crossed out.
+       • Until notifications are allowed, the panel shows a notice with an
+         ENABLE NOTIFICATIONS button (or how to unblock them / the iPhone Home Screen step).
        • ✕ crosses a note out. It stays on screen, struck through (↺ brings it back),
          and is removed the NEXT day, not at once.
        • A note works for the day it was written. If it was never crossed out it goes
@@ -5330,8 +5406,22 @@
      shows straight away. */
   (function () {
     const KEY  = 'rvDailyNotes';   // [{ id, text, day:'YYYY-MM-DD', created, remind, done, doneDay }]
-    const HOUR = 60 * 60 * 1000;
-    const TICK = 30 * 1000;
+    const EVERY_KEY = 'rvNotesEveryMin';   // the visitor's "remind me every N minutes" choice
+    const MIN_EVERY = 1, MAX_EVERY = 720, DEF_EVERY = 60;
+    const TICK = 15 * 1000;
+    function everyMin() {
+      let v = NaN;
+      try { v = parseInt(localStorage.getItem(EVERY_KEY), 10); } catch (e) { /* storage unavailable */ }
+      return Number.isFinite(v) && v >= MIN_EVERY && v <= MAX_EVERY ? v : DEF_EVERY;
+    }
+    const every = () => everyMin() * 60 * 1000;
+    function everyLabel() {
+      const m = everyMin();
+      if (m === 1) return 'every minute';
+      if (m === 60) return 'every hour';
+      if (m % 60 === 0) return 'every ' + (m / 60) + ' hours';
+      return 'every ' + m + ' minutes';
+    }
     const MAX_LEN = 160;
     const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -5339,9 +5429,11 @@
     const fab = $('notesFab'), badge = $('notesBadge'), panel = $('notesPanel'),
           dateEl = $('notesDate'), form = $('notesForm'), input = $('notesInput'),
           listEl = $('notesList'), hintEl = $('notesHint'), toast = $('notesToast'),
-          toastX = $('notesToastX'), toastTitle = $('notesToastTitle'), toastBody = $('notesToastBody');
+          toastX = $('notesToastX'), toastTitle = $('notesToastTitle'), toastBody = $('notesToastBody'),
+          everyEl = $('notesEvery'), permEl = $('notesPerm'), permTitle = $('notesPermTitle'),
+          permText = $('notesPermText'), permBtn = $('notesPermBtn');
     if (!fab || !badge || !panel || !dateEl || !form || !input || !listEl || !hintEl ||
-        !toast || !toastX || !toastTitle || !toastBody) return;
+        !toast || !toastX || !toastTitle || !toastBody || !everyEl || !permEl || !permTitle || !permText || !permBtn) return;
 
     function el(tag, cls, text) {
       const n = document.createElement(tag);
@@ -5423,7 +5515,7 @@
       if (!n) return;
       n.done = done;
       n.doneDay = done ? dayKey() : null;
-      if (!done) n.remind = Date.now();     // brought back: the next reminder is an hour from now
+      if (!done) n.remind = Date.now();     // brought back: the next reminder is one interval from now
       save(notes);
       changed();
     }
@@ -5442,15 +5534,46 @@
     }
 
     /* ── panel ── */
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isStandalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+
+    // The notice above the list, shown until notifications are allowed
+    function renderPerm() {
+      let title = '', text = '', button = false;
+      if (!('Notification' in window)) {
+        if (isIOS && !isStandalone) {
+          title = '⚠ Notifications need the Home Screen app';
+          text = 'On iPhone and iPad, open rameshverse in Safari, tap Share → Add to Home Screen, then open it from there to turn on reminders. Until then, reminders only pop up while this page is open.';
+        } else {
+          title = '⚠ No notifications in this browser';
+          text = 'This browser cannot show notifications, so reminders only pop up while this page is open.';
+        }
+      } else if (Notification.permission === 'default') {
+        title = '⚠ Notifications are off';
+        text = 'Turn them on so your reminders reach you when this tab is in the background or closed. Without them, reminders only pop up while this page is open.';
+        button = true;
+      } else if (Notification.permission === 'denied') {
+        title = '⚠ Notifications are blocked';
+        text = 'Your browser is blocking notifications from rameshverse. To get reminders, allow notifications for this site in your browser settings (the icon next to the web address), then reload the page.';
+      }
+      permEl.hidden = !title;
+      permTitle.textContent = title;
+      permText.textContent = text;
+      permBtn.hidden = !button;
+    }
+
     function renderHint() {
+      renderPerm();
       let msg;
+      const when = everyLabel();
       if (!storageOk) msg = 'This browser is not letting the page save notes.';
-      else if (!('Notification' in window)) msg = 'This browser cannot show notifications, so reminders pop up on this page only.';
-      else if (Notification.permission === 'granted') msg = pushOn
-        ? 'You get a reminder every hour, even when this page is closed.'
-        : 'You get a reminder every hour while rameshverse is open in your browser.';
-      else if (Notification.permission === 'denied') msg = 'Notifications are blocked for this site, so reminders pop up on this page only.';
-      else msg = 'Allow notifications when your browser asks, so the hourly reminders can reach you.';
+      else if (!('Notification' in window) || Notification.permission !== 'granted') msg = 'You get a reminder ' + when + ' while rameshverse is open.';
+      else if (pushOn) {
+        msg = 'You get a reminder ' + when + ', even when this page is closed.';
+        const end = new Date(); end.setHours(24, 0, 0, 0);
+        if (every() * PUSH_MAX < end.getTime() - Date.now()) msg += ' With the page closed, the next ' + PUSH_MAX + ' are sent; open rameshverse again to queue more.';
+      }
+      else msg = 'You get a reminder ' + when + ' while rameshverse is open in your browser.';
       hintEl.textContent = msg + '\nCrossed-out notes disappear tomorrow. Notes you do not cross out move to Unfinished Business.';
     }
 
@@ -5478,6 +5601,26 @@
       });
       renderHint();
     }
+
+    // "Remind me every N minutes"
+    everyEl.value = String(everyMin());
+    function applyEvery() {
+      let v = parseInt(everyEl.value, 10);
+      if (!Number.isFinite(v)) v = everyMin();
+      v = Math.min(MAX_EVERY, Math.max(MIN_EVERY, v));
+      everyEl.value = String(v);
+      if (v === everyMin()) return;
+      try { localStorage.setItem(EVERY_KEY, String(v)); } catch (e) { /* storage unavailable */ }
+      lastFire = 0;
+      renderHint();
+      syncPush();
+    }
+    everyEl.addEventListener('change', applyEvery);
+    everyEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); applyEvery(); everyEl.blur(); } });
+
+    permBtn.addEventListener('click', function () {
+      askPermission().then(function () { renderHint(); syncPush(); });
+    });
 
     function openPanel() {
       hideToast();
@@ -5561,6 +5704,7 @@
        never touched. Work is queued one request at a time so a slow one can't land last. */
     const PUSH_LANE = 'notes';
     const PUSH_FLAG = 'rvNotesPushQueued';      // '1' while the worker may hold notes reminders
+    const PUSH_MAX = 24;                        // reminders handed to the worker at a time
     let pushOn = false;                         // the worker holds this page's hourly reminders
     let pushToken = 0;
     let pushChain = Promise.resolve();
@@ -5569,16 +5713,17 @@
     function flag(v) { try { if (v) localStorage.setItem(PUSH_FLAG, '1'); else localStorage.removeItem(PUSH_FLAG); } catch (e) { /* ignore */ } }
     function flagged() { try { return localStorage.getItem(PUSH_FLAG) === '1'; } catch (e) { return false; } }
 
-    // One reminder an hour from the next due time until midnight (a note only works for its own day)
+    // One reminder per interval from the next due time until midnight (a note only works for its own day)
     function pushPlan() {
       const now = Date.now(), today = dayKey();
       const open = loadFresh().filter(n => !n.done && n.day === today).sort((a, b) => a.created - b.created);
       if (!open.length) return [];
       const end = new Date(); end.setHours(24, 0, 0, 0);
       const d = digest(open), body = d.lines.join('\n').slice(0, 800);
-      let t = Math.max(Math.min.apply(null, open.map(n => n.remind)) + HOUR, now + 10000);
+      const step = every();
+      let t = Math.max(Math.min.apply(null, open.map(n => n.remind)) + step, now + 10000);
       const plan = [];
-      for (let i = 0; t < end.getTime() && i < 24; i++, t += HOUR) {
+      for (let i = 0; t < end.getTime() && i < PUSH_MAX; i++, t += step) {
         plan.push({ delayMs: t - now, title: d.title, body: body, tag: 'rv-notes-' + i });   // a different tag each time, so every one alerts
       }
       return plan;
@@ -5609,15 +5754,16 @@
       pushChain = pushChain.then(function () { return runPush(token); }).catch(function () { /* ignore */ });
     }
 
-    // One reminder an hour for everything still open today. It fires when the oldest
-    // reminder is an hour old, and lists every open note.
+    // One reminder per interval for everything still open today. It fires when the oldest
+    // reminder is one interval old, and lists every open note.
     let lastFire = 0;
     function remindDue() {
       const today = dayKey(), now = Date.now();
       const notes = loadFresh();
       const open = notes.filter(n => !n.done && n.day === today);
-      if (!open.length || !open.some(n => now - n.remind >= HOUR)) return;
-      if (now - lastFire < HOUR - TICK) return;      // safety net if storage refuses to save
+      const step = every();
+      if (!open.length || !open.some(n => now - n.remind >= step)) return;
+      if (now - lastFire < step - TICK) return;      // safety net if storage refuses to save
       lastFire = now;
       open.forEach(n => { n.remind = now; });
       save(notes);
