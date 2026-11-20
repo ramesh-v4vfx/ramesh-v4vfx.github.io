@@ -14,7 +14,8 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Interactive 3D globe. Rotate and click any country for capital, population, region, and flag, or search to jump straight to a place.">
+<meta name="theme-color" content="#050303">
+<meta name="description" content="Interactive 3D globe. Rotate and click any country for capital, population, region, and flag, or search to jump straight to a place. Shows India's official map when viewed from India.">
 
 <title>Globe Explorer — Interactive 3D World Map | rameshverse</title>
 
@@ -33,9 +34,13 @@
     --cyan:#00e5ff;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%; background:var(--bg);}
-  body{ color:var(--text); font-family:'Space Mono', monospace; overflow-x:hidden; }
-  .wrap{ max-width:1100px; margin:0 auto; padding:26px 20px 60px; }
+  html,body{min-height:100%; background:var(--bg);}
+  body{ color:var(--text); font-family:'Space Mono', monospace; overflow-x:hidden;
+        background:radial-gradient(ellipse 900px 480px at 50% -6%, rgba(255,43,43,.09), transparent 62%), var(--bg); }
+  .scan{ pointer-events:none; position:fixed; inset:0; z-index:50;
+         background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.022) 0, rgba(255,43,43,0.022) 1px, transparent 1px, transparent 3px); }
+  .wrap{ max-width:1100px; margin:0 auto; padding:56px 20px 60px; }
+  :focus-visible{ outline:1px solid var(--red); outline-offset:2px; }
 
   h1{
     font-size:clamp(26px, 5vw, 40px);
@@ -43,6 +48,7 @@
     text-transform:uppercase;
     font-weight:700;
     line-height:1.05;
+    text-shadow:0 0 18px rgba(255,43,43,.25);
   }
   h1 .dot{ color:var(--red); }
   .tagline{
@@ -50,11 +56,11 @@
     font-size:13px;
     margin-top:8px;
     margin-bottom:18px;
-    max-width:640px;
+    max-width:660px;
     line-height:1.6;
   }
 
-  .controls{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .controls{ display:flex; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
   input[type="text"]{
     flex:1 1 260px;
     background:var(--bg2);
@@ -63,8 +69,9 @@
     font-family:inherit;
     font-size:13px;
     padding:12px 14px;
+    border-radius:0;
   }
-  input[type="text"]:focus{ outline:none; border-color:var(--red); }
+  input[type="text"]:focus{ outline:none; border-color:var(--red); box-shadow:0 0 0 1px rgba(255,43,43,.25); }
   input[type="text"]::placeholder{ color:var(--text-dim); }
   button{
     background:transparent;
@@ -76,9 +83,13 @@
     text-transform:uppercase;
     padding:12px 16px;
     cursor:pointer;
+    border-radius:0;
     transition:all .15s ease;
   }
   button:hover{ background:var(--red); color:#0a0505; }
+  button.on{ background:rgba(255,43,43,.16); border-color:var(--red); color:#ff8a8a; }
+  button.on:hover{ background:var(--red); color:#0a0505; }
+  #searchMsg{ min-height:18px; font-size:11px; color:var(--red); letter-spacing:.05em; margin-bottom:10px; }
 
   .viewer{
     position:relative;
@@ -91,6 +102,7 @@
   .viewer:fullscreen{ aspect-ratio:auto; border:none; }
   #globeCanvas{ display:block; width:100%; height:100%; cursor:grab; touch-action:none; }
   #globeCanvas.dragging{ cursor:grabbing; }
+  #globeCanvas.over{ cursor:pointer; }
 
   .corners span{
     position:absolute; width:16px; height:16px;
@@ -112,17 +124,14 @@
   .hud.top-right{ top:14px; right:34px; text-align:right; }
   .hud .lbl{ color:var(--red); }
   .hud .val{ color:var(--text); }
+  .hud .cy{ color:var(--cyan); }
 
-  .fs-btn{
-    position:absolute; bottom:16px; right:16px; z-index:7;
+  .vbtns{ position:absolute; bottom:16px; right:16px; z-index:7; display:flex; gap:8px; }
+  .vbtns button{
     background:rgba(10,5,5,0.7);
-    border:1px solid var(--red-dim);
-    color:var(--red);
-    font-family:inherit; font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
-    padding:9px 14px; cursor:pointer; backdrop-filter:blur(2px);
-    transition:all .15s ease;
+    font-size:11px; padding:9px 14px; backdrop-filter:blur(2px);
   }
-  .fs-btn:hover{ background:var(--red); color:#0a0505; }
+  .vbtns button:hover{ background:var(--red); }
 
   .loading{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
@@ -158,8 +167,8 @@
     border-radius:50%;
     color:var(--text);
     font-size:16px; line-height:1; cursor:pointer; padding:0;
-}
-.info-card .close:hover{ background:var(--red); color:#0a0505; border-color:var(--red); }
+  }
+  .info-card .close:hover{ background:var(--red); color:#0a0505; border-color:var(--red); }
   .info-card .flag{
     width:100%;
     aspect-ratio:3/2;
@@ -167,42 +176,52 @@
     border:1px solid var(--line); margin-bottom:10px; display:block;
     background:var(--bg2);
   }
+  .info-card .flag.none{ display:none; }
   .info-card .name{ font-size:16px; font-weight:700; margin-bottom:8px; letter-spacing:0.02em; }
   .info-card .row{ font-size:11px; color:var(--text-dim); margin-bottom:4px; letter-spacing:0.03em; }
   .info-card .row b{ color:var(--text); font-weight:700; }
-  .info-card .loading-fact{ font-size:11px; color:var(--text-dim); }
 
   .caption{ margin-top:14px; font-size:11px; color:var(--text-dim); letter-spacing:0.04em; line-height:1.6; }
+  .caption b{ color:var(--text); font-weight:700; }
   footer{ text-align:center; color:var(--text-dim); font-size:10px; letter-spacing:0.1em; margin-top:40px; }
+  @media(max-width:600px){ .hud.top-left{left:26px;} .hud.top-right{display:none;} .vbtns button{padding:8px 10px;} }
 </style>
 </head>
 <body>
+<div class="scan"></div>
 <div class="wrap">
   <h1>GLOBE<span class="dot">·</span>EXPLORER</h1>
   <p class="tagline">Spin the Earth by hand and click any country for a quick readout — capital, population, region, flag. Search jumps straight to a place.</p>
 
   <div class="controls">
-    <input type="text" id="searchInput" placeholder="Search a country...">
-    <button id="searchBtn">Go</button>
+    <input type="text" id="searchInput" placeholder="Search a country..." list="countryList" autocomplete="off" spellcheck="false">
+    <datalist id="countryList"></datalist>
+    <button id="searchBtn" type="button">Go</button>
+    <button id="randomBtn" type="button" title="Jump to a random country">Random</button>
+    <button id="locBtn" type="button" title="Fly the globe to where you are">◎ My location</button>
   </div>
+  <div id="searchMsg" aria-live="polite"></div>
 
   <div class="viewer" id="viewer">
     <canvas id="globeCanvas"></canvas>
     <div class="corners"><span></span><span></span><span></span><span></span></div>
-    <div class="hud top-left" id="hudLeft">
-      <div><span class="lbl">MODE</span> <span class="val">DRAG TO ROTATE</span></div>
+    <div class="hud top-left">
+      <div><span class="lbl">MODE</span> <span class="val">DRAG TO ROTATE · SCROLL TO ZOOM</span></div>
       <div><span class="lbl">SELECT</span> <span class="val" id="selectedVal">NONE</span></div>
+      <div><span class="lbl">CURSOR</span> <span class="cy" id="hoverVal">—</span></div>
     </div>
     <div class="hud top-right">
       <div><span class="lbl">STATUS</span> <span class="val">LIVE</span></div>
+      <div><span class="lbl">REGION</span> <span class="val" id="regionVal">—</span></div>
     </div>
-    <button class="fs-btn" id="fsBtn">Fullscreen</button>
 
-    <button class="fs-btn" id="fsBtn">Fullscreen</button>
-    <button class="fs-btn" id="resetBtn" style="right:150px;">Reset</button>
+    <div class="vbtns">
+      <button id="resetBtn" type="button">Reset</button>
+      <button id="fsBtn" type="button">Fullscreen</button>
+    </div>
 
     <div class="info-card" id="infoCard">
-      <button class="close" id="infoClose">&times;</button>
+      <button class="close" id="infoClose" type="button" aria-label="Close">&times;</button>
       <img class="flag" id="infoFlag" alt="">
       <div class="name" id="infoName">—</div>
       <div class="row" id="infoCapital"></div>
@@ -216,9 +235,7 @@
 
   <p class="caption">Credit: Earth imagery by Reto Stöckli, NASA Earth Observatory, NASA Goddard Space Flight Center — enhancements by Robert Simmon. Public domain.</p>
 
-<p class="caption">Country boundary data: Natural Earth, via world-atlas. Public domain.</p>
-
-<p class="caption">Boundary data is simplified for speed, so a few countries that straddle the antimeridian (Russia, Fiji) may occasionally misidentify near their edges. Facts come from rameshverse's own country and territory datasets — places like Greenland or Puerto Rico fall back to territory info automatically.</p>
+  <p class="caption">Country boundary data: Natural Earth, via world-atlas. Public domain.</p>
 
 <footer>GLOBE·EXPLORER — PART OF THE RAMESHVERSE SCIENCE SUITE</footer>
 </div>
@@ -232,30 +249,37 @@
 <script type="module">
 import * as THREE from 'three';
 
-const canvas = document.getElementById('globeCanvas');
-const viewer = document.getElementById('viewer');
-const loadingScreen = document.getElementById('loadingScreen');
-const fsBtn = document.getElementById('fsBtn');
-const infoCard = document.getElementById('infoCard');
-const infoClose = document.getElementById('infoClose');
-const infoFlag = document.getElementById('infoFlag');
-const infoName = document.getElementById('infoName');
-const infoCapital = document.getElementById('infoCapital');
-const infoPopulation = document.getElementById('infoPopulation');
-const infoRegion = document.getElementById('infoRegion');
-const infoArea = document.getElementById('infoArea');
-const infoGdp = document.getElementById('infoGdp');
-const selectedVal = document.getElementById('selectedVal');
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
+const $ = id => document.getElementById(id);
+const canvas = $('globeCanvas'), viewer = $('viewer'), loadingScreen = $('loadingScreen');
+const fsBtn = $('fsBtn'), resetBtn = $('resetBtn');
+const infoCard = $('infoCard'), infoClose = $('infoClose'), infoFlag = $('infoFlag'), infoName = $('infoName');
+const infoCapital = $('infoCapital'), infoPopulation = $('infoPopulation'), infoRegion = $('infoRegion'), infoArea = $('infoArea'), infoGdp = $('infoGdp');
+const selectedVal = $('selectedVal'), hoverVal = $('hoverVal');
+const searchInput = $('searchInput'), searchBtn = $('searchBtn'), randomBtn = $('randomBtn'), searchMsg = $('searchMsg'), countryList = $('countryList');
 
 const EARTH_RADIUS = 2;
-const BORDER_CANVAS_W = 2048, BORDER_CANVAS_H = 1024;
+const BW = 2048, BH = 1024;
+const DEFAULT_CAMERA_Z = 6.2;
 
-// ---------- scene ----------
+/* ---------- India's official depiction of Jammu & Kashmir and Ladakh ----------
+   CLAIM.polys  : the areas India includes that the de facto map gives to Pakistan / China
+   CLAIM.outer  : the outer edge of that area (India's boundary)
+   CLAIM.shared : the edge it shares with Indian-administered territory (drawn as nothing in India view)
+   Derived from Natural Earth's India point-of-view dataset, simplified. */
+const CLAIM = {"polys":[[[72.52,35.9],[72.66,35.85],[72.79,35.84],[72.87,35.87],[73.04,35.86],[73.09,35.88],[73.15,35.82],[73.13,35.8],[73.13,35.72],[73.31,35.6],[73.38,35.59],[73.41,35.55],[73.44,35.56],[73.5,35.53],[73.77,35.52],[73.78,35.45],[73.73,35.42],[73.69,35.36],[73.72,35.22],[73.81,35.23],[73.95,35.17],[74.1,35.14],[74.12,35.11],[74.07,35.06],[74.1,35.01],[74.02,34.88],[73.89,34.81],[73.82,34.81],[73.71,34.76],[73.65,34.67],[73.66,34.63],[73.62,34.56],[73.58,34.59],[73.45,34.56],[73.4,34.38],[73.47,34.27],[73.52,34.01],[73.58,33.91],[73.57,33.8],[73.6,33.71],[73.57,33.63],[73.64,33.54],[73.61,33.52],[73.63,33.45],[73.57,33.39],[73.6,33.33],[73.6,33.25],[73.58,33.24],[73.65,33.18],[73.62,33.12],[73.81,33.02],[73.93,33.03],[73.98,32.97],[74.32,32.82],[74.34,32.87],[74.31,32.99],[74.15,33.04],[73.99,33.21],[74,33.27],[74.1,33.33],[74.16,33.49],[74.14,33.55],[73.98,33.65],[73.97,33.75],[74.03,33.83],[74.21,33.88],[74.27,33.96],[74.23,34.01],[73.98,34],[73.89,34.05],[73.89,34.11],[74,34.18],[73.99,34.22],[73.94,34.3],[73.83,34.32],[73.77,34.37],[73.8,34.42],[73.84,34.44],[73.86,34.52],[73.93,34.56],[73.92,34.64],[74.35,34.77],[74.66,34.69],[75.02,34.63],[75.21,34.64],[75.35,34.56],[75.61,34.5],[75.8,34.51],[76.02,34.68],[76.15,34.66],[76.44,34.76],[76.54,34.73],[76.65,34.75],[76.74,34.82],[76.76,34.92],[76.85,34.94],[76.92,34.92],[77.01,34.99],[77.04,35.11],[77.8,35.5],[77.66,35.46],[77.52,35.48],[77.51,35.58],[77.47,35.65],[77.42,35.64],[77.35,35.72],[77.21,35.71],[77.09,35.74],[77.01,35.82],[76.84,35.86],[76.78,35.91],[76.78,36.04],[76.72,36.16],[76.67,36.19],[76.47,36.22],[76.43,36.24],[76.39,36.31],[76.32,36.33],[76.24,36.32],[76.15,36.42],[75.98,36.45],[75.87,36.62],[75.73,36.72],[75.57,36.77],[75.51,36.75],[75.49,36.72],[75.43,36.72],[75.39,36.86],[75.35,36.92],[75.1,36.99],[74.92,36.97],[74.87,36.91],[74.82,36.99],[74.72,37.02],[74.66,37.05],[74.54,37.02],[74.54,36.96],[74.44,37],[74.24,36.9],[74.13,36.9],[74.09,36.83],[74.04,36.82],[73.83,36.88],[73.71,36.89],[73.72,36.85],[73.89,36.77],[73.88,36.71],[73.72,36.73],[73.68,36.7],[73.6,36.74],[73.42,36.75],[73.3,36.72],[73.21,36.71],[73.18,36.73],[73.07,36.7],[73.09,36.6],[73.06,36.54],[72.98,36.51],[72.98,36.47],[72.9,36.46],[72.88,36.38],[72.69,36.27],[72.62,36.28],[72.57,36.24],[72.56,36.15],[72.53,36.1],[72.59,36.02],[72.52,35.9]],[[77.8,35.5],[77.88,35.43],[77.99,35.49],[78.04,35.49],[78.06,35.45],[78,35.27],[78.13,35.06],[78.15,34.94],[78.21,34.85],[78.3,34.62],[78.38,34.58],[78.66,34.53],[78.8,34.42],[78.92,34.37],[78.98,34.31],[78.98,34.22],[78.9,34.16],[78.73,34.08],[78.72,33.99],[78.79,33.81],[78.78,33.55],[78.82,33.46],[78.92,33.39],[78.9,33.62],[79.01,33.63],[78.99,33.75],[78.9,33.91],[78.9,33.98],[78.94,34.01],[79.07,34],[79.13,34.03],[79.41,34.02],[79.5,34.11],[79.49,34.18],[79.53,34.18],[79.55,34.21],[79.51,34.39],[79.52,34.43],[79.71,34.42],[79.74,34.46],[79.7,34.52],[79.81,34.57],[79.87,34.66],[80.04,34.66],[80.09,34.78],[80.08,34.84],[80.16,34.95],[80.19,35.15],[80.26,35.27],[80.28,35.45],[80.33,35.48],[80.29,35.61],[80.11,35.68],[80,35.84],[79.92,35.82],[79.88,35.78],[79.74,35.8],[79.46,35.89],[79.4,35.96],[79.32,35.98],[79.18,35.94],[79.19,35.89],[79.13,35.84],[79.03,35.85],[78.97,35.89],[78.66,35.85],[78.55,35.78],[78.28,35.69],[78.23,35.65],[78.16,35.62],[78.1,35.54],[77.95,35.56],[77.89,35.48],[77.8,35.5]]],"outer":[[[77.8,35.5],[77.66,35.46],[77.52,35.48],[77.51,35.58],[77.47,35.65],[77.42,35.64],[77.35,35.72],[77.21,35.71],[77.09,35.74],[77.01,35.82],[76.84,35.86],[76.78,35.91],[76.78,36.04],[76.72,36.16],[76.67,36.19],[76.47,36.22],[76.43,36.24],[76.39,36.31],[76.32,36.33],[76.24,36.32],[76.15,36.42],[75.98,36.45],[75.87,36.62],[75.73,36.72],[75.57,36.77],[75.51,36.75],[75.49,36.72],[75.43,36.72],[75.38,36.89],[75.12,36.99],[74.94,36.98],[74.87,36.91],[74.82,36.99],[74.72,37.02],[74.66,37.05],[74.54,37.02],[74.54,36.96],[74.44,37],[74.24,36.9],[74.13,36.9],[74.09,36.83],[74.04,36.82],[73.83,36.88],[73.71,36.89],[73.72,36.85],[73.89,36.77],[73.88,36.71],[73.72,36.73],[73.68,36.7],[73.6,36.74],[73.42,36.75],[73.3,36.72],[73.21,36.71],[73.18,36.73],[73.07,36.7],[73.09,36.6],[73.06,36.54],[72.98,36.51],[72.98,36.47],[72.9,36.46],[72.88,36.38],[72.69,36.27],[72.62,36.28],[72.57,36.24],[72.56,36.15],[72.53,36.1],[72.59,36.02],[72.52,35.9],[72.66,35.85],[72.79,35.84],[72.87,35.87],[73.04,35.86],[73.09,35.88],[73.15,35.82],[73.13,35.8],[73.13,35.72],[73.31,35.6],[73.38,35.59],[73.41,35.55],[73.44,35.56],[73.5,35.53],[73.77,35.52],[73.78,35.45],[73.73,35.42],[73.69,35.36],[73.72,35.22],[73.81,35.23],[73.95,35.17],[74.1,35.14],[74.12,35.11],[74.07,35.06],[74.1,35.01],[74.02,34.88],[73.89,34.81],[73.82,34.81],[73.71,34.76],[73.65,34.67],[73.66,34.63],[73.62,34.56],[73.58,34.59],[73.45,34.56],[73.4,34.38],[73.47,34.27],[73.52,34.01],[73.58,33.91],[73.57,33.8],[73.6,33.71],[73.57,33.63],[73.64,33.54],[73.61,33.52],[73.63,33.45],[73.57,33.39],[73.6,33.33],[73.6,33.25],[73.58,33.24],[73.65,33.18],[73.62,33.12],[73.81,33.02],[73.93,33.03],[73.98,32.97],[74.32,32.82]],[[78.92,33.39],[78.9,33.62],[79.01,33.63],[78.99,33.75],[78.9,33.91],[78.9,33.98],[78.94,34.01],[79.07,34],[79.13,34.03],[79.41,34.02],[79.5,34.11],[79.49,34.18],[79.53,34.18],[79.55,34.21],[79.51,34.39],[79.52,34.43],[79.71,34.42],[79.74,34.46],[79.7,34.52],[79.81,34.57],[79.87,34.66],[80,34.65],[80.05,34.67],[80.09,34.78],[80.08,34.84],[80.16,34.95],[80.19,35.15],[80.26,35.27],[80.28,35.45],[80.33,35.47],[80.29,35.61],[80.11,35.68],[80,35.84],[79.92,35.82],[79.88,35.78],[79.74,35.8],[79.46,35.89],[79.4,35.96],[79.32,35.98],[79.18,35.94],[79.19,35.89],[79.13,35.84],[79.03,35.85],[78.97,35.89],[78.66,35.85],[78.55,35.78],[78.28,35.69],[78.23,35.65],[78.16,35.62],[78.1,35.54],[77.95,35.56],[77.89,35.48],[77.8,35.5]]],"shared":[[[74.32,32.82],[74.34,32.87],[74.31,32.99],[74.15,33.04],[73.99,33.21],[74,33.27],[74.1,33.33],[74.16,33.49],[74.14,33.55],[73.98,33.65],[73.97,33.75],[74.03,33.83],[74.21,33.88],[74.27,33.96],[74.23,34.01],[73.98,34],[73.89,34.05],[73.89,34.11],[74,34.18],[73.99,34.22],[73.94,34.3],[73.83,34.32],[73.77,34.37],[73.8,34.42],[73.84,34.44],[73.86,34.52],[73.93,34.56],[73.92,34.64],[74.35,34.77],[74.66,34.69],[75.02,34.63],[75.21,34.64],[75.35,34.56],[75.61,34.5],[75.8,34.51],[76.02,34.68],[76.15,34.66],[76.44,34.76],[76.54,34.73],[76.65,34.75],[76.74,34.82],[76.76,34.92],[76.85,34.94],[76.92,34.92],[77.01,34.99],[77.04,35.11],[77.8,35.5]],[[77.8,35.5],[77.88,35.43],[77.99,35.49],[78.04,35.49],[78.06,35.45],[78,35.27],[78.13,35.06],[78.15,34.94],[78.21,34.85],[78.3,34.62],[78.38,34.58],[78.66,34.53],[78.8,34.42],[78.92,34.37],[78.98,34.31],[78.98,34.22],[78.9,34.16],[78.73,34.08],[78.72,33.99],[78.79,33.81],[78.78,33.55],[78.82,33.46],[78.92,33.39]]]};
+
+function detectIndia(){
+  try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; if(/^Asia\/(Kolkata|Calcutta)$/.test(tz)) return true; }catch(e){}
+  try{ const langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || '']; if(langs.some(l => /-IN$/i.test(l))) return true; }catch(e){}
+  return false;
+}
+let indiaView = detectIndia();
+let userLoc = null;
+
+/* ---------- scene ---------- */
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
-camera.position.set(0, 0, 6.2);
+camera.position.set(0, 0, DEFAULT_CAMERA_Z);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -265,11 +289,12 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 const light = new THREE.DirectionalLight(0xffffff, 2.4);
 light.position.set(4, 2, 5);
 scene.add(light);
-scene.add(new THREE.AmbientLight(0x445566, 0.7));
+scene.add(new THREE.AmbientLight(0x445566, 0.8));
 
 function buildStarfield(){
   const starCount = 5000;
   const positions = new Float32Array(starCount * 3);
+  const colors = new Float32Array(starCount * 3);
   for(let i = 0; i < starCount; i++){
     const r = 80 + Math.random() * 120;
     const theta = Math.random() * Math.PI * 2;
@@ -277,10 +302,13 @@ function buildStarfield(){
     positions[i*3]     = r * Math.sin(phi) * Math.cos(theta);
     positions[i*3 + 1] = r * Math.sin(phi) * Math.sin(theta);
     positions[i*3 + 2] = r * Math.cos(phi);
+    const t = Math.random(), b = 0.55 + Math.random() * 0.45;
+    colors[i*3] = b * (t < 0.2 ? 1.0 : 0.92); colors[i*3+1] = b * (t < 0.2 ? 0.85 : 0.95); colors[i*3+2] = b * (t > 0.7 ? 1.0 : 0.9);
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.35, sizeAttenuation: true, transparent: true, opacity: 0.85 });
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const mat = new THREE.PointsMaterial({ vertexColors: true, size: 0.35, sizeAttenuation: true, transparent: true, opacity: 0.9 });
   return new THREE.Points(geo, mat);
 }
 scene.add(buildStarfield());
@@ -288,245 +316,266 @@ scene.add(buildStarfield());
 const globeGroup = new THREE.Group();
 scene.add(globeGroup);
 
-// ---------- earth ----------
+/* ---------- earth ---------- */
 const loader = new THREE.TextureLoader();
 const dayTex = loader.load('/earth-rotation-live/textures/earth_day.jpg', () => {
   loadingScreen.classList.add('hide');
 });
 dayTex.colorSpace = THREE.SRGBColorSpace;
+dayTex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 setTimeout(() => loadingScreen.classList.add('hide'), 4000);
 
-const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, 96, 96);
-const earthMat = new THREE.MeshPhongMaterial({ map: dayTex, shininess: 5 });
-const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+const earthMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(EARTH_RADIUS, 96, 96),
+  new THREE.MeshPhongMaterial({ map: dayTex, shininess: 5 })
+);
 globeGroup.add(earthMesh);
 
-// atmosphere glow
-const atmoGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.045, 96, 96);
-const atmoMat = new THREE.ShaderMaterial({
-  uniforms: { glowColor: { value: new THREE.Color(0x4fb8ff) } },
-  vertexShader: `varying vec3 vNormal; void main(){ vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-  fragmentShader: `uniform vec3 glowColor; varying vec3 vNormal; void main(){ float i = pow(0.68 - dot(vNormal, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(glowColor, i * 0.9); }`,
-  side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
-});
-scene.add(new THREE.Mesh(atmoGeo, atmoMat));
+// atmosphere: outer halo + thin inner rim on the limb
+scene.add(new THREE.Mesh(
+  new THREE.SphereGeometry(EARTH_RADIUS * 1.045, 96, 96),
+  new THREE.ShaderMaterial({
+    uniforms: { glowColor: { value: new THREE.Color(0x4fb8ff) } },
+    vertexShader: `varying vec3 vNormal; void main(){ vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader: `uniform vec3 glowColor; varying vec3 vNormal; void main(){ float i = pow(0.68 - dot(vNormal, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(glowColor, i * 0.9); }`,
+    side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+  })
+));
+scene.add(new THREE.Mesh(
+  new THREE.SphereGeometry(EARTH_RADIUS * 1.012, 96, 96),
+  new THREE.ShaderMaterial({
+    uniforms: { glowColor: { value: new THREE.Color(0x6cc4ff) } },
+    vertexShader: `varying vec3 vNormal; void main(){ vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader: `uniform vec3 glowColor; varying vec3 vNormal; void main(){ float f = 1.0 - max(dot(vNormal, vec3(0.0,0.0,1.0)), 0.0); gl_FragColor = vec4(glowColor, pow(f, 3.2) * 0.55); }`,
+    blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+  })
+));
 
-// border/highlight overlay
-const borderCanvas = document.createElement('canvas');
-borderCanvas.width = BORDER_CANVAS_W;
-borderCanvas.height = BORDER_CANVAS_H;
-const bctx = borderCanvas.getContext('2d');
+/* ---------- border / highlight overlay ---------- */
+const mk = () => { const c = document.createElement('canvas'); c.width = BW; c.height = BH; return c; };
+const borderCanvas = mk(), baseCanvas = mk(), scratchCanvas = mk(), scratch2Canvas = mk();
+const bctx = borderCanvas.getContext('2d'), basectx = baseCanvas.getContext('2d'), sctx = scratchCanvas.getContext('2d'), s2ctx = scratch2Canvas.getContext('2d');
 const borderTex = new THREE.CanvasTexture(borderCanvas);
-const borderGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.003, 96, 96);
-const borderMat = new THREE.MeshBasicMaterial({ map: borderTex, transparent: true, depthWrite: false });
-const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+borderTex.anisotropy = 4;
+const borderMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(EARTH_RADIUS * 1.003, 96, 96),
+  new THREE.MeshBasicMaterial({ map: borderTex, transparent: true, depthWrite: false })
+);
 globeGroup.add(borderMesh);
 
-function lonLatToPx(lon, lat){
-  const clampedLat = Math.max(-85, Math.min(85, lat)); // avoid extreme pole distortion
-  return [ (lon + 180) / 360 * BORDER_CANVAS_W, (90 - clampedLat) / 180 * BORDER_CANVAS_H ];
-}
+const px = (lon, lat) => [(lon + 180) / 360 * BW, (90 - lat) / 180 * BH];
+const OFFS = [-360, 0, 360];
 
-function drawRing(ring){
-  bctx.beginPath();
-  let broke = true;
-  ring.forEach((pt, i) => {
-    if(i > 0){
-      const prevLon = ring[i-1][0];
-      if(Math.abs(pt[0] - prevLon) > 180){
-        broke = true; // antimeridian crossing — start a new subpath
-      }
-    }
-    const [x, y] = lonLatToPx(pt[0], pt[1]);
-    if(broke){ bctx.moveTo(x, y); broke = false; }
-    else bctx.lineTo(x, y);
-  });
-  bctx.closePath();
-}
-
-function drawFeatureRings(feature, cb){
-  const geom = feature.geometry;
-  if(!geom) return;
-  if(geom.type === 'Polygon'){
-    geom.coordinates.forEach(ring => cb(ring));
-  } else if(geom.type === 'MultiPolygon'){
-    geom.coordinates.forEach(poly => poly.forEach(ring => cb(ring)));
+/* A ring is unwrapped across the antimeridian so Russia, Fiji, etc. draw and hit-test correctly.
+   Polar rings (Antarctica) wrap the whole globe, so they are kept as they are. */
+function prepRing(raw){
+  const out = [[raw[0][0], raw[0][1]]]; let off = 0;
+  for(let i = 1; i < raw.length; i++){
+    const d = raw[i][0] - raw[i-1][0];
+    if(d > 180) off -= 360; else if(d < -180) off += 360;
+    out.push([raw[i][0] + off, raw[i][1]]);
   }
+  let ring = out;
+  const polar = Math.abs(out[out.length-1][0] - out[0][0]) > 180;
+  if(polar) ring = raw.map(p => [p[0], p[1]]);
+  let mn = Infinity, mx = -Infinity, mnl = Infinity, mxl = -Infinity;
+  for(const p of ring){ if(p[0] < mn) mn = p[0]; if(p[0] > mx) mx = p[0]; if(p[1] < mnl) mnl = p[1]; if(p[1] > mxl) mxl = p[1]; }
+  ring.mn = mn; ring.mx = mx; ring.mnl = mnl; ring.mxl = mxl; ring.polar = polar;
+  return ring;
+}
+function prepFeature(f){
+  if(f._polys) return f._polys;
+  const g = f.geometry; let polys = [];
+  if(g && g.type === 'Polygon') polys = [g.coordinates];
+  else if(g && g.type === 'MultiPolygon') polys = g.coordinates;
+  f._polys = polys.map(poly => poly.map(prepRing));
+  return f._polys;
+}
+function pathPoly(ctx, poly){
+  for(const r of poly){
+    for(const o of (r.polar ? [0] : OFFS)){
+      if(r.mx + o < -180 || r.mn + o > 180) continue;
+      for(let i = 0; i < r.length; i++){ const [x, y] = px(r[i][0] + o, r[i][1]); if(i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+      ctx.closePath();
+    }
+  }
+}
+function pathFeature(ctx, f){ for(const poly of prepFeature(f)) pathPoly(ctx, poly); }
+function pathLines(ctx, lines){
+  for(const l of lines) l.forEach((p, i) => { const [x, y] = px(p[0], p[1]); if(i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+}
+function pathClaim(ctx){
+  for(const r of CLAIM.polys){ r.forEach((p, i) => { const [x, y] = px(p[0], p[1]); if(i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }); ctx.closePath(); }
 }
 
 let countryFeatures = [];
-let selectedFeature = null;
+let selectedFeature = null, hoverFeature = null, indiaFeature = null;
 
-function redrawBorders(){
-  bctx.clearRect(0, 0, BORDER_CANVAS_W, BORDER_CANVAS_H);
-  bctx.strokeStyle = 'rgba(255,120,120,0.35)';
-  bctx.lineWidth = 1;
-  countryFeatures.forEach(f => {
-    drawFeatureRings(f, ring => { drawRing(ring); bctx.stroke(); });
-  });
-  if(selectedFeature){
-    bctx.fillStyle = 'rgba(0,229,255,0.28)';
-    bctx.strokeStyle = 'rgba(0,229,255,0.95)';
-    bctx.lineWidth = 2;
-    const rings = [];
-    drawFeatureRings(selectedFeature, ring => rings.push(ring));
-    bctx.beginPath();
-    rings.forEach(ring => {
-      ring.forEach((pt, i) => {
-        const [x, y] = lonLatToPx(pt[0], pt[1]);
-        if(i === 0) bctx.moveTo(x, y); else bctx.lineTo(x, y);
-      });
-      bctx.closePath();
-    });
-    bctx.fill('evenodd');
-    rings.forEach(ring => { drawRing(ring); bctx.stroke(); });
+function drawBase(){
+  const c = basectx;
+  c.clearRect(0, 0, BW, BH);
+  c.strokeStyle = 'rgba(255,120,120,0.38)'; c.lineWidth = 1; c.lineJoin = 'round';
+  c.beginPath();
+  countryFeatures.forEach(f => pathFeature(c, f));
+  c.stroke();
+  if(indiaView && indiaFeature){
+    // wipe Pakistan's and China's lines inside India's claimed area, then draw India's outer boundary
+    c.save();
+    c.globalCompositeOperation = 'destination-out'; c.fillStyle = '#000'; c.lineWidth = 5;
+    c.beginPath(); pathClaim(c); c.fill(); c.stroke();
+    c.restore();
+    c.strokeStyle = 'rgba(255,120,120,0.55)'; c.lineWidth = 1.2;
+    c.beginPath(); pathLines(c, CLAIM.outer); c.stroke();
   }
+}
+
+function drawHighlight(f, fill, stroke, lw){
+  const a = sctx, b = s2ctx, isInd = f === indiaFeature, claimOn = indiaView && !!indiaFeature;
+  a.clearRect(0, 0, BW, BH); b.clearRect(0, 0, BW, BH);
+  a.lineJoin = b.lineJoin = 'round';
+  a.beginPath(); pathFeature(a, f); if(claimOn && isInd) pathClaim(a);
+  a.fillStyle = fill; a.fill('evenodd');
+  if(claimOn && isInd){ a.strokeStyle = fill; a.lineWidth = 1.6; a.beginPath(); pathClaim(a); a.stroke(); }   // closes the hairline between India and the added area
+  b.strokeStyle = stroke; b.lineWidth = lw;
+  b.beginPath(); pathFeature(b, f); b.stroke();
+  if(claimOn){
+    if(isInd){
+      b.save(); b.globalCompositeOperation = 'destination-out'; b.lineWidth = lw + 3;
+      b.beginPath(); pathLines(b, CLAIM.shared); b.stroke(); b.restore();                 // the old line of control disappears
+      b.strokeStyle = stroke; b.lineWidth = lw; b.beginPath(); pathLines(b, CLAIM.outer); b.stroke();
+    } else {
+      for(const c of [a, b]){                                                              // Pakistan / China highlight stops at India's boundary
+        c.save(); c.globalCompositeOperation = 'destination-out'; c.fillStyle = '#000'; c.lineWidth = 3;
+        c.beginPath(); pathClaim(c); c.fill(); c.stroke(); c.restore();
+      }
+    }
+  }
+  bctx.drawImage(scratchCanvas, 0, 0); bctx.drawImage(scratch2Canvas, 0, 0);
+}
+
+function redrawBorders(rebuildBase){
+  if(rebuildBase) drawBase();
+  bctx.clearRect(0, 0, BW, BH);
+  bctx.drawImage(baseCanvas, 0, 0);
+  if(hoverFeature && hoverFeature !== selectedFeature) drawHighlight(hoverFeature, 'rgba(255,255,255,0.13)', 'rgba(255,255,255,0.75)', 1.5);
+  if(selectedFeature) drawHighlight(selectedFeature, 'rgba(0,229,255,0.28)', 'rgba(0,229,255,0.95)', 2);
   borderTex.needsUpdate = true;
 }
 
-// ---------- capital marker ----------
+/* ---------- capital marker ---------- */
 function latLonToVector3(lat, lon, radius){
   const phi = (90 - lat) * Math.PI / 180;
   const theta = (lon + 180) * Math.PI / 180;
-  return new THREE.Vector3(
-    -radius * Math.sin(phi) * Math.cos(theta),
-    radius * Math.cos(phi),
-    radius * Math.sin(phi) * Math.sin(theta)
-  );
+  return new THREE.Vector3(-radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
 }
-
-function buildMarkerSprite(){
-  const size = 64;
-  const c = document.createElement('canvas'); c.width = c.height = size;
-  const ctx = c.getContext('2d');
-  const grad = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
-  grad.addColorStop(0, 'rgba(255,0,0,1)');
-  grad.addColorStop(0.15, 'rgba(255,0,0,0.7)');
-  grad.addColorStop(0.5, 'rgba(255,0,0,0)');
-  ctx.fillStyle = grad; ctx.fillRect(0,0,size,size);
-  const tex = new THREE.CanvasTexture(c);
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending });
-  const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(0.09, 0.09, 1);
-  return sprite;
+/* Two different markers: the capital is an amber diamond with slow square-ish ripples,
+   "you are here" is a cyan dot with a white edge and fast radar rings. */
+const canvasTexture = (draw, size = 128) => { const c = document.createElement('canvas'); c.width = c.height = size; draw(c.getContext('2d'), size); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
+const spriteMat = tex => new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending });
+const ringTexture = rgb => canvasTexture((g, s) => { g.strokeStyle = `rgba(${rgb},1)`; g.lineWidth = s * 0.05; g.beginPath(); g.arc(s/2, s/2, s * 0.44, 0, Math.PI * 2); g.stroke(); });
+const glowTexture = rgb => canvasTexture((g, s) => { const r = g.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2); r.addColorStop(0, `rgba(${rgb},0.85)`); r.addColorStop(0.35, `rgba(${rgb},0.25)`); r.addColorStop(1, `rgba(${rgb},0)`); g.fillStyle = r; g.fillRect(0, 0, s, s); });
+const diamondTexture = canvasTexture((g, s) => {
+  const c = s / 2, r = s * 0.34;
+  g.beginPath(); g.moveTo(c, c - r); g.lineTo(c + r * 0.72, c); g.lineTo(c, c + r); g.lineTo(c - r * 0.72, c); g.closePath();
+  g.fillStyle = '#ffc233'; g.fill(); g.lineWidth = s * 0.05; g.strokeStyle = '#fff4d0'; g.stroke();
+});
+const dotTexture = canvasTexture((g, s) => {
+  const c = s / 2;
+  g.beginPath(); g.arc(c, c, s * 0.3, 0, Math.PI * 2); g.fillStyle = '#ffffff'; g.fill();
+  g.beginPath(); g.arc(c, c, s * 0.22, 0, Math.PI * 2); g.fillStyle = '#00b8ff'; g.fill();
+});
+function buildMarker(coreTex, glowTex, ringTex, opts){
+  const group = new THREE.Group();
+  const glow = new THREE.Sprite(spriteMat(glowTex)); glow.scale.set(opts.glow, opts.glow, 1); glow.renderOrder = 3; group.add(glow);
+  const rings = [0, 1].map(() => { const r = new THREE.Sprite(spriteMat(ringTex)); r.renderOrder = 3; group.add(r); return r; });
+  const core = new THREE.Sprite(new THREE.SpriteMaterial({ map: coreTex, transparent: true, depthWrite: false, depthTest: true })); core.scale.set(opts.core, opts.core, 1); core.renderOrder = 4; group.add(core);
+  group.userData.update = t => {
+    const p = t * opts.speed;
+    rings.forEach((r, i) => { const k = (p + i * 0.5) % 1, sc = opts.core * 0.7 + k * opts.ring; r.scale.set(sc, sc, 1); r.material.opacity = (1 - k) * (1 - k) * 0.95; });
+    const beat = 1 + 0.08 * Math.sin(t * opts.speed * Math.PI * 4); core.scale.set(opts.core * beat, opts.core * beat, 1);
+    glow.material.opacity = 0.65 + 0.35 * Math.sin(t * opts.speed * Math.PI * 2);
+  };
+  group.visible = false;
+  return group;
 }
-
-const capitalMarker = buildMarkerSprite();
-capitalMarker.visible = false;
+const capitalMarker = buildMarker(diamondTexture, glowTexture('255,170,30'), ringTexture('255,194,51'), { core: 0.1, glow: 0.26, ring: 0.3, speed: 0.55 });
 globeGroup.add(capitalMarker);
-
+const youMarker = buildMarker(dotTexture, glowTexture('0,184,255'), ringTexture('0,229,255'), { core: 0.095, glow: 0.3, ring: 0.42, speed: 0.9 });
+globeGroup.add(youMarker);
 let markerPulse = 0;
 
-// ---------- point in polygon (even-odd across all rings, handles holes) ----------
+/* ---------- point in polygon ---------- */
 function pointInRing(lon, lat, ring){
   let inside = false;
   for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
-    const xi = ring[i][0], yi = ring[i][1];
-    const xj = ring[j][0], yj = ring[j][1];
-    const intersect = ((yi > lat) !== (yj > lat)) &&
-      (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
-    if(intersect) inside = !inside;
+    const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+    if(((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) inside = !inside;
   }
   return inside;
 }
-
-function findCountryAt(lon, lat){
-  for(const f of countryFeatures){
-    const geom = f.geometry;
-    if(!geom) continue;
-    let hit = false;
-    if(geom.type === 'Polygon'){
+function inFeature(f, lon, lat){
+  for(const poly of prepFeature(f)){
+    const outer = poly[0];
+    if(lat < outer.mnl || lat > outer.mxl) continue;
+    for(const o of (outer.polar ? [0] : OFFS)){
+      const x = lon + o;
+      if(x < outer.mn || x > outer.mx) continue;
       let inside = false;
-      geom.coordinates.forEach(ring => { if(pointInRing(lon, lat, ring)) inside = !inside; });
-      hit = inside;
-    } else if(geom.type === 'MultiPolygon'){
-      geom.coordinates.forEach(poly => {
-        let inside = false;
-        poly.forEach(ring => { if(pointInRing(lon, lat, ring)) inside = !inside; });
-        if(inside) hit = true;
-      });
+      for(const r of poly) if(pointInRing(x, lat, r)) inside = !inside;
+      if(inside) return true;
     }
-    if(hit) return f;
   }
+  return false;
+}
+function findCountryAt(lon, lat){
+  if(indiaView && indiaFeature && CLAIM.polys.some(r => pointInRing(lon, lat, r))) return indiaFeature;
+  for(const f of countryFeatures) if(inFeature(f, lon, lat)) return f;
   return null;
 }
 
-function normalizeName(s){ return (s || '').toLowerCase().trim(); }
+const normalizeName = s => (s || '').toLowerCase().trim();
+const plain = s => normalizeName(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
-// ---------- country facts (RameshVerse's own dataset, keyed by ISO alpha-2) ----------
-// Adjust this path if countries.json lives somewhere else on the site.
+/* ---------- facts (RameshVerse's own datasets, keyed by ISO) ---------- */
 const COUNTRY_DATA_URL = '/country-explorer/data/countries.json';
 let countryDataByIso = new Map();
+const ownCountriesReady = fetch(COUNTRY_DATA_URL).then(r => r.json()).then(list => {
+  list.forEach(c => { if(c.iso_alpha2) countryDataByIso.set(c.iso_alpha2.toUpperCase(), c); });
+}).catch(() => {});
 
-const ownCountriesReady = fetch(COUNTRY_DATA_URL)
-  .then(r => r.json())
-  .then(list => {
-    list.forEach(c => { if (c.iso_alpha2) countryDataByIso.set(c.iso_alpha2.toUpperCase(), c); });
-  })
-  .catch(() => { /* falls back gracefully — info card just shows "no data" */ });
-
-// ---------- territory facts (fallback for non-sovereign places like Greenland), keyed by ISO ----------
 const TERRITORY_DATA_URL = '/territory-explorer/data/territories.json';
 let territoryDataByIso = new Map();
+const territoriesReady = fetch(TERRITORY_DATA_URL).then(r => r.json()).then(list => {
+  list.forEach(t => { if(t.iso) territoryDataByIso.set(t.iso.toUpperCase(), t); });
+}).catch(() => {});
 
-const territoriesReady = fetch(TERRITORY_DATA_URL)
-  .then(r => r.json())
-  .then(list => {
-    list.forEach(t => { if (t.iso) territoryDataByIso.set(t.iso.toUpperCase(), t); });
-  })
-  .catch(() => { /* falls back gracefully — territories just show "no data" too */ });
-
-// ---------- name -> ISO bridge, built purely from our own datasets ----------
-// (world-atlas boundary shapes only carry a Natural Earth "name" label, no ISO code —
-// this matches that name against our own countries.json/territories.json "name" field
-// to find the iso code. No external API calls involved anywhere in this bridge.)
-
-let iso2ByName = new Map();
-let iso2ByNumeric = new Map();
-
-// ---------- capital coordinates, read from our own dataset once we add them ----------
-// Add "capital_lat" and "capital_lon" (numbers) to entries in countries.json /
-// territories.json to make the marker appear for that place. Until then, findCapitalCoords
-// simply returns null and the marker stays hidden — no external fallback of any kind.
-let capitalCoordsByIso = new Map();
+let iso2ByName = new Map(), iso2ByNumeric = new Map(), capitalCoordsByIso = new Map();
 
 function buildOwnLookups(){
   countryDataByIso.forEach((facts, iso2) => {
-    if (facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
-    if (facts.iso_numeric) iso2ByNumeric.set(String(Number(facts.iso_numeric)), iso2);
-    if (typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') {
-      capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
-    }
+    if(facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
+    if(facts.iso_numeric) iso2ByNumeric.set(String(Number(facts.iso_numeric)), iso2);
+    if(typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
   });
   territoryDataByIso.forEach((facts, iso2) => {
-    if (facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
-    if (facts.iso_numeric) iso2ByNumeric.set(String(Number(facts.iso_numeric)), iso2);
-    // guard: a territory must never overwrite a real country's capital coords
-    // just because they happen to share the same ISO code (e.g. Ross Dependency
-    // and New Zealand both use "NZ" in this dataset)
-    if (!countryDataByIso.has(iso2) &&
-        typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') {
-      capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
-    }
+    if(facts.name) iso2ByName.set(normalizeName(facts.name), iso2);
+    if(facts.iso_numeric) iso2ByNumeric.set(String(Number(facts.iso_numeric)), iso2);
+    // a territory must never overwrite a real country's capital coords (Ross Dependency vs New Zealand share "NZ")
+    if(!countryDataByIso.has(iso2) && typeof facts.capital_lat === 'number' && typeof facts.capital_lon === 'number') capitalCoordsByIso.set(iso2, { lat: facts.capital_lat, lon: facts.capital_lon });
   });
 }
-
 function findIsoByName(name){
   const key = normalizeName(name);
-  if (iso2ByName.has(key)) return iso2ByName.get(key);
-  for (const [k, v] of iso2ByName) {
-    if (k.includes(key) || key.includes(k)) return v;
-  }
+  if(!key) return null;
+  if(iso2ByName.has(key)) return iso2ByName.get(key);
+  const whole = (hay, needle) => needle.length >= 4 && (' ' + hay.replace(/[^a-z0-9]+/g, ' ') + ' ').includes(' ' + needle.replace(/[^a-z0-9]+/g, ' ').trim() + ' ');
+  for(const [k, v] of iso2ByName) if(whole(key, k) || whole(k, key)) return v;
   return null;
 }
-
-function findCapitalCoords(iso2){ return iso2 ? capitalCoordsByIso.get(iso2.toUpperCase()) : null; }
-function findCountryFacts(iso2){ return iso2 ? countryDataByIso.get(iso2.toUpperCase()) : null; }
-function findTerritoryFacts(iso2){ return iso2 ? territoryDataByIso.get(iso2.toUpperCase()) : null; }
-
-function flagUrlFor(iso2){
-  return iso2 ? `https://flagcdn.com/w320/${iso2.toLowerCase()}.png` : '';
-}
+const findCapitalCoords = iso2 => iso2 ? capitalCoordsByIso.get(iso2.toUpperCase()) : null;
+const findCountryFacts = iso2 => iso2 ? countryDataByIso.get(iso2.toUpperCase()) : null;
+const findTerritoryFacts = iso2 => iso2 ? territoryDataByIso.get(iso2.toUpperCase()) : null;
+const flagUrlFor = iso2 => iso2 ? `https://flagcdn.com/w320/${iso2.toLowerCase()}.png` : '';
 
 function formatGdp(usd){
   if(!usd) return null;
@@ -536,10 +585,24 @@ function formatGdp(usd){
   return `$${usd.toLocaleString()}`;
 }
 
-function getFeatureCentroid(feature){
-  let cx = 0, cy = 0, n = 0;
-  drawFeatureRings(feature, ring => { ring.forEach(pt => { cx += pt[0]; cy += pt[1]; n++; }); });
-  return n > 0 ? { lon: cx / n, lat: cy / n } : null;
+/* centre of the largest landmass (so France or the USA aren't pulled toward their islands) */
+function featureFocus(feature){
+  let best = null, bestA = -1;
+  for(const poly of prepFeature(feature)){
+    const r = poly[0]; let a = 0, cx = 0, cy = 0;
+    for(let i = 0, j = r.length - 1; i < r.length; j = i++){
+      const f = r[j][0] * r[i][1] - r[i][0] * r[j][1]; a += f; cx += (r[j][0] + r[i][0]) * f; cy += (r[j][1] + r[i][1]) * f;
+    }
+    const area = Math.abs(a / 2);
+    if(area > bestA && !r.polar){
+      bestA = area;
+      const k = a * 3;
+      best = { lon: k ? cx / k : (r.mn + r.mx) / 2, lat: k ? cy / k : (r.mnl + r.mxl) / 2, span: Math.max(r.mx - r.mn, (r.mxl - r.mnl) * 1.4) };
+    }
+  }
+  if(best && indiaView && feature === indiaFeature){ best.lon = 79; best.lat = 23; best.span = 34; }
+  if(best){ while(best.lon > 180) best.lon -= 360; while(best.lon < -180) best.lon += 360; }
+  return best;
 }
 
 function buildDisplayFromCountry(facts){
@@ -558,7 +621,6 @@ function buildDisplayFromCountry(facts){
     iso: facts.iso_alpha2
   };
 }
-
 function buildDisplayFromTerritory(facts){
   return {
     capitalLine: `<b>Capital:</b> ${facts.capital || '—'}`,
@@ -580,16 +642,13 @@ function selectCountry(feature){
   infoCard.classList.add('show');
   infoName.textContent = name;
   infoFlag.removeAttribute('src');
+  infoFlag.classList.add('none');
   capitalMarker.visible = false;
 
   let display = null;
   const countryFacts = findCountryFacts(iso2);
-  if(countryFacts){
-    display = buildDisplayFromCountry(countryFacts);
-  } else {
-    const territoryFacts = findTerritoryFacts(iso2);
-    if(territoryFacts) display = buildDisplayFromTerritory(territoryFacts);
-  }
+  if(countryFacts) display = buildDisplayFromCountry(countryFacts);
+  else { const t = findTerritoryFacts(iso2); if(t) display = buildDisplayFromTerritory(t); }
 
   if(display){
     infoCapital.innerHTML = display.capitalLine;
@@ -597,157 +656,211 @@ function selectCountry(feature){
     infoRegion.innerHTML = display.regionLine;
     infoArea.innerHTML = display.areaLine;
     infoGdp.innerHTML = display.extraLine;
-    if(display.iso) infoFlag.src = flagUrlFor(display.iso);
+    if(display.iso){ infoFlag.classList.remove('none'); infoFlag.src = flagUrlFor(display.iso); }
   } else {
     infoCapital.textContent = 'No data on file for this place yet.';
-    infoPopulation.textContent = '';
-    infoRegion.textContent = '';
-    infoArea.textContent = '';
-    infoGdp.textContent = '';
+    infoPopulation.textContent = ''; infoRegion.textContent = ''; infoArea.textContent = ''; infoGdp.textContent = '';
   }
 
   const capitalCoords = findCapitalCoords(iso2);
   if(capitalCoords){
     capitalMarker.position.copy(latLonToVector3(capitalCoords.lat, capitalCoords.lon, EARTH_RADIUS * 1.02));
     capitalMarker.visible = true;
-  } else {
-    capitalMarker.visible = false;
   }
 }
+infoFlag.addEventListener('error', () => infoFlag.classList.add('none'));
 
-infoClose.addEventListener('click', () => {
+function clearSelection(){
   selectedFeature = null;
   redrawBorders();
   infoCard.classList.remove('show');
   selectedVal.textContent = 'NONE';
   capitalMarker.visible = false;
-});
+}
+infoClose.addEventListener('click', clearSelection);
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && selectedFeature && document.activeElement !== searchInput) clearSelection(); });
 
-// ---------- load world boundaries (world-atlas — public domain, Natural Earth data) ----------
+/* ---------- load world boundaries (world-atlas — public domain, Natural Earth data) ---------- */
 const TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json';
 
-Promise.all([
-  fetch(TOPO_URL).then(r => r.json()),
-  ownCountriesReady,
-  territoriesReady
-])
+Promise.all([fetch(TOPO_URL).then(r => r.json()), ownCountriesReady, territoriesReady])
   .then(([topology]) => {
     buildOwnLookups();
-
-        const geojson = topojson.feature(topology, topology.objects.countries);
-    countryFeatures = geojson.features
-      .filter(f => f.geometry)
-      .map(f => {
-        const worldAtlasName = (f.properties && f.properties.name) || '';
-        const iso2 = iso2ByNumeric.get(String(Number(f.id))) || findIsoByName(worldAtlasName);
-        const ownFacts = iso2 ? countryDataByIso.get(iso2) : null;
-
-        f.properties = f.properties || {};
-        f.properties.iso2 = iso2 || null;
-        f.properties.name = (ownFacts && ownFacts.name) || worldAtlasName || 'Unknown';
-        return f;
-      });
-
-    redrawBorders();
+    const geojson = topojson.feature(topology, topology.objects.countries);
+    countryFeatures = geojson.features.filter(f => f.geometry).map(f => {
+      const worldAtlasName = (f.properties && f.properties.name) || '';
+      const iso2 = iso2ByNumeric.get(String(Number(f.id))) || findIsoByName(worldAtlasName);
+      const ownFacts = iso2 ? countryDataByIso.get(iso2) : null;
+      f.properties = f.properties || {};
+      f.properties.iso2 = iso2 || null;
+      f.properties.name = (ownFacts && ownFacts.name) || worldAtlasName || 'Unknown';
+      return f;
+    });
+    indiaFeature = countryFeatures.find(f => String(Number(f.id)) === '356') || countryFeatures.find(f => f.properties.name === 'India') || null;
+    const names = [...new Set(countryFeatures.map(f => f.properties.name).filter(n => n && n !== 'Unknown'))].sort();
+    countryList.innerHTML = names.map(n => `<option value="${n.replace(/"/g, '&quot;')}">`).join('');
     loadingScreen.classList.add('hide');
+    startView();
   })
   .catch(() => { loadingScreen.textContent = 'Failed to load world data.'; });
 
-// ---------- drag to rotate ----------
-let isDragging = false, moved = 0, prevX = 0, prevY = 0;
-let velX = 0, velY = 0;
+/* ---------- location (only when the visitor asks for it) ---------- */
+/* ---------- which map? decided from the browser's region (timezone / language), no prompt, no lookup ---------- */
+function startView(){
+  indiaView = detectIndia();
+  $('regionVal').textContent = indiaView ? 'INDIA' : 'WORLD';
+  redrawBorders(true);
+}
+const remember = (k, v) => { try{ localStorage.setItem(k, v); }catch(e){} };
+
+function getPosition(){
+  return new Promise((res, rej) => {
+    if(!navigator.geolocation){ rej({ code: 0 }); return; }
+    navigator.geolocation.getCurrentPosition(
+      p => res({ lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy }),
+      rej, { enableHighAccuracy: false, timeout: 12000, maximumAge: 600000 });
+  });
+}
+
+async function showMyLocation(){
+  const btn = $('locBtn'); btn.disabled = true; say('Finding your location…');
+  try{
+    const loc = await getPosition(); userLoc = loc;
+    remember('rv-globe-loc', 'granted');
+    youMarker.position.copy(latLonToVector3(loc.lat, loc.lon, EARTH_RADIUS * 1.02)); youMarker.visible = true;
+    const f = findCountryAt(loc.lon, loc.lat);
+    if(f) selectCountry(f);
+    flyToLL(loc.lat, loc.lon, 8);
+    say(`You are here: ${Math.abs(loc.lat).toFixed(2)}°${loc.lat >= 0 ? 'N' : 'S'}, ${Math.abs(loc.lon).toFixed(2)}°${loc.lon >= 0 ? 'E' : 'W'}${loc.acc ? ' (±' + (loc.acc >= 1000 ? (loc.acc / 1000).toFixed(1) + ' km' : Math.round(loc.acc) + ' m') + ')' : ''}${f ? ' · ' + f.properties.name : ''}`);
+  }catch(e){
+    say(e && e.code === 1 ? 'Location is blocked. Allow it for this site in your browser settings, then try again.' : 'Could not get your location.');
+  }
+  btn.disabled = false;
+}
+$('locBtn').addEventListener('click', showMyLocation);
+
+/* ---------- drag to rotate / hover ---------- */
+let isDragging = false, moved = 0, prevX = 0, prevY = 0, velX = 0, velY = 0;
+let fly = null;
 
 canvas.addEventListener('pointerdown', e => {
-  isDragging = true; moved = 0;
+  isDragging = true; moved = 0; fly = null;
   prevX = e.clientX; prevY = e.clientY;
   canvas.setPointerCapture(e.pointerId);
   canvas.classList.add('dragging');
 });
 canvas.addEventListener('pointermove', e => {
-  if(!isDragging) return;
-  const dx = e.clientX - prevX, dy = e.clientY - prevY;
-  moved += Math.abs(dx) + Math.abs(dy);
-  velY = dx * 0.005; velX = dy * 0.005;
-  globeGroup.rotation.y += velY;
-  globeGroup.rotation.x = THREE.MathUtils.clamp(globeGroup.rotation.x + velX, -1.3, 1.3);
-  prevX = e.clientX; prevY = e.clientY;
+  if(isDragging){
+    const dx = e.clientX - prevX, dy = e.clientY - prevY;
+    moved += Math.abs(dx) + Math.abs(dy);
+    const k = 0.005 * (camera.position.z / DEFAULT_CAMERA_Z);
+    velY = dx * k; velX = dy * k;
+    globeGroup.rotation.y += velY;
+    globeGroup.rotation.x = THREE.MathUtils.clamp(globeGroup.rotation.x + velX, -1.3, 1.3);
+    prevX = e.clientX; prevY = e.clientY;
+  } else if(e.pointerType === 'mouse'){
+    queueHover(e);
+  }
 });
+canvas.addEventListener('pointerleave', () => { if(hoverFeature){ hoverFeature = null; redrawBorders(); } hoverVal.textContent = '—'; canvas.classList.remove('over'); });
 window.addEventListener('pointerup', e => {
   if(!isDragging) return;
   isDragging = false;
   canvas.classList.remove('dragging');
   if(moved < 6) handleClick(e);
 });
-
 canvas.addEventListener('wheel', e => {
   e.preventDefault();
   camera.position.z = THREE.MathUtils.clamp(camera.position.z + e.deltaY * 0.003, 3.2, 12);
 }, { passive: false });
 
-const raycaster = new THREE.Raycaster();
-const mouseNDC = new THREE.Vector2();
-
-function handleClick(e){
+const raycaster = new THREE.Raycaster(), mouseNDC = new THREE.Vector2();
+function pickLonLat(e){
   const rect = canvas.getBoundingClientRect();
   mouseNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouseNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouseNDC, camera);
   const hits = raycaster.intersectObject(earthMesh);
-  if(!hits.length) return;
-  const local = earthMesh.worldToLocal(hits[0].point.clone());
-  const norm = local.clone().normalize();
+  if(!hits.length) return null;
+  const norm = earthMesh.worldToLocal(hits[0].point.clone()).normalize();
   const lat = 90 - THREE.MathUtils.radToDeg(Math.acos(THREE.MathUtils.clamp(norm.y, -1, 1)));
   let lon = THREE.MathUtils.radToDeg(Math.atan2(norm.z, -norm.x)) - 180;
   if(lon < -180) lon += 360;
   if(lon > 180) lon -= 360;
-  const feature = findCountryAt(lon, lat);
+  return { lon, lat };
+}
+function handleClick(e){
+  const ll = pickLonLat(e);
+  if(!ll) return;
+  const feature = findCountryAt(ll.lon, ll.lat);
   if(feature) selectCountry(feature);
 }
+let hoverEvt = null, hoverQueued = false;
+function queueHover(e){
+  hoverEvt = e;
+  if(hoverQueued) return;
+  hoverQueued = true;
+  requestAnimationFrame(() => {
+    hoverQueued = false;
+    const ll = pickLonLat(hoverEvt);
+    if(!ll){ if(hoverFeature){ hoverFeature = null; redrawBorders(); } hoverVal.textContent = '—'; canvas.classList.remove('over'); return; }
+    const f = findCountryAt(ll.lon, ll.lat);
+    if(f !== hoverFeature){ hoverFeature = f; redrawBorders(); }
+    canvas.classList.toggle('over', !!f);
+    hoverVal.textContent = `${Math.abs(ll.lat).toFixed(1)}°${ll.lat >= 0 ? 'N' : 'S'} ${Math.abs(ll.lon).toFixed(1)}°${ll.lon >= 0 ? 'E' : 'W'}` + (f ? ' · ' + f.properties.name.toUpperCase() : '');
+  });
+}
 
-
-// ---------- search ----------
-function normalize(s){ return s.toLowerCase().trim(); }
-
-// common alternate names/abbreviations users might type, mapped to the
-// exact name string used in our own countries.json — extend as needed
+/* ---------- search ---------- */
 const NAME_ALIASES = {
-  "usa": "united states",
-  "us": "united states",
-  "u.s.a.": "united states",
-  "u.s.": "united states",
-  "united states of america": "united states",
-  "america": "united states",
+  "usa": "united states", "us": "united states", "u.s.a.": "united states", "u.s.": "united states",
+  "united states of america": "united states", "america": "united states",
+  "uk": "united kingdom", "britain": "united kingdom", "great britain": "united kingdom", "england": "united kingdom",
+  "uae": "united arab emirates", "bharat": "india", "holland": "netherlands", "burma": "myanmar"
 };
+function say(msg){ searchMsg.textContent = msg || ''; }
+
+function flyTo(feature){
+  const focus = featureFocus(feature);
+  if(focus) flyToLL(focus.lat, focus.lon, focus.span);
+}
+function flyToLL(lat, lon, span){
+  const focus = { lat, lon, span };
+  const phi = (90 - focus.lat) * Math.PI / 180, theta = (focus.lon + 180) * Math.PI / 180;
+  const lx = -Math.sin(phi) * Math.cos(theta), lz = Math.sin(phi) * Math.sin(theta);
+  const y1raw = Math.atan2(lz, lx) - Math.PI / 2;
+  const y0 = globeGroup.rotation.y;
+  let d = ((y1raw - y0 + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+  fly = {
+    t0: performance.now(), dur: 950,
+    y0, y1: y0 + d,
+    x0: globeGroup.rotation.x, x1: THREE.MathUtils.clamp(focus.lat * Math.PI / 180, -1.2, 1.2),
+    z0: camera.position.z, z1: THREE.MathUtils.clamp(3.4 + focus.span * 0.04, 3.6, DEFAULT_CAMERA_Z)
+  };
+  velX = 0; velY = 0;
+}
+function goTo(feature){ selectCountry(feature); flyTo(feature); }
 
 function doSearch(){
-  let q = normalize(searchInput.value);
+  let q = plain(searchInput.value);
   if(!q) return;
-
   if(NAME_ALIASES[q]) q = NAME_ALIASES[q];
-
-  const match = countryFeatures.find(f => {
-    const n = normalize(f.properties.name || '');
-    return n.includes(q) || q.includes(n);
-  });
-
-  if(match){
-    selectCountry(match);
-    const centroid = getFeatureCentroid(match);
-    if(centroid){
-      const phi = (90 - centroid.lat) * Math.PI / 180;
-      const theta = (centroid.lon + 180) * Math.PI / 180;
-      const lx = -Math.sin(phi) * Math.cos(theta);
-      const lz = Math.sin(phi) * Math.sin(theta);
-      globeGroup.rotation.y = Math.atan2(lz, lx) - Math.PI / 2;
-      globeGroup.rotation.x = 0;
-      velX = 0; velY = 0;
-    }
-  }
+  const names = countryFeatures.map(f => [plain(f.properties.name || ''), f]);
+  const hit = names.find(n => n[0] === q) || names.find(n => n[0].startsWith(q)) || names.find(n => n[0].split(' ').some(w => w.startsWith(q))) || names.find(n => n[0].includes(q));
+  if(hit){ say(''); goTo(hit[1]); }
+  else say(`No place found for “${searchInput.value.trim()}”. Try the full country name.`);
 }
 searchBtn.addEventListener('click', doSearch);
-searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') doSearch(); });
+searchInput.addEventListener('keydown', e => { if(e.key === 'Enter'){ doSearch(); searchInput.blur(); } });
+searchInput.addEventListener('input', () => say(''));
+randomBtn.addEventListener('click', () => {
+  const pool = countryFeatures.filter(f => f.properties.iso2 && f !== selectedFeature);
+  if(!pool.length) return;
+  const f = pool[Math.floor(Math.random() * pool.length)];
+  searchInput.value = f.properties.name; say(''); goTo(f);
+});
 
-// ---------- resize / fullscreen ----------
+/* ---------- resize / fullscreen / reset ---------- */
 function handleResize(){
   const w = viewer.clientWidth, h = viewer.clientHeight;
   camera.aspect = w / h;
@@ -763,49 +876,38 @@ fsBtn.addEventListener('click', () => {
   if(!document.fullscreenElement) viewer.requestFullscreen().catch(() => {});
   else document.exitFullscreen();
 });
-viewer.addEventListener('dblclick', () => fsBtn.click());
-
-const resetBtn = document.getElementById('resetBtn');
-const DEFAULT_CAMERA_Z = 6.2;
+viewer.addEventListener('dblclick', e => { if(!e.target.closest('button, .info-card')) fsBtn.click(); });
 
 resetBtn.addEventListener('click', () => {
-  // reset camera zoom
-  camera.position.z = DEFAULT_CAMERA_Z;
-
-  // reset rotation
-  globeGroup.rotation.set(0, 0, 0);
+  fly = { t0: performance.now(), dur: 700, y0: globeGroup.rotation.y, y1: 0, x0: globeGroup.rotation.x, x1: 0, z0: camera.position.z, z1: DEFAULT_CAMERA_Z };
   velX = 0; velY = 0;
-
-  // deselect
-  selectedFeature = null;
-  redrawBorders();
-  infoCard.classList.remove('show');
-  selectedVal.textContent = 'NONE';
-  capitalMarker.visible = false;
-
-  // clear search box too
-  searchInput.value = '';
+  clearSelection();
+  searchInput.value = ''; say(''); youMarker.visible = false;
 });
 
-// ---------- render loop ----------
+/* ---------- render loop ---------- */
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 function animate(){
   requestAnimationFrame(animate);
-  if(!isDragging){
+  if(fly){
+    const t = Math.min(1, (performance.now() - fly.t0) / fly.dur), k = ease(t);
+    globeGroup.rotation.y = fly.y0 + (fly.y1 - fly.y0) * k;
+    globeGroup.rotation.x = fly.x0 + (fly.x1 - fly.x0) * k;
+    camera.position.z = fly.z0 + (fly.z1 - fly.z0) * k;
+    if(t >= 1) fly = null;
+  } else if(!isDragging){
     velX *= 0.92; velY *= 0.92;
     globeGroup.rotation.y += velY;
     globeGroup.rotation.x = THREE.MathUtils.clamp(globeGroup.rotation.x + velX, -1.3, 1.3);
-    if(Math.abs(velY) < 0.0002 && Math.abs(velX) < 0.0002){
-      globeGroup.rotation.y += 0.0006; // gentle idle drift
-    }
+    if(!selectedFeature && Math.abs(velY) < 0.0002 && Math.abs(velX) < 0.0002) globeGroup.rotation.y += 0.0006;   // gentle idle drift, paused while reading a card
   }
-  markerPulse += 0.06;
-  if(capitalMarker.visible){
-    const s = 0.16 + Math.sin(markerPulse) * 0.04;
-    capitalMarker.scale.set(s, s, 1);
-  }
+  markerPulse = performance.now() / 1000;
+  if(capitalMarker.visible) capitalMarker.userData.update(markerPulse);
+  if(youMarker.visible) youMarker.userData.update(markerPulse);
   renderer.render(scene, camera);
 }
 animate();
+window.__globe = { border: borderCanvas, youMarker, startView, get indiaView(){ return indiaView; }, features: () => countryFeatures, goTo, findCountryAt };
 </script>
 
 <script src="/libraries/config.js"></script>

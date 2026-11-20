@@ -14,262 +14,515 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Live tracker for near-Earth asteroids using real NASA data. See potentially hazardous objects, closest approaches, sizes, and velocities for the next 7 days.">
+<meta name="description" content="Live tracker for near-Earth asteroids using real NASA data. A proximity radar shows potentially hazardous objects, closest approaches, sizes, and velocities for the next 7 days.">
 
 <title>Live Asteroid Watch</title>
 
 <link rel="canonical" href="https://rameshverse.com/asteroid-watch-live/">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 
 <style>
   :root{
     --bg:#050505; --panel:#0b0b0b; --line:#241414;
     --red:#ff2b2b; --red-dim:#7a1414;
     --text:#f5f5f5; --text-dim:#ca5656;
-    --go:#2bff88; --warn:#ffb62b;
-    --font:'IBM Plex Mono', monospace;
+    --go:#2bff88; --warn:#ffb62b; --cyan:#4ad4ff;
+    --font:'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+    color-scheme:dark;
   }
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
-  body{min-height:100vh; padding:20px 16px 50px; position:relative;}
+  body{min-height:100vh; padding:20px 16px 50px; position:relative; overflow-x:hidden;}
+  #stars{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:.7;}
   body::before{
     content:""; position:fixed; inset:0;
     background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
     pointer-events:none; z-index:50;
   }
-  .wrap{max-width:800px; margin:0 auto; position:relative;}
-  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px;}
-  .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
-  .back-link:hover{color:var(--red);}
+  :focus-visible{outline:1px solid var(--red); outline-offset:2px;}
+  .wrap{max-width:860px; margin:0 auto; position:relative; z-index:2;}
+  header{display:flex; justify-content:space-between; align-items:flex-end; gap:12px; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:12px;}
   .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
-  h1{font-size:20px; letter-spacing:4px; font-weight:700;}
+  h1{font-size:22px; letter-spacing:4px; font-weight:700;}
   h1 span{color:var(--red);}
-  .clock{font-size:11px; color:var(--text-dim); text-align:right; letter-spacing:1px;}
+  .clock{font-size:11px; color:var(--text-dim); text-align:right; letter-spacing:1px; line-height:1.6;}
+  .intro{color:var(--text-dim); font-size:12px; line-height:1.7; margin:0 0 16px;}
+  @media(max-width:520px){h1{font-size:17px; letter-spacing:3px;}}
 
-  .panel{position:relative; background:var(--panel); border:1px solid var(--line); padding:18px; margin-bottom:14px;}
-  .panel .tl,.panel .tr,.panel .bl,.panel .br{content:""; position:absolute; width:10px; height:10px; border-color:var(--red-dim); border-style:solid;}
+  .panel{position:relative; background:rgba(11,11,11,.92); border:1px solid var(--line); padding:18px; margin-bottom:14px;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{position:absolute; width:10px; height:10px; border-color:var(--red-dim); border-style:solid;}
   .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
   .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
   .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
   .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
-  .label{font-size:11px; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;}
+  .label{font-size:11px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:10px;}
 
-  .apikey-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
-  input{background:#0f0a0a; border:1px solid var(--line); color:var(--text); font-family:var(--font); font-size:12px; padding:9px 10px; flex:1; min-width:140px;}
-  input:focus{outline:1px solid var(--red-dim);}
-  button{background:transparent; border:1px solid var(--red-dim); color:var(--red); font-family:var(--font); font-size:11px; letter-spacing:1.5px; padding:9px 16px; cursor:pointer; transition:all .15s;}
+  button{background:transparent; border:1px solid var(--red-dim); color:var(--red); font-family:var(--font); font-size:11px; letter-spacing:1.5px; padding:9px 16px; cursor:pointer; transition:all .15s; border-radius:0;}
   button:hover{background:var(--red-dim); color:var(--text);}
   button:disabled{opacity:.4; cursor:default;}
-  .apikey-note{font-size:9px; color:var(--text-dim); margin-top:8px; line-height:1.6;}
-  .apikey-note a{color:var(--red-dim);}
+  select{background:#0f0a0a; border:1px solid var(--red-dim); color:var(--red); font-family:var(--font); font-size:11px; letter-spacing:1px; padding:9px 10px; border-radius:0;}
 
-  .summary-strip{display:flex; gap:14px; flex-wrap:wrap; justify-content:space-around; text-align:center;}
-  .summary-item .n{font-size:24px; font-weight:700;}
-  .summary-item .l{font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-top:4px;}
-  .summary-item.hazard .n{color:var(--red);}
+  /* stat tiles */
+  .tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:14px;}
+  @media(max-width:560px){.tiles{grid-template-columns:repeat(2,1fr);}}
+  .tile{background:var(--panel); padding:14px 14px 12px; position:relative; overflow:hidden; min-width:0;}
+  .tile .n{font-size:26px; font-weight:700; line-height:1.1; white-space:nowrap;}
+  .tile .n small{font-size:12px; font-weight:500; color:var(--text-dim); margin-left:4px;}
+  .tile .l{font-size:10px; letter-spacing:1.3px; color:var(--text-dim); margin-top:6px;}
+  .tile .s{font-size:10px; color:#9a9a9a; margin-top:3px; line-height:1.5; overflow-wrap:anywhere;}
+  .tile.haz .n{color:var(--red);}
+  .tile.haz::after{content:""; position:absolute; right:-24px; top:-24px; width:70px; height:70px; border-radius:50%; background:radial-gradient(circle, rgba(255,43,43,.35), transparent 70%);}
+  .tile.cy .n{color:var(--cyan);}
+  .tile.wr .n{color:var(--warn);}
 
-  .filter-row{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
-  .filter-row button{flex:1; min-width:100px; font-size:10px;}
+  /* radar */
+  .radar-wrap{position:relative; max-width:600px; margin:0 auto;}
+  .radar-wrap svg{width:100%; height:auto; display:block;}
+  .sweep{transform-origin:300px 300px; animation:sweep 7s linear infinite;}
+  @keyframes sweep{to{transform:rotate(360deg);}}
+  .dot{cursor:pointer; transition:opacity .2s;}
+  .dot.dim{opacity:.12;}
+  .pulse-ring{animation:ping 2.2s ease-out infinite; transform-box:fill-box; transform-origin:center;}
+  @keyframes ping{0%{opacity:.8; transform:scale(1);} 100%{opacity:0; transform:scale(3);}}
+  .rtip{position:absolute; z-index:5; pointer-events:none; background:rgba(5,5,5,.94); border:1px solid var(--red-dim); padding:7px 10px; font-size:11px; line-height:1.55; white-space:nowrap; transform:translate(-50%,-125%);}
+  .rtip b{color:var(--cyan);} .rtip.h b{color:var(--red);}
+  .rtip[hidden]{display:none;}
+  .legend{display:flex; flex-wrap:wrap; gap:6px 18px; justify-content:center; font-size:10px; letter-spacing:1px; color:var(--text-dim); margin-top:12px;}
+  .legend i{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:-1px;}
+  .radar-note{font-size:10px; color:#8a6a6a; text-align:center; margin-top:8px; line-height:1.6;}
+
+  /* days chart */
+  .days{display:flex; gap:6px; align-items:flex-end; height:96px;}
+  .day{flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; height:100%; min-width:0;}
+  .day .bar{width:100%; max-width:44px; display:flex; flex-direction:column-reverse; min-height:2px;}
+  .day .bar i{display:block; width:100%;}
+  .day .bar .h{background:var(--red); box-shadow:0 0 8px rgba(255,43,43,.5);}
+  .day .bar .s{background:#1f6f8a;}
+  .day .c{font-size:11px; font-weight:700; margin-bottom:4px;}
+  .day .d{font-size:9px; color:var(--text-dim); margin-top:6px; letter-spacing:.5px; white-space:nowrap;}
+  .day.today .d{color:var(--text);}
+
+  /* controls */
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .filter-row{display:flex; gap:8px; flex:1 1 360px; flex-wrap:wrap;}
+  .filter-row button{flex:1; min-width:96px; font-size:10px; padding:9px 8px;}
   .filter-row button.active{background:var(--red); color:#000; border-color:var(--red);}
+  .scanline{display:flex; gap:10px; align-items:center; justify-content:space-between; font-size:10px; letter-spacing:1px; color:var(--text-dim); margin-bottom:12px; flex-wrap:wrap;}
+  .scanline button{padding:6px 12px; font-size:10px;}
+  .def{font-size:10px; color:#9a8080; line-height:1.7; margin-bottom:14px; border-left:2px solid var(--red-dim); padding-left:10px;}
+  .def b{color:var(--text); font-weight:500;}
 
-  .neo-card{position:relative; background:var(--panel); border:1px solid var(--line); padding:16px; margin-bottom:10px;}
-  .neo-card.hazard{border-color:var(--red-dim);}
-  .neo-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
-  .neo-name{font-size:14px; font-weight:700; letter-spacing:.5px; color:#4ad4ff;}
+  /* cards */
+  .neo-card{position:relative; background:rgba(11,11,11,.92); border:1px solid var(--line); padding:16px; margin-bottom:10px; transition:border-color .2s;}
+  .neo-card.hazard{border-color:var(--red-dim); background:linear-gradient(180deg, rgba(255,43,43,.06), rgba(11,11,11,.92) 60%);}
+  .neo-card.flash{animation:flash 1.4s ease-out;}
+  @keyframes flash{0%{box-shadow:0 0 0 2px var(--cyan), 0 0 24px rgba(74,212,255,.5);} 100%{box-shadow:0 0 0 0 transparent;}}
+  .neo-top{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px;}
+  .neo-id{display:flex; gap:12px; align-items:center; min-width:0;}
+  .rock{flex:none; width:46px; height:46px;}
+  .neo-name{font-size:14px; font-weight:700; letter-spacing:.5px; color:var(--cyan); text-decoration:none; overflow-wrap:anywhere;}
+  a.neo-name:hover{text-decoration:underline;}
+  .neo-when{font-size:11px; margin-top:3px; letter-spacing:.5px; color:#b5b5b5;}
+  .neo-when.soon{color:var(--warn);} .neo-when.past{color:#777;}
   .neo-badge{font-size:9px; letter-spacing:1.5px; padding:4px 8px; border:1px solid var(--red-dim); color:var(--red); white-space:nowrap;}
   .neo-badge.safe{border-color:#1a3a2a; color:var(--go);}
-
-  .intro {
-  color: var(--text-dim);
-  font-size: 12px;
-  line-height: 1.6;
-  margin: 10px 0 18px;
-}
-  .neo-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px 16px;}
+  .neo-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 16px;}
   @media(max-width:480px){.neo-grid{grid-template-columns:1fr;}}
   .neo-item .k{font-size:10px; color:var(--text-dim); letter-spacing:0.5px; margin-bottom:3px;}
   .neo-item .v{font-size:13px; font-weight:700;}
-  .neo-compare{font-size:12px; color:var(--text-dim); margin-top:10px; padding-top:10px; border-top:1px solid var(--line); line-height:1.7;}
+  .neo-item .v small{font-weight:400; color:#9a9a9a; font-size:11px;}
+  .mini{height:4px; background:#1a1010; margin-top:6px; position:relative;}
+  .mini i{position:absolute; left:0; top:0; bottom:0; background:var(--cyan);}
+  .neo-card.hazard .mini i{background:var(--red);}
+
+  .viz{margin-top:14px; padding-top:12px; border-top:1px solid var(--line); display:grid; gap:14px;}
+  .viz .t{font-size:9px; letter-spacing:1.4px; color:var(--text-dim); margin-bottom:7px; display:flex; justify-content:space-between; gap:8px;}
+  .viz .t span:last-child{color:#b5b5b5; letter-spacing:.5px;}
+  .track{position:relative; height:26px;}
+  .track .line{position:absolute; left:14px; right:6px; top:12px; height:2px; background:linear-gradient(90deg, #3a1a1a, #1c1010);}
+  .track .earth{position:absolute; left:0; top:5px; width:16px; height:16px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #7fd0ff, #1b5fa8 60%, #0a2a50); box-shadow:0 0 8px rgba(74,160,255,.7);}
+  .track .moon{position:absolute; top:8px; width:9px; height:9px; border-radius:50%; background:#cfcfcf; transform:translateX(-50%);}
+  .track .moon::after{content:"MOON"; position:absolute; top:12px; left:50%; transform:translateX(-50%); font-size:8px; letter-spacing:1px; color:#8a8a8a;}
+  .track .rock-dot{position:absolute; top:13px; border-radius:50%; background:var(--cyan); transform:translate(-50%,-50%); box-shadow:0 0 10px var(--cyan);}
+  .neo-card.hazard .track .rock-dot{background:var(--red); box-shadow:0 0 10px var(--red);}
+  .cmp{display:grid; gap:5px;}
+  .cmp .row{display:flex; align-items:center; gap:8px; font-size:10px; color:#b5b5b5;}
+  .cmp .row .nm{flex:0 0 112px; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#9a9a9a;}
+  .cmp .row .bar{flex:1; height:8px; background:#140c0c;}
+  .cmp .row .bar i{display:block; height:100%; background:var(--cyan); min-width:2px;}
+  .cmp .row.a .bar i{background:var(--cyan);}
+  .neo-card.hazard .cmp .row.a .bar i{background:var(--red);}
+  .cmp .row.b .bar i{background:#6a6a6a;}
+  .cmp .row .vl{flex:0 0 74px; text-align:right; white-space:nowrap;}
+  @media(max-width:480px){.cmp .row .nm{flex-basis:84px;}}
+  .neo-compare{font-size:12px; color:var(--text-dim); margin-top:12px; line-height:1.7;}
   .neo-compare b{color:var(--text);}
 
   .loader{font-size:12px; color:var(--red-dim); letter-spacing:2px; padding:30px 0; text-align:center;}
+  .loader::after{content:"_"; animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
   .errbox{font-size:11px; color:var(--warn); padding:14px; line-height:1.7;}
+  .errbox button{margin-top:10px;}
   .hidden{display:none;}
-  footer{text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:1px; margin-top:20px;}
+  footer{text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:1px; margin-top:24px; line-height:1.8;}
+  @media (prefers-reduced-motion: reduce){.sweep,.pulse-ring,.neo-card.flash{animation:none;}}
 </style>
 </head>
 <body>
+<canvas id="stars" aria-hidden="true"></canvas>
 <div class="wrap">
   <header>
     <div>
       <div class="brand">RAMESHVERSE</div>
       <h1>LIVE ASTEROID <span>WATCH</span></h1>
-      <p class="intro">Pulls live data from NASA's Near-Earth Object Web Service (NeoWs) to track asteroids making close approaches to Earth over the next 7 days, flagging which ones are classified as potentially hazardous based on size and distance.</p>
     </div>
-    <div class="clock" id="clockDisplay">--:--:--</div>
+    <div class="clock"><span id="clockDisplay">--:--:--</span><br><span id="clockUtc"></span></div>
   </header>
+  <p class="intro">Pulls live data from NASA's Near-Earth Object Web Service (NeoWs) to track asteroids making close approaches to Earth over the next 7 days, flagging which ones are classified as potentially hazardous based on size and distance.</p>
 
-  <div class="panel" style="text-align:center;">
-    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
-    <button id="loadBtn" style="width:100%;">SCAN NEXT 7 DAYS</button>
-  </div>
-
-  <div id="loader" class="loader hidden">▸ QUERYING NASA NEAR-EARTH OBJECT DATABASE...</div>
+  <div id="loader" class="loader">▸ QUERYING NASA NEAR-EARTH OBJECT DATABASE</div>
   <div id="errbox" class="panel errbox hidden"></div>
 
   <div id="results" class="hidden">
-    <div class="panel summary-strip" id="summaryStrip"></div>
+    <div class="tiles" id="tiles"></div>
 
-    <div class="filter-row">
-      <button class="active" data-filter="all">ALL OBJECTS</button>
-      <button data-filter="hazard">POTENTIALLY HAZARDOUS</button>
-      <button data-filter="close">CLOSEST APPROACHES</button>
+    <div class="panel">
+      <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+      <div class="label">PROXIMITY RADAR · EARTH AT CENTRE</div>
+      <div class="radar-wrap" id="radarWrap">
+        <svg id="radar" viewBox="0 0 600 600" role="img" aria-label="Radar of asteroid approach distances"></svg>
+        <div class="rtip" id="rtip" hidden></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--red)"></i>POTENTIALLY HAZARDOUS</span>
+        <span><i style="background:var(--cyan)"></i>NON-HAZARDOUS</span>
+        <span><i style="background:#cfcfcf"></i>MOON'S ORBIT = 1 LD</span>
+        <span>DOT SIZE = DIAMETER</span>
+      </div>
+      <div class="radar-note">Distance from Earth is drawn to scale (stretched so close passes stay visible). Angle only shows the day of approach, clockwise from the top, and is not a real direction in space. Tap a dot to jump to its card.</div>
     </div>
+
+    <div class="panel">
+      <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+      <div class="label">ARRIVALS BY DAY</div>
+      <div class="days" id="days"></div>
+    </div>
+
+    <div class="scanline"><span id="scanInfo">LAST SCAN --:--</span><button id="loadBtn">↻ RESCAN</button></div>
+
+    <div class="controls">
+      <div class="filter-row">
+        <button class="active" data-filter="all">ALL OBJECTS</button>
+        <button data-filter="hazard">POTENTIALLY HAZARDOUS</button>
+        <button data-filter="close">CLOSEST 10</button>
+      </div>
+      <select id="sortSel" aria-label="Sort by">
+        <option value="close">SORT: CLOSEST</option>
+        <option value="soon">SORT: SOONEST</option>
+        <option value="big">SORT: BIGGEST</option>
+        <option value="fast">SORT: FASTEST</option>
+      </select>
+    </div>
+    <div class="def"><b>Potentially hazardous</b> is NASA's label for asteroids larger than roughly 140 m that can pass within about 7.5 million km (≈19.5 lunar distances) of Earth's orbit. It describes the orbit and size. It does <b>not</b> mean an impact is expected.</div>
 
     <div id="neoList"></div>
   </div>
 
-  <footer>DATA: NASA NEOWs API (LIVE) &nbsp;|&nbsp; RAMESHVERSE.COM</footer>
+  <footer>DATA: NASA NEOWs API (LIVE) &nbsp;|&nbsp; 1 LD = 384,400 KM (EARTH–MOON DISTANCE)<br>RAMESHVERSE.COM</footer>
 </div>
 
 <script>
-setInterval(()=>{
-  document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('en-US',{hour12:false});
-},1000);
-
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
 const LUNAR_DIST_KM = 384400;
+const API_URL = 'https://rameshverse-api.ramesh-rkvfx.workers.dev/api/asteroids';
+
+/* ---------- clock ---------- */
+function tick(){
+  const d = new Date();
+  $('clockDisplay').textContent = d.toLocaleTimeString('en-US',{hour12:false});
+  $('clockUtc').textContent = 'UTC ' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
+}
+setInterval(tick, 1000); tick();
+
+/* ---------- background stars (drawn once) ---------- */
+(function(){
+  const c = $('stars'), dpr = Math.min(2, window.devicePixelRatio || 1);
+  function draw(){
+    c.width = innerWidth*dpr; c.height = innerHeight*dpr;
+    const x = c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
+    let s = 12345; const rnd = () => (s = (s*1664525 + 1013904223) >>> 0) / 4294967296;
+    const n = Math.round(innerWidth*innerHeight/5500);
+    for(let i=0;i<n;i++){
+      const r = rnd(), a = 0.15 + rnd()*0.55;
+      x.fillStyle = r < 0.12 ? `rgba(255,150,150,${a})` : r < 0.2 ? `rgba(160,210,255,${a})` : `rgba(235,230,230,${a})`;
+      x.beginPath(); x.arc(rnd()*c.width, rnd()*c.height, (0.4 + rnd()*1.1)*dpr, 0, 6.3); x.fill();
+    }
+  }
+  draw(); let t; addEventListener('resize', ()=>{ clearTimeout(t); t = setTimeout(draw, 200); });
+})();
+
+/* ---------- size comparisons (real heights / lengths, metres) ---------- */
 const landmarks = [
-  {name:'a double-decker bus', m:11},
-  {name:'a football field', m:105},
-  {name:'the Statue of Liberty', m:93},
-  {name:'the Great Pyramid of Giza', m:139},
-  {name:'the Eiffel Tower', m:330},
-  {name:'the Burj Khalifa', m:828},
+  {name:'a family car', m:4.5}, {name:'a double-decker bus', m:11}, {name:'a tennis court', m:24},
+  {name:'a blue whale', m:30}, {name:'a Boeing 747', m:70}, {name:'the Statue of Liberty', m:93},
+  {name:'a football field', m:105}, {name:'the Great Pyramid of Giza', m:139}, {name:'the Eiffel Tower', m:330},
+  {name:'the Empire State Building', m:443}, {name:'the Burj Khalifa', m:828}, {name:'Mount Fuji', m:3776}, {name:'Mount Everest', m:8849}
 ];
 function nearestLandmark(m){
-  let best = landmarks[0], bestDiff = Infinity;
-  landmarks.forEach(l=>{
-    const diff = Math.abs(Math.log(l.m) - Math.log(m));
-    if(diff < bestDiff){ bestDiff = diff; best = l; }
-  });
+  let best = landmarks[0], bd = Infinity;
+  landmarks.forEach(l=>{ const d = Math.abs(Math.log(l.m) - Math.log(m)); if(d < bd){ bd = d; best = l; } });
   return best;
 }
+const fmtM = m => m >= 1000 ? (m/1000).toFixed(m >= 10000 ? 0 : 1) + ' km' : Math.round(m).toLocaleString() + ' m';
 
-function fmtDate(d){
-  const dt = new Date(d);
-  return dt.toISOString().slice(0,10);
+/* ---------- little deterministic helpers ---------- */
+function hash(str){ let h = 2166136261; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed){ let s = seed || 1; return () => (s = (s*1664525 + 1013904223) >>> 0) / 4294967296; }
+function rockSvg(name, hazard){
+  const r = rng(hash(name)), n = 10, pts = [];
+  for(let i=0;i<n;i++){ const a = i/n*Math.PI*2, rad = 15 + r()*7; pts.push([23 + Math.cos(a)*rad, 23 + Math.sin(a)*rad]); }
+  const col = hazard ? '#ff2b2b' : '#4ad4ff', body = hazard ? '#3a1212' : '#12303a';
+  const craters = [0,1,2].map(()=>`<circle cx="${(15 + r()*16).toFixed(1)}" cy="${(15 + r()*16).toFixed(1)}" r="${(1.5 + r()*2.6).toFixed(1)}" fill="none" stroke="${col}" stroke-opacity=".5" stroke-width="1"/>`).join('');
+  return `<svg class="rock" viewBox="0 0 46 46" aria-hidden="true"><polygon points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="${body}" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/>${craters}</svg>`;
 }
 
-let allNeos = [];
+/* ---------- data ---------- */
+let allNeos = [], filter = 'all', sortBy = 'close', scale = {maxLD:20}, lastScan = null;
 
-document.getElementById('loadBtn').addEventListener('click', loadAsteroids);
+function relTime(ms){
+  const d = ms - Date.now(), a = Math.abs(d), m = Math.floor(a/60000), h = Math.floor(m/60), dd = Math.floor(h/24);
+  const txt = dd >= 1 ? dd + 'd ' + (h%24) + 'h' : h >= 1 ? h + 'h ' + pad(m%60) + 'm' : Math.max(1, m) + ' min';
+  return d >= 0 ? {t:'IN ' + txt, cls: d < 6*3600000 ? 'soon' : ''} : {t:'PASSED ' + txt + ' AGO', cls:'past'};
+}
 
 async function loadAsteroids(){
-  const loader = document.getElementById('loader');
-  const errbox = document.getElementById('errbox');
-  const results = document.getElementById('results');
-  loader.classList.remove('hidden');
-  errbox.classList.add('hidden');
-  results.classList.add('hidden');
-  document.getElementById('loadBtn').disabled = true;
-
+  const loader = $('loader'), errbox = $('errbox'), btn = $('loadBtn');
+  loader.classList.remove('hidden'); errbox.classList.add('hidden'); btn.disabled = true;
   try{
-    // calls your own Cloudflare Worker — replace with your actual deployed URL
-    const url = `https://rameshverse-api.ramesh-rkvfx.workers.dev/api/asteroids`;
-    const res = await fetch(url);
+    const ctl = new AbortController(), to = setTimeout(()=>ctl.abort(), 25000);
+    const res = await fetch(API_URL, {signal:ctl.signal}); clearTimeout(to);
     if(!res.ok){
       const body = await res.json().catch(()=>({}));
-      throw new Error(body?.error_message || body?.error?.message || `HTTP ${res.status}`);
+      throw new Error((body && (body.error_message || (body.error && body.error.message))) || ('HTTP ' + res.status));
     }
     const data = await res.json();
-
-    allNeos = [];
-    Object.keys(data.near_earth_objects).forEach(date=>{
+    const list = [];
+    Object.keys(data.near_earth_objects || {}).forEach(date=>{
       data.near_earth_objects[date].forEach(neo=>{
-        const approach = neo.close_approach_data[0];
-        if(!approach) return;
-        const missKm = parseFloat(approach.miss_distance.kilometers);
-        const diamMin = neo.estimated_diameter.meters.estimated_diameter_min;
-        const diamMax = neo.estimated_diameter.meters.estimated_diameter_max;
-        allNeos.push({
-          name: neo.name.replace(/[()]/g,''),
-          hazardous: neo.is_potentially_hazardous_asteroid,
-          date: approach.close_approach_date,
-          missKm,
-          missLD: missKm / LUNAR_DIST_KM,
-          velocityKph: parseFloat(approach.relative_velocity.kilometers_per_hour),
-          diamMin, diamMax,
-          diamAvg: (diamMin+diamMax)/2,
-          nasaUrl: neo.nasa_jpl_url,
+        const ap = (neo.close_approach_data || [])[0];
+        if(!ap) return;
+        const missKm = parseFloat(ap.miss_distance.kilometers);
+        const dm = (neo.estimated_diameter && neo.estimated_diameter.meters) || {};
+        const diamMin = dm.estimated_diameter_min || 0, diamMax = dm.estimated_diameter_max || diamMin;
+        list.push({
+          name: String(neo.name).replace(/[()]/g,'').trim(),
+          hazardous: !!neo.is_potentially_hazardous_asteroid,
+          date: ap.close_approach_date,
+          epoch: ap.epoch_date_close_approach ? +ap.epoch_date_close_approach : null,
+          missKm, missLD: missKm / LUNAR_DIST_KM,
+          velocityKph: parseFloat(ap.relative_velocity.kilometers_per_hour),
+          diamMin, diamMax, diamAvg: (diamMin + diamMax)/2,
+          nasaUrl: neo.nasa_jpl_url
         });
       });
     });
-    allNeos.sort((a,b)=> a.missKm - b.missKm);
-
-    renderSummary();
-    renderList('all');
-    results.classList.remove('hidden');
+    if(!list.length) throw new Error('NASA returned no objects for this period.');
+    allNeos = list.sort((a,b)=>a.missKm - b.missKm);
+    allNeos.forEach((n,i)=>{ n.i = i; });
+    const NICE = [5,10,20,30,50,75,100,150,200,300];
+    const mx = Math.max.apply(null, allNeos.map(n=>n.missLD));
+    scale = {maxLD: NICE.find(v=>v >= mx*1.04) || Math.ceil(mx*1.1), maxSpeed: Math.max.apply(null, allNeos.map(n=>n.velocityKph)), maxDiam: Math.max.apply(null, allNeos.map(n=>n.diamAvg))};
+    lastScan = new Date();
+    $('scanInfo').textContent = 'LAST SCAN ' + pad(lastScan.getHours()) + ':' + pad(lastScan.getMinutes()) + ' · ' + allNeos.length + ' OBJECTS';
+    renderTiles(); renderRadar(); renderDays(); renderList();
+    $('results').classList.remove('hidden');
   }catch(e){
-    errbox.textContent = 'Could not load asteroid data: ' + e.message;
-    errbox.classList.remove('hidden');
     console.error(e);
+    errbox.innerHTML = '';
+    const p = document.createElement('div'); p.textContent = 'Could not load asteroid data: ' + (e.name === 'AbortError' ? 'the request timed out.' : e.message);
+    const b = document.createElement('button'); b.textContent = '↻ TRY AGAIN'; b.onclick = loadAsteroids;
+    errbox.append(p, b); errbox.classList.remove('hidden');
   }finally{
-    loader.classList.add('hidden');
-    document.getElementById('loadBtn').disabled = false;
+    loader.classList.add('hidden'); btn.disabled = false;
   }
 }
 
-function renderSummary(){
-  const hazardCount = allNeos.filter(n=>n.hazardous).length;
-  const closest = allNeos[0];
-  const strip = document.getElementById('summaryStrip');
-  strip.innerHTML = `
-    <div class="summary-item"><div class="n">${allNeos.length}</div><div class="l">OBJECTS TRACKED</div></div>
-    <div class="summary-item hazard"><div class="n">${hazardCount}</div><div class="l">POTENTIALLY HAZARDOUS</div></div>
-    <div class="summary-item"><div class="n">${closest ? closest.missLD.toFixed(1) : '—'}</div><div class="l">CLOSEST (LUNAR DIST.)</div></div>
-  `;
+/* ---------- stat tiles ---------- */
+function renderTiles(){
+  const haz = allNeos.filter(n=>n.hazardous).length, cl = allNeos[0];
+  const fast = allNeos.reduce((a,b)=>b.velocityKph > a.velocityKph ? b : a), big = allNeos.reduce((a,b)=>b.diamAvg > a.diamAvg ? b : a);
+  const up = allNeos.filter(n=>n.epoch && n.epoch > Date.now()).sort((a,b)=>a.epoch - b.epoch)[0];
+  $('tiles').innerHTML = `
+    <div class="tile"><div class="n">${allNeos.length}</div><div class="l">OBJECTS TRACKED</div><div class="s">next 7 days</div></div>
+    <div class="tile haz"><div class="n">${haz}</div><div class="l">POTENTIALLY HAZARDOUS</div><div class="s">${Math.round(haz/allNeos.length*100)}% of all objects</div></div>
+    <div class="tile cy"><div class="n">${cl.missLD.toFixed(2)}<small>LD</small></div><div class="l">CLOSEST APPROACH</div><div class="s">${esc(cl.name)} · ${Math.round(cl.missKm).toLocaleString()} km</div></div>
+    <div class="tile wr"><div class="n">${(fast.velocityKph/3600).toFixed(1)}<small>km/s</small></div><div class="l">FASTEST</div><div class="s">${esc(fast.name)}</div></div>
+    <div class="tile"><div class="n">${fmtM(big.diamAvg)}</div><div class="l">BIGGEST (EST. DIAMETER)</div><div class="s">${esc(big.name)}</div></div>
+    <div class="tile"><div class="n" id="nextCd">${up ? relTime(up.epoch).t.replace('IN ','') : '—'}</div><div class="l">NEXT APPROACH IN</div><div class="s">${up ? esc(up.name) : 'no upcoming times'}</div></div>`;
 }
 
-document.querySelectorAll('.filter-row button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.filter-row button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    renderList(btn.dataset.filter);
+/* ---------- radar ---------- */
+const CX = 300, CY = 300, RMAX = 252, RMIN = 30;
+const radiusOf = ld => RMIN + (RMAX - RMIN)*Math.sqrt(Math.min(ld, scale.maxLD)/scale.maxLD);
+function days(){ return Array.from(new Set(allNeos.map(n=>n.date))).sort(); }
+function renderRadar(){
+  const ds = days(), nd = ds.length, svg = $('radar');
+  let s = `<defs>
+    <radialGradient id="eg" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#9fe0ff"/><stop offset=".55" stop-color="#1b5fa8"/><stop offset="1" stop-color="#0a2a50"/></radialGradient>
+    <radialGradient id="eglow"><stop offset="0" stop-color="#4aa0ff" stop-opacity=".45"/><stop offset="1" stop-color="#4aa0ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="swg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff2b2b" stop-opacity="0"/><stop offset="1" stop-color="#ff2b2b" stop-opacity=".28"/></linearGradient>
+  </defs>
+  <circle cx="${CX}" cy="${CY}" r="${RMAX+8}" fill="#070404" stroke="#3a1a1a"/>`;
+  // day sectors and labels
+  ds.forEach((d,i)=>{
+    const a = i/nd*Math.PI*2 - Math.PI/2, a2 = (i+0.5)/nd*Math.PI*2 - Math.PI/2;
+    s += `<line x1="${CX}" y1="${CY}" x2="${(CX+Math.cos(a)*(RMAX+8)).toFixed(1)}" y2="${(CY+Math.sin(a)*(RMAX+8)).toFixed(1)}" stroke="#ff2b2b" stroke-opacity=".12"/>`;
+    const dt = new Date(d + 'T00:00:00Z');
+    s += `<text x="${(CX+Math.cos(a2)*(RMAX+25)).toFixed(1)}" y="${(CY+Math.sin(a2)*(RMAX+25)+3).toFixed(1)}" fill="#ca5656" font-size="10" text-anchor="middle" letter-spacing="1" font-family="IBM Plex Mono, monospace">${dt.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}).toUpperCase()}</text>`;
   });
-});
+  // distance rings
+  const rings = [1].concat([5,10,20,30,50,75,100,150,200,300].filter(v=>v < scale.maxLD), [scale.maxLD]).filter((v,i,a)=>a.indexOf(v) === i);
+  rings.forEach(v=>{
+    const r = radiusOf(v);
+    s += `<circle cx="${CX}" cy="${CY}" r="${r.toFixed(1)}" fill="none" stroke="${v===1?'#9a9a9a':'#ff2b2b'}" stroke-opacity="${v===1?.55:.2}" stroke-dasharray="${v===1?'2 4':'none'}"/>`;
+    s += `<text x="${CX+5}" y="${(CY-r-3).toFixed(1)}" fill="${v===1?'#cfcfcf':'#ca5656'}" font-size="9" letter-spacing="1" font-family="IBM Plex Mono, monospace">${v===1?'MOON · 1 LD':v+' LD'}</text>`;
+  });
+  s += `<g class="sweep"><path d="M${CX},${CY} L${CX+RMAX+8},${CY} A${RMAX+8},${RMAX+8} 0 0 0 ${(CX+(RMAX+8)*Math.cos(-0.7)).toFixed(1)},${(CY+(RMAX+8)*Math.sin(-0.7)).toFixed(1)} Z" fill="url(#swg)"/><line x1="${CX}" y1="${CY}" x2="${CX+RMAX+8}" y2="${CY}" stroke="#ff2b2b" stroke-opacity=".7"/></g>`;
+  // Earth
+  s += `<circle cx="${CX}" cy="${CY}" r="34" fill="url(#eglow)"/><circle cx="${CX}" cy="${CY}" r="13" fill="url(#eg)"/>`;
+  // asteroids
+  allNeos.forEach(n=>{
+    const di = ds.indexOf(n.date), r0 = rng(hash(n.name));
+    const a = (di + 0.12 + 0.76*r0())/nd*Math.PI*2 - Math.PI/2, r = radiusOf(n.missLD);
+    n.rx = CX + Math.cos(a)*r; n.ry = CY + Math.sin(a)*r;
+    n.rr = 3 + 2.3*Math.log10(Math.max(n.diamAvg, 5)/5);
+    const col = n.hazardous ? '#ff2b2b' : '#4ad4ff';
+    s += `<g class="dot" data-i="${n.i}" tabindex="0" role="button" aria-label="${esc(n.name)}">
+      ${n.hazardous ? `<circle class="pulse-ring" cx="${n.rx.toFixed(1)}" cy="${n.ry.toFixed(1)}" r="${n.rr.toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.2"/>` : ''}
+      <circle cx="${n.rx.toFixed(1)}" cy="${n.ry.toFixed(1)}" r="${(n.rr+7).toFixed(1)}" fill="transparent"/>
+      <circle cx="${n.rx.toFixed(1)}" cy="${n.ry.toFixed(1)}" r="${n.rr.toFixed(1)}" fill="${col}" fill-opacity=".85" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/></g>`;
+  });
+  svg.innerHTML = s;
+  const tip = $('rtip');
+  svg.querySelectorAll('.dot').forEach(g=>{
+    const n = allNeos[+g.dataset.i];
+    const show = ()=>{
+      tip.className = 'rtip' + (n.hazardous ? ' h' : '');
+      tip.innerHTML = `<b>${esc(n.name)}</b><br>${n.missLD.toFixed(2)} LD · ${fmtM(n.diamAvg)} · ${(n.velocityKph/3600).toFixed(1)} km/s`;
+      tip.style.left = (n.rx/600*100) + '%'; tip.style.top = (n.ry/600*100) + '%'; tip.hidden = false;
+    };
+    g.addEventListener('pointerenter', show);
+    g.addEventListener('pointerleave', ()=>{ tip.hidden = true; });
+    g.addEventListener('click', ()=>{ show(); jumpTo(n.i); });
+    g.addEventListener('keydown', e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); show(); jumpTo(n.i); } });
+  });
+  dimRadar(visibleList());
+}
+function dimRadar(list){
+  const ok = new Set(list.map(n=>n.i));
+  $('radar').querySelectorAll('.dot').forEach(g=>g.classList.toggle('dim', !ok.has(+g.dataset.i)));
+}
+function jumpTo(i){
+  if(!visibleList().some(n=>n.i === i)){ setFilter('all'); }
+  const el = $('neo-' + i); if(!el) return;
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
 
-function renderList(filter){
-  let list = allNeos;
-  if(filter === 'hazard') list = allNeos.filter(n=>n.hazardous);
-  if(filter === 'close') list = [...allNeos].sort((a,b)=>a.missKm-b.missKm).slice(0,10);
-
-  const container = document.getElementById('neoList');
-  if(list.length === 0){
-    container.innerHTML = '<div class="panel" style="text-align:center; color:var(--text-dim); font-size:12px;">No objects match this filter in the next 7 days.</div>';
-    return;
-  }
-
-  container.innerHTML = list.map(n=>{
-    const landmark = nearestLandmark(n.diamAvg);
-    return `
-    <div class="neo-card ${n.hazardous ? 'hazard' : ''}">
-      <div class="neo-top">
-        <div class="neo-name">${n.name}</div>
-        <div class="neo-badge ${n.hazardous ? '' : 'safe'}">${n.hazardous ? '⚠ HAZARDOUS' : 'NON-HAZARDOUS'}</div>
-      </div>
-      <div class="neo-grid">
-        <div class="neo-item"><div class="k">CLOSE APPROACH</div><div class="v">${n.date}</div></div>
-        <div class="neo-item"><div class="k">MISS DISTANCE</div><div class="v">${n.missLD.toFixed(2)} lunar distances</div></div>
-        <div class="neo-item"><div class="k">DIAMETER (EST.)</div><div class="v">${Math.round(n.diamMin)}–${Math.round(n.diamMax)} m</div></div>
-        <div class="neo-item"><div class="k">RELATIVE VELOCITY</div><div class="v">${Math.round(n.velocityKph).toLocaleString()} km/h</div></div>
-      </div>
-      <div class="neo-compare">Roughly the size of <b>${landmark.name}</b> · passing at <b>${Math.round(n.missKm).toLocaleString()} km</b> from Earth</div>
-    </div>`;
+/* ---------- arrivals by day ---------- */
+function renderDays(){
+  const ds = days(), by = {};
+  allNeos.forEach(n=>{ (by[n.date] = by[n.date] || {h:0, s:0})[n.hazardous ? 'h' : 's']++; });
+  const mx = Math.max.apply(null, ds.map(d=>by[d].h + by[d].s)), today = new Date().toISOString().slice(0,10);
+  $('days').innerHTML = ds.map(d=>{
+    const v = by[d], tot = v.h + v.s, H = 62;
+    const dt = new Date(d + 'T00:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}).toUpperCase();
+    return `<div class="day${d === today ? ' today' : ''}" title="${dt}: ${tot} objects, ${v.h} hazardous"><div class="c">${tot}</div><div class="bar" style="height:${Math.max(3, tot/mx*H)}px">${v.h ? `<i class="h" style="height:${v.h/tot*100}%"></i>` : ''}${v.s ? `<i class="s" style="height:${v.s/tot*100}%"></i>` : ''}</div><div class="d">${dt}</div></div>`;
   }).join('');
 }
 
+/* ---------- list ---------- */
+function visibleList(){
+  let list = allNeos.slice();
+  if(filter === 'hazard') list = list.filter(n=>n.hazardous);
+  if(filter === 'close') list = list.sort((a,b)=>a.missKm - b.missKm).slice(0,10);
+  const cmp = {close:(a,b)=>a.missKm-b.missKm, soon:(a,b)=>(a.epoch||Date.parse(a.date))-(b.epoch||Date.parse(b.date)), big:(a,b)=>b.diamAvg-a.diamAvg, fast:(a,b)=>b.velocityKph-a.velocityKph}[sortBy];
+  return list.sort(cmp);
+}
+function card(n){
+  const lm = nearestLandmark(n.diamAvg), when = n.epoch ? new Date(n.epoch) : null;
+  const whenTxt = when ? when.toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : n.date;
+  const rel = n.epoch ? relTime(n.epoch) : null;
+  const pos = Math.sqrt(Math.min(n.missLD, scale.maxLD)/scale.maxLD)*100, moonPos = Math.sqrt(1/scale.maxLD)*100;
+  const dmax = Math.max(n.diamAvg, lm.m);
+  const nm = n.nasaUrl ? `<a class="neo-name" href="${esc(n.nasaUrl)}" target="_blank" rel="noopener">${esc(n.name)}</a>` : `<div class="neo-name">${esc(n.name)}</div>`;
+  const rr = Math.max(3.5, Math.min(8, n.rr || 4));
+  return `<div class="neo-card ${n.hazardous ? 'hazard' : ''}" id="neo-${n.i}">
+    <div class="neo-top">
+      <div class="neo-id">${rockSvg(n.name, n.hazardous)}<div>${nm}<div class="neo-when ${rel ? rel.cls : ''}" ${n.epoch ? `data-epoch="${n.epoch}"` : ''}>${esc(whenTxt)}${rel ? ' · <span class="rel">' + rel.t + '</span>' : ''}</div></div></div>
+      <div class="neo-badge ${n.hazardous ? '' : 'safe'}">${n.hazardous ? '⚠ HAZARDOUS' : 'NON-HAZARDOUS'}</div>
+    </div>
+    <div class="neo-grid">
+      <div class="neo-item"><div class="k">MISS DISTANCE</div><div class="v">${n.missLD.toFixed(2)} <small>lunar distances</small></div></div>
+      <div class="neo-item"><div class="k">DIAMETER (EST.)</div><div class="v">${Math.round(n.diamMin)}–${Math.round(n.diamMax)} m</div></div>
+      <div class="neo-item"><div class="k">RELATIVE VELOCITY</div><div class="v">${Math.round(n.velocityKph).toLocaleString()} <small>km/h · ${(n.velocityKph/3600).toFixed(1)} km/s</small></div><div class="mini"><i style="width:${(n.velocityKph/scale.maxSpeed*100).toFixed(1)}%"></i></div></div>
+      <div class="neo-item"><div class="k">PASSING AT</div><div class="v">${Math.round(n.missKm).toLocaleString()} <small>km from Earth</small></div></div>
+    </div>
+    <div class="viz">
+      <div>
+        <div class="t"><span>DISTANCE · EARTH → ASTEROID</span><span>${n.missLD < 1 ? 'INSIDE the Moon\'s orbit' : n.missLD.toFixed(1) + '× the Moon distance'}</span></div>
+        <div class="track"><div class="line"></div><div class="earth"></div><div class="moon" style="left:calc(${moonPos.toFixed(1)}% * .9 + 14px)"></div><div class="rock-dot" style="left:calc(${pos.toFixed(1)}% * .9 + 14px); width:${rr*2}px; height:${rr*2}px"></div></div>
+      </div>
+      <div>
+        <div class="t"><span>SIZE · AGAINST ${esc(lm.name).toUpperCase()}</span><span></span></div>
+        <div class="cmp">
+          <div class="row a"><span class="nm">THIS ASTEROID</span><span class="bar"><i style="width:${(n.diamAvg/dmax*100).toFixed(1)}%"></i></span><span class="vl">${fmtM(n.diamAvg)}</span></div>
+          <div class="row b"><span class="nm">${esc(lm.name.replace(/^(a|an|the) /,'')).toUpperCase()}</span><span class="bar"><i style="width:${(lm.m/dmax*100).toFixed(1)}%"></i></span><span class="vl">${fmtM(lm.m)}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="neo-compare">Roughly the size of <b>${esc(lm.name)}</b> · passing at <b>${Math.round(n.missKm).toLocaleString()} km</b> from Earth</div>
+  </div>`;
+}
+function renderList(){
+  const list = visibleList(), box = $('neoList');
+  dimRadar(list);
+  if(!list.length){
+    box.innerHTML = '<div class="panel" style="text-align:center; color:var(--text-dim); font-size:12px;">No objects match this filter in the next 7 days.</div>';
+    return;
+  }
+  box.innerHTML = list.map(card).join('');
+}
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-row button').forEach(b=>b.classList.toggle('active', b.dataset.filter === f));
+  renderList();
+}
+document.querySelectorAll('.filter-row button').forEach(b=>b.addEventListener('click', ()=>setFilter(b.dataset.filter)));
+$('sortSel').addEventListener('change', e=>{ sortBy = e.target.value; renderList(); });
+$('loadBtn').addEventListener('click', loadAsteroids);
+
+/* live countdowns */
+setInterval(()=>{
+  document.querySelectorAll('.neo-when[data-epoch]').forEach(el=>{
+    const r = relTime(+el.dataset.epoch), s = el.querySelector('.rel');
+    if(s) s.textContent = r.t; el.className = 'neo-when ' + r.cls;
+  });
+  const up = allNeos.filter(n=>n.epoch && n.epoch > Date.now()).sort((a,b)=>a.epoch - b.epoch)[0], cd = $('nextCd');
+  if(cd && up) cd.textContent = relTime(up.epoch).t.replace('IN ','');
+}, 30000);
+setInterval(()=>{ if(!document.hidden) loadAsteroids(); }, 3*3600*1000);   // refresh every 3 hours while open
+
 // auto-load on first visit
 loadAsteroids();
+})();
 </script>
 
 <script src="/libraries/config.js"></script>

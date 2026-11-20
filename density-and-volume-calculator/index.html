@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-  <meta name="theme-color" content="#0f0f0f">
+  <meta name="theme-color" content="#0a0505">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 
@@ -18,870 +18,587 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Free density and volume calculator. Enter mass and volume to calculate density instantly, with a built-in volume calculator for cubes, boxes, spheres, and cylinders. See if your material floats or sinks in water.">
+<meta name="description" content="Free density calculator. Find density, mass or volume from the other two, in kg, g, lb, litres, m³ and more. See live whether your material floats or sinks in water, seawater, oil or mercury, with a built-in volume calculator for cubes, boxes, spheres, cylinders and cones.">
 
-<title>Density &amp; Volume Calculator</title>
+<title>Density &amp; Volume Calculator — rameshverse</title>
 
 <link rel="canonical" href="https://rameshverse.com/density-and-volume-calculator">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-  :root {
-    --bg: #070c10;
-    --panel: #10161d;
-    --panel-2: #0b1116;
-    --line: rgba(56,189,248,0.16);
-    --line-soft: rgba(56,189,248,0.08);
-    --cyan: #38bdf8;
-    --cyan-dim: rgba(56,189,248,0.14);
-    --copper: #ff9d5c;
-    --copper-dim: rgba(255,157,92,0.14);
-    --float-color: #38bdf8;
-    --neutral-color: #94a3b8;
-    --sink-color: #ff9d5c;
-    --text: #eaf3fa;
-    --text-dim: #7d8a99;
-    --sans: 'Sora', system-ui, -apple-system, sans-serif;
-    --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  :root{
+    --bg:#0a0505;
+    --bg2:#120808;
+    --red:#ff2b2b;
+    --red-dim:#5e1414;
+    --cyan:#00e5ff;
+    --text:#e8e2e2;
+    --text-dim:#8a7a7a;
+    --line:#2a1616;
+    --liq:rgba(0,229,255,.32);
+    --liq-edge:rgba(0,229,255,.85);
+    color-scheme:dark;
   }
-
-  * { box-sizing: border-box; }
-
-  html, body { height: 100%; }
-
-  body {
-  margin: 0;
-  font-family: var(--sans);
-  background:
-    repeating-linear-gradient(0deg, rgba(56,189,248,0.05) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(90deg, rgba(56,189,248,0.05) 0 1px, transparent 1px 34px),
-    radial-gradient(ellipse 800px 550px at 50% -8%, rgba(56,189,248,0.10), transparent 62%),
-    var(--bg);
-  color: var(--text);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;   /* was: center */
-  min-height: 100vh;
-  min-height: 100svh;
-  padding: 60px 12px 32px;   /* was: 32px 12px */
-}
-
-  .page { width: 100%; max-width: 400px; }
-
-  /* ---------- Header / beaker mark ---------- */
-  .header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 18px;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{min-height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse 800px 500px at 50% -10%, rgba(255,43,43,.10), transparent 65%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Space Mono', monospace;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
   }
-
-  .beaker-mark {
-    position: relative;
-    width: 66px;
-    height: 78px;
-    margin-bottom: 10px;
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:60;
+    background-image:repeating-linear-gradient(0deg, rgba(255,43,43,.025) 0, rgba(255,43,43,.025) 1px, transparent 1px, transparent 3px);
   }
+  :focus-visible{outline:1px solid var(--red); outline-offset:2px;}
+  .wrap{position:relative; z-index:2; max-width:980px; margin:0 auto; padding:56px 16px 70px;}
 
-  .beaker-glass {
-    position: absolute;
-    inset: 0;
-    clip-path: polygon(22% 0%, 78% 0%, 96% 100%, 4% 100%);
-    border: 1.5px solid rgba(56,189,248,0.45);
-    background: linear-gradient(180deg, rgba(56,189,248,0.04), rgba(56,189,248,0.01));
-    overflow: hidden;
-  }
+  .frame{position:relative; border:1px solid var(--line); padding:22px; margin-bottom:18px; background:linear-gradient(180deg,var(--bg2),var(--bg));}
+  .corners span{position:absolute; width:12px; height:12px; border-color:var(--red); border-style:solid; z-index:3;}
+  .corners span:nth-child(1){top:-1px; left:-1px; border-width:2px 0 0 2px;}
+  .corners span:nth-child(2){top:-1px; right:-1px; border-width:2px 2px 0 0;}
+  .corners span:nth-child(3){bottom:-1px; left:-1px; border-width:0 0 2px 2px;}
+  .corners span:nth-child(4){bottom:-1px; right:-1px; border-width:0 2px 2px 0;}
+  .tag{font-size:10px; letter-spacing:.2em; color:var(--red); text-transform:uppercase;}
 
-  .liquid {
-    position: absolute;
-    left: -2px; right: -2px; bottom: -2px;
-    height: 56%;
-    background: linear-gradient(180deg, rgba(56,189,248,0.55), rgba(56,189,248,0.8));
-    box-shadow: 0 -1px 0 rgba(180,230,255,0.5) inset;
-  }
+  header.frame{display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  h1{font-size:clamp(22px,4.6vw,38px); letter-spacing:.02em; text-transform:uppercase; font-weight:700; line-height:1.05;}
+  h1 .dot{color:var(--red);}
+  .sub{color:var(--text-dim); font-size:12px; margin-top:8px; line-height:1.6;}
+  .rho{margin-left:auto; text-align:right; font-size:clamp(20px,4vw,30px); color:var(--red); text-shadow:0 0 18px rgba(255,43,43,.45); letter-spacing:.04em;}
+  .rho small{display:block; font-size:10px; color:var(--text-dim); letter-spacing:.2em; text-shadow:none; margin-top:2px;}
 
-  .bubble {
-    position: absolute;
-    width: 3px; height: 3px;
-    background: rgba(255,255,255,0.65);
-    border-radius: 50%;
-    bottom: 4px;
-    animation: rise 2.6s linear infinite;
-  }
+  .grid{display:grid; gap:18px; grid-template-columns:1fr;}
+  @media(min-width:820px){ .grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);} }
 
-  .bubble.b1 { left: 30%; animation-delay: 0s; }
-  .bubble.b2 { left: 62%; animation-delay: 1.3s; }
+  /* mode tabs */
+  .modes{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:18px;}
+  button{font-family:inherit; cursor:pointer; background:transparent; color:var(--red); border:1px solid var(--red-dim); font-size:11px; letter-spacing:.1em; text-transform:uppercase; padding:10px 8px; border-radius:0; transition:background .15s,color .15s,border-color .15s;}
+  button:hover{background:var(--red); color:var(--bg); border-color:var(--red);}
+  button.on{background:var(--red); color:var(--bg); border-color:var(--red); font-weight:700;}
+  button.quiet{color:var(--text-dim); border-color:var(--line);}
+  button.quiet:hover{background:var(--line); color:var(--text); border-color:var(--line);}
+  button:disabled{opacity:.4; cursor:not-allowed;}
 
-  @keyframes rise {
-    0%   { transform: translateY(0); opacity: 0.75; }
-    100% { transform: translateY(-38px); opacity: 0; }
-  }
+  .field{margin-bottom:14px;}
+  .field label{display:flex; justify-content:space-between; font-size:10px; letter-spacing:.18em; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;}
+  .field label b{color:var(--red); font-weight:400;}
+  .row{display:flex; gap:6px;}
+  input,select{background:var(--bg); border:1px solid var(--line); color:var(--text); font-family:inherit; font-size:15px; padding:0 12px; height:46px; border-radius:0; min-width:0;}
+  input{flex:1 1 auto; width:100%; letter-spacing:.02em;}
+  select{flex:0 0 112px; font-size:12px; padding:0 6px; cursor:pointer;}
+  select option{background:#120808; color:var(--text);}
+  input::placeholder{color:#4a3a3a;}
+  input:focus,select:focus{outline:none; border-color:var(--red); box-shadow:0 0 0 1px rgba(255,43,43,.35);}
+  input.solved{border-color:var(--red); color:var(--red); background:rgba(255,43,43,.07); cursor:default; font-weight:700;}
+  .field.flash input{animation:flash .7s;}
+  @keyframes flash{0%{box-shadow:0 0 0 2px var(--red);}100%{box-shadow:0 0 0 0 transparent;}}
+  .solvedtag{font-size:9px; letter-spacing:.18em; color:var(--red);}
+  .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;}
+  .actions button{flex:1 1 auto;}
 
-  .sample-cube {
-    position: absolute;
-    left: 50%;
-    top: 38%;
-    width: 15px; height: 15px;
-    margin-left: -7.5px;
-    background: linear-gradient(135deg, var(--copper), #c4630f);
-    border-radius: 3px;
-    box-shadow: 0 0 9px rgba(255,157,92,0.55);
-    animation: bob 3.2s ease-in-out infinite;
-  }
+  /* result */
+  .result{margin-top:18px; border:1px solid var(--red-dim); padding:16px; background:rgba(255,43,43,.05); position:relative;}
+  .result .k{font-size:10px; letter-spacing:.2em; color:var(--text-dim);}
+  .result .v{font-size:clamp(24px,6vw,36px); font-weight:700; color:var(--red); text-shadow:0 0 18px rgba(255,43,43,.4); margin:6px 0 2px; word-break:break-all; cursor:pointer; line-height:1.1;}
+  .result .v small{font-size:.5em; color:var(--text); text-shadow:none; margin-left:6px; font-weight:400;}
+  .result .eq{font-size:11px; color:var(--text-dim); line-height:1.7; margin-top:6px;}
+  .result .eq span{display:inline-block; margin-right:10px; color:var(--text);}
+  .result .note{font-size:11px; margin-top:8px; color:#ffb454; line-height:1.5;}
+  .result .btns{display:flex; gap:8px; margin-top:12px;}
+  .result .btns button{flex:1;}
+  .empty{font-size:12px; color:var(--text-dim); line-height:1.6;}
 
-  @keyframes bob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(7px); }
-  }
+  /* beaker */
+  .lab{display:flex; gap:14px; align-items:flex-end; justify-content:center;}
+  .beakerBox{position:relative; width:170px; height:230px; flex:0 0 170px;}
+  .beaker{position:absolute; left:10px; right:10px; top:10px; bottom:10px; border:2px solid var(--red-dim); border-top:none; overflow:hidden;}
+  .beaker::before{content:""; position:absolute; left:0; right:0; top:0; height:100%; background:repeating-linear-gradient(0deg, transparent 0 19px, rgba(255,43,43,.1) 19px 20px); z-index:3; pointer-events:none;}
+  .liquid{position:absolute; left:0; right:0; bottom:0; height:140px; background:linear-gradient(180deg,var(--liq),color-mix(in srgb,var(--liq) 140%,transparent)); border-top:2px solid var(--liq-edge); transition:background .4s;}
+  .liquid::after{content:""; position:absolute; left:0; right:0; top:-2px; height:6px; background:repeating-linear-gradient(90deg,var(--liq-edge) 0 8px,transparent 8px 16px); opacity:.4; animation:wave 3s linear infinite;}
+  @keyframes wave{to{transform:translateX(16px);}}
+  .bub{position:absolute; bottom:6px; width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.55); animation:rise 3.4s linear infinite;}
+  @keyframes rise{0%{transform:translateY(0);opacity:.8;}100%{transform:translateY(-120px);opacity:0;}}
+  .objWrap{position:absolute; left:50%; width:46px; height:46px; margin-left:-23px; top:-60px; transition:top 1.1s cubic-bezier(.3,1.35,.5,1), opacity .4s; z-index:2;}
+  .obj{width:100%; height:100%; background:linear-gradient(135deg,#8af4ff,#00a8c4); border:1px solid rgba(255,255,255,.4); box-shadow:0 0 14px rgba(0,229,255,.5); display:flex; align-items:center; justify-content:center; font-size:20px; color:#031014; font-weight:700; transition:background .4s,box-shadow .4s;}
+  .objWrap.floats .obj{animation:bob 2.8s ease-in-out infinite;}
+  .objWrap.neutral .obj{background:linear-gradient(135deg,#e8e2e2,#8a7a7a); box-shadow:0 0 14px rgba(232,226,226,.35); animation:bob 3.4s ease-in-out infinite;}
+  .objWrap.sinks .obj{background:linear-gradient(135deg,#ff6a6a,#a31212); box-shadow:0 0 14px rgba(255,43,43,.55); color:#1a0505;}
+  .objWrap.idle{opacity:.3;} .objWrap.idle .obj{background:#2a1616; box-shadow:none; color:var(--text-dim);}
+  @keyframes bob{0%,100%{transform:translateY(-2px) rotate(-3deg);}50%{transform:translateY(3px) rotate(3deg);}}
+  @media(prefers-reduced-motion:reduce){ .objWrap .obj,.liquid::after,.bub{animation:none !important;} .objWrap{transition:none;} }
+  .sideInfo{flex:1; min-width:0; font-size:11px; line-height:1.7; color:var(--text-dim); padding-bottom:12px;}
+  .status{font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; color:var(--text-dim);}
+  .status.floats{color:var(--cyan);} .status.sinks{color:var(--red);} .status.neutral{color:var(--text);}
+  .sideInfo select{width:100%; flex:none; margin-top:6px; height:38px;}
+  .sideInfo .small{font-size:10px; letter-spacing:.16em; color:var(--text-dim);}
+  .barSub{margin-top:8px; height:8px; border:1px solid var(--line); position:relative; background:var(--bg);}
+  .barSub i{position:absolute; left:0; top:0; bottom:0; background:var(--cyan); opacity:.75; transition:width .9s;}
 
-  @media (prefers-reduced-motion: reduce) {
-    .bubble, .sample-cube { animation: none; }
-  }
+  /* scale */
+  .scale{position:relative; height:76px; margin:6px 8px 0;}
+  .track{position:absolute; left:0; right:0; top:38px; height:2px; background:var(--line);}
+  .tick{position:absolute; top:34px; width:1px; height:10px; background:var(--text-dim);}
+  .tickL{position:absolute; top:48px; transform:translateX(-50%); font-size:9px; color:var(--text-dim); letter-spacing:.06em; white-space:nowrap;}
+  .mdot{position:absolute; top:35px; width:7px; height:7px; margin-left:-3px; border-radius:50%; background:#6b4a4a; border:1px solid #1a0b0b;}
+  .mdot.space{background:#4a6a7a;}
+  .liqMark{position:absolute; top:22px; height:30px; width:2px; background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
+  .liqMark em{position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-style:normal; font-size:9px; color:var(--cyan); white-space:nowrap; letter-spacing:.08em;}
+  .resMark{position:absolute; top:0; transform:translateX(-50%); transition:left .8s cubic-bezier(.3,1.2,.5,1); text-align:center; font-size:10px; color:var(--red); letter-spacing:.1em;}
+  .resMark::after{content:""; display:block; margin:2px auto 0; width:0; height:0; border:6px solid transparent; border-top:9px solid var(--red); filter:drop-shadow(0 0 5px var(--red));}
+  .closest{font-size:11px; color:var(--text-dim); margin-top:2px; line-height:1.6;}
+  .closest b{color:var(--text); font-weight:700;}
 
-  h1 {
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: 1.3rem;
-    margin: 0;
-    text-align: center;
-  }
+  /* library */
+  .libgrp{margin-top:12px;} .libgrp .tag{margin-bottom:6px; color:var(--text-dim);}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{padding:6px 9px; font-size:10.5px; letter-spacing:.04em; text-transform:none;}
+  .chips button.sel{background:var(--red-dim); color:var(--text); border-color:var(--red);}
 
-  .formula-tag {
-    margin-top: 8px;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
+  /* modal */
+  .modal{position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center; padding:14px; background:rgba(5,2,2,.82); backdrop-filter:blur(4px);}
+  .modal.open{display:flex;}
+  .mcard{position:relative; width:100%; max-width:400px; max-height:94vh; overflow:auto; background:linear-gradient(180deg,var(--bg2),var(--bg)); border:1px solid var(--line); padding:22px;}
+  .mcard h2{font-size:16px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:14px;}
+  .xbtn{position:absolute; top:10px; right:10px; width:32px; height:32px; padding:0; font-size:16px; line-height:1;}
+  .shapes{display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-bottom:12px;}
+  .shapes button{padding:7px 2px; font-size:9.5px; letter-spacing:.04em;}
+  .preview{height:84px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line); margin-bottom:14px; background:rgba(255,43,43,.04);}
+  .preview svg{height:70px; width:auto; stroke:var(--red); fill:none; stroke-width:1.5; stroke-linejoin:round; filter:drop-shadow(0 0 5px rgba(255,43,43,.5));}
+  .vres{border:1px solid var(--red-dim); background:rgba(255,43,43,.06); padding:12px; margin:14px 0 4px; min-height:64px;}
+  .vres .v{font-size:20px; font-weight:700; color:var(--red); word-break:break-all;}
+  .vres .eq{font-size:10.5px; color:var(--text-dim); margin-top:4px;}
+  .mcard .go{width:100%; margin-top:10px; padding:13px; font-size:12px; background:var(--red); color:var(--bg); border-color:var(--red); font-weight:700;}
+  .mcard .go:disabled{background:transparent; color:var(--red); border-color:var(--red-dim);}
 
-  /* ---------- Card ---------- */
-  .card {
-    position: relative;
-    background: linear-gradient(180deg, var(--panel), var(--panel-2));
-    border: 1px solid var(--line);
-    padding: 24px 22px;
-    border-radius: 16px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(56,189,248,0.03) inset;
-  }
-
-  label {
-    display: block;
-    margin-top: 14px;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-
-  label:first-of-type { margin-top: 0; }
-
-  input, select, button { font-family: var(--sans); }
-
-  input, select {
-    width: 100%;
-    margin-top: 7px;
-    padding: 0 12px;
-    height: 46px;
-    border-radius: 9px;
-    border: 1px solid var(--line-soft);
-    background: #060a0e;
-    color: var(--text);
-    font-size: 1rem;
-    font-family: var(--mono);
-  }
-
-  input::placeholder { color: #445263; }
-
-  input:focus, select:focus {
-    outline: none;
-    border-color: var(--cyan);
-    box-shadow: 0 0 0 3px var(--cyan-dim);
-  }
-
-  select option { color: #000; background: #fff; }
-
-  .volume-group { display: flex; flex-direction: column; gap: 0; }
-
-  .btn-volume-inline {
-    margin-top: 8px;
-    height: 40px;
-    border-radius: 8px;
-    border: 1px solid rgba(56,189,248,0.32);
-    background: linear-gradient(180deg, rgba(56,189,248,0.09), rgba(56,189,248,0.02));
-    color: var(--cyan);
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: box-shadow 0.15s ease, border-color 0.15s ease;
-  }
-
-  .btn-volume-inline:hover {
-    border-color: var(--cyan);
-    box-shadow: 0 0 14px rgba(56,189,248,0.25);
-  }
-
-  /* ---------- Calculate button: immersive primary ---------- */
-  .calc-wrap {
-    position: relative;
-    padding: 3px;
-    border-radius: 13px;
-    margin-top: 22px;
-    background: linear-gradient(135deg, var(--cyan), var(--copper));
-    background-size: 200% 200%;
-    animation: borderflow 6s ease infinite;
-    box-shadow: 0 12px 28px rgba(56,189,248,0.18), 0 0 30px rgba(255,157,92,0.1);
-  }
-
-  @keyframes borderflow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .calc-wrap { animation: none; }
-  }
-
-  .btn-calc {
-    position: relative;
-    width: 100%;
-    height: 56px;
-    font-size: 1.02rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    background: linear-gradient(180deg, #0d1319, #080b0f);
-    color: var(--text);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    overflow: hidden;
-  }
-
-  .btn-calc::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -60%;
-    width: 40%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.5s ease;
-  }
-
-  .calc-wrap:hover .btn-calc::after { left: 130%; }
-
-  @keyframes pressPop {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(0.96); }
-    100% { transform: scale(1); }
-  }
-
-  .btn-calc.animate { animation: pressPop 180ms ease-out; }
-
-  /* ---------- Result ---------- */
-  #densityWrap { margin-top: 20px; }
-
-  #densityOutput {
-    display: block;
-    cursor: pointer;
-    padding: 14px 14px;
-    border-radius: 10px;
-    background: #060a0e;
-    border: 1px solid var(--line-soft);
-    font-family: var(--mono);
-    text-align: center;
-    min-height: 20px;
-  }
-
-  #densityOutput b {
-    font-size: 1.15rem;
-    color: var(--cyan);
-    text-shadow: 0 0 12px rgba(56,189,248,0.3);
-  }
-
-  #densityOutput small { color: var(--text-dim); }
-
-  .buoyancy-tag {
-    display: inline-block;
-    margin-top: 6px;
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 3px 9px;
-    border-radius: 999px;
-  }
-
-  .buoyancy-tag.floats { color: var(--float-color); border: 1px solid rgba(56,189,248,0.4); background: rgba(56,189,248,0.08); }
-  .buoyancy-tag.neutral { color: var(--neutral-color); border: 1px solid rgba(148,163,184,0.4); background: rgba(148,163,184,0.08); }
-  .buoyancy-tag.sinks { color: var(--sink-color); border: 1px solid rgba(255,157,92,0.4); background: rgba(255,157,92,0.08); }
-
-  .toggle-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 14px;
-  }
-
-  .btn-toggle {
-    flex: 1;
-    height: 42px;
-    border-radius: 8px;
-    border: 1px solid var(--line-soft);
-    background: linear-gradient(180deg, rgba(56,189,248,0.06), rgba(56,189,248,0.015));
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 0.76rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-  }
-
-  .btn-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
-
-  .btn-toggle.active {
-    border-color: var(--cyan);
-    color: var(--cyan);
-    background: rgba(56,189,248,0.14);
-    box-shadow: 0 0 12px rgba(56,189,248,0.25) inset;
-  }
-
-  @keyframes unitPop {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(0.94); }
-    100% { transform: scale(1); }
-  }
-
-  .unit-animate { animation: unitPop 160ms ease-out; }
-
-  .copy {
-    width: 100%;
-    margin-top: 12px;
-    height: 44px;
-    border-radius: 9px;
-    border: 1px solid rgba(52,211,153,0.4);
-    background: rgba(52,211,153,0.08);
-    color: #34d399;
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-
-  .copy:hover { background: rgba(52,211,153,0.16); }
-
-  /* ---------- Modal ---------- */
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(3,6,9,0.72);
-    backdrop-filter: blur(4px);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    z-index: 10;
-  }
-
-  .modal-content {
-    position: relative;
-    background: linear-gradient(180deg, var(--panel), var(--panel-2));
-    border: 1px solid var(--line);
-    padding: 24px 22px;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 340px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 12px; right: 12px;
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    border: 1px solid var(--line-soft);
-    background: rgba(56,189,248,0.06);
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 0.9rem;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-close:hover { color: var(--cyan); border-color: var(--cyan); }
-
-  .modal-content h1 { margin-bottom: 16px; }
-
-  .modal-content button:not(.modal-close) {
-    width: 100%;
-    height: 48px;
-    margin-top: 16px;
-    border-radius: 9px;
-    border: none;
-    background: linear-gradient(180deg, var(--cyan), #0ea5e9);
-    color: #041019;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-
-  .modal-content button:not(.modal-close):hover { filter: brightness(1.08); }
-
-  .result { margin-top: 12px; font-size: 14px; }
-
-  .volume-result {
-    margin-top: 4px;
-    padding: 14px 12px;
-    border-radius: 10px;
-    background: rgba(56,189,248,0.07);
-    border: 1px solid var(--line-soft);
-    cursor: pointer;
-  }
-
-  .volume-value {
-    font-family: var(--mono);
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--cyan);
-    line-height: 1.3;
-  }
-
-  .volume-hint {
-    margin-top: 6px;
-    font-size: 0.78rem;
-    color: var(--text-dim);
-  }
-
-  @keyframes volumePulse {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.03); }
-    100% { transform: scale(1); }
-  }
-
-  .volume-pulse { animation: volumePulse 600ms ease-out; }
-
-  @media (max-width: 480px) {
-    h1 { font-size: 1.15rem; }
-    .btn-calc { height: 58px; font-size: 1rem; }
-    .toggle-row { flex-direction: column; }
-  }
+  .foot{font-size:10px; color:var(--text-dim); text-align:center; letter-spacing:.1em; line-height:1.8;}
 </style>
 </head>
-
 <body>
+<div class="wrap">
 
-<div class="page">
+  <header class="frame">
+    <div class="corners"><span></span><span></span><span></span><span></span></div>
+    <div>
+      <div class="tag">// RV · MATTER LAB</div>
+      <h1>Density &amp; Volume<span class="dot">.</span></h1>
+      <p class="sub">Solve for any one of mass, volume or density. Watch it float or sink.</p>
+    </div>
+    <div class="rho"><span id="formula">ρ = m / V</span><small>FORMULA</small></div>
+  </header>
 
-  <div class="header">
-    <div class="beaker-mark">
-      <div class="beaker-glass">
-        <div class="liquid">
-          <div class="bubble b1"></div>
-          <div class="bubble b2"></div>
+  <div class="grid">
+
+    <!-- INPUTS -->
+    <section class="frame" aria-label="Calculator">
+      <div class="corners"><span></span><span></span><span></span><span></span></div>
+      <div class="tag" style="margin-bottom:8px">SOLVE FOR</div>
+      <div class="modes" role="tablist" aria-label="What to calculate">
+        <button type="button" role="tab" data-mode="density" class="on">Density</button>
+        <button type="button" role="tab" data-mode="mass">Mass</button>
+        <button type="button" role="tab" data-mode="vol">Volume</button>
+      </div>
+
+      <div class="field" id="fMass">
+        <label for="mass"><span>Mass</span><b class="solvedtag" hidden>SOLVED</b></label>
+        <div class="row">
+          <input type="text" id="mass" inputmode="decimal" autocomplete="off" placeholder="e.g. 2.7">
+          <select id="massU" aria-label="Mass unit"></select>
         </div>
       </div>
-      <div class="sample-cube"></div>
-    </div>
-    <h1><title>Density & Volume Calculator | rameshverse</title></h1>
-    <div class="formula-tag">&rho; = m / V</div>
-  </div>
 
-  <!-- MAIN DENSITY CALCULATOR -->
-  <div class="card">
-
-    <label>Mass (kg)</label>
-    <input type="text" id="mass" placeholder="Enter mass in kg" inputmode="decimal"
-      oninput="sanitizeInput(this)" onblur="formatInput(this)">
-
-    <label>Volume (m&sup3;)</label>
-    <div class="volume-group">
-      <input type="text" id="volume" placeholder="Enter volume or calculate" inputmode="decimal"
-        oninput="sanitizeInput(this)" onblur="formatInput(this)">
-      <button class="btn-volume-inline" onclick="openVolumeCalc()">Open Volume Calculator</button>
-    </div>
-
-    <div class="calc-wrap">
-      <button class="btn-calc" onclick="calculateDensity(this)">Calculate Density</button>
-    </div>
-
-    <div class="result" id="densityWrap">
-      <span id="densityOutput" onclick="copyDensity()"></span>
-
-      <div class="toggle-row">
-        <button id="unitBtn" class="btn-toggle" onclick="toggleUnit(this)" style="display:none;">kg/m&sup3; &harr; g/cm&sup3;</button>
-        <button id="rawBtn" class="btn-toggle" onclick="toggleRaw(event)" style="display:none;">Raw</button>
+      <div class="field" id="fVol">
+        <label for="vol"><span>Volume</span><b class="solvedtag" hidden>SOLVED</b></label>
+        <div class="row">
+          <input type="text" id="vol" inputmode="decimal" autocomplete="off" placeholder="e.g. 1">
+          <select id="volU" aria-label="Volume unit"></select>
+        </div>
       </div>
-    </div>
 
-    <button id="copyDensityBtn" class="copy" style="display:none" onclick="copyDensity()">Copy Result</button>
+      <div class="field" id="fDen">
+        <label for="den"><span>Density</span><b class="solvedtag" hidden>SOLVED</b></label>
+        <div class="row">
+          <input type="text" id="den" inputmode="decimal" autocomplete="off" placeholder="e.g. 2700">
+          <select id="denU" aria-label="Density unit"></select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="openVol">📐 Volume calculator</button>
+        <button type="button" id="resetBtn" class="quiet">Reset</button>
+      </div>
+
+      <div class="result" id="result" aria-live="polite"></div>
+    </section>
+
+    <!-- VISUAL -->
+    <section class="frame" aria-label="Float or sink">
+      <div class="corners"><span></span><span></span><span></span><span></span></div>
+      <div class="tag" style="margin-bottom:12px">FLOAT / SINK TEST</div>
+      <div class="lab">
+        <div class="beakerBox" aria-hidden="true">
+          <div class="beaker">
+            <div class="liquid" id="liquid">
+              <span class="bub" style="left:22%;animation-delay:0s"></span>
+              <span class="bub" style="left:58%;animation-delay:1.2s"></span>
+              <span class="bub" style="left:80%;animation-delay:2.1s"></span>
+            </div>
+          </div>
+          <div class="objWrap idle" id="objWrap"><div class="obj">ρ</div></div>
+        </div>
+        <div class="sideInfo">
+          <div class="status" id="status">Awaiting data</div>
+          <div id="statusSub">Fill in two values to test your material.</div>
+          <div class="barSub" title="Share of the object below the surface" id="subBar" hidden><i id="subFill" style="width:0"></i></div>
+          <div class="small" style="margin-top:14px">LIQUID</div>
+          <select id="liquidSel" aria-label="Liquid">
+            <option value="789">Ethanol · 789</option>
+            <option value="915">Olive oil · 915</option>
+            <option value="1000" selected>Water · 1,000</option>
+            <option value="1025">Seawater · 1,025</option>
+            <option value="1261">Glycerin · 1,261</option>
+            <option value="13534">Mercury · 13,534</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tag" style="margin:22px 0 2px; color:var(--text-dim)">DENSITY SCALE · g/cm³ (log)</div>
+      <div class="scale" id="scale" aria-hidden="true">
+        <div class="track"></div>
+      </div>
+      <div class="closest" id="closest"></div>
+    </section>
+
   </div>
+
+  <section class="frame" aria-label="Material library">
+    <div class="corners"><span></span><span></span><span></span><span></span></div>
+    <div class="tag">MATERIAL LIBRARY · TAP TO LOAD A DENSITY</div>
+    <div id="lib"></div>
+  </section>
+
+  <div class="foot">ρ = m / V &nbsp;·&nbsp; m = ρ × V &nbsp;·&nbsp; V = m / ρ &nbsp;·&nbsp; Typical values at room temperature, water = 1,000 kg/m³</div>
 </div>
 
 <!-- VOLUME CALCULATOR MODAL -->
-<div class="modal" id="volumeModal">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeVolumeCalc()" aria-label="Close">&times;</button>
-
-    <h1>Volume Calculator</h1>
-
-    <label>Shape</label>
-    <select id="shape" onchange="updateVolumeInputs()">
-      <option value="">Select shape</option>
-      <option value="cube">Cube</option>
-      <option value="box">Box (Rectangular)</option>
-      <option value="sphere">Sphere</option>
-      <option value="cylinder">Cylinder</option>
-    </select>
-
-    <div id="volumeInputs"></div>
-
-    <button onclick="calculateVolume()">Calculate Volume</button>
-
-    <div class="result" id="volumeOutput" onclick="copyVolume()"></div>
+<div class="modal" id="volModal" role="dialog" aria-modal="true" aria-labelledby="volTitle">
+  <div class="mcard">
+    <div class="corners"><span></span><span></span><span></span><span></span></div>
+    <button type="button" class="xbtn" id="closeVol" aria-label="Close">×</button>
+    <h2 id="volTitle">Volume calculator</h2>
+    <div class="shapes" id="shapeBtns"></div>
+    <div class="preview" id="shapePrev" aria-hidden="true"></div>
+    <div class="field">
+      <label for="lenU"><span>Length unit</span></label>
+      <div class="row"><select id="lenU" style="flex:1"></select></div>
+    </div>
+    <div id="dimFields"></div>
+    <div class="vres" id="vres" aria-live="polite"></div>
+    <button type="button" class="go" id="useVol" disabled>Use this volume</button>
   </div>
 </div>
 
 <script>
-let densitySI = null;        // kg/m³ (raw)
-let currentUnit = "kg/m3";
-let showRaw = false;
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
 
-let densityForCalc = null;   // Number
+/* ---------- units (factor to SI) ---------- */
+const U = {
+  mass: {"kg":1, "g":1e-3, "mg":1e-6, "tonne":1e3, "lb":0.45359237, "oz":0.028349523125},
+  vol:  {"m³":1, "L":1e-3, "mL":1e-6, "cm³":1e-6, "mm³":1e-9, "ft³":0.028316846592, "in³":1.6387064e-5, "gal (US)":0.003785411784},
+  den:  {"kg/m³":1, "g/cm³":1000, "lb/ft³":16.01846337},
+  len:  {"m":1, "cm":0.01, "mm":0.001, "ft":0.3048, "in":0.0254}
+};
+const EQ = {   // which units to list as equivalents
+  density:["kg/m³","g/cm³","lb/ft³"], mass:["kg","g","lb"], vol:["m³","L","ft³"]
+};
 
-let densityRawText = "";
-let densityRoundedText = "";
+/* ---------- material library (kg/m³) ---------- */
+const LIB = [
+  ["EVERYDAY",[["Cork",240],["Pine wood",500],["Oak wood",750],["Ice",917],["Water",1000],["Human body",985],["Seawater",1025],["Rubber",1100],["Brick",1900],["Concrete",2400],["Glass",2500]]],
+  ["METALS",[["Aluminium",2700],["Titanium",4506],["Iron",7870],["Brass",8500],["Copper",8960],["Silver",10490],["Lead",11340],["Mercury",13534],["Gold",19320],["Platinum",21450],["Osmium",22590]]],
+  ["SPACE · AVERAGE",[["Saturn",687],["Jupiter",1326],["Sun",1408],["Moon",3344],["Mars",3933],["Earth",5514]]]
+];
+const FLAT = []; LIB.forEach(g => g[1].forEach(m => FLAT.push({n:m[0], d:m[1], space:g[0].indexOf("SPACE")===0})));
 
-/* ---------- Plain-decimal formatting (never exponential) ---------- */
+/* ---------- state ---------- */
+const KEY = "rv-density";
+const DEF = {mode:"density", mass:"2.7", vol:"1", den:"", mu:"kg", vu:"L", du:"kg/m³", liq:"1000"};
+let S = Object.assign({}, DEF);
+try{ const r = JSON.parse(localStorage.getItem(KEY) || "null"); if(r && typeof r === "object") S = Object.assign(S, r); }catch(e){}
+if(!["density","mass","vol"].includes(S.mode)) S.mode = "density";
+let showRaw = false, last = null;
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
-function toPlainString(num) {
-  if (num === 0) return "0";
-  const negative = num < 0;
-  num = Math.abs(num);
-
-  const expStr = num.toExponential(14);
-  const [mantissa, expPart] = expStr.split('e');
-  const exp = parseInt(expPart, 10);
-  const digits = mantissa.replace('.', '');
-
-  let result;
-  if (exp >= 0) {
-    if (exp + 1 >= digits.length) {
-      result = digits + '0'.repeat(exp + 1 - digits.length);
-    } else {
-      const intPart = digits.slice(0, exp + 1);
-      const fracPart = digits.slice(exp + 1).replace(/0+$/, '');
-      result = fracPart.length ? intPart + '.' + fracPart : intPart;
-    }
-  } else {
-    const zeros = '0'.repeat(-exp - 1);
-    const fracPart = (zeros + digits).replace(/0+$/, '');
-    result = fracPart.length ? '0.' + fracPart : '0';
+/* ---------- number helpers ---------- */
+function toPlain(num){
+  if(num === 0) return "0";
+  const neg = num < 0; num = Math.abs(num);
+  const [mant, ex] = num.toExponential(14).split("e");
+  const exp = parseInt(ex, 10), digits = mant.replace(".", "");
+  let r;
+  if(exp >= 0){
+    if(exp + 1 >= digits.length) r = digits + "0".repeat(exp + 1 - digits.length);
+    else { const ip = digits.slice(0, exp + 1), fp = digits.slice(exp + 1).replace(/0+$/, ""); r = fp ? ip + "." + fp : ip; }
+  }else{
+    const fp = ("0".repeat(-exp - 1) + digits).replace(/0+$/, ""); r = fp ? "0." + fp : "0";
   }
+  return (neg ? "-" : "") + r;
+}
+const sig = (x, n) => Number(x.toPrecision(n));
+function group(s){ const p = s.split("."); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return p.join("."); }
+const fmt = (x, raw) => group(raw ? toPlain(x) : toPlain(sig(x, 6)));
+const parse = v => parseFloat(String(v || "").replace(/,/g, ""));
+const okNum = x => isFinite(x) && x > 0;
 
-  return (negative ? '-' : '') + result;
+function sanitize(el){
+  const pos = el.selectionStart, before = el.value;
+  let c = before.replace(/,/g, "").replace(/[^\d.]/g, "");
+  const d = c.indexOf("."); if(d !== -1) c = c.slice(0, d + 1) + c.slice(d + 1).replace(/\./g, "");
+  if(c !== before){ el.value = c; const np = Math.max(0, pos + c.length - before.length); try{ el.setSelectionRange(np, np); }catch(e){} }
+}
+function groupField(el){
+  const raw = el.value.replace(/,/g, ""); if(!raw || raw === ".") return;
+  const p = raw.split("."); p[0] = (p[0] || "0").replace(/\B(?=(\d{3})+(?!\d))/g, ","); el.value = p.join(".");
 }
 
-function roundSafe(num, decimals) {
-  const factor = 10 ** decimals;
-  return Math.round((num + Number.EPSILON) * factor) / factor;
+/* ---------- build selects ---------- */
+function fillSel(sel, obj, val){ sel.innerHTML = Object.keys(obj).map(k => `<option value="${k}">${k}</option>`).join(""); sel.value = val; }
+fillSel($("massU"), U.mass, S.mu); fillSel($("volU"), U.vol, S.vu); fillSel($("denU"), U.den, S.du);
+if(!$("massU").value) $("massU").value = "kg"; if(!$("volU").value) $("volU").value = "L"; if(!$("denU").value) $("denU").value = "kg/m³";
+$("liquidSel").value = S.liq; if(!$("liquidSel").value) $("liquidSel").value = "1000";
+$("mass").value = S.mass; $("vol").value = S.vol; $("den").value = S.den;
+
+const F = { mass:{inp:$("mass"), sel:$("massU"), box:$("fMass"), u:U.mass}, vol:{inp:$("vol"), sel:$("volU"), box:$("fVol"), u:U.vol}, density:{inp:$("den"), sel:$("denU"), box:$("fDen"), u:U.den} };
+
+/* ---------- mode ---------- */
+const FORMULAS = {density:"ρ = m / V", mass:"m = ρ × V", vol:"V = m / ρ"};
+const MODE_KEY = {density:"density", mass:"mass", vol:"vol"};
+function setMode(m, silent){
+  if(!silent && last && m !== S.mode){      // carry the solved value over into the field that becomes an input
+    const f = F[MODE_KEY[S.mode]];
+    if(!f.inp.value && last.res) f.inp.value = fmt(last.res / f.u[f.sel.value], false);
+  }
+  S.mode = m;
+  document.querySelectorAll(".modes button").forEach(b => { const on = b.dataset.mode === m; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
+  Object.keys(F).forEach(k => {
+    const f = F[k], solved = MODE_KEY[m] === k;
+    f.inp.readOnly = solved; f.inp.classList.toggle("solved", solved);
+    f.box.querySelector(".solvedtag").hidden = !solved;
+    f.inp.placeholder = solved ? "result" : f.inp.dataset.ph || f.inp.placeholder;
+    if(solved) f.inp.value = "";
+  });
+  $("formula").textContent = FORMULAS[m];
+  $("openVol").hidden = (m === "vol");
+  update();
+}
+Object.values(F).forEach(f => f.inp.dataset.ph = f.inp.placeholder);
+
+/* ---------- compute + render ---------- */
+function nearest(rho){
+  let best = null, bd = Infinity;
+  FLAT.forEach(m => { const d = Math.abs(Math.log(rho / m.d)); if(d < bd){ bd = d; best = m; } });
+  return {m:best, pct:(rho / best.d - 1) * 100, d:bd};
+}
+function update(){
+  const m = S.mode;
+  const mv = parse(F.mass.inp.value) * U.mass[F.mass.sel.value];
+  const vv = parse(F.vol.inp.value) * U.vol[F.vol.sel.value];
+  const dv = parse(F.density.inp.value) * U.den[F.density.sel.value];
+  let res = null, rho = null;
+  if(m === "density"){ if(okNum(mv) && okNum(vv)){ res = mv / vv; rho = res; } }
+  else if(m === "mass"){ if(okNum(dv) && okNum(vv)){ res = dv * vv; rho = dv; } }
+  else { if(okNum(mv) && okNum(dv)){ res = mv / dv; rho = dv; } }
+  if(res !== null && (!isFinite(res) || res <= 0)) res = rho = null;
+  last = res === null ? null : {res, rho};
+
+  const f = F[MODE_KEY[m]];
+  f.inp.value = res === null ? "" : fmt(res / f.u[f.sel.value], false);
+
+  S.mass = F.mass.inp.value; S.vol = F.vol.inp.value; S.den = F.density.inp.value;
+  S.mu = F.mass.sel.value; S.vu = F.vol.sel.value; S.du = F.density.sel.value; S.liq = $("liquidSel").value;
+  save();
+  renderResult(res, rho); renderVisual(rho);
 }
 
-/* ---------- Density ---------- */
-
-function calculateDensity(btn) {
-  if (btn) {
-    btn.classList.remove("animate");
-    btn.offsetHeight;
-    btn.classList.add("animate");
-  }
-
-  const m = parseFloat(removeCommas(document.getElementById("mass").value));
-  const v = parseFloat(removeCommas(document.getElementById("volume").value));
-
-  const densityOutput = document.getElementById("densityOutput");
-  const rawBtn = document.getElementById("rawBtn");
-  const unitBtn = document.getElementById("unitBtn");
-  const copyDensityBtn = document.getElementById("copyDensityBtn");
-
-  if (!m || !v || m < 0 || v < 0) {
-    densityOutput.innerHTML = "<small>Enter a valid mass and volume (both greater than zero).</small>";
-    rawBtn.style.display = "none";
-    unitBtn.style.display = "none";
-    copyDensityBtn.style.display = "none";
+const NAMES = {density:"DENSITY", mass:"MASS", vol:"VOLUME"};
+function renderResult(res, rho){
+  const box = $("result"), m = S.mode;
+  if(res === null){
+    box.innerHTML = `<div class="empty">Enter ${m === "density" ? "mass and volume" : m === "mass" ? "density and volume" : "mass and density"} (values above zero) and the result appears here instantly.</div>`;
     return;
   }
-
-  const raw = m / v;
-
-  densityForCalc = raw;
-  densitySI = raw;
-
-  densityRawText = toPlainString(raw);
-  densityRoundedText = toPlainString(roundSafe(raw, 3));
-
-  currentUnit = "kg/m3";
-  showRaw = false;
-
-  renderDensity();
-
-  unitBtn.style.display = "block";
-  copyDensityBtn.style.display = "block";
+  const f = F[MODE_KEY[m]], unit = f.sel.value, big = res / f.u[unit];
+  const eqs = EQ[m].filter(u => u !== unit).map(u => `<span>${fmt(res / f.u[u], showRaw)} ${u}</span>`).join("");
+  let note = "";
+  const gcc = rho / 1000;
+  if(rho < 1.2) note = "⚠ Less dense than air at sea level. Check your units.";
+  else if(gcc > 22.7) note = "⚠ Denser than osmium, the densest natural element (≈22.6 g/cm³). Check your units.";
+  box.innerHTML = `
+    <div class="k">${NAMES[m]} RESULT</div>
+    <div class="v" id="resV" title="Click to copy">${fmt(big, showRaw)}<small>${unit}</small></div>
+    <div class="eq">≈ ${eqs}</div>
+    <div class="eq">${(rho / 1000).toFixed(rho / 1000 < 10 ? 3 : 1).replace(/\.?0+$/, "")}× water density</div>
+    ${note ? `<div class="note">${note}</div>` : ""}
+    <div class="btns"><button type="button" id="rawBtn" class="${showRaw ? "on" : ""}">${showRaw ? "Rounded" : "Full precision"}</button><button type="button" id="copyBtn">Copy</button></div>`;
+  $("resV").onclick = $("copyBtn").onclick = doCopy;
+  $("rawBtn").onclick = () => { showRaw = !showRaw; renderResult(res, rho); };
+}
+function doCopy(){
+  if(!last) return;
+  const f = F[MODE_KEY[S.mode]], unit = f.sel.value;
+  const text = fmt(last.res / f.u[unit], showRaw) + " " + unit;
+  const done = () => { const b = $("copyBtn"); if(b){ const o = b.textContent; b.textContent = "Copied ✓"; setTimeout(() => { const bb = $("copyBtn"); if(bb) bb.textContent = o; }, 1100); } };
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  function fallback(){ const t = document.createElement("textarea"); t.value = text; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select(); try{ document.execCommand("copy"); done(); }catch(e){} t.remove(); }
 }
 
-function toggleUnit(btn) {
-  if (densitySI === null) return;
-
-  if (btn) {
-    btn.classList.remove("unit-animate");
-    btn.offsetHeight;
-    btn.classList.add("unit-animate");
+/* ---------- beaker ---------- */
+const LIQ_TOP = 70, LIQ_H = 140, OBJ = 46;   // px inside the beaker box (beaker top offset +10)
+const LIQCOL = {"789":["rgba(220,235,255,.22)","rgba(220,235,255,.8)"], "915":["rgba(255,196,60,.28)","rgba(255,196,60,.85)"], "1000":["rgba(0,229,255,.30)","rgba(0,229,255,.85)"], "1025":["rgba(30,120,255,.34)","rgba(80,160,255,.9)"], "1261":["rgba(150,255,170,.24)","rgba(150,255,170,.8)"], "13534":["rgba(190,200,215,.45)","rgba(230,236,245,.95)"]};
+function renderVisual(rho){
+  const liqD = +$("liquidSel").value, nm = $("liquidSel").selectedOptions[0].text.split(" ·")[0].toLowerCase();
+  const c = LIQCOL[$("liquidSel").value] || LIQCOL["1000"];
+  document.documentElement.style.setProperty("--liq", c[0]); document.documentElement.style.setProperty("--liq-edge", c[1]);
+  const w = $("objWrap"), st = $("status"), sub = $("statusSub"), bar = $("subBar");
+  w.classList.remove("floats", "sinks", "neutral", "idle"); st.classList.remove("floats", "sinks", "neutral");
+  let top, closest = "";
+  if(!rho){
+    w.classList.add("idle"); top = 6; st.textContent = "Awaiting data"; sub.textContent = "Fill in two values to test your material."; bar.hidden = true;
+  }else{
+    const r = rho / liqD, surf = LIQ_TOP + 10;      // surface y inside box
+    if(Math.abs(r - 1) < 1e-4){ w.classList.add("neutral"); top = surf + (LIQ_H - OBJ) / 2; st.textContent = "≈ Neutral"; st.classList.add("neutral"); sub.textContent = `Same density as ${nm}. It hangs in place.`; bar.hidden = true; }
+    else if(r < 1){ w.classList.add("floats"); top = surf - OBJ + r * OBJ; st.textContent = "▲ Floats"; st.classList.add("floats"); sub.textContent = `${(r * 100).toFixed(r < .1 ? 1 : 0)}% of it sits below the surface of ${nm}. ${(1 / r).toFixed(1).replace(/\.0$/, "")}× lighter than the liquid.`; bar.hidden = false; $("subFill").style.width = (r * 100) + "%"; }
+    else { w.classList.add("sinks"); top = LIQ_TOP + 10 + LIQ_H - OBJ - 8; st.textContent = "▼ Sinks"; st.classList.add("sinks"); sub.textContent = `${r.toFixed(r < 10 ? 2 : 1).replace(/\.?0+$/, "")}× denser than ${nm}. It drops to the bottom.`; bar.hidden = true; }
+    const n = nearest(rho);
+    closest = n.d < 0.4 ? `Closest match: <b>${n.m.n}</b> (${n.m.d.toLocaleString()} kg/m³), ${Math.abs(n.pct) < 0.5 ? "essentially identical" : (n.pct > 0 ? "+" : "") + n.pct.toFixed(Math.abs(n.pct) < 10 ? 1 : 0) + "%"}` : "No common material in the library within ±50% of this density.";
   }
-
-  currentUnit = currentUnit === "kg/m3" ? "g/cm3" : "kg/m3";
-  renderDensity();
+  w.style.top = top + "px";
+  $("closest").innerHTML = closest;
+  placeMarks(rho, liqD, nm);
 }
 
-function toggleRaw(e) {
-  e.stopPropagation();
-  showRaw = !showRaw;
-  renderDensity();
+/* ---------- scale ---------- */
+const LO = Math.log10(0.05), HI = Math.log10(25), pos = g => Math.min(100, Math.max(0, (Math.log10(g) - LO) / (HI - LO) * 100));
+(function buildScale(){
+  const sc = $("scale"); let h = "";
+  [0.1, 1, 10].forEach(v => { h += `<div class="tick" style="left:${pos(v)}%"></div><div class="tickL" style="left:${pos(v)}%">${v}</div>`; });
+  FLAT.forEach(m => { h += `<div class="mdot ${m.space ? "space" : ""}" style="left:${pos(m.d / 1000)}%" title="${m.n}: ${m.d} kg/m³"></div>`; });
+  h += `<div class="liqMark" id="liqMark"><em id="liqEm">WATER</em></div><div class="resMark" id="resMark" style="left:50%;opacity:0">▼<br></div>`;
+  sc.insertAdjacentHTML("beforeend", h);
+})();
+function placeMarks(rho, liqD, nm){
+  $("liqMark").style.left = pos(liqD / 1000) + "%"; $("liqEm").textContent = nm.toUpperCase();
+  const rm = $("resMark");
+  if(!rho){ rm.style.opacity = 0; return; }
+  rm.style.opacity = 1; rm.style.left = pos(rho / 1000) + "%";
+  const g = rho / 1000; rm.firstChild.textContent = (g < 0.05 ? "◂ " : g > 25 ? "" : "") + sig(g, 3).toLocaleString(undefined,{maximumFractionDigits:6}) + (g > 25 ? " ▸" : "");
+  rm.style.whiteSpace = "nowrap";
 }
 
-function renderDensity() {
-  const densityOutput = document.getElementById("densityOutput");
-  const rawBtn = document.getElementById("rawBtn");
-  const unitBtn = document.getElementById("unitBtn");
-
-  let valueText, unit, waterDensity;
-
-  if (currentUnit === "kg/m3") {
-    valueText = showRaw ? densityRawText : densityRoundedText;
-    unit = "kg/m\u00B3";
-    waterDensity = densityForCalc / 1000;
-  } else {
-    const raw = densityForCalc / 1000;
-    valueText = showRaw ? toPlainString(raw) : toPlainString(roundSafe(raw, 3));
-    unit = "g/cm\u00B3";
-    waterDensity = raw;
-  }
-
-  let tagClass, tagText;
-  const EPS = 1e-9;
-  if (waterDensity < 1 - EPS) { tagClass = "floats"; tagText = "\u25B2 Floats in water"; }
-  else if (Math.abs(waterDensity - 1) <= EPS) { tagClass = "neutral"; tagText = "\u2248 Same as water"; }
-  else { tagClass = "sinks"; tagText = "\u25BC Sinks in water"; }
-
-  densityOutput.innerHTML = `
-    <b>Density: ${formatDisplay(valueText, showRaw)} ${unit}</b><br>
-    <span class="buoyancy-tag ${tagClass}">${tagText}</span><br>
-    <small>(tap to copy)</small>
-  `;
-
-  rawBtn.style.display = "inline-block";
-  rawBtn.innerText = showRaw ? "Show Rounded (3dp)" : "Show Raw";
-  rawBtn.classList.toggle("active", showRaw);
-  unitBtn.classList.toggle("active", currentUnit === "g/cm3");
+/* ---------- library ---------- */
+(function buildLib(){
+  $("lib").innerHTML = LIB.map(g => `<div class="libgrp"><div class="tag">${g[0]}</div><div class="chips">${g[1].map(m => `<button type="button" class="quiet" data-d="${m[1]}">${m[0]} · ${m[1].toLocaleString()}</button>`).join("")}</div></div>`).join("");
+  $("lib").addEventListener("click", e => {
+    const b = e.target.closest("button[data-d]"); if(!b) return;
+    const d = +b.dataset.d;
+    if(S.mode === "density") setMode("mass", true);       // density is now an input
+    F.density.inp.value = fmt(d / U.den[F.density.sel.value], false);
+    F.density.box.classList.remove("flash"); void F.density.box.offsetWidth; F.density.box.classList.add("flash");
+    if(S.mode === "mass" && !F.vol.inp.value) F.vol.inp.value = "1";
+    update(); markLib();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+})();
+function markLib(){
+  const d = last ? last.rho : null;
+  document.querySelectorAll("#lib button").forEach(b => b.classList.toggle("sel", d !== null && Math.abs(d - +b.dataset.d) / d < 1e-6));
 }
 
-function copyDensity() {
-  if (densityForCalc === null) return;
-
-  const unit = currentUnit === "kg/m3" ? "kg/m\u00B3" : "g/cm\u00B3";
-  const text =
-    currentUnit === "kg/m3"
-      ? (showRaw ? densityRawText : densityRoundedText)
-      : (showRaw
-          ? toPlainString(densityForCalc / 1000)
-          : toPlainString(roundSafe(densityForCalc / 1000, 3)));
-
-  const densityOutput = document.getElementById("densityOutput");
-  const originalHTML = densityOutput.innerHTML;
-
-  navigator.clipboard.writeText(`${showRaw ? text : addCommas(text)} ${unit}`);
-
-  densityOutput.innerHTML = `<small>Copied \u2714\uFE0F</small>`;
-  setTimeout(() => {
-    densityOutput.innerHTML = originalHTML;
-  }, 1000);
-}
-
-/* ---------- Input formatting ----------
-   Sanitizes on every keystroke (strips invalid characters instead of
-   silently leaving them in the field) but only re-inserts comma
-   grouping on blur — reformatting on every keystroke used to throw the
-   cursor to the end of the field while editing digits in the middle
-   of a number. */
-
-function sanitizeInput(el) {
-  const cursorPos = el.selectionStart;
-  const before = el.value;
-
-  let cleaned = before.replace(/,/g, "").replace(/[^\d.]/g, "");
-
-  // collapse to a single decimal point
-  const firstDot = cleaned.indexOf(".");
-  if (firstDot !== -1) {
-    cleaned = cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, "");
-  }
-
-  if (cleaned !== before) {
-    const diff = cleaned.length - before.length;
-    el.value = cleaned;
-    const newPos = Math.max(0, cursorPos + diff);
-    el.setSelectionRange(newPos, newPos);
-  }
-}
-
-function formatInput(el) {
-  let raw = removeCommas(el.value);
-  if (!raw || raw === ".") return;
-
-  let parts = raw.split(".");
-  parts[0] = addCommas(parts[0] || "0");
-  el.value = parts.join(".");
-}
-
-/* ---------- Volume calculator ---------- */
-
-function openVolumeCalc() {
-  document.getElementById("volumeModal").style.display = "flex";
-}
-
-function closeVolumeCalc() {
-  document.getElementById("volumeModal").style.display = "none";
-}
-
-document.getElementById("volumeModal").addEventListener("click", (e) => {
-  if (e.target.id === "volumeModal") closeVolumeCalc();
+/* ---------- events ---------- */
+document.querySelectorAll(".modes button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+Object.values(F).forEach(f => {
+  f.inp.addEventListener("input", () => { sanitize(f.inp); update(); markLib(); });
+  f.inp.addEventListener("blur", () => { if(!f.inp.readOnly) groupField(f.inp); });
+  f.sel.addEventListener("change", () => {
+    // keep the physical quantity the same when the unit of a known field changes? No: the number stays, the unit changes (what the user expects).
+    update(); markLib();
+  });
+});
+$("liquidSel").addEventListener("change", update);
+$("resetBtn").addEventListener("click", () => {
+  F.mass.inp.value = ""; F.vol.inp.value = ""; F.density.inp.value = ""; showRaw = false; update(); markLib();
+  (S.mode === "mass" ? F.density.inp : F.mass.inp).focus();
 });
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && document.getElementById("volumeModal").style.display === "flex") {
-    closeVolumeCalc();
+/* ---------- volume calculator ---------- */
+const P = (b) => `<svg viewBox="0 0 90 70" aria-hidden="true">${b}</svg>`;
+const boxSvg = (w, h, d) => { const x = 14, y = 22, dx = d, dy = -d * .6; return `<rect x="${x}" y="${y + 0}" width="${w}" height="${h}"/><path d="M${x} ${y}l${dx} ${dy}h${w}l${-dx} ${-dy}M${x + w} ${y}l${dx} ${dy}v${h}l${-dx} ${-dy}"/><path d="M${x + dx} ${y + dy}v${h}" stroke-dasharray="3 3" opacity=".5"/>`; };
+const SHAPES = {
+  cube:{n:"Cube", f:[["a","Side"]], v:p => p.a ** 3, svg:P(boxSvg(34, 34, 16))},
+  box:{n:"Box", f:[["l","Length"],["w","Width"],["h","Height"]], v:p => p.l * p.w * p.h, svg:P(boxSvg(46, 26, 14))},
+  sphere:{n:"Sphere", f:[["r","Radius"]], v:p => 4 / 3 * Math.PI * p.r ** 3, svg:P('<circle cx="45" cy="35" r="26"/><ellipse cx="45" cy="35" rx="26" ry="8" stroke-dasharray="3 3" opacity=".6"/><path d="M45 35h26" opacity=".8"/>')},
+  cylinder:{n:"Cylinder", f:[["r","Radius"],["h","Height"]], v:p => Math.PI * p.r * p.r * p.h, svg:P('<ellipse cx="45" cy="16" rx="24" ry="8"/><path d="M21 16v36M69 16v36"/><path d="M21 52a24 8 0 0 0 48 0"/>')},
+  cone:{n:"Cone", f:[["r","Radius"],["h","Height"]], v:p => Math.PI * p.r * p.r * p.h / 3, svg:P('<path d="M45 8L19 52M45 8l26 44"/><path d="M19 52a26 8 0 0 0 52 0"/><path d="M19 52a26 8 0 0 1 52 0" stroke-dasharray="3 3" opacity=".5"/>')}
+};
+let shape = "cube", lastV = null, opener = null;
+fillSel($("lenU"), U.len, "cm");
+$("shapeBtns").innerHTML = Object.keys(SHAPES).map(k => `<button type="button" data-s="${k}">${SHAPES[k].n}</button>`).join("");
+function drawDims(){
+  const s = SHAPES[shape], u = $("lenU").value;
+  $("shapePrev").innerHTML = s.svg;
+  const old = {}; document.querySelectorAll("#dimFields input").forEach(i => old[i.id] = i.value);
+  $("dimFields").innerHTML = s.f.map(f => `<div class="field"><label for="d_${f[0]}"><span>${f[1]}</span><b>${u}</b></label><div class="row"><input type="text" id="d_${f[0]}" inputmode="decimal" autocomplete="off" placeholder="0" value="${old["d_" + f[0]] || ""}"></div></div>`).join("");
+  document.querySelectorAll("#dimFields input").forEach(i => i.addEventListener("input", () => { sanitize(i); calcVol(); }));
+  document.querySelectorAll("#shapeBtns button").forEach(b => b.classList.toggle("on", b.dataset.s === shape));
+  calcVol();
+}
+function calcVol(){
+  const s = SHAPES[shape], k = U.len[$("lenU").value], p = {};
+  let ok = true; s.f.forEach(f => { const v = parse($("d_" + f[0]).value) * k; p[f[0]] = v; if(!okNum(v)) ok = false; });
+  const v = ok ? s.v(p) : NaN;
+  if(!ok || !isFinite(v) || v <= 0){ lastV = null; $("vres").innerHTML = `<div class="eq">Enter every dimension above zero.</div>`; $("useVol").disabled = true; return; }
+  lastV = v;
+  $("vres").innerHTML = `<div class="v">${fmt(v, false)} m³</div><div class="eq">= ${fmt(v / 1e-3, false)} L &nbsp;·&nbsp; ${fmt(v / 1e-6, false)} cm³ &nbsp;·&nbsp; ${fmt(v / U.vol["ft³"], false)} ft³</div>`;
+  $("useVol").disabled = false;
+}
+function openVol(){
+  opener = document.activeElement; $("volModal").classList.add("open"); drawDims();
+  const f = document.querySelector("#dimFields input"); if(f) f.focus();
+}
+function closeVol(){ $("volModal").classList.remove("open"); if(opener && opener.focus) opener.focus(); }
+$("openVol").addEventListener("click", openVol);
+$("closeVol").addEventListener("click", closeVol);
+$("volModal").addEventListener("mousedown", e => { if(e.target.id === "volModal") closeVol(); });
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && $("volModal").classList.contains("open")) closeVol();
+  if(e.key === "Tab" && $("volModal").classList.contains("open")){      // keep focus inside the dialog
+    const els = [...$("volModal").querySelectorAll("button:not(:disabled),input,select")]; if(!els.length) return;
+    const a = els[0], z = els[els.length - 1];
+    if(e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); }
+    else if(!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); }
   }
 });
+$("shapeBtns").addEventListener("click", e => { const b = e.target.closest("button[data-s]"); if(b){ shape = b.dataset.s; drawDims(); } });
+$("lenU").addEventListener("change", drawDims);
+$("useVol").addEventListener("click", () => {
+  if(lastV === null) return;
+  F.vol.inp.value = fmt(lastV / U.vol[F.vol.sel.value], false);
+  F.vol.box.classList.remove("flash"); void F.vol.box.offsetWidth; F.vol.box.classList.add("flash");
+  closeVol(); update(); markLib();
+});
 
-function updateVolumeInputs() {
-  const shape = document.getElementById("shape").value;
-  let html = "";
-
-  if (shape === "cube") {
-    html = `<label>Side (m)</label><input id="a" type="number" min="0" step="any" inputmode="decimal">`;
-  }
-  if (shape === "box") {
-    html = `
-      <label>Length (m)</label><input id="l" type="number" min="0" step="any" inputmode="decimal">
-      <label>Width (m)</label><input id="w" type="number" min="0" step="any" inputmode="decimal">
-      <label>Height (m)</label><input id="h" type="number" min="0" step="any" inputmode="decimal">
-    `;
-  }
-  if (shape === "sphere") {
-    html = `<label>Radius (m)</label><input id="r" type="number" min="0" step="any" inputmode="decimal">`;
-  }
-  if (shape === "cylinder") {
-    html = `
-      <label>Radius (m)</label><input id="r" type="number" min="0" step="any" inputmode="decimal">
-      <label>Height (m)</label><input id="h" type="number" min="0" step="any" inputmode="decimal">
-    `;
-  }
-
-  document.getElementById("volumeInputs").innerHTML = html;
-  document.getElementById("volumeOutput").innerHTML = "";
-}
-
-let lastVolumeValue = "";
-
-function calculateVolume() {
-  const shape = document.getElementById("shape").value;
-  const volumeOutput = document.getElementById("volumeOutput");
-
-  const val = (id) => parseFloat(document.getElementById(id)?.value);
-  let V = 0;
-  let valid = true;
-
-  if (shape === "cube") {
-    const a = val("a");
-    valid = a > 0;
-    V = a ** 3;
-  } else if (shape === "box") {
-    const l = val("l"), w = val("w"), h = val("h");
-    valid = l > 0 && w > 0 && h > 0;
-    V = l * w * h;
-  } else if (shape === "sphere") {
-    const r = val("r");
-    valid = r > 0;
-    V = (4 / 3) * Math.PI * r ** 3;
-  } else if (shape === "cylinder") {
-    const r = val("r"), h = val("h");
-    valid = r > 0 && h > 0;
-    V = Math.PI * r ** 2 * h;
-  } else {
-    valid = false;
-  }
-
-  if (!valid || !V || !isFinite(V)) {
-    volumeOutput.innerHTML = "<small>Enter valid, positive dimensions.</small>";
-    return;
-  }
-
-  lastVolumeValue = toPlainString(roundSafe(V, 3));
-  const displayVolume = addCommas(lastVolumeValue);
-
-  volumeOutput.innerHTML = `
-    <div class="volume-result" onclick="copyVolume()">
-      <div class="volume-value">${displayVolume} m&sup3;</div>
-      <div class="volume-hint">Tap to copy &amp; update volume</div>
-    </div>
-  `;
-}
-
-function copyVolume() {
-  if (!lastVolumeValue) return;
-
-  navigator.clipboard.writeText(addCommas(lastVolumeValue));
-
-  const volumeInput = document.getElementById("volume");
-  volumeInput.value = addCommas(lastVolumeValue);
-
-  document.getElementById("volumeOutput").innerHTML = `<small>Volume updated \u2714\uFE0F</small>`;
-
-  setTimeout(() => {
-    closeVolumeCalc();
-
-    volumeInput.focus({ preventScroll: true });
-    volumeInput.classList.remove("volume-pulse");
-    volumeInput.offsetHeight;
-    volumeInput.classList.add("volume-pulse");
-  }, 700);
-}
-
-/* ---------- Shared helpers ---------- */
-
-function removeCommas(value) {
-  return (value || "").replace(/,/g, "");
-}
-
-function addCommas(value) {
-  return Number(value).toLocaleString("en-US");
-}
-
-function formatDisplay(value, isRaw) {
-  if (isRaw) return value;
-  return addCommas(value);
-}
+setMode(S.mode, true); markLib();
+})();
 </script>
 
 <script src="/libraries/config.js"></script>

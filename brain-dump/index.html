@@ -473,6 +473,65 @@
   .share-icon-btn svg { width: 22px; height: 22px; }
   .share-icon-btn:hover { background: rgba(255,43,43,0.08); border-color: var(--red-dim); }
   .share-icon-btn.copied { background: #14532d; border-color: #14532d; }
+
+  /* ── DUMP ── */
+  .tools-row{justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;}
+  .left-tools{display:flex; gap:6px; flex-wrap:wrap;}
+  .mini-btn{flex:none; padding:5px 8px; font-size:0.64rem; letter-spacing:0.5px; border-color:var(--line); color:var(--muted); font-weight:400;}
+  .mini-btn:hover{color:var(--text); border-color:var(--line-bright);}
+  .dump-btn{flex:2; font-size:0.9rem; padding:13px 10px; letter-spacing:2px; background:rgba(255,43,43,0.16);
+    box-shadow:0 0 0 0 rgba(255,43,43,0.5); animation:dumpPulse 2.6s ease-in-out infinite;}
+  .dump-btn:hover{background:var(--red); color:#0a0a0c; text-shadow:none; box-shadow:0 0 22px rgba(255,43,43,0.6); animation:none;}
+  @keyframes dumpPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,43,43,0);} 50%{box-shadow:0 0 16px 0 rgba(255,43,43,0.35);}}
+  textarea.fresh{animation:freshIn .7s ease-out;}
+  @keyframes freshIn{0%{border-color:var(--red); box-shadow:0 0 24px rgba(255,43,43,0.55), inset 0 0 30px rgba(255,43,43,0.12); opacity:.4;} 100%{opacity:1;}}
+  textarea.nudge{animation:nudge .35s;}
+  .junk-warn{display:none;margin:10px 0 0;padding:10px 12px;border:1px solid #ff2b2b;background:rgba(255,43,43,.12);color:#ff6a6a;font-size:.8rem;letter-spacing:.04em;line-height:1.45;}
+  .junk-warn.show{display:block;animation:nudge .35s;}
+  textarea.junk{border-color:#ff2b2b !important;box-shadow:0 0 0 1px rgba(255,43,43,.5),0 0 18px rgba(255,43,43,.25);}
+  @keyframes nudge{0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);}}
+  .app.shake{animation:shake .45s ease-out;}
+  @keyframes shake{0%{transform:translate(0,0);} 15%{transform:translate(-7px,4px);} 30%{transform:translate(6px,-5px);} 45%{transform:translate(-4px,-3px);} 60%{transform:translate(3px,3px);} 100%{transform:translate(0,0);}}
+  .ptl{position:fixed; left:0; top:0; z-index:90; pointer-events:none; white-space:nowrap; will-change:transform,opacity; text-shadow:0 0 10px rgba(255,43,43,0.55);}
+  .spark{position:fixed; left:0; top:0; z-index:90; pointer-events:none; width:5px; height:5px; margin:-2px 0 0 -2px; border-radius:50%; background:#ff5a3a; box-shadow:0 0 10px #ff2b2b; will-change:transform,opacity;}
+  .shock{position:fixed; z-index:89; pointer-events:none; width:min(120vw,1400px); height:min(120vw,1400px); border:2px solid var(--red); border-radius:50%; box-shadow:0 0 30px rgba(255,43,43,0.5), inset 0 0 30px rgba(255,43,43,0.25);}
+  .flashfx{position:fixed; inset:0; z-index:78; pointer-events:none; background:radial-gradient(circle at var(--ox) var(--oy), rgba(255,43,43,0.4), rgba(255,43,43,0.08) 40%, transparent 70%);}
+
+  /* ── STATS / HISTORY EXTRAS ── */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:10px;}
+  .stats[hidden]{display:none;}
+  .stats div{background:#0a0a0c; padding:8px 6px; text-align:center;}
+  .stats b{display:block; font-size:1rem; color:var(--red); text-shadow:0 0 6px rgba(255,43,43,0.3);}
+  .stats span{display:block; font-size:0.56rem; letter-spacing:1px; color:var(--muted); margin-top:2px;}
+  mark{background:rgba(255,43,43,0.28); color:var(--text); padding:0 1px;}
+  .entry:focus-visible{outline:1px solid var(--red); outline-offset:1px;}
+  .entry.fresh-entry{animation:entryIn 1.6s ease-out;}
+  @keyframes entryIn{0%{background:rgba(255,43,43,0.28); border-color:var(--red); box-shadow:0 0 18px rgba(255,43,43,0.5);} 100%{background:transparent;}}
+  .hist-tools{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+  .hist-tools[hidden]{display:none;}
+  .tool-btn{flex:1; min-width:70px; padding:7px 6px; font-size:0.62rem; letter-spacing:0.5px; font-weight:400; border-color:var(--line); color:var(--muted);}
+  .tool-btn:hover{color:var(--text); border-color:var(--line-bright);}
+  .tool-btn.danger-text:hover{color:#ff6b6b; border-color:rgba(185,28,28,0.6);}
+
+  /* ── TOAST ── */
+  .toast{position:fixed; left:50%; bottom:22px; transform:translate(-50%,30px); opacity:0; pointer-events:none; z-index:85;
+    display:flex; align-items:center; gap:12px; background:#0a0a0c; border:1px solid var(--red); padding:10px 14px; font-size:0.74rem; letter-spacing:0.5px;
+    box-shadow:0 0 18px rgba(255,43,43,0.25); transition:opacity .25s, transform .25s; max-width:calc(100vw - 32px);}
+  .toast.show{opacity:1; transform:translate(-50%,0); pointer-events:auto;}
+  .toast button{flex:none; padding:4px 10px; font-size:0.68rem; color:var(--red); border-color:var(--red);}
+  .toast button[hidden]{display:none;}
+  @media (prefers-reduced-motion: reduce){.dump-btn,textarea.fresh,.app.shake,.entry.fresh-entry{animation:none;}}
+
+  /* ── BRAIN ── */
+  .brain-strip{display:flex; align-items:center; gap:16px; border:1px solid var(--line); background:#08090b; padding:10px 14px; margin-bottom:12px;}
+  .brain-strip canvas{flex:none; width:176px; height:132px; display:block;}
+  .brain-info{flex:1; min-width:0;}
+  .brain-label{font-size:0.6rem; letter-spacing:2px; color:var(--muted);}
+  .brain-state{font-size:1.05rem; font-weight:700; letter-spacing:2px; margin-top:4px; color:var(--red); text-shadow:0 0 8px currentColor; transition:color .4s;}
+  .brain-bar{height:4px; background:#15171b; margin-top:10px; position:relative; overflow:hidden;}
+  .brain-bar i{position:absolute; left:0; top:0; bottom:0; width:0; background:var(--red); transition:width .25s linear;}
+  .brain-hint{font-size:0.7rem; color:var(--muted); margin-top:9px; line-height:1.5;}
+  @media (max-width:520px){ .brain-strip{gap:10px; padding:8px 10px;} .brain-strip canvas{width:118px; height:89px;} .brain-state{font-size:0.88rem; letter-spacing:1px;} }
 </style>
 </head>
 <body>
@@ -483,7 +542,7 @@
 
 <header class="hero">
   <h1>BRAIN DUMP</h1>
-  <p>WRITE YOUR THOUGHTS · SAVE FOR FUTURE REFERENCE</p>
+  <p>TYPE IT OUT · HIT DUMP · IT'S SAVED PRIVATELY ON YOUR DEVICE</p>
 </header>
 
 
@@ -497,25 +556,41 @@
       <button id="cancelEditBtn">Start new entry</button>
     </div>
 
-    <textarea id="text"
+    <div class="brain-strip" id="brainStrip">
+      <canvas id="brainCanvas" aria-hidden="true"></canvas>
+      <div class="brain-info">
+        <div class="brain-label">MIND STATE</div>
+        <div class="brain-state" id="brainState" role="status">OVERLOADED</div>
+        <div class="brain-bar"><i id="brainBar"></i></div>
+        <div class="brain-hint" id="brainHint">Overloaded. Start typing to unload.</div>
+      </div>
+    </div>
+
+    <textarea id="text" aria-label="Your brain dump"
       placeholder="Write whatever's on your mind. Save for future reference"></textarea>
 
-    <div class="meta-row">
+    <div class="meta-row tools-row">
+      <div class="left-tools">
+        <button type="button" class="mini-btn" id="promptBtn">🎲 New prompt</button>
+        <button type="button" class="mini-btn" id="soundBtn" aria-pressed="false">🔇 Sound off</button>
+      </div>
       <span class="counter" id="counter">0 words · 0 characters</span>
+      <div class="junk-warn" id="junkWarn" role="alert"></div>
     </div>
 
     <div class="actions">
-      <button id="saveBtn" class="primary">Save entry</button>
-      <button id="clearBtn" class="danger">Clear all</button>
+      <button id="saveBtn" class="primary dump-btn">💥 Dump</button>
+      <button id="clearBtn" class="secondary">Clear</button>
       <button class="btn-share" onclick="toggleShare()">📤 Share</button>
     </div>
 
-    <div class="meta-row" style="justify-content: flex-start; margin-top: 4px;">
-      <span class="save-toast" id="saveToast">✓ Saved</span>
+    <div class="meta-row" style="justify-content: flex-start; margin-top: 6px; min-height: 18px;">
+      <span class="save-toast" id="saveToast" aria-live="polite">✓ Dumped</span>
     </div>
 
     <div class="note">
-      Auto-saved locally • Nothing is uploaded • You're free to delete anytime
+      Auto-saved locally • Nothing is uploaded • You're free to delete anytime<br>
+      Tip: press Ctrl + Enter (⌘ + Enter on Mac) to dump
     </div>
 
     <!-- Share Panel -->
@@ -593,20 +668,33 @@
   <div class="card history">
     <h2>Past entries</h2>
 
+    <div class="stats" id="stats" hidden></div>
+
     <div class="search-wrap">
-      <input id="searchEntries" placeholder="🔍 Search past entries..." />
+      <input id="searchEntries" placeholder="🔍 Search past entries..." aria-label="Search past entries" />
     </div>
 
     <div id="history"></div>
+
+    <div class="hist-tools" id="histTools" hidden>
+      <button type="button" class="tool-btn" id="exportBtn" title="Download everything as one text file">Export .txt</button>
+      <button type="button" class="tool-btn" id="backupBtn" title="Download a backup you can restore later">Backup</button>
+      <button type="button" class="tool-btn" id="restoreBtn" title="Restore from a backup file">Restore</button>
+      <button type="button" class="tool-btn danger-text" id="deleteAllBtn">Delete all</button>
+    </div>
+    <input type="file" id="restoreFile" accept="application/json,.json" hidden>
   </div>
 
 </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button type="button" id="toastUndo" hidden>Undo</button></div>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
   const STORAGE_KEY = "brainDumpEntries";
   const DRAFT_KEY = "brainDumpDraft";
+  const SOUND_KEY = "brainDumpSound";
 
   const PROMPTS = [
     "Write whatever's on your mind. Save for future reference",
@@ -614,244 +702,725 @@ document.addEventListener("DOMContentLoaded", () => {
     "Just start typing. No structure needed.",
     "Get it out of your head and onto the page.",
     "What have you been avoiding thinking about?",
-    "Three things bugging you right now..."
+    "Three things bugging you right now...",
+    "What would you tell a friend who was in your shoes today?",
+    "What are you grateful for, even if it's small?",
+    "What's one thing you want to let go of?"
   ];
 
-  const textarea = document.getElementById("text");
-  const historyBox = document.getElementById("history");
-  const counterEl = document.getElementById("counter");
-  const searchInput = document.getElementById("searchEntries");
+  const $ = id => document.getElementById(id);
+  const textarea = $("text"), historyBox = $("history"), counterEl = $("counter"), searchInput = $("searchEntries");
+  const saveBtn = $("saveBtn"), clearBtn = $("clearBtn"), saveToast = $("saveToast"), statsEl = $("stats");
+  const editingBanner = $("editingBanner"), editingLabel = $("editingLabel"), cancelEditBtn = $("cancelEditBtn");
+  const toastEl = $("toast"), toastMsg = $("toastMsg"), toastUndo = $("toastUndo");
+  const soundBtn = $("soundBtn"), promptBtn = $("promptBtn"), fileInput = $("restoreFile");
+  const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const saveBtn = document.getElementById("saveBtn");
-  const clearBtn = document.getElementById("clearBtn");
-  const saveToast = document.getElementById("saveToast");
-
-  const editingBanner = document.getElementById("editingBanner");
-  const editingLabel = document.getElementById("editingLabel");
-  const cancelEditBtn = document.getElementById("cancelEditBtn");
-
-  let editingIndex = null; // index into the saved entries array, or null for a fresh entry
+  let editingId = null;      // id of the saved entry being edited, or null for a fresh one
   let searchTerm = "";
-  let toastTimer = null;
+  let freshId = null;        // entry that was just dumped (gets a glow in the list)
+  let busy = false;
+  let toastTimer = null, savedTimer = null, undoFn = null;
+  let soundOn = false;
 
-  textarea.placeholder = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+  /* ---------- safe storage ---------- */
+  const store = {
+    get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } },
+    del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+  };
+  const newId = () => "e" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
-  function getEntries() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  function setEntries(list){
+    if(!store.set(STORAGE_KEY, JSON.stringify(list))) notify("Could not save: browser storage is full or blocked.");
+  }
+  function getEntries(){
+    let list = [];
+    try{ const a = JSON.parse(store.get(STORAGE_KEY) || "[]"); if(Array.isArray(a)) list = a.filter(e => e && typeof e.text === "string"); }catch(e){}
+    let changed = false;                                   // upgrade entries saved by older versions
+    list.forEach(e => {
+      if(!e.id){ e.id = newId(); changed = true; }
+      if(!e.ts){ const t = Date.parse(e.date); if(!isNaN(t)){ e.ts = t; changed = true; } }
+    });
+    if(changed) store.set(STORAGE_KEY, JSON.stringify(list));
+    return list;
   }
 
-  function setEntries(entries) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  /* ---------- helpers ---------- */
+  /* ---------- gibberish filter: random keystrokes ("asdsa sadsa asf") don't count as words ---------- */
+  // A small letter-pattern model (trained offline on ~30k everyday English and Hinglish words) scores how word-like a token is.
+  const GIB = (function(){
+    const b64 = "/0dEOkZUTlVQVW5sVUljYUGLSTVJY2lY3oeY/9lgSDs+g1pZjVmmnTtKNaZBijpBTU1maJK1l9ndJrjd3S7d3YdC3d043d0u3d0z3d0y3bjdgt3d5izm5uZY5uYvXObmP8LmGLPmOsLmTubm5nik5ts729vbG9vbiyDb29vb2zTb2z2220fbiNt329vNSIphWZFsas1yhc09PCuoZWNQTGNnSagjY5rN0iuu0tI80tLSLK7SLdLSLNLSMNLSQtLS0tLS0swrzMzMOMzMa0TMzEHMeTKnzB/MzDbMzMx2zMzQINDQ0CnQ0NA50NDQq9Ai0NDQ0NA10NDQT9DQzKeZa1nMmXHMzMynXi4KiafMU1dvzJDMzMzMzLMgs7OzKrOzs0Kzs7Ozsyizs7OzsyWzs7N3s7O1JbW1tTC1tU8ftbVytTNJtbVYtbVftZC1UrW1zCKnzMwrzMzMI8zMp8zMJszMzMzMQMzMzG/MzNgc2KXYLNjY2CvY2Nizsyez2LPY2DzY2Nht2Ni+KL6+vh6+vr4vvr6+vr4kvr6+vr48vr6+br6+wGE5UF59SYSbcMBlVV9RcDrAMGVtNCxhfXSbwOAp4ODgMbvgUj/g4EPgpDLg4CNqpEHg4OB+4OCXl5eXl5eXl5eXl5eXl5eXl5eXl5cCl5eXl5eX2C/Y2NgP2NhxP9jY2NjYNbPY2LPYQtjY2KXY2Ow+7EHsPezsOkXsYk9gV0U+asfHLjnHVOxn7OzXMdek1y/X1zFA19fX17My19cllddB11nXZ9fXvb2ZvXa9ina9vb2BW2cJvTu9U0hTvb29vb29vbgkuLi4I7i4uBq4uLi4uDS4uJO4uGi4uLi4uLjIIMjIyDDIyC4oyMjIyMgyyMhEyMiAyMjIlcjIXV1dXV0hXV1dXV1dXV1dXV1dXV1dXV1dOF1dXZsim5ubIpt2m0Wbm5t2myGbm5ubmzybm5ubm5uLM4uLiyaLi4sfi4uLi4spi4uLi4tPi4uLT4uLU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OUb1hvSJSUWG+UWJRSQSdYN5Q1lEiUlJSUPpRBvlFAi2VKvr5yO5mCGL52P76+U0m+Xb6Zvl2+QMxfqD3MNKjMMEzMI2eoqGTMZ1+KLV/MzMxfzF7ER32CQiqCcWY0ZHVaSYJEiZJhSaBhSH3EX8QxfHx8WEl8fFh8fHx8MHx8NXx8MDB8fHx8fHx8KZxgnJycNRppnFmcd2mcd1mcnEycIXecnJx3nEm8Sry8mBe8OIo5vLx6bUdQgbxKWmRRvLy8vLxCnCKcnJxQnJycL3iceHicPZyceJxEVJycnJycHsOew3dIkJ5hw5DDkCtcG8OQkC9AR557kMOHw1B7JXt7ezh7ey5We3t7e3sue3t7e3tWe3t7e3szrVqtrXoPeq2IMq2Ica16eq2tcU6IZa1qrV2tNdpPem1rR3qEpzXaXyZmjlt12odGT22Ap9pqth/ENUCfnyvExMQ2iMR8QGlMMsSfS5FlxJ/EbsQz4U+eOjBSpUKLRrxPleFOYryL4UIvcpm8nnOOLHR0dHR0dHR0QXR0UFBQdHR0dCxBUHR0dHR0dBy/S4y/jDWavzxGmmRgjFtHH79pQkZ8v7+/d79Aa2tra2tra2tra2tra2tra2tra2svFWtra2trRt9GX1A1QX1ZnDujUlpNV2BorEVNN6N0rKxKlz3LY5lWyzvLpzVEy12Jb5lhVpnLJyVdy8vLccs54WaeWuEenuFFHeHhhouZSuHhYFpEXryl4Zm8Ra+vc0E6inM5r6+KbDtnNK9sr0Q1K698r3OvilKsMaysrBOsrKwmrKyIrKw1rKysrKysiKysYKyIoihPomBIWqJvT6I+QG8xb6Kib0J+oqKiomaiL4VJhYWFLYWFhSmFhWGFhUNThYWFYYWFYYVThR+xRFtvaTR+fn5BsbF1Xn5MfrF1MWmxsWmxsbEYkTaRkZEakZGRKpGRkWyRQZGRkZFekZGRkU42bFNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTwp1SM1TCj1NlXZ1hMYAywnbCK0Q4j52PnXaPYJxEnJycI5ycnCqcnCScnEycnHd3nJycnJwvnGlkMWRkZGRkZGRkZGQ/ZGQhZGRkZGRkZGRkZGQ/bW1tbW1tbW1tSG1tbW1tMW1tbW1tEm1tbW1tbcA2m1Y+TXBZVXTAhDTARsDAjSNLRpuNhMBnfUpTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU24ibm5ubm5ubhhubm5ubklubm5ubm5ubm5ubm60SmxQT0uQV7S0kGEpgS1KkIFAUC20tHi0tHhsbW1tbW0LbW1tbW1tbW1tbW1tbW1tbW1tbW1tbVtbW1tbW1tbWx9bW1tbW1tbW1tbW1tbW1tbW1vCN8LCwhDCwsIxwsLCwsI5wsLCwsJOncLCScLCaS5paWkuaWlpImlpaWlpaWlpaWlpaWlpaWlpRWJiYmJiMGJiYmJiYmJiYhtiYmJiYmJiYmJiYmK+NmuLT4uZaGhrvplDWjwwgr42Y0Y+glJVTotVW1tbW1tbW1tbW1tbW1tbKFtbNltbW1tbW1tbW1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1O0ILS0tCe0tLQmtLS0tLQptLSPtLRBtLS0eLS0nZ2dRZ0xnZ15UZ15eZ2dPmqdnZ0qap2dnZ2dF3Y6dnZ2KlF2djN2djN2dlF2dkNDdnZ2dnZ2dkO0tF5HU3hkUrRXtI82Tz+Bj48mNS+0tLS0bGGPXV1dXV0qXV1dKl1dXV1dXV1dXV1dXV1dXV1dXV8jX19fLF9fX19fX19fX19fX19fX19fX19fX19TU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTiliKiopPimaKWIqKT4qKiliKWDdYioqKiopmD1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU87OWHtcqX54knupcydQOM5Ezi5CK2dlks6Gzl5WVlZWVjFWVlZWVlZWVlZWVlZWVlZWVlZWVlZWnUWdnZ0knZ1CPJ2dap2dJJ2deJ2dJJ2dnZ2dnV1dXV1dXV1dXV1dXV1dXRpdXV1dXV1dXV1dXV3LaYSZP2Z4y5lby5lDXznLT8s9LnOZy6fLhMsbVjFWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1PSKX+PhSCW0msv0pZ1a2U9rdJfinxV0q3SZ9IyvC+JeUM9U3m8vLy8TXktRUa8TT42iVu8vLx5gFNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1PGZWXGiiJ+g2s9oaFCemlYbsZ+MnpwxnDGWMYisyWzs7Mgs7OzL7Ozs7OzKbOzs7OzNbOzs4Czs1tbW1s2KFtbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbWzZbW1soW1tbW1tbW1tbW1tbW1tbW1tb12F+YXGHgXSBfLKkQSgdU1/XO2tnQGNxsoukXllZWVlZWVlZWVlZWTRZWVlZWVlZWTRZWVlZWVlvb29vb29vb29vb29vb29vb29vb28Kb29vb29vvCK8vLwhvLy8LLy8vLy8MLy8vLy8Nry8vFa8vJGRkZGRkZGRkWyRkZGRkWyRkZGRXpGRkZGRkQPDTsPDwzeBw8MXw8NrgcM5w8NSR8NCw8PDn8MwtW1RcmViX7W1YrW1JEJ5bUW1KjQxeZC1tbW1tVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU5VjWjOVlZVxlZWVlWNxU5ValXFjcZWVlZWVlQtdOF1dXSFdXV1dXV1dXV1dXV1dXV1dXV1dXV1dU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1O4uFliWXx8VnVZuIVFOzK4YrgzUzloX2y4PHA6dx93d3dEd3d3O3d3RHd3NXd3U3d3RHd3dzt3d20dbW1tbW1tMW1tbW1tbTptbW1tbTFtbW1tbW2gQnygoCWgoF4noKAjoKBeoKBebaCgoKCgO6BZ2FZmSTtqUXmclbN2SVU8eVGVJjhVkF2IjNizOHElcXFxcXFxcSVxcXFxcTVxcXFxcS5xcXFxcXGTYJOTkwiTk5M9k5OTUJOTk5OTk5Ngk5OTV5OTgh+CgoIngoKCL4KCgoJGL4KCgoKCgoKCgoKCgs9AdDxjS2Zbz8/Pql9jKFxoz2IhRXlTqpODf2VsR2xsbDlsbGxsbGxsbGwwbGxsbGwZbGxsbGxsZyRnZ2c0Z2dnJGdnZ2dnZ2dnZ2dnZ2dnZ2dnZ6JaoqKiEqKioiuioqKiolKioqKiom+ioqIloqKKJYqKij6KiooRioqKiopCioqKioqKioqKiopmfyl/f38Sf39/TH9/f39/f39/f39af39/f39/N7mGbUpjY4ZPlGmUhkY8OEZYuTlTY0N2M325Zj1wIHBwcEtwcEs9cHBLcHAtcHA9cHBwcHBwcHBwWVlZWVlZWVlZWVlZWVlZWVlZWVlZJllZWVlZWasgq6urJqurqy6rq6urqy2rq6urqzWrq6tVq4ewsLBusGSwsFNosH2MaLBYdLCMsEp9sIywsLAGa2tra2s4a2sjRmtra2trOGtrRmtra2tra2trOKpJZxxiTWd3hYWqXjdAQndPqkNDZ6qqqoWqqoWCJYKCghyCgoIlgoKCgoI/goKCgoKCgoKCgoKCfyB/f38yf39/JH9/f39/L39/TH9/f39/f39/f1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OZmXSZmVZ0XZlWmWZmdEmZmZmZTZmZmZmZmZkJU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NT0dFqSDTRfmqe0dFCP0lG0WDRLDYxZV2O0dGeZJ8sSZ+fNZ+fn0mfn1yfny2fny1TXDmfn59jn1PHTceFi0HHx0RAxz1bx8c1x8dLfxlKx8fHf8dx5nmqwXdh5nSaT+bmgaqWeqrmlnSzauak5onmBMGFdVQzwWzBj26dSkNVOsE2wTtEQcF1f8HBVTOqUqqGqik+qqoqqqpGqqpLqqpDV08uqqqqbqpFqiuqqqo1hkKqLKqqV25eO6qqMmiqQaqGqmiqUpMqk5OTIJOTk0OTk5OTPSuTk5OTV5OTk5NXk0CmgaZzXqZzI6aBpnNCaiSmaqY/SUGmP6ampl5Wcydzc3Mgc3Nzc3Nzc3NzN3Nzc3NzMHNzc3Nzc41BaY1aK42NMC6NjWmNjY2NjY09aY2NjY1RjSnQS4hzUC9jlJ0y0JQreNBKbtCrSmBpb6vQPaszvzE3mr8lv7+/M7+/fHNsMjO/v2a/fL+/v3y/SeBUrT03Q41Zg02K4HidZGSdrYpCGnl+pOCUlDaamppnZ5pnTpp1mpo9ZyeaOZo9Z0ctXlKamppBtTiDtYMzkbVKQLW1Q5G1QFO1OUouV7WRtXO1QomJiYmJiYmJiYmJiYmJiYmJiYmJiQOJiYmJiYnvSXRifERtbIFCo4dpW11hbbxbK1WSYH/vY8oa54WkYY9Y58JuW+eXn5SfcmGk5y8vdufC56vnD8k+eVikMobJQjXJpHbJjVqWyUU6PGrJgclihiiUlG9RUW+Ub5SUlG9hPESUSJQePDWUSJRvlJRYrjCurq4Trq6uJq6urq6uNq6uioque4qurnuuZqUxaWlpL3KlYjOlpWlyck1ppVUyYqWlpaVypSmyRLIzskSyskw/srKysrJfII2ysitVsrKNjbJEpl5qgXMypqZzZKaBgV6BaoGmgTeBpqZzpqamDoKCgoKCGYKCgj+CgoKCgoKCgl2Cgk9dgoJdNidTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU7CwVS5osItofTqLaDtKO7CwsDpANlVPi210i3RfLF9fXzpfX186X19fX186X19fX19fX19fX19fWTRZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZNFNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1O0RXg2Rki0cbRetI9EWzm0tLQkOFN4gXi0j49Mq2iGq6sfq6uGKqurPKurR6urY0Orhqurq0qrKVlZWVlZWVlZJllZWVlZWVlZWVlZWVlZWVlZWVlWMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWvGFpL04xcEy8vJe8ObwpvLyXNUVNvIC8W7yXvFZWVlZWVlZWVlZWVlZWVjFWVlZWVlZWVlZWVlZWMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWrh+urq4prq6uLq6urq6uKa6urq6uNq6urlaurlYxVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlYxVlZWVlZWVlZWVlZWVlZWVlZWs3ezXYCAs3ezd7OzPIBYOrOzDmOzQrOAZ4CzgFNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTqSKpqakfqampKKmpqampLqmpqampTKmpqW2pqXp6enp6VXp6VXp6enp6enpVenp6R3p6enp6egqXW3OXlyOXl2Q/l5dbl3NLl5eXOJeXl2SXPZcfqqqqTYVaqleFqoWqElozqqqqPjpaqqqqqqp3d1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NWMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU4eHh4eHh4eHhyaHh4eHh4eHh4eHh4eHh4eHhwpTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1O2tmOSZnSDTbZOtrY3Ry+2dLYrTS5jeoO2WWBJYWFhYWFhYWFhLmFhYWFhLmFhYWFhPGFhYTxhYVYxVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZfOl9fX19fX19fX19fX18jX186X19fX19fX19fx2ailDZolMeUf8fHWmoxVqLHKDhMx6KUx3/HI2I+YmJiYmJiYj5iYmJiYj5iYj5iYidiYmJiYmKjUKOjfxyjo3Alo6Mso39Xf6NNcKN/o6OjQaNwsk9Rso1LjbKyX7KyX7JqV7KyslwLjbJ/sn+yPrZgWT1uQ3pjtra2tlBdGk+Rtko6UHpQtra2Y1lTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTVlZWVlZWVlZWVlZWVlZWMVZWVlZWVlZWVlZWVqYspqamGaampiqmpqampjempqamplampqY5pqZ5Hnl5eR55eXlGeXl5eXlUeXl5eXl5eXl5VHk9niuenp4tnp6eIJ6enlKeL3menlZ5Yp6enp6ePKtbW6s/aKtoq1+rq0JjNTV4qz9KO1VMaKtvqzJkZGRkZD9kZGQoZGQxZGQ/ZGRkP2RkZGRkZGRkU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU7kTubm5KLm5uTa5ubm5uS+5uZW5uVO5ubmHubmifaKioqKiomBvon2ioqKioqKiokOioqKioqIEeDV4eHg8eHgdLHh4eHh4NXh4eHh4eHh4eHh4eKozqqqqKIaqqi+qqjVNNYaGqkg9VKqGqqp3d4ZTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTXyNfX19fX19fX19fX19fOl9fOl9fX19fX19fX1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OMaGiMjIyMjIyMjIxoRVmMQIyMjIyMjIyMjIwJVjFWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTzGVYXmR8gGlpR8xlP0IpiVPMLFJIYWBkzHl2RHw0fHx8SXx8fFd8fFd8fBR8fDR8fFd8fHx8fHxnK2dnZ2dnZyRnZ2dCZ2dCZ2dCZ2dnZ2dnZ2dnbyxvb29vb29vSm9vb29vLG9vH29vSm9vb29vb9AvlF42TITQrGHQ0EVRTXaBlCM3W4mEdKyJrElrRmtra2tra2tra2tra2tGa2tGa2sSa2tra2trU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU3Q4dHR0LHR0dCx0dHR0dB50dHR0dHR0dHR0dFDGZ1xDZ05uXpPGfmc7VSJnOMZKREOiZ8bGhHZNVlZWVlZWVlZWVlZWVlZWMVZWVlZWVlZWVlZWVmFhYWFhYWFhYSVhYWFhYSVhYWFhYWFhYWFhYWGFQoWFhR+FhYUqhYWFhYU1hYWFhYWFhYWFJoWFgyGDg4Mag4ODR4ODg16DR4ODg1CDUIODg4ODUIoWioqKNYqKii6KioqKTz6KiopYiliKioqKiljIdW5lYl/IY8hupHk1Sj45SMgwSkQ4ZVPIgchXYjBiYmJiYmI+J2JiPmJiYmJiYmJiYmJiYmJiYllZWVlZWVlZWVlZWVlZWVlZWVlZWSZZWVlZWVmdQJ2dnS2dnZ0fnZ2dnZ0bnZ2dnZ1CnZ2deJ2dgoKCgoKCgoJdXYKCgoKCXYKCgoJPgoKCgoKCB6pNqm6qJlKGXkaqqlJ3bm6qqm46hneqhqpXqhmqW1dOW2NbTIZvqqpoJCyqXqozPkCqqqqqqoaGVlZWVlZWVlZWMVZWVlZWVlZWVlZWVlZWVlZWVm8Xb29vLG9vSkpvb29vb0pvb29vb29vb29vb29TU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTn2xsekBsn2Ofn5+fU1N6ny2fbDJcn5+fbJ+fF1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU8DAU2CEwMBWfo3AnCVmIpyEwE5gM5ycwMDAnCupTD+pqSypqakvqakjhKmEqalAXKk3qampdqlM0ybTi9M809NdOtMwbdOgZtPTckhEXtPT04PTJb1Gir1GFr1TvUW9vV29XVq9vb1Gdm69e717vSvKysprPMpegsrKyo5RlzbKyso9GVR+UGHKysowrXqtra0yLa2tHa2tUq2tZa2tiIgwXa2trTatcb49vr6+R5lEFky+votrLluZvl1jmVW+vr6ZmVFkP2RkZGRkZGQoZGRkZGQxZGRkZGQ/ZGRkZGQ/XThdXV1dXV1dXV1dXV04XV1dXV1dXV1dXV1dKmcXZ2dnZ2dnZ0JnZ2dnZ0JnZ2dnZ0JnZ2dnZ2eRRZGRkRGRkTkxkZGRkZFtkZGRkZFtkZGRkZE7ykV6l04vpoKOLcprIG2IWKbKl1BSgoKXylXKPb43UJm+Kr6+vje+vos9i04hvotZvlO+mb6LvkfzTaNWUj5lEH9YkmSaq25zsJLzTkV/bqewlvNN0p+tfIqt0orS0tLSXa0F0obSXHxtQq2trdLSZLJHjbKyO7KyYlWyskJfsl8ksn8zRV+yf7J/jSl7e3t7e3t7e3t7e3t7e3t7e3t7e3sFe3t7e3t7v0JzTEgifGmaRL9sRlKaVGmaSUZCg4xvv3O/PtZSfUeJOHV3NEWxa2hOjlNWk3lBIXex1taa1kPTOdNN0zOL004srtNukHJS09NvS0FR06DTL3Q7iYmJiYmJiYmJiYmJZQqJiYmJiSmJiYmJiYmJZbo5urq6Crq6ui26urq6ulm6urq6upWHurqHupVkKGRkZGRkZGQhZGRkZGQ/ZGRkZGRkZGRkZGRkg0eDg4Mrg4ODNIODg4ODUF+Dg4Mug4ODg4ODHnsRe3t7Hnt7e3t7e3t7e3t7e3t7e3t7e3t7e3ulOaWlpQ2lpaU6paWlgKVSpaWlpaVypaWlpTtdU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OcRkQjaZycWkZEnGlaOEKcYJxUVJx4YGB4WmBaU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTllSWG3JDVJZylpZyT3JUT5aWNDxblpY+lpZyllNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTbTFtbW0xbW1tbW0xbW0xbW1tbW1tbW1tbW1tMXt7SHt7e0gzVnt7e0g4K3t7e3t7M3tWe3t7ez9TU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU5ZxQ0qWU5ZTRjmWSlOWTpaWlkBAcTJxlpY1llNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU5hlZZgsmJhFmFVlZUw5MJhzmDUtc5hlmJiYmHNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NdIV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV04U1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NToVU/oWWhfFFCRqGhS1FEoW6hKmU8ZaF8oVluMG4ybm5uSW5ubklubm5ubhhubklubklubm5ubm5WMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWYjBiYmJiYmJiYmJiYmJiIGJiPmJiYmJiYmJiYsWJicUsTcWSdaDFxV+SPXmCxSFAPaDFfcVKxTFoLGhoaGhoaGgsaGhoaGg1aGhoaGgsaGhoaGhoXThdXV1dXV1dXV1dXV1dXV1dKl1dOF1dXV1dXYcah4eHNIeHh4eHh4diOjGHh2KHh0uHh4eHhzq2g5JeTUKStraStoNGWxCSYLZgT0a2kpK2arZFWSZZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWV86X19fLF9fXzpfX19fOl9fX19fX19fX19fX1+TRJOTkw+Tk5Mpk5OTk5NRk5OTk5Nvk5OTPpOTbA9sbGw5bGxsbGxsbGxsbGxsbGxsbGxsbGxsbI06jY2NKI2NjS2NjY2NjReNjY2NjUuNjY2NjY2NaI2NUY1ajWhKjVpojTdKjY1FQWg0aGiNjY0faCxoaGhoaGhoNWhoRGhoIGhoaGhoaGhoaGhoaFNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1N8IXx8fFd8fHwmfHx8fHwmfHx8fHxJfHx8SXx8p3SngqeCp4JMdKenp1+ndKenp6dXdKeCp6enBWYzZmZmZmZmQTNmZmZmZjNmZjNmZmZmZmZmZmZ7e3s/V1d7e3t7e3szSD97Hnt7V1d7e1d7e3s/U1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU3EWcXFxcXFxTD5xcXFxcS5xcXFxcUxxcXFxcXFTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTlE2UlHCUlJSUlJSUTZSUWJSUcGGUP5SUlJSUCVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU9KuWUBS0qBVg1HSdNJNMKBerjlALFRoXnhKckuCKYKCgjWCgoI/goJPgoIfgoJdRoJGgoKCgoJdgzyDg4NHg4MrX4ODg1+DIYODX4ODJ4ODg1+Dg6ZzgnOmJHOmgjOmplemZFOmplM9pnOmc6ZqphvfRXhROWGMXKOCupePYE19cro/LU2MZox0ZLoeizxni4tJi4uLK4uLWWeLWYuLRItZNotni4uLH3kqeXl5IXl5eSN5eXl5eVV5eT15eXl5eXl5eXlsJGxsbEdsbGxHbGxsbGwcbGxsbGxsbGxsbGxs2E9fPWFFVkel2LNkfVEgY119fT85lV3YnIJSYVZWVlZWVlZWVlZWVlZWVjFWVlZWVlZWVlZWVlaNQY2NjTCNjWk1jY1pWmlpjY2NNY2NjWmNRY0dzjtxqYwoe6mGManOzm6GQXvOqUWbW86SzirOMI0pjY2NJI2NjUGNjWhRjT2NjY06jWiNjY1ojS53Hnd3dxx3d3d3d3d3d3d3d3d3d3c7d3d3d3dEy0dhP2enjzenacuPj2E+PU+JP0tNRVY3mF/LT4hFiIiIOGOILTWIiEyIiEWIiEVFPIiIiIiIiDVTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTa2tra2tGa2trOGtra2trI2tra2trRmtrayhra7FpsbGxVrGxZFKxsbGxsWmxsbGMZLGxsbF+sQSoQ6iohCqoqEMwqKioqKhOhKhOQqhLqISoRFwotFtXPkZBaEy0eI94ZDM3gXG0RTM1tIG0YbS0aIo+iopmDIqKii2KioqKimaKioqKioqKioqKiopoGGhoaERoaGhEaGhoaGg1aGhoaGhoaGhoaGhoU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU8WSiaDFgpKSoG3FxcVyb6B9xYljksXFfcXFdQNZWVlZWTRZWTRZWVlZWVlZWVlZWVlZWVlZWVlZU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1PPk5NVWpyrR3pKb15HZSKriKsxRTF8k898Z3dMrDOHrKwprKysOaysJ6yHNYesQk2sTaysrKysTGc0Z0JCQmdnNDRnZ2dnZ0JnZ2dnZ2dnZ2dnZ2dbW1tbWzZbW1tbW1tbW1tbW1soW1tbW1tbW1tbz1GHfzVyq4OHf8/PTFcdd6vPMEREz6t8k4erOWxsbGxsR2xsbGxsbGxsbBNsbGxsbDlsbGxHbGxTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTaR1paWkuaWlpaWlpaWlpLmlpaWlpaWlpaWlpachpyEBOY4xgyMjIhTl1GcjIyFQuOYzIyHXIfGdbW1tbW1tbWx9bW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbH1tbW1tbW1tbW1tbW3E+cXFxJXFxcSlxcXFxcUxxcXFxcXFxcXEpcXGrK6urqx2rq6srq6ureKszq6urq6s9q6urQqtjgDSAgIAhgICAJYCAW4CAW4CAgE2AW4CAgICAMMF/YV9KncF5eWudaUxfJUxnwS5JODpdeZ2dhVm/Ooy/vy2Mv1BIv4Mrmr86mr89RkRPv7+/bL9AWVlZWVlZWVlZWVlZWVlZWVlZWVlZJllZWVlZWWIwYmJiYmJiYmJiYmJiYiBiYmI+YmJiYmJiYmKeeZ6eeWKenmt5np6eeZ5inp6enj1rnp6eYp4HX19fX18sX186X19fX19fX19fOl9fX19fX19fOqioqElQhFhJhIRcqCpOM6ioqDsoOaioqKiohIRZWVlZWTRZWVk0WVlZWVlZWVlZWVlZWVlZWVlZXV1dXV04XV1dOF1dXV1dKl1dXV1dXV1dXV1dXVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OMjIyMZ4yMjIyMjIyMjGeMjIxQMUCMjIyMjIwMU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTy5hZVl+Jj1lwXct4LVVLplLLQVwoZ2l4y3CDKoAwgICAJ4CAgE2AgE2AgC2AgDiAgDCAgICAgIDGXsbGxhTGxi86xsZUxsY7xsZloUdrxsbGS8Z2zj55h5IheZKHMc6bT2uSSHbOWzuSVc5/zmjOLNVbjVsyWHJkonHV1VtsZXyImTIuUGVyWXFbkiWjPKOjoy2jo6Mko6M1o6Mmo6NEo6NBo6Ojo6Oj5nyk5qpIpOaQaObBXqqzcbPmdE6BcOaq5pPmBooZioqKKIqKijeKioqKiiuKioqKik6KioqKiorKSHQ1fUVNTo7KyodxYCZXXXeHNzVpZsqHjllaezl7e3sve3t7e3t7e3t7KHt7e3t7G3t7e1d7e6toq6urKG+raDKrqz6Gb4arq28zhqurq6s/qyCKN4qKii6KiookioqKioouioqKiopmioqKJYqKeyV7e3sSe3t7P3t7e3t7V3t7e3t7e3t7e3t7e60zra2tGa2trSitiK2trTmtra2IrVqtra05rVK7iFNLbm5zYJZeu7tUQ0dVa7svQzlBU0Fzc5Y/fDR8fHx8fHx8SXx8KXx8Jnx8KXx8SXx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fAV8fHx8fHx7P3t7exp7e3sze3t7e3sue3t7e3tWe3t7P3t7z1jPXs9BbZxgOs+ccHzPWVbPz6o8TZyHz4zPEdo8p9q1LJ61XjHa2lSEtVna2kQ52mjap9pvtR6hP19MVUVMWqFOoV9fNlpfTqFHOSp9oaGhoaFvmTSZmZkTmZmZJZmZmZmZOZmZmZmZZpmZmXWZmX0YfX19O319WS59fX19fUJ9fTZ9fX19fX19fX1nZ2dnZ0JnZ2ckZ2dnZ2dnZ2dnZ2dnZ2dnZ2cfl2Ryl5dyl5dyW5eXVEGXW3KXl3Jbl5dbcpeXCnEpcXFxJXFxcTVxcXFxcUxxcXFxcXFxcXE1cUxTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU6ysiD0qrGCIiKysSlldSaxqrCpEJ6yIrHmsrF2pRjGEqS6pqak3UKk6qYRIqaltLGaEdoSpbak/tji2RbZEtrY8RLYYc7a2Uba2TpFURra2tpG2arNPcI5CL3dWcDGzjkhwd02Os2dDjkOzcLNIsy2TblCTOJOTk5Nuk5NLV0uTk5NLIUtXV5NuS5MrnE93nJw9F5ycOZycnJycWZycnGkwaZycnHecOK47romuQIk9eyqurmKuSmuurixVrk2uia49rjuFKIWFhT2FhYU5hYWFhTUthYWFYIWFhYWFYIUqpYClRjOApYClpaWlMaUapaWlRDJSpaWlpaWlUmw5bGxsGWxsbEdsbGxsbDBsbGxsbGxsbGxsbGykWH9/pBSkpKQ1pHFhcaRcpKR/PaR/pH+kWKQsx0eUfzszbZSUMcdtLnt/LoXHo19dT1SUx1/HTMU+RqHFK2nFxTTFxZM0g04oxZNUk6HFocVnxTzkRZxbUj9dU+ROlH2RmGthsZGoK0eHZZy/caEaw8N3cC93VWmHh8MyPDw8w0LDSk02w3fDw8NrULlMuZS5Jbm5PD65lFp9lE4vuVo/UGG5lLlhuTdkZGRkZGRkZGRkZGRkZGRkZGRkZGQRZGRkZGRk2kVsWEc5klanPtpTgUVPZWW1UTo0krWB2lfaM71YmGW9Jr29Wza9mHttvV5Ogb01KWe9vb1xvS+/QoxgmjC/jC4vv79gmppCg7+DQzt9v4O/c78xzMxjXGOZmUjMd8zMW8wpzGKZMB4tzIXMqMyod7BDsLCwB7CwsDqwsLCwsFiwsLCLsIuLsLCLsHS5U1mGVSpxd3dEhpVFdyd3hrl9N325uZW5hrksioqKZoo6ZopXHoqKioqKioqKiopmimaKikiKGJkrdGaZLl2ZdE2ZmV1RmU2ZmXQ3mZmZmZmZmR55Rnl5eRh5eXk9eXl5eXk9eXl5eXl5eXl5NkZUU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1PFxXVCUcXFX8VGkpJJcjmgVsUgQTFveWigVqBha0Zra2soa2tra2tra2trI2trOGtrRmtra2tra18sX19fX19fOl9fX19fXyxfX19fX19fX19fX19kHGRkZGRkZGRkZGRkZGQoZGRkZGRkZGRkZGRkz0acPjZPk4fPk8+cVKo2k3zPGk9Iqqp/qoOqSWI+Yj5iYmJiYjBiYmJiYmJiYjBiYj5iYmJiYmJbW1tbW1tbW1tbW1tbW1tbW1sfW1tbW1tbW1tbrTatra0qra2tKq2ta62JJa2tUWGJcq2trTetR75fvjdYPZlavr6+cUFxHGFdvj5PPJmLvou+e4JWMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWbjJubm4mbm5uG25ubm5ubm5ubm5ubm5ubm5ubroburq6I7q6uiu6urq6uja6urq6ukK6urpSupZvLG9vbxlvb29vb29vb29Kb29vb288b29vb29Kdip2dnYddnZ2OnZ2dnZ2KnZ2dnZ2dnZ2dnZ2dsJ6wl52bMKdwkTCYDVsO0dSwiwpQ1F6UoDCwnK1WrW1tRi1tZArtbU4tbU4tbU4kLV5tbW1RLW1U1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU8dHx8fHG8fHxyvHx8fHxxfHx8fHx27Hx8eLx8eraIaGq0Wrq1tHq4arhqtfq4arhkpoq6urM6sOqE2og6g4qKh1FKiobKioR6iodVKDQKioqGWoL6qqP2JXhWJuqqqqZypUNKpUqio6NaqqqqqqZ4VTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTYiBiYmJiYmJiPmJiYmJiYmJiMGJiYmJiYmJiYlNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1ONOo1ajY2NWmlRaY1ajY1pjY1RjWmNjY2NjY0MVlZWVlZWVlZWMVZWVlZWVlZWVlZWVlZWVlZWVlNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbWx+yH7Kysh2ysrIcsrKysrJNsrKysrKysrKysrKyU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU92hVztNqmhSdkShfEtLL5FFuHJSK3JUZZpfdk+cJ5ycnDOcnJwrnJxanJwrnJxpRpxQnJycWpw8q0erq6sjq6scO6uGX6urRKuraIZvOaurq2OrY7hWhYW4LpO4hTG4uGCFdUuTuGIxk3WTdbhduBrmOHRCN0tbXG5ziaRQU0t/UX9sLE2TXGakicI3kTZskZElkZGRQZGRSZGRMJGRbGyRKpGRkZGRNqguqKioGKiobC+oqFKDqEWoqGWDqEuoqKhYqEeIMoiIiB6IiIhAiIiIiIgjiIiIiIhViIiIOIiI2kVUP1Q4Vk/a2raFVFMoUlLa2kA8dFXan7ZiaGYjZmZmQWZmZmZmZmZmZjNmZmZmZjNmZmZmZmaiUqKioiZ9oqI8oqJSZmZvfaJvMaJ9on2iT6Icoj2iolYwb6KiKqKioqKiLn2iok+ifaJ9oiiiPbIkso2yLI2ydiWysm+ysj1/srJDjVmyjbJ/sjavKnOviiRzr68wr6+vbIpLiq+vQ3OKr3yvbK8m1E9TTFJ+XVSMaXtwTEs8QkORZURLOU5CgXChVp1CnZ2dKp2dQDidnUpqnS+dnS9KeWGdnZ15nUBiYmJiYmJiYmJiYmJiYmJiYmJiYmITYmJiYmJitTO1tbUmtbVdIbW1tbW1LLW1kbW1VbW1tTm1W85dqZKbPKnOV1POqZLOzlV+zs7OT3Gpqc6bzgnCO3OAwjCAhjcowsJdanZiwsJiPp5KwnbCWI8vuHVKOEtZV1C4QrhoYjQ3uEK4kypIuJO4uLi4dZoumpqaFZqamh+ampqamlKampqampqampp1mmeCGYKCgi+Cgj9GgoKCgoIvgoJPgoJdgoKCgoKCWVlZWVlZWVlZNFlZWVlZWVlZWVlZWVlZWVlZNLWCcpCCebW1tVa1tWmCgmVftbVfebW1grW1tQVhHmFhYTxhYWE8YWFhYWFhYWFhYWFhYWFhYWFhU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1O+ZUlRUL5fTWhSvmg0TDWZTb5DVD5SU117Yb5Mdyt3d3cvd3d3RHd3d3d3K3d3d3d3L3d3dzt3d7wqvLy8PLy8Nj+8vHC8vCm8vCaXvD68vLyXvJdxGHFxcS5xcXE+cXFxcXFMcXE+cXFxcXFxcXFx0093TTVZkYyRd9OXRlY+oGt3OjNYhG1zanvTJn9Df39/N39/fyZ/f1p/fyl/f39/fyl/f39Mf39wcHBwcHBwcHA9cHBwcHBLcHAkcHAacHBwcHBwyTGBh8krlsmkJ8nJeWSHLsnJU8l9XaSNyWnJK8xWVU1AVn1DzMzMqFNVKS53qGJBPoBKzHnMaWxWVlZWVlZWVlZWVlZWVlZWVlZWVlYxVlZWVlZWnzufn58ln5+fHJ+fn5+fU5+fbFOfU5+fnz2fN6sjq6uGLaurqyyrq6urqzSrq6urqz6rq6srq6umIqampjempqYtpqampqYzpqamWaZLpqampqYlmyObm5ssm5ubMJubm5ubH5ubm5toRZubm5ubWLtgYEBgiFeWiHO7ljE9JWVguy+IeEBrf5Zzu1i9L4q9vSC9vVorvb1Gvb0tvb1Bir1evb29gb1qioqKioqKioqKioqKioqKioqKioqKA4qKioqKinNOc3NzHXNzc05zc3NzczBzc3Nzcytzc3Nzc07JQ5bJySp9yX0lyaRlcY1Nh8mNyY1UyXnJX8kb3zCYo7stnd+BL9/fYIOsPpjfMVLfVN+d32XfK75QMUl7XVtlvky+vkc/PJk2vihHcb6Zvr6+gotfX19fXyNfX186X19fX19fOl9fX19fX19fX19fnSOdnZ0dnZ2dIp2dnZ2dNZ2deJ2dap2dnZ2dnVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1Ofn3orenqfep+fn3pPMjefep9XT5+fn5+fn58YU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NT0I5BTISegVCEPqxYMVkyrF3QOlkxdJV9fYnQQX8cf39/N39/f0x/f39/fyx/fzJ/f0N/f39/f3+kR6SkpH+kpASkpKRxpKRYpKR/pKRxpKSkf6R/a0Zra2tra2trRmtra2trEmtra2tra2tra2trRuRekWcnX4eAsZjkwFJhPph9wB5DkZioin+osSyATYCAgFuAgIAzgICAgIAzgICAgIAQgICAgICAaCxoaGhoaGhoaGhoaGhoLGhoLGhoNWhoaGhoaMhFeJVvH3jIhTnIyF5veDd8lT9ZjFfIbchYyC7kWXk2gE5iauTk5LFZUiYdeZF5W1axRL/k5INyVjFWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWMVZWVlZWVlZWVlZWVlasSKysrBKsrKw7rKysrKxgrKysrKyIrKysHayshSGFhYURhYWFYIWFhYWFQoWFhYWFhYWFhYWFYIA4gICAFYCAgC2AgICAgE2AgICAWz2AgICAgIDJcX1ZdnGBYI12yXZVQzJOTckZZWdNhlNueclJbTptbW1IbW1tbW1tSG1tHW1tMW1tSG1tbW1tbVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1PMGczMzDTMzMwnzMzMzMwvzMzMzMw6zMzMU8zMxKCgkcSCxMRxbsSRxHHEgqDExMR4gsSCxHjEArk9ubm5Fbm5djG5uTa5uUO5uVhtuYa5lLlKuVG6Pk9fTGdtcrpnurpXO0NqYboYVEK6urp+urpyVlZWVlZWVlZWMVZWVlZWVlZWVlZWVlZWVlZWVo4ujo6OJY6OaRuOjo6Oji+OjmmOjmmOjo6Ojo5TU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTtpG2kba2traReraRV7a2tky2VZG2traRkba2BHl5eXl5I3l5eVR5VHl5eVR5eXlGeXlUeXlUeRpTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU6uGX2lMq6tveFuraR54QqurqyhfLYaGY6t4q1inQzFfX0Wnp4JKZKcvTKdfdKd0LUJbdHSngqdCsVaxRbE3sbEzRLEedbGxabGxZY0ldbGxsX6xjaZNpqYzIaY4aiympmOBplmmpqZQpoGmgaZZpjetTmWtRVeIiK2IiK0/rTWteq1BKVV6ra2tiHofk0aTk5OTBZOTk5OTbpOTV5OTk5OTbpOTk5OTbqZTc6amRaYlGWOmplOBgWqmpqZHplCmpqampjpdOF1dXV1dXV1dXV1dXV1dXV04XV1dXV1dXV0qrIeHSEVgrIesrIesOqw3rGSsNSsirGmsh6x5XGhEaGhoaGhoHDVoaGhoaERoaGhoaERoaGhoaGh+O35+fhx+fllCfll+fn47fn42fn5Zfn5+fn47vih8clxDYma+TL5pL4JyZF6+vlIzaYK+vnK+LLpNL4eVN5W6ZFG6fpU7X1Mth5VMun6Hurq6uibOT2Q3JlNdSW8/m0ljflJ4Y5tnSTWBm2fOqalWgICAgICAgICAW4CAgICAgICAOFsnF4CAgE2ARKxRaWlpLIdwU0ash0msrGkurFY9OHCscKx5rDJbW1tbW1tbW1tbW1tbW1tbW1tbW1sfW1tbW1tbyUBZZ1klaUmWOslxZHZAX16lRkJOfWTJyWfJQclfhmrJLcnJQkPJWVDJeaRlyclMLYbJycmByRzAUGpYbTCNfTkwwMBTjX1IfcBWRDdjwH3AfY0yXV1dXV1dXV1dXV1dXRpdXV1dXV1dXV1dXV1dXXNOc3NzGHNzczdzc3Nzc3NzczBzc3Nzc3Nzc0BWMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWb29vb28sb29vSm9vb29vb29vb29vM29vb29vGWJiYmJiMGJiYj5iYmJiYmJiYmIwYmJiYmJiYjB1UHV1dUJ1dXV1dXV1dXVQdXV1dXVQdXV1dQ11U1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OwsF1DVYuwR31Yi30pZDGwYLA/QS10sLCwsLBJU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlYx0HqdnUqN0HOUetDQQXE20NDQGzho0NCrq3PQJVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU7tLaD5EQrteu7u7eD+7KEV/u0wwPpZWu4i7u4hTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1ZWVlZWVlZWVlZWVlZWVjFWVlZWVlZWVlZWVlZTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU6GhoTx9oaF9oTyhSSJfZX2hoS99RDehWaFOoW5WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlYxU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU2FhYWFhHmFhYWFhYWFhYS5hYWFhYWFhYWFhYWFZWVlZWVlZWVlZWTRZWVlZWVlZWVlZWVlZWVk0U1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU2tra2trOGtra2traxBra2tra2tra2tra2tra2tfX19fXzpfX18sX19fX19fX19fX19fX19fLF9fU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NtbW1tbW1tbW1tbW1tbW1tbW1tbW1tbUhtbW0MU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTubl+cnK5fllyRH5fMm1DuX5+JEE6lVuHcjOVcnYmdnZ2M3Z2dkN2dnZ2dh12dlF2dlF2dnZ2dnZfI19fX19fX19fX19fX18sX19fX19fX19fX19fdHR0dHQhdHR0UHR0QXR0QXR0QVB0UHR0dEF0MrIyXbIwMrKOskSysjKyXbKAsiZIZrKOsrKOsmZpRWlpaWlpaWlFaWk3aWk3aWlpaWkdaWlpaWlpXV1dXV1dXV1dGl1dXV1dXV1dXV1dXV1dXV1dXZ8yn5+fJJ+fnxafn5+fnzCfn5+fn2Ofn59sn5+ysrJXT19lUbKyso00VxyyXLJOPi6ydrKNsmpvWVlZWVlZWVlZWVlZWVlZJllZWVlZWVlZWVlZWW9Kb29vPG9vbyxvb29vb29vb288b29vPG9vbyODg4ODgxuDg4Mug4ODg4ODg4ODPIODg4ODPIMpZBxkZGQxZGRkP2RkZGRkZGRkZGRkZGRkZGRkZJqampqaM2eaZzqaml52mpqammcsXmeaZ5pemhakpHGkpHF/pGikpGFOTkklf6QTcaRRf3GkpKR/X19fX19fX19fOl9fOl9fI19fX19fX19fX19fX1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OQNZCQkCSQkJAXkJCQkJAzkJCQkJCQkJCQVJCQk5OTYJNgbpNgYJOTbm6Tk1CTUG5XYJNgk26TCmRkZGRkP2RkMT9kZGRkZChkZGRkZGRkZGRkZD9nZ2dnZ2dnZ2dnZ2dnQjRnZ2crNEJnZ2dnZ0JnU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1ZWVlZWVlZWVlZWVlZWVjFWVlZWVlZWVlZWVlZTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTZmZmZmYqZmZmZmZmZmZBQWZmZmZmZmZmZmZmI1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU3l5VT15eXk3eXl5eVUfN3l5eXlGN3l5eXl5eXlTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTg0eDg4Mag4NBNIODN4ODX4ODUIODN4ODg4ODg1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1OHh4cvKYeHh4eHh4djRUWHh4ctJ4eHh4eHh4dUVlZWVlZWVlZWVlZWVlZWMVZWVlZWVlZWVlZWVlNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NxIXFxcXFxcXEhcXFxcXE+cXFxcXE1cXFxcXFxjlJbL0s4jo6Ojo6OUjsxRo6OaTFGjo6Ojo6OaVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTVlZWVlYxVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTbW1tbUhtbW1tbW1tbW0dbUhtKm06bW1tbW1tbZRElJSUG5SUlFKUlB6UlDmUlD6UlGGUlJSUlJRWVlZWVlZWVlZWVlZWVlZWVlZWVlYxVlZWVlZWU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1ONjVqNjSCNjWk6jY2NjY1RjY0daY1FjY2NaY1BbRdIbW1tbW1tbW1tbW1tbW1tMTptbW1tbW1tbVZWVlZWVlZWVjFWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVjFWVlZWVlZWVlZWVlZWVlZWVlZWVlZWW1tbW1tbW1tbW1tbW1tbNltbW1tbW1tbNltbNmJiYmJiYmI+YmJiYmJiYmJiYmJiYmJiYmJiYhZTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1ObT2lUT5ubX1Sbm1k7XzKbaZsyd3ebm1mbd5seeTF5eXkpeXl5eXl5eXl5HHl5PXl5Rnl5eXl5eYc/h4eHVIeHEoeHhyWHh0SHh4eHh4eHh4eHh4d2OnZ2djp2dnZDdnZ2dlFDdnYVdnZ2dnZ2dnZ2n0NYnypje3tde5+fPXtYe3ufK0Nje59sn597KGRkZGRkZGRkZDFkZD9kZGRkZDFkZChkZGRkZGRvSm9vb0pvSm8zb29vPEozb28zb288b29vb29vZmZmZmYzZmZmZmZmZmZmFmZmZmZmZmZmZmZmZpOTk5NgUJOTk5OTbpOTCJNgk5Ngk5OTk5OTkz1WMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWX19fX18cX19fXzpfX19fX19fX19fX19fX19fX4c/h4eHKIeHhyaHhzeHhzSHh4eHh2JLh4eHhzeNLjdojS6NjY1ajY2NWkU6IY2NjY2NjY2NjY1ogyeDK0c0g1+DR4ODg4NQUIODg4NBg4ODX4ODQY6Ojo5cjkxHjo6OTGpcKI6OjkJcRyFqXI6OjkeOUo6OjiSOjjtGjo5bjkYrjo5bSy+Ojo6Ojo5pU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU38vf39aPH9/fyR/f39/fyx/f39aWkx/f39/fzyhoXxuoU5uoXwwoaFuZaF8oaGhZSahoaGhoaETeFN4eHgweHgUNXh4eHh4RXh4eHh4eHh4eHh4eHNPc0Fzc3NPc3NzQUFBJ3M4c3Nzc3Nzc3NzczhTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTcSFxcXE1cXE1PnFxcXFxNXFxTHFxcXFxcXFxcV1dXV1dXV1dXSpdXV1dXV1dXV1dXV1dXV1dXSpTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTZD9kZGQcZGRkMWRkZGRkZGRkZGRkZGRkZGRkZFNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTi2Y7ZouLi2ZmZotmWGY4i1iLIWYzi4uLi4tYM1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU6lmYW0gbYSpqamphFaESql2qTJDbYSpqampqR1TU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1ZWVlZWMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlaOjmqOjkKOTI6Ojo5Mag9qOY5qalyOjo6Ojo5cU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1ZWVlZWVlZWVlZWVlZWVlZWVjFWVlZWVlZWVlZzc3NzcxBzc3Msc3Nzc3Nzc3Nzc3Nzc3NzT3NzWTRZWVlZWVlZWVlZWVlZNFlZWVlZWVlZWVlZWVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1N9fX19Sn19fX19fX19SiAqSn1BWH19fVh9fX01U1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NWMVZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWWVlZJllZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZJllZWVlZWVlZWVlZWVlZWVlZWVlZWVlkZGQ/ZD9kZGRkZD8/P2RkZGQoZGRkZGRkZGRkWTRZWVlZWVlZWVlZWVlZNFlZWVlZWVlZWVlZWVNTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTdDh0dHR0dHR0dHR0dEF0dHR0dHR0dHR0dHR0DYcqh4eHN4eHhz+HhxuHh4eHh4eHh4eHh4c3hz9TU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTUw==";
+    const bin = atob(b64), Q = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) Q[i] = bin.charCodeAt(i);
+    const SCALE = 25, LIMIT = 3.3, N = 28;
+    const EXC = new Set("yeah doesn wasn hasn itself zero item caesar vodka lynn noah ohio mccoy ahem lulu psst utah mafia oklahoma puerto jinx naomi ahoy dakota julio ezra isaac ecstasy aloha tofu maru honolulu tiki kenya awol kemp wynn cecil leukemia jigsaw bijou mecca zira eskimo gizmo eggnog luau guru isaiah chihuahua llama yggdrasil ufos lewd kelp etcetera iowa kodiak israel aztec taipei ajax topaz zulu zephyr kuei xerox cmdr klutz osaka zilch kudos iraq ymca mmmm hyenas apex genoa rsvp kiwi asok czechoslovakia niobe esmeralda tutu iago memsahib xenon alfalfa pogo koala navi alleluia juju idiocy blvd nyet tsurugi idaho nouveau dweeb snafu tsunami kodak lyon emcee ethiopia okra wicca cuvee haiku fugu iota ajar zigzag aztecs kiosk isnt leipzig caca zeta ottawa bebop ipecac brrr xenia ouija anaheim pterodactyl pavlov gnaw oslo kiln salvo tsar oyez giulio kabuki shiatsu yoghurt ouzo zimbabwe waif onyx svengali fafnir jujitsu uruguay zyada raat ayodhya whatsapp chatgpt lmao lmfao rofl yeahh hmmm".split(" "));
+    const THREE = new Set("aah aal aas aba abb abo abs aby ace ach act add ado ads adz aff aft aga age ago ags aha ahi ahs aia aid ail aim ain air ais ait aka ake ala alb ale alf all alp als alt alu ama ame ami amp amu ana and ane ani ann ans ant any ape apo app apt arb arc ard are arf ark arm ars art ary ash ask asp ate ats att aua aue auf auk ava ave avo awa awe awk awl awn axe aye ays ayu azo baa bac bad bag bah bal bam ban bap bar bas bat bay bed bee beg bel ben bes bet bey bez bib bid big bin bio bis bit biz boa bob bod bog boh boi bok bon boo bop bor bos bot bow box boy bra bro brr bru bub bud bug bun bur bus but buy bye bys caa cab cad cag cam can cap car cat caw cay caz cee cel cep cha che chi cid cig cis cit cly cob cod cog col con coo cop cor cos cot cow coy coz cru cry cub cud cue cup cur cut cuz cwm dab dad dae dag dah dak dal dam dan dap daw day deb dee def deg dei del den dev dew dex dey dib did die dif dig dim din dip dis dit div dob doc dod doe dof dog doh dol dom don doo dop dor dos dot dow doy dry dso dub dud due dug duh dui dun duo dup dux dye dzo ean ear eas eat eau ebb ech eco ecu edh eds eek eel een eff efs eft egg ego ehs eik eke eld elf elk ell elm els elt eme emf emo ems emu end ene eng ens eon era ere erf erg erk erm ern err ers ess est eta eth euk eve evo ewe ewk ewt exo eye faa fab fad fae fah fan fap far fat faw fax fay fed fee feg feh fem fen fer fes fet feu few fey fez fib fid fie fig fil fin fir fit fix fiz flu fly fob foe fog foh fon fop for fou fox foy fra fro fry fub fud fug fum fun fur gab gad gae gag gak gal gam gan gap gar gas gat gau gaw gay ged gee gel gem gen geo ger get gey ghi gib gid gie gif gig gin gio gip gis git gju gnu goa gob god goe gon goo gor gos got gov gox goy gub gue gul gum gun gup gur gus gut guv guy gym gyp had hae hag hah haj ham han hao hap has hat haw hay heh hem hen hep her hes het hew hex hey hic hid hie him hin hip his hit hmm hoa hob hoc hod hoe hog hoh hoi hom hon hoo hop hos hot how hox hoy hub hue hug huh hui hum hun hup hut hye hyp ice ich ick icy ide ids iff ifs igg ilk ill imp ing ink inn ins ion ios ire irk ish ism iso ita its ivy iwi jab jag jai jak jam jar jaw jay jee jet jeu jew jib jig jin job joe jog jol jor jot jow joy jud jug jun jus jut kab kae kaf kai kak kam kas kat kaw kay kea keb ked kef keg ken kep ket kex key khi kid kif kin kip kir kis kit koa kob koi kon kop kor kos kow kue kye kyu lab lac lad lag lah lam lap lar las lat lav law lax lay lea led lee leg lei lek lep les let leu lev lew lex ley lez lib lid lie lig lin lip lis lit lob lod log loo lop lor los lot lou low lox loy lud lug lum lur luv lux luz lye lym maa mac mad mae mag mak mal mam man map mar mas mat maw max may med mee meg meh mel mem men mes met meu mew mho mib mic mid mig mil mim mir mis mix miz mna moa mob moc mod moe mog moi mol mom mon moo mop mor mos mot mou mow moy moz mud mug mum mun mus mut mux myc nab nae nag nah nam nan nap nas nat naw nay neb ned nee nef neg nek nep net new nib nid nie nil nim nip nis nit nix nod nog noh nom non noo nor nos not now nox noy nth nub nun nur nus nut nye nys oaf oak oar oat oba obe obi obo obs oca och oda odd ode ods oes off oft ohm oho ohs oik oil ois oka oke old ole olm oms one ono ons ony oof ooh oom oon oop oor oos oot ope ops opt ora orb orc ord ore orf ors ort ose oud ouk oup our ous out ova owe owl own owt oxo oxy oye oys pac pad pah pal pam pan pap par pas pat pav paw pax pay pea pec ped pee peg peh pel pen pep per pes pet pew phi pho pht pia pic pie pig pin pip pir pis pit piu pix plu ply poa pod poh poi pol pom pop pos pot pow pox poz pre pro pry psi pst pub pud pug puh pul pun pup pur pus put puy pya pye pyx qat qin qis qua rad rag rah rai raj ram ran rap ras rat rav raw rax ray reb rec red ree ref reg reh rei rem ren reo rep res ret rev rew rex rez rho rhy ria rib rid rif rig rim rin rip rit riz rob roc rod roe rok rom roo rot row rub ruc rud rue rug rum run rut rya rye sab sac sad sae sag sai sal sam san sap sar sat sau sav saw sax say saz sea sec sed see seg sei sel sen ser set sew sey sez sha she shh shy sib sic sif sik sim sin sip sir sis sit six ska ski sky sly sma sny sob soc sod sog soh sol som son sop sos sot sou sov sow sox soy soz spa spy sri sty sub sud sue sug sui suk sum sun sup suq sur sus swy sye syn tab tad tae tag tai taj tak tam tan tao tap tar tas tat tau tav taw tax tay tea tec ted tee tef teg tel ten tes tet tew tex the tho thy tic tid tie tig tik til tin tip tis tix toc tod toe tog tom ton too top tor tot tow toy try tsk tub tug tui tum tun tup tut tux twa two twp tye tyg udo uds uey ufo ugh ugs uke ule ulu umm ump ums umu uni uns upo ups urb urd ure urn urp use uta ute uts utu uva vac vae vag van var vas vat vau vav vaw vee veg vet vex via vid vie vig vim vin vis vly voe vol vor vow vox vug vum wab wad wae wag wai wan wap war was wat waw wax way web wed wee wem wen wet wex wey wha who why wig win wis wit wiz woe wof wog wok won woo wop wos wot wow wox wry wud wus wye wyn xis yad yae yag yah yak yam yap yar yaw yay yea yeh yen yep yes yet yew yex ygo yid yin yip yob yod yok yom yon you yow yug yuk yum yup yus zag zap zas zax zea zed zee zek zel zep zex zho zig zin zip zit ziz zoa zol zoo zos zuz zzz lol omg wtf fyi btw idk imo tbh brb pdf url diy ceo vip faq ngo ahh grr pls plz ive hai kya aur kal kar dil dar moon tha thi aap mai woh toh bhi aaj bol keh jaa hua ruk der abe".split(" "));
+    const TWO = new Set("am an as at be by do go he hi if in is it me my no of oh ok on or so to up us we ah eh uh um hm ya yo ex id pi tv aw ow ew oi mm ha im ke ki ka ko se ne ho hu ye wo na ji ab aa ma pa tu".split(" "));
+    const KEYSEQ = /qwer|wert|rtyu|tyui|yuio|uiop|asdf|sdfg|dfgh|fghj|ghjk|hjkl|zxcv|xcvb|cvbn|vbnm|rewq|trew|ytre|uytr|iuyt|poiu|fdsa|gfds|hgfd|jhgf|kjhg|lkjh|vcxz|bvcx|nbvc|mnbv/;
+    const idx = c => c === "^" ? 0 : c === "$" ? 27 : c.charCodeAt(0) - 96;
+    function score(w){
+      const s = "^^" + w + "$"; let t = 0;
+      for(let i=2;i<s.length;i++) t += Q[(idx(s[i-2]) * N + idx(s[i-1])) * N + idx(s[i])] / SCALE;
+      return t / (s.length - 2);
+    }
+    const cache = new Map();
+    function latin(s){
+      if(s.length === 0) return true;
+      if(s.length === 1) return s === "a" || s === "i";
+      if(s.length === 2) return TWO.has(s);
+      if(s.length === 3) return THREE.has(s);
+      if(EXC.has(s)) return true;
+      if(/^(ha|he|hi|ho)+h?$/.test(s)) return true;                 // hahaha, hehe
+      if(KEYSEQ.test(s)) return false;                                 // keyboard rows: asdf, qwer, ...
+      if(/^(.{1,3})\1{2,}$/.test(s) && !/^(.)\1+$/.test(s)) return false;   // sasasa, dadada
+      return score(s) <= LIMIT;
+    }
+    function real(tok){
+      let hit = cache.get(tok);
+      if(hit !== undefined) return hit;
+      hit = test(tok);
+      if(cache.size > 5000) cache.clear();
+      cache.set(tok, hit);
+      return hit;
+    }
+    function test(raw){
+      if(/\p{N}/u.test(raw)) return true;                              // numbers, 3rd, mp4
+      if(/\p{L}/u.test(raw.replace(/\p{Script=Latin}/gu, ""))){        // Hindi, Arabic, Chinese, … : accept, unless it is one repeated character
+        return !/^(.)\1{3,}$/u.test(raw);
+      }
+      let w = raw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+      const ap = w.match(/^([a-z]+)['’]([a-z]{1,2})$/);                // don't, it's, I'm, we'll
+      if(ap && /^(s|t|m|d|ll|re|ve)$/.test(ap[2])){
+        const base = ap[1];
+        if(latin(base) || (base.endsWith("n") && latin(base.slice(0, -1)))) return true;
+      }
+      w = w.replace(/[^a-z]/g, "");
+      return latin(w.replace(/(.)\1{2,}/g, "$1$1")) || latin(w.replace(/(.)\1+/g, "$1"));   // sooooo -> soo / so
+    }
+    return { real };
+  })();
+
+  // counts only real words: gibberish and the same word repeated back to back are ignored
+  const analyzeCache = { t: null, r: null };
+  function analyze(text){
+    if(analyzeCache.t === text) return analyzeCache.r;
+    let real = 0, ignored = 0, prev = "";
+    const parts = text.split(/[\s—–\/]+/);
+    for(const p of parts){
+      const tok = p.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+      if(!tok) continue;                                               // pure punctuation or emoji
+      for(const sub of tok.split(/-+/)){
+        if(!sub) continue;
+        const low = sub.toLowerCase();
+        if(GIB.real(sub) && low !== prev){ real++; }
+        else ignored++;
+        prev = low;
+      }
+    }
+    const r = { real, ignored, total: real + ignored };
+    analyzeCache.t = text; analyzeCache.r = r;
+    return r;
+  }
+  const countWords = t => analyze(t).real;
+  const ymd = ts => { const d = new Date(ts); return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate(); };
+  const fmtDate = e => { if(e.ts){ try{ return new Date(e.ts).toLocaleString([], {dateStyle:"medium", timeStyle:"short"}); }catch(x){} } return e.date || ""; };
+  function safeFilename(str){ return String(str).replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60); }
+  function download(blob, name){
+    const url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1500);
+  }
+  function randomPrompt(){
+    let p; do{ p = PROMPTS[Math.floor(Math.random() * PROMPTS.length)]; }while(p === textarea.placeholder && PROMPTS.length > 1);
+    return p;
   }
 
-  function autoGrow(el) {
+  /* ---------- toasts ---------- */
+  function notify(msg, undo){
+    toastMsg.textContent = msg;
+    undoFn = undo || null;
+    toastUndo.hidden = !undo;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.classList.remove("show"); undoFn = null; }, undo ? 7000 : 3000);
+  }
+  toastUndo.addEventListener("click", () => {
+    if(undoFn){ const f = undoFn; undoFn = null; f(); }
+    toastEl.classList.remove("show");
+  });
+  function showSaved(msg){
+    saveToast.textContent = msg;
+    saveToast.classList.add("show");
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(() => saveToast.classList.remove("show"), 2600);
+  }
+
+  /* ---------- the brain: cluttered while empty, calm as you write ---------- */
+  const brain = (function(){
+    const cv = $("brainCanvas"), ctx = cv.getContext("2d");
+    const W = 200, H = 150, CX = 100, CY = 72;
+    const OUT = "M30,78 C22,52 40,26 70,22 C90,10 120,10 142,22 C170,26 190,48 183,76 C181,92 171,100 159,104 C151,110 141,108 133,106 C122,116 100,118 86,110 C70,112 52,108 42,98 C34,92 31,86 30,78 Z";
+    const CB = "M132,106 C144,100 162,104 166,114 C168,124 156,133 142,131 C131,129 125,117 132,106 Z";
+    const ST = "M108,114 C110,126 111,136 114,144 L127,144 C125,134 126,122 128,112";
+    const FOLDS = [
+      "M50,62 C60,44 78,52 74,66 C70,78 86,80 92,66",
+      "M92,40 C104,32 114,46 106,56 C100,66 114,70 122,58",
+      "M126,34 C140,30 152,42 144,52 C138,60 152,66 160,56",
+      "M56,90 C68,84 80,94 92,88 C104,82 110,92 122,88",
+      "M132,78 C144,70 154,80 150,90 C148,98 162,94 170,84",
+      "M62,36 C72,30 84,34 80,44",
+      "M102,78 C110,70 120,78 114,88",
+      "M40,76 C46,70 54,74 52,82",
+      "M156,38 C166,40 172,50 168,58"
+    ];
+    const outline = new Path2D(OUT), cereb = new Path2D(CB), stem = new Path2D(ST), folds = FOLDS.map(d => new Path2D(d));
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    function fit(){ const r = cv.getBoundingClientRect(); cv.width = Math.max(10, Math.round(r.width * dpr)); cv.height = Math.max(10, Math.round(r.height * dpr)); }
+    fit(); addEventListener("resize", () => { fit(); if(reduceMotion) draw(0); });
+
+    // mask of the brain so the tangle stays inside it
+    const mk = document.createElement("canvas"); mk.width = W; mk.height = H;
+    const mc = mk.getContext("2d"); mc.fill(outline);
+    const md = mc.getImageData(0, 0, W, H).data;
+    const inside = (x, y) => x >= 0 && y >= 0 && x < W && y < H && md[((y|0) * W + (x|0)) * 4 + 3] > 10;
+    const rndIn = () => { for(let i=0;i<60;i++){ const x = 28 + Math.random()*158, y = 14 + Math.random()*100; if(inside(x, y)) return [x, y]; } return [CX, CY]; };
+    const scribbles = Array.from({length:20}, () => ({ pts: Array.from({length: 6 + (Math.random()*4|0)}, rndIn), ph: Math.random()*6.28 }));
+
+    const RED = [255,43,43], MINT = [94,242,200];
+    const mix = (k, a = RED, b = MINT) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+    const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+    const STAGES = [
+      [0.2,  "OVERLOADED", "Overloaded. Start typing to unload."],
+      [0.45, "CLUTTERED",  "Cluttered. Keep going…"],
+      [0.7,  "SETTLING",   "Settling. The words are leaving your head."],
+      [0.9,  "CLEARING",   "Clearing. Almost there."],
+      [9,    "CALM",       "Calm. Hit Dump to let it go."]
+    ];
+
+    let lastRl = false, lastNoisy = false, noisy = false, calm = 0, words = 0, reliefUntil = 0, stage = -1, last = performance.now(), t0 = last, rippleAt = 0;
+    const glyphs = [], sparks = [], motes = [], rings = [];
+    const GL = ["?", "!", "…", "*", "#@!", "$", "??", "!!"];
+
+    function setWords(n, junk){ words = n; junk = !!junk; if(junk !== noisy){ noisy = junk; stage = -1; } if(reduceMotion){ calm = target(); draw(0); label(); } }
+    const target = () => performance.now() < reliefUntil ? 1 : 1 - Math.exp(-words / 40);
+    function relief(){
+      reliefUntil = performance.now() + 5500;
+      for(let i=0;i<18;i++){ const a = Math.random() * 6.28, s = 40 + Math.random() * 70; glyphs.push({ x:CX, y:CY, vx:Math.cos(a)*s, vy:Math.sin(a)*s, ch:GL[Math.random()*GL.length|0], life:0, max:1.1 + Math.random()*0.8, fling:true }); }
+      rings.push({ r:10, a:0.9, fast:true });
+      if(reduceMotion){ calm = 1; draw(0); label(); }
+    }
+    function label(){
+      let s = STAGES.findIndex(x => calm < x[0]); if(s < 0) s = STAGES.length - 1;
+      $("brainBar").style.width = Math.round(calm * 100) + "%";
+      $("brainBar").style.background = rgba(mix(calm), 1);
+      if(s !== stage){
+        stage = s;
+        $("brainState").textContent = performance.now() < reliefUntil ? "MIND CLEARED ✓" : STAGES[s][1];
+        $("brainHint").textContent = performance.now() < reliefUntil ? "Dumped. That's out of your head now." : noisy ? "Random keystrokes don't count. Write real words to calm down." : STAGES[s][2];
+        $("brainState").style.color = rgba(mix(calm), 1);
+      }
+    }
+
+    function draw(dt){
+      const now = performance.now(), ch = 1 - calm, col = mix(calm), time = (now - t0) / 1000;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      const sc = cv.width / W;
+      ctx.setTransform(sc, 0, 0, sc, 0, 0);
+      const still = reduceMotion;
+      const jit = still ? 0 : ch;
+      // breathing: quick and shallow when stressed, slow and deep when calm
+      const rate = 7 - 6.2 * calm, amp = 0.006 + 0.03 * calm;
+      const breathe = still ? 1 : 1 + Math.sin(time * rate) * amp;
+      const shx = (Math.random() - 0.5) * jit * 3.2, shy = (Math.random() - 0.5) * jit * 3.2;
+      ctx.save();
+      ctx.translate(CX + shx, CY + shy); ctx.scale(breathe, breathe); ctx.translate(-CX, -CY);
+
+      // soft inner glow grows with calm
+      const g = ctx.createRadialGradient(CX, CY - 6, 6, CX, CY, 96);
+      g.addColorStop(0, rgba(col, 0.04 + 0.26 * calm)); g.addColorStop(1, rgba(col, 0.02 + 0.03 * calm));
+      ctx.fillStyle = g; ctx.fill(outline); ctx.fill(cereb);
+      if(calm > 0.5){ ctx.shadowColor = rgba(col, 0.9); ctx.shadowBlur = (calm - 0.5) * 22; }
+
+      // vibrating double outline when stressed
+      if(jit > 0.15){
+        ctx.save(); ctx.translate((Math.random() - 0.5) * jit * 4, (Math.random() - 0.5) * jit * 4);
+        ctx.strokeStyle = rgba(RED, jit * 0.45); ctx.lineWidth = 1.2; ctx.stroke(outline); ctx.restore();
+      }
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      ctx.strokeStyle = rgba(col, 0.95); ctx.lineWidth = 1.7;
+      ctx.stroke(outline); ctx.stroke(cereb); ctx.stroke(stem);
+      ctx.shadowBlur = 0;
+
+      // folds: wobble when stressed, smooth and bright when calm
+      ctx.lineWidth = 1.3;
+      folds.forEach((f, i) => {
+        ctx.save();
+        if(jit > 0.05) ctx.translate((Math.random() - 0.5) * jit * 2.4, (Math.random() - 0.5) * jit * 2.4);
+        ctx.strokeStyle = rgba(col, 0.42 + 0.4 * calm); ctx.stroke(f); ctx.restore();
+      });
+
+      // the tangle of worries: lots of jittery scribbles that thin out and fade
+      const n = Math.ceil(scribbles.length * Math.pow(ch, 0.9));
+      ctx.lineWidth = 0.9;
+      for(let i = 0; i < n; i++){
+        const s = scribbles[i], j = still ? 0 : (1.2 + ch * 3.4);
+        ctx.strokeStyle = rgba(RED, 0.18 + 0.6 * ch);
+        ctx.beginPath();
+        s.pts.forEach((p, k) => {
+          const x = p[0] + (still ? 0 : Math.sin(time * (3 + k) + s.ph + k) * j) + (Math.random() - 0.5) * j * 0.8;
+          const y = p[1] + (still ? 0 : Math.cos(time * (2.6 + k) + s.ph) * j) + (Math.random() - 0.5) * j * 0.8;
+          k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        });
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      if(!still){
+        // lightning sparks inside the head
+        if(Math.random() < ch * 0.16){
+          let [x, y] = rndIn(); const pts = [[x, y]];
+          for(let k = 0; k < 4; k++){ x += (Math.random() - 0.5) * 18; y += 4 + Math.random() * 8; pts.push([x, y]); }
+          sparks.push({ pts, life: 0 });
+        }
+        for(let i = sparks.length - 1; i >= 0; i--){
+          const sp = sparks[i]; sp.life += dt;
+          if(sp.life > 0.12){ sparks.splice(i, 1); continue; }
+          ctx.strokeStyle = "rgba(255,230,160,0.95)"; ctx.lineWidth = 1.2; ctx.shadowColor = "#ff8a3a"; ctx.shadowBlur = 6;
+          ctx.beginPath(); sp.pts.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); ctx.shadowBlur = 0;
+        }
+        // ? ! … flying around the head, frantic when stressed
+        if(glyphs.length < 16 && Math.random() < ch * dt * 9){
+          const a = Math.random() * 6.28, d = 44 + Math.random() * 20;
+          glyphs.push({ x:CX + Math.cos(a) * d * 1.3, y:CY - 6 + Math.sin(a) * d * 0.75, vx:(Math.random() - 0.5) * 30, vy:(Math.random() - 0.5) * 30, ch:GL[Math.random() * GL.length | 0], life:0, max:1.1 + Math.random() * 1.4 });
+        }
+        ctx.font = "bold 11px 'Space Mono', monospace"; ctx.textAlign = "center";
+        for(let i = glyphs.length - 1; i >= 0; i--){
+          const q = glyphs[i]; q.life += dt;
+          if(q.life > q.max){ glyphs.splice(i, 1); continue; }
+          if(!q.fling){ const f = 140 * ch + 10; q.vx += (Math.random() - 0.5) * f * dt * 6; q.vy += (Math.random() - 0.5) * f * dt * 6; q.vx *= 0.96; q.vy *= 0.96; }
+          q.x += q.vx * dt; q.y += q.vy * dt;
+          const k = q.life / q.max, a = Math.sin(Math.min(1, k) * Math.PI);
+          ctx.fillStyle = rgba(q.fling ? mix(1) : RED, a * 0.9); ctx.fillText(q.ch, q.x, q.y);
+        }
+        // calm motes drifting up
+        if(motes.length < 14 && Math.random() < calm * dt * 4){
+          motes.push({ x:CX + (Math.random() - 0.5) * 120, y:CY + 40 + Math.random() * 20, vy:-(6 + Math.random() * 10), life:0, max:3 + Math.random() * 2, r:0.8 + Math.random() * 1.4 });
+        }
+        for(let i = motes.length - 1; i >= 0; i--){
+          const m = motes[i]; m.life += dt;
+          if(m.life > m.max){ motes.splice(i, 1); continue; }
+          m.y += m.vy * dt; m.x += Math.sin(m.life * 1.4 + i) * 4 * dt;
+          ctx.fillStyle = rgba(MINT, Math.sin(m.life / m.max * Math.PI) * 0.7 * calm);
+          ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, 6.3); ctx.fill();
+        }
+        // slow ripples while calm
+        if(calm > 0.6 && now > rippleAt){ rings.push({ r:36, a:0.5 * calm }); rippleAt = now + 2400; }
+        for(let i = rings.length - 1; i >= 0; i--){
+          const r = rings[i]; r.r += (r.fast ? 120 : 22) * dt; r.a -= (r.fast ? 1.1 : 0.22) * dt;
+          if(r.a <= 0){ rings.splice(i, 1); continue; }
+          ctx.strokeStyle = rgba(MINT, r.a); ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.ellipse(CX, CY, r.r * 1.35, r.r * 0.9, 0, 0, 6.3); ctx.stroke();
+        }
+      }
+    }
+
+    function frame(now){
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const tg = target(), rate = tg > calm ? 0.55 : 0.2;       // calms slowly as you write, clutter creeps back even slower
+      calm += (tg - calm) * (1 - Math.exp(-rate * dt));
+      if(Math.abs(tg - calm) < 0.0005) calm = tg;
+      draw(dt);
+      const rl = now < reliefUntil; if(rl !== lastRl){ lastRl = rl; stage = -1; }
+      const s = STAGES.findIndex(x => calm < x[0]);
+      if(s !== stage || Math.random() < 0.1) label();
+      requestAnimationFrame(frame);
+    }
+    if(reduceMotion){ calm = target(); draw(0); label(); } else { requestAnimationFrame(frame); }
+    return { setWords, relief };
+  })();
+
+  /* ---------- editor ---------- */
+  function autoGrow(el){
     el.style.height = "auto";
     const h = Math.min(el.scrollHeight, 560);
     el.style.height = h + "px";
     el.style.overflowY = el.scrollHeight > 560 ? "auto" : "hidden";
   }
-
-  function updateCounter() {
-    const text = textarea.value;
-    const words = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
-    counterEl.textContent = `${words} word${words === 1 ? "" : "s"} · ${text.length} character${text.length === 1 ? "" : "s"}`;
+  function updateCounter(){
+    const t = textarea.value, a = analyze(t), w = a.real;
+    counterEl.textContent = `${w} word${w === 1 ? "" : "s"} · ${t.length} character${t.length === 1 ? "" : "s"}` + (a.ignored ? ` · ${a.ignored} ignored` : "");
+    const junky = a.ignored >= 3 && a.ignored >= a.real;
+    brain.setWords(w, a.ignored > 0 && a.ignored >= a.real);
+    const jw = $("junkWarn");
+    if(junky){
+      jw.textContent = `⚠ WARNING: random keys detected (${a.ignored} of ${a.total} words ignored). Just filling the page won't calm your mind. Write what's really in your head.`;
+      if(!jw.classList.contains("show")){ jw.classList.add("show"); }
+    }else jw.classList.remove("show");
+    textarea.classList.toggle("junk", junky);
   }
-
-  function setEditingMode(index, dateLabel) {
-    editingIndex = index;
-    if (index === null) {
+  function setEditingMode(id, dateLabel){
+    editingId = id;
+    if(id === null){
       editingBanner.hidden = true;
-      saveBtn.textContent = "Save entry";
-    } else {
+      saveBtn.textContent = "💥 Dump";
+    }else{
       editingBanner.hidden = false;
       editingLabel.textContent = `✏️ Editing entry from ${dateLabel}`;
-      saveBtn.textContent = "Update entry";
+      saveBtn.textContent = "💥 Update dump";
     }
   }
-
-  function loadEntryForEdit(index) {
-    const entries = getEntries();
-    const entry = entries[index];
-    if (!entry) return;
-
-    const currentDraft = textarea.value.trim();
-    if (currentDraft && currentDraft !== entry.text.trim() && editingIndex === null) {
-      if (!confirm("You have unsaved text in the editor. Loading this entry will replace it. Continue?")) return;
+  function resetEditor(){
+    textarea.value = "";
+    store.del(DRAFT_KEY);
+    setEditingMode(null);
+    autoGrow(textarea);
+    updateCounter();
+  }
+  function loadEntryForEdit(id){
+    const entry = getEntries().find(e => e.id === id);
+    if(!entry) return;
+    const draft = textarea.value.trim();
+    if(draft && draft !== entry.text.trim() && editingId === null){
+      if(!confirm("You have unsaved text in the editor. Loading this entry will replace it. Continue?")) return;
     }
-
     textarea.value = entry.text;
-    localStorage.setItem(DRAFT_KEY, entry.text);
-    setEditingMode(index, entry.date);
+    store.set(DRAFT_KEY, entry.text);
+    setEditingMode(id, fmtDate(entry));
     autoGrow(textarea);
     updateCounter();
     textarea.focus();
-    textarea.scrollIntoView({ behavior: "smooth", block: "start" });
+    textarea.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
   }
 
-  function showToast() {
-    saveToast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => saveToast.classList.remove("show"), 1600);
-  }
-
-  // Load draft
-  textarea.value = localStorage.getItem(DRAFT_KEY) || "";
+  textarea.value = store.get(DRAFT_KEY) || "";
+  textarea.placeholder = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
   autoGrow(textarea);
   updateCounter();
 
   textarea.addEventListener("input", () => {
-    localStorage.setItem(DRAFT_KEY, textarea.value);
+    store.set(DRAFT_KEY, textarea.value);
     autoGrow(textarea);
     updateCounter();
   });
-
-  cancelEditBtn.addEventListener("click", () => {
-    textarea.value = "";
-    localStorage.removeItem(DRAFT_KEY);
-    setEditingMode(null);
-    autoGrow(textarea);
-    updateCounter();
-    textarea.focus();
+  textarea.addEventListener("keydown", e => {
+    if((e.ctrlKey || e.metaKey) && e.key === "Enter"){ e.preventDefault(); dump(); }
   });
+  promptBtn.addEventListener("click", () => { textarea.placeholder = randomPrompt(); textarea.focus(); });
+  cancelEditBtn.addEventListener("click", () => { resetEditor(); textarea.focus(); });
 
-  saveBtn.addEventListener("click", () => {
-    if (!textarea.value.trim()) return;
-
-    const entries = getEntries();
-
-    if (editingIndex !== null && entries[editingIndex]) {
-      entries[editingIndex] = {
-        date: entries[editingIndex].date,
-        text: textarea.value,
-        editedAt: new Date().toLocaleString()
-      };
-    } else {
-      entries.unshift({
-        date: new Date().toLocaleString(),
-        text: textarea.value
-      });
-    }
-
-    setEntries(entries);
-    localStorage.removeItem(DRAFT_KEY);
-    textarea.value = "";
-    setEditingMode(null);
-    autoGrow(textarea);
-    updateCounter();
-    showToast();
-
-    renderHistory();
-  });
-
-  clearBtn.addEventListener("click", () => {
-    if (!confirm("Delete all saved brain dumps?")) return;
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(DRAFT_KEY);
-    textarea.value = "";
-    setEditingMode(null);
-    autoGrow(textarea);
-    updateCounter();
-    renderHistory();
-  });
-
-  searchInput.addEventListener("input", () => {
-    searchTerm = searchInput.value.trim().toLowerCase();
-    renderHistory();
-  });
-
-  function safeFilename(str) {
-    return str.replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+  /* ---------- sound (off by default) ---------- */
+  soundOn = store.get(SOUND_KEY) === "1";
+  const paintSound = () => { soundBtn.textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off"; soundBtn.setAttribute("aria-pressed", soundOn); };
+  paintSound();
+  soundBtn.addEventListener("click", () => { soundOn = !soundOn; store.set(SOUND_KEY, soundOn ? "1" : "0"); paintSound(); if(soundOn) boom(); });
+  let ac = null;
+  function boom(){
+    if(!soundOn) return;
+    try{
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if(ac.state === "suspended") ac.resume();
+      const t = ac.currentTime;
+      const o = ac.createOscillator(), og = ac.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(34, t + 0.5);
+      og.gain.setValueAtTime(0.55, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+      o.connect(og).connect(ac.destination); o.start(t); o.stop(t + 0.6);
+      const len = Math.floor(ac.sampleRate * 0.4), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+      for(let i=0;i<len;i++) d[i] = (Math.random()*2 - 1) * (1 - i/len);
+      const n = ac.createBufferSource(); n.buffer = buf;
+      const f = ac.createBiquadFilter(); f.type = "lowpass"; f.frequency.setValueAtTime(2400, t); f.frequency.exponentialRampToValueAtTime(180, t + 0.4);
+      const ng = ac.createGain(); ng.gain.value = 0.4;
+      n.connect(f).connect(ng).connect(ac.destination); n.start(t);
+    }catch(e){}
   }
 
-  function renderHistory() {
-    const allEntries = getEntries();
+  /* ---------- the explosion ---------- */
+  // Lay the text out in an invisible copy of the textarea so every word can start exactly where you typed it.
+  function captureWords(){
+    const cs = getComputedStyle(textarea), r = textarea.getBoundingClientRect();
+    const sb = Math.max(0, textarea.offsetWidth - textarea.clientWidth - (parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth)));
+    const m = document.createElement("div");
+    m.setAttribute("aria-hidden", "true");
+    Object.assign(m.style, {
+      position:"fixed", left:r.left+"px", top:r.top+"px", width:(r.width - sb)+"px", height:r.height+"px", boxSizing:"border-box",
+      padding:cs.padding, borderStyle:"solid", borderColor:"transparent", borderWidth:cs.borderWidth,
+      font:cs.font, lineHeight:cs.lineHeight, letterSpacing:cs.letterSpacing,
+      whiteSpace:"pre-wrap", overflowWrap:"break-word", overflow:"hidden", visibility:"hidden", pointerEvents:"none"
+    });
+    const spans = [];
+    textarea.value.split(/(\s+)/).forEach(tk => {
+      if(!tk) return;
+      if(/^\s+$/.test(tk)){ m.appendChild(document.createTextNode(tk)); return; }
+      const s = document.createElement("span"); s.textContent = tk; m.appendChild(s); spans.push(s);
+    });
+    document.body.appendChild(m);
+    m.scrollTop = textarea.scrollTop;
+    const items = spans.map(s => {
+      const b = s.getBoundingClientRect(), vis = b.bottom > r.top && b.top < r.bottom;
+      return { t: s.textContent.slice(0, 22),
+               x: vis ? b.left : r.left + Math.random() * r.width,
+               y: vis ? b.top : r.top + Math.random() * Math.min(r.height, 300) };
+    });
+    m.remove();
+    const MAX = 150, step = Math.max(1, Math.ceil(items.length / MAX));
+    const picked = items.filter((_, i) => i % step === 0);
+    return {
+      items: picked, font: cs.font,
+      ox: Math.min(innerWidth - 20, Math.max(20, r.left + r.width/2)),
+      oy: Math.min(innerHeight - 20, Math.max(20, r.top + Math.min(r.height, 320)/2))
+    };
+  }
 
-    const visible = allEntries
-      .map((e, i) => ({ ...e, i }))
-      .filter(e => !searchTerm || e.text.toLowerCase().includes(searchTerm) || e.date.toLowerCase().includes(searchTerm));
-
-    historyBox.innerHTML = "";
-
-    if (allEntries.length === 0) {
-      historyBox.innerHTML = `<div class="note">No past entries stored yet. Write something and hit Save.</div>`;
-      return;
+  function explode(cap){
+    if(reduceMotion || !cap.items.length) return;
+    const parts = [], rnd = Math.random;
+    cap.items.forEach(it => {
+      const el = document.createElement("span");
+      el.className = "ptl"; el.textContent = it.t; el.style.font = cap.font;
+      el.style.color = rnd() < 0.3 ? "#ff2b2b" : "#d8dde3";
+      el.style.transform = `translate(${it.x}px,${it.y}px)`;
+      document.body.appendChild(el);
+      let dx = it.x - cap.ox, dy = it.y - cap.oy; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+      const ang = (rnd() - 0.5) * 1.0, c = Math.cos(ang), s = Math.sin(ang), sp = 450 + rnd() * 1250;
+      parts.push({ el, x:it.x, y:it.y, vx:(dx*c - dy*s)*sp, vy:(dx*s + dy*c)*sp - 160, vr:(rnd()-0.5)*1000, r:0, life:1.5 + rnd()*1.4, t:-0.14, done:false });
+    });
+    for(let i=0;i<70;i++){
+      const el = document.createElement("i"); el.className = "spark";
+      el.style.transform = `translate(${cap.ox}px,${cap.oy}px)`;
+      document.body.appendChild(el);
+      const a = rnd() * Math.PI * 2, sp = 300 + rnd() * 1300;
+      parts.push({ el, x:cap.ox, y:cap.oy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, vr:0, r:0, life:0.6 + rnd()*0.9, t:-0.14, done:false, spark:true });
     }
+    // shockwave + flash + shake
+    const ring = document.createElement("div"); ring.className = "shock";
+    ring.style.left = cap.ox + "px"; ring.style.top = cap.oy + "px";
+    document.body.appendChild(ring);
+    ring.animate([{ transform:"translate(-50%,-50%) scale(0)", opacity:0.9 }, { transform:"translate(-50%,-50%) scale(1)", opacity:0 }],
+                 { duration:900, delay:140, easing:"cubic-bezier(.1,.7,.2,1)", fill:"both" }).onfinish = () => ring.remove();
+    const fl = document.createElement("div"); fl.className = "flashfx";
+    fl.style.setProperty("--ox", cap.ox + "px"); fl.style.setProperty("--oy", cap.oy + "px");
+    document.body.appendChild(fl);
+    fl.animate([{ opacity:0 }, { opacity:1, offset:0.2 }, { opacity:0 }], { duration:700, delay:120 }).onfinish = () => fl.remove();
+    const app = document.querySelector(".app");
+    app.classList.remove("shake"); void app.offsetWidth; app.classList.add("shake");
+    setTimeout(boom, 130);
 
-    if (visible.length === 0) {
-      historyBox.innerHTML = `<div class="note">No entries match "${searchInput.value}".</div>`;
-      return;
-    }
-
-    visible.forEach(e => {
-      const index = e.i;
-
-      const row = document.createElement("div");
-      row.className = "entry";
-      row.onclick = () => loadEntryForEdit(index);
-
-      const main = document.createElement("div");
-      main.className = "entry-main";
-
-      const date = document.createElement("div");
-      date.className = "entry-date";
-      date.textContent = e.date;
-      if (e.editedAt) {
-        const tag = document.createElement("span");
-        tag.className = "entry-edited-tag";
-        tag.textContent = "(edited)";
-        date.appendChild(tag);
+    let last = performance.now();
+    function frame(now){
+      const dt = Math.min(0.033, (now - last) / 1000); last = now;
+      let alive = 0;
+      for(const p of parts){
+        if(p.done) continue;
+        p.t += dt;
+        if(p.t < 0){                                              // charge up: a quick shiver before the blast
+          alive++;
+          if(!p.spark) p.el.style.transform = `translate(${p.x + (rnd()-0.5)*4}px,${p.y + (rnd()-0.5)*4}px)`;
+          continue;
+        }
+        if(p.t >= p.life){ p.el.remove(); p.done = true; continue; }
+        alive++;
+        const drag = Math.pow(p.spark ? 0.12 : 0.33, dt);
+        p.vx *= drag; p.vy = p.vy * drag + (p.spark ? 300 : 560) * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt;
+        const k = p.t / p.life;
+        p.el.style.transform = `translate(${p.x}px,${p.y}px) rotate(${p.r}deg) scale(${p.spark ? 1 - k*0.7 : 1 + k*0.5})`;
+        p.el.style.opacity = (1 - k*k).toFixed(3);
       }
+      if(alive) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
 
-      const preview = document.createElement("div");
-      preview.className = "entry-preview";
-      preview.textContent = e.text;
+  /* ---------- DUMP ---------- */
+  function dump(){
+    if(busy) return;
+    const text = textarea.value;
+    if(!text.trim()){
+      textarea.classList.remove("nudge"); void textarea.offsetWidth; textarea.classList.add("nudge");
+      textarea.focus();
+      return;
+    }
+    const an = analyze(text);
+    if(an.real === 0 || (an.total >= 4 && an.real < 2)){
+      textarea.classList.remove("nudge"); void textarea.offsetWidth; textarea.classList.add("nudge");
+      textarea.focus();
+      notify("Mostly random keys. Write real words to dump.");
+      return;
+    }
+    busy = true;
+    const entries = getEntries();
+    let id, updated = false;
+    const existing = editingId ? entries.find(e => e.id === editingId) : null;
+    if(existing){
+      existing.text = text; existing.editedAt = new Date().toLocaleString(); existing.editedTs = Date.now();
+      id = existing.id; updated = true;
+    }else{
+      id = newId();
+      entries.unshift({ id, ts: Date.now(), date: new Date().toLocaleString(), text });
+    }
+    setEntries(entries);
+    freshId = id;
 
-      main.appendChild(date);
-      main.appendChild(preview);
+    const cap = captureWords();          // measure before the editor is wiped
+    resetEditor();
+    textarea.placeholder = randomPrompt();
+    textarea.classList.remove("fresh"); void textarea.offsetWidth; textarea.classList.add("fresh");
+    explode(cap);
+    brain.relief();
+    showSaved(updated ? "✓ UPDATED · SAFE IN PAST ENTRIES" : "✓ DUMPED · SAFE IN PAST ENTRIES");
+    renderStats();
+    renderHistory();
+    setTimeout(() => { busy = false; textarea.focus({ preventScroll:true }); }, 500);
+  }
+  saveBtn.addEventListener("click", dump);
 
-      const actions = document.createElement("div");
-      actions.className = "entry-actions";
+  /* ---------- clear the editor (with undo) ---------- */
+  clearBtn.addEventListener("click", () => {
+    const t = textarea.value, wasEditing = editingId;
+    if(!t) return;
+    const entry = wasEditing ? getEntries().find(e => e.id === wasEditing) : null;
+    resetEditor();
+    textarea.focus();
+    notify("Editor cleared", () => {
+      textarea.value = t; store.set(DRAFT_KEY, t);
+      if(entry) setEditingMode(entry.id, fmtDate(entry));
+      autoGrow(textarea); updateCounter(); textarea.focus();
+    });
+  });
 
-      const downloadBtn = document.createElement("button");
-      downloadBtn.className = "entry-btn entry-download";
-      downloadBtn.textContent = "Download";
-      downloadBtn.onclick = (evt) => {
-        evt.stopPropagation();
-        const blob = new Blob(
-          [`--- ${e.date} ---\n${e.text}\n`],
-          { type: "text/plain" }
-        );
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `brain-dump-${safeFilename(e.date) || (index + 1)}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
+  /* ---------- search ---------- */
+  searchInput.addEventListener("input", () => { searchTerm = searchInput.value.trim().toLowerCase(); renderHistory(); });
+
+  /* ---------- stats ---------- */
+  function renderStats(){
+    const list = getEntries();
+    if(!list.length){ statsEl.hidden = true; return; }
+    statsEl.hidden = false;
+    const words = list.reduce((s, e) => s + countWords(e.text), 0);
+    const days = new Set(list.filter(e => e.ts).map(e => ymd(e.ts)));
+    let streak = 0; const d = new Date();
+    if(!days.has(ymd(d.getTime()))) d.setDate(d.getDate() - 1);
+    while(days.has(ymd(d.getTime()))){ streak++; d.setDate(d.getDate() - 1); }
+    statsEl.innerHTML = `<div><b>${list.length}</b><span>DUMPS</span></div><div><b>${words.toLocaleString()}</b><span>WORDS</span></div><div><b>${streak}</b><span>DAY STREAK</span></div>`;
+  }
+
+  /* ---------- history ---------- */
+  function highlight(el, text, term){
+    if(!term){ el.textContent = text; return; }
+    const lower = text.toLowerCase(), first = lower.indexOf(term);
+    if(first > 40) text = "…" + text.slice(first - 30);
+    const low = text.toLowerCase();
+    let i = 0, idx;
+    while((idx = low.indexOf(term, i)) > -1){
+      el.append(text.slice(i, idx));
+      const m = document.createElement("mark"); m.textContent = text.slice(idx, idx + term.length); el.append(m);
+      i = idx + term.length;
+    }
+    el.append(text.slice(i));
+  }
+
+  function renderHistory(){
+    const all = getEntries();
+    historyBox.innerHTML = "";
+    $("histTools").hidden = all.length === 0;
+    if(all.length === 0){
+      historyBox.innerHTML = `<div class="note">No past entries stored yet. Write something and hit Dump.</div>`;
+      return;
+    }
+    const visible = all.filter(e => !searchTerm || e.text.toLowerCase().includes(searchTerm) || fmtDate(e).toLowerCase().includes(searchTerm));
+    if(visible.length === 0){
+      const n = document.createElement("div"); n.className = "note"; n.textContent = `No entries match "${searchInput.value}".`;
+      historyBox.appendChild(n);
+      return;
+    }
+    visible.forEach(e => {
+      const row = document.createElement("div");
+      row.className = "entry" + (e.id === freshId ? " fresh-entry" : "");
+      row.tabIndex = 0; row.setAttribute("role", "button");
+      row.onclick = () => loadEntryForEdit(e.id);
+      row.onkeydown = ev => { if(ev.target === row && (ev.key === "Enter" || ev.key === " ")){ ev.preventDefault(); loadEntryForEdit(e.id); } };
+
+      const main = document.createElement("div"); main.className = "entry-main";
+      const date = document.createElement("div"); date.className = "entry-date";
+      date.textContent = fmtDate(e) + " · " + countWords(e.text) + "w";
+      if(e.editedAt){ const tag = document.createElement("span"); tag.className = "entry-edited-tag"; tag.textContent = "(edited)"; date.appendChild(tag); }
+      const preview = document.createElement("div"); preview.className = "entry-preview";
+      highlight(preview, e.text, searchTerm);
+      main.append(date, preview);
+
+      const actions = document.createElement("div"); actions.className = "entry-actions";
+      const dl = document.createElement("button"); dl.className = "entry-btn entry-download"; dl.textContent = "Download";
+      dl.onclick = ev => {
+        ev.stopPropagation();
+        download(new Blob([`--- ${fmtDate(e)} ---\n${e.text}\n`], { type:"text/plain" }), `brain-dump-${safeFilename(fmtDate(e)) || "entry"}.txt`);
       };
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.className = "entry-btn entry-delete";
-      deleteBtn.textContent = "Delete";
-      deleteBtn.onclick = (evt) => {
-        evt.stopPropagation();
-        if (!confirm("Delete this entry?")) return;
-        const entries = getEntries();
-        entries.splice(index, 1);
-        setEntries(entries);
-        if (editingIndex === index) setEditingMode(null);
-        renderHistory();
+      const del = document.createElement("button"); del.className = "entry-btn entry-delete"; del.textContent = "Delete";
+      del.onclick = ev => {
+        ev.stopPropagation();
+        const list = getEntries(), pos = list.findIndex(x => x.id === e.id);
+        if(pos < 0) return;
+        const removed = list.splice(pos, 1)[0];
+        setEntries(list);
+        if(editingId === e.id) setEditingMode(null);
+        renderStats(); renderHistory();
+        notify("Entry deleted", () => { const cur = getEntries(); cur.splice(Math.min(pos, cur.length), 0, removed); setEntries(cur); renderStats(); renderHistory(); });
       };
-
-      actions.appendChild(downloadBtn);
-      actions.appendChild(deleteBtn);
-
-      row.appendChild(main);
-      row.appendChild(actions);
+      actions.append(dl, del);
+      row.append(main, actions);
       historyBox.appendChild(row);
     });
   }
 
+  /* ---------- export / backup / restore / delete all ---------- */
+  $("exportBtn").addEventListener("click", () => {
+    const list = getEntries().slice().reverse();
+    if(!list.length) return;
+    const txt = list.map(e => `--- ${fmtDate(e)}${e.editedAt ? " (edited)" : ""} ---\n${e.text}\n`).join("\n");
+    download(new Blob([txt], { type:"text/plain" }), "brain-dump-all.txt");
+  });
+  $("backupBtn").addEventListener("click", () => {
+    const list = getEntries();
+    if(!list.length) return;
+    download(new Blob([JSON.stringify({ app:"brain-dump", version:2, exportedAt:new Date().toISOString(), entries:list }, null, 2)], { type:"application/json" }),
+             "brain-dump-backup-" + new Date().toISOString().slice(0,10) + ".json");
+  });
+  $("restoreBtn").addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const f = fileInput.files[0]; fileInput.value = "";
+    if(!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try{
+        const data = JSON.parse(rd.result), incoming = Array.isArray(data) ? data : data.entries;
+        if(!Array.isArray(incoming)) throw new Error("bad");
+        const cur = getEntries(), key = e => (e.ts || e.date) + "|" + e.text, have = new Set(cur.map(key));
+        let added = 0;
+        incoming.forEach(e => {
+          if(!e || typeof e.text !== "string" || !e.text.trim() || have.has(key(e))) return;
+          cur.push({ id:newId(), ts:e.ts || Date.parse(e.date) || null, date:e.date || "", text:e.text, ...(e.editedAt ? { editedAt:e.editedAt } : {}) });
+          have.add(key(e)); added++;
+        });
+        cur.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+        setEntries(cur); renderStats(); renderHistory();
+        notify(added ? `Restored ${added} entr${added === 1 ? "y" : "ies"}` : "Nothing new to restore");
+      }catch(e){ notify("That file isn't a Brain Dump backup."); }
+    };
+    rd.readAsText(f);
+  });
+  $("deleteAllBtn").addEventListener("click", () => {
+    const list = getEntries();
+    if(!list.length) return;
+    if(!confirm(`Delete all ${list.length} saved dump${list.length === 1 ? "" : "s"}? You can undo for a few seconds.`)) return;
+    store.del(STORAGE_KEY);
+    if(editingId) setEditingMode(null);
+    renderStats(); renderHistory();
+    notify("All entries deleted", () => { setEntries(list); renderStats(); renderHistory(); });
+  });
+
+  renderStats();
   renderHistory();
+  textarea.focus({ preventScroll:true });
 
 });
 
