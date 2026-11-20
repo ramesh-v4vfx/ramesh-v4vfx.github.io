@@ -14,10 +14,11 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Find any location's antipode — the exact point on the opposite side of the Earth. Search a place, use your location, or click the map to see what's directly beneath your feet.">
+<meta name="description" content="Find any location's antipode, the exact point on the opposite side of the Earth. Search a place, use your location, or click the map to see what's directly beneath your feet.">
 <title>Antipode Finder — rameshverse</title>
 <link rel="canonical" href="https://rameshverse.com/antipode-finder/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -25,12 +26,14 @@
     --bg2:#120808;
     --red:#ff2b2b;
     --red-dim:#5e1414;
+    --cyan:#00e5ff;
     --text:#e8e2e2;
     --text-dim:#8a7a7a;
     --line:#2a1616;
+    color-scheme:dark;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
+  html,body{min-height:100%;}
   body{
     background:var(--bg);
     color:var(--text);
@@ -39,253 +42,139 @@
     position:relative;
     overflow-x:hidden;
   }
-  /* scanline / grid texture */
   body::before{
     content:"";
     position:fixed; inset:0;
-    background-image:
-      repeating-linear-gradient(0deg, rgba(255,43,43,0.025) 0px, rgba(255,43,43,0.025) 1px, transparent 1px, transparent 3px);
+    background-image:repeating-linear-gradient(0deg, rgba(255,43,43,0.025) 0px, rgba(255,43,43,0.025) 1px, transparent 1px, transparent 3px);
     pointer-events:none;
-    z-index:1;
+    z-index:60;
   }
-  .wrap{
-    position:relative;
-    z-index:2;
-    max-width:960px;
-    margin:0 auto;
-    padding:28px 20px 80px;
-  }
+  :focus-visible{outline:1px solid var(--red); outline-offset:2px;}
+  .wrap{position:relative; z-index:2; max-width:960px; margin:0 auto; padding:28px 20px 80px;}
   a.back{
-    color:var(--text-dim);
-    text-decoration:none;
-    font-size:12px;
-    letter-spacing:0.1em;
-    display:inline-block;
-    margin-bottom:24px;
-    border-bottom:1px solid transparent;
+    color:var(--text-dim); text-decoration:none; font-size:12px; letter-spacing:0.1em;
+    display:inline-block; margin-bottom:24px; border-bottom:1px solid transparent;
   }
-  a.back:hover{ color:var(--red); border-color:var(--red); }
+  a.back:hover{color:var(--red); border-color:var(--red);}
 
   .frame{
-    position:relative;
-    border:1px solid var(--line);
-    padding:24px;
-    margin-bottom:20px;
+    position:relative; border:1px solid var(--line); padding:24px; margin-bottom:20px;
     background:linear-gradient(180deg, var(--bg2), var(--bg));
   }
-  .frame::before, .frame::after,
-  .corners span{
-    content:"";
-  }
-  .corners span{
-    position:absolute;
-    width:12px; height:12px;
-    border-color:var(--red);
-    border-style:solid;
-    z-index:3;
-  }
-  .corners span:nth-child(1){ top:-1px; left:-1px; border-width:2px 0 0 2px; }
-  .corners span:nth-child(2){ top:-1px; right:-1px; border-width:2px 2px 0 0; }
-  .corners span:nth-child(3){ bottom:-1px; left:-1px; border-width:0 0 2px 2px; }
-  .corners span:nth-child(4){ bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
+  .corners span{position:absolute; width:12px; height:12px; border-color:var(--red); border-style:solid; z-index:3;}
+  .corners span:nth-child(1){top:-1px; left:-1px; border-width:2px 0 0 2px;}
+  .corners span:nth-child(2){top:-1px; right:-1px; border-width:2px 2px 0 0;}
+  .corners span:nth-child(3){bottom:-1px; left:-1px; border-width:0 0 2px 2px;}
+  .corners span:nth-child(4){bottom:-1px; right:-1px; border-width:0 2px 2px 0;}
 
-  h1{
-    font-size:clamp(28px, 5vw, 44px);
-    letter-spacing:0.02em;
-    text-transform:uppercase;
-    font-weight:700;
-    line-height:1.05;
-  }
-  h1 .dot{ color:var(--red); }
-  .tagline{
-    color:var(--text-dim);
-    font-size:13px;
-    margin-top:10px;
-    line-height:1.6;
-    max-width:620px;
-  }
+  h1{font-size:clamp(28px, 5vw, 44px); letter-spacing:0.02em; text-transform:uppercase; font-weight:700; line-height:1.05;}
+  h1 .dot{color:var(--red);}
+  .tagline{color:var(--text-dim); font-size:13px; margin-top:10px; line-height:1.6; max-width:620px;}
 
-  .controls{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-top:20px;
-  }
+  .controls{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px;}
   input[type="text"]{
-    flex:1 1 260px;
-    background:var(--bg);
-    border:1px solid var(--line);
-    color:var(--text);
-    font-family:inherit;
-    font-size:13px;
-    padding:12px 14px;
-    letter-spacing:0.02em;
+    flex:1 1 260px; min-width:0; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    font-family:inherit; font-size:13px; padding:12px 14px; letter-spacing:0.02em; border-radius:0;
   }
-  input[type="text"]:focus{ outline:none; border-color:var(--red); }
-  input[type="text"]::placeholder{ color:var(--text-dim); }
-
+  input[type="text"]:focus{outline:none; border-color:var(--red);}
+  input[type="text"]::placeholder{color:var(--text-dim);}
   button{
-    background:transparent;
-    border:1px solid var(--red-dim);
-    color:var(--red);
-    font-family:inherit;
-    font-size:12px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    padding:12px 16px;
-    cursor:pointer;
-    transition:all .15s ease;
+    background:transparent; border:1px solid var(--red-dim); color:var(--red); font-family:inherit; font-size:12px;
+    letter-spacing:0.08em; text-transform:uppercase; padding:12px 16px; cursor:pointer; transition:all .15s ease; border-radius:0;
   }
-  button:hover{ background:var(--red); color:#0a0505; border-color:var(--red); }
-  button:disabled{ opacity:.4; cursor:default; }
-  button:disabled:hover{ background:transparent; color:var(--red); }
+  button:hover{background:var(--red); color:#0a0505; border-color:var(--red);}
+  button:disabled{opacity:.4; cursor:default;}
+  button:disabled:hover{background:transparent; color:var(--red);}
+  button.quiet{border-color:var(--line); color:var(--text-dim);}
+  button.quiet:hover{background:var(--line); color:var(--text); border-color:var(--line);}
 
-  .hint{
-    font-size:11px;
-    color:var(--text-dim);
-    margin-top:10px;
-    letter-spacing:0.03em;
-  }
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; align-items:center;}
+  .chips .k{font-size:10px; letter-spacing:.14em; color:var(--text-dim); margin-right:2px;}
+  .chips button{padding:6px 10px; font-size:11px;}
 
-  .map-frame{
-    position:relative;
-    margin-top:22px;
-    border:1px solid var(--line);
-    overflow:hidden;
-    cursor:crosshair;
-    line-height:0;
-  }
+  .results{list-style:none; margin-top:8px; border:1px solid var(--line); background:#0f0a0a;}
+  .results[hidden]{display:none;}
+  .results li{padding:10px 12px; font-size:12px; cursor:pointer; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:12px;}
+  .results li:last-child{border-bottom:0;}
+  .results li:hover,.results li:focus{background:var(--red-dim); outline:0;}
+  .results li small{color:var(--text-dim); font-size:10px; white-space:nowrap;}
+
+  .status{font-size:11px; letter-spacing:0.06em; color:var(--text-dim); margin-top:12px; min-height:16px; line-height:1.5;}
+  .status.err{color:#ffb62b;}
+
+  /* map */
+  .map-frame{position:relative; margin-top:0; border:1px solid var(--line); overflow:hidden; cursor:crosshair; line-height:0; background:#120808; touch-action:manipulation; aspect-ratio:2/1;}
   .map-frame img{
-    display:block;
-    width:100%;
-    height:auto;
+    display:block; width:100%; height:auto;
     filter:grayscale(1) contrast(1.15) brightness(.55) sepia(1) hue-rotate(-50deg) saturate(2);
-    user-select:none;
-    -webkit-user-drag:none;
+    user-select:none; -webkit-user-drag:none; min-height:120px;
   }
-  .marker{
-    position:absolute;
-    width:16px; height:16px;
-    transform:translate(-50%,-50%);
-    pointer-events:none;
-    z-index:5;
-    animation:pulse 1.6s ease-in-out infinite;
+  .grat{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2;}
+  .marker{position:absolute; width:18px; height:18px; transform:translate(-50%,-50%); pointer-events:none; z-index:5; line-height:1;}
+  .marker svg{width:100%; height:100%; display:block; animation:pulse 1.8s ease-in-out infinite;}
+  .marker.origin{color:var(--red); filter:drop-shadow(0 0 6px var(--red));}
+  .marker.antipode{color:var(--cyan); filter:drop-shadow(0 0 6px var(--cyan));}
+  .marker.antipode svg{animation-delay:.3s;}
+  .marker.ghost{color:var(--cyan); opacity:.55; z-index:4;}
+  .marker.ghost svg{animation:none;}
+  .marker .tag{
+    position:absolute; bottom:calc(100% + 3px); left:50%; transform:translateX(-50%);
+    font-size:9px; letter-spacing:.14em; white-space:nowrap; text-shadow:0 0 4px #000, 0 0 4px #000;
   }
-  .marker.origin{ color:var(--red); filter:drop-shadow(0 0 6px var(--red)); }
-  .marker.antipode{ color:#00e5ff; filter:drop-shadow(0 0 6px #00e5ff); animation-delay:.3s; }
-  .marker svg{ width:100%; height:100%; display:block; }
+  .marker .tag.l{left:0; transform:none;}
+  .marker .tag.r{left:auto; right:0; transform:none;}
+  .marker .tag.b{bottom:auto; top:calc(100% + 3px);}
+  @keyframes pulse{0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.5; transform:scale(1.25);}}
+  .hover-read{
+    position:absolute; left:8px; bottom:8px; z-index:6; background:rgba(10,5,5,.82); border:1px solid var(--line);
+    padding:5px 8px; font-size:10px; letter-spacing:.06em; line-height:1.5; color:var(--text-dim); pointer-events:none;
+  }
+  .hover-read b{color:var(--cyan); font-weight:400;}
+  .hover-read[hidden]{display:none;}
+  .map-note{font-size:10px; color:var(--text-dim); letter-spacing:.08em; margin-top:8px;}
 
-  @keyframes pulse{
-    0%, 100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
-    50%{ opacity:.45; transform:translate(-50%,-50%) scale(1.25); }
+  /* readout */
+  .pair{
+    margin-top:20px; border:1px solid var(--red-dim); padding:12px 14px; font-size:12px; letter-spacing:.05em; line-height:1.6;
+    background:linear-gradient(180deg, rgba(255,43,43,.07), transparent);
   }
+  .pair[hidden]{display:none;}
+  .pair b{color:var(--red);}
+  .readout{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); margin-top:20px; border:1px solid var(--line);}
+  .pair + .readout{margin-top:12px;}
+  @media (max-width:560px){.readout{grid-template-columns:1fr;}}
+  .cell{background:var(--bg); padding:18px 16px; min-width:0;}
+  .cell .label{font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px;}
+  .cell.origin .label{color:var(--red);}
+  .cell.antipode .label{color:#5ec8ff;}
+  .cell .place{font-size:16px; font-weight:700; line-height:1.35; min-height:22px; overflow-wrap:anywhere;}
+  .cell .sub{font-size:11px; color:var(--text-dim); margin-top:2px; min-height:15px; overflow-wrap:anywhere;}
+  .cell .coords{font-size:12px; color:var(--text-dim); margin-top:8px;}
+  .cell .surface{font-size:11px; margin-top:8px; letter-spacing:0.05em; min-height:14px;}
+  .surface.land{color:#7fdc8a;}
+  .surface.ocean{color:#5ec8ff;}
+  .cell .now{font-size:11px; color:var(--text-dim); margin-top:8px; line-height:1.6; letter-spacing:.03em;}
 
-  .beam-line{
-    animation:beam 1.2s linear infinite;
-  }
-  @keyframes beam{
-    to{ stroke-dashoffset:-22; }
-  }
-  .link-line{
-    position:absolute;
-    inset:0;
-    pointer-events:none;
-    z-index:4;
-  }
+  /* trip */
+  .trip{display:flex; gap:24px; align-items:center; flex-wrap:wrap; margin-top:20px; border:1px solid var(--line); padding:20px; background:var(--bg2); position:relative;}
+  .trip svg{flex:0 0 auto; width:220px; max-width:100%; height:auto;}
+  .trip .txt{flex:1 1 280px; min-width:0;}
+  .trip .label{font-size:10px; letter-spacing:.14em; color:var(--text-dim); margin-bottom:10px;}
+  .trip .big{font-size:22px; font-weight:700; color:var(--red);}
+  .trip p{font-size:12px; color:var(--text-dim); line-height:1.7; margin-top:8px;}
+  .trip p b{color:var(--text); font-weight:400;}
+  .faller{animation:fall 6.2s ease-in-out infinite alternate;}
+  @keyframes fall{from{transform:translateY(-126px);} to{transform:translateY(126px);}}
+  @media (prefers-reduced-motion: reduce){.faller,.marker svg{animation:none;}}
 
-  .status{
-    font-size:11px;
-    letter-spacing:0.06em;
-    color:var(--text-dim);
-    margin-top:10px;
-    min-height:14px;
-  }
+  .facts{display:flex; flex-wrap:wrap; gap:1px; background:var(--line); margin-top:20px; border:1px solid var(--line);}
+  .fact{flex:1 1 220px; background:var(--bg); padding:16px;}
+  .fact .num{color:var(--red); font-size:20px; font-weight:700;}
+  .fact .desc{font-size:11px; color:var(--text-dim); margin-top:4px; letter-spacing:0.02em; line-height:1.6;}
 
-  .readout{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:1px;
-    background:var(--line);
-    margin-top:20px;
-    border:1px solid var(--line);
-  }
-  @media (max-width:560px){
-    .readout{ grid-template-columns:1fr; }
-  }
-  .cell{
-    background:var(--bg);
-    padding:18px 16px;
-  }
-  .cell .label{
-    font-size:10px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--text-dim);
-    margin-bottom:8px;
-  }
-  .cell.origin .label{ color:var(--red); }
-  .cell.antipode .label{ color:#5ec8ff; }
-  .cell .place{
-    font-size:15px;
-    font-weight:700;
-    line-height:1.4;
-    min-height:21px;
-  }
-  .cell .coords{
-    font-size:12px;
-    color:var(--text-dim);
-    margin-top:6px;
-  }
-  .cell .surface{
-    font-size:11px;
-    margin-top:8px;
-    letter-spacing:0.05em;
-  }
-  .surface.land{ color:#7fdc8a; }
-  .surface.ocean{ color:#5ec8ff; }
-
-  .facts{
-    display:flex;
-    flex-wrap:wrap;
-    gap:1px;
-    background:var(--line);
-    margin-top:1px;
-    border:1px solid var(--line);
-    border-top:none;
-  }
-  .fact{
-    flex:1 1 220px;
-    background:var(--bg);
-    padding:16px;
-  }
-  .fact .num{
-    color:var(--red);
-    font-size:20px;
-    font-weight:700;
-  }
-  .fact .desc{
-    font-size:11px;
-    color:var(--text-dim);
-    margin-top:4px;
-    letter-spacing:0.02em;
-  }
-
-  .actions{
-    display:flex;
-    gap:10px;
-    margin-top:20px;
-    flex-wrap:wrap;
-  }
-
-  footer{
-    text-align:center;
-    color:var(--text-dim);
-    font-size:10px;
-    letter-spacing:0.1em;
-    margin-top:40px;
-  }
-
-  canvas#shareCanvas{ display:none; }
+  .actions{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;}
+  footer{text-align:center; color:var(--text-dim); font-size:10px; letter-spacing:0.1em; margin-top:40px; line-height:1.8;}
+  canvas#shareCanvas{display:none;}
 </style>
 </head>
 <body>
@@ -299,289 +188,421 @@
     <p class="tagline">Dig a hole straight through the Earth from anywhere, and this is where you'd come out. Search a place, use your location, or click the map.</p>
 
     <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search a city or place..." autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Search a city, or type  lat, lon" autocomplete="off" spellcheck="false" aria-label="Search a place">
       <button id="searchBtn">Locate</button>
-      <button id="geoBtn">Use My Location</button>
+      <button id="geoBtn">◎ Use My Location</button>
     </div>
-    <div class="status" id="statusLine">Ready. Click anywhere on the map to begin.</div>
+    <ul class="results" id="results" hidden aria-label="Matching places"></ul>
+    <div class="chips" id="chips"><span class="k">TRY</span></div>
+    <div class="status" id="statusLine" aria-live="polite">Ready. Click anywhere on the map to begin.</div>
   </div>
 
   <div class="map-frame" id="mapFrame">
-    <img id="worldMap" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg" alt="World map" draggable="false">
-    <svg class="link-line" id="linkLine"></svg>
+    <img id="worldMap" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg" alt="World map" draggable="false" onerror="this.style.visibility='hidden'">
+    <svg class="grat" id="grat" viewBox="0 0 360 180" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="marker ghost" id="ghostMarker" style="display:none;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
+    </div>
     <div class="marker origin" id="originMarker" style="display:none;">
+      <span class="tag" id="originTag">YOU</span>
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="0" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="19" x2="12" y2="24" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="19" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="1.5"/></svg>
     </div>
     <div class="marker antipode" id="antipodeMarker" style="display:none;">
+      <span class="tag" id="antipodeTag">ANTIPODE</span>
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>
     </div>
+    <div class="hover-read" id="hoverRead" hidden></div>
   </div>
+  <div class="map-note">EQUIRECTANGULAR MAP · HOVER TO PREVIEW ANY POINT'S ANTIPODE · CLICK TO PICK IT</div>
+
+  <div class="pair" id="pair" hidden></div>
 
   <div class="readout">
     <div class="cell origin">
       <div class="label">Origin</div>
       <div class="place" id="originPlace">—</div>
+      <div class="sub" id="originSub"></div>
       <div class="coords" id="originCoords">—</div>
       <div class="surface" id="originSurface"></div>
+      <div class="now" id="originNow"></div>
     </div>
     <div class="cell antipode">
       <div class="label">Antipode</div>
       <div class="place" id="antipodePlace">—</div>
+      <div class="sub" id="antipodeSub"></div>
       <div class="coords" id="antipodeCoords">—</div>
       <div class="surface" id="antipodeSurface"></div>
+      <div class="now" id="antipodeNow"></div>
+    </div>
+  </div>
+
+  <div class="trip">
+    <svg viewBox="0 0 300 300" aria-label="Cross-section of the Earth with a tunnel through the centre">
+      <circle cx="150" cy="150" r="130" fill="#1b0d0d" stroke="#5e1414" stroke-width="2"/>
+      <circle cx="150" cy="150" r="71" fill="#3a1212"/>
+      <circle cx="150" cy="150" r="25" fill="#ff2b2b" opacity=".8"/>
+      <line x1="150" y1="22" x2="150" y2="278" stroke="#00e5ff" stroke-width="1.4" stroke-dasharray="4 5" opacity=".7"/>
+      <g font-family="Space Mono, monospace" font-size="9" letter-spacing="1.5">
+        <text x="150" y="14" fill="#ff2b2b" text-anchor="middle">YOU</text>
+        <text x="150" y="294" fill="#5ec8ff" text-anchor="middle">THEM</text>
+        <text x="162" y="98" fill="#8a7a7a">MANTLE</text>
+        <text x="162" y="127" fill="#8a7a7a">OUTER CORE</text>
+        <text x="180" y="153" fill="#e8e2e2">INNER</text>
+      </g>
+      <circle class="faller" cx="150" cy="150" r="5" fill="#e8e2e2"/>
+    </svg>
+    <div class="txt">
+      <div class="label">THE TRIP · IDEAL FRICTIONLESS TUNNEL</div>
+      <div class="big">≈ 42 MINUTES</div>
+      <p>Drop in and gravity does the rest. You would speed up to about <b>7.9 km/s (28,000 km/h)</b> at the centre, then slow down and arrive at the other end at a standstill. Real Earth is denser in the middle, so the true fall is nearer <b>38 minutes</b>.</p>
     </div>
   </div>
 
   <div class="facts">
     <div class="fact">
       <div class="num">12,742 km</div>
-      <div class="desc">Straight-line distance through the Earth's core to any antipode.</div>
+      <div class="desc">Straight-line distance through the Earth to any antipode (the mean diameter).</div>
     </div>
     <div class="fact">
       <div class="num">20,015 km</div>
-      <div class="desc">Distance if you walked the surface instead — exactly half the globe.</div>
+      <div class="desc">Distance if you travelled over the surface instead, exactly half the way round the globe.</div>
     </div>
     <div class="fact">
-      <div class="num">~29%</div>
-      <div class="desc">Share of Earth's land that has a land antipode. Most dry ground faces ocean.</div>
+      <div class="num">~15%</div>
+      <div class="desc">Share of Earth's land that has land on the other side. That is only about 4% of the whole surface; most dry ground faces ocean.</div>
     </div>
   </div>
 
   <div class="actions">
+    <button id="flipBtn" disabled>⇄ Go to the Antipode</button>
+    <button id="linkBtn" class="quiet" disabled>Copy Link</button>
     <button id="shareBtn" disabled>Download Card</button>
   </div>
 
-  <footer>RV·ANTIPODE — PART OF THE RAMESHVERSE SCIENCE SUITE</footer>
+  <footer>RV·ANTIPODE — PART OF THE RAMESHVERSE SCIENCE SUITE<br>PLACE NAMES: OPEN-METEO · BIGDATACLOUD · OPENSTREETMAP</footer>
 </div>
 
 <canvas id="shareCanvas" width="1200" height="675"></canvas>
 
 <script>
-const mapFrame = document.getElementById('mapFrame');
-const worldMap = document.getElementById('worldMap');
-const originMarker = document.getElementById('originMarker');
-const antipodeMarker = document.getElementById('antipodeMarker');
-const linkLine = document.getElementById('linkLine');
-const statusLine = document.getElementById('statusLine');
-const shareBtn = document.getElementById('shareBtn');
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const D2R = Math.PI/180;
+const pad = n => String(n).padStart(2,'0');
+const mapFrame = $('mapFrame'), worldMap = $('worldMap'), statusLine = $('statusLine');
+const originMarker = $('originMarker'), antipodeMarker = $('antipodeMarker'), ghost = $('ghostMarker'), hoverRead = $('hoverRead');
+const shareBtn = $('shareBtn'), flipBtn = $('flipBtn'), linkBtn = $('linkBtn');
+const searchInput = $('searchInput'), resultsEl = $('results');
+const STORE = 'rv-antipode';
+const MAP_URL = worldMap.getAttribute('src');
+let current = null, runId = 0, searchAbort = null, searchTimer = 0;
 
-let current = null; // { lat, lon, antiLat, antiLon }
-
-function normLon(lon){
-  let l = lon;
-  while(l > 180) l -= 360;
-  while(l < -180) l += 360;
-  return l;
-}
-
-function toXY(lat, lon){
-  const w = mapFrame.clientWidth;
-  const h = mapFrame.clientHeight;
-  const x = ((lon + 180) / 360) * w;
-  const y = ((90 - lat) / 180) * h;
-  return {x, y};
-}
-
-function placeMarkers(lat, lon, antiLat, antiLon){
-  const w = mapFrame.clientWidth;
-  const h = mapFrame.clientHeight;
-  const o = toXY(lat, lon);
-  const a = toXY(antiLat, antiLon);
-
-  originMarker.style.left = o.x + 'px';
-  originMarker.style.top = o.y + 'px';
-  originMarker.style.display = 'block';
-
-  antipodeMarker.style.left = a.x + 'px';
-  antipodeMarker.style.top = a.y + 'px';
-  antipodeMarker.style.display = 'block';
-
-  linkLine.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  linkLine.innerHTML = `
-    <defs>
-      <filter id="lineGlow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="2.2" result="blur"/>
-        <feMerge>
-          <feMergeNode in="blur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-    <line x1="${o.x}" y1="${o.y}" x2="${a.x}" y2="${a.y}" stroke="#00e5ff" stroke-width="1.4" stroke-dasharray="5 6" opacity="0.6" filter="url(#lineGlow)" class="beam-line"/>`;
-}
-
+const clampLat = v => Math.max(-90, Math.min(90, v));
+function normLon(l){ while(l > 180) l -= 360; while(l < -180) l += 360; return l; }
 function fmtCoord(lat, lon){
-  const ns = lat >= 0 ? 'N' : 'S';
-  const ew = lon >= 0 ? 'E' : 'W';
-  return `${Math.abs(lat).toFixed(3)}°${ns}, ${Math.abs(lon).toFixed(3)}°${ew}`;
+  return `${Math.abs(lat).toFixed(3)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(3)}°${lon >= 0 ? 'E' : 'W'}`;
 }
+function setStatus(t, err){ statusLine.textContent = t; statusLine.classList.toggle('err', !!err); }
 
+/* ---------- graticule over the map (so it still reads if the picture can't load) ---------- */
+(function(){
+  let s = '';
+  for(let lon=-150; lon<=150; lon+=30) s += `<line x1="${lon+180}" y1="0" x2="${lon+180}" y2="180" stroke="#ff2b2b" stroke-opacity="${lon===0?.4:.16}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+  for(let lat=-60; lat<=60; lat+=30) s += `<line x1="0" y1="${90-lat}" x2="360" y2="${90-lat}" stroke="#ff2b2b" stroke-opacity="${lat===0?.4:.16}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+  $('grat').innerHTML = s;
+})();
+
+/* ---------- markers (positioned in %, so they follow the map at any size) ---------- */
+const xy = (lat, lon) => ({x:(lon+180)/360*100, y:(90-lat)/180*100});
+function put(el, lat, lon){
+  const p = xy(lat, lon);
+  el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.display = 'block';
+  const tag = el.querySelector('.tag');
+  if(tag){ tag.className = 'tag' + (p.x < 10 ? ' l' : p.x > 90 ? ' r' : '') + (p.y < 12 ? ' b' : ''); }
+}
+function placeMarkers(c){ put(originMarker, c.lat, c.lon); put(antipodeMarker, c.antiLat, c.antiLon); }
+
+/* hover preview: where would a hole from here come out? */
+mapFrame.addEventListener('pointermove', e=>{
+  if(e.pointerType === 'touch') return;
+  const r = mapFrame.getBoundingClientRect();
+  const lon = (e.clientX - r.left)/r.width*360 - 180, lat = 90 - (e.clientY - r.top)/r.height*180;
+  if(lat < -90 || lat > 90) return;
+  put(ghost, -lat, normLon(lon+180));
+  hoverRead.hidden = false;
+  hoverRead.innerHTML = `${fmtCoord(lat, normLon(lon))}<br>→ <b>${fmtCoord(-lat, normLon(lon+180))}</b>`;
+});
+mapFrame.addEventListener('pointerleave', ()=>{ ghost.style.display = 'none'; hoverRead.hidden = true; });
+
+/* ---------- place names ---------- */
+// Rough ocean basin for a point with no country (a label for open water, not a survey).
+function oceanName(lat, lon){
+  if(lat < -60) return 'Southern Ocean';
+  if(lat > 72) return 'Arctic Ocean';
+  if(lat > 30 && lat < 46 && lon > -6 && lon < 36) return 'Mediterranean Sea';
+  if((lon >= 20 && lon <= 120 && lat < 24) || (lon > 120 && lon <= 147 && lat < -12 && lat > -50)) return 'Indian Ocean';
+  if((lon >= -70 && lon < 20) || (lon >= -100 && lon < -60 && lat > 5 && lat < 32)) return 'Atlantic Ocean';
+  return 'Pacific Ocean';
+}
+const uniq = a => a.filter((v,i)=>v && a.indexOf(v) === i);
 async function reverseGeocode(lat, lon){
   try{
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=8&addressdetails=1`, {
-      headers: { 'Accept-Language': 'en' }
-    });
-    const data = await res.json();
-    if(data && data.display_name && (data.address && (data.address.country || data.address.state || data.address.ocean || data.address.sea))){
-      const a = data.address;
-      const name = a.city || a.town || a.village || a.county || a.state || a.country || data.display_name.split(',')[0];
-      const isLand = !!(a.country);
-      return { name: name, isLand: isLand, raw: data.display_name };
+    const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+    if(r.ok){
+      const j = await r.json(), city = j.city || j.locality, region = j.principalSubdivision, country = j.countryName;
+      if(country && (city || region)){
+        const name = city || region;
+        return {isLand:true, name, sub:uniq([region !== name ? region : '', country]).join(', '), full:uniq([name, region, country]).join(', ')};
+      }
+      if(country) return {isLand:false, name:oceanName(lat, lon), sub:'Waters off ' + country, full:oceanName(lat, lon)};
+      const o = oceanName(lat, lon);
+      return {isLand:false, name:o, sub:'Open water', full:o};
     }
-    return { name: 'Open Water', isLand: false, raw: null };
-  }catch(e){
-    return { name: 'Unknown', isLand: null, raw: null };
-  }
+  }catch(e){}
+  try{                                                              // fallback
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=6&addressdetails=1&accept-language=en`);
+    const d = await r.json();
+    if(d && d.address && d.address.country){
+      const a = d.address, name = a.city || a.town || a.village || a.county || a.state || a.country;
+      return {isLand:true, name, sub:uniq([a.state !== name ? a.state : '', a.country]).join(', '), full:uniq([name, a.state, a.country]).join(', ')};
+    }
+    const o = oceanName(lat, lon);
+    return {isLand:false, name:o, sub:'Open water', full:o};
+  }catch(e){}
+  return {isLand:null, name:'Unknown', sub:'', full:''};
 }
 
-async function locate(lat, lon){
-  lat = Math.max(-90, Math.min(90, lat));
-  lon = normLon(lon);
-  const antiLat = -lat;
-  const antiLon = normLon(lon + 180);
+/* ---------- sun and solar time right now ---------- */
+function sunAlt(ms, lat, lon){
+  const d = ms/86400000 - 10957.5;                                  // days since J2000
+  const L = (280.460 + 0.9856474*d) % 360, g = (357.528 + 0.9856003*d)*D2R;
+  const lam = (L + 1.915*Math.sin(g) + 0.020*Math.sin(2*g))*D2R, eps = 23.439*D2R;
+  const dec = Math.asin(Math.sin(eps)*Math.sin(lam)), ra = Math.atan2(Math.cos(eps)*Math.sin(lam), Math.cos(lam));
+  const H = (280.46061837 + 360.98564736629*d)*D2R + lon*D2R - ra, la = lat*D2R;
+  return Math.asin(Math.sin(la)*Math.sin(dec) + Math.cos(la)*Math.cos(dec)*Math.cos(H))/D2R;
+}
+function solarTime(ms, lon){ const m = (((ms/60000 + lon*4) % 1440) + 1440) % 1440; return pad(Math.floor(m/60)) + ':' + pad(Math.floor(m%60)); }
+function lightWord(a){ return a > -0.83 ? 'DAYTIME' : a > -6 ? 'CIVIL TWILIGHT' : a > -18 ? 'TWILIGHT' : 'NIGHT'; }
+function renderNow(){
+  if(!current) return;
+  const ms = Date.now();
+  [['origin', current.lat, current.lon], ['antipode', current.antiLat, current.antiLon]].forEach(([id, la, lo])=>{
+    const a = sunAlt(ms, la, lo);
+    $(id + 'Now').innerHTML = `SOLAR TIME ${solarTime(ms, lo)}<br>SUN ${Math.abs(a).toFixed(0)}° ${a >= 0 ? 'ABOVE' : 'BELOW'} THE HORIZON · ${lightWord(a)}`;
+  });
+}
+setInterval(renderNow, 30000);
 
-  current = { lat, lon, antiLat, antiLon };
+/* ---------- the main action ---------- */
+function setSurface(id, info){
+  const el = $(id);
+  if(info.isLand === true){ el.textContent = 'LAND'; el.className = 'surface land'; }
+  else if(info.isLand === false){ el.textContent = 'OCEAN'; el.className = 'surface ocean'; }
+  else { el.textContent = ''; el.className = 'surface'; }
+}
+async function locate(lat, lon, known){
+  lat = clampLat(lat); lon = normLon(lon);
+  const antiLat = -lat, antiLon = normLon(lon + 180), id = ++runId;
+  current = {lat, lon, antiLat, antiLon};
+  placeMarkers(current);
+  $('originCoords').textContent = fmtCoord(lat, lon);
+  $('antipodeCoords').textContent = fmtCoord(antiLat, antiLon);
+  $('originPlace').textContent = known ? known.name : 'Locating…';
+  $('originSub').textContent = known ? known.sub : '';
+  $('antipodePlace').textContent = 'Locating…'; $('antipodeSub').textContent = '';
+  setSurface('originSurface', known || {isLand:null}); setSurface('antipodeSurface', {isLand:null});
+  $('pair').hidden = true;
+  setStatus('Resolving place names…');
+  shareBtn.disabled = flipBtn.disabled = linkBtn.disabled = true;
+  renderNow();
+  try{ localStorage.setItem(STORE, JSON.stringify({lat, lon})); }catch(e){}
+  try{ history.replaceState(null, '', '?lat=' + lat.toFixed(4) + '&lon=' + lon.toFixed(4)); }catch(e){}
 
-  placeMarkers(lat, lon, antiLat, antiLon);
+  const [o, a] = await Promise.all([known ? Promise.resolve(known) : reverseGeocode(lat, lon), reverseGeocode(antiLat, antiLon)]);
+  if(id !== runId) return;                                          // a newer pick replaced this one
+  $('originPlace').textContent = o.name; $('originSub').textContent = o.sub || '';
+  $('antipodePlace').textContent = a.name; $('antipodeSub').textContent = a.sub || '';
+  setSurface('originSurface', o); setSurface('antipodeSurface', a);
+  $('originTag').textContent = 'YOU'; $('antipodeTag').textContent = 'ANTIPODE';
+  if(!known && o.full) searchInput.value = o.full;                  // fill the search box with where you picked
 
-  document.getElementById('originCoords').textContent = fmtCoord(lat, lon);
-  document.getElementById('antipodeCoords').textContent = fmtCoord(antiLat, antiLon);
-  document.getElementById('originPlace').textContent = 'Locating...';
-  document.getElementById('antipodePlace').textContent = 'Locating...';
-  document.getElementById('originSurface').textContent = '';
-  document.getElementById('antipodeSurface').textContent = '';
-  statusLine.textContent = 'Resolving place names...';
-  shareBtn.disabled = true;
+  const P = $('pair');
+  if(o.isLand === true && a.isLand === true){ P.innerHTML = '<b>LAND ↔ LAND.</b> A rare pair: only about 15% of the world\'s land has land on the opposite side.'; P.hidden = false; }
+  else if(o.isLand === false && a.isLand === false){ P.innerHTML = '<b>OCEAN ↔ OCEAN.</b> Water on both sides. A hole here would never touch dry ground.'; P.hidden = false; }
+  else if(o.isLand === true && a.isLand === false){ P.innerHTML = '<b>LAND ↔ OCEAN.</b> The usual result: you would come out in open water.'; P.hidden = false; }
+  else if(o.isLand === false && a.isLand === true){ P.innerHTML = '<b>OCEAN ↔ LAND.</b> Starting in the sea, you would surface on dry land.'; P.hidden = false; }
 
-  const [originInfo, antiInfo] = await Promise.all([
-    reverseGeocode(lat, lon),
-    reverseGeocode(antiLat, antiLon)
-  ]);
-
-  document.getElementById('originPlace').textContent = originInfo.name;
-  document.getElementById('antipodePlace').textContent = antiInfo.name;
-
-  const os = document.getElementById('originSurface');
-  const as = document.getElementById('antipodeSurface');
-  if(originInfo.isLand === true){ os.textContent = 'LAND'; os.className = 'surface land'; }
-  else if(originInfo.isLand === false){ os.textContent = 'OCEAN'; os.className = 'surface ocean'; }
-  else { os.textContent = ''; }
-
-  if(antiInfo.isLand === true){ as.textContent = 'LAND'; as.className = 'surface land'; }
-  else if(antiInfo.isLand === false){ as.textContent = 'OCEAN'; as.className = 'surface ocean'; }
-  else { as.textContent = ''; }
-
-  current.originName = originInfo.name;
-  current.antiName = antiInfo.name;
-  current.originLand = originInfo.isLand;
-  current.antiLand = antiInfo.isLand;
-
-  statusLine.textContent = 'Done.';
-  shareBtn.disabled = false;
+  current.originName = o.name; current.originSub = o.sub || ''; current.antiName = a.name; current.antiSub = a.sub || '';
+  current.originLand = o.isLand; current.antiLand = a.isLand;
+  setStatus(o.isLand === null && a.isLand === null ? 'Could not look up place names (offline?). Coordinates are still correct.' : 'Done.', o.isLand === null && a.isLand === null);
+  shareBtn.disabled = flipBtn.disabled = linkBtn.disabled = false;
 }
 
-mapFrame.addEventListener('click', (e) => {
-  const rect = mapFrame.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  const lon = (x / rect.width) * 360 - 180;
-  const lat = 90 - (y / rect.height) * 180;
-  locate(lat, lon);
+mapFrame.addEventListener('click', e=>{
+  const r = mapFrame.getBoundingClientRect();
+  locate(90 - (e.clientY - r.top)/r.height*180, (e.clientX - r.left)/r.width*360 - 180);
 });
 
-document.getElementById('geoBtn').addEventListener('click', () => {
-  if(!navigator.geolocation){
-    statusLine.textContent = 'Geolocation not supported on this device.';
-    return;
-  }
-  statusLine.textContent = 'Requesting location...';
+/* ---------- geolocation ---------- */
+$('geoBtn').addEventListener('click', ()=>{
+  if(!navigator.geolocation){ setStatus('Geolocation is not supported on this device.', true); return; }
+  setStatus('Requesting location…');
   navigator.geolocation.getCurrentPosition(
-    (pos) => locate(pos.coords.latitude, pos.coords.longitude),
-    () => { statusLine.textContent = 'Location access denied.'; }
+    pos => locate(pos.coords.latitude, pos.coords.longitude),
+    () => setStatus('Location access denied. Search a city or click the map instead.', true),
+    {timeout:12000, maximumAge:600000}
   );
 });
 
-async function doSearch(){
-  const q = document.getElementById('searchInput').value.trim();
-  if(!q) return;
-  statusLine.textContent = 'Searching...';
+/* ---------- search (Open-Meteo geocoding, free, no key) ---------- */
+function hideResults(){ resultsEl.hidden = true; resultsEl.innerHTML = ''; }
+function pickResult(c){
+  hideResults();
+  const sub = uniq([c.admin1 && c.admin1 !== c.name ? c.admin1 : '', c.country]).join(', ');
+  searchInput.value = uniq([c.name, c.admin1, c.country]).join(', ');
+  locate(c.latitude, c.longitude, {isLand:true, name:c.name, sub, full:searchInput.value});
+}
+async function doSearch(auto){
+  const q = searchInput.value.trim();
+  if(q.length < 2){ hideResults(); return; }
+  const m = /^\s*(-?\d+(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d+(?:[.,]\d+)?)\s*$/.exec(q);       // typed coordinates
+  if(m){
+    const la = parseFloat(m[1].replace(',','.')), lo = parseFloat(m[2].replace(',','.'));
+    if(Math.abs(la) <= 90 && Math.abs(lo) <= 180){ hideResults(); locate(la, lo); return; }
+    setStatus('Latitude must be −90 to 90 and longitude −180 to 180.', true); return;
+  }
+  if(searchAbort) searchAbort.abort();
+  searchAbort = new AbortController();
+  setStatus('Searching…');
   try{
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`);
-    const data = await res.json();
-    if(data && data.length > 0){
-      locate(parseFloat(data[0].lat), parseFloat(data[0].lon));
-    }else{
-      statusLine.textContent = `No results for "${q}".`;
-    }
+    const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(q) + '&count=6&language=en&format=json', {signal:searchAbort.signal});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const res = (await r.json()).results || [];
+    if(!res.length){ hideResults(); setStatus('No results for "' + q + '". Try another spelling, or click the map.', true); return; }
+    if(res.length === 1 || (auto && res[0].name.toLowerCase() === q.toLowerCase())){ pickResult(res[0]); return; }
+    resultsEl.innerHTML = '';
+    res.forEach(c=>{
+      const li = document.createElement('li'); li.tabIndex = 0;
+      const a = document.createElement('span'); a.textContent = uniq([c.name, c.admin1, c.country]).join(', ');
+      const b = document.createElement('small'); b.textContent = c.latitude.toFixed(2) + '°, ' + c.longitude.toFixed(2) + '°';
+      li.append(a, b);
+      li.addEventListener('click', ()=>pickResult(c));
+      li.addEventListener('keydown', e=>{ if(e.key === 'Enter') pickResult(c); });
+      resultsEl.appendChild(li);
+    });
+    resultsEl.hidden = false;
+    setStatus('Pick your place from the list.');
   }catch(e){
-    statusLine.textContent = 'Search failed. Check your connection.';
+    if(e.name === 'AbortError') return;
+    setStatus('Search failed. Check your connection, or click the map.', true);
   }
 }
+$('searchBtn').addEventListener('click', ()=>{ clearTimeout(searchTimer); doSearch(true); });
+searchInput.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); clearTimeout(searchTimer); doSearch(true); } else if(e.key === 'Escape') hideResults(); });
+searchInput.addEventListener('input', ()=>{ clearTimeout(searchTimer); searchTimer = setTimeout(()=>doSearch(false), 450); });
+document.addEventListener('click', e=>{ if(!e.target.closest('.controls') && !e.target.closest('.results')) hideResults(); });
 
-document.getElementById('searchBtn').addEventListener('click', doSearch);
-document.getElementById('searchInput').addEventListener('keydown', (e) => {
-  if(e.key === 'Enter') doSearch();
+/* quick picks */
+[['Madrid',40.4168,-3.7038,'Spain'],['Beijing',39.9042,116.4074,'China'],['London',51.5074,-0.1278,'United Kingdom'],['Ayodhya',26.7922,82.1998,'India'],['Sydney',-33.8688,151.2093,'Australia']].forEach(c=>{
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'quiet'; b.textContent = c[0];
+  b.addEventListener('click', ()=>{ searchInput.value = c[0] + ', ' + c[3]; hideResults(); locate(c[1], c[2], {isLand:true, name:c[0], sub:c[3], full:c[0] + ', ' + c[3]}); });
+  $('chips').appendChild(b);
 });
 
-window.addEventListener('resize', () => {
-  if(current) placeMarkers(current.lat, current.lon, current.antiLat, current.antiLon);
+/* ---------- actions ---------- */
+flipBtn.addEventListener('click', ()=>{ if(current) locate(current.antiLat, current.antiLon); });
+linkBtn.addEventListener('click', async ()=>{
+  const url = location.origin !== 'null' ? location.href : '';
+  const text = url || ('lat=' + current.lat.toFixed(4) + ', lon=' + current.lon.toFixed(4));
+  try{ await navigator.clipboard.writeText(text); setStatus('Link copied.'); }
+  catch(e){ window.prompt('Copy this link:', text); }
 });
 
-worldMap.addEventListener('load', () => {
-  if(current) placeMarkers(current.lat, current.lon, current.antiLat, current.antiLon);
-});
-
-// Shareable card generation
-shareBtn.addEventListener('click', () => {
+/* ---------- share card ---------- */
+let cardMap, cardMapTried = false;
+function loadCardMap(){
+  if(cardMapTried) return Promise.resolve(cardMap || null);
+  return new Promise(res=>{
+    const i = new Image(); i.crossOrigin = 'anonymous';
+    const t = setTimeout(()=>res(null), 6000);
+    i.onload = ()=>{ clearTimeout(t); cardMapTried = true; cardMap = i; res(i); };
+    i.onerror = ()=>{ clearTimeout(t); cardMapTried = true; res(null); };
+    i.src = MAP_URL;
+  });
+}
+shareBtn.addEventListener('click', async ()=>{
   if(!current) return;
-  const canvas = document.getElementById('shareCanvas');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+  shareBtn.disabled = true; const old = shareBtn.textContent; shareBtn.textContent = 'Building…';
+  try{
+    const c = $('shareCanvas'), x = c.getContext('2d'), W = c.width, H = c.height;
+    try{ await document.fonts.load('700 30px "Space Mono"'); await document.fonts.load('400 16px "Space Mono"'); }catch(e){}
+    const F = (w, s) => `${w} ${s}px "Space Mono", monospace`;
+    const img = await loadCardMap();
+    x.fillStyle = '#0a0505'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = '#2a1616'; x.lineWidth = 2; x.strokeRect(20, 20, W-40, H-40);
+    x.strokeStyle = '#ff2b2b'; x.lineWidth = 4;
+    [[20,20,1,1],[W-20,20,-1,1],[20,H-20,1,-1],[W-20,H-20,-1,-1]].forEach(([px,py,sx,sy])=>{ x.beginPath(); x.moveTo(px, py+sy*26); x.lineTo(px, py); x.lineTo(px+sx*26, py); x.stroke(); });
 
-  ctx.fillStyle = '#0a0505';
-  ctx.fillRect(0,0,W,H);
+    x.fillStyle = '#ff2b2b'; x.font = F('bold', 34); x.fillText('RV·ANTIPODE', 60, 92);
+    x.fillStyle = '#8a7a7a'; x.font = F('', 16); x.fillText('rameshverse.com', 60, 120);
 
-  ctx.strokeStyle = '#2a1616';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(20,20,W-40,H-40);
+    const fit = (txt, max, size, weight) => { x.font = F(weight, size); while(x.measureText(txt).width > max && size > 14){ size -= 2; x.font = F(weight, size); } return txt; };
+    const block = (label, name, sub, coords, tag, colName, y) => {
+      x.fillStyle = '#e8e2e2'; x.font = F('bold', 22); x.fillText(label, 60, y);
+      x.fillStyle = colName; fit(name || '—', 470, 30, 'bold'); x.fillText(name || '—', 60, y + 40);
+      x.fillStyle = '#8a7a7a'; fit(sub || '', 470, 16, ''); if(sub) x.fillText(sub, 60, y + 66);
+      x.font = F('', 16); x.fillText(coords, 60, y + (sub ? 92 : 70));
+      if(tag){ x.fillStyle = tag === 'LAND' ? '#7fdc8a' : '#5ec8ff'; x.font = F('bold', 15); x.fillText(tag, 60, y + (sub ? 118 : 96)); }
+    };
+    block('ORIGIN', current.originName, current.originSub, fmtCoord(current.lat, current.lon), current.originLand === true ? 'LAND' : current.originLand === false ? 'OCEAN' : '', '#ff2b2b', 190);
+    block('ANTIPODE', current.antiName, current.antiSub, fmtCoord(current.antiLat, current.antiLon), current.antiLand === true ? 'LAND' : current.antiLand === false ? 'OCEAN' : '', '#5ec8ff', 390);
 
-  ctx.fillStyle = '#ff2b2b';
-  ctx.font = 'bold 34px monospace';
-  ctx.fillText('RV·ANTIPODE', 60, 90);
+    // map
+    const mx = 560, my = 150, mw = 580, mh = 290;
+    x.save(); x.beginPath(); x.rect(mx, my, mw, mh); x.clip();
+    x.fillStyle = '#120808'; x.fillRect(mx, my, mw, mh);
+    if(img){ try{ x.filter = 'grayscale(1) contrast(1.15) brightness(.55) sepia(1) hue-rotate(-50deg) saturate(2)'; }catch(e){} x.drawImage(img, mx, my, mw, mh); x.filter = 'none'; x.fillStyle = 'rgba(10,5,5,.35)'; x.fillRect(mx, my, mw, mh); }
+    x.strokeStyle = 'rgba(255,43,43,.18)'; x.lineWidth = 1;
+    for(let lo=-150; lo<=150; lo+=30){ const gx = mx + (lo+180)/360*mw; x.beginPath(); x.moveTo(gx, my); x.lineTo(gx, my+mh); x.stroke(); }
+    for(let la=-60; la<=60; la+=30){ const gy = my + (90-la)/180*mh; x.beginPath(); x.moveTo(mx, gy); x.lineTo(mx+mw, gy); x.stroke(); }
+    const mark = (lat, lon, col, dash, label) => {
+      const px = mx + (lon+180)/360*mw, py = my + (90-lat)/180*mh;
+      x.strokeStyle = col; x.fillStyle = col; x.lineWidth = 2.5; x.setLineDash(dash);
+      x.beginPath(); x.arc(px, py, 10, 0, 7); x.stroke(); x.setLineDash([]);
+      x.beginPath(); x.arc(px, py, 3.5, 0, 7); x.fill();
+      x.font = F('bold', 12); x.textAlign = px > mx + mw - 90 ? 'right' : px < mx + 70 ? 'left' : 'center';
+      x.fillText(label, px + (x.textAlign === 'right' ? -14 : x.textAlign === 'left' ? 14 : 0), py < my + 30 ? py + 28 : py - 16); x.textAlign = 'left';
+    };
+    mark(current.lat, current.lon, '#ff2b2b', [], 'YOU'); mark(current.antiLat, current.antiLon, '#00e5ff', [4,3], 'ANTIPODE');
+    x.restore();
+    x.strokeStyle = '#2a1616'; x.lineWidth = 2; x.strokeRect(mx, my, mw, mh);
 
-  ctx.fillStyle = '#8a7a7a';
-  ctx.font = '16px monospace';
-  ctx.fillText('rameshverse.com', 60, 118);
+    x.fillStyle = '#e8e2e2'; x.font = F('', 17);
+    x.fillText('12,742 KM STRAIGHT DOWN  ·  20,015 KM AROUND THE SURFACE', 60, 600);
+    x.fillStyle = '#8a7a7a'; x.font = F('', 13); x.fillText('Find yours at rameshverse.com', 60, 628);
 
-  ctx.fillStyle = '#e8e2e2';
-  ctx.font = 'bold 26px monospace';
-  ctx.fillText('ORIGIN', 60, 220);
-  ctx.fillStyle = '#ff2b2b';
-  ctx.font = 'bold 30px monospace';
-  ctx.fillText(current.originName || '—', 60, 260);
-  ctx.fillStyle = '#8a7a7a';
-  ctx.font = '16px monospace';
-  ctx.fillText(fmtCoord(current.lat, current.lon), 60, 290);
-
-  ctx.fillStyle = '#e8e2e2';
-  ctx.font = 'bold 26px monospace';
-  ctx.fillText('ANTIPODE', 60, 380);
-  ctx.fillStyle = '#5ec8ff';
-  ctx.font = 'bold 30px monospace';
-  ctx.fillText(current.antiName || '—', 60, 420);
-  ctx.fillStyle = '#8a7a7a';
-  ctx.font = '16px monospace';
-  ctx.fillText(fmtCoord(current.antiLat, current.antiLon), 60, 450);
-
-  ctx.fillStyle = '#e8e2e2';
-  ctx.font = '18px monospace';
-  ctx.fillText('12,742 KM STRAIGHT DOWN  ·  20,015 KM AROUND THE SURFACE', 60, 540);
-
-  const link = document.createElement('a');
-  link.download = `antipode-${(current.originName||'location').replace(/\s+/g,'-').toLowerCase()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    if(!blob) throw new Error('no blob');
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = 'antipode-' + (current.originName || 'location').replace(/[^\w]+/g, '-').toLowerCase() + '.png';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1500);
+  }catch(e){ console.error(e); setStatus('Could not build the card. Try again.', true); }
+  shareBtn.textContent = old; shareBtn.disabled = false;
 });
+
+/* ---------- start: shared link, else last place ---------- */
+(function(){
+  let lat = NaN, lon = NaN;
+  try{ const q = new URLSearchParams(location.search); lat = parseFloat(q.get('lat')); lon = parseFloat(q.get('lon')); }catch(e){}
+  if(isNaN(lat) || isNaN(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180){
+    lat = lon = NaN;
+    try{ const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if(s){ lat = +s.lat; lon = +s.lon; } }catch(e){}
+  }
+  if(isFinite(lat) && isFinite(lon)) locate(lat, lon);
+})();
+})();
 </script>
 
 <script src="/libraries/config.js"></script>
