@@ -214,6 +214,12 @@ canvas.grab{cursor:grabbing}
 .spd{display:flex;align-items:center;padding:0 8px 0 4px;background:rgba(8,10,16,.62);border:1px solid var(--line2);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .spd output{min-width:22px;text-align:right;font-size:10.5px;color:var(--tx);margin-left:6px}
 .spd input{width:74px;height:14px;margin:0;accent-color:var(--red);cursor:pointer;background:transparent}
+/* prominent volume slider */
+.spd.vol{padding:0 12px 0 10px;border:1px solid var(--red);background:rgba(255,43,43,.1)}
+.spd.vol span{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--red);margin-right:8px}
+#card .spd.vol input{width:130px;height:20px}
+.spd.vol output{min-width:26px;font-size:12px;font-weight:700;color:#fff}
+@media (max-width:860px){#card:not(.fs) .spd.vol{min-height:44px}#card:not(.fs) .spd.vol input{width:150px}}
 .nav4 .lbl{align-self:center;font-size:10px;letter-spacing:.14em;color:var(--dim);margin-right:2px;text-transform:uppercase;text-shadow:0 0 6px #000}
 .btn:disabled{opacity:.4;cursor:default}
 .hud.tl{top:auto;bottom:34px}
@@ -437,6 +443,7 @@ body.fs-open{overflow:hidden}
           <button class="btn" id="spinBtn" type="button" aria-pressed="true" title="Auto-rotate (R)">⟳ Spin</button>
           <label class="spd" title="Spin speed"><input id="spinSpd" type="range" min="0" max="100" value="26" aria-label="Spin speed"><output id="spinVal" for="spinSpd">26</output></label>
           <button class="btn" id="sndBtn" type="button" aria-pressed="false" title="Sound: pitch follows mass (M)">♪ Sound</button>
+          <label class="spd vol" title="Volume (moving the slider turns sound on)"><span>VOL</span><input id="vol" type="range" min="0" max="100" value="50" aria-label="Volume"><output id="volVal" for="vol">50</output></label>
           <button class="btn" id="shotBtn" type="button" title="Save a PNG with caption">◉ PNG</button>
         </div>
         <div class="nav nav4" id="refNav" role="group" aria-label="Compare with a familiar object" hidden>
@@ -1819,6 +1826,9 @@ let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{resize
 
 /* ---------- sound: pitch follows mass; mergers play a chirp ---------- */
 let AC=null,SN=null,SOUND=false;
+let VOL=50;                        // volume slider, 0 to 100
+try{const v=localStorage.getItem('rv-bh-vol');if(v!==null&&v!==''&&!isNaN(+v))VOL=Math.max(0,Math.min(100,Math.round(+v)))}catch(e){}
+const volGain=()=>VOL/100*.64;     // slider 50 = the old fixed level (.32)
 function sndInit(){
   const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return false;
   AC=new Ctx();
@@ -1855,12 +1865,20 @@ function sndSelect(b){
   SN.g3.gain.setTargetAtTime(b.kind==='binary'?.3:.12,t,.5);SN.o3.detune.setTargetAtTime(b.kind==='binary'?18:0,t,.2);
   if(b.kind==='merger')chirp();
 }
-function toggleSound(){
-  SOUND=!SOUND;setP('#sndBtn',SOUND);
-  if(SOUND){
+function setSound(on){
+  SOUND=on;setP('#sndBtn',on);
+  if(on){
     if(!AC&&!sndInit()){SOUND=false;setP('#sndBtn',false);$('#sndBtn').disabled=true;return}
-    AC.resume();SN.master.gain.setTargetAtTime(.32,AC.currentTime,.3);if(CUR)sndSelect(CUR);
+    AC.resume();SN.master.gain.setTargetAtTime(volGain(),AC.currentTime,.3);if(CUR)sndSelect(CUR);
   }else if(AC)SN.master.gain.setTargetAtTime(0,AC.currentTime,.2);
+}
+function toggleSound(){setSound(!SOUND)}
+function setVolume(v){
+  VOL=Math.max(0,Math.min(100,v));
+  $('#volVal').textContent=VOL;
+  try{localStorage.setItem('rv-bh-vol',VOL)}catch(e){}
+  if(!SOUND&&VOL>0)setSound(true);                                  // moving the slider turns sound back on
+  else if(SOUND&&SN)SN.master.gain.setTargetAtTime(volGain(),AC.currentTime,.05);
 }
 
 /* ---------- capture: PNG and video, with a caption burned in ---------- */
@@ -1958,6 +1976,9 @@ function bindFx(){
   $('#spinBtn').onclick=()=>{SPIN=!SPIN;setP('#spinBtn',SPIN);kick()};
   $('#spinSpd').oninput=e=>{SPINV=+e.target.value;$('#spinVal').textContent=SPINV;if(!SPIN){SPIN=true;setP('#spinBtn',true)}kick()};
   $('#sndBtn').onclick=toggleSound;
+  $('#vol').value=VOL;$('#volVal').textContent=VOL;
+  $('#vol').oninput=e=>setVolume(+e.target.value);
+  setP('#sndBtn',SOUND);
   $('#shotBtn').onclick=()=>{REC.shot=true;kick()};
   $('#refNav').addEventListener('click',e=>{const b=e.target.closest('[data-ref]');if(b)setRef(b.dataset.ref)});
   setP('#lensBtn',LENS);setP('#spinBtn',SPIN);
