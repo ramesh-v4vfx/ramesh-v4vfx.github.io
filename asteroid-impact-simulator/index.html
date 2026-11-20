@@ -14,13 +14,44 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Simulate an asteroid impact anywhere on Earth. Set diameter, velocity, angle, and composition to calculate impact energy, airburst or crater size, blast radius, tsunami, and affected cities.">
 
-<title>Asteroid Impact Simulator</title>
+<title>Asteroid Impact Simulator – Crater, Blast &amp; Tsunami Map</title>
+<meta name="description" content="Drop an asteroid anywhere on Earth. Set size, speed, angle and rock type to see the crater, blast zones, tsunami and which cities are hit.">
 
-<link rel="canonical" href="https://rameshverse.com/asteroid-impact-simulator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RameshVerse">
+<meta property="og:title" content="Asteroid Impact Simulator – What If One Hit Your City?">
+<meta property="og:description" content="Set size, speed and angle, pick any city, and see the crater, blast radius, tsunami and population affected.">
+<meta property="og:url" content="https://rameshverse.com/asteroid-impact-simulator/">
+<meta property="og:image" content="https://rameshverse.com/asteroid-impact-simulator/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Asteroid Impact Simulator: damage rings over a world map">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Asteroid Impact Simulator – What If One Hit Your City?">
+<meta name="twitter:description" content="Set size, speed and angle, pick any city, and see the crater, blast radius, tsunami and population affected.">
+<meta name="twitter:image" content="https://rameshverse.com/asteroid-impact-simulator/og.jpg">
+<meta name="theme-color" content="#050608">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Asteroid Impact Simulator",
+  "url": "https://rameshverse.com/asteroid-impact-simulator/",
+  "description": "Simulate an asteroid impact anywhere on Earth and see energy, crater, blast zones, tsunami and affected cities.",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (web browser)",
+  "image": "https://rameshverse.com/asteroid-impact-simulator/og.jpg",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Ramesh" }
+}
+</script>
 <style>
   :root{
     --red:#ff2b2b;
@@ -29,7 +60,7 @@
     --bg:#050608;
     --panel:#0a0c10;
     --text:#d8dde3;
-    --dim:#5a6270;
+    --dim:#7b8494;
     --amber:#ffb020;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -117,10 +148,10 @@
   .preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
   .chip{
     font-family:'Space Mono',monospace;background:none;text-align:left;
-    font-size:9px;letter-spacing:1px;padding:5px 8px;border:1px solid var(--dim);color:var(--dim);
+    font-size:9px;letter-spacing:1px;padding:8px 10px;border:1px solid var(--dim);color:var(--dim);
     cursor:pointer;transition:.15s;line-height:1.4;
   }
-  .chip em{display:block;font-style:normal;font-size:8px;color:#444b57;letter-spacing:.5px;}
+  .chip em{display:block;font-style:normal;font-size:8px;color:#6b7381;letter-spacing:.5px;}
   .chip:hover, .chip.active, .chip:focus-visible{border-color:var(--red);color:var(--red);outline:none;}
   .chip:hover em,.chip.active em{color:var(--red-dim);}
 
@@ -242,6 +273,17 @@
   .placeholder{color:var(--dim);font-size:11px;text-align:center;padding:30px 10px;letter-spacing:1px;}
   #disclaimer{font-size:9px;color:var(--dim);letter-spacing:.5px;line-height:1.6;margin-top:16px;padding-top:12px;border-top:1px solid #ffffff10;}
 
+  /* ---- about / SEO content ---- */
+  #about-wrap{max-width:1500px;margin:0 auto;padding:0 40px 70px;}
+  @media(max-width:980px){#about-wrap{padding:0 16px 70px;}}
+  #about{font-size:12px;line-height:1.85;color:var(--text);}
+  #about h3{margin:22px 0 6px;font-size:12px;letter-spacing:2px;color:var(--amber);font-weight:700;}
+  #about h3:first-child{margin-top:0;}
+  #about p{color:#b8c0cc;max-width:880px;}
+  #about a{color:var(--red);text-decoration:underline;text-underline-offset:3px;}
+  #about a:hover{color:var(--amber);}
+  #about ul{margin:6px 0 0 18px;color:#b8c0cc;max-width:880px;}
+
   @media (prefers-reduced-motion: reduce){
     .impact-pulse,#sweep,#reticle .rb,#detonate::after,.dot,.ph .cur::after,.flick .stat .v{animation:none;}
     #sweep{display:none;}
@@ -256,7 +298,7 @@
 
 <div id="topbar">
   <a id="logo" href="/">‹ BACK TO RAMESHVERSE</a>
-  <div id="title"><span>RV·IMPACT</span> // ASTEROID IMPACT SIMULATOR</div>
+  <h1 id="title"><span>RV·IMPACT</span> // ASTEROID IMPACT SIMULATOR</h1>
   <div id="tagline">ENERGY / AIRBURST / CRATER / BLAST / TSUNAMI — THREAT ASSESSMENT SYSTEM</div>
   <div id="status">
     <span><span class="dot"></span>SYS <i class="ok">ONLINE</i></span>
@@ -269,7 +311,7 @@
 <div id="layout">
   <!-- LEFT: controls -->
   <div class="panelbox">
-    <div class="ph">// 01 IMPACTOR PARAMETERS <small>INPUT</small></div>
+    <h2 class="ph">// 01 IMPACTOR PARAMETERS <small>INPUT</small></h2>
     <div class="pb">
 
       <div class="field">
@@ -356,7 +398,7 @@
   <!-- RIGHT: map + results -->
   <div>
     <div class="panelbox">
-      <div class="ph">// 02 TARGET GRID <small id="gridtag">AWAITING TARGET</small></div>
+      <h2 class="ph">// 02 TARGET GRID <small id="gridtag">AWAITING TARGET</small></h2>
       <div class="pb" style="padding:0;">
         <div id="mapwrap">
           <canvas id="mapcanvas" aria-label="World map. Click to set the impact location."></canvas>
@@ -372,12 +414,48 @@
     </div>
 
     <div class="panelbox" id="results">
-      <div class="ph"><span class="cur">// 03 THREAT ASSESSMENT</span> <small>OUTPUT</small></div>
+      <h2 class="ph"><span class="cur">// 03 THREAT ASSESSMENT</span> <small>OUTPUT</small></h2>
       <div class="pb" id="results-body" aria-live="polite">
         <div class="placeholder">SET AN IMPACTOR AND TARGET, THEN RUN SIMULATION</div>
       </div>
     </div>
   </div>
+</div>
+
+<div id="about-wrap">
+  <section class="panelbox" id="about" aria-labelledby="about-h">
+    <h2 class="ph" id="about-h">// 04 ABOUT THIS SIMULATOR <small>HOW IT WORKS</small></h2>
+    <div class="pb">
+
+      <h3>WHAT IS THE ASTEROID IMPACT SIMULATOR?</h3>
+      <p>This is a free tool that shows what would happen if an asteroid or comet hit a place on Earth. Choose the size, speed, angle and rock type of the object, pick any city or click the map, and press <b>Simulate Impact</b>. You get the impact energy, whether the object explodes in the air or digs a crater, the blast and heat zones, the tsunami from an ocean strike, and the cities inside each damage zone.</p>
+
+      <h3>HOW THE CALCULATION WORKS</h3>
+      <p>The model follows the equations published by Collins, Melosh and Marcus (2005) for the <a href="https://impact.ese.ic.ac.uk/ImpactEarth/" target="_blank" rel="noopener">Earth Impact Effects Program</a>. It first works out how the object breaks up as it plunges through the atmosphere. Small or weak objects burst high above the ground (an airburst). Large or strong ones reach the surface and form a crater, or a cavity in the sea. From the energy released it then estimates the fireball, the burn radius, the shock wave at each pressure level (20, 5, 1 and 0.15 psi) and the wave heights of a tsunami.</p>
+
+      <h3>WHAT THE DAMAGE ZONES MEAN</h3>
+      <ul>
+        <li><b>Total destruction (20 psi):</b> even reinforced-concrete buildings collapse.</li>
+        <li><b>Severe blast damage (5 psi):</b> most houses collapse and injuries are near-universal.</li>
+        <li><b>Windows shatter (1 psi):</b> flying glass injures people far from the centre.</li>
+        <li><b>3rd-degree burns:</b> heat from the fireball, which only forms at higher impact speeds.</li>
+      </ul>
+
+      <h3>REAL IMPACTS YOU CAN REPLAY</h3>
+      <p><b>Chelyabinsk (2013):</b> a roughly 20 m object exploded over Russia and its shock wave broke windows across a city. <b>Tunguska (1908):</b> an object around 50&ndash;60 m wide flattened forest over a huge area of Siberia. <b>Meteor Crater, Arizona:</b> an iron impactor formed a crater about 1.2 km wide some 50,000 years ago. <b>Chicxulub (66 million years ago):</b> a 10 km class impactor struck what is now Mexico and is linked to the extinction of the dinosaurs.</p>
+
+      <h3>FREQUENTLY ASKED QUESTIONS</h3>
+      <h3 style="margin-top:14px;color:var(--text)">Is an asteroid going to hit Earth?</h3>
+      <p>No known asteroid is on course to hit Earth. The &ldquo;what if&rdquo; buttons for Apophis, Bennu, 2024 YR4 and Didymos are hypothetical and show what an impact of that size could do.</p>
+      <h3 style="margin-top:14px;color:var(--text)">How often do asteroids hit Earth?</h3>
+      <p>Small objects burn up or explode in the air quite often, while city-destroying impacts are rare, and very large ones such as the 10 km Chicxulub impactor happen on timescales of tens of millions of years. The simulator shows an approximate frequency for the size you choose.</p>
+      <h3 style="margin-top:14px;color:var(--text)">How accurate is it?</h3>
+      <p>It is an educational estimate. Real outcomes depend on the structure of the object, the ground it hits, the terrain and the weather. Tsunami heights assume a 4 km deep ocean and simple shoaling, and the population counts only include tracked cities and towns, so real numbers would be higher.</p>
+      <h3 style="margin-top:14px;color:var(--text)">Can I share my result?</h3>
+      <p>Yes. After a simulation, use <b>Save Image</b> to download a share card, or <b>Copy Link</b> to get a link that reopens the same asteroid and location.</p>
+
+    </div>
+  </section>
 </div>
 
 <script>
@@ -1808,11 +1886,11 @@ Promise.all([cityLoad, coastLoad]).then(()=>{
 })();
 </script>
 
-<script src="/libraries/config.js"></script>
-<script src="/libraries/view-counter.js"></script>
+<script src="/libraries/config.js" defer></script>
+<script src="/libraries/view-counter.js" defer></script>
 
-<script src="/tools-data.js"></script>
-<script src="/related-modules.js"></script>
+<script src="/tools-data.js" defer></script>
+<script src="/related-modules.js" defer></script>
 
 </body>
 </html>
