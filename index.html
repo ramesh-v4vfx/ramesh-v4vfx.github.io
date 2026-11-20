@@ -3144,6 +3144,45 @@
   /* phones: the first block of the page starts below the button instead of behind it */
   body::before { content: ""; display: block; flex: none; order: -1; height: 34px; }
 }
+
+/* ══════════════════════════════════════════════════════
+   TOOL CARD GRAPHICS
+   A card that has <img class="tool-img"> becomes taller and shows the
+   graphic across its top edge. Cards without an image are unchanged.
+   Image size: 600 x 315 (WebP). Add class "has-img" to the card too.
+   ══════════════════════════════════════════════════════ */
+.tool.has-img {
+  height: auto;
+  padding: 0 16px 16px;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.tool-img {
+  display: block;
+  align-self: stretch;
+  margin: 0 -16px;              /* runs edge to edge, past the card's side padding */
+  width: auto;
+  height: auto;
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255,43,43,0.25);
+  transition: filter .35s ease;
+}
+
+.tool.has-img:not(:hover):not(.tool-hovered) .tool-img { filter: brightness(.88) saturate(.9); }
+
+/* every card now has the same layout, so let each row grow to its tallest card */
+.tools { align-items: stretch; }
+
+/* the N·## stamp and corner marks sit on top of the picture, so keep them readable */
+.tool.has-img::after { text-shadow: 0 0 6px #000, 0 0 3px #000; opacity: 1; }
+.tool.has-img .tool-head { padding-top: 2px; }
+
+@media (max-width: 600px) {
+  .tool.has-img { padding: 0 14px 14px; }
+  .tool-img { margin: 0 -14px; }
+}
 </style>
 </head>
 <body>
@@ -3508,292 +3547,350 @@
 <section class="tools" id="toolsGrid">
   <h2 class="sr-only">All tools</h2>
 
-  <a class="tool" href="/star-system-creator/" data-search="star system creator" data-category="science">
+  <a class="tool has-img" href="/star-system-creator/" data-search="star system creator" data-category="science">
+    <img class="tool-img" src="/images/card-images/star-system-creator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Star System creator</h3>
     <p>Create your own star system or recreate an existing one using its values.</p>
   </a>
 
-  <a class="tool" href="/black-hole-explorer/" data-search="black hole explorer" data-category="science">
+  <a class="tool has-img" href="/black-hole-explorer/" data-search="black hole explorer" data-category="science">
+    <img class="tool-img" src="/images/card-images/black-hole-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Black Hole Explorer</h3>
     <p>explore the black holes in the universe and get info</p>
  </a>
 
-  <a class="tool" href="/solar-system-simulator/" data-search="solar system simulator" data-category="science">
+  <a class="tool has-img" href="/solar-system-simulator/" data-search="solar system simulator" data-category="science">
+  <img class="tool-img" src="/images/card-images/solar-system-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Solar System Simulator</h3>
   <p>navigate through solar system. get info.</p>
   </a>
 
-   <a class="tool" href="/black-hole-radius-calculator/" data-search="black hole radius calculator" data-category="science calculator">
+   <a class="tool has-img" href="/black-hole-radius-calculator/" data-search="black hole radius calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/black-hole-radius-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Black Hole Radius Calculator Advanced</h3>
     <p>Calculate the radius of any black hole period.</p>
   </a>
 
-  <a class="tool" href="/black-hole-simulator/" data-search="black hole simulator" data-category="science">
+  <a class="tool has-img" href="/black-hole-simulator/" data-search="black hole simulator" data-category="science">
+  <img class="tool-img" src="/images/card-images/black-hole-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Black Hole Simulator Pro</h3>
   <p>Find event horizon radius, photon sphere, ISCO, and Hawking temperature.</p>
   </a>
 
-   <a class="tool" href="/cosmic-calculator/" data-search="cosmic space calculator" data-category="science calculator">
+   <a class="tool has-img" href="/cosmic-calculator/" data-search="cosmic space calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/cosmic-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Cosmic Calculator</h3>
     <p>Calculate cosmic-scale distances from meters to astronomical units.</p>
   </a>
 
-  <a class="tool" href="/star-system-explorer/" data-search="star system explorer" data-category="science">
+  <a class="tool has-img" href="/star-system-explorer/" data-search="star system explorer" data-category="science">
+    <img class="tool-img" src="/images/card-images/star-system-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Star System Explorer</h3>
     <p>Explore Alien Systems beyond ours</p>
   </a>
 
-  <a class="tool tool" href="/country-explorer/" data-search="country explorer geography flags quiz map" data-category="geography">
+  <a class="tool tool has-img" href="/country-explorer/" data-search="country explorer geography flags quiz map" data-category="geography">
+    <img class="tool-img" src="/images/card-images/country-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Country Explorer</h3>
     <p>Explore countries, play card game, play country quiz and get certificates, compare countries and more.</p>
   </a>
 
-  <a class="tool" href="/lagrange-points-simulator/" data-search="lagrange points simulator gravity three body problem" data-category="science">
+  <a class="tool has-img" href="/lagrange-points-simulator/" data-search="lagrange points simulator gravity three body problem" data-category="science">
+    <img class="tool-img" src="/images/card-images/lagrange-points-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Lagrange Points Simulator</h3>
     <p>check out gravity parking spots. three body problem simulator</p>
   </a>
 
-  <a class="tool" href="/space-collision-simulator/" data-search="space collision simulator" data-category="science">
+  <a class="tool has-img" href="/space-collision-simulator/" data-search="space collision simulator" data-category="science">
+    <img class="tool-img" src="/images/card-images/space-collision-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Space Collision Simulator</h3>
     <p>collide black holes, stars and find final mass and other metrics.</p>
   </a> 
 
-  <a class="tool" href="/exoplanet-detector-simulator/" data-search="exoplanet detector simulator" data-category="science">
+  <a class="tool has-img" href="/exoplanet-detector-simulator/" data-search="exoplanet detector simulator" data-category="science">
+  <img class="tool-img" src="/images/card-images/exoplanet-detector-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Exoplanet Detector Simulator</h3>
   <p>Detect exoplanet and get data using transit method.</p>
   </a>  
 
-  <a class="tool" href="/asteroid-impact-simulator/" data-search="asteroid impact simulator" data-category="science">
+  <a class="tool has-img" href="/asteroid-impact-simulator/" data-search="asteroid impact simulator" data-category="science">
+    <img class="tool-img" src="/images/card-images/asteroid-impact-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Asteroid Impact Simulator</h3>
     <p>Simulate an asteroid strike: energy, crater, and blast radius, city by city.</p>
   </a>  
 
-  <a class="tool" href="/your-weight-in-space/" data-search="your weight on various space objects" data-category="science">
+  <a class="tool has-img" href="/your-weight-in-space/" data-search="your weight on various space objects" data-category="science">
+    <img class="tool-img" src="/images/card-images/your-weight-in-space.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Your Weight in Space</h3>
     <p>See how much you would weigh on different space objects</p>
   </a>
 
-  <a class="tool" href="/stellar-death-simulator/" data-search="stellar death simulator" data-category="science">
+  <a class="tool has-img" href="/stellar-death-simulator/" data-search="stellar death simulator" data-category="science">
+    <img class="tool-img" src="/images/card-images/stellar-death-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Stellar Death Simulator</h3>
     <p>Check the outcome of the death of stars with different masses.</p>
   </a>
 
-  <a class="tool" href="/sky-tonight/" data-search="sky tonight" data-category="science">
+  <a class="tool has-img" href="/sky-tonight/" data-search="sky tonight" data-category="science">
+    <img class="tool-img" src="/images/card-images/sky-tonight.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Sky Tonight</h3>
     <p>What’s Happening in the Sky Tonight?</p>
   </a>
 
-  <a class="tool" href="/planet-positions-now/" data-search="planet positions now" data-category="science">
+  <a class="tool has-img" href="/planet-positions-now/" data-search="planet positions now" data-category="science">
+    <img class="tool-img" src="/images/card-images/planet-positions-now.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Planets Positions Now: Time Machine</h3>
     <p>Check the positions of the planets around the Sun right now.</p>
   </a>
 
-  <a class="tool" href="/sky-at-birth/" data-search="your sky at birth" data-category="science">
+  <a class="tool has-img" href="/sky-at-birth/" data-search="your sky at birth" data-category="science">
+    <img class="tool-img" src="/images/card-images/sky-at-birth.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Your Sky at Birth</h3>
     <p>check your sky at birthdate. download.</p>
   </a>
 
-  <a class="tool" href="/light-speed-messenger/" data-search="light speed messenger" data-category="science">
+  <a class="tool has-img" href="/light-speed-messenger/" data-search="light speed messenger" data-category="science">
+    <img class="tool-img" src="/images/card-images/light-speed-messenger.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Light Speed Messenger</h3>
     <p>chat with space objects in light speed</p>
   </a>
 
-  <a class="tool" href="/asteroid-watch-live/" data-search="asteroid watch live" data-category="science">
+  <a class="tool has-img" href="/asteroid-watch-live/" data-search="asteroid watch live" data-category="science">
+    <img class="tool-img" src="/images/card-images/asteroid-watch-live.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Asteroid Watch Live</h3>
     <p>Track near-Earth asteroids live. See which ones are potentially hazardous and how close they'll come.</p>
   </a>
 
-  <a class="tool" href="/territory-explorer/" data-search="territory explorer" data-category="geography">
+  <a class="tool has-img" href="/territory-explorer/" data-search="territory explorer" data-category="geography">
+    <img class="tool-img" src="/images/card-images/territory-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Territory Explorer</h3>
     <p>Explore territories by area, population, continent, status, administrative states, regions</p>
   </a>
 
-  <a class="tool" href="/antipode-finder/" data-search="antipode finder" data-category="geography">
+  <a class="tool has-img" href="/antipode-finder/" data-search="antipode finder" data-category="geography">
+    <img class="tool-img" src="/images/card-images/antipode-finder.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Antipode Finder</h3>
     <p>Dig a hole straight through the Earth from anywhere, and find out where you'd come out.</p>
   </a>
   
-  <a class="tool" href="/earth-rotation-live/" data-search="earth rotation live" data-category="geography science">
+  <a class="tool has-img" href="/earth-rotation-live/" data-search="earth rotation live" data-category="geography science">
+    <img class="tool-img" src="/images/card-images/earth-rotation-live.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Earth Rotation Live</h3>
     <p>Check out earth rotation in real time</p>
   </a> 
   
-  <a class="tool" href="/globe-explorer/" data-search="globe explorer" data-category="geography">
+  <a class="tool has-img" href="/globe-explorer/" data-search="globe explorer" data-category="geography">
+    <img class="tool-img" src="/images/card-images/globe-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Globe Explorer</h3>
     <p>Explore the globe and click on a country or territory to learn more.</p>
   </a>
 
-  <a class="tool" href="/focus-timer/" data-search="focus timer" data-category="productivity">
+  <a class="tool has-img" href="/focus-timer/" data-search="focus timer" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/focus-timer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Focus Timer</h3>
     <p>Focus timer and deep work session tracker. Log sessions, track interruptions, and monitor your daily focus streak</p>
   </a>
 
-  <a class="tool" href="/calendar-reminders/" data-search="calendar reminders" data-category="productivity">
+  <a class="tool has-img" href="/calendar-reminders/" data-search="calendar reminders" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/calendar-reminders.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Calendar & Reminders</h3>
     <p>Focus timer and deep work session tracker. Log sessions, track interruptions, and monitor your daily focus streak</p>
   </a> 
 
-  <a class="tool" href="/time-block/" data-search="carpe diem time block seize the day" data-category="productivity">
+  <a class="tool has-img" href="/time-block/" data-search="carpe diem time block seize the day" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/time-block.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Time Block</h3>
     <p>Carpe Diem - Seize the day. Visual day planner and time blocking tool. Block out your schedule, spot gaps instantly.</p>
   </a>
 
-  <a class="tool" href="/task-triage/" data-search="task triage" data-category="productivity">
+  <a class="tool has-img" href="/task-triage/" data-search="task triage" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/task-triage.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Task Triage</h3>
     <p>Quick capture and task triage tool. Dump every task instantly, sort into Do, Delegate, Defer, or Delete.</p>
   </a>
 
-   <a class="tool" href="/time-converter/" data-search="time converter calculator" data-category="calculator">
+   <a class="tool has-img" href="/time-converter/" data-search="time converter calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/time-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Time Converter</h3>
     <p>Convert time units instantly: seconds, minutes, hours, days, and more.</p>
   </a>
 
-    <a class="tool" href="/subatomic-calculator/" data-search="subatomic calculator" data-category="science calculator">
+    <a class="tool has-img" href="/subatomic-calculator/" data-search="subatomic calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/subatomic-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Subatomic Calculator</h3>
     <p>A precision calculator for sub-atomic and quantum-scale values.</p>
   </a>
 
-  <a class="tool" href="/density-and-volume-calculator/" data-search="density volume calculator" data-category="science calculator">
+  <a class="tool has-img" href="/density-and-volume-calculator/" data-search="density volume calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/density-and-volume-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Density and Volume Calculator</h3>
     <p>Calculate density and volume quickly using mass and measurements.</p>
   </a>
 
-  <a class="tool" href="/top-10-tasks-monitor/" data-search="top 10 tasks task monitor productivity" data-category="productivity">
+  <a class="tool has-img" href="/top-10-tasks-monitor/" data-search="top 10 tasks task monitor productivity" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/top-10-tasks-monitor.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Top 10 Task Monitor</h3>
     <p>Increase productivity by tracking tasks that are still pending.</p>
   </a>
 
-  <a class="tool" href="/session-logger/" data-search="session logger productivity" data-category="productivity">
+  <a class="tool has-img" href="/session-logger/" data-search="session logger productivity" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/session-logger.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Session Logger</h3>
     <p>Log your work sessions, and turn your time into measurable productivity.</p>
   </a>
 
-  <a class="tool" href="/my-diary/" data-search="my calm daily diary productivity" data-category="productivity">
+  <a class="tool has-img" href="/my-diary/" data-search="my calm daily diary productivity" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/my-diary.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>My Calm Daily Diary</h3>
     <p>• No Account Required • No cloud storage • Export to PDF • Backup & Restore anytime</p>
   </a>
 
-  <a class="tool" href="/surface-gravity-calculator/" data-search="surface gravity escape velocity calculator" data-category="science calculator">
+  <a class="tool has-img" href="/surface-gravity-calculator/" data-search="surface gravity escape velocity calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/surface-gravity-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Surface Gravity &amp; Escape Velocity Calculator</h3>
     <p>know g and Vesc</p>
   </a> 
 
-  <a class="tool" href="/pomodoro-focus/" data-search="pomodoro focus timer productivity" data-category="productivity">
+  <a class="tool has-img" href="/pomodoro-focus/" data-search="pomodoro focus timer productivity" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/pomodoro-focus.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Pomodoro Focus</h3>
     <p>Stay focused using the Pomodoro technique to work better, not longer.</p>
   </a>
 
-  <a class="tool" href="/division-pro/" data-search="division pro calculator" data-category="calculator">
+  <a class="tool has-img" href="/division-pro/" data-search="division pro calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/division-pro.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Division Pro</h3>
     <p>Divide numbers instantly and get both quotient and remainder.</p>
   </a>
 
-  <a class="tool" href="/mean-median-mode/" data-search="mean median mode calculator" data-category="calculator">
+  <a class="tool has-img" href="/mean-median-mode/" data-search="mean median mode calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/mean-median-mode.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Mean · Median · Mode</h3>
     <p>Calculate mean, median, and mode instantly for any dataset.</p>
   </a>
 
-  <a class="tool" href="/seconds-to-frames/" data-search="seconds to frames calculator" data-category="calculator">
+  <a class="tool has-img" href="/seconds-to-frames/" data-search="seconds to frames calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/seconds-to-frames.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Seconds to Frames</h3>
     <p>A simple tool to calculate frames from seconds for any FPS.</p>
   </a>
 
-    <a class="tool" href="/brain-dump/" data-search="brain dump productivity tool" data-category="productivity">
+    <a class="tool has-img" href="/brain-dump/" data-search="brain dump productivity tool" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/brain-dump.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Brain Dump</h3>
     <p>A simple space to dump your thoughts and clear your mind.</p>
   </a>
 
-  <a class="tool" href="/daily-routine/" data-search="daily routine productivity tool" data-category="productivity">
+  <a class="tool has-img" href="/daily-routine/" data-search="daily routine productivity tool" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/daily-routine.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Daily Routine</h3>
     <p>A gentle daily checklist for busy schedules</p>
   </a>
 
-  <a class="tool" href="/countdown-timer/" data-search="countdown timer" data-category="productivity">
+  <a class="tool has-img" href="/countdown-timer/" data-search="countdown timer" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/countdown-timer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Timer: The Countdown Begins</h3>
     <p>Countdown timer with smart reminders, even when the app is closed.</p>
   </a>
 
-  <a class="tool" href="/international-airtravel-checklist/" data-search="international travel checklist productivity tool" data-category="productivity">
+  <a class="tool has-img" href="/international-airtravel-checklist/" data-search="international travel checklist productivity tool" data-category="productivity">
+    <img class="tool-img" src="/images/card-images/international-airtravel-checklist.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>International Travel Checklist</h3>
     <p>A checklist for stress-free international air travel.</p>
   </a>
 
-  <a class="tool" href="/percentage-of-total/" data-search="percentage of total calculator exam number" data-category="finance calculator">
+  <a class="tool has-img" href="/percentage-of-total/" data-search="percentage of total calculator exam number" data-category="finance calculator">
+    <img class="tool-img" src="/images/card-images/percentage-of-total.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Percentage of Total</h3>
     <p>Find what percentage one value is of another.</p>
   </a>
 
-  <a class="tool" href="/percentage-of-a-number/" data-search="percentage of a number calculator interest calculator" data-category="finance calculator">
+  <a class="tool has-img" href="/percentage-of-a-number/" data-search="percentage of a number calculator interest calculator" data-category="finance calculator">
+    <img class="tool-img" src="/images/card-images/percentage-of-a-number.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Percent of a Number</h3>
     <p>Calculate the value of X% of any number.</p>
   </a>
 
-  <a class="tool" href="/percentage-change-calculator/" data-search="percentage change calculator" data-category="finance calculator">
+  <a class="tool has-img" href="/percentage-change-calculator/" data-search="percentage change calculator" data-category="finance calculator">
+    <img class="tool-img" src="/images/card-images/percentage-change-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Percentage Change Calculator</h3>
     <p>Calculate how much a value has increased or decreased.</p>
   </a>
 
-  <a class="tool" href="/percentage-difference-calculator/" data-search="percentage difference calculator" data-category="finance calculator">
+  <a class="tool has-img" href="/percentage-difference-calculator/" data-search="percentage difference calculator" data-category="finance calculator">
+    <img class="tool-img" src="/images/card-images/percentage-difference-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Percentage Difference Calculator</h3>
     <p>how different two values are from each other.</p>
   </a>
 
-  <a class="tool" href="/scientific-converter/" data-search="scientific notation to decimal converter decimal to scientific notation" data-category="science">
+  <a class="tool has-img" href="/scientific-converter/" data-search="scientific notation to decimal converter decimal to scientific notation" data-category="science">
+    <img class="tool-img" src="/images/card-images/scientific-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Scientific Notation ⇄ Decimal Converter</h3>
     <p>Convert scientific notation to decimal and vice versa.</p>
   </a>
 
-  <a class="tool" href="/weight-converter/" data-search="universal weight converter" data-category="calculator">
+  <a class="tool has-img" href="/weight-converter/" data-search="universal weight converter" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/weight-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Universal Weight Converter</h3>
     <p>weight converter, gram to kg, kg to pound, ounce to gram etc</p>
   </a>
 
-  <a class="tool" href="/stock-profit-calculator/" data-search="stock profit calculator share" data-category="finance">
+  <a class="tool has-img" href="/stock-profit-calculator/" data-search="stock profit calculator share" data-category="finance">
+    <img class="tool-img" src="/images/card-images/stock-profit-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Stock Profit / Loss Calculator</h3>
     <p>Helps you calculate profit or loss from your share trades.</p>
   </a>
 
-  <a class="tool" href="/average-share-price-calculator/" data-search="average share price calculator" data-category="finance">
+  <a class="tool has-img" href="/average-share-price-calculator/" data-search="average share price calculator" data-category="finance">
+    <img class="tool-img" src="/images/card-images/average-share-price-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Average Share Price Calculator</h3>
     <p>Calculate average share price for multiple buys.</p>
   </a> 
 
-  <a class="tool" href="/emi-calculator/" data-search="loan emi calculator monthly payment interest" data-category="finance calculator">
+  <a class="tool has-img" href="/emi-calculator/" data-search="loan emi calculator monthly payment interest" data-category="finance calculator">
+    <img class="tool-img" src="/images/card-images/emi-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>EMI Calculator</h3>
     <p>Calculate your monthly loan EMI instantly</p>
   </a>
 
-  <a class="tool" href="/currency-converter/" data-search="currency converter" data-category="finance calculator">
+  <a class="tool has-img" href="/currency-converter/" data-search="currency converter" data-category="finance calculator">
+    <img class="tool-img" src="/images/card-images/currency-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Currency Converter</h3>
     <p>Currency Converter</p>
   </a>
 
-  <a class="tool" href="/simple-calculator/" data-search="simple calculator" data-category="finance calculator">
+  <a class="tool has-img" href="/simple-calculator/" data-search="simple calculator" data-category="finance calculator">
+    <img class="tool-img" src="/images/card-images/simple-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Simple Calculator</h3>
     <p>Perform quick calculations for your daily needs.</p>
   </a>
 
-  <a class="tool" href="/know-your-sphere/" data-search="radius of sphere, surface area of sphere, volume of sphere, know your sphere" data-category="calculator">
+  <a class="tool has-img" href="/know-your-sphere/" data-search="radius of sphere, surface area of sphere, volume of sphere, know your sphere" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/know-your-sphere.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Know Your Sphere</h3>
     <p>get radius, surface area, volume, diameter instantly</p>
   </a>
 
-  <a class="tool" href="/periodic-table/" data-search="periodic table" data-category="science">
+  <a class="tool has-img" href="/periodic-table/" data-search="periodic table" data-category="science">
+    <img class="tool-img" src="/images/card-images/periodic-table.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Periodic Table</h3>
     <p>periodic table. click atom for details</p>
   </a>
 
-  <a class="tool" href="/games/asteroid-hunter/" data-search="asteroid hunter game" data-category="games">
+  <a class="tool has-img" href="/games/asteroid-hunter/" data-search="asteroid hunter game" data-category="games">
+  <img class="tool-img" src="/images/card-images/asteroid-hunter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Asteroid Hunter</h3>
   <p>Blast through waves of asteroids in this arcade shooter.</p>
 </a>
 
-<a class="tool" href="/games/lunar-lander/" data-search="lunar lander game" data-category="games">
+<a class="tool has-img" href="/games/lunar-lander/" data-search="lunar lander game" data-category="games">
+  <img class="tool-img" src="/images/card-images/lunar-lander.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Lunar Lander</h3>
   <p>Guide your ship to a safe touchdown on the Moon.</p>
 </a>
 
-<a class="tool" href="/games/target-lock/" data-search="target lock game" data-category="games">
+<a class="tool has-img" href="/games/target-lock/" data-search="target lock game" data-category="games">
+  <img class="tool-img" src="/images/card-images/target-lock.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Target Lock</h3>
   <p>Lock onto moving targets before time runs out.</p>
 </a>
