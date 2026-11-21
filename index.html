@@ -3183,6 +3183,35 @@
   .tool.has-img { padding: 0 14px 14px; }
   .tool-img { margin: 0 -14px; }
 }
+
+/* ══════════════════════════════════════════════════════
+   CATEGORY COLORS ON TOOL CARDS
+   Outline, title, L-shaped corner marks and the hover glow follow --accent / --title,
+   which the script sets from each card's category. Titles are all capitals.
+   ══════════════════════════════════════════════════════ */
+.tool { border-color: color-mix(in srgb, var(--accent, #ff2b2b) 24%, transparent); }
+.tool-img { border-bottom-color: color-mix(in srgb, var(--accent, #ff2b2b) 28%, transparent); }
+.tool h3 {
+  color: var(--title, #ff3b3b);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--accent, #ff2b2b) 50%, transparent);
+  text-transform: uppercase;
+  font-size: clamp(0.82rem, 2.2vw, 0.94rem);
+  letter-spacing: 0.01em;
+}
+.tool:hover h3,
+.tool.tool-hovered h3 { font-size: 1.08rem; }
+@keyframes hudAlarmPulse {
+  0%, 100% {
+    box-shadow: 0 10px 25px rgba(0,0,0,.4),
+                0 0 14px color-mix(in srgb, var(--accent, #ff2b2b) 30%, transparent),
+                0 0 0 1px var(--accent, #ff2b2b);
+  }
+  50% {
+    box-shadow: 0 10px 25px rgba(0,0,0,.4),
+                0 0 26px color-mix(in srgb, var(--accent, #ff2b2b) 50%, transparent),
+                0 0 0 1px var(--accent, #ff2b2b);
+  }
+}
 </style>
 </head>
 <body>
@@ -3293,7 +3322,7 @@
 
 <!-- SLIDE 9 -->
 <div class="hero-slide"
-     data-title="Solar System Simulator"
+     data-title="Solar System Simulator Pro Max"
      data-desc="Navigate through the solar system and get info on every planet."
      data-url="/solar-system-simulator/">
   <img data-src="images/hero-images/09 solar system simulator.webp"
@@ -3455,10 +3484,10 @@
   <div class="tabs-bar" id="tabsBar">
     <button class="tab-btn active" data-tab="all"          onclick="setTab(this)">⚡ All</button>
     <button class="tab-btn"        data-tab="science"      onclick="setTab(this)">🔬 Science & Space</button>
+    <button class="tab-btn"        data-tab="geography"    onclick="setTab(this)">🌍 Geography</button>
     <button class="tab-btn"        data-tab="productivity" onclick="setTab(this)">📋 Productivity</button>
     <button class="tab-btn"        data-tab="calculator"   onclick="setTab(this)">🧮 Calculators</button>
     <button class="tab-btn"        data-tab="finance"      onclick="setTab(this)">💰 Finance</button>
-    <button class="tab-btn"        data-tab="geography"    onclick="setTab(this)">🌍 Geography</button>
     <button class="tab-btn"        data-tab="games"        onclick="setTab(this)">🎮 Games</button>
   </div>
 </div>
@@ -3559,13 +3588,13 @@
     <p>explore the black holes in the universe and get info</p>
  </a>
 
-  <a class="tool has-img" href="/solar-system-simulator/" data-search="solar system simulator" data-category="science">
+  <a class="tool has-img" href="/solar-system-simulator/" data-search="solar system simulator pro max" data-category="science">
   <img class="tool-img" src="/images/card-images/solar-system-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-  <h3>Solar System Simulator</h3>
+  <h3>Solar System Simulator Pro Max</h3>
   <p>navigate through solar system. get info.</p>
   </a>
 
-   <a class="tool has-img" href="/black-hole-radius-calculator/" data-search="black hole radius calculator" data-category="science calculator">
+  <a class="tool has-img" href="/black-hole-radius-calculator/" data-search="black hole radius calculator" data-category="science calculator">
     <img class="tool-img" src="/images/card-images/black-hole-radius-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Black Hole Radius Calculator Advanced</h3>
     <p>Calculate the radius of any black hole period.</p>
@@ -3577,7 +3606,7 @@
   <p>Find event horizon radius, photon sphere, ISCO, and Hawking temperature.</p>
   </a>
 
-   <a class="tool has-img" href="/cosmic-calculator/" data-search="cosmic space calculator" data-category="science calculator">
+  <a class="tool has-img" href="/cosmic-calculator/" data-search="cosmic space calculator" data-category="science calculator">
     <img class="tool-img" src="/images/card-images/cosmic-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Cosmic Calculator</h3>
     <p>Calculate cosmic-scale distances from meters to astronomical units.</p>
@@ -3587,12 +3616,6 @@
     <img class="tool-img" src="/images/card-images/star-system-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Star System Explorer</h3>
     <p>Explore Alien Systems beyond ours</p>
-  </a>
-
-  <a class="tool tool has-img" href="/country-explorer/" data-search="country explorer geography flags quiz map" data-category="geography">
-    <img class="tool-img" src="/images/card-images/country-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Country Explorer</h3>
-    <p>Explore countries, play card game, play country quiz and get certificates, compare countries and more.</p>
   </a>
 
   <a class="tool has-img" href="/lagrange-points-simulator/" data-search="lagrange points simulator gravity three body problem" data-category="science">
@@ -3605,19 +3628,19 @@
     <img class="tool-img" src="/images/card-images/space-collision-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Space Collision Simulator</h3>
     <p>collide black holes, stars and find final mass and other metrics.</p>
-  </a> 
+  </a>
 
   <a class="tool has-img" href="/exoplanet-detector-simulator/" data-search="exoplanet detector simulator" data-category="science">
   <img class="tool-img" src="/images/card-images/exoplanet-detector-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Exoplanet Detector Simulator</h3>
   <p>Detect exoplanet and get data using transit method.</p>
-  </a>  
+  </a>
 
   <a class="tool has-img" href="/asteroid-impact-simulator/" data-search="asteroid impact simulator" data-category="science">
     <img class="tool-img" src="/images/card-images/asteroid-impact-simulator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Asteroid Impact Simulator</h3>
     <p>Simulate an asteroid strike: energy, crater, and blast radius, city by city.</p>
-  </a>  
+  </a>
 
   <a class="tool has-img" href="/your-weight-in-space/" data-search="your weight on various space objects" data-category="science">
     <img class="tool-img" src="/images/card-images/your-weight-in-space.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
@@ -3661,6 +3684,48 @@
     <p>Track near-Earth asteroids live. See which ones are potentially hazardous and how close they'll come.</p>
   </a>
 
+  <a class="tool has-img" href="/earth-rotation-live/" data-search="earth rotation live" data-category="geography science">
+    <img class="tool-img" src="/images/card-images/earth-rotation-live.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Earth Rotation Live</h3>
+    <p>Check out earth rotation in real time</p>
+  </a>
+
+  <a class="tool has-img" href="/subatomic-calculator/" data-search="subatomic calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/subatomic-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Subatomic Calculator</h3>
+    <p>A precision calculator for sub-atomic and quantum-scale values.</p>
+  </a>
+
+  <a class="tool has-img" href="/density-and-volume-calculator/" data-search="density volume calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/density-and-volume-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Density and Volume Calculator</h3>
+    <p>Calculate density and volume quickly using mass and measurements.</p>
+  </a>
+
+  <a class="tool has-img" href="/surface-gravity-calculator/" data-search="surface gravity escape velocity calculator" data-category="science calculator">
+    <img class="tool-img" src="/images/card-images/surface-gravity-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Surface Gravity &amp; Escape Velocity Calculator</h3>
+    <p>know g and Vesc</p>
+  </a>
+
+  <a class="tool has-img" href="/scientific-converter/" data-search="scientific notation to decimal converter decimal to scientific notation" data-category="science">
+    <img class="tool-img" src="/images/card-images/scientific-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Scientific Notation ⇄ Decimal Converter</h3>
+    <p>Convert scientific notation to decimal and vice versa.</p>
+  </a>
+
+  <a class="tool has-img" href="/periodic-table/" data-search="periodic table" data-category="science">
+    <img class="tool-img" src="/images/card-images/periodic-table.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Periodic Table</h3>
+    <p>periodic table. click atom for details</p>
+  </a>
+
+  <a class="tool tool has-img" href="/country-explorer/" data-search="country explorer geography flags quiz map" data-category="geography">
+    <img class="tool-img" src="/images/card-images/country-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Country Explorer</h3>
+    <p>Explore countries, play card game, play country quiz and get certificates, compare countries and more.</p>
+  </a>
+
   <a class="tool has-img" href="/territory-explorer/" data-search="territory explorer" data-category="geography">
     <img class="tool-img" src="/images/card-images/territory-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Territory Explorer</h3>
@@ -3672,13 +3737,7 @@
     <h3>Antipode Finder</h3>
     <p>Dig a hole straight through the Earth from anywhere, and find out where you'd come out.</p>
   </a>
-  
-  <a class="tool has-img" href="/earth-rotation-live/" data-search="earth rotation live" data-category="geography science">
-    <img class="tool-img" src="/images/card-images/earth-rotation-live.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Earth Rotation Live</h3>
-    <p>Check out earth rotation in real time</p>
-  </a> 
-  
+
   <a class="tool has-img" href="/globe-explorer/" data-search="globe explorer" data-category="geography">
     <img class="tool-img" src="/images/card-images/globe-explorer.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Globe Explorer</h3>
@@ -3695,7 +3754,7 @@
     <img class="tool-img" src="/images/card-images/calendar-reminders.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Calendar & Reminders</h3>
     <p>Focus timer and deep work session tracker. Log sessions, track interruptions, and monitor your daily focus streak</p>
-  </a> 
+  </a>
 
   <a class="tool has-img" href="/time-block/" data-search="carpe diem time block seize the day" data-category="productivity">
     <img class="tool-img" src="/images/card-images/time-block.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
@@ -3707,24 +3766,6 @@
     <img class="tool-img" src="/images/card-images/task-triage.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Task Triage</h3>
     <p>Quick capture and task triage tool. Dump every task instantly, sort into Do, Delegate, Defer, or Delete.</p>
-  </a>
-
-   <a class="tool has-img" href="/time-converter/" data-search="time converter calculator" data-category="calculator">
-    <img class="tool-img" src="/images/card-images/time-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Time Converter</h3>
-    <p>Convert time units instantly: seconds, minutes, hours, days, and more.</p>
-  </a>
-
-    <a class="tool has-img" href="/subatomic-calculator/" data-search="subatomic calculator" data-category="science calculator">
-    <img class="tool-img" src="/images/card-images/subatomic-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Subatomic Calculator</h3>
-    <p>A precision calculator for sub-atomic and quantum-scale values.</p>
-  </a>
-
-  <a class="tool has-img" href="/density-and-volume-calculator/" data-search="density volume calculator" data-category="science calculator">
-    <img class="tool-img" src="/images/card-images/density-and-volume-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Density and Volume Calculator</h3>
-    <p>Calculate density and volume quickly using mass and measurements.</p>
   </a>
 
   <a class="tool has-img" href="/top-10-tasks-monitor/" data-search="top 10 tasks task monitor productivity" data-category="productivity">
@@ -3745,37 +3786,13 @@
     <p>• No Account Required • No cloud storage • Export to PDF • Backup & Restore anytime</p>
   </a>
 
-  <a class="tool has-img" href="/surface-gravity-calculator/" data-search="surface gravity escape velocity calculator" data-category="science calculator">
-    <img class="tool-img" src="/images/card-images/surface-gravity-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Surface Gravity &amp; Escape Velocity Calculator</h3>
-    <p>know g and Vesc</p>
-  </a> 
-
   <a class="tool has-img" href="/pomodoro-focus/" data-search="pomodoro focus timer productivity" data-category="productivity">
     <img class="tool-img" src="/images/card-images/pomodoro-focus.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Pomodoro Focus</h3>
     <p>Stay focused using the Pomodoro technique to work better, not longer.</p>
   </a>
 
-  <a class="tool has-img" href="/division-pro/" data-search="division pro calculator" data-category="calculator">
-    <img class="tool-img" src="/images/card-images/division-pro.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Division Pro</h3>
-    <p>Divide numbers instantly and get both quotient and remainder.</p>
-  </a>
-
-  <a class="tool has-img" href="/mean-median-mode/" data-search="mean median mode calculator" data-category="calculator">
-    <img class="tool-img" src="/images/card-images/mean-median-mode.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Mean · Median · Mode</h3>
-    <p>Calculate mean, median, and mode instantly for any dataset.</p>
-  </a>
-
-  <a class="tool has-img" href="/seconds-to-frames/" data-search="seconds to frames calculator" data-category="calculator">
-    <img class="tool-img" src="/images/card-images/seconds-to-frames.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Seconds to Frames</h3>
-    <p>A simple tool to calculate frames from seconds for any FPS.</p>
-  </a>
-
-    <a class="tool has-img" href="/brain-dump/" data-search="brain dump productivity tool" data-category="productivity">
+  <a class="tool has-img" href="/brain-dump/" data-search="brain dump productivity tool" data-category="productivity">
     <img class="tool-img" src="/images/card-images/brain-dump.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Brain Dump</h3>
     <p>A simple space to dump your thoughts and clear your mind.</p>
@@ -3797,6 +3814,42 @@
     <img class="tool-img" src="/images/card-images/international-airtravel-checklist.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>International Travel Checklist</h3>
     <p>A checklist for stress-free international air travel.</p>
+  </a>
+
+  <a class="tool has-img" href="/time-converter/" data-search="time converter calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/time-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Time Converter</h3>
+    <p>Convert time units instantly: seconds, minutes, hours, days, and more.</p>
+  </a>
+
+  <a class="tool has-img" href="/division-pro/" data-search="division pro calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/division-pro.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Division Pro</h3>
+    <p>Divide numbers instantly and get both quotient and remainder.</p>
+  </a>
+
+  <a class="tool has-img" href="/mean-median-mode/" data-search="mean median mode calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/mean-median-mode.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Mean · Median · Mode</h3>
+    <p>Calculate mean, median, and mode instantly for any dataset.</p>
+  </a>
+
+  <a class="tool has-img" href="/seconds-to-frames/" data-search="seconds to frames calculator" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/seconds-to-frames.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Seconds to Frames</h3>
+    <p>A simple tool to calculate frames from seconds for any FPS.</p>
+  </a>
+
+  <a class="tool has-img" href="/weight-converter/" data-search="universal weight converter" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/weight-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Universal Weight Converter</h3>
+    <p>weight converter, gram to kg, kg to pound, ounce to gram etc</p>
+  </a>
+
+  <a class="tool has-img" href="/know-your-sphere/" data-search="radius of sphere, surface area of sphere, volume of sphere, know your sphere" data-category="calculator">
+    <img class="tool-img" src="/images/card-images/know-your-sphere.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Know Your Sphere</h3>
+    <p>get radius, surface area, volume, diameter instantly</p>
   </a>
 
   <a class="tool has-img" href="/percentage-of-total/" data-search="percentage of total calculator exam number" data-category="finance calculator">
@@ -3823,18 +3876,6 @@
     <p>how different two values are from each other.</p>
   </a>
 
-  <a class="tool has-img" href="/scientific-converter/" data-search="scientific notation to decimal converter decimal to scientific notation" data-category="science">
-    <img class="tool-img" src="/images/card-images/scientific-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Scientific Notation ⇄ Decimal Converter</h3>
-    <p>Convert scientific notation to decimal and vice versa.</p>
-  </a>
-
-  <a class="tool has-img" href="/weight-converter/" data-search="universal weight converter" data-category="calculator">
-    <img class="tool-img" src="/images/card-images/weight-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Universal Weight Converter</h3>
-    <p>weight converter, gram to kg, kg to pound, ounce to gram etc</p>
-  </a>
-
   <a class="tool has-img" href="/stock-profit-calculator/" data-search="stock profit calculator share" data-category="finance">
     <img class="tool-img" src="/images/card-images/stock-profit-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Stock Profit / Loss Calculator</h3>
@@ -3845,7 +3886,7 @@
     <img class="tool-img" src="/images/card-images/average-share-price-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Average Share Price Calculator</h3>
     <p>Calculate average share price for multiple buys.</p>
-  </a> 
+  </a>
 
   <a class="tool has-img" href="/emi-calculator/" data-search="loan emi calculator monthly payment interest" data-category="finance calculator">
     <img class="tool-img" src="/images/card-images/emi-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
@@ -3865,31 +3906,19 @@
     <p>Perform quick calculations for your daily needs.</p>
   </a>
 
-  <a class="tool has-img" href="/know-your-sphere/" data-search="radius of sphere, surface area of sphere, volume of sphere, know your sphere" data-category="calculator">
-    <img class="tool-img" src="/images/card-images/know-your-sphere.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Know Your Sphere</h3>
-    <p>get radius, surface area, volume, diameter instantly</p>
-  </a>
-
-  <a class="tool has-img" href="/periodic-table/" data-search="periodic table" data-category="science">
-    <img class="tool-img" src="/images/card-images/periodic-table.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Periodic Table</h3>
-    <p>periodic table. click atom for details</p>
-  </a>
-
   <a class="tool has-img" href="/games/asteroid-hunter/" data-search="asteroid hunter game" data-category="games">
   <img class="tool-img" src="/images/card-images/asteroid-hunter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Asteroid Hunter</h3>
   <p>Blast through waves of asteroids in this arcade shooter.</p>
 </a>
 
-<a class="tool has-img" href="/games/lunar-lander/" data-search="lunar lander game" data-category="games">
+  <a class="tool has-img" href="/games/lunar-lander/" data-search="lunar lander game" data-category="games">
   <img class="tool-img" src="/images/card-images/lunar-lander.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Lunar Lander</h3>
   <p>Guide your ship to a safe touchdown on the Moon.</p>
 </a>
 
-<a class="tool has-img" href="/games/target-lock/" data-search="target lock game" data-category="games">
+  <a class="tool has-img" href="/games/target-lock/" data-search="target lock game" data-category="games">
   <img class="tool-img" src="/images/card-images/target-lock.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
   <h3>Target Lock</h3>
   <p>Lock onto moving targets before time runs out.</p>
@@ -4918,11 +4947,27 @@
     games:        "GAMES"
   };
 
+  const CATEGORY_ORDER = ["science", "games", "finance", "calculator", "productivity", "geography"];
+  const CATEGORY_COLORS = {
+    science:      { accent: TERMINATOR_RED, title: "#ff3b3b" },   // red
+    games:        { accent: "#b66bff",      title: "#c995ff" },   // purple
+    finance:      { accent: "#ffb020",      title: "#ffc13d" },   // gold
+    calculator:   { accent: "#3da5ff",      title: "#6dbcff" },   // blue
+    productivity: { accent: "#3ddc84",      title: "#5ee89b" },   // green
+    geography:    { accent: "#2dd4bf",      title: "#4fe3d0" }    // teal
+  };
+
   document.querySelectorAll(".tool").forEach(tool => {
     const firstCat = (tool.dataset.category || "").trim().split(/\s+/)[0];
     const label = CATEGORY_LABELS[firstCat] || "TOOL";
 
-    tool.style.setProperty("--accent", TERMINATOR_RED);
+    // Card color comes from the tool's category. A tool with several categories takes the
+    // first match in CATEGORY_ORDER (so "science calculator" is red, "finance calculator" is gold).
+    const cats = (tool.dataset.category || "").trim().split(/\s+/);
+    const colorKey = CATEGORY_ORDER.find(c => cats.includes(c)) || "science";
+    const color = CATEGORY_COLORS[colorKey];
+    tool.style.setProperty("--accent", color.accent);
+    tool.style.setProperty("--title", color.title);
 
     if (!tool.querySelector(".hud-corner")) {
       ["tl", "tr", "bl", "br"].forEach(pos => {
@@ -5120,7 +5165,7 @@
 
     if (toolTotal === 0 || tagTotal === 0) return;
 
-    const order = ["science", "productivity", "calculator", "finance", "geography", "games"];
+    const order = ["science", "geography", "productivity", "calculator", "finance", "games"];
     let angle = 0;
     const stops = [];
 
