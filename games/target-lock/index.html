@@ -14,7 +14,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#05070a">
-<meta name="description" content="Target Lock - time your shot as the ring closes. Moving targets, decoys and bursts in an endless survival run. A free retro game from RameshVerse.">
+<meta name="description" content="Target Lock - time your shot as the ring closes and kill endless procedurally generated alien monsters with precision. They blink, shield, cloak and spit acid. A free retro game from RameshVerse.">
 <title>TARGET LOCK // RAMESHVERSE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,7 +73,6 @@
       transparent 1px,
       transparent 3px
     );
-    mix-blend-mode:overlay;
     z-index:5;
   }
 
@@ -90,8 +89,12 @@
     width:100%;
     height:100%;
     background:transparent;
-    cursor:none;
+    /* Native (hardware) cursor with a custom crosshair: zero input lag, unlike a crosshair drawn on the canvas */
+    cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M4 16h9M19 16h9M16 4v9M16 19v9' stroke='%23d7dde3' stroke-width='1.4' fill='none'/><circle cx='16' cy='16' r='2' fill='%23d7dde3'/></svg>") 16 16, crosshair;
     touch-action:none;
+  }
+  canvas.lock {
+    cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M4 16h9M19 16h9M16 4v9M16 19v9' stroke='%232bff8f' stroke-width='1.4' fill='none'/><circle cx='16' cy='16' r='2' fill='%232bff8f'/></svg>") 16 16, crosshair;
   }
 
   .corner {
@@ -380,15 +383,16 @@
   let lastEndless = -1;
   function endlessSpec(i){
     const sp = 1 + Math.min(i, 24) * 0.04;
+    if ((i + 1) % 5 === 0) return { name:'BOSS', boss:true, move: Math.random() < 0.5 ? 'drift' : 'orbit', speed:0.6 };
     const pool = [
-      { name:'STATIC LOCK' },
-      { name:'DRIFTING TARGET', move:'drift', speed:sp },
-      { name:'DECOY FIELD', decoys:2 },
-      { name:'ORBITAL', move:'orbit', speed:sp },
-      { name:'TRIPLE BURST', burst:3 },
-      { name:'DRIFT + DECOYS', move:'drift', speed:sp, decoys:2 },
-      { name:'FAST ORBIT', move:'orbit', speed:sp*1.5 },
-      { name:'BURST x5', move:'drift', speed:sp, burst:5 }
+      { name:'LURKER' },
+      { name:'CRAWLER', move:'drift', speed:sp },
+      { name:'AMBUSH', decoys:2 },
+      { name:'CIRCLER', move:'orbit', speed:sp },
+      { name:'PACK', burst:3 },
+      { name:'CRAWLER + ALLIES', move:'drift', speed:sp, decoys:2 },
+      { name:'FAST CIRCLER', move:'orbit', speed:sp*1.5 },
+      { name:'SWARM', move:'drift', speed:sp, burst:5 }
     ];
     const maxIdx = i < 2 ? 2 : i < 5 ? 4 : pool.length;     // gentler mix early on
     let k;
@@ -399,6 +403,7 @@
 
   // ---------- Canvas sizing ----------
   let W = 0, H = 0, DPR = 1;
+  let canvasRect = null;       // cached so pointer moves never force a layout
   const scale = () => Math.min(W,H) / 650;
   function resize(){
     const oldW = W, oldH = H;
@@ -409,6 +414,7 @@
     canvas.width = W * DPR;
     canvas.height = H * DPR;
     ctx.setTransform(DPR,0,0,DPR,0,0);
+    canvasRect = canvas.getBoundingClientRect();
     if (oldW && oldH && (oldW !== W || oldH !== H)){
       rescaleWorld(W/oldW, H/oldH, Math.min(W,H)/Math.min(oldW,oldH));
     }
@@ -418,13 +424,14 @@
 
   function rescaleWorld(sx, sy, ss){
     for (const t of targets){
-      t.x *= sx; t.y *= sy; t.radius *= ss; t.ring0 *= ss;
+      t.x *= sx; t.y *= sy; t.radius *= ss; t.ring0 *= ss; if (t.m) t.m *= ss;
       if (t.move === 'drift'){ t.vx *= ss; t.vy *= ss; }
       if (t.move === 'orbit'){ t.cx *= sx; t.cy *= sy; t.or *= ss; }
     }
     for (const p of particles){ p.x *= sx; p.y *= sy; }
     for (const s of shocks){ s.x *= sx; s.y *= sy; }
     for (const f of floaters){ f.x *= sx; f.y *= sy; }
+    for (const a of acid){ a.x *= sx; a.y *= sy; a.vx *= ss; a.vy *= ss; a.r *= ss; }
   }
 
   // ---------- State ----------
@@ -439,7 +446,7 @@
   let friendlyHits = 0;
   let shots = [];                  // {v, kind, err}
   let roundResults = [];           // per round: array of shot values
-  let curSpec = { name:'STATIC LOCK' };
+  let curSpec = { name:'LURKER' };
   let burstLeft = 1;
   let targets = [];
   let roundStart = 0;
@@ -460,6 +467,8 @@
   let gClock = 0, lastReal = 0;
   let lastLivesShown = -1;
   let currentButtons = [];
+  let acid = [], curAlien = null, introTotal = 1200, fbHide = 0, hurtUntil = 0, kills = 0, bossKills = 0;
+  const MAX_LIVES = 5;
 
   // Game clock only advances while the game is running, so a hidden tab or a pause never ruins a round.
   function gNow(){ return paused ? gClock : gClock + Math.min(performance.now() - lastReal, 50); }
@@ -478,13 +487,14 @@
 
   // ---------- Pointer input ----------
   function setPointer(e){
-    const rect = canvas.getBoundingClientRect();
+    const rect = canvasRect || (canvasRect = canvas.getBoundingClientRect());
     pointer.x = e.clientX - rect.left;
     pointer.y = e.clientY - rect.top;
     pointer.active = true;
     pointer.type = e.pointerType || 'mouse';
   }
-  canvas.addEventListener('pointermove', setPointer);
+  canvas.addEventListener('pointermove', setPointer, { passive:true });
+  window.addEventListener('scroll', () => { canvasRect = null; }, { passive:true });
   canvas.addEventListener('pointerdown', e => { e.preventDefault(); setPointer(e); handleFire(); });
   canvas.addEventListener('pointerleave', () => { if (pointer.type !== 'touch') pointer.active = false; });
   canvas.addEventListener('contextmenu', e => e.preventDefault());
@@ -579,11 +589,12 @@
     targets = [];
     fbBlock.style.opacity = '0';
     const lines = [
-      'CLICK / TAP WHEN THE CLOSING RING MATCHES THE TARGET',
-      'TIMING AND AIM ARE BOTH SCORED',
-      'CYAN SQUARES ARE FRIENDLIES: DO NOT FIRE'
+      'FIRE WHEN THE RING CLOSES · AIM AT THE GLOWING EYE',
+      'EVERY ALIEN IS GENERATED FRESH · THEY FIGHT BACK',
+      'DODGE ACID WITH YOUR AIM · CYAN ALLIES: DO NOT FIRE',
+      'BOSS EVERY 5TH ROUND · +1 LIFE'
     ];
-    lines.push('3 LIVES · EVERY MISS COSTS ONE · HOW LONG CAN YOU LAST?');
+    lines.push('3 LIVES · EVERY MISS COSTS ONE');
     if (hi > 0) lines.push('BEST SCORE ' + hi);
     showMessage({
       title: 'TARGET LOCK',
@@ -593,95 +604,275 @@
     updateHUD();
   }
 
+  // ---------- Procedural alien generator ----------
+  // Every monster is a random "genome": body outline, limbs, eyes, mouth, decoration, colour and abilities.
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function hsl(h,s,l,a){ return 'hsla(' + h + ',' + s + '%,' + l + '%,' + (a == null ? 1 : a) + ')'; }
+  const SYL_A = ['ZO','KRA','VEX','XY','MOR','GLO','THA','QUI','NAR','BLI','SKR','UL','DRA','PHE','OZ','KAL','YU','HEX','ZAR','NYX'];
+  const SYL_B = ['RAK','THOS','NIX','VOR','LUM','GOR','XIS','MYR','TUL','BAX','ZEK','DUN','PHA','LIS','KOR'];
+  function speciesName(){
+    return pick(SYL_A) + pick(SYL_B) + (Math.random() < 0.5 ? '-' + (1 + Math.floor(Math.random()*99)) : '');
+  }
+
+  const TRAIT_INFO = {
+    FEINT:  { label:'ERRATIC RING', min:1 },
+    BLINK:  { label:'BLINKS',       min:2 },
+    SHIELD: { label:'SHIELDED',     min:2 },
+    CLOAK:  { label:'CLOAKED',      min:3 },
+    ARMOR:  { label:'ARMORED',      min:3 },
+    SPIT:   { label:'SPITS ACID',   min:4 }
+  };
+  const SHIELD_CLOSED = 0.6;
+
+  function makeAlien(tier, boss){
+    const HP = Math.PI/2;
+    const g = { boss: !!boss, name: speciesName() };
+    let hue;
+    do { hue = Math.floor(rand(0,360)); } while (hue > 140 && hue < 225);   // keep cyan for allies
+    g.col  = hsl(hue, Math.round(rand(75,100)), Math.round(rand(58,68)));
+    g.fill = hsl(hue, 80, 55, 0.18);
+    g.hot  = hsl((hue+150) % 360, 100, 62);
+    g.size = boss ? 1.45 : rand(0.85, 1.25);
+    const bi = Math.random() < 0.68;                     // bilateral or radial symmetry
+    const fold = 3 + Math.floor(rand(0,6));
+    const style = pick(['blob','blob','spiky','angular','crown','star']);
+    g.sx = bi ? rand(0.8,1.25) : 1;
+    g.sy = bi ? rand(0.8,1.25) : 1;
+
+    // body outline: a sum of symmetric harmonics plus optional spikes
+    const hs = [];
+    const nh = 1 + Math.floor(rand(0,3));
+    for (let i=0;i<nh;i++) hs.push({ k: bi ? 2 + Math.floor(rand(0,5)) : fold*(1 + Math.floor(rand(0,2))), a: rand(0.05,0.26) });
+    let spikeAmp = 0, pw = 8, m = 5;
+    if (style !== 'blob' && style !== 'angular'){
+      m = bi ? 3 + Math.floor(rand(0,7)) : fold*(1 + Math.floor(rand(0,2)));
+      if (style === 'spiky'){ spikeAmp = rand(0.5,0.9); pw = 10; }
+      else if (style === 'crown'){ spikeAmp = rand(0.4,0.7); pw = 5; }
+      else { spikeAmp = rand(0.7,1.1); pw = 3; }
+    }
+    const rFn = a => {
+      let r = 1;
+      for (const h of hs) r += h.a*Math.cos(h.k*(a-HP));
+      if (spikeAmp) r += spikeAmp*Math.pow(Math.max(0, Math.cos(m*(a-HP))), pw);
+      return Math.max(0.55, r)*2*g.size;
+    };
+    let rawMax = 0;
+    for (let i=0;i<120;i++) rawMax = Math.max(rawMax, rFn(i/120*Math.PI*2));
+    const norm = Math.min(1, 3.3*g.size / (rawMax*Math.max(g.sx,g.sy)));
+    const R = a => rFn(a)*norm;
+    const N = style === 'angular' ? (bi ? 5 + Math.floor(rand(0,5)) : fold*(1 + Math.floor(rand(0,2)))) : style === 'blob' ? 30 : 60;
+    g.pts = [];
+    let bodyR = 0;
+    for (let i=0;i<N;i++){
+      const a = HP + i/N*Math.PI*2, r = R(a);
+      g.pts.push({ a, r });
+      bodyR = Math.max(bodyR, r*Math.max(g.sx,g.sy));
+    }
+    g.bodyR = bodyR;
+    g.wob = rand(0.02, 0.07);
+
+    // limbs
+    const attach = a => ({ x: Math.cos(a)*R(a)*g.sx*0.9, y: Math.sin(a)*R(a)*g.sy*0.9 });
+    const ranges = { tentacle:[0.5,1.45], leg:[0.1,1.3], claw:[-0.6,0.5], spike:[-1.5,1.5], horn:[-1.45,-0.6] };
+    g.limbs = [];
+    let maxLen = 0;
+    const nTypes = Math.random() < 0.45 ? 2 : 1;
+    for (let q=0;q<nTypes;q++){
+      const type = pick(['tentacle','leg','claw','spike','horn']);
+      const base = {
+        type,
+        len: rand(0.9,2.3)*Math.pow(g.size,0.6)*(type === 'spike' ? 0.65 : 1),
+        segs: 2 + Math.floor(rand(0,2)), bend: rand(0.45,1.0), amp: rand(0.25,0.7),
+        ph: rand(0,6.28), w: pick([1.5,2,2.5,3]), curl: rand(-1,1)
+      };
+      maxLen = Math.max(maxLen, base.len);
+      if (bi){
+        const P = 1 + Math.floor(rand(0,4)), lo = ranges[type][0], hi = ranges[type][1];
+        for (let i=0;i<P;i++){
+          const th = lo + (hi-lo)*((i + 0.5 + rand(-0.2,0.2))/P);
+          for (const side of [1,-1]){
+            const a = side > 0 ? th : Math.PI - th, p = attach(a);
+            g.limbs.push(Object.assign({}, base, { ang:a, ax:p.x, ay:p.y, mir:side, ph: base.ph + (side > 0 ? 0 : 1.9) }));
+          }
+        }
+      } else {
+        const off = rand(0, Math.PI*2/fold);
+        for (let i=0;i<fold;i++){
+          const a = off + i*Math.PI*2/fold, p = attach(a);
+          g.limbs.push(Object.assign({}, base, { ang:a, ax:p.x, ay:p.y, mir:1, ph: base.ph + i*0.9 }));
+        }
+      }
+    }
+    g.reach = bodyR + maxLen + 0.3;
+
+    // eyes: one big central eye is the weak point
+    g.eyeR = rand(0.5, 0.9);
+    g.pupil = pick(['vslit','hslit','round','cross']);
+    g.eyes2 = [];
+    const dmin = g.eyeR + 0.35, dmax = bodyR*0.78;
+    if (dmax > dmin){
+      if (bi){
+        const ne = Math.floor(rand(0,4));
+        for (let i=0;i<ne;i++){
+          const d = rand(dmin,dmax), a = rand(-2.4,0.9), rr = rand(0.1,0.25);
+          const x = Math.cos(a)*d, y = Math.sin(a)*d;
+          if (Math.abs(x) < 0.25) continue;
+          g.eyes2.push({ x, y, r:rr }, { x:-x, y, r:rr });
+        }
+      } else if (Math.random() < 0.6){
+        const d = rand(dmin,dmax), off = rand(0,6.28), rr = rand(0.1,0.22);
+        for (let j=0;j<fold;j++) g.eyes2.push({ x: Math.cos(off + j*Math.PI*2/fold)*d, y: Math.sin(off + j*Math.PI*2/fold)*d, r:rr });
+      }
+    }
+    const my = g.eyeR + 0.4;
+    g.mouth = null;
+    if (Math.random() < 0.55 && my < bodyR*0.75){
+      g.mouth = { type: pick(['fangs','fangs','beak']), y: my, w: rand(0.5,1)*Math.min(bodyR*0.55,1.6), n: 3 + Math.floor(rand(0,5)), d: rand(0.2,0.5) };
+    }
+
+    // decoration
+    g.deco = pick(['none','plates','spots','veins','rings']);
+    g.decoData = [];
+    if (g.deco === 'plates'){
+      for (let i=0;i<3;i++){
+        const a0 = rand(0,6.28), span = rand(0.8,1.6), r = bodyR*(0.5 + 0.12*i);
+        g.decoData.push({ r, a0, span });
+        if (bi) g.decoData.push({ r, a0: Math.PI - a0 - span, span });
+      }
+    } else if (g.deco === 'spots' && dmax > dmin){
+      const n = 3 + Math.floor(rand(0,4));
+      for (let i=0;i<n;i++){
+        const d = rand(dmin,dmax), a = rand(-3,0.5), rr = rand(0.1,0.28);
+        g.decoData.push({ x: Math.cos(a)*d, y: Math.sin(a)*d, r:rr });
+        if (bi) g.decoData.push({ x: -Math.cos(a)*d, y: Math.sin(a)*d, r:rr });
+      }
+    } else if (g.deco === 'veins'){
+      const n = 4 + Math.floor(rand(0,4));
+      for (let i=0;i<n;i++){
+        const a = rand(0,6.28), d2 = bodyR*rand(0.55,0.85);
+        g.decoData.push({ a, d1: g.eyeR + 0.1, d2 });
+        if (bi) g.decoData.push({ a: Math.PI - a, d1: g.eyeR + 0.1, d2 });
+      }
+    }
+
+    // abilities
+    const pool = Object.keys(TRAIT_INFO).filter(k =>
+      TRAIT_INFO[k].min <= tier + (boss ? 4 : 0) && !(boss && k === 'ARMOR') && !(k === 'SPIT' && pointer.type === 'touch'));
+    const maxT = tier < 2 ? 1 : tier < 5 ? 2 : 3;
+    let n = boss ? 2 + (tier >= 14 ? 1 : 0) : tier < 1 ? 0 : Math.floor(rand(0, maxT + 0.999));
+    if (!boss && tier >= 3 && n === 0 && Math.random() < 0.6) n = 1;
+    pool.sort(() => Math.random() - 0.5);
+    g.traits = pool.slice(0, n);
+    g.tr = {};
+    for (const k of g.traits) g.tr[k] = true;
+    g.hp = boss ? 3 + Math.floor(tier/10) : g.tr.ARMOR ? 2 + (tier > 12 ? 1 : 0) : 1;
+    g.shield = { n: 3 + Math.floor(rand(0,3)), period: rand(800,1200), ph: rand(0,1) };
+    g.cloakPh = rand(0,1);
+    g.seed0 = rand(0,6.28);
+    g.ease = g.tr.FEINT ? (Math.random() < 0.5 ? rand(0.45,0.65) : rand(1.7,2.4)) : 1;
+    return g;
+  }
+
   // ---------- Run flow ----------
   function specFor(i){ return endlessSpec(i); }
 
   function startRun(){
-    round = 0;
-    score = 0;
-    streak = 0;
-    maxStreak = 0;
-    friendlyHits = 0;
-    lives = START_LIVES;
-    shots = [];
-    roundResults = [];
-    newHi = false;
-    lastEndless = -1;
+    round = 0; score = 0; streak = 0; maxStreak = 0; friendlyHits = 0;
+    lives = START_LIVES; shots = []; roundResults = []; newHi = false; lastEndless = -1;
+    kills = 0; bossKills = 0; acid = []; fbHide = 0;
     particles = []; shocks = []; floaters = [];
-    paused = false;
-    lastLivesShown = -1;
-    hideMessage();
-    updateHUD();
-    beginRound();
+    paused = false; lastLivesShown = -1;
+    hideMessage(); updateHUD(); beginRound();
   }
 
   function beginRound(){
     curSpec = specFor(round);
+    curAlien = makeAlien(round, !!curSpec.boss);
     roundResults[round] = [];
     burstLeft = curSpec.burst || 1;
     state = 'intro';
-    introLeft = round === 0 ? 1200 : 800;
+    introTotal = curSpec.boss ? 1800 : round === 0 ? 1300 : curAlien.traits.length ? 1200 : 900;
+    introLeft = introTotal;
     updateHUD();
   }
 
-  function baseDuration(i){
-    return Math.max(480, 1300 - i*65);
-  }
+  function baseDuration(i){ return Math.max(480, 1300 - i*65); }
 
-  function placeTarget(radius, avoid, real){
-    const m = Math.max(90 * scale(), radius*3);
-    const spec = curSpec;
-    const s = scale();
-    const t = { real, radius, ring0: 130*s, move: spec.move || null, dur: roundDuration };
+  function placeTarget(radius, avoid, real, g){
+    const spec = curSpec, s = scale();
+    const t = { real, radius, ring0: 130*s, move: spec.move || null, dur: roundDuration,
+                seed: rand(0,6.28), g: g || null, tr: g ? g.tr : {} };
+    t.m = Math.max(90*s, radius*3, g ? radius*g.reach*1.08 : 0);
     if (!real){
-      t.dur = roundDuration * rand(0.75, 1.3);
+      t.dur = roundDuration*rand(0.75,1.3);
       t.phase = rand(0, t.dur);
     }
     if (spec.move === 'orbit'){
-      const rr = Math.min(rand(55, 95) * s, Math.min(W,H) * 0.2);
-      const loX = m + rr, hiX = W - m - rr, loY = m + 60 + rr, hiY = H - m - rr;
+      t.or = Math.min(rand(55,95)*s, Math.min(W,H)*0.2);
+      t.ang = rand(0, Math.PI*2);
+      t.w = (spec.speed || 1)*rand(0.9,1.3)*(Math.random() < 0.5 ? -1 : 1);
+    } else if (spec.move === 'drift'){
+      const ang = rand(0, Math.PI*2);
+      const sp = (75 + Math.min(round,12)*5)*(spec.speed || 1)*s;
+      t.vx = Math.cos(ang)*sp; t.vy = Math.sin(ang)*sp;
+    }
+    setPos(t, avoid);
+    return t;
+  }
+
+  function setPos(t, avoid){
+    const s = scale(), m = t.m, mb = m + 24;
+    if (t.move === 'orbit'){
+      const rr = t.or;
+      const loX = m + rr, hiX = W - m - rr, loY = m + 60 + rr, hiY = H - mb - rr;
       let cx = 0, cy = 0, tries = 0;
       do {
-        cx = hiX > loX ? rand(loX, hiX) : W/2;
-        cy = hiY > loY ? rand(loY, hiY) : H/2;
+        cx = hiX > loX ? rand(loX,hiX) : W/2;
+        cy = hiY > loY ? rand(loY,hiY) : H/2;
         tries++;
-      } while (tries < 40 && avoid.some(a => Math.hypot(a.cx - cx, a.cy - cy) < 150*s));
-      t.cx = cx; t.cy = cy; t.or = rr;
-      t.ang = rand(0, Math.PI*2);
-      t.w = (spec.speed || 1) * rand(0.9, 1.3) * (Math.random() < 0.5 ? -1 : 1);
-      t.x = cx + Math.cos(t.ang) * rr;
-      t.y = cy + Math.sin(t.ang) * rr;
+      } while (tries < 40 && avoid.some(a => Math.hypot((a.cx !== undefined ? a.cx : a.x) - cx, (a.cy !== undefined ? a.cy : a.y) - cy) < 150*s));
+      t.cx = cx; t.cy = cy;
+      t.x = cx + Math.cos(t.ang)*rr; t.y = cy + Math.sin(t.ang)*rr;
     } else {
       let x = 0, y = 0, tries = 0;
       do {
         x = rand(m, Math.max(m+1, W-m));
-        y = rand(m + 60, Math.max(m+61, H-m));
+        y = rand(m + 60, Math.max(m+61, H-mb));
         tries++;
       } while (tries < 40 && avoid.some(a => Math.hypot(a.x - x, a.y - y) < 140*s));
       t.x = x; t.y = y;
-      if (spec.move === 'drift'){
-        const ang = rand(0, Math.PI*2);
-        const sp = (75 + Math.min(round, 12) * 5) * (spec.speed || 1) * s;
-        t.vx = Math.cos(ang) * sp;
-        t.vy = Math.sin(ang) * sp;
-      }
     }
-    return t;
+  }
+
+  // schedule this monster's blinks and acid spits for the current ring
+  function armTraits(t){
+    t.blinks = []; t.spits = [];
+    const d = roundDuration;
+    if (t.tr.BLINK){
+      const n = round > 9 ? 2 : 1 + (Math.random() < 0.35 ? 1 : 0);
+      for (let i=0;i<n;i++) t.blinks.push(d*(0.15 + 0.5*(i + Math.random()*0.8)/n));
+    }
+    if (t.tr.SPIT){
+      const n = 1 + Math.floor(Math.random()*(1 + Math.min(round,14)/5));
+      for (let i=0;i<n;i++) t.spits.push(d*(0.1 + 0.55*(i + Math.random()*0.8)/n));
+    }
   }
 
   function spawnShot(){
     const spec = curSpec;
     let dur = baseDuration(round);
-    if (spec.burst) dur = Math.max(480, dur * 0.72);
+    if (spec.burst) dur = Math.max(480, dur*0.72);
     if (spec.move) dur += 110;
+    if (spec.boss) dur += 200;
     roundDuration = dur;
-    const r = 16 * scale() * (spec.move ? 1.15 : 1);
-    const real = placeTarget(r, [], true);
+    const r = 16*scale()*(spec.move ? 1.15 : 1);
+    const real = placeTarget(r, [], true, curAlien);
+    real.hp = curAlien.hp; real.hpMax = curAlien.hp;
     targets = [];
-    for (let i=0;i<(spec.decoys || 0);i++){
-      targets.push(placeTarget(r, targets.concat([real]), false));
-    }
-    targets.push(real);                         // real target is last so it draws on top
+    for (let i=0;i<(spec.decoys || 0);i++) targets.push(placeTarget(r, targets.concat([real]), false, null));
+    targets.push(real);
+    armTraits(real);
+    acid = [];
     roundStart = gClock;
     lastTick = 0;
     pinged = false;
@@ -694,19 +885,18 @@
   }
 
   function moveTargets(dts){
-    const s = scale();
-    const m = Math.max(90 * s, 16*s*3);
     for (const t of targets){
+      const m = t.m, mb = m + 24;
       if (t.move === 'drift'){
-        t.x += t.vx * dts; t.y += t.vy * dts;
+        t.x += t.vx*dts; t.y += t.vy*dts;
         if (t.x < m){ t.x = m; t.vx = Math.abs(t.vx); }
         if (t.x > W - m){ t.x = W - m; t.vx = -Math.abs(t.vx); }
         if (t.y < m + 60){ t.y = m + 60; t.vy = Math.abs(t.vy); }
-        if (t.y > H - m){ t.y = H - m; t.vy = -Math.abs(t.vy); }
+        if (t.y > H - mb){ t.y = H - mb; t.vy = -Math.abs(t.vy); }
       } else if (t.move === 'orbit'){
-        t.ang += t.w * dts;
-        t.x = t.cx + Math.cos(t.ang) * t.or;
-        t.y = t.cy + Math.sin(t.ang) * t.or;
+        t.ang += t.w*dts;
+        t.x = t.cx + Math.cos(t.ang)*t.or;
+        t.y = t.cy + Math.sin(t.ang)*t.or;
       }
     }
   }
@@ -714,10 +904,11 @@
   function queueNext(delayMs){
     state = 'feedback';
     feedbackLeft = delayMs;
+    acid = []; fbHide = 0;
     nextAction = () => {
       fbBlock.style.opacity = '0';
       if (lives <= 0){ finishRun(); return; }
-      if (burstLeft > 1){ burstLeft--; spawnShot(); return; }
+      if (burstLeft > 1){ burstLeft--; curAlien = makeAlien(round, false); spawnShot(); return; }
       round++;
       beginRound();
     };
@@ -730,23 +921,98 @@
     fbBlock.style.opacity = '1';
   }
 
+  // ---------- Monster abilities ----------
+  function shieldCover(t, el){
+    const s = t.g.shield;
+    return 0.5 + 0.5*Math.cos((el/s.period + s.ph)*Math.PI*2);
+  }
+
+  function blinkTarget(t){
+    const col = t.g.col, s = scale();
+    addShock(t.x, t.y, col, 60*s); addParticles(t.x, t.y, 14, col, 3.5);
+    setPos(t, targets.filter(o => o !== t));
+    t.blinkT = gClock;
+    addShock(t.x, t.y, col, 60*s); addParticles(t.x, t.y, 14, col, 3.5);
+    playTone(900, 0.06, 'sawtooth', sfxGain, 0.12);
+    playTone(300, 0.10, 'sawtooth', sfxGain, 0.10, 0.05);
+  }
+
+  function launchAcid(t){
+    if (!pointer.active || pointer.type === 'touch') return;
+    const dx = pointer.x - t.x, dy = pointer.y - t.y, d = Math.hypot(dx,dy) || 1;
+    const sp = Math.min(240 + round*8, 430)*scale();
+    acid.push({ x:t.x, y:t.y, vx:dx/d*sp, vy:dy/d*sp, r:7*scale(), life:3, col:t.g.col });
+    playTone(160, 0.14, 'sawtooth', sfxGain, 0.16);
+    addParticles(t.x, t.y, 6, t.g.col, 2);
+  }
+
+  function hurt(reason, x, y){
+    lives--; streak = 0;
+    playMissSound();
+    addParticles(x, y, 14, RED, 2.6);
+    addShock(x, y, RED, 60*scale());
+    addShake(6);
+    flash = 1; flashColor = RED;
+    showFeedback('BURNED', reason + ' · -1 LIFE', RED);
+    updateHUD();
+    if (lives <= 0){ targets = []; queueNext(520); }
+    else fbHide = 700;
+  }
+
+  function updateThreats(el, dts){
+    const rt = realTarget();
+    if (rt){
+      if (rt.blinks.length && el >= rt.blinks[0]){ rt.blinks.shift(); blinkTarget(rt); }
+      if (rt.spits.length && el >= rt.spits[0]){ rt.spits.shift(); launchAcid(rt); }
+    }
+    for (let i=acid.length-1;i>=0;i--){
+      const a = acid[i];
+      a.x += a.vx*dts; a.y += a.vy*dts; a.life -= dts;
+      if (a.life <= 0 || a.x < -30 || a.x > W + 30 || a.y < -30 || a.y > H + 30){ acid.splice(i,1); continue; }
+      if (pointer.active && pointer.type !== 'touch' && gClock > hurtUntil &&
+          Math.hypot(a.x - pointer.x, a.y - pointer.y) < a.r + 7){
+        acid.splice(i,1);
+        hurtUntil = gClock + 600;
+        hurt('ACID', pointer.x, pointer.y);
+        if (state !== 'active') return;
+      }
+    }
+  }
+
+  // armored monsters and bosses keep fighting: the ring restarts, shorter, and they jump somewhere else
+  function rearm(t){
+    roundDuration = Math.max(420, roundDuration*0.9);
+    roundStart = gClock; lastTick = 0; pinged = false;
+    blinkTarget(t);
+    armTraits(t);
+  }
+
+  function debris(t){
+    const g = t.g, u = t.radius;
+    for (let i=0;i<g.pts.length;i+=3){
+      const p = g.pts[i];
+      addParticles(t.x + Math.cos(p.a)*p.r*u*g.sx, t.y + Math.sin(p.a)*p.r*u*g.sy, 2, g.col, 3.6);
+    }
+  }
+
   // ---------- Firing ----------
   function handleFire(){
     if (paused || state !== 'active') return;
     const elapsed = gNow() - roundStart;
-
     let best = null, bestD = Infinity;
     for (const t of targets){
       const d = Math.hypot(pointer.x - t.x, pointer.y - t.y);
-      const hitR = Math.max(t.radius * 3.4, 34);
+      const hitR = Math.max(t.radius*3.4, 34);
       if (d <= hitR && d < bestD){ best = t; bestD = d; }
     }
     if (!best){ registerMiss('OFF TARGET', 'off'); return; }
-    if (!best.real){ registerMiss('FRIENDLY FIRE', 'friendly'); return; }
-
-    const err = elapsed - roundDuration;                       // negative = early, positive = late
+    if (!best.real){ registerMiss('ALLY HIT', 'friendly'); return; }
+    if (best.tr.SHIELD && shieldCover(best, elapsed) > SHIELD_CLOSED){
+      registerMiss('SHIELD CLOSED · WAIT FOR THE GAP', 'deflect'); return;
+    }
+    const err = elapsed - roundDuration;
     const timingScore = clamp(100 - Math.abs(err)/3.2, 0, 100);
-    const posScore = clamp(100 - (bestD / best.radius) * 35, 0, 100);
+    const posScore = clamp(100 - (bestD / best.radius)*35, 0, 100);
     registerHit(timingScore*0.55 + posScore*0.45, err, best);
   }
 
@@ -761,23 +1027,46 @@
     roundResults[round].push(combined);
     streak++;
     maxStreak = Math.max(maxStreak, streak);
-    const gained = Math.round(combined * multiplier());
+    const g = t.g;
+    const lethal = !(t.hp > 1);
+    let gained = Math.round(combined*multiplier());
+    if (lethal){ gained += g.traits.length*10; if (g.boss) gained += 150 + round*5; }
     score += gained;
 
     let tier, color;
-    if (combined >= 97){ tier = 'FLAWLESS'; color = GREEN; }
-    else if (combined >= 90){ tier = 'PERFECT'; color = GREEN; }
-    else if (combined >= 70){ tier = 'GOOD'; color = AMBER; }
-    else { tier = 'OK'; color = RED; }
+    if (combined >= 97){ tier = 'HEADSHOT'; color = GREEN; }
+    else if (combined >= 90){ tier = 'CLEAN KILL'; color = GREEN; }
+    else if (combined >= 70){ tier = 'KILLED'; color = AMBER; }
+    else { tier = 'SLOPPY KILL'; color = RED; }
 
     addParticles(t.x, t.y, combined >= 90 ? 24 : 12, color, 3.2);
+    addParticles(t.x, t.y, 16, g.col, 4.2);
     addShock(t.x, t.y, color, combined >= 90 ? 90*scale() : 55*scale());
     addFloater(t.x, t.y - t.radius*2, '+' + gained, color);
     if (combined >= 97) addShake(5);
     flash = 1; flashColor = color;
     playHitSound(combined);
-    showFeedback(tier, Math.round(combined) + '% · +' + gained + ' · ' + timingLabel(err), color);
+    const detail = Math.round(combined) + '% · +' + gained + ' · ' + timingLabel(err);
 
+    if (!lethal){
+      t.hp--;
+      addShake(4);
+      showFeedback('HIT · ' + t.hp + ' LEFT', detail, AMBER);
+      fbHide = 650;
+      rearm(t);
+      updateHUD();
+      return;
+    }
+    kills++;
+    debris(t);
+    addShock(t.x, t.y, g.col, 120*scale());
+    if (g.boss){
+      bossKills++;
+      if (lives < MAX_LIVES) lives++;
+      addFloater(t.x, t.y - t.radius*4, 'BOSS DOWN +1 LIFE', GREEN);
+      addShake(10);
+    }
+    showFeedback(tier + ' · ' + g.name, detail, color);
     targets = [];
     updateHUD();
     queueNext(burstLeft > 1 ? 260 : 520);
@@ -800,11 +1089,13 @@
     playMissSound();
     addParticles(px, py, 12, RED, 2.4);
     addShock(px, py, RED, 50*scale());
-    addShake(kind === 'friendly' ? 8 : 4);
+    addShake(kind === 'friendly' ? 8 : kind === 'slow' ? 7 : 4);
     flash = 1; flashColor = RED;
-    showFeedback(kind === 'friendly' ? 'FRIENDLY' : 'MISS', sub, RED);
-    targets = [];
+    showFeedback(kind === 'friendly' ? 'ALLY DOWN' : kind === 'slow' ? 'OVERRUN' : kind === 'deflect' ? 'DEFLECTED' : 'MISSED', sub, RED);
     updateHUD();
+    if (lives > 0 && kind === 'deflect'){ fbHide = 600; return; }          // wasted shot, the fight goes on
+    if (lives > 0 && real && real.hp > 1){ fbHide = 600; acid = []; rearm(real); return; }
+    targets = [];
     queueNext(burstLeft > 1 ? 260 : 520);
   }
 
@@ -830,8 +1121,9 @@
     const lines = [];
     lines.push('FINAL SCORE ' + score);
     lines.push('ROUNDS SURVIVED ' + round + ' · BEST STREAK ' + maxStreak);
+    lines.push('MONSTERS KILLED ' + kills + (bossKills ? ' · BOSSES ' + bossKills : ''));
     lines.push('AVG ACCURACY ' + Math.round(avg) + '%');
-    lines.push(hits.length + '/' + shots.length + ' LOCKED' + (friendlyHits ? ' · ' + friendlyHits + ' FRIENDLY FIRE' : ''));
+    lines.push(hits.length + '/' + shots.length + ' KILLS' + (friendlyHits ? ' · ' + friendlyHits + ' ALLIES HIT' : ''));
     if (hits.length){
       const b = Math.round(Math.abs(bias));
       lines.push(b < 10 ? 'TIMING BALANCED' : 'YOU FIRE ' + b + 'ms ' + (bias < 0 ? 'EARLY' : 'LATE') + ' ON AVERAGE');
@@ -844,7 +1136,7 @@
     playFinalChime(grade);
     lockUntil = performance.now() + 700;
     showMessage({
-      title: 'RUN ENDED',
+      title: 'YOU WERE OVERRUN',
       lines, grade, chips,
       success: grade !== 'D',
       buttons: [ { label:'RUN AGAIN', fn: startRun } ]
@@ -1015,6 +1307,7 @@
     }
     if (shake > 0) shake = Math.max(0, shake * Math.pow(0.9, dts*60) - 0.02);
     if (flash > 0) flash = Math.max(0, flash - dtMs/320);
+    if (fbHide > 0){ fbHide -= dtMs; if (fbHide <= 0) fbBlock.style.opacity = '0'; }
 
     if (state === 'intro'){
       introLeft -= dtMs;
@@ -1022,11 +1315,13 @@
     } else if (state === 'active'){
       moveTargets(dts);
       const el = gClock - roundStart;
+      updateThreats(el, dts);
+      if (state !== 'active') return;
       const t = clamp(el / roundDuration, 0, 1);
       const n = Math.floor(5*t + 9*t*t);
       if (n > lastTick){ lastTick = n; playTick(t); }
       if (!pinged && el >= roundDuration){ pinged = true; playPing(); }
-      if (el > roundDuration + GRACE_MS) registerMiss('TOO SLOW', 'slow');
+      if (el > roundDuration + GRACE_MS) registerMiss('IT GOT YOU · TOO SLOW', 'slow');
     } else if (state === 'feedback'){
       feedbackLeft -= dtMs;
       if (feedbackLeft <= 0 && nextAction){
@@ -1099,10 +1394,178 @@
     }
   }
 
+  // Draws a generated alien as neon line-art. The weak point is always the centre (the big eye).
+  function drawMonster(t, el, alpha){
+    const g = t.g, u = t.radius;
+    const c = gClock*0.005 + t.seed;
+    const grow = 1.1*(1 + 0.16*Math.pow(clamp(el/roundDuration, 0, 1.3), 3));   // it lunges as the ring closes
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.scale(grow, grow);
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = g.col;
+    ctx.fillStyle = g.fill;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    // limbs (behind the body)
+    for (const L of g.limbs){
+      const x0 = L.ax*u, y0 = L.ay*u, len = L.len*u, dx = Math.cos(L.ang), dy = Math.sin(L.ang);
+      ctx.lineWidth = L.w;
+      if (L.type === 'tentacle'){
+        ctx.beginPath(); ctx.moveTo(x0, y0);
+        for (let i=1;i<=7;i++){
+          const f = i/7, w = Math.sin(c*2 + L.ph + f*5)*L.amp*u*f;
+          ctx.lineTo(x0 + dx*len*f - dy*w, y0 + dy*len*f + dx*w);
+        }
+        ctx.stroke();
+      } else if (L.type === 'leg' || L.type === 'claw'){
+        const n = L.type === 'claw' ? 2 : L.segs, sl = len/n;
+        let x = x0, y = y0, a = L.ang;
+        ctx.beginPath(); ctx.moveTo(x, y);
+        for (let i=0;i<n;i++){
+          a = L.ang + L.mir*L.bend*(i % 2 ? -1 : 1)*(0.7 + 0.35*Math.sin(c*3 + L.ph));
+          x += Math.cos(a)*sl; y += Math.sin(a)*sl;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        if (L.type === 'claw'){
+          const open = 0.35 + 0.3*Math.sin(c*3 + L.ph), pl = u*0.7;
+          ctx.beginPath();
+          ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a + open)*pl, y + Math.sin(a + open)*pl);
+          ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a - open)*pl, y + Math.sin(a - open)*pl);
+          ctx.stroke();
+        }
+      } else if (L.type === 'spike'){
+        const bw = u*0.28;
+        ctx.save();
+        ctx.fillStyle = g.col;
+        ctx.beginPath();
+        ctx.moveTo(x0 - dy*bw, y0 + dx*bw); ctx.lineTo(x0 + dx*len, y0 + dy*len); ctx.lineTo(x0 + dy*bw, y0 - dx*bw);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      } else {   // horn
+        const cv = L.curl*L.mir;
+        ctx.beginPath(); ctx.moveTo(x0, y0);
+        ctx.quadraticCurveTo(x0 + dx*len*0.5 - dy*len*0.45*cv, y0 + dy*len*0.5 + dx*len*0.45*cv, x0 + dx*len, y0 + dy*len);
+        ctx.stroke();
+      }
+    }
+
+    // body: glow halo, fill, outline (armored ones get a thicker outline)
+    ctx.beginPath();
+    const P = g.pts;
+    for (let i=0;i<P.length;i++){
+      const p = P[i], r = p.r*u*(1 + g.wob*Math.sin(c*2 + 4*Math.cos(p.a - 1.5708)));
+      const x = Math.cos(p.a)*r*g.sx, y = Math.sin(p.a)*r*g.sy;
+      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.save(); ctx.globalAlpha = alpha*0.18; ctx.lineWidth = 7; ctx.stroke(); ctx.restore();
+    ctx.lineWidth = t.hpMax > 1 ? 3.5 : 2;
+    ctx.stroke();
+
+    // decoration
+    ctx.lineWidth = 1.5;
+    if (g.deco === 'plates'){
+      for (const d of g.decoData){ ctx.beginPath(); ctx.arc(0, 0, d.r*u, d.a0, d.a0 + d.span); ctx.stroke(); }
+    } else if (g.deco === 'spots'){
+      for (const d of g.decoData){ ctx.beginPath(); ctx.arc(d.x*u, d.y*u, d.r*u, 0, 6.2832); ctx.stroke(); }
+    } else if (g.deco === 'veins'){
+      ctx.beginPath();
+      for (const d of g.decoData){
+        ctx.moveTo(Math.cos(d.a)*d.d1*u, Math.sin(d.a)*d.d1*u);
+        ctx.lineTo(Math.cos(d.a)*d.d2*u, Math.sin(d.a)*d.d2*u);
+      }
+      ctx.stroke();
+    } else if (g.deco === 'rings'){
+      ctx.setLineDash([4, 5]);
+      ctx.beginPath(); ctx.arc(0, 0, g.bodyR*0.6*u, 0, 6.2832); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // mouth
+    if (g.mouth){
+      const M = g.mouth, y = M.y*u, w = M.w*u, jaw = Math.sin(c*3)*M.d*u*0.5;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (M.type === 'fangs'){
+        ctx.moveTo(-w, y);
+        for (let i=1;i<=M.n*2;i++) ctx.lineTo(-w + 2*w*i/(M.n*2), y + (i % 2 ? M.d*u + jaw : 0));
+      } else {
+        ctx.moveTo(-w, y); ctx.lineTo(0, y + M.d*u*2 + jaw); ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+    }
+
+    // small eyes
+    for (const e of g.eyes2){
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(e.x*u, e.y*u, e.r*u, 0, 6.2832); ctx.stroke();
+      ctx.save(); ctx.fillStyle = g.hot;
+      ctx.beginPath(); ctx.arc(e.x*u, e.y*u, e.r*u*0.5, 0, 6.2832); ctx.fill();
+      ctx.restore();
+    }
+
+    // central eye = weak point
+    const R = g.eyeR*u;
+    ctx.save();
+    ctx.lineWidth = 2;
+    ctx.fillStyle = '#0a0d12';
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 6.2832); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = RED;
+    if (g.pupil === 'vslit' || g.pupil === 'cross') ctx.fillRect(-R*0.15, -R*0.7, R*0.3, R*1.4);
+    if (g.pupil === 'hslit' || g.pupil === 'cross') ctx.fillRect(-R*0.7, -R*0.15, R*1.4, R*0.3);
+    if (g.pupil === 'round'){ ctx.beginPath(); ctx.arc(0, 0, R*0.4, 0, 6.2832); ctx.fill(); }
+    ctx.restore();
+    const p = 0.5 + 0.5*Math.sin(gClock*0.012);
+    ctx.fillStyle = 'rgba(255,43,43,' + (0.25 + 0.25*p).toFixed(2) + ')';
+    ctx.beginPath(); ctx.arc(0, 0, u*0.55, 0, 6.2832); ctx.fill();
+
+    // battle damage on armored monsters and bosses
+    if (t.hpMax > 1 && t.hp < t.hpMax){
+      ctx.strokeStyle = RED; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i=0;i<(t.hpMax - t.hp)*2;i++){
+        const a = i*2.2 + g.seed0, d2 = g.bodyR*0.85*u;
+        ctx.moveTo(Math.cos(a)*R*1.1, Math.sin(a)*R*1.1);
+        ctx.lineTo(Math.cos(a + 0.25)*d2, Math.sin(a + 0.25)*d2);
+      }
+      ctx.stroke();
+    }
+
+    // rotating shield plates: red = closed (shots deflect), monster colour = open
+    if (t.tr.SHIELD){
+      const cover = shieldCover(t, el), n = g.shield.n;
+      const rr = (g.bodyR + 0.55)*u, span = (Math.PI*2/n)*(0.18 + 0.78*cover), rot = gClock*0.0012;
+      ctx.save();
+      ctx.strokeStyle = cover > SHIELD_CLOSED ? RED : g.col;
+      ctx.lineWidth = 5; ctx.lineCap = 'butt';
+      for (let i=0;i<n;i++){
+        const a0 = rot + i*Math.PI*2/n - span/2;
+        ctx.beginPath(); ctx.arc(0, 0, rr, a0, a0 + span); ctx.stroke();
+      }
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
   function drawTarget(t, el){
     if (t.real){
+      const g = t.g;
+      let alpha = 1;
+      if (t.tr.CLOAK){
+        const k = Math.abs(Math.sin((el/650 + g.cloakPh)*Math.PI));
+        alpha = Math.max(0.08, k*k);
+        alpha = Math.max(alpha, clamp((el/roundDuration - 0.85)*6, 0, 1)*0.5);   // shimmers back just before it strikes
+      }
+      if (t.blinkT !== undefined) alpha *= clamp((gClock - t.blinkT)/260, 0.15, 1);
+      drawMonster(t, el, alpha);
+
       const tt = clamp(el / roundDuration, 0, 1);
-      const rr = Math.max(t.ring0 + (t.radius - t.ring0) * tt, t.radius);
+      const rr = Math.max(t.ring0 + (t.radius - t.ring0)*Math.pow(tt, g.ease), t.radius);
       const dErr = el - roundDuration;
       const synced = Math.abs(dErr) <= SYNC_MS;
       const late = dErr > SYNC_MS;
@@ -1112,121 +1575,167 @@
       ctx.save();
       ctx.strokeStyle = color;
       ctx.lineWidth = synced ? 3.5 : 2;
-      ctx.globalAlpha = late ? clamp(1 - (dErr - SYNC_MS)/(GRACE_MS), 0.15, 1) : 0.9;
-      if (synced){ ctx.shadowColor = GREEN; ctx.shadowBlur = 14; }
-      ctx.beginPath();
-      ctx.arc(t.x, t.y, rr, 0, Math.PI*2);
-      ctx.stroke();
+      ctx.globalAlpha = late ? clamp(1 - (dErr - SYNC_MS)/GRACE_MS, 0.15, 1) : 0.9;
+      ctx.beginPath(); ctx.arc(t.x, t.y, rr, 0, Math.PI*2); ctx.stroke();
+      if (synced){ ctx.globalAlpha = 0.25; ctx.lineWidth = 10; ctx.stroke(); }
       ctx.restore();
 
-      // rotating reticle ticks
+      // rotating reticle ticks, outside the monster
+      const tin = (g.bodyR + 0.9)*t.radius*1.1, tout = tin + t.radius*0.7;
       ctx.save();
       ctx.translate(t.x, t.y);
-      ctx.rotate(gClock * 0.0015);
+      ctx.rotate(gClock*0.0015);
       ctx.strokeStyle = 'rgba(255,43,43,0.7)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       for (let i=0;i<4;i++){
-        const a = i * Math.PI/2;
-        ctx.moveTo(Math.cos(a)*t.radius*1.9, Math.sin(a)*t.radius*1.9);
-        ctx.lineTo(Math.cos(a)*t.radius*2.4, Math.sin(a)*t.radius*2.4);
+        const a = i*Math.PI/2;
+        ctx.moveTo(Math.cos(a)*tin, Math.sin(a)*tin);
+        ctx.lineTo(Math.cos(a)*tout, Math.sin(a)*tout);
       }
       ctx.stroke();
       ctx.restore();
 
-      // core
+      // aiming reticle on the weak point
       ctx.save();
       ctx.strokeStyle = RED;
       ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(t.x, t.y, t.radius, 0, Math.PI*2); ctx.stroke();
       ctx.beginPath();
-      ctx.arc(t.x, t.y, t.radius, 0, Math.PI*2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(t.x - t.radius*1.6, t.y);
-      ctx.lineTo(t.x + t.radius*1.6, t.y);
-      ctx.moveTo(t.x, t.y - t.radius*1.6);
-      ctx.lineTo(t.x, t.y + t.radius*1.6);
+      ctx.moveTo(t.x - t.radius*1.6, t.y); ctx.lineTo(t.x + t.radius*1.6, t.y);
+      ctx.moveTo(t.x, t.y - t.radius*1.6); ctx.lineTo(t.x, t.y + t.radius*1.6);
       ctx.strokeStyle = 'rgba(255,43,43,0.5)';
       ctx.lineWidth = 1;
       ctx.stroke();
       ctx.restore();
 
-      // caliper read-out: the ring diameter
+      // labels: ring read-out above, species / abilities / hit points below
       ctx.save();
+      ctx.textAlign = 'center';
       ctx.fillStyle = TEXT;
       ctx.font = '11px ' + FONT;
-      ctx.textAlign = 'center';
       ctx.globalAlpha = 0.8;
-      ctx.fillText('Ø ' + (rr*2).toFixed(1) + 'px', t.x, t.y - t.radius*2.7 - 6);
+      ctx.fillText('Ø ' + (rr*2).toFixed(1) + 'px', t.x, t.y - (g.reach + 0.6)*t.radius*1.1 - 4);
+      const by = t.y + (g.reach + 0.4)*t.radius*1.1 + 12;
+      ctx.globalAlpha = 0.9;
+      ctx.font = '700 10px ' + FONT;
+      ctx.fillStyle = g.col;
+      ctx.fillText((g.boss ? 'BOSS · ' : '') + g.name, t.x, by);
+      let ly = by;
+      if (g.traits.length){
+        ly = by + 12;
+        ctx.font = '9px ' + FONT;
+        ctx.fillStyle = AMBER;
+        ctx.fillText(g.traits.map(k => TRAIT_INFO[k].label).join(' · '), t.x, ly);
+      }
+      if (t.hpMax > 1){
+        for (let i=0;i<t.hpMax;i++){
+          ctx.fillStyle = i < t.hp ? RED : 'rgba(255,43,43,0.2)';
+          ctx.fillRect(t.x - t.hpMax*5.5 + i*11, ly + 6, 8, 4);
+        }
+      }
       ctx.restore();
     } else {
-      // friendly decoy: square core, cyan, looping ring
+      // allied drone: looping ring, boxy body, visor
       const cyc = ((el + t.phase) % t.dur) / t.dur;
-      const rr = t.ring0 + (t.radius - t.ring0) * cyc;
+      const rr = t.ring0 + (t.radius - t.ring0)*cyc;
+      const r = t.radius;
       ctx.save();
       ctx.strokeStyle = CYAN;
       ctx.globalAlpha = 0.4;
       ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(t.x, t.y, Math.max(rr, t.radius), 0, Math.PI*2);
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(t.x, t.y, Math.max(rr, r), 0, Math.PI*2); ctx.stroke();
       ctx.globalAlpha = 0.95;
       ctx.lineWidth = 2;
-      ctx.strokeRect(t.x - t.radius, t.y - t.radius, t.radius*2, t.radius*2);
+      ctx.strokeRect(t.x - r, t.y - r, r*2, r*2);
       ctx.beginPath();
-      ctx.moveTo(t.x - t.radius*0.5, t.y); ctx.lineTo(t.x + t.radius*0.5, t.y);
+      ctx.moveTo(t.x, t.y - r); ctx.lineTo(t.x, t.y - r*1.7);
+      ctx.moveTo(t.x - r, t.y + r*0.2); ctx.lineTo(t.x - r*1.5, t.y + r*0.7);
+      ctx.moveTo(t.x + r, t.y + r*0.2); ctx.lineTo(t.x + r*1.5, t.y + r*0.7);
       ctx.stroke();
       ctx.fillStyle = CYAN;
+      ctx.fillRect(t.x - r*0.55, t.y - r*0.3, r*0.35, r*0.35);
+      ctx.fillRect(t.x + r*0.2, t.y - r*0.3, r*0.35, r*0.35);
+      ctx.beginPath(); ctx.arc(t.x, t.y - r*1.8, r*0.18, 0, 6.2832); ctx.fill();
       ctx.font = '9px ' + FONT;
       ctx.textAlign = 'center';
-      ctx.fillText('FRIENDLY', t.x, t.y - t.radius*2.2);
+      ctx.fillText('ALLY', t.x, t.y - r*2.5);
       ctx.restore();
     }
   }
 
-  function drawCrosshair(){
-    if (!pointer.active || pointer.type === 'touch') return;
+  // acid globs, plus a warning line when a spit is about to be aimed at your crosshair
+  function drawThreats(el){
+    const rt = realTarget();
+    if (rt && rt.spits && rt.spits.length && pointer.active && pointer.type !== 'touch'){
+      const left = rt.spits[0] - el;
+      if (left < 380 && left > -50){
+        ctx.save();
+        ctx.strokeStyle = RED;
+        ctx.globalAlpha = 0.25 + 0.35*Math.abs(Math.sin(gClock*0.03));
+        ctx.setLineDash([6, 6]);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(rt.x, rt.y); ctx.lineTo(pointer.x, pointer.y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = RED;
+        ctx.font = '700 10px ' + FONT;
+        ctx.textAlign = 'center';
+        ctx.fillText('ACID - MOVE!', pointer.x, pointer.y - 26);
+        ctx.restore();
+      }
+    }
+    for (const a of acid){
+      ctx.save();
+      ctx.fillStyle = a.col;
+      ctx.globalAlpha = 0.25;
+      ctx.beginPath(); ctx.arc(a.x, a.y, a.r*2, 0, 6.2832); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // The crosshair is the native cursor now; we only switch it to green when it is over the live target.
+  let lockShown = false;
+  function updateCursor(){
     const rt = state === 'active' ? targets.find(t => t.real) : null;
-    const near = rt ? Math.hypot(pointer.x - rt.x, pointer.y - rt.y) < Math.max(rt.radius*3.4, 34) : false;
-    ctx.save();
-    ctx.strokeStyle = near ? GREEN : TEXT;
-    ctx.globalAlpha = 0.85;
-    ctx.lineWidth = 1.2;
-    const s = 12;
-    ctx.beginPath();
-    ctx.moveTo(pointer.x-s, pointer.y); ctx.lineTo(pointer.x-4, pointer.y);
-    ctx.moveTo(pointer.x+4, pointer.y); ctx.lineTo(pointer.x+s, pointer.y);
-    ctx.moveTo(pointer.x, pointer.y-s); ctx.lineTo(pointer.x, pointer.y-4);
-    ctx.moveTo(pointer.x, pointer.y+4); ctx.lineTo(pointer.x, pointer.y+s);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(pointer.x, pointer.y, 2, 0, Math.PI*2);
-    ctx.fillStyle = near ? GREEN : TEXT;
-    ctx.fill();
-    ctx.restore();
+    const near = !!rt && pointer.active && Math.hypot(pointer.x - rt.x, pointer.y - rt.y) < Math.max(rt.radius*3.4, 34);
+    if (near !== lockShown){ lockShown = near; canvas.classList.toggle('lock', near); }
   }
 
   function drawBanner(){
     if (state !== 'intro') return;
-    const total = round === 0 ? 1200 : 800;
-    const a = clamp(Math.min(introLeft, total - introLeft) / 160, 0, 1);
+    const a = clamp(Math.min(introLeft, introTotal - introLeft)/160, 0, 1);
+    const g = curAlien;
     ctx.save();
     ctx.globalAlpha = a;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    const y0 = H*0.40;
     ctx.fillStyle = RED;
     ctx.shadowColor = RED;
     ctx.shadowBlur = 14;
     ctx.font = '700 ' + Math.round(clamp(W*0.05, 18, 32)) + 'px ' + FONT;
-    ctx.fillText('ROUND ' + (round+1), W/2, H*0.42);
+    ctx.fillText(curSpec.boss ? 'WARNING · BOSS' : 'ROUND ' + (round+1), W/2, y0);
     ctx.shadowBlur = 0;
     ctx.fillStyle = TEXT;
     ctx.font = '700 ' + Math.round(clamp(W*0.025, 12, 16)) + 'px ' + FONT;
-    ctx.fillText(curSpec.name + (curSpec.burst ? '  ×' + curSpec.burst : ''), W/2, H*0.42 + 30);
+    ctx.fillText('ROUND ' + (round+1) + ' · ' + curSpec.name + (curSpec.burst ? '  ×' + curSpec.burst : ''), W/2, y0 + 30);
+    ctx.fillStyle = g.col;
+    ctx.font = '700 13px ' + FONT;
+    ctx.fillText('> ' + g.name + ' <', W/2, y0 + 54);
+    if (g.traits.length){
+      ctx.fillStyle = AMBER;
+      ctx.font = '11px ' + FONT;
+      ctx.fillText(g.traits.map(k => TRAIT_INFO[k].label).join(' · '), W/2, y0 + 74);
+    }
     if (curSpec.decoys){
       ctx.fillStyle = CYAN;
       ctx.font = '11px ' + FONT;
-      ctx.fillText('CYAN = FRIENDLY · DO NOT FIRE', W/2, H*0.42 + 54);
+      ctx.fillText('CYAN = ALLY · DO NOT FIRE', W/2, y0 + 94);
     }
     ctx.restore();
   }
@@ -1266,6 +1775,7 @@
     if (state === 'active'){
       const el = (paused ? gClock : gNow()) - roundStart;
       for (const t of targets) drawTarget(t, el);
+      drawThreats(el);
     }
 
     ctx.textAlign = 'center';
@@ -1280,7 +1790,7 @@
 
     drawHistory();
     drawBanner();
-    drawCrosshair();
+    updateCursor();
 
     if (flash > 0){
       ctx.globalAlpha = flash * 0.55;
