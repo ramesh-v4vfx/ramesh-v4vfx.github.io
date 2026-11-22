@@ -496,7 +496,7 @@ body.fs-open{overflow:hidden}
   </section>
 </main>
 
-<details class="foot" id="foot"><summary>Data notes &amp; methodology</summary><p><b>Data note:</b> all values are estimates from published research and may vary or be revised as new observations come in. Derived numbers are calculated from mass and spin, so any error in those carries through.<br><br>Graphics are artistic and drawn live in code, not real images. The ◎ Lensing view traces light rays through a simplified model of a non-rotating black hole (spin is only approximated), so it is physically inspired but not a scientific simulation. The disk size follows the spin (a faster spin lets matter orbit closer), the colour follows the mass (lighter black holes run hotter and bluer), and the shape follows the type. In Compare, the two black holes are drawn true to scale against each other: each dark sphere is the event horizon, the solid ring is the photon sphere and the dashed ring is the ISCO.<br><br>Constants: c = 299,792,458 m/s · G = 6.6743 × 10⁻¹¹ N·m²/kg² · M☉ = 1.988416 × 10³⁰ kg · R☉ = 695,700 km · 1 AU = 149,597,870.7 km. Schwarzschild radius = 2GM/c². With a measured spin, the black hole radius is the outer event horizon, GM/c² × (1 + √(1 − a²)). Light-crossing time is the Schwarzschild radius divided by c. The photon sphere is the closest circular orbit for light: 3GM/c² without spin, and 2GM/c² × [1 + cos(⅔ arccos(∓a))] with spin (minus for light moving with the spin). The ISCO is the innermost stable circular orbit for matter: 6GM/c² without spin, and the Bardeen et al. (1972) formula with spin. A negative spin is read as an orbit against the spin, and where spin is not measured (marked with *), no spin is assumed. The Hawking temperature is ħc³ / (8πGMk) without spin, multiplied by 2√(1−a²) / (1 + √(1−a²)) with spin (ħ = 1.0546 × 10⁻³⁴ J·s, k = 1.3806 × 10⁻²³ J/K). Every black hole here is far colder than the 2.7 K cosmic microwave background, so each one takes in more heat than it gives off. Average density is the mass divided by the volume of a sphere with the Schwarzschild radius. Comoving distance is worked out from the light-travel distance with a flat ΛCDM model (H₀ = 67.66 km/s/Mpc, Ωm = 0.3111) and is shown only for objects beyond 10 million light-years.</p></details>
+<details class="foot" id="foot"><summary>Data notes &amp; methodology</summary><p><b>Data note:</b> all values are estimates from published research and may vary or be revised as new observations come in. Derived numbers are calculated from mass and spin, so any error in those carries through.<br><br>Graphics are artistic and drawn live in code, not real images. The ◎ Lensing view traces light rays through a simplified model of a non-rotating black hole (spin is only approximated), so it is physically inspired but not a scientific simulation. The disk size follows the spin (a faster spin lets matter orbit closer), the colour starts from the mass (lighter black holes run hotter and bluer) and is then given its own hue per black hole, so it is artistic, not measured, and the shape follows the type. Jets are artistic too: each black hole with a jet gets its own length, width, brightness, colour and knots, and Phoenix A’s is drawn extra large and bright. In Compare, the two black holes are drawn true to scale against each other: each dark sphere is the event horizon, the solid ring is the photon sphere and the dashed ring is the ISCO.<br><br>Constants: c = 299,792,458 m/s · G = 6.6743 × 10⁻¹¹ N·m²/kg² · M☉ = 1.988416 × 10³⁰ kg · R☉ = 695,700 km · 1 AU = 149,597,870.7 km. Schwarzschild radius = 2GM/c². With a measured spin, the black hole radius is the outer event horizon, GM/c² × (1 + √(1 − a²)). Light-crossing time is the Schwarzschild radius divided by c. The photon sphere is the closest circular orbit for light: 3GM/c² without spin, and 2GM/c² × [1 + cos(⅔ arccos(∓a))] with spin (minus for light moving with the spin). The ISCO is the innermost stable circular orbit for matter: 6GM/c² without spin, and the Bardeen et al. (1972) formula with spin. A negative spin is read as an orbit against the spin, and where spin is not measured (marked with *), no spin is assumed. The Hawking temperature is ħc³ / (8πGMk) without spin, multiplied by 2√(1−a²) / (1 + √(1−a²)) with spin (ħ = 1.0546 × 10⁻³⁴ J·s, k = 1.3806 × 10⁻²³ J/K). Every black hole here is far colder than the 2.7 K cosmic microwave background, so each one takes in more heat than it gives off. Average density is the mass divided by the volume of a sphere with the Schwarzschild radius. Comoving distance is worked out from the light-travel distance with a flat ΛCDM model (H₀ = 67.66 km/s/Mpc, Ωm = 0.3111) and is shown only for objects beyond 10 million light-years.</p></details>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -970,6 +970,17 @@ function massColor(m){
   }
   return STOPS[STOPS.length-1][1];
 }
+/* Disk colour: starts from the mass colour, then each black hole is pushed toward its own seeded hue so they are not all orange.
+   Stellar-mass ones stay in the cool range. Phoenix A keeps its original orange. */
+const HUES_WARM=[[255,150,60],[255,205,120],[255,120,40],[255,90,110],[255,236,215]];
+const HUES_COOL=[[150,200,255],[190,140,255],[90,230,210],[120,170,255],[255,236,215]];
+function bhColor(b){
+  const base=massColor(b.massSolar);
+  if(b.id==='phoenix-a'||/^\s*phoenix a\b/i.test(b.name))return base;
+  const r=rnd(hash(b.id+'#col')),pool=b.massSolar<1e3?HUES_COOL:HUES_COOL.concat(HUES_WARM);
+  r();const tgt=pool[Math.floor(r()*pool.length)];
+  return mix(base,tgt,.9).map(Math.round);
+}
 function rnd(seed){ // small seeded rng so each object looks the same every visit
   let s=seed>>>0||1;return()=>((s=Math.imul(s^s>>>15,2246822507)+1013904223>>>0)/4294967296);
 }
@@ -1066,7 +1077,30 @@ void main(){
   gl_FragColor=vec4(mix(uHot,uCol,smoothstep(.04,.25,t)),a*uAlpha);
 }`;
 const JET_VS=`varying float vH; varying vec3 vN,vV; uniform float uL; void main(){ vH=position.y/uL+.5; vec4 mv=modelViewMatrix*vec4(position,1.); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`;
-const JET_FS=`varying float vH; varying vec3 vN,vV; void main(){ float f=pow(abs(dot(normalize(vN),normalize(vV))),1.6); gl_FragColor=vec4(.62,.77,1.,.55*f*pow(1.-vH,1.5)); }`;
+const JET_FS=`varying float vH; varying vec3 vN,vV; uniform vec3 uCol; uniform float uA,uP; void main(){ float f=pow(abs(dot(normalize(vN),normalize(vV))),1.6); gl_FragColor=vec4(uCol,uA*f*pow(1.-vH,uP)); }`;
+
+/* ---- jet look: every black hole with jets gets its own profile, seeded from its id so it is the same on every visit.
+   len / Lc  = length (lensing view, in Schwarzschild radii / simple view, in shadow radii)
+   wid, slope = width and how fast the jet opens up    gain = brightness    decay = how quickly it fades with distance
+   kf, ks, nk, ksz = knot spacing, speed, count, size    pre = precession wobble    beta = jet speed (Doppler beaming)
+   cnt = brightness of the far-side jet (low = one-sided, like a blazar)    col = colour */
+const JET_TINTS=[[.25,.45,1],[.25,.45,1],[.18,.72,1],[.6,.38,1],[.3,.9,.78],[1,.58,.28]];
+function jetProfile(b){
+  const jr=rnd(hash(b.id+'#jet')),u=()=>jr();
+  const phoenix=b.id==='phoenix-a'||/^\s*phoenix a\b/i.test(b.name);
+  const blazar=/blazar/i.test(b.type);
+  const P={big:phoenix,
+    len:28+44*u(),Lc:2.6+2.4*u(),wid:.75+1.0*u(),slope:.035+.04*u(),gain:.8+.8*u(),
+    kf:1.2+1.6*u(),ks:.6+1.2*u(),pre:.3+1.7*u(),decay:.045+.06*u(),beta:.55+.3*u(),
+    cnt:blazar?.15+.25*u():.55+.45*u(),col:JET_TINTS[Math.floor(u()*JET_TINTS.length)],
+    nk:4+Math.floor(u()*4),ksz:6+4*u()};
+  P.cr0=.035*P.wid;P.cr1=.13*P.wid*(P.slope/.055);
+  // Phoenix A: a huge, bright, two-sided jet that runs far out of the frame
+  if(phoenix)Object.assign(P,{len:90,Lc:8.5,wid:2.4,slope:.055,gain:3.2,kf:1.5,ks:1.1,pre:.5,decay:.02,beta:.8,cnt:1,
+    col:[.3,.55,1],nk:9,ksz:11,cr0:.16,cr1:.8});
+  P.c255=P.col.map(v=>Math.round((.5+.5*v)*255));   // the simple view uses a paler version of the colour
+  return P;
+}
 // event horizon: black, with light catching the rim so the sphere reads against a dark sky
 const HOR_VS=`varying vec3 vN,vV; void main(){ vec4 mv=modelViewMatrix*vec4(position,1.); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`;
 const HOR_FS=`varying vec3 vN,vV; uniform vec3 uCol; void main(){ float f=pow(1.-max(dot(normalize(vN),normalize(vV)),0.),7.); gl_FragColor=vec4(uCol*f*1.3,1.); }`;
@@ -1128,8 +1162,10 @@ const LENS_VS=`varying vec2 vN; void main(){ vN=position.xy; gl_Position=vec4(po
 const LENS_FS=`
 varying vec2 vN;
 uniform mat4 uCamW,uPInv;
-uniform vec3 uCamPos,uCol,uHot;
+uniform vec3 uCamPos,uCol,uHot,uJetCol;
 uniform float uT,uD,uRin,uRout,uDisk,uSpin,uRmax,uJet,uJetL;
+uniform float uWarm;
+uniform float uJetW,uJetS,uJetD,uJetKF,uJetKS,uJetPre,uJetB,uJetCnt;
 float h31(vec3 p){ p=fract(p*.1031); p+=dot(p,p.yzx+33.33); return fract((p.x+p.y)*p.z); }
 float vn(vec3 x){
   vec3 i=floor(x),f=fract(x); f=f*f*(3.-2.*f);
@@ -1170,24 +1206,26 @@ void main(){
     if(r<1.) break;
     rmin=min(rmin,r);
     if(r>uRmax && dot(p,v)>0.){ esc=true; break; }
-    float dt=clamp(.05*r,.012,3.5);
-    if(uJet>0.){ float rj=length(p.xz); if(rj<6.*(.11+.05*abs(p.y))+.8) dt=min(dt,.3); }
+    float dt=clamp(.05*r,.012,max(3.5,.02*uRmax));
+    if(uJet>0.){ float rj=length(p.xz), wj=(.11+uJetS*min(abs(p.y),30.))*uJetW; if(rj<6.*wj+.8*uJetW) dt=min(dt,clamp(.5*wj,.3,1.)); }
     vec3 a=-1.5*h2*p/(r2*r2*r);
     vec3 Bg=(3.*dot(J,p)*p/r2-J)/(r2*r);
     v+=a*dt; pl=p; p+=v*dt;
     if(uJet>0.){
-      vec3 pm=.5*(pl+p); float ay=abs(pm.y), w=.11+.05*ay;
-      vec2 wob=vec2(sin(ay*.33-uT*.5),cos(ay*.27-uT*.4))*.06*ay;   // slow precession wobble
+      // every jet has its own width, opening angle, length, brightness, colour, knot pattern and precession (uJet* uniforms)
+      vec3 pm=.5*(pl+p); float ay=abs(pm.y), w=(.11+uJetS*min(ay,30.))*uJetW;
+      vec2 wob=vec2(sin(ay*.33-uT*.5),cos(ay*.27-uT*.4))*.06*ay*uJetPre;   // slow precession wobble
       float rho=length(pm.xz-wob);
       if(rho<w*6. && ay>1.0 && ay<uJetL){
         float q=rho*rho/(w*w);
         float core=exp(-q*1.6), sheath=exp(-q*.15)*.12;
-        float fade=smoothstep(1.0,2.6,ay)*exp(-ay*.075);
-        float kn=.25+pow(.5+.5*sin(ay*1.7-uT*2.4+4.*vn(vec3(pm.x*.8,ay*.4-uT*.6,pm.z*.8))),3.)*2.2;   // bright knots racing outward
-        float bj=dot(vec3(0.,sign(pm.y)*.8,0.),-normalize(v));
+        float fade=smoothstep(1.0,1.0+1.6*uJetW,ay)*exp(-ay*uJetD);
+        float kn=.25+pow(.5+.5*sin(ay*uJetKF-uT*2.4*uJetKS+4.*vn(vec3(pm.x*.8/uJetW,ay*.4-uT*.6*uJetKS,pm.z*.8/uJetW))),3.)*2.2;   // bright knots racing outward
+        float bj=dot(vec3(0.,sign(pm.y)*uJetB,0.),-normalize(v));
         float dj=clamp(pow(1./(1.-bj),1.6),.3,4.)*.5;
-        vec3 jc=mix(vec3(.25,.45,1.),vec3(.9,.97,1.),core*core);
-        col+=tr*jc*(core*kn+sheath)*fade*dj*dt*2.3*uJet;
+        float sd=pm.y>0.?1.:uJetCnt;                       // the far-side jet can be dimmer (one-sided, like a blazar)
+        vec3 jc=mix(uJetCol,vec3(.9,.97,1.),core*core);
+        col+=tr*jc*(core*kn+sheath)*fade*dj*dt*2.3*uJet*sd;
       }
     }
     if(uDisk>0. && pl.y*p.y<0.){
@@ -1212,8 +1250,8 @@ void main(){
         float grav=sqrt(max(.03,1.-1./rr));
         float f=dop*grav;
         float tt=clamp((rr-uRin)/(uRout-uRin),0.,1.);
-        vec3 base=mix(uHot,uCol*vec3(1.,.8,.7),pow(tt,.45));
-        base*=mix(vec3(1.25,.75,.55),vec3(.8,.95,1.3),smoothstep(.45,1.6,f));
+        vec3 base=mix(uHot,uCol*mix(vec3(1.),vec3(1.,.8,.7),uWarm),pow(tt,.45));   // warm tint only for warm colours
+        base*=mix(vec3(1.),mix(vec3(1.25,.75,.55),vec3(.8,.95,1.3),smoothstep(.45,1.6,f)),.45+.55*uWarm);
         float I=rad*n*eIn*eOut*pow(f,2.6)*uDisk*3.9;
         col+=tr*base*I; tr*=.8;
       }
@@ -1231,7 +1269,8 @@ let lensMesh=null,LU=null,lensChecked=false,LENSQ=1.5,fpsEma=.016,fpsN=0;
 function makeLens(){
   LU={uCamW:{value:new THREE.Matrix4()},uPInv:{value:new THREE.Matrix4()},uCamPos:{value:new THREE.Vector3()},
     uCol:{value:new THREE.Vector3(1,.6,.3)},uHot:{value:new THREE.Vector3(1,.9,.8)},
-    uT:{value:0},uD:{value:0},uRin:{value:3},uRout:{value:10},uDisk:{value:1},uSpin:{value:0},uRmax:{value:60},uJet:{value:0},uJetL:{value:40}};
+    uT:{value:0},uD:{value:0},uRin:{value:3},uRout:{value:10},uDisk:{value:1},uSpin:{value:0},uRmax:{value:60},uJet:{value:0},uJetL:{value:40},
+    uWarm:{value:1},uJetW:{value:1},uJetS:{value:.05},uJetD:{value:.075},uJetKF:{value:1.7},uJetKS:{value:1},uJetPre:{value:1},uJetB:{value:.8},uJetCnt:{value:1},uJetCol:{value:new THREE.Vector3(.25,.45,1)}};
   lensMesh=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({vertexShader:LENS_VS,fragmentShader:LENS_FS,uniforms:LU,depthTest:false,depthWrite:false}));
   lensMesh.frustumCulled=false;lensMesh.renderOrder=-20;lensMesh.visible=false;
   scene.add(lensMesh);
@@ -1240,9 +1279,12 @@ function setLensParams(g,a){
   if(!LU)return;
   const rin=Math.max(iscoOf(a)/2,1.55);
   const rout=Math.max(rin*1.8,Math.min(Math.max(rin*3.7,11),g.rout*S2R));
-  LU.uRin.value=rin;LU.uRout.value=rout;LU.uDisk.value=g.disk?g.diskAlpha:0;LU.uSpin.value=a;LU.uJet.value=g.jet?1:0;
+  LU.uRin.value=rin;LU.uRout.value=rout;LU.uDisk.value=g.disk?g.diskAlpha:0;LU.uSpin.value=a;
+  const j=g.jp;LU.uJet.value=g.jet?j.gain:0;
+  LU.uJetL.value=j.len;LU.uJetW.value=j.wid;LU.uJetS.value=j.slope;LU.uJetD.value=j.decay;LU.uJetKF.value=j.kf;LU.uJetKS.value=j.ks;
+  LU.uJetPre.value=j.pre;LU.uJetB.value=j.beta;LU.uJetCnt.value=j.cnt;LU.uJetCol.value.set(j.col[0],j.col[1],j.col[2]);
   const c=g.col,h=mix(c,[255,255,255],.75);
-  LU.uCol.value.set(c[0]/255,c[1]/255,c[2]/255);LU.uHot.value.set(h[0]/255,h[1]/255,h[2]/255);
+  LU.uCol.value.set(c[0]/255,c[1]/255,c[2]/255);LU.uWarm.value=Math.max(0,Math.min(1,(c[0]-c[2])/150));LU.uHot.value.set(h[0]/255,h[1]/255,h[2]/255);
 }
 function applyLens(){
   if(!G)return;
@@ -1318,7 +1360,8 @@ function fxUpdate(dt){
     LU.uCamW.value.copy(camera.matrixWorld);LU.uPInv.value.copy(camera.projectionMatrixInverse);
     LU.uCamPos.value.copy(camera.position).multiplyScalar(S2R);
     if(!paused&&!reduce)DISKT+=dt*33*Math.pow(SPINV/100,2);   // disk rotation follows the spin slider
-    LU.uRmax.value=cam.rad*S2R+2;LU.uT.value=simT;LU.uD.value=DISKT;
+    LU.uRmax.value=Math.max(cam.rad*S2R+2,g.jet?Math.min(g.jp.len,70)+2:0);   // let rays follow a long jet out to its tip
+    LU.uT.value=simT;LU.uD.value=DISKT;
   }
   if(SOL&&g.solLbl&&g.solLbl.length){
     const kids=$('#plLbls').children;
@@ -1443,7 +1486,7 @@ function build(b){
   // lengths are in units of the shadow radius (the black sphere has radius 1)
   const rin=1+0.3*(Math.min(isco,9)-1)/5;
   const rout=Math.min(rin*3.7,0.46*VW/(0.175*S));
-  const col=massColor(b.massSolar);
+  const col=bhColor(b);
   const t=b.type,kind=b.kind;
   const g={kind,col,rin,rout,ups:[],classic:[],
     disk:kind==='active'||kind==='binary'||kind==='unknown',
@@ -1452,6 +1495,8 @@ function build(b){
     bhCompanion:/^binary|dual|companion|possible binary/i.test(t)&&!/in binary/i.test(t),
     starCompanion:/in binary|X-ray binary/i.test(t),
     sub:null};
+  g.jp=jetProfile(b);
+  if(g.jp.big){g.jet=true;g.disk=true;g.diskAlpha=1}   // Phoenix A always shows its big jet
   if(kind==='dormant'){
     if(/microlens|isolated/i.test(t))g.sub='lens';
     else if(/tidal/i.test(t))g.sub='tde';
@@ -1460,7 +1505,7 @@ function build(b){
     else g.sub='sstars';
   }
   g.D0=(H/2)/(0.175*S*TANH);               // camera distance at which the shadow is the same size as before
-  cam.minR=g.D0*.32;cam.maxR=g.D0*3;
+  cam.minR=g.D0*.32;cam.maxR=g.D0*14;   // zoom out up to 14x the opening distance
   cam.trad=Math.max(cam.minR,Math.min(cam.maxR,g.D0*zoomKeep));cam.rad=cam.trad;
   cam.tfocus.set(0,0,0);cam.focus.set(0,0,0);
   camera.near=.05;camera.far=400;camera.updateProjectionMatrix();
@@ -1522,17 +1567,18 @@ function build(b){
 
   // jets along the spin axis, with knots of gas moving outward
   if(g.jet){
-    const L=3.4;
+    const J=g.jp,L=J.Lc,nk=J.nk;
     for(const d of[1,-1]){
-      const jm=new THREE.Mesh(new THREE.CylinderGeometry(.13,.035,L,28,1,true),new THREE.ShaderMaterial(Object.assign({vertexShader:JET_VS,fragmentShader:JET_FS,side:THREE.DoubleSide,uniforms:{uL:{value:L}}},ADD())));
+      const jm=new THREE.Mesh(new THREE.CylinderGeometry(J.cr1,J.cr0,L,28,1,true),new THREE.ShaderMaterial(Object.assign({vertexShader:JET_VS,fragmentShader:JET_FS,side:THREE.DoubleSide,
+        uniforms:{uL:{value:L},uCol:{value:col3(J.c255)},uA:{value:.55*J.gain/1.2*(d>0?1:J.cnt)},uP:{value:.9+J.decay*10}}},ADD())));
       jm.position.y=d*L/2;if(d<0)jm.rotation.x=Math.PI;
       root.add(jm);g.classic.push(jm);
     }
-    const knots=pointsCloud(8,7,null,true),kp=knots.geometry.attributes.position,kc=knots.geometry.attributes.color;
+    const knots=pointsCloud(nk*2,J.ksz,null,true),kp=knots.geometry.attributes.position,kc=knots.geometry.attributes.color;
     root.add(knots);g.classic.push(knots);
     g.ups.push(tt=>{
-      for(let k=0;k<8;k++){
-        const d=k<4?1:-1,f=(tt*.22+(k%4)/4+(d>0?0:.125))%1,v=.75*(1-f);
+      for(let k=0;k<nk*2;k++){
+        const d=k<nk?1:-1,i=k%nk,f=(tt*.22*J.ks+i/nk+(d>0?0:.5/nk))%1,v=Math.min(1,.75*(1-f)*(d>0?1:J.cnt)*Math.max(1,J.gain/1.2));
         kp.setXYZ(k,0,d*L*f,0);kc.setXYZ(k,.78*v,.88*v,v);
       }
       kp.needsUpdate=true;kc.needsUpdate=true;
@@ -1606,6 +1652,7 @@ function build(b){
   }
   setLensParams(g,a);
   buildFx(g,b);
+  if(g.solR>0)cam.maxR=Math.max(cam.maxR,g.D0*Math.max(1,g.solR/2.3)*1.3);   // always far enough to see every planet orbit
   G=g;
   applyLens();
 }
@@ -1616,7 +1663,7 @@ function buildCompare(){
   if(!renderer||!CMP_A||!CUR)return;
   clearRoot();
   G=null;
-  const items=[CMP_A,REF||CUR].map((b,k)=>{if(k===1&&REF)return{b:REF,ref:REF,rh:REF.km,ph:REF.km,is:REF.km,col:REF.col};const m=metrics(b);return{b,rh:m.horizonKm,ph:m.photonKm,is:m.iscoKm,col:massColor(b.massSolar)}});
+  const items=[CMP_A,REF||CUR].map((b,k)=>{if(k===1&&REF)return{b:REF,ref:REF,rh:REF.km,ph:REF.km,is:REF.km,col:REF.col};const m=metrics(b);return{b,rh:m.horizonKm,ph:m.photonKm,is:m.iscoKm,col:bhColor(b)}});
   const unitKm=Math.max(items[0].rh,items[1].rh);          // 1 scene unit = the larger event-horizon radius
   items.forEach(it=>{it.R=it.rh/unitKm;it.P=it.ph/unitKm;it.I=it.is/unitKm;it.ext=Math.max(it.R,it.P,it.I)});
   // side by side: A on the left, B on the right, with a gap of a quarter of the larger one
@@ -1650,7 +1697,7 @@ function fitCompare(view,instant){
     cam.tfocus.copy(it.c);
     cam.trad=it.ext*1.7/(TANH*Math.min(1,asp));
   }
-  cam.minR=Math.min(a.R,b.R)*1.5;cam.maxR=span*8;
+  cam.minR=Math.min(a.R,b.R)*1.5;cam.maxR=span*30;
   if(instant||reduce){cam.rad=cam.trad;cam.focus.copy(cam.tfocus)}
   document.querySelectorAll('#cmpNav [data-v]').forEach(n=>n.setAttribute('aria-pressed',n.dataset.v===view));
   kick();
@@ -1770,6 +1817,7 @@ function frame(now){
     updateCompare();
     $('#hbl').textContent='TRUE SCALE'+pauseTxt;
   }else if(G){
+    starsObj.position.copy(camera.position);   // the star sphere travels with the camera, so far zoom-outs never leave it
     const u=starsObj.material.uniforms;
     pv.set(0,0,0).project(camera);u.uHole.value.set(pv.x,pv.y);
     u.uTe.value=1.05/(cam.rad*TANH);
