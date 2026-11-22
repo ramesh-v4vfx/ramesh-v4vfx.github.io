@@ -36,7 +36,8 @@ function tempToRGB(T){
   return [clamp(r,0,255), clamp(g,0,255), clamp(b,0,255)];
 }
 function starColor(s){ var c = tempToRGB(s.T); return new THREE.Color(c[0]/255, c[1]/255, c[2]/255); }
-function starLum(s){ return s.cls === 'BH' ? 0 : s.R*s.R*Math.pow(s.T/5778, 4); }
+function starLum(s){ if (s.cls === 'BH') return 0; if (s.lum > 0) return s.lum; return s.R*s.R*Math.pow(s.T/5778, 4); }   // optional "lum" (in L_sun) in the JSON overrides the radius/temperature formula, which underestimates very cool red dwarfs
+function parseColor(c){ if (typeof c === 'number' && isFinite(c)) return c; if (typeof c === 'string' && /^#?[0-9a-f]{6}$/i.test(c)) return parseInt(c.replace('#', ''), 16); return null; }   // optional per-planet "color" such as "#b8643c"
 
 /* ---------- Kepler maths (same as creator) ---------- */
 function orientCoef(o){
@@ -202,7 +203,7 @@ function atmosphereMaterial(col){
   var _identityQ = new THREE.Quaternion();
   var _fe1 = new THREE.Vector3(), _fup = new THREE.Vector3(), _fe2 = new THREE.Vector3();
 
-  var BODY_KIND = { rocky:0, superearth:1, minineptune:2, ice:3, gas:4, dwarf:5, icy:6, volcanic:7 };
+  var BODY_KIND = { rocky:0, superearth:1, minineptune:2, ice:3, gas:4, dwarf:5, icy:6, volcanic:7, lava:8, venus:9, desert:10, ocean:11, mars:12, frozen:13 };
   function strHash(s){
     var h = 2166136261 >>> 0;
     for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
@@ -239,6 +240,15 @@ function atmosphereMaterial(col){
     '  float fl = smoothstep(1.0, 0.35, d);',
     '  float rim = exp(-pow((d - 1.05)/0.2, 2.0));',
     '  return has*(rim*0.42 - fl*0.45);',
+    '}',
+    'float lavaCrack(vec3 p){',
+    '  float a = abs(bFbm(p*2.6) - 0.5);',
+    '  float b = abs(bFbm(p*6.5 + 3.0) - 0.5);',
+    '  return max(smoothstep(0.05, 0.0, a), smoothstep(0.035, 0.0, b)*0.8);',
+    '}',
+    'vec3 bodyGlow(vec3 n){',
+    '  if (uKind > 7.5 && uKind < 8.5){ float c = lavaCrack(n + uSeed); return vec3(1.5, 0.5, 0.08)*c*1.1; }',
+    '  return vec3(0.0);',
     '}',
     'vec3 bodyAlbedo(vec3 n){',
     '  vec3 p = n + uSeed;',
@@ -297,7 +307,7 @@ function atmosphereMaterial(col){
     '    col = mix(col, base*vec3(0.55,0.5,0.45), crack*0.55);',
     '    col *= 1.0 + bCrater(p, 8.0)*0.7 + bCrater(p, 26.0)*0.5;',
     '    col *= 0.92 + 0.16*bNoise(p*70.0);',
-    '  } else {',
+    '  } else if (k < 7.5){',
     // VOLCANIC MOON (7): sulfur plains and dark calderas
     '    float b = bFbm(p*3.0);',
     '    vec3 yel = base*vec3(1.0,0.95,0.6); vec3 org = base*vec3(1.0,0.55,0.25)*0.9;',
@@ -306,6 +316,44 @@ function atmosphereMaterial(col){
     '    float pit = bCell(p*14.0).x;',
     '    col = mix(col, vec3(0.12,0.08,0.06), smoothstep(0.17, 0.08, pit)*0.9);',
     '    col *= 0.9 + 0.2*bNoise(p*80.0);',
+    '  } else if (k < 8.5){',
+    '    float cr = lavaCrack(p);',
+    '    vec3 crust = base*vec3(0.16,0.11,0.09)*(0.55 + 0.9*bFbm(p*9.0));',
+    '    col = mix(crust, vec3(1.0,0.52,0.08), clamp(cr*1.3, 0.0, 1.0));',
+    '  } else if (k < 9.5){',
+    '    vec3 q = vec3(n.x*2.0, n.y*3.2, n.z*2.0) + uSeed;',
+    '    float w = bFbm(q*2.0 + vec3(bFbm(q*3.0)*2.2, 0.0, bFbm(q*3.0 + 5.0)*2.2));',
+    '    float bands = 0.5 + 0.5*sin(n.y*10.0 + w*7.0);',
+    '    col = mix(base*vec3(0.62,0.5,0.34), base*vec3(1.3,1.22,1.05), bands);',
+    '    col = mix(col, base*vec3(0.35,0.28,0.2), smoothstep(0.62,0.9, bFbm(q*5.0))*0.55);',
+    '  } else if (k < 10.5){',
+    '    float dn = bFbm(p*2.0);',
+    '    float rip = 0.5 + 0.5*sin((p.x*3.0 + p.z*2.0 + dn*7.0)*7.0);',
+    '    float t = bFbm(p*3.0) + 0.35*rip;',
+    '    col = mix(base*vec3(0.42,0.28,0.2), base*vec3(1.25,1.05,0.8), smoothstep(0.35,0.95,t));',
+    '    col = mix(col, base*vec3(0.3,0.22,0.18), smoothstep(0.1,0.04, bCell(p*9.0).x)*0.8);',
+    '    col *= 0.9 + 0.2*bNoise(p*80.0);',
+    '  } else if (k < 11.5){',
+    '    float land = bFbm(p*1.7 + 2.0);',
+    '    vec3 deep = vec3(0.02,0.1,0.36); vec3 shal = vec3(0.1,0.42,0.66);',
+    '    vec3 ocean = mix(deep, shal, smoothstep(0.36,0.53,land));',
+    '    vec3 lc = mix(vec3(0.16,0.4,0.16), vec3(0.58,0.5,0.32), smoothstep(0.5,0.78, bFbm(p*5.0 + 1.0)));',
+    '    col = mix(ocean, lc, smoothstep(0.52,0.56,land));',
+    '    col = mix(col, vec3(0.93,0.96,1.0), smoothstep(0.78,0.9, abs(n.y) + 0.12*bFbm(p*4.0)));',
+    '    float cl = smoothstep(0.5,0.78, bFbm(vec3(n.x*2.4, n.y*4.0, n.z*2.4)*1.3 + uSeed*2.0 + vec3(bFbm(p*3.0)*1.5)));',
+    '    col = mix(col, vec3(1.0), cl*0.85);',
+    '  } else if (k < 12.5){',
+    '    float h = bFbm(p*2.5);',
+    '    col = mix(base*vec3(0.5,0.35,0.3), base*vec3(1.3,0.95,0.8), smoothstep(0.3,0.7,h));',
+    '    col = mix(col, base*vec3(0.3,0.24,0.24), smoothstep(0.45,0.6, bFbm(p*1.3 + 7.0))*0.65);',
+    '    col *= 1.0 + bCrater(p, 9.0)*0.6 + bCrater(p, 30.0)*0.4;',
+    '    col = mix(col, vec3(0.96,0.96,0.98), smoothstep(0.82,0.93, abs(n.y) + 0.08*bFbm(p*5.0)));',
+    '  } else {',
+    '    float f = bFbm(p*2.0);',
+    '    col = mix(vec3(0.3,0.56,0.84), vec3(0.9,0.96,1.0), smoothstep(0.3,0.65,f));',
+    '    float crack = 1.0 - smoothstep(0.0, 0.04, abs(bNoise(p*5.0 + bNoise(p*2.5)*3.0) - 0.5));',
+    '    col = mix(col, vec3(0.04,0.14,0.34), crack*0.85);',
+    '    col *= 1.0 + bCrater(p, 7.0)*0.5;',
     '  }',
     '  return clamp(col, 0.0, 1.0);',
     '}'
@@ -326,13 +374,14 @@ function atmosphereMaterial(col){
         .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBodyPos = normalize(position);');
       sh.fragmentShader = sh.fragmentShader
         .replace('#include <common>', '#include <common>\n' + BODY_GLSL)
-        .replace('#include <map_fragment>', 'diffuseColor.rgb = bodyAlbedo(normalize(vBodyPos));');
+        .replace('#include <map_fragment>', 'diffuseColor.rgb = bodyAlbedo(normalize(vBodyPos));')
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += bodyGlow(normalize(vBodyPos));');
     };
-    mat.customProgramCacheKey = function(){ return 'rv-body-v1'; };
+    mat.customProgramCacheKey = function(){ return 'rv-body-v2'; };
     mat.userData.seed = h;
     return mat;
   }
-  function bodyRoughness(typeId){ return (typeId === 'gas' || typeId === 'ice' || typeId === 'minineptune') ? 0.9 : (typeId === 'icy' ? 0.55 : 0.82); }
+  function bodyRoughness(typeId){ return (typeId === 'gas' || typeId === 'ice' || typeId === 'minineptune' || typeId === 'venus') ? 0.9 : ((typeId === 'icy' || typeId === 'frozen') ? 0.55 : (typeId === 'ocean' ? 0.45 : 0.82)); }
 
 
 /* ---------- loading ---------- */
@@ -354,7 +403,7 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 function init(S){
   var EPOCH = S.epoch || 2000;
   var stars = (S.stars || []).map(function(s, i){
-    return { name:s.name || ('Star ' + (i + 1)), cls:s.cls || '', M:+s.M || 1, R:+s.R || 1, T:+s.T || 5778, au:+s.au || 0, ecc:+s.ecc || 0, angle:+s.angle || 0, inc:s.inc, node:s.node, argp:s.argp, tp:s.tp };
+    return { name:s.name || ('Star ' + (i + 1)), cls:s.cls || '', M:+s.M || 1, R:+s.R || 1, T:+s.T || 5778, au:+s.au || 0, ecc:+s.ecc || 0, angle:+s.angle || 0, inc:s.inc, node:s.node, argp:s.argp, tp:s.tp, lum:+s.lum || 0 };
   });
   if (!stars.length) throw new Error('No stars in system file');
   var totalM = stars.reduce(function(a, s){ return a + s.M; }, 0);
@@ -372,7 +421,8 @@ function init(S){
     o.flux = hostL/(o.au*o.au);
     o.teq = 278.5*Math.pow(hostL, 0.25)*Math.pow(1 - TYPES[tid].alb, 0.25)/Math.sqrt(o.au);
     o.hz = o.flux >= HZ_LO && o.flux <= HZ_HI;
-    o.hex = TYPES[tid].hex;
+    var pc = parseColor(p.color); o.hex = pc !== null ? pc : TYPES[tid].hex;
+    o.look = BODY_KIND[p.texture] !== undefined ? p.texture : tid;   // optional "texture": rocky, superearth, icy, volcanic, dwarf, ... changes only how the globe looks, not its type, label or temperature
     return o;
   });
   var aMin = planets.length ? Math.min.apply(null, planets.map(function(p){ return p.au; })) : 0.1;
@@ -517,7 +567,7 @@ function init(S){
   // planets
   var planetObjs = planets.map(function(p, i){
     var size = planetSize(p), grp = new THREE.Group();
-    var mat = makeBodyMaterial(p.type, p.hex, p.name, bodyRoughness(p.type), 0);
+    var mat = makeBodyMaterial(p.look, p.hex, p.name, bodyRoughness(p.look), 0);
     var mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat);
     mesh.scale.setScalar(size);
     var axis = new THREE.Group(), leanA = (2 + 10*((i*0.618 + 0.3) % 1))*D2R, leanP = i*2.4;   // spin axis: world-up (the orbit normal) with a small lean of its own
@@ -1263,7 +1313,7 @@ function init(S){
     planets.forEach(function(p, j){
       if (surf.kind === 'planet' && j === surf.i) return;
       var po = planetObjs[j];
-      var mesh = new THREE.Mesh(G.sphere, makeBodyMaterial(p.type, p.hex, p.name, bodyRoughness(p.type), 0.03));
+      var mesh = new THREE.Mesh(G.sphere, makeBodyMaterial(p.look, p.hex, p.name, bodyRoughness(p.look), 0.03));
       G.skyScene.add(mesh);
       var ring = null;
       if (p.hasRing){
