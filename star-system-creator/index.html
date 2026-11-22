@@ -167,6 +167,24 @@
     background:rgba(0,0,0,0.55); border:1px solid var(--line); padding:6px 10px; font-size:9px; letter-spacing:0.06em; color:var(--text-dim);}
   .speed-ctrl input[type=range]{width:min(320px, calc(100vw - 190px));}
   .speed-ctrl b{color:var(--red); min-width:38px; text-align:right; font-variant-numeric:tabular-nums;}
+  .speed-ctrl.boosted{border-color:var(--red); box-shadow:0 0 14px rgba(255,43,43,0.25);}
+  .speed-ctrl .boost-open{font-family:inherit; font-size:9px; letter-spacing:0.06em; color:var(--text-dim); background:transparent; border:1px dashed var(--line-strong); padding:3px 8px; cursor:pointer; white-space:nowrap; transition:color .2s ease, border-color .2s ease;}
+  .speed-ctrl .boost-open:hover{color:var(--red); border-color:var(--red);}
+  .speed-ctrl .boost-open.hidden{display:none;}
+  .speed-ctrl .boost-open:disabled{opacity:0.4; cursor:not-allowed; color:var(--text-faint); border-color:var(--line);}
+  .speed-ctrl .boost-open:disabled:hover{color:var(--text-faint); border-color:var(--line);}
+  .speed-ctrl .boost-inline{display:none; align-items:center; gap:8px; padding-left:10px; border-left:1px solid var(--line);}
+  .speed-ctrl .boost-inline.open{display:flex;}
+  .speed-ctrl .boost-inline input[type=range]{width:min(160px, calc(100vw - 520px)); min-width:90px;}
+  .speed-ctrl .boost-inline #boostLabel{white-space:nowrap;}
+  .speed-ctrl .boost-close{font-family:inherit; font-size:11px; line-height:1; color:var(--text-dim); background:transparent; border:1px solid var(--line); padding:3px 7px; cursor:pointer;}
+  .speed-ctrl .boost-close:hover{color:var(--red); border-color:var(--red);}
+  .speed-ctrl .boost-warn{display:block; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .8s ease, visibility .8s; position:absolute; top:calc(100% + 4px); left:50%; transform:translateX(-50%); width:max-content; max-width:min(440px, calc(100vw - 40px)); text-align:center;
+    color:var(--red); font-size:8.5px; letter-spacing:0.04em; line-height:1.4; background:rgba(0,0,0,0.55); border:1px solid var(--red-dim); padding:4px 10px;}
+  .speed-ctrl .boost-warn.show{opacity:1; visibility:visible;}
+  @media (max-width:700px){ .speed-ctrl{flex-wrap:wrap; justify-content:center;} .speed-ctrl .boost-inline{border-left:none; padding-left:0;} }
+  .boost-ctrl.boosted{border-color:var(--red); box-shadow:0 0 14px rgba(255,43,43,0.25);}
+  .boost-ctrl #boostLabel{white-space:nowrap;}
   .stage.expanded{position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; height:100dvh; z-index:9999; margin:0; border:none;}
   /* touch-action:none hands every finger gesture on the 3D view to the script (rotate, pinch, pan) instead of scrolling the page */
   #stage3d{position:absolute; inset:0; cursor:grab; touch-action:none;}
@@ -557,6 +575,14 @@
           <span id="speedLabel" aria-live="polite">SPEED</span>
           <input type="range" id="speedSlider" min="0" max="200" value="70" step="1" title="Speed (logarithmic, 0 = paused, max 10000). Double-click or double-tap to reset. Space bar pauses / resumes." aria-label="Simulation speed">
           <b id="speedOut">25</b>
+          <button type="button" class="boost-open" id="boostOpen" title="Turn the SPEED slider all the way up to unlock an extra boost slider (up to 400x)" disabled>&#9193; MORE SPEED?</button>
+          <span class="boost-inline" id="boostCtrl">
+            <span id="boostLabel" title="Multiplies the speed to the left, for watching slow orbits such as distant stars">BOOST</span>
+            <input type="range" id="boostSlider" min="0" max="100" value="0" step="1" title="Extra orbit speed, 1x to 400x on top of the speed slider. Parabolic: gentle in the first half, ramping up fast in the top half. Double-click or double-tap to reset to 1x." aria-label="Orbit speed boost">
+            <b id="boostOut">1x</b>
+            <button type="button" class="boost-close" id="boostClose" title="Back to normal speed and hide this slider" aria-label="Close boost">&times;</button>
+          </span>
+          <div class="boost-warn" id="boostWarn">&#9888; Too much speed can break the physics: in realistic mode orbits may drift, lag behind real time or fling stars out. Press &times; to go back to normal.</div>
         </div>
         <div id="stage3d"></div>
       </div>
@@ -850,6 +876,7 @@ openPlanetBtn.addEventListener('click', function(){
   var editingIndex = null;
   var t = 0;
   var speedMultiplier = 0.25;
+  var boostMultiplier = 1;   // extra orbit-time boost (1x..400x) from the BOOST slider; only orbital motion uses it, not body spin
 
   function starLuminosity(s){
     if (s.cls==='BH') return 0; // a bare black hole emits no light of its own
@@ -1052,7 +1079,7 @@ openPlanetBtn.addEventListener('click', function(){
   function layoutStars(){
     var n = stars.length, i;
     starPos.length = 0; starAnchor.length = 0;
-    for (i=0;i<n;i++){ starPos.push({x:0, y:0, z:0}); starAnchor.push({x:0, y:0, z:0, f:1}); }
+    for (i=0;i<n;i++){ starPos.push({x:0, y:0, z:0}); starAnchor.push({x:0, y:0, z:0, f:1, g:0}); }
 
     // mass of each star plus everything orbiting it (children always have a higher index than parents)
     var sub = [];
@@ -1074,7 +1101,7 @@ openPlanetBtn.addEventListener('click', function(){
         members.forEach(function(m){ m.x += dx; m.y += dy; m.z += dz; });
         anchors.forEach(function(a){ a.x += dx; a.y += dy; a.z += dz; });
         var an = starAnchor[k];                              // this pair's orbit is centered on the pair's barycenter
-        an.x = 0; an.y = 0; an.z = 0; an.f = gm/tm;
+        an.x = 0; an.y = 0; an.z = 0; an.f = gm/tm; an.g = ms/tm;   // f: companion's share of the orbit, g: the inner group's share
         anchors.push(an);
         members.push({ idx:k, x:rel.x*gm/tm, y:rel.y*gm/tm, z:rel.z*gm/tm });
         gm = tm;
@@ -2200,7 +2227,32 @@ openPlanetBtn.addEventListener('click', function(){
           gm = tm;
         }
       });
-      kids.forEach(function(k){ if (bodies[k].kind !== 'moon') placeChildren(k); });   // stars place their companions, planets place their moons
+      kids.forEach(function(k){
+        if (bodies[k].kind === 'moon') return;
+        var bk = bodies[k];
+        // bk was placed as the center of mass of its whole sub-system (see ms above). Remember that target,
+        // place its companions, then shift the sub-system back so its center of mass and velocity are unchanged.
+        // Without this, a distant pair (e.g. Capella H + L) gets an extra kick and the whole system is flung apart.
+        var tx = bk.x, ty = bk.y, tz = bk.z, tvx = bk.vx, tvy = bk.vy, tvz = bk.vz;
+        placeChildren(k);
+        if (bk.kind !== 'star') return;
+        var inSub = function(i){ var g = 0; while (i >= 0 && g++ < 1000){ if (i === k) return true; i = bodies[i].parent; } return false; };
+        var sm = 0, sx = 0, sy = 0, sz = 0, svx = 0, svy = 0, svz = 0, members = [];
+        for (var q=0;q<bodies.length;q++){
+          if (!inSub(q)) continue;
+          members.push(q);
+          if (bodies[q].kind !== 'star') continue;
+          var mq = bodies[q].m;
+          sm += mq; sx += mq*bodies[q].x; sy += mq*bodies[q].y; sz += mq*bodies[q].z;
+          svx += mq*bodies[q].vx; svy += mq*bodies[q].vy; svz += mq*bodies[q].vz;
+        }
+        if (members.length < 2 || !(sm > 0)) return;
+        var ox = tx - sx/sm, oy = ty - sy/sm, oz = tz - sz/sm, ovx = tvx - svx/sm, ovy = tvy - svy/sm, ovz = tvz - svz/sm;
+        members.forEach(function(q){
+          var bq = bodies[q];
+          bq.x += ox; bq.y += oy; bq.z += oz; bq.vx += ovx; bq.vy += ovy; bq.vz += ovz;
+        });
+      });   // stars place their companions, planets place their moons
     }
     placeChildren(0);
 
@@ -2322,27 +2374,49 @@ openPlanetBtn.addEventListener('click', function(){
     sim.rate = sim.rate*0.9 + 0.1*Math.min(1, done/req);
   }
 
-  // report bodies that have clearly been flung out of the system (unbound and far from the center of mass)
+  // report bodies that have clearly been flung out of the system.
+  // Bodies are first grouped into gravitationally bound clusters (a close binary, a star with its planets, ...):
+  // the two most tightly bound clusters are merged into one, over and over, until nothing left is bound to anything else.
+  // A body only "escapes" if its cluster is NOT bound to the biggest one and is far away. Judging each star alone against
+  // the whole system gave false alarms: a tight pair far from the center of mass moves fast inside its own orbit.
   function checkEscapes(){
-    var B = sim.bodies, Mt = 0, cx = 0, cy = 0, cz = 0, px = 0, py = 0, pz = 0, i, b;
+    var B = sim.bodies, i, j, C = [];
     for (i=0;i<B.length;i++){
-      b = B[i];
+      var b = B[i];
       if (!b.alive) continue;
-      Mt += b.m; cx += b.m*b.x; cy += b.m*b.y; cz += b.m*b.z; px += b.m*b.vx; py += b.m*b.vy; pz += b.m*b.vz;
+      C.push({ m:b.m, x:b.x, y:b.y, z:b.z, vx:b.vx, vy:b.vy, vz:b.vz, members:[i] });
     }
-    if (Mt <= 0) return;
-    cx /= Mt; cy /= Mt; cz /= Mt; px /= Mt; py /= Mt; pz /= Mt;
-    for (i=0;i<B.length;i++){
-      b = B[i];
-      if (!b.alive || b.escaped) continue;
-      var dx = b.x - cx, dy = b.y - cy, dz = b.z - cz, r = Math.sqrt(dx*dx + dy*dy + dz*dz);
-      if (r < 1000) continue;
-      var vx = b.vx - px, vy = b.vy - py, vz = b.vz - pz;
-      if (vx*vx + vy*vy + vz*vz > 2*G_AU*Mt/r){
-        b.escaped = true;
-        simEvents.push(b.name + ' escaped the system');
+    if (C.length < 2) return;
+    var guard = 0;
+    while (C.length > 1 && guard++ < 500){
+      var bi = -1, bj = -1, bestE = 0;
+      for (i=0;i<C.length;i++) for (j=i+1;j<C.length;j++){
+        var p = C[i], q = C[j];
+        var dx = q.x-p.x, dy = q.y-p.y, dz = q.z-p.z, dvx = q.vx-p.vx, dvy = q.vy-p.vy, dvz = q.vz-p.vz;
+        var r = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-12;
+        var e = 0.5*(dvx*dvx + dvy*dvy + dvz*dvz) - G_AU*(p.m + q.m)/r;   // specific two-body energy of the pair
+        if (e < bestE){ bestE = e; bi = i; bj = j; }
       }
+      if (bi < 0) break;                                                  // nothing left is bound to anything else
+      var P = C[bi], Q = C[bj], tm = P.m + Q.m;
+      P.x = (P.m*P.x + Q.m*Q.x)/tm;     P.y = (P.m*P.y + Q.m*Q.y)/tm;     P.z = (P.m*P.z + Q.m*Q.z)/tm;
+      P.vx = (P.m*P.vx + Q.m*Q.vx)/tm;  P.vy = (P.m*P.vy + Q.m*Q.vy)/tm;  P.vz = (P.m*P.vz + Q.m*Q.vz)/tm;
+      P.m = tm; P.members = P.members.concat(Q.members);
+      C.splice(bj, 1);
     }
+    if (C.length < 2) return;
+    var main = C[0];
+    for (i=1;i<C.length;i++) if (C[i].m > main.m) main = C[i];
+    C.forEach(function(c){
+      if (c === main) return;
+      var dx = c.x-main.x, dy = c.y-main.y, dz = c.z-main.z;
+      if (Math.sqrt(dx*dx + dy*dy + dz*dz) < 1000) return;
+      c.members.forEach(function(k){
+        if (B[k].escaped) return;
+        B[k].escaped = true;
+        simEvents.push(B[k].name + ' escaped the system');
+      });
+    });
   }
 
   function logPhysics(msg){
@@ -2395,6 +2469,7 @@ openPlanetBtn.addEventListener('click', function(){
     var last = three.starObjs.length - 1;
     three.starObjs.forEach(function(so, i){
       if (so.orbitLine) so.orbitLine.visible = false;
+      if (so.orbitLine2) so.orbitLine2.visible = false;
       if (i === 0) return;
       var line = makeTrailLine(0x9a735e, 0.75);
       three.scene.add(line);
@@ -3568,6 +3643,12 @@ function handleStageClick(e){
         scene.add(line);
         three.starOrbitLines.push(line);
         starObjEntry.orbitLine = line; // moved each frame so the orbit stays centered on its parent star
+        // the other half of the pair: what is already inside (the parent star, or the inner group) swings round the same
+        // barycenter on the mirror-image ellipse. Without it a companion's orbit looks like it circles empty space.
+        var line2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color:0x5a4038, transparent:true, opacity:0.5}));
+        scene.add(line2);
+        three.starOrbitLines.push(line2);
+        starObjEntry.orbitLine2 = line2;
       }
     });
 
@@ -3706,6 +3787,11 @@ function handleStageClick(e){
         var an = starAnchor[idx];
         so.orbitLine.position.set(an.x, an.y, an.z);   // orbit ellipse is centered on the pair's barycenter
         so.orbitLine.scale.set(an.f, an.f, an.f);      // and scaled to the companion's share of the separation
+        if (so.orbitLine2){
+          so.orbitLine2.position.set(an.x, an.y, an.z);
+          so.orbitLine2.scale.set(-an.g, -an.g, -an.g);   // point-mirrored: the parent's side of the same orbit
+          so.orbitLine2.visible = an.g > 0.05;            // a very heavy parent barely moves: no clutter
+        }
       }
     });
 
@@ -4784,7 +4870,8 @@ function handleStageClick(e){
   var PRESETS = [
     { label:'Kepler-11', file:'presets/kepler-11.json' },
     { label:'HD 49798', file:'presets/HD_49798.json' },
-    { label:'Trappist-1', file:'presets/trappist-1.json' }
+    { label:'Trappist-1', file:'presets/trappist-1.json' },
+    { label:'Capella System', file:'presets/capella_system.json' }
     // add more here as you build them, e.g.:
     // { label:'TRAPPIST-1', file:'presets/trappist-1.json' },
   ];
@@ -4805,6 +4892,7 @@ function handleStageClick(e){
     if (file.indexOf('inline:') === 0){
       var pd = PRESETS[parseInt(file.slice(7), 10)].data;
       loadSystemFromData(JSON.parse(JSON.stringify(pd)));
+      resetView();   // a new preset starts centered with the whole system in view, not at the last system's camera
       showSysStatus('Loaded ' + pd.systemName + '.');
       placeholder.textContent = '✓ ' + selectedLabel.toUpperCase() + ' LOADED';
       presetSelect.value = '';
@@ -4817,6 +4905,7 @@ function handleStageClick(e){
       })
       .then(function(data){
         loadSystemFromData(data);
+        resetView();   // a new preset starts centered with the whole system in view, not at the last system's camera
         showSysStatus('Loaded ' + (data.systemName || 'preset') + '.');
         placeholder.textContent = '✓ ' + selectedLabel.toUpperCase() + ' LOADED';
         presetSelect.value = '';
@@ -4835,6 +4924,7 @@ function handleStageClick(e){
       try{
         var data = JSON.parse(reader.result);
         loadSystemFromData(data);
+        resetView();   // start centered with the whole system in view
         showSysStatus('System restored.');
       } catch(err){
         showSysStatus('That file could not be read as a saved system.');
@@ -4869,7 +4959,7 @@ showSysStatus('System reset.');
 
   var frameCount = 0;
   function loop(){
-    var dtT = 0.016*speedMultiplier;
+    var dtT = 0.016*speedMultiplier*boostMultiplier;
     t += dtT;
     if (realisticMode && sim){
       stepSim(dtT);
@@ -4939,6 +5029,7 @@ showSysStatus('System reset.');
     three.baseTarget.set(0,0,0);
     three.lookOffset.copy(three.lookTarget);   // glides back to the center instead of jumping
     three.targetRadius = 11; three.savedRadius = 11;
+    three.camTween = null;                     // cancel a running TOP / ANGLED / EDGE-ON fly
   }
   resetViewBtn.addEventListener('click', resetView);
 
@@ -5027,7 +5118,9 @@ showSysStatus('System reset.');
     sbSpeedOut.textContent = speedOut.textContent;
     sbSpeedLabel.textContent = paused ? '❚❚ PAUSED' : 'SPEED';
     sbSpeedCtl.classList.toggle('paused', paused);
+    if (typeof updateBoostAvail === 'function') updateBoostAvail();
   }
+  var updateBoostAvail = null;
   function resetSpeed(){
     speedSlider.value = speedToPos(SPEED_DEFAULT);
     setSpeed(SPEED_DEFAULT);
@@ -5047,6 +5140,49 @@ showSysStatus('System reset.');
   speedSlider.addEventListener('pointerup', sliderTapReset);
   sbSpeed.addEventListener('pointerup', sliderTapReset);
   resetSpeed();
+
+  // ---- boost slider: multiplies the orbit speed by 1x..400x ----
+  // Parabolic: boost = 1 + 399 * (position/100)^2, so the first half of the slider stays gentle (1x to ~100x)
+  // and the second half ramps up fast to 400x.
+  var BOOST_MAX = 400;
+  var boostSlider = document.getElementById('boostSlider');
+  var boostOut = document.getElementById('boostOut');
+  var boostCtrl = document.getElementById('boostCtrl');
+  function posToBoost(pos){ var u = Math.max(0, Math.min(1, pos/100)); return 1 + (BOOST_MAX - 1)*u*u; }
+  function setBoost(b){
+    boostMultiplier = b;
+    boostOut.textContent = (b < 10 ? b.toFixed(1) : String(Math.round(b))) + 'x';
+    document.getElementById('speedCtrl').classList.toggle('boosted', b > 1.05);
+  }
+  function resetBoost(){ boostSlider.value = 0; setBoost(1); }
+  var boostOpen = document.getElementById('boostOpen'), boostClose = document.getElementById('boostClose');
+  var boostWarn = document.getElementById('boostWarn'), boostWarnTimer = null;
+  var BOOST_OPEN_TIP = 'Show an extra slider that speeds orbits up to 400x, for watching slow, distant orbits';
+  var BOOST_LOCKED_TIP = 'Locked: turn the SPEED slider all the way up to unlock extra speed (up to 400x)';
+  // the button only works while the SPEED slider is at its maximum
+  updateBoostAvail = function(){
+    var full = speedMultiplier*100 >= SPEED_MAX - 0.5;
+    boostOpen.disabled = !full;
+    boostOpen.title = full ? BOOST_OPEN_TIP : BOOST_LOCKED_TIP;
+  };
+  boostOpen.addEventListener('click', function(){
+    if (boostOpen.disabled) return;
+    boostCtrl.classList.add('open'); boostOpen.classList.add('hidden');
+    boostWarn.classList.add('show');                       // the warning shows, then fades out by itself
+    clearTimeout(boostWarnTimer);
+    boostWarnTimer = setTimeout(function(){ boostWarn.classList.remove('show'); }, 6000);
+  });
+  boostClose.addEventListener('click', function(){ resetBoost(); boostCtrl.classList.remove('open'); clearTimeout(boostWarnTimer); boostWarn.classList.remove('show'); boostOpen.classList.remove('hidden'); updateBoostAvail(); });
+  boostSlider.addEventListener('input', function(){ setBoost(posToBoost(parseFloat(boostSlider.value))); });
+  boostSlider.addEventListener('dblclick', resetBoost);
+  var lastBoostTap = 0;
+  boostSlider.addEventListener('pointerup', function(e){
+    if (e.pointerType !== 'touch') return;
+    var nowMs = Date.now();
+    if (nowMs - lastBoostTap < 320){ resetBoost(); lastBoostTap = 0; } else lastBoostTap = nowMs;
+  });
+  resetBoost();
+  updateBoostAvail();
 
   // ---- keyboard shortcuts: SPACE pause / resume, R realistic mode, H habitable zone, F fullscreen ----
   var pausedSpeed = null;   // the speed to go back to when un-pausing

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "systemName": "Capella System",
+  "epoch": 2000,
+  "stars": [
+    {
+      "name": "Capella Aa",
+      "cls": "G",
+      "M": 2.5687,
+      "R": 11.98,
+      "T": 4970,
+      "au": 0,
+      "ecc": 0,
+      "angle": 0,
+      "inc": null,
+      "node": null,
+      "argp": null,
+      "tp": null
+    },
+    {
+      "name": "Capella Ab",
+      "cls": "G",
+      "M": 2.4828,
+      "R": 8.83,
+      "T": 5730,
+      "au": 0.74272,
+      "ecc": 0.00089,
+      "angle": 3.141592653589793,
+      "inc": 137.156,
+      "node": 40.522,
+      "argp": 162.6,
+      "tp": 1990.698,
+      "parent": 0
+    },
+    {
+      "name": "Capella H",
+      "cls": "M",
+      "M": 0.57,
+      "R": 0.54,
+      "T": 3700,
+      "au": 9500,
+      "ecc": 0,
+      "angle": 2.48,
+      "inc": null,
+      "node": null,
+      "argp": null,
+      "tp": null,
+      "parent": 0
+    },
+    {
+      "name": "Capella L",
+      "cls": "M",
+      "M": 0.53,
+      "R": 0.5,
+      "T": 3200,
+      "au": 46.6,
+      "ecc": 0.75,
+      "angle": 0.62,
+      "inc": 52,
+      "node": 288,
+      "argp": 88,
+      "tp": 2220,
+      "parent": 2
+    }
+  ],
+  "planets": [],
+  "moons": []
+}
