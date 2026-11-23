@@ -622,6 +622,10 @@
 
   .tab-btn:active { transform: scale(0.96); }
 
+/* HUD line icons in category tabs — sized like the old emoji, follow the tab colour */
+.tab-ico { width: 1.2em; height: 1.2em; vertical-align: -0.22em; margin-right: 0.4em; flex: none; overflow: visible; }
+.tab-btn:hover .tab-ico, .tab-btn.active .tab-ico { filter: drop-shadow(0 0 4px rgba(255,43,43,.75)); }
+
 /* ── MOST POPULAR TOOLS — HUD READOUT PANEL ── */
 .popular-tools {
     width: 300px;
@@ -3898,13 +3902,14 @@
   </div>
 
   <div class="tabs-bar" id="tabsBar">
-    <button class="tab-btn active" data-tab="all"          onclick="setTab(this)">⚡ All</button>
-    <button class="tab-btn"        data-tab="science"      onclick="setTab(this)">🔬 Science & Space</button>
-    <button class="tab-btn"        data-tab="geography"    onclick="setTab(this)">🌍 Geography</button>
-    <button class="tab-btn"        data-tab="productivity" onclick="setTab(this)">📋 Productivity</button>
-    <button class="tab-btn"        data-tab="calculator"   onclick="setTab(this)">🧮 Calculators</button>
-    <button class="tab-btn"        data-tab="finance"      onclick="setTab(this)">💰 Finance</button>
-    <button class="tab-btn"        data-tab="games"        onclick="setTab(this)">🎮 Games</button>
+    <button class="tab-btn active" data-tab="all"          onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><path d="M13.5 2.5 5 13.5h6l-1 8 9-11.5h-6z"/></svg>All</button>
+    <button class="tab-btn"        data-tab="science"      onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="1.6" fill="currentColor"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-60 12 12)"/></svg>Science & Space</button>
+    <button class="tab-btn"        data-tab="geography"    onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="4" ry="9.5"/><path d="M2.5 12h19M4.5 7h15M4.5 17h15"/></svg>Geography</button>
+    <button class="tab-btn"        data-tab="productivity" onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><path d="M5 3h10l4 4v14H5z"/><path d="M8 10l1.6 1.6L12.5 8.8M8 16l1.6 1.6 2.9-2.8M14.5 11h2.5M14.5 17h2.5"/></svg>Productivity</button>
+    <button class="tab-btn"        data-tab="calculator"   onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><path d="M5 3h14v18H5z"/><path d="M8 6.5h8v3H8z"/><path d="M8 13.2h1.6M11.2 13.2h1.6M14.4 13.2h1.6M8 17h1.6M11.2 17h1.6M14.4 17h1.6"/></svg>Calculators</button>
+    <button class="tab-btn"        data-tab="finance"      onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><path d="M3 21h18"/><path d="M6 21v-5M11 21v-8M16 21v-11"/><path d="M4 10l5-4 4 3 7-6M16 3h4v4"/></svg>Finance</button>
+    <button class="tab-btn"        data-tab="health"       onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><path d="M12 21 3.8 12.6A5 5 0 0 1 12 6.2a5 5 0 0 1 8.2 6.4z"/><path d="M5.5 12.5H9l1.6-3 2.8 6 1.6-3h3.5"/></svg>Health</button>
+    <button class="tab-btn"        data-tab="games"        onclick="setTab(this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false"><path d="M7 7h10l4 5v5l-3 2-3-3H9l-3 3-3-2v-5z"/><path d="M8 10.5v3.2M6.4 12.1h3.2"/><path stroke-width="2.6" d="M15.4 11.2h.1M17.6 13.4h.1"/></svg>Games</button>
   </div>
 </div>
 
@@ -4262,6 +4267,12 @@
     <img class="tool-img" src="/images/card-images/international-airtravel-checklist.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>International Travel Checklist</h3>
     <p>A checklist for stress-free international air travel.</p>
+  </a>
+
+  <a class="tool has-img" href="/insulin-and-glucose-tracker/" data-added="2026-11-24" data-search="insulin blood glucose tracker type 1 diabetes sugar log dose calculator health" data-category="health">
+    <img class="tool-img" src="/images/card-images/insulin-tracker.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Insulin &amp; Glucose Tracker</h3>
+    <p>Log glucose and insulin, check your dose, and see your trends.</p>
   </a>
 
   <a class="tool has-img" href="/time-converter/" data-search="time converter calculator" data-category="calculator">
@@ -5392,17 +5403,19 @@
     science:      "SCIENCE · SPACE",
     finance:      "FINANCE",
     geography:    "GEOGRAPHY",
+    health:       "HEALTH",
     games:        "GAMES"
   };
 
-  const CATEGORY_ORDER = ["science", "games", "finance", "calculator", "productivity", "geography"];
+  const CATEGORY_ORDER = ["science", "games", "finance", "calculator", "productivity", "geography", "health"];
   const CATEGORY_COLORS = {
     science:      { accent: TERMINATOR_RED, title: "#ff3b3b" },   // red
     games:        { accent: "#b66bff",      title: "#c995ff" },   // purple
     finance:      { accent: "#ffb020",      title: "#ffc13d" },   // gold
     calculator:   { accent: "#3da5ff",      title: "#6dbcff" },   // blue
     productivity: { accent: "#3ddc84",      title: "#5ee89b" },   // green
-    geography:    { accent: "#2dd4bf",      title: "#4fe3d0" }    // teal
+    geography:    { accent: "#2dd4bf",      title: "#4fe3d0" },   // teal
+    health:       { accent: "#ff4fa3",      title: "#ff7fba" }    // pink
   };
 
   document.querySelectorAll(".tool").forEach(tool => {
@@ -5593,6 +5606,7 @@
       calculator:   { label: "Calculators",      color: "#e8455e" },
       finance:      { label: "Finance",          color: "#c4306b" },
       geography:    { label: "Geography",        color: "#ff9558" },
+      health:       { label: "Health",           color: "#ff4fa3" },
       games:        { label: "Games",            color: "#8b2fc9" }
     };
 
@@ -5613,7 +5627,7 @@
 
     if (toolTotal === 0 || tagTotal === 0) return;
 
-    const order = ["science", "geography", "productivity", "calculator", "finance", "games"];
+    const order = ["science", "geography", "productivity", "calculator", "finance", "health", "games"];
     let angle = 0;
     const stops = [];
 

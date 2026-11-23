@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insulin &amp; Blood Glucose Tracker for Type 1 Diabetes – RameshVerse</title>
+<meta name="description" content="Free insulin and blood glucose log for Type 1 diabetes: dose calculator, insulin on board, time-in-range trends and CSV export. Private: data stays on your device.">
+<meta name="theme-color" content="#0a7c86">
+<style>
+:root{
+  --bg:#f5f7f9;--card:#fff;--ink:#14202b;--muted:#5b6b79;--line:#e1e7ec;
+  --brand:#0a7c86;--brand-ink:#fff;--ok:#1b7f4b;--okbg:#e5f4ec;
+  --low:#b3261e;--lowbg:#fdeceb;--high:#8a5a00;--highbg:#fff3d6;
+  --band:rgba(27,127,75,.12);--shadow:0 1px 2px rgba(20,32,43,.06),0 4px 14px rgba(20,32,43,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1418;--card:#182028;--ink:#e8eef3;--muted:#98a8b6;--line:#26323c;
+  --brand:#4fc3cd;--brand-ink:#06242a;--ok:#5fd394;--okbg:#14301f;--low:#ff8a80;--lowbg:#3a1815;
+  --high:#f5c451;--highbg:#352a0c;--band:rgba(95,211,148,.14);--shadow:none}
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{max-width:720px;margin:0 auto;padding:16px 14px 96px}
+header{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
+h1{font-size:20px;margin:0;letter-spacing:.2px}
+h1 span{color:var(--brand)}
+h2{font-size:15px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:10px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;min-height:44px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+button{font:inherit;cursor:pointer;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px 16px;min-height:44px;font-weight:600}
+button.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+button.danger{color:var(--low);border-color:var(--low)}
+button.small{min-height:34px;padding:6px 10px;font-size:14px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.big{font-size:56px;font-weight:700;line-height:1;letter-spacing:-1px}
+.unit{font-size:16px;font-weight:500;color:var(--muted);margin-left:6px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.muted{color:var(--muted);font-size:14px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:700}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.low{background:var(--lowbg);color:var(--low)}.pill.high{background:var(--highbg);color:var(--high)}
+.alert{border-radius:12px;padding:12px 14px;margin:10px 0;font-size:15px}
+.alert.low{background:var(--lowbg);color:var(--low);border:1px solid var(--low)}
+.alert.high{background:var(--highbg);color:var(--high);border:1px solid var(--high)}
+.alert.info{background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.stat{background:var(--bg);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:12px;color:var(--muted);font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav div{display:flex;max-width:720px;width:100%}
+nav button{flex:1;border:0;border-radius:0;background:transparent;color:var(--muted);font-size:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px}
+nav button svg{width:22px;height:22px}
+nav button[aria-current="page"]{color:var(--brand)}
+.hide{display:none!important}
+.calc-line{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.dose{font-size:44px;font-weight:800;color:var(--brand)}
+.entry{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.entry:last-child{border:0}
+.entry .time{min-width:54px;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.entry .body{flex:1}
+.day{font-weight:700;margin:14px 0 2px;font-size:14px;color:var(--muted)}
+.seg{display:flex;gap:6px;margin-bottom:10px}
+.seg button{flex:1;min-height:36px;padding:6px}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+svg.chart{width:100%;height:auto;display:block}
+.disc{font-size:12.5px;color:var(--muted);text-align:center;margin:18px 6px}
+details summary{cursor:pointer;font-weight:600;padding:6px 0}
+textarea.export{font:12px/1.4 ui-monospace,monospace;min-height:140px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+.back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:6px}
+.back:hover{color:var(--brand)}
+.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header style="display:block">
+    <a class="back" href="https://rameshverse.com">← RameshVerse</a>
+    <div class="row spread"><h1>Insulin &amp; Glucose <span>Tracker</span></h1><span class="muted" id="clock"></span></div>
+    <div class="muted">For Type 1 diabetes · private, stays on your device</div>
+  </header>
+
+  <!-- TODAY -->
+  <section id="v-today">
+    <div class="card" id="lastCard"></div>
+    <div id="alerts"></div>
+    <div class="card">
+      <h2>Today</h2>
+      <div class="grid g3" id="todayStats"></div>
+    </div>
+    <div class="card">
+      <h2>Insulin on board (estimate)</h2>
+      <div class="row spread"><div><span class="big" style="font-size:36px" id="iobNow">0</span><span class="unit">units rapid-acting</span></div><button class="primary" onclick="go('dose')">Dose calculator</button></div>
+      <p class="hint" id="iobHint"></p>
+    </div>
+    <div class="card">
+      <div class="row spread" style="margin-bottom:6px"><h2 style="margin:0">Last 24 hours</h2><button class="small" onclick="go('log')">+ Log entry</button></div>
+      <div id="chartToday"></div>
+    </div>
+  </section>
+
+  <!-- DOSE -->
+  <section id="v-dose" class="hide">
+    <div class="card">
+      <h2>Mealtime &amp; correction dose</h2>
+      <div id="needSettings" class="alert info hide">Enter your carb ratio, correction factor and target glucose (as prescribed by your care team) in <a href="#" onclick="go('settings');return false" style="color:var(--brand)">Settings</a> to use the calculator.</div>
+      <div class="grid g2">
+        <div><label for="cBG">Current glucose (<span class="uLbl"></span>)</label><input id="cBG" inputmode="decimal" placeholder="—"></div>
+        <div><label for="cCarbs">Carbs to eat (g)</label><input id="cCarbs" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <div id="calcOut" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h2>How it's calculated</h2>
+      <p class="muted" style="margin:0">Meal dose = carbs ÷ carb ratio. Correction = (glucose − target) ÷ correction factor. Insulin on board (rapid doses you logged, decaying linearly over your insulin action time) is subtracted. The result is rounded to your dose step. It is an estimate from what you've entered — always compare with your own plan.</p>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section id="v-log" class="hide">
+    <div class="card">
+      <h2>New entry</h2>
+      <form id="entryForm" autocomplete="off">
+        <div class="grid g2">
+          <div><label for="eTime">Time</label><input type="datetime-local" id="eTime" required></div>
+          <div><label for="eCtx">Context</label>
+            <select id="eCtx"><option value="">—</option><option>Fasting</option><option>Before meal</option><option>After meal</option><option>Bedtime</option><option>Exercise</option><option>Sick day</option><option>Other</option></select></div>
+          <div><label for="eBG">Glucose (<span class="uLbl"></span>)</label><input id="eBG" inputmode="decimal" placeholder="optional"></div>
+          <div><label for="eCarbs">Carbs (g)</label><input id="eCarbs" inputmode="decimal" placeholder="optional"></div>
+          <div><label for="eUnits">Insulin (units)</label><input id="eUnits" inputmode="decimal" placeholder="optional"></div>
+          <div><label for="eType">Insulin type</label><select id="eType"><option value="rapid">Rapid / mealtime</option><option value="basal">Basal / long-acting</option></select></div>
+        </div>
+        <div style="margin-top:10px"><label for="eNote">Note</label><input id="eNote" placeholder="e.g. rice + dal, 30 min walk, injection site"></div>
+        <div class="row" style="margin-top:12px"><button class="primary" type="submit">Save entry</button><button type="button" onclick="resetForm()">Clear</button><span class="muted" id="formMsg" role="status"></span></div>
+      </form>
+    </div>
+    <div class="card"><h2>History</h2><div id="history"></div></div>
+  </section>
+
+  <!-- TRENDS -->
+  <section id="v-trends" class="hide">
+    <div class="seg" role="group" aria-label="Range">
+      <button data-r="1" aria-pressed="false">24 h</button><button data-r="7" aria-pressed="true">7 days</button><button data-r="14" aria-pressed="false">14 days</button><button data-r="30" aria-pressed="false">30 days</button>
+    </div>
+    <div class="card"><h2>Glucose readings</h2><div id="chartTrend"></div><p class="hint">Shaded band = your target range. Circles outlined in red/amber are outside range. Based on the finger-stick/CGM readings you logged.</p></div>
+    <div class="card"><h2>Summary</h2><div class="grid g2" id="trendStats"></div></div>
+    <div class="card"><h2>Daily insulin</h2><div id="chartInsulin"></div></div>
+    <div class="card">
+      <h2>Share with your care team</h2>
+      <p class="muted" style="margin-top:0">Copy your log as CSV to paste into an email or spreadsheet.</p>
+      <div class="row"><button onclick="buildExport()">Generate CSV</button><button class="primary hide" id="copyBtn" onclick="copyExport()">Copy</button><span class="muted" id="copyMsg" role="status"></span></div>
+      <textarea class="export hide" id="exportBox" readonly aria-label="CSV export"></textarea>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="v-settings" class="hide">
+    <div class="alert info"><b>Use the numbers your doctor or diabetes educator gave you.</b> This app doesn't know your ratios and won't guess them.</div>
+    <div class="card">
+      <h2>Units &amp; ranges</h2>
+      <div class="grid g2">
+        <div><label for="sUnit">Glucose units</label><select id="sUnit"><option value="mgdl">mg/dL</option><option value="mmol">mmol/L</option></select></div>
+        <div><label for="sStep">Dose rounding</label><select id="sStep"><option value="1">1 unit</option><option value="0.5">0.5 unit</option><option value="0.1">0.1 unit</option></select></div>
+        <div><label for="sLow">Low below (<span class="uLbl"></span>)</label><input id="sLow" inputmode="decimal"></div>
+        <div><label for="sHigh">High above (<span class="uLbl"></span>)</label><input id="sHigh" inputmode="decimal"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Dosing parameters</h2>
+      <div class="grid g2">
+        <div><label for="sTarget">Target glucose (<span class="uLbl"></span>)</label><input id="sTarget" inputmode="decimal" placeholder="from your plan"></div>
+        <div><label for="sICR">Carb ratio (g per 1 unit)</label><input id="sICR" inputmode="decimal" placeholder="e.g. 1 : ?"></div>
+        <div><label for="sISF">Correction factor (<span class="uLbl"></span> drop per 1 unit)</label><input id="sISF" inputmode="decimal" placeholder="from your plan"></div>
+        <div><label for="sDIA">Insulin action time (hours)</label><input id="sDIA" inputmode="decimal"></div>
+        <div><label for="sMax">Max single dose (units)</label><input id="sMax" inputmode="decimal" placeholder="optional safety cap"></div>
+      </div>
+      <p class="hint">Saved automatically on this device.</p>
+    </div>
+    <div class="card">
+      <h2>Your data</h2>
+      <p class="muted" style="margin-top:0" id="storageMsg"></p>
+      <div class="row"><button class="danger" id="wipeBtn" onclick="wipe()">Delete all data</button></div>
+    </div>
+  </section>
+
+  <p class="disc"><b>Not medical advice.</b> This tool is a logbook and calculator and can make mistakes. Never rely on it alone for insulin decisions. Follow your care team's plan. In an emergency (confusion, can't swallow, seizure, persistent vomiting) call your local emergency number.</p>
+  <p class="foot">© RameshVerse · All rights reserved</p>
+</div>
+
+<nav aria-label="Main"><div id="tabs"></div></nav>
+
+<script>
+(function(){
+"use strict";
+var K=18.016, KEY="insulinlog.v1";
+var state={settings:{unit:"mgdl",low:70,high:180,target:null,icr:null,isf:null,dia:4,step:1,maxDose:null},entries:[]};
+var storageOK=true, view="today", range=7, editingId=null;
+
+/* ---------- storage ---------- */
+function load(){
+  try{var raw=localStorage.getItem(KEY); if(raw){var s=JSON.parse(raw); if(s&&s.settings){Object.assign(state.settings,s.settings);} if(s&&Array.isArray(s.entries)) state.entries=s.entries;}}
+  catch(e){storageOK=false;}
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){storageOK=false; renderStorage();}
+}
+/* ---------- helpers ---------- */
+var $=function(id){return document.getElementById(id)};
+function esc(s){var d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML}
+function num(v){if(v==null)return null;v=String(v).replace(",",".").trim();if(v==="")return null;var n=Number(v);return isFinite(n)?n:null}
+function isMmol(){return state.settings.unit==="mmol"}
+function toDisp(mg){return isMmol()?mg/K:mg}
+function fromDisp(v){return isMmol()?v*K:v}
+function fmtG(mg){if(mg==null)return "—";return isMmol()?(mg/K).toFixed(1):String(Math.round(mg))}
+function fmtU(n){return (Math.round(n*100)/100).toString()}
+function uName(){return isMmol()?"mmol/L":"mg/dL"}
+function pad(n){return n<10?"0"+n:""+n}
+function localInput(t){var d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes())}
+function hm(t){var d=new Date(t);return pad(d.getHours())+":"+pad(d.getMinutes())}
+function dayKey(t){var d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function dayLabel(t){var d=new Date(t),n=new Date();if(dayKey(t)===dayKey(n))return "Today";var y=new Date(n.getTime()-864e5);if(dayKey(t)===dayKey(y))return "Yesterday";return d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}
+function ago(t){var m=Math.round((Date.now()-t)/60000);if(m<1)return "just now";if(m<60)return m+" min ago";var h=Math.floor(m/60);if(h<24)return h+" h "+(m%60)+" min ago";return Math.floor(h/24)+" d ago"}
+function status(mg){var s=state.settings;if(mg<s.low)return "low";if(mg>s.high)return "high";return "ok"}
+function statusText(k){return k==="low"?"Low":k==="high"?"High":"In range"}
+function sorted(){return state.entries.slice().sort(function(a,b){return b.t-a.t})}
+function startOfDay(t){var d=new Date(t);d.setHours(0,0,0,0);return d.getTime()}
+
+/* ---------- insulin on board ---------- */
+function iobAt(now){
+  var dia=(state.settings.dia||4)*3600000, tot=0;
+  state.entries.forEach(function(e){
+    if(e.units>0&&e.type==="rapid"){
+      var el=now-e.t; if(el>=0&&el<dia) tot+=e.units*(1-el/dia);
+    }
+  });
+  return tot;
+}
+
+/* ---------- navigation ---------- */
+var TABS=[
+ ["today","Today",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>'],
+ ["dose","Dose",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 7h8M8 12h2m4 0h2M8 16h2m4 0h2"/></svg>'],
+ ["log","Log",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>'],
+ ["trends","Trends",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 4 8-9"/></svg>'],
+ ["settings","Settings",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>']
+];
+function buildTabs(){
+  $("tabs").innerHTML=TABS.map(function(t){return '<button data-v="'+t[0]+'"'+(t[0]===view?' aria-current="page"':'')+'>'+t[2]+t[1]+'</button>'}).join("");
+  Array.prototype.forEach.call($("tabs").children,function(b){b.onclick=function(){go(b.dataset.v)}});
+}
+window.go=function(v){
+  view=v;
+  TABS.forEach(function(t){$("v-"+t[0]).classList.toggle("hide",t[0]!==v)});
+  buildTabs(); render(); window.scrollTo(0,0);
+};
+
+/* ---------- Today ---------- */
+function renderToday(){
+  var list=sorted().filter(function(e){return e.bg!=null}), last=list[0], s=state.settings;
+  var html="";
+  if(!last){html='<h2>Latest glucose</h2><p class="muted" style="margin:0">No readings yet. Add your first one in <a href="#" onclick="go(\'log\');return false" style="color:var(--brand)">Log</a>.</p>';}
+  else{
+    var k=status(last.bg);
+    html='<h2>Latest glucose</h2><div class="row spread"><div><span class="big">'+fmtG(last.bg)+'</span><span class="unit">'+uName()+'</span></div><span class="pill '+k+'">'+statusText(k)+(k==="low"?" ▼":k==="high"?" ▲":" ✓")+'</span></div><p class="muted" style="margin:8px 0 0">'+ago(last.t)+(last.ctx?" · "+esc(last.ctx):"")+'</p>';
+  }
+  $("lastCard").innerHTML=html;
+
+  var al="";
+  if(last && Date.now()-last.t<6*3600000){
+    if(last.bg<s.low) al+='<div class="alert low" role="alert"><b>Low glucose.</b> Take about 15 g of fast-acting carbs (glucose tablets, juice), recheck in 15 minutes and repeat if still low. If you are confused, can\'t swallow or are unresponsive, use glucagon if available and call emergency services. Don\'t inject insulin.</div>';
+    else if(last.bg>=250) al+='<div class="alert high" role="alert"><b>High glucose.</b> Check ketones if you can, drink water, and follow your sick-day / high-glucose plan. Contact your care team urgently if ketones are present or you feel nauseous, are vomiting or have stomach pain.</div>';
+  }
+  $("alerts").innerHTML=al;
+
+  var t0=startOfDay(Date.now()), td=state.entries.filter(function(e){return e.t>=t0});
+  var rapid=0,basal=0,carbs=0,rd=td.filter(function(e){return e.bg!=null});
+  td.forEach(function(e){if(e.units>0){if(e.type==="basal")basal+=e.units;else rapid+=e.units} if(e.carbs>0)carbs+=e.carbs});
+  var avg=rd.length?rd.reduce(function(a,e){return a+e.bg},0)/rd.length:null;
+  function st(v,l){return '<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>'}
+  $("todayStats").innerHTML=st(fmtU(rapid)+" u","Rapid insulin")+st(fmtU(basal)+" u","Basal insulin")+st(Math.round(carbs)+" g","Carbs")+st(rd.length,"Readings")+st(avg==null?"—":fmtG(avg),"Avg glucose")+st(fmtU(rapid+basal)+" u","Total insulin");
+
+  var iob=iobAt(Date.now());
+  $("iobNow").textContent=fmtU(Math.round(iob*10)/10);
+  var lr=sorted().filter(function(e){return e.units>0&&e.type==="rapid"})[0];
+  $("iobHint").textContent=lr?("Last rapid dose: "+fmtU(lr.units)+" u, "+ago(lr.t)+". Assumes "+(s.dia||4)+" h insulin action."):"No rapid-acting doses logged yet.";
+  $("chartToday").innerHTML=glucoseChart(1,true);
+}
+
+/* ---------- Dose calculator ---------- */
+function renderDose(){
+  var s=state.settings, ready=s.target!=null&&s.icr>0&&s.isf>0;
+  $("needSettings").classList.toggle("hide",ready);
+  var out=$("calcOut");
+  if(!ready){out.innerHTML="";return}
+  var bg=num($("cBG").value), carbs=num($("cCarbs").value)||0;
+  if(bg==null&&!carbs){out.innerHTML='<p class="muted">Enter your glucose and/or the carbs you plan to eat.</p>';return}
+  var bgMg=bg==null?null:fromDisp(bg), html="";
+  if(bgMg!=null&&bgMg<s.low){
+    out.innerHTML='<div class="alert low" role="alert"><b>Glucose is low ('+fmtG(bgMg)+' '+uName()+').</b> No dose suggested. Treat the low first (about 15 g fast carbs, recheck in 15 min) and ask your care team how to handle a meal dose after a low.</div>';return;
+  }
+  var meal=carbs/s.icr, corr=0, tgt=s.target;
+  if(bgMg!=null&&bgMg>tgt) corr=(bgMg-tgt)/s.isf;
+  var iob=iobAt(Date.now());
+  var raw=meal+corr-iob; if(raw<0)raw=0;
+  var step=s.step||1, dose=Math.round(raw/step)*step; dose=Math.round(dose*100)/100;
+  var capped=false; if(s.maxDose>0&&dose>s.maxDose){dose=s.maxDose;capped=true}
+  html+='<div class="calc-line"><span>Meal ('+fmtU(carbs)+' g ÷ '+fmtU(s.icr)+')</span><b>'+fmtU(meal)+' u</b></div>';
+  html+='<div class="calc-line"><span>Correction'+(bgMg==null?" (no glucose entered)":bgMg<=tgt?" (at/below target)":"")+'</span><b>'+fmtU(corr)+' u</b></div>';
+  html+='<div class="calc-line"><span>Insulin on board</span><b>− '+fmtU(iob)+' u</b></div>';
+  html+='<div style="text-align:center;margin:14px 0 4px"><div class="muted">Suggested dose</div><div class="dose">'+fmtU(dose)+' <span class="unit">units</span></div></div>';
+  if(capped) html+='<div class="alert high">Capped at your max single dose ('+fmtU(s.maxDose)+' u).</div>';
+  if(bgMg!=null&&bgMg>=250) html+='<div class="alert high">Glucose is very high — check ketones and follow your high-glucose plan.</div>';
+  if(!capped&&!(s.maxDose>0)&&dose>=15) html+='<div class="alert high"><b>Large dose.</b> Double-check your numbers before injecting.</div>';
+  if(carbs>0&&dose===0) html+='<div class="alert info">Insulin on board covers this, so the calculator suggests 0 u. Check with your plan.</div>';
+  html+='<div class="row" style="margin-top:10px"><button class="primary" id="useDose">Log this dose</button><span class="muted">Opens a pre-filled entry — you confirm what you actually took.</span></div>';
+  out.innerHTML=html;
+  $("useDose").onclick=function(){
+    go("log");
+    $("eTime").value=localInput(Date.now());
+    $("eBG").value=bg==null?"":String(bg); $("eCarbs").value=carbs?String(carbs):"";
+    $("eUnits").value=String(dose); $("eType").value="rapid"; $("eCtx").value=carbs?"Before meal":"";
+  };
+}
+
+/* ---------- Log ---------- */
+function resetForm(){editingId=null;$("entryForm").reset();$("eTime").value=localInput(Date.now());$("formMsg").textContent=""}
+window.resetForm=resetForm;
+function renderHistory(){
+  var list=sorted(), box=$("history");
+  if(!list.length){box.innerHTML='<p class="muted" style="margin:0">Nothing logged yet.</p>';return}
+  var html="",cur="";
+  list.slice(0,300).forEach(function(e){
+    var dk=dayKey(e.t); if(dk!==cur){cur=dk;html+='<div class="day">'+esc(dayLabel(e.t))+'</div>'}
+    var parts=[];
+    if(e.bg!=null){var k=status(e.bg);parts.push('<b>'+fmtG(e.bg)+'</b> '+uName()+' <span class="pill '+k+'">'+statusText(k)+'</span>')}
+    if(e.units>0) parts.push('<b>'+fmtU(e.units)+' u</b> '+(e.type==="basal"?"basal":"rapid"));
+    if(e.carbs>0) parts.push(fmtU(e.carbs)+' g carbs');
+    html+='<div class="entry"><div class="time">'+hm(e.t)+'</div><div class="body">'+parts.join(" · ")+(e.ctx?'<div class="muted">'+esc(e.ctx)+'</div>':"")+(e.note?'<div class="muted">'+esc(e.note)+'</div>':"")+'</div><button class="small" data-del="'+e.id+'" aria-label="Delete entry">Delete</button></div>';
+  });
+  box.innerHTML=html;
+  Array.prototype.forEach.call(box.querySelectorAll("[data-del]"),function(b){
+    b.onclick=function(){
+      if(b.dataset.armed){state.entries=state.entries.filter(function(e){return String(e.id)!==b.dataset.del});save();render();}
+      else{b.dataset.armed="1";b.textContent="Confirm?";b.classList.add("danger");setTimeout(function(){if(b.isConnected){delete b.dataset.armed;b.textContent="Delete";b.classList.remove("danger")}},3000)}
+    };
+  });
+}
+
+/* ---------- Charts ---------- */
+function glucoseChart(days,compact){
+  var now=Date.now(), from=now-days*864e5, s=state.settings;
+  var pts=state.entries.filter(function(e){return e.bg!=null&&e.t>=from}).sort(function(a,b){return a.t-b.t});
+  var W=640,H=compact?190:260,L=40,R=10,T=10,B=26;
+  if(!pts.length) return '<p class="muted" style="margin:0">No readings in this period.</p>';
+  var maxV=Math.max(260,s.high+40,Math.max.apply(null,pts.map(function(p){return p.bg}))+10), minV=Math.min(40,Math.min.apply(null,pts.map(function(p){return p.bg}))-10);
+  function X(t){return L+(t-from)/(now-from)*(W-L-R)}
+  function Y(v){return T+(1-(v-minV)/(maxV-minV))*(H-T-B)}
+  var svg='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Glucose chart for the last '+(days===1?"24 hours":days+" days")+'">';
+  svg+='<rect x="'+L+'" y="'+Y(s.high)+'" width="'+(W-L-R)+'" height="'+(Y(s.low)-Y(s.high))+'" fill="var(--band)"/>';
+  var ticks=[s.low,s.high]; if(maxV>=250)ticks.push(250);
+  ticks.forEach(function(v){svg+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)" stroke-dasharray="3 4"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+fmtG(v)+'</text>'});
+  var n=days===1?4:Math.min(days,7);
+  for(var i=0;i<=n;i++){var t=from+(now-from)*i/n,d=new Date(t);var lbl=days===1?hm(t):d.getDate()+"/"+(d.getMonth()+1);svg+='<text x="'+X(t)+'" y="'+(H-8)+'" text-anchor="'+(i===0?"start":i===n?"end":"middle")+'" font-size="11" fill="var(--muted)">'+lbl+'</text>'}
+  var path=pts.map(function(p,i){return (i?"L":"M")+X(p.t).toFixed(1)+","+Y(p.bg).toFixed(1)}).join(" ");
+  if(pts.length>1) svg+='<path d="'+path+'" fill="none" stroke="var(--brand)" stroke-width="1.6" opacity=".55"/>';
+  pts.forEach(function(p){
+    var k=status(p.bg),ring=k==="low"?"var(--low)":k==="high"?"var(--high)":"var(--brand)";
+    svg+='<circle cx="'+X(p.t).toFixed(1)+'" cy="'+Y(p.bg).toFixed(1)+'" r="'+(k==="ok"?3.5:5)+'" fill="'+(k==="ok"?"var(--brand)":"var(--card)")+'" stroke="'+ring+'" stroke-width="2"><title>'+fmtG(p.bg)+' '+uName()+' · '+new Date(p.t).toLocaleString()+'</title></circle>';
+  });
+  return svg+'</svg>';
+}
+function insulinChart(days){
+  var n=Math.min(days,14), s0=startOfDay(Date.now()), data=[];
+  for(var i=n-1;i>=0;i--){var a=s0-i*864e5,b=a+864e5,r=0,bs=0;
+    state.entries.forEach(function(e){if(e.t>=a&&e.t<b&&e.units>0){if(e.type==="basal")bs+=e.units;else r+=e.units}});
+    data.push({a:a,r:r,b:bs});}
+  var mx=Math.max.apply(null,data.map(function(d){return d.r+d.b}));
+  if(!mx) return '<p class="muted" style="margin:0">No insulin logged in this period.</p>';
+  var W=640,H=200,L=34,B=26,T=10,bw=(W-L-10)/data.length;
+  var svg='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Daily insulin totals">';
+  svg+='<text x="'+(L-6)+'" y="'+(T+8)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+Math.round(mx)+'</text><text x="'+(L-6)+'" y="'+(H-B)+'" text-anchor="end" font-size="11" fill="var(--muted)">0</text>';
+  data.forEach(function(d,i){
+    var x=L+i*bw+bw*.15,w=bw*.7,hr=d.r/mx*(H-T-B),hb=d.b/mx*(H-T-B);
+    svg+='<rect x="'+x+'" y="'+(H-B-hb)+'" width="'+w+'" height="'+hb+'" fill="var(--muted)" opacity=".55"><title>Basal '+fmtU(d.b)+' u</title></rect>';
+    svg+='<rect x="'+x+'" y="'+(H-B-hb-hr)+'" width="'+w+'" height="'+hr+'" fill="var(--brand)"><title>Rapid '+fmtU(d.r)+' u</title></rect>';
+    if(data.length<=14){var dt=new Date(d.a);svg+='<text x="'+(x+w/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+dt.getDate()+'/'+(dt.getMonth()+1)+'</text>'}
+  });
+  svg+='</svg><div class="row muted" style="gap:16px;margin-top:6px"><span><span style="display:inline-block;width:10px;height:10px;background:var(--brand);border-radius:2px"></span> Rapid</span><span><span style="display:inline-block;width:10px;height:10px;background:var(--muted);opacity:.55;border-radius:2px"></span> Basal</span></div>';
+  return svg;
+}
+function renderTrends(){
+  $("chartTrend").innerHTML=glucoseChart(range,false);
+  $("chartInsulin").innerHTML=insulinChart(range);
+  var from=Date.now()-range*864e5, rd=state.entries.filter(function(e){return e.bg!=null&&e.t>=from}), s=state.settings;
+  function st(v,l){return '<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>'}
+  if(!rd.length){$("trendStats").innerHTML='<p class="muted" style="margin:0">No readings yet.</p>';return}
+  var avg=rd.reduce(function(a,e){return a+e.bg},0)/rd.length;
+  var lo=rd.filter(function(e){return e.bg<s.low}).length, hi=rd.filter(function(e){return e.bg>s.high}).length, inr=rd.length-lo-hi;
+  var days=Math.max(1,range), ins=0; state.entries.forEach(function(e){if(e.t>=from&&e.units>0)ins+=e.units});
+  $("trendStats").innerHTML=st(fmtG(avg)+" "+uName(),"Average glucose")+st(Math.round(inr/rd.length*100)+"%","Readings in range")+st(lo+" ("+Math.round(lo/rd.length*100)+"%)","Low readings")+st(hi+" ("+Math.round(hi/rd.length*100)+"%)","High readings")+st(rd.length,"Readings logged")+st(fmtU(ins/days)+" u","Avg insulin / day");
+}
+function buildExport(){
+  var rows=["datetime,glucose_mgdl,glucose_"+(isMmol()?"mmol":"display")+",carbs_g,insulin_units,insulin_type,context,note"];
+  sorted().reverse().forEach(function(e){
+    function q(s){s=s==null?"":String(s);return '"'+s.replace(/"/g,'""')+'"'}
+    rows.push([new Date(e.t).toISOString(),e.bg==null?"":Math.round(e.bg),e.bg==null?"":(e.bg/K).toFixed(1),e.carbs||"",e.units||"",e.units?e.type:"",q(e.ctx),q(e.note)].join(","));
+  });
+  $("exportBox").value=rows.join("\n"); $("exportBox").classList.remove("hide"); $("copyBtn").classList.remove("hide");
+}
+window.buildExport=buildExport;
+window.copyExport=function(){
+  var box=$("exportBox"); box.focus(); box.select();
+  var ok=false; try{ if(navigator.clipboard) navigator.clipboard.writeText(box.value).then(function(){$("copyMsg").textContent="Copied"},function(){$("copyMsg").textContent="Press Ctrl/Cmd+C to copy"}); else ok=document.execCommand("copy"), $("copyMsg").textContent=ok?"Copied":"Press Ctrl/Cmd+C to copy"; }catch(e){$("copyMsg").textContent="Press Ctrl/Cmd+C to copy"}
+};
+
+/* ---------- Settings ---------- */
+function dispOrBlank(mg){return mg==null?"":(isMmol()?(mg/K).toFixed(1):String(Math.round(mg)))}
+function fillSettings(){
+  var s=state.settings;
+  $("sUnit").value=s.unit; $("sStep").value=String(s.step);
+  $("sLow").value=dispOrBlank(s.low); $("sHigh").value=dispOrBlank(s.high); $("sTarget").value=dispOrBlank(s.target);
+  $("sICR").value=s.icr==null?"":s.icr; $("sISF").value=s.isf==null?"":(isMmol()?(s.isf/K).toFixed(1):s.isf);
+  $("sDIA").value=s.dia==null?"":s.dia; $("sMax").value=s.maxDose==null?"":s.maxDose;
+  Array.prototype.forEach.call(document.querySelectorAll(".uLbl"),function(e){e.textContent=uName()});
+}
+function readSettings(){
+  var s=state.settings, v;
+  s.unit=$("sUnit").value; s.step=Number($("sStep").value)||1;
+  v=num($("sLow").value); if(v>0) s.low=fromDisp(v);
+  v=num($("sHigh").value); if(v>0) s.high=fromDisp(v);
+  v=num($("sTarget").value); s.target=v>0?fromDisp(v):null;
+  v=num($("sICR").value); s.icr=v>0?v:null;
+  v=num($("sISF").value); s.isf=v>0?fromDisp(v):null;
+  v=num($("sDIA").value); s.dia=v>=2&&v<=8?v:4;
+  v=num($("sMax").value); s.maxDose=v>0?v:null;
+  save();
+}
+function renderStorage(){
+  $("storageMsg").textContent=storageOK?"Everything is stored only in this browser on this device. It isn't uploaded anywhere and won't sync to other devices — export a CSV from Trends to keep a backup.":"Your browser blocked local storage here, so entries will be lost when you close this page. Export a CSV from Trends regularly.";
+}
+window.wipe=function(){
+  var b=$("wipeBtn");
+  if(b.dataset.armed){state.entries=[];save();b.textContent="Delete all data";delete b.dataset.armed;render()}
+  else{b.dataset.armed="1";b.textContent="Tap again to delete everything (settings kept)";setTimeout(function(){delete b.dataset.armed;b.textContent="Delete all data"},4000)}
+};
+
+/* ---------- render ---------- */
+function render(){
+  Array.prototype.forEach.call(document.querySelectorAll(".uLbl"),function(e){e.textContent=uName()});
+  if(view==="today") renderToday();
+  else if(view==="dose") renderDose();
+  else if(view==="log") renderHistory();
+  else if(view==="trends") renderTrends();
+  else if(view==="settings"){renderStorage()}
+}
+
+/* ---------- events ---------- */
+$("entryForm").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  var t=new Date($("eTime").value).getTime(), bgv=num($("eBG").value), c=num($("eCarbs").value), u=num($("eUnits").value);
+  var msg=$("formMsg");
+  if(!isFinite(t)){msg.textContent="Choose a valid time.";return}
+  if(bgv==null&&!(c>0)&&!(u>0)){msg.textContent="Enter glucose, carbs or insulin.";return}
+  var bg=bgv==null?null:fromDisp(bgv);
+  if(bg!=null&&(bg<20||bg>800)){msg.textContent="That glucose value looks off — check the number and units.";return}
+  if(u!=null&&(u<0||u>100)){msg.textContent="Insulin units look off — check the number.";return}
+  state.entries.push({id:Date.now()+Math.floor(Math.random()*1000),t:t,bg:bg,carbs:c>0?c:null,units:u>0?u:null,type:$("eType").value,ctx:$("eCtx").value,note:$("eNote").value.trim()});
+  save(); resetForm(); msg.textContent="Saved ✓"; setTimeout(function(){msg.textContent=""},2500); renderHistory();
+});
+["cBG","cCarbs"].forEach(function(id){$(id).addEventListener("input",renderDose)});
+["sUnit","sStep","sLow","sHigh","sTarget","sICR","sISF","sDIA","sMax"].forEach(function(id){
+  $(id).addEventListener("change",function(){
+    var unitChanged=id==="sUnit"; readSettings(); if(unitChanged) fillSettings(); render();
+  });
+});
+Array.prototype.forEach.call(document.querySelectorAll(".seg button"),function(b){
+  b.onclick=function(){range=Number(b.dataset.r);Array.prototype.forEach.call(document.querySelectorAll(".seg button"),function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});renderTrends()};
+});
+setInterval(function(){$("clock").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});if(view==="today")renderToday()},30000);
+
+/* ---------- init ---------- */
+load(); fillSettings(); resetForm();
+$("clock").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+buildTabs(); go("today");
+})();
+</script>
+</body>
+</html>
