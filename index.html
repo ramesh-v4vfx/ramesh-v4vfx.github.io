@@ -8,15 +8,8 @@
   Copying, reproducing, redistributing or reusing any part of it without written permission is not allowed.
 -->
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-DZMEQ7NQCD');
-</script>
+<!-- Umami analytics (cookieless) -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="7c12dd34-4df3-4021-9663-1a956cb7fefa"></script>
 
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -4476,13 +4469,11 @@
   (function() {const hero = document.getElementById("hero");
     const heroClose = document.getElementById("heroClose");
 
-    // Banner analytics: sends events to Google Analytics (GA4).
-    // transport_type 'beacon' makes sure the click is still recorded
-    // when the click takes the visitor to another page.
+    // Banner analytics: sends events to Umami (cookieless).
     function track(name, params) {
       try {
-        if (typeof gtag === 'function') {
-          gtag('event', name, Object.assign({ transport_type: 'beacon' }, params || {}));
+        if (window.umami && typeof window.umami.track === 'function') {
+          window.umami.track(name, params || {});
         }
       } catch (e) {}
     }
