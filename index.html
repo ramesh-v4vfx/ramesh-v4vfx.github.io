@@ -3445,6 +3445,189 @@
                 0 0 0 1px var(--accent, #ff2b2b);
   }
 }
+
+/* ══════════════════════════════════════════════════════
+   BLACK BOX · TODAY'S LOG — top of the right rail, above Unfinished Business
+   Always-visible shortcut to Personal Black Box. Shows how many
+   things this visitor logged today and the latest few. Reads the
+   Black Box page's own saved log (localStorage "checklist-v2");
+   nothing is sent anywhere.
+   ══════════════════════════════════════════════════════ */
+.bb-panel {
+  position: relative;
+  z-index: 1;
+  width: 300px;
+  background: linear-gradient(180deg, rgba(27, 29, 27, 0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  padding: 16px 20px 14px 14px;
+  clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%, 0 22px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+}
+.bb-panel::before {
+  content: "";
+  position: absolute;
+  top: 0; right: 0;
+  width: 2px; height: 100%;
+  background: linear-gradient(180deg, #ff2b2b, rgba(255,43,43,0.05));
+  box-shadow: 0 0 10px rgba(255,43,43,0.5);
+}
+.bb-panel::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 22px; height: 22px;
+  background: linear-gradient(45deg, transparent 49%, rgba(255,43,43,0.55) 50%, transparent 51%);
+  pointer-events: none;
+}
+.bb-close {
+  position: absolute;
+  top: 2px; left: 28px;
+  width: 26px; height: 26px;
+  border: 1px solid rgba(255,43,43,0.4);
+  border-radius: 0;
+  background: rgba(0,0,0,.5);
+  color: #ff2b2b;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .2s, box-shadow .2s, transform .2s;
+}
+.bb-close:hover { background: rgba(255,43,43,.15); box-shadow: 0 0 12px rgba(255,43,43,.5); transform: scale(1.08); }
+.bb-panel h2 {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  font-weight: 700;
+  padding-bottom: 8px;
+  position: relative;
+  text-align: right;
+}
+.bb-panel h2::after {
+  content: "";
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 40px; height: 1px;
+  background: #ff2b2b;
+  box-shadow: 0 0 6px rgba(255,43,43,0.8);
+}
+.bb-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,43,43,0.12);
+  border-radius: 4px;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,43,43,0.9);
+}
+.bb-stat b { color: #fff; font-size: 1.05rem; letter-spacing: 0; }
+.bb-stat span:last-child { color: rgba(255,255,255,0.5); }
+.bb-items { list-style: none; margin: 8px 0 0; padding: 0; }
+.bb-item {
+  position: relative;
+  padding: 3px 0 3px 15px;
+  color: #d8d5da;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.bb-item::before {
+  content: "";
+  position: absolute;
+  left: 1px; top: 0.72em;
+  width: 6px; height: 6px;
+  border: 1px solid #ff2b2b;
+}
+.bb-item i { font-style: normal; color: rgba(255,43,43,0.85); margin-right: 6px; font-size: 0.66rem; }
+.bb-empty { margin: 8px 0 0; color: rgba(255,255,255,0.55); font-size: 0.7rem; line-height: 1.4; }
+.bb-open {
+  display: block;
+  margin-top: 10px;
+  padding: 8px 10px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 8px rgba(255,43,43,0.5);
+  background: rgba(255,43,43,0.08);
+  border: 1px solid rgba(255,43,43,0.35);
+  border-radius: 4px;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.bb-open:hover,
+.bb-open:focus-visible { background: rgba(255,43,43,0.16); border-color: #ff2b2b; color: #fff; box-shadow: 0 0 14px rgba(255,43,43,0.3); }
+.bb-open:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
+
+/* minimized launcher */
+.bb-launch {
+  position: relative;
+  width: 300px;
+  height: 44px;
+  padding: 0 20px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+}
+.bb-launch:hover,
+.bb-launch:focus-visible { background: rgba(255,43,43,0.12); border-color: rgba(255,43,43,0.6); color: #fff; }
+.bb-launch b { color: #fff; font-weight: 700; }
+.bb-panel[hidden],
+.bb-launch[hidden],
+.bb-panel.is-closed { display: none !important; }
+
+/* Tablet / phone: same stacked order as Unfinished Business, just ahead of it */
+@media (max-width: 1700px) {
+  .bb-panel,
+  .bb-launch {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 92% !important;
+    min-width: 0;
+    margin: 16px auto 0 !important;
+    order: 3;
+  }
+}
+/* Phones: first thing on the page, above the search bar */
+@media (max-width: 700px) {
+  .bb-panel,
+  .bb-launch { order: 0; }
+}
 </style>
 </head>
 <body>
@@ -3728,6 +3911,7 @@
 <!-- LEFT RAIL: Recently Used, then My Favorite Tools, then Most Popular Tools -->
 <div class="left-rail" id="leftRail">
 
+
 <!-- RECENTLY USED TOOLS (hidden until the visitor has opened a tool; filled by script) -->
 <button type="button" class="recent-tools-launch" id="recentToolsOpen"
         aria-expanded="false" aria-controls="recentTools" hidden>
@@ -3770,8 +3954,22 @@
      2. HTML — paste right after your existing
         <aside class="popular-tools" ...>...</aside> block
      ══════════════════════════════════════════════════════ -->
-<!-- RIGHT RAIL: Unfinished Business, Latest Additions, System Distribution -->
+<!-- RIGHT RAIL: Black Box, Unfinished Business, Latest Additions, System Distribution -->
 <div class="right-rail" id="rightRail">
+
+<!-- BLACK BOX · TODAY'S LOG (always visible; link to Personal Black Box; filled by script) -->
+<button type="button" class="bb-launch" id="bbOpen"
+        aria-expanded="false" aria-controls="bbPanel" hidden>
+  <span>Black Box <b id="bbBadge"></b></span><span aria-hidden="true">▾</span>
+</button>
+<aside class="bb-panel" id="bbPanel" aria-label="Black Box today's log">
+  <button type="button" class="bb-close" id="bbClose" aria-label="Minimize Black Box" title="Minimize">▴</button>
+  <h2>Black Box</h2>
+  <div class="bb-stat"><span>Logged today</span><span><b id="bbCount">0</b></span></div>
+  <ul class="bb-items" id="bbItems"></ul>
+  <p class="bb-empty" id="bbEmpty">Log what you did. It saves the exact date and time.</p>
+  <a class="bb-open" id="bbLink" href="/personal-black-box/">▶ Open today's log</a>
+</aside>
 
 <!-- UNFINISHED BUSINESS (top of the rail; hidden until the visitor has open tasks; filled by script) -->
 <button type="button" class="unfinished-launch" id="unfinishedOpen"
@@ -4044,7 +4242,7 @@
 
   <a class="tool has-img" href="/personal-black-box/" data-added="2026-11-23" data-search="personal blackbox productivity tool" data-category="productivity">
     <img class="tool-img" src="/images/card-images/personal-black-box.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
-    <h3>Personnal Blackbox</h3>
+    <h3>Personal Black Box</h3>
     <p>Log what you did, and it saves the exact date and time.</p>
   </a>
 
@@ -6853,6 +7051,103 @@
 
     render();
     if (/[?&]unfinished-debug/.test(location.search)) scan();
+  })();
+</script>
+
+<script>
+  /* ── BLACK BOX · TODAY'S LOG ──
+     Top of the right rail, above Unfinished Business. Reads the log saved by Personal Black Box
+     (localStorage "checklist-v2", older "checklist-v1": [{ text, at, note }])
+     and shows how many things were logged today plus the latest three.
+     Only this visitor's own browser storage is read; nothing is sent anywhere. */
+  (function () {
+    const LOG_KEYS     = ['checklist-v2', 'checklist-v1'];
+    const COLLAPSE_KEY = 'rvBlackBoxCollapsed';
+    const SHOW         = 3;
+
+    const panel    = document.getElementById('bbPanel');
+    const launch   = document.getElementById('bbOpen');
+    const closeBtn = document.getElementById('bbClose');
+    const badge    = document.getElementById('bbBadge');
+    const countEl  = document.getElementById('bbCount');
+    const listEl   = document.getElementById('bbItems');
+    const emptyEl  = document.getElementById('bbEmpty');
+    const linkEl   = document.getElementById('bbLink');
+    if (!panel || !launch || !closeBtn || !badge || !countEl || !listEl || !emptyEl || !linkEl) return;
+
+    function readLog() {
+      for (let i = 0; i < LOG_KEYS.length; i++) {
+        try {
+          const raw = localStorage.getItem(LOG_KEYS[i]);
+          if (!raw) continue;
+          const arr = JSON.parse(raw);
+          if (!Array.isArray(arr)) continue;
+          return arr.map(function (it) {
+            return it && it.text ? { text: String(it.text), at: Number(it.at || it.doneAt) } : null;
+          }).filter(function (it) { return it && isFinite(it.at); });
+        } catch (e) { /* unreadable: treat as empty */ }
+      }
+      return [];
+    }
+
+    const dayKey  = function (ts) { const d = new Date(ts); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); };
+    const timeFmt = function (ts) { return new Date(ts).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); };
+
+    function isCollapsed() {
+      try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) { return false; }
+    }
+    function setCollapsed(on) {
+      try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+    }
+    function applyCollapsed() {
+      const c = isCollapsed();
+      panel.hidden = c;
+      launch.hidden = !c;
+      launch.setAttribute('aria-expanded', c ? 'false' : 'true');
+    }
+
+    function render() {
+      const all = readLog();
+      const today = dayKey(Date.now());
+      const todays = all.filter(function (it) { return dayKey(it.at) === today; })
+                        .sort(function (a, b) { return b.at - a.at; });
+
+      countEl.textContent = todays.length;
+      badge.textContent = todays.length ? todays.length + ' today' : '';
+
+      listEl.textContent = '';
+      todays.slice(0, SHOW).forEach(function (it) {
+        const li = document.createElement('li');
+        li.className = 'bb-item';
+        const t = document.createElement('i');
+        t.textContent = timeFmt(it.at);
+        li.append(t, document.createTextNode(it.text));      // textContent only: never parsed as HTML
+        listEl.appendChild(li);
+      });
+
+      if (todays.length) {
+        emptyEl.hidden = true;
+        linkEl.textContent = todays.length > SHOW ? '▶ See all ' + todays.length + ' of today' : '▶ Open today\u2019s log';
+      } else {
+        emptyEl.hidden = false;
+        emptyEl.textContent = all.length
+          ? 'Nothing logged yet today. What did you just finish?'
+          : 'Log what you did. It saves the exact date and time.';
+        linkEl.textContent = all.length ? '▶ Log something' : '▶ Start your log';
+      }
+    }
+
+    closeBtn.addEventListener('click', function () { setCollapsed(true); applyCollapsed(); });
+    launch.addEventListener('click',   function () { setCollapsed(false); applyCollapsed(); });
+
+    // Stay current: coming back to the tab, back-button restores, another tab saving, midnight
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
+    window.addEventListener('pageshow', render);
+    window.addEventListener('storage', function (e) { if (!e.key || LOG_KEYS.indexOf(e.key) !== -1) render(); });
+    setInterval(function () { if (!document.hidden) render(); }, 60000);
+
+    applyCollapsed();
+    render();
   })();
 </script>
 
