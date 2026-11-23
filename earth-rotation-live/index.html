@@ -15,7 +15,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Watch Earth rotate in real time — a live 3D globe lit by the sun's true current position, with accurate day/night terminator, sunset glow, ocean sun glint, real cloud cover, city lights and a physically-based sun. Drag to orbit, scroll to zoom, or fast-forward time.">
+<meta name="description" content="Watch Earth rotate in real time — a live 3D globe lit by the sun's true current position, with accurate day/night terminator, sunset glow, ocean sun glint, real cloud cover, city lights, a physically-based sun and the Moon in its real phase, with a view of Earth from the Moon. Drag to orbit, scroll to zoom, or fast-forward time.">
 
 <title>Earth Rotation in Real Time | rameshverse</title>
 
@@ -71,9 +71,13 @@
   .vbtn.on{ background:var(--red); color:#0a0505; border-color:var(--red); font-weight:700; }
   .vbtn.dim{ color:var(--text-dim); border-color:var(--line); }
   .vbtn.dim:hover{ color:#0a0505; }
-  @media (max-width:640px){ .vbtn{ padding:7px 8px; font-size:9.5px; } .bar.left{ max-width:100%; bottom:50px; left:14px; } .bar.right{ max-width:100%; right:14px; bottom:12px; } }
+  @media (max-width:640px){ .vbtn{ padding:7px 8px; font-size:9.5px; } .bar.left{ max-width:100%; bottom:88px; left:14px; } .bar.right{ max-width:100%; right:14px; bottom:12px; } }
 
 
+  .binoc{ position:absolute; inset:0; z-index:5; background:#000; pointer-events:none; opacity:0; display:none; --r:200px; --d:160px;
+    -webkit-mask-image: radial-gradient(circle var(--r) at calc(50% - var(--d)) 50%, transparent calc(var(--r) - 1.5px), #000 var(--r)), radial-gradient(circle var(--r) at calc(50% + var(--d)) 50%, transparent calc(var(--r) - 1.5px), #000 var(--r));
+            mask-image: radial-gradient(circle var(--r) at calc(50% - var(--d)) 50%, transparent calc(var(--r) - 1.5px), #000 var(--r)), radial-gradient(circle var(--r) at calc(50% + var(--d)) 50%, transparent calc(var(--r) - 1.5px), #000 var(--r));
+    -webkit-mask-composite: source-in; mask-composite: intersect; }
   .loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; padding:20px; z-index:8; font-size:12px; letter-spacing:0.1em; color:var(--text-dim); background:#050303; transition:opacity .4s ease; }
   .loading.hide{ opacity:0; pointer-events:none; }
   .loading .dot{ color:var(--red); animation:blink 1s steps(1) infinite; margin-right:8px; }
@@ -87,20 +91,24 @@
 <body>
 <div class="wrap">
   <h1>EARTH ROTATION IN REAL TIME<span class="dot">.</span></h1>
-  <p class="tagline">Earth, rendered live: spinning at the real rate of rotation and lit by the sun's true position, with sunset glow, ocean glint and a physically-based sun. Drag to orbit, scroll to zoom, or fast-forward time.</p>
+  <p class="tagline">Earth, rendered live: spinning at the real rate of rotation and lit by the sun's true position, with sunset glow, ocean glint, a physically-based sun and the Moon in its current phase. Drag to orbit, scroll to zoom, hop to the Moon to see Earth from there, or fast-forward time.</p>
 
   <div class="viewer" id="viewer">
     <canvas id="globeCanvas"></canvas>
     <div class="corners"><span></span><span></span><span></span><span></span></div>
+    <div class="binoc" id="binoc"></div>
 
     <div class="hud top-left">
       <div><span class="lbl">UTC</span> <span class="val" id="utcClock">--:--:--</span> <span class="val hide-s" id="utcDate"></span></div>
       <div><span class="lbl">TIME</span> <span class="val" id="modeVal">LIVE · 1×</span></div>
+      <div><span class="lbl">VIEW</span> <span class="val" id="viewVal">EARTH ORBIT</span></div>
     </div>
     <div class="hud top-right">
       <div><span class="lbl">SUBSOLAR</span> <span class="val" id="subsolarVal">--</span></div>
       <div class="hide-s"><span class="lbl">SUN DISTANCE</span> <span class="val" id="sunDistVal">--</span></div>
       <div class="hide-s"><span class="lbl">EQ. OF TIME</span> <span class="val" id="eotVal">--</span></div>
+      <div><span class="lbl">MOON</span> <span class="val" id="moonVal">--</span></div>
+      <div class="hide-s"><span class="lbl">MOON DISTANCE</span> <span class="val" id="moonDistVal">--</span></div>
     </div>
 
     <div class="bar left" id="timeBar" role="group" aria-label="Time speed">
@@ -111,16 +119,20 @@
       <button class="vbtn dim" data-speed="86400">×1 day/s</button>
     </div>
     <div class="bar right">
-      <button class="vbtn" id="sunBtn">☀ Sun view</button>
+      <button class="vbtn" id="sunBtn">☀ Toward Sun</button>
+      <button class="vbtn" id="moonBtn">☾ Moon</button>
+      <button class="vbtn" id="fromMoonBtn">☾ View from Moon</button>
+      <button class="vbtn" id="fromSunBtn">☀ View from Sun</button>
+      <button class="vbtn" id="binBtn" style="display:none">🔭 Binoculars</button>
       <button class="vbtn" id="resetBtn">Reset</button>
       <button class="vbtn" id="fsBtn">Fullscreen</button>
     </div>
     <div class="loading" id="loadingScreen"><span class="dot">●</span> <span id="loadingMsg">LOADING EARTH TEXTURES...</span></div>
   </div>
 
-  <p class="caption">Credit: Earth day and cloud imagery by Reto Stöckli, NASA Earth Observatory, NASA Goddard Space Flight Center — enhancements by Robert Simmon. Night lights (Black Marble 2012): NASA Earth Observatory image by Robert Simmon, using Suomi NPP VIIRS data courtesy of Chris Elvidge, NOAA National Geophysical Data Center. Public domain.</p>
+  <p class="caption">Credit: Earth day and cloud imagery by Reto Stöckli, NASA Earth Observatory, NASA Goddard Space Flight Center — enhancements by Robert Simmon. Night lights (Black Marble 2012): NASA Earth Observatory image by Robert Simmon, using Suomi NPP VIIRS data courtesy of Chris Elvidge, NOAA National Geophysical Data Center. Moon: NASA Scientific Visualization Studio, CGI Moon Kit (LROC color map from the Lunar Reconnaissance Orbiter Camera). Public domain.</p>
 
-  <p class="caption">The sun's position (declination, equation of time and distance) comes from a low-precision astronomical algorithm; the globe's spin is tied directly to your system clock, not a looped animation. The ocean glint, twilight band and atmospheric glow are approximations for visual realism.</p>
+  <p class="caption">The sun's position (declination, equation of time and distance) comes from a low-precision astronomical algorithm; the globe's spin is tied directly to your system clock, not a looped animation. The Moon's position and phase come from a low-precision lunar algorithm (about 0.3° accuracy); Earth, Moon and Sun are drawn at true size and true distance, so the Moon and Sun are small from afar and Earth is only a dot from the Sun's surface (a small marker shows where). The Moon's near side always faces Earth (no libration). The ocean glint, twilight band and atmospheric glow are approximations for visual realism.</p>
 
   <footer>RV·GLOBE — PART OF THE RAMESHVERSE SCIENCE SUITE</footer>
 </div>
@@ -157,14 +169,14 @@ renderer.setSize(viewer.clientWidth, viewer.clientHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, viewer.clientWidth / viewer.clientHeight, 0.1, 1200);
+const camera = new THREE.PerspectiveCamera(45, viewer.clientWidth / viewer.clientHeight, 0.1, 120000);   // far enough for the Sun at its true distance
 camera.position.set(0, 0, 6.2);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.minDistance = 3.2;
-controls.maxDistance = 14;
+controls.maxDistance = 400;          // far enough out to see where the Moon really is
 controls.enablePan = false;
 controls.enableZoom = false;          // zoom is handled below, eased, so it glides instead of stepping
 controls.rotateSpeed = 0.5;
@@ -233,7 +245,7 @@ scene.add(space);
 
 // ---------- textures (with a proper loading manager) ----------
 const manager = new THREE.LoadingManager();
-manager.onLoad = () => loadingScreen.classList.add('hide');
+manager.onLoad = () => { loadingScreen.classList.add('hide'); introDone(); };
 manager.onError = url => { loadingScreen.classList.remove('hide'); loadingScreen.classList.add('err'); loadingMsg.textContent = 'COULD NOT LOAD ' + String(url).split('/').pop().toUpperCase(); };
 const loader = new THREE.TextureLoader(manager);
 const TEX_BASE = './textures/';
@@ -349,7 +361,7 @@ const cloudMat = new THREE.ShaderMaterial({
       #include <colorspace_fragment>
     }`
 });
-const cloudMesh = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS * 1.006, 128, 128), cloudMat);
+const cloudMesh = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS * 1.010, 128, 128), cloudMat);
 cloudMesh.visible = false; cloudMesh.renderOrder = 1;
 scene.add(cloudMesh);
 loadCurvedClouds(TEX_BASE + 'earth_clouds.jpg', tex => { cloudsTex = tex; earthUniforms.cloudTexture.value = tex; cloudMesh.visible = true; });
@@ -384,30 +396,30 @@ const atmoMesh = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS * ATMO_SCA
 scene.add(atmoMesh);
 
 // ---------- the Sun ----------
-const SUN_DIST = 60;
+const SUN_DIST = EARTH_RADIUS * 23455;       // true: 1 AU is about 23,455 Earth radii
 const sunGroup = new THREE.Group();
 scene.add(sunGroup);
 
 // billboard: white-hot limb-darkened disc, 1/r² glare, warm falloff, faint diffraction spikes
 const sunMat = new THREE.ShaderMaterial({
-  uniforms: { uTime: { value: 0 } },
+  uniforms: { uTime: { value: 0 }, uFade: { value: 1 } },
   vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
   fragmentShader: `
-    varying vec2 vUv; uniform float uTime;
+    varying vec2 vUv; uniform float uTime, uFade;
     void main(){
       vec2 p = (vUv - 0.5) * 2.0; float r = length(p); float ang = atan(p.y, p.x);
       vec3 col = vec3(0.0);
-      float rc = 0.030, d = r / rc;
+      float rc = 0.0178, d = r / rc;      // true angular radius of the Sun, about 0.27 deg of the +-15 deg quad
       if(d < 1.0){ float mu = sqrt(1.0 - d * d); col += vec3(1.0, 0.96, 0.88) * (1.0 - 0.5 * (1.0 - mu)) * 24.0; }
       float g = 0.0017 / (r * r + 0.0006);
       vec3 gcol = mix(vec3(1.0, 0.93, 0.80), vec3(1.0, 0.52, 0.24), smoothstep(0.03, 0.45, r));
-      col += gcol * g * 1.5;
+      col += gcol * g * 2.4;
       col += vec3(1.0, 0.9, 0.75) * 0.10 * (exp(-abs(p.x) * 80.0) + exp(-abs(p.y) * 80.0)) * exp(-r * 4.0);
       float rays = pow(0.5 + 0.5 * sin(ang * 7.0 + uTime * 0.05), 7.0) * pow(0.5 + 0.5 * sin(ang * 13.0 - uTime * 0.03), 4.0);
       col += vec3(1.0, 0.78, 0.52) * rays * 0.35 * exp(-r * 7.0) * smoothstep(0.02, 0.14, r);
       col *= smoothstep(1.0, 0.5, r);
       col = vec3(1.0) - exp(-col);
-      gl_FragColor = vec4(col, 1.0);
+      gl_FragColor = vec4(col * uFade, 1.0);
     }`,
   blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
 });
@@ -437,6 +449,188 @@ flare.addElement(new LensflareElement(hexTex, 120, 0.74, new THREE.Color(0.14, 0
 flare.addElement(new LensflareElement(glowTex, 170, 1.0, new THREE.Color(0.22, 0.13, 0.07)));
 sunGroup.add(flare);
 
+// the Sun's surface: a real sphere with granulation, sunspots and limb darkening, only shown for the "view from Sun"
+const SUN_R = EARTH_RADIUS * 109.2;                 // true: the Sun is about 109 Earth radii
+const sunSurfaceMat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 } },
+  vertexShader: `
+    varying vec3 vP; varying vec3 vNW; varying vec3 vPW;
+    void main(){
+      vP = normalize(position);
+      vNW = normalize(mat3(modelMatrix) * normal);
+      vec4 wp = modelMatrix * vec4(position, 1.0); vPW = wp.xyz;
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }`,
+  fragmentShader: `
+    uniform float uTime; varying vec3 vP; varying vec3 vNW; varying vec3 vPW;
+    float h(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+    float n(vec3 x){ vec3 i = floor(x), f = fract(x); f = f*f*(3.0-2.0*f);
+      return mix(mix(mix(h(i), h(i+vec3(1,0,0)), f.x), mix(h(i+vec3(0,1,0)), h(i+vec3(1,1,0)), f.x), f.y),
+                 mix(mix(h(i+vec3(0,0,1)), h(i+vec3(1,0,1)), f.x), mix(h(i+vec3(0,1,1)), h(i+vec3(1,1,1)), f.x), f.y), f.z); }
+    float fbm(vec3 p){ float a = 0.5, s = 0.0; for(int i = 0; i < 4; i++){ s += a * n(p); p *= 2.03; a *= 0.5; } return s; }
+    vec3 hash3(vec3 p){
+      p = vec3(dot(p, vec3(127.1, 311.7, 74.7)), dot(p, vec3(269.5, 183.3, 246.1)), dot(p, vec3(113.5, 271.9, 124.6)));
+      return fract(sin(p) * 43758.5453);
+    }
+    // cellular (Voronoi) convection cells whose seed points wander, so the granules churn and boil.
+    // returns (distance to nearest seed, distance to second nearest, random id of the nearest cell)
+    vec3 voro(vec3 x, float t){
+      vec3 ip = floor(x), fp = fract(x);
+      float f1 = 8.0, f2 = 8.0, id = 0.0;
+      for(int k = -1; k <= 1; k++) for(int j = -1; j <= 1; j++) for(int i = -1; i <= 1; i++){
+        vec3 g = vec3(float(i), float(j), float(k));
+        vec3 o = hash3(ip + g);
+        vec3 d3 = g + 0.5 + 0.25 * sin(t * (0.12 + o * 0.2) + 6.2831 * o) - fp;
+        float d = dot(d3, d3);
+        if(d < f1){ f2 = f1; f1 = d; id = o.x; } else if(d < f2){ f2 = d; }
+      }
+      return vec3(sqrt(f1), sqrt(f2), id);
+    }
+    void main(){
+      vec3 N = normalize(vNW), V = normalize(cameraPosition - vPW);
+      float mu = clamp(dot(N, V), 0.0, 1.0);
+      vec3 p = vP; float t = uTime;
+      // a gentle low-frequency warp so the cells are irregular rather than a tidy honeycomb
+      vec3 warp = vec3(n(p * 40.0 + t * 0.01), n(p * 40.0 + 7.3), n(p * 40.0 + 13.1)) - 0.5;
+      vec3 v = voro(p * 600.0 + warp * 3.0, t);                         // granules a few thousand km wide
+      float cell = smoothstep(0.0, 0.22, v.y - v.x);                    // thin dark lanes between granules
+      float pulse = sin(3.14159 * fract(t * 0.03 + v.z));               // very slow brightening and fading of each granule
+      float dome = 1.0 - smoothstep(0.0, 0.6, v.x);
+      float bright = clamp(0.55 * cell + 0.30 * dome * cell + 0.12 * pulse * cell, 0.0, 1.0);
+      float fine = n(p * 2000.0 - vec3(t * 0.05));
+      float mott = fbm(p * 60.0 + t * 0.01);
+      float lat = abs(p.y);
+      float band = smoothstep(0.05, 0.2, lat) * (1.0 - smoothstep(0.35, 0.6, lat));   // spots live at mid latitudes
+      float sf = fbm(p * 22.0 + 3.1);
+      float spot = smoothstep(0.60, 0.68, sf) * band, umbra = smoothstep(0.66, 0.74, sf) * band;
+      // every granule glows from within: deep red-orange gaps, a yellow-orange body, a white-hot heart that bleeds light outwards
+      float core = pow(dome, 1.6) * cell;
+      vec3 col = mix(vec3(0.22, 0.05, 0.01), vec3(1.0, 0.55, 0.16), cell);
+      col = mix(col, vec3(1.0, 0.93, 0.72), core * 0.85);
+      col += vec3(1.0, 0.55, 0.20) * core * 0.35 * (0.8 + 0.4 * pulse);
+      col *= (0.90 + 0.10 * fine) * (0.90 + 0.20 * mott);
+      col = mix(col, col * vec3(0.55, 0.28, 0.12), spot * 0.8);
+      col *= 1.0 - 0.7 * umbra;
+      // from far away the fine detail would only shimmer, so it melts into its average colour
+      col = mix(col, vec3(0.88, 0.66, 0.38), smoothstep(1500.0, 6000.0, length(cameraPosition - vPW)));
+      col = mix(col, col * vec3(1.0, 0.55, 0.25), (1.0 - mu) * 0.5);   // limb reddening
+      col *= (1.0 - 0.62 * (1.0 - mu)) * 2.8;                           // limb darkening
+      gl_FragColor = vec4(vec3(1.0) - exp(-col * 1.4), 1.0);
+      #include <colorspace_fragment>
+    }`
+});
+const sunSurface = new THREE.Mesh(new THREE.SphereGeometry(SUN_R, 192, 192), sunSurfaceMat);
+// corona: an orange chromosphere hugging the limb and a wider, paler halo (the outer one stays inside the hover camera's altitude)
+function coronaShell(scale, color, power, strength){
+  const tmax = Math.sqrt(1 - 1 / (scale * scale));
+  return new THREE.Mesh(new THREE.SphereGeometry(SUN_R * scale, 96, 96), new THREE.ShaderMaterial({
+    uniforms: { tmax: { value: tmax } },
+    vertexShader: WORLD_VERT,
+    fragmentShader: `
+      uniform float tmax; varying vec2 vUv; varying vec3 vNW; varying vec3 vPW;
+      void main(){
+        vec3 N = normalize(vNW), V = normalize(cameraPosition - vPW);
+        float k = clamp(-dot(N, V) / tmax, 0.0, 1.0);
+        gl_FragColor = vec4(vec3(${color}), pow(k, ${power}) * ${strength});
+        #include <colorspace_fragment>
+      }`,
+    side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+  }));
+}
+const sunGlow = new THREE.Group();
+sunGlow.add(coronaShell(1.035, '1.0, 0.45, 0.12', '3.0', '1.0'), coronaShell(1.08, '1.0, 0.72, 0.42', '1.8', '0.5'));
+scene.add(sunSurface, sunGlow);
+// at the Sun's true distance Earth is only ~2 px wide, so a small glow marks where it is
+const earthDot = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0x9fc4ff, sizeAttenuation: false, depthTest: false, transparent: true, blending: THREE.AdditiveBlending }));
+earthDot.scale.setScalar(0.018); earthDot.visible = false; earthDot.renderOrder = 5;
+scene.add(earthDot);
+let sunScale = 0;                                  // grows in while the camera flies to the Sun, shrinks away when it leaves
+
+// ---------- the Moon ----------
+// true size and true distance (about 60 Earth radii), so from far away it really is a small speck
+const MOON_R = EARTH_RADIUS * 0.2727, EARTH_R_KM = 6378.14;
+const grayTex = new THREE.DataTexture(new Uint8Array([140, 140, 140, 255]), 1, 1); grayTex.colorSpace = THREE.SRGBColorSpace; grayTex.needsUpdate = true;
+const moonUniforms = {
+  moonTexture: { value: grayTex }, sunDirection: earthUniforms.sunDirection,
+  earthDir: { value: new THREE.Vector3(-1, 0, 0) }, earthLit: { value: 0 }
+};
+const moonMat = new THREE.ShaderMaterial({
+  uniforms: moonUniforms,
+  vertexShader: WORLD_VERT,
+  fragmentShader: `
+    uniform sampler2D moonTexture; uniform vec3 sunDirection, earthDir; uniform float earthLit;
+    varying vec2 vUv; varying vec3 vNW; varying vec3 vPW;
+    ${TONEMAP}
+    void main(){
+      vec3 N = normalize(vNW), S = normalize(sunDirection);
+      float I = dot(N, S);
+      vec3 alb = texture2D(moonTexture, vUv).rgb;
+      // rough, dark regolith: flat and bright almost right up to the terminator
+      float diffuse = pow(clamp(I, 0.0, 1.0), 0.5);
+      vec3 col = alb * 3.6 * diffuse;
+      // earthshine on the night side, strongest when Earth is full in the lunar sky
+      col += alb * vec3(0.75, 0.88, 1.0) * max(dot(N, normalize(earthDir)), 0.0) * earthLit * 0.03;
+      // Earth's shadow (umbra ~0.7 R, penumbra out to ~1.3 R at the Moon): a lunar eclipse when the Moon passes behind Earth
+      float behind = step(dot(vPW, S), 0.0);
+      float lit = mix(1.0, smoothstep(1.2, 2.6, length(vPW - S * dot(vPW, S))), behind);
+      col = col * mix(0.04, 1.0, lit) + alb * vec3(1.0, 0.32, 0.10) * (1.0 - lit) * behind;
+      gl_FragColor = vec4(tonemap(col), 1.0);
+      #include <colorspace_fragment>
+    }`
+});
+const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(MOON_R, 96, 96), moonMat);
+scene.add(moonMesh);
+// not routed through the loading manager: a missing moon.jpg must not block the whole page
+// (it is only counted by the manager so the intro waits for it; a failure is not treated as an error)
+manager.itemStart('moon');
+new THREE.TextureLoader().load(TEX_BASE + 'lroc_color_2k.jpg', t => {
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  moonUniforms.moonTexture.value = t; manager.itemEnd('moon');
+}, undefined, () => { console.warn('textures/moon.jpg not found - showing a plain grey Moon'); manager.itemEnd('moon'); });
+
+// low-precision lunar position (Astronomical Almanac series, ~0.3 deg)
+function lunar(ms){
+  const T = (ms / 86400000 + 2440587.5 - 2451545.0) / 36525;
+  const sn = (a, b) => Math.sin((a + b * T) * D2R), cs = (a, b) => Math.cos((a + b * T) * D2R);
+  const lam = 218.32 + 481267.881 * T + 6.29 * sn(135.0, 477198.87) - 1.27 * sn(259.3, -413335.36) + 0.66 * sn(235.7, 890534.22)
+            + 0.21 * sn(269.9, 954397.74) - 0.19 * sn(357.5, 35999.05) - 0.11 * sn(186.5, 966404.03);
+  const bet = 5.13 * sn(93.3, 483202.02) + 0.28 * sn(228.2, 960400.89) - 0.28 * sn(318.3, 6003.15) - 0.17 * sn(217.6, -407332.21);
+  const par = 0.9508 + 0.0518 * cs(135.0, 477198.87) + 0.0095 * cs(259.3, -413335.36) + 0.0078 * cs(235.7, 890534.22) + 0.0028 * cs(269.9, 954397.74);
+  const dist = 1 / Math.sin(par * D2R);                          // Earth radii
+  const L = lam * D2R, B = bet * D2R, e = (23.439 - 0.013 * T) * D2R;
+  const x = Math.cos(B) * Math.cos(L);
+  const y = Math.cos(e) * Math.cos(B) * Math.sin(L) - Math.sin(e) * Math.sin(B);
+  const z = Math.sin(e) * Math.cos(B) * Math.sin(L) + Math.cos(e) * Math.sin(B);
+  return { lam: mod(lam, 360), bet, dist, ra: mod(Math.atan2(y, x) / D2R, 360), dec: Math.asin(z) / D2R };
+}
+// equatorial (RA, Dec) -> scene axes: +x points at the Sun's right ascension, +y is north (same frame the Sun and Earth use)
+function eqToScene(ra, dec, raSun, out){
+  const d = dec * D2R, a = (ra - raSun) * D2R;
+  return out.set(Math.cos(d) * Math.cos(a), Math.sin(d), -Math.cos(d) * Math.sin(a));
+}
+const PHASES = ['NEW', 'WAXING CRESCENT', 'FIRST QUARTER', 'WAXING GIBBOUS', 'FULL', 'WANING GIBBOUS', 'LAST QUARTER', 'WANING CRESCENT'];
+const moonDir = new THREE.Vector3(), moonPos = new THREE.Vector3(), poleDir = new THREE.Vector3();
+const mE = new THREE.Vector3(-1, 0, 0), mQ = new THREE.Vector3(0, 1, 0), mZ = new THREE.Vector3(), mBasis = new THREE.Matrix4();
+const moonInfo = { k: 0, name: '--', km: 384400 };
+function updateMoon(ms, s){
+  const m = lunar(ms);
+  eqToScene(m.ra, m.dec, s.ra, moonDir);
+  moonPos.copy(moonDir).multiplyScalar(EARTH_RADIUS * m.dist);
+  moonMesh.position.copy(moonPos);
+  // the Moon is tidally locked: its near side (map centre, local +x) always faces Earth; lunar north is roughly the ecliptic pole
+  eqToScene(270, 90 - 23.439, s.ra, poleDir);
+  mE.copy(moonDir).negate();                                            // Moon -> Earth
+  mQ.copy(poleDir).addScaledVector(mE, -poleDir.dot(mE)).normalize();
+  mZ.crossVectors(mE, mQ);
+  moonMesh.quaternion.setFromRotationMatrix(mBasis.makeBasis(mE, mQ, mZ));
+  moonUniforms.earthDir.value.copy(mE);
+  moonUniforms.earthLit.value = (1 + sunDir.dot(moonDir)) / 2;          // Earth is full in the lunar sky at new moon
+  const el = mod(m.lam - s.lam, 360);
+  moonInfo.k = (1 - Math.cos(m.bet * D2R) * Math.cos(el * D2R)) / 2;
+  moonInfo.name = PHASES[Math.round(el / 45) % 8];
+  moonInfo.km = m.dist * EARTH_R_KM;
+}
+
 // ---------- real sun position (Meeus low-precision, includes equation of time) ----------
 const mod = (x, m) => ((x % m) + m) % m;
 function solar(ms){
@@ -450,7 +644,7 @@ function solar(ms){
   const lon = mod(ra - gmst + 180, 360) - 180;
   const dist = 1.00014 - 0.01671 * Math.cos(g * D2R) - 0.00014 * Math.cos(2 * g * D2R);
   const eot = (mod(L - ra + 180, 360) - 180) * 4;       // minutes
-  return { decl, lon, dist, eot };
+  return { decl, lon, dist, eot, ra, lam };
 }
 
 // ---------- time (live or fast-forward) ----------
@@ -460,16 +654,20 @@ document.querySelectorAll('#timeBar button').forEach(b => b.addEventListener('cl
   document.querySelectorAll('#timeBar button').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.classList.toggle('dim', !on); });
 }));
 
-const ui = { utc: $('utcClock'), date: $('utcDate'), mode: $('modeVal'), sub: $('subsolarVal'), dist: $('sunDistVal'), eot: $('eotVal') };
+const ui = { utc: $('utcClock'), date: $('utcDate'), mode: $('modeVal'), sub: $('subsolarVal'), dist: $('sunDistVal'), eot: $('eotVal'), view: $('viewVal'), moon: $('moonVal'), moonDist: $('moonDistVal') };
+const setView = t => { ui.view.textContent = t; };
 const sunDir = new THREE.Vector3(), tmpV = new THREE.Vector3();
 let uiTick = 0;
 function updateSun(ms, now){
   const s = solar(ms), dr = s.decl * D2R;
   sunDir.set(Math.cos(dr), Math.sin(dr), 0);
   earthUniforms.sunDirection.value.copy(sunDir);
-  sunGroup.position.copy(sunDir).multiplyScalar(SUN_DIST);
+  sunGroup.position.copy(sunDir).multiplyScalar(SUN_DIST + SUN_R * 1.5);
+  sunSurface.position.copy(sunDir).multiplyScalar(SUN_DIST);             // the real Sun sits where the glare is
+  sunGlow.position.copy(sunSurface.position);
   earthMesh.rotation.y = -s.lon * D2R;                                    // subsolar meridian faces the sun
   cloudMesh.rotation.y = earthMesh.rotation.y + now * 0.000004;          // clouds drift slightly against the ground
+  updateMoon(ms, s);
   if(now - uiTick > 100){
     uiTick = now;
     const d = new Date(ms), p = n => String(n).padStart(2, '0');
@@ -479,6 +677,8 @@ function updateSun(ms, now){
     ui.sub.textContent = `${Math.abs(s.decl).toFixed(1)}°${s.decl >= 0 ? 'N' : 'S'}, ${Math.abs(s.lon).toFixed(1)}°${s.lon >= 0 ? 'E' : 'W'}`;
     ui.dist.textContent = `${s.dist.toFixed(4)} AU · ${(s.dist * 149.598).toFixed(1)} M KM`;
     ui.eot.textContent = `${s.eot >= 0 ? '+' : '−'}${Math.abs(s.eot).toFixed(1)} MIN`;
+    ui.moon.textContent = `${Math.round(moonInfo.k * 100)}% · ${moonInfo.name}`;
+    ui.moonDist.textContent = `${Math.round(moonInfo.km).toLocaleString('en-US')} KM`;
   }
 }
 
@@ -490,7 +690,9 @@ canvas.addEventListener('wheel', e => {
   if(flying) return;
   const unit = e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1;
   const k = e.ctrlKey ? 0.012 : 0.0016;                         // ctrlKey = trackpad pinch
-  zoomTarget = clampZoom(zoomTarget * Math.exp(Math.max(-250, Math.min(250, e.deltaY * unit)) * k));
+  const amt = Math.max(-250, Math.min(250, e.deltaY * unit)) * k;
+  if(moonView){ zoomFov(Math.exp(amt)); return; }
+  zoomTarget = clampZoom(zoomTarget * Math.exp(amt));
 }, { passive: false });
 const touches = new Map(); let pinchD = 0;
 canvas.addEventListener('pointerdown', e => { if(e.pointerType === 'touch'){ touches.set(e.pointerId, [e.clientX, e.clientY]); pinchD = 0; } });
@@ -499,12 +701,33 @@ canvas.addEventListener('pointermove', e => {
   touches.set(e.pointerId, [e.clientX, e.clientY]);
   if(touches.size === 2 && !flying){
     const [a, b] = [...touches.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-    if(pinchD) zoomTarget = clampZoom(zoomTarget * pinchD / d);
+    if(pinchD){ if(moonView) zoomFov(pinchD / d); else zoomTarget = clampZoom(zoomTarget * pinchD / d); }
     pinchD = d;
   }
 });
 const endTouch = e => { touches.delete(e.pointerId); pinchD = 0; };
 canvas.addEventListener('pointerup', endTouch); canvas.addEventListener('pointercancel', endTouch);
+// drag to look around while standing on the Moon
+let moonView = false, moonFlight = false, moonFocus = false, pov = 'moon', povTarget = 'moon', binocular = false, binBlend = 0, binZoom = 1;   // moonView = "camera is on a viewpoint, not orbiting"; pov says which one
+const trackV = new THREE.Vector3();
+const look = { yaw: 0, pitch: 0 };
+let lookDrag = null;
+function zoomFov(f){
+  if(binocular){ binZoom = Math.min(4, Math.max(0.25, binZoom * f)); return; }      // binoculars: scroll changes the magnification
+  camera.fov = Math.min(70, Math.max(8, camera.fov * f)); camera.updateProjectionMatrix(); }
+canvas.addEventListener('pointerdown', e => {
+  if(!moonView || flying || (e.pointerType === 'touch' && touches.size > 1)) return;
+  lookDrag = [e.clientX, e.clientY]; canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove', e => {
+  if(!lookDrag || touches.size > 1) return;
+  const k = camera.fov * D2R / canvas.clientHeight;
+  look.yaw += (e.clientX - lookDrag[0]) * k;
+  look.pitch = Math.max(-1.3, Math.min(1.3, look.pitch + (e.clientY - lookDrag[1]) * k));
+  lookDrag = [e.clientX, e.clientY];
+});
+const endLook = () => { lookDrag = null; };
+canvas.addEventListener('pointerup', endLook); canvas.addEventListener('pointercancel', endLook);
 const zoomDir = new THREE.Vector3();
 function applyZoom(dt){
   const cur = camera.position.distanceTo(controls.target);
@@ -517,10 +740,11 @@ function applyZoom(dt){
 
 // ---------- camera moves ----------
 let flying = false;
-function flyTo(endDir, endDist, duration = 1500){
+function flyTo(endDir, endDist, duration = 1500, endTarget = new THREE.Vector3(0, 0, 0), endMin = 3.2){
   if(flying) return;
   flying = true;
-  const startTarget = controls.target.clone(), endTarget = new THREE.Vector3(0, 0, 0);
+  controls.minDistance = 0.5;                      // let the flight pass close to the Moon without being clamped
+  const startTarget = controls.target.clone();
   const startDist = camera.position.distanceTo(startTarget);
   const startDir = camera.position.clone().sub(startTarget).normalize();
   const fullRot = new THREE.Quaternion().setFromUnitVectors(startDir, endDir.clone().normalize());
@@ -534,22 +758,177 @@ function flyTo(endDir, endDist, duration = 1500){
     controls.target.lerpVectors(startTarget, endTarget, e);
     camera.position.copy(controls.target).addScaledVector(dir, startDist + (endDist - startDist) * e);
     if(t < 1) requestAnimationFrame(step);
-    else { controls.enabled = true; controls.enableDamping = hadDamping; flying = false; zoomTarget = camera.position.distanceTo(controls.target); }
+    else { controls.enabled = true; controls.enableDamping = hadDamping; flying = false; controls.minDistance = endMin; zoomTarget = camera.position.distanceTo(controls.target); }
   })(performance.now());
 }
-resetBtn.addEventListener('click', () => flyTo(new THREE.Vector3(0, 0, 1), 6.2));
+// generic pose flight (position slerped around Earth, orientation slerped, FOV eased) - used to and from the Moon
+const ZERO = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0), lookM = new THREE.Matrix4(), tmpP = new THREE.Vector3();
+function flyPose(getEnd, duration, done){
+  if(flying) return;
+  flying = true; moonFlight = true; controls.enabled = false;
+  const sp = camera.position.clone(), sq = camera.quaternion.clone(), sf = camera.fov, sDir = sp.clone().normalize(), sDist = sp.length();
+  const ep = new THREE.Vector3(), eq = new THREE.Quaternion(), rot = new THREE.Quaternion(), noRot = new THREE.Quaternion(), dir = new THREE.Vector3(), t0 = performance.now();
+  (function step(now){
+    const t = Math.min((now - t0) / duration, 1), e = -(Math.cos(Math.PI * t) - 1) / 2;
+    const endFov = getEnd(ep, eq), eDir = ep.clone().normalize();
+    rot.copy(noRot).slerp(new THREE.Quaternion().setFromUnitVectors(sDir, eDir), e);
+    dir.copy(sDir).applyQuaternion(rot);
+    camera.position.copy(dir).multiplyScalar(sDist * Math.pow(ep.length() / sDist, e));   // geometric: equal zoom per second, however far
+    camera.quaternion.copy(sq).slerp(eq, e);
+    camera.fov = sf + (endFov - sf) * e; camera.updateProjectionMatrix();
+    if(t < 1) requestAnimationFrame(step);
+    else { moonFlight = false; flying = false; done(); }
+  })(performance.now());
+}
+
+// standing just above the lunar limb: Earth hangs over the horizon like the Apollo 8 "Earthrise"
+const MOON_TILT = 104 * D2R, MOON_ALT = 0.05, MOON_PITCH0 = 5 * D2R, MOON_FOV = 30;
+const mN = new THREE.Vector3(), mF = new THREE.Vector3(), mR = new THREE.Vector3();
+function moonPose(pos, quat, yaw, pitch){
+  mN.copy(mE).multiplyScalar(Math.cos(MOON_TILT)).addScaledVector(mQ, Math.sin(MOON_TILT));   // local "up" at the viewpoint
+  pos.copy(moonPos).addScaledVector(mN, MOON_R + MOON_ALT);
+  mF.copy(pos).negate().normalize().multiplyScalar(Math.cos(MOON_PITCH0)).addScaledVector(mN, -Math.sin(MOON_PITCH0)).normalize();
+  mF.applyAxisAngle(mN, yaw);
+  mR.crossVectors(mF, mN).normalize();
+  mF.applyAxisAngle(mR, pitch);
+  quat.setFromRotationMatrix(lookM.lookAt(pos, tmpP.copy(pos).add(mF), mN));
+}
+const fromMoonBtn = $('fromMoonBtn'), fromSunBtn = $('fromSunBtn');
+const POV_FOV = { moon: MOON_FOV, sun: 40 }, POV_NAME = { moon: 'EARTH FROM MOON', sun: 'EARTH FROM SUN' };
+function setPovBtns(mode){
+  fromMoonBtn.textContent = mode === 'moon' ? '🌍 Back to Earth' : '☾ View from Moon'; fromMoonBtn.classList.toggle('on', mode === 'moon');
+  fromSunBtn.textContent = mode === 'sun' ? '🌍 Back to Earth' : '☀ View from Sun'; fromSunBtn.classList.toggle('on', mode === 'sun');
+}
+const setMoonBtn = inMoon => setPovBtns(inMoon ? 'moon' : null);
+// the Sun's own point of view: hovering just above its surface, Earth hanging over the horizon
+const SUN_TILT = 90 * D2R, SUN_ALT = 20, SUN_PITCH0 = 10 * D2R;
+const sE = new THREE.Vector3(), sQ = new THREE.Vector3(), sN = new THREE.Vector3(), sC = new THREE.Vector3();
+function sunPovPose(pos, quat, yaw, pitch, bino = false){
+  sE.copy(sunDir).negate();                                          // Sun -> Earth
+  sQ.copy(UP).addScaledVector(sE, -UP.dot(sE)).normalize();
+  sN.copy(sE).multiplyScalar(Math.cos(SUN_TILT)).addScaledVector(sQ, Math.sin(SUN_TILT));   // local "up" at the viewpoint
+  sC.copy(sunDir).multiplyScalar(SUN_DIST);                           // centre of the Sun
+  pos.copy(sC).addScaledVector(sN, SUN_R + SUN_ALT);
+  if(bino) mF.copy(binT).sub(pos).normalize();                                   // binoculars: straight at the Earth-Moon pair
+  else mF.copy(pos).negate().normalize().multiplyScalar(Math.cos(SUN_PITCH0)).addScaledVector(sN, -Math.sin(SUN_PITCH0)).normalize();
+  mF.applyAxisAngle(sN, yaw);
+  mR.crossVectors(mF, sN).normalize();
+  mF.applyAxisAngle(mR, pitch);
+  quat.setFromRotationMatrix(lookM.lookAt(pos, tmpP.copy(pos).add(mF), sN));
+}
+function povPose(pos, quat, yaw, pitch){ (pov === 'sun' ? sunPovPose : moonPose)(pos, quat, yaw, pitch); }
+// one toggle per viewpoint; pressing the other viewpoint's button switches straight over
+function goPov(mode){
+  if(flying) return;
+  if(binocular || binBlend > 0){ exitBinocular(() => goPov(mode)); return; }
+  if(moonView && pov === mode){ leaveMoon(new THREE.Vector3(0, 0, 1), 6.2, ZERO); return; }
+  const switching = moonView, prev = pov;
+  moonFocus = false; setFocusBtn(false);
+  look.yaw = look.pitch = 0; povTarget = mode; setPovBtns(mode);
+  const pose = mode === 'sun' ? sunPovPose : moonPose;
+  flyPose((p, q) => { pose(p, q, 0, 0); return POV_FOV[mode]; }, mode === 'sun' || (switching && pov === 'sun') ? 4500 : switching ? 2000 : 2800, () => { moonView = true; pov = mode; setView(POV_NAME[mode]); });
+}
+function goMoonView(){ goPov('moon'); }
+
+// binoculars (Sun view only): zoom right in on Earth and the Moon, which at true scale are a few pixels wide
+const binT = new THREE.Vector3(), qA = new THREE.Quaternion(), qB = new THREE.Quaternion(), pB = new THREE.Vector3(), vA = new THREE.Vector3(), vB = new THREE.Vector3();
+let binBase = POV_FOV.sun, binNear = false, binShown = false;
+const binBtn = $('binBtn'), binocEl = $('binoc');
+function sizeBinoc(){
+  const w = viewer.clientWidth, h = viewer.clientHeight, r = Math.min(h * 0.46, w * 0.27);
+  binocEl.style.setProperty('--r', r + 'px'); binocEl.style.setProperty('--d', r * 0.8 + 'px');
+}
+function binFov(){   // degrees: wide enough to hold Earth and the Moon, never tighter than 0.03 deg
+  vA.copy(ZERO).sub(camera.position).normalize(); vB.copy(moonPos).sub(camera.position).normalize();
+  const sep = Math.acos(Math.min(1, vA.dot(vB))) / D2R;
+  return Math.min(0.5, Math.max(0.03, 2.4 * sep)) * binZoom;
+}
+function setBinUI(){
+  binBtn.textContent = binocular ? '🔭 Binoculars off' : '🔭 Binoculars'; binBtn.classList.toggle('on', binocular);
+  if(moonView && pov === 'sun') setView(binocular ? 'EARTH + MOON · BINOCULARS' : POV_NAME.sun);
+}
+function exitBinocular(then){   // ease back out before any other camera move starts
+  binocular = false; setBinUI();
+  (function wait(){ if(binBlend === 0) then(); else requestAnimationFrame(wait); })();
+}
+binBtn.addEventListener('click', () => {
+  if(!(moonView && pov === 'sun') || moonFlight) return;
+  if(!binocular && binBlend === 0){ binBase = camera.fov; binZoom = 1; }
+  binocular = !binocular; setBinUI(); sizeBinoc();
+});
+function sunFrame(dt){
+  const goal = binocular ? 1 : 0;
+  binBlend += (goal - binBlend) * Math.min(1, dt * 0.005);
+  if(Math.abs(goal - binBlend) < 0.002) binBlend = goal;
+  const bb = binBlend * binBlend * (3 - 2 * binBlend);
+  sunPovPose(camera.position, qA, look.yaw, look.pitch, false);
+  if(bb > 0){
+    binT.copy(moonPos).multiplyScalar(0.5);
+    sunPovPose(pB, qB, look.yaw, look.pitch, true);
+    camera.quaternion.copy(qA).slerp(qB, bb);
+    camera.fov = Math.exp(Math.log(binBase) * (1 - bb) + Math.log(binFov()) * bb);       // zoom in geometrically, not linearly
+    const deep = bb > 0.98;
+    camera.near = deep ? 20000 : 0.1;                  // Earth is 47,000 units away: a far near-plane keeps its depth precise
+    camera.updateProjectionMatrix();
+    space.scale.setScalar(deep ? 100 : 1);             // keep the stars beyond that near-plane
+    binNear = true;
+  } else {
+    camera.quaternion.copy(qA);
+    if(binNear){ camera.fov = binBase; camera.near = 0.1; camera.updateProjectionMatrix(); space.scale.setScalar(1); binNear = false; }
+  }
+  binocEl.style.display = bb > 0 ? 'block' : 'none'; binocEl.style.opacity = bb;
+}
+function leaveMoon(dir, dist, target, endMin = 3.2){
+  if(flying) return;
+  if(binocular || binBlend > 0){ exitBinocular(() => leaveMoon(dir, dist, target, endMin)); return; }
+  setMoonBtn(false);
+  const d = dir.clone().normalize();
+  flyPose((p, q) => { p.copy(target).addScaledVector(d, dist); q.setFromRotationMatrix(lookM.lookAt(p, target, UP)); return 45; }, camera.position.length() > 5000 ? 4500 : 2400, () => {
+    moonView = false; povTarget = null; controls.target.copy(target); controls.minDistance = endMin; controls.enabled = true; zoomTarget = dist; setView('EARTH ORBIT');
+  });
+}
+const moonBtn = $('moonBtn');
+const setFocusBtn = on => { moonBtn.textContent = on ? '🌍 Earth' : '☾ Moon'; moonBtn.classList.toggle('on', on); };
+function goOrbit(dir, dist, duration, target = ZERO){
+  if(flying) return;
+  moonFocus = false; setFocusBtn(false);
+  if(moonView) leaveMoon(dir, dist, target);
+  else flyTo(dir, dist, duration, target);
+}
+resetBtn.addEventListener('click', () => goOrbit(new THREE.Vector3(0, 0, 1), 6.2, 1500));
 function goSun(){
   // camera on the night side, looking back at Earth with the Sun just past its limb
   const a = 22 * D2R, side = new THREE.Vector3(0, 0, sunDir.x >= 0 ? 1 : -1);
   const dir = sunDir.clone().multiplyScalar(-Math.cos(a)).addScaledVector(side, Math.sin(a));
-  flyTo(dir, 7.2, 1800);
+  goOrbit(dir, 7.2, 1800);
 }
 sunBtn.addEventListener('click', goSun);
+function goMoonFocus(){
+  // orbit the Moon the way the default view orbits Earth: camera on the side that shows its lit face, target locked to the Moon
+  if(flying) return;
+  const dir = mE.clone().add(sunDir);
+  if(dir.lengthSq() < 0.25) dir.copy(mQ);             // new moon: Earth-side is dark, so look from the pole instead
+  moonFocus = true; setFocusBtn(true);
+  if(moonView) leaveMoon(dir, MOON_R * 3.1, moonPos, 1.0);
+  else flyTo(dir.normalize(), MOON_R * 3.1, 2000, moonPos, 1.0);
+}
+moonBtn.addEventListener('click', () => { if(moonFocus) goOrbit(new THREE.Vector3(0, 0, 1), 6.2, 1800); else goMoonFocus(); });
+fromMoonBtn.addEventListener('click', () => goPov('moon'));
+fromSunBtn.addEventListener('click', () => goPov('sun'));
+
+// intro: open on Earth as seen from the Moon, then pull back to the default view once everything has loaded
+updateSun(Date.now(), performance.now());
+moonPose(camera.position, camera.quaternion, 0, 0);
+camera.fov = MOON_FOV; camera.updateProjectionMatrix();
+moonView = true; controls.enabled = false; setView('EARTH FROM MOON'); setMoonBtn(true);
+function introDone(){                       // called the moment loading finishes: pull back straight away
+  if(moonView && !flying) leaveMoon(new THREE.Vector3(0, 0, 1), 6.2, ZERO);
+}
 
 // ---------- resize + fullscreen ----------
 function handleResize(){
   const w = viewer.clientWidth, h = viewer.clientHeight; if(!w || !h) return;
-  camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h, false); sizeBinoc();
 }
 new ResizeObserver(handleResize).observe(viewer);
 window.addEventListener('resize', handleResize);
@@ -577,8 +956,21 @@ function animate(now){
   simMs = speed === 1 ? Date.now() : simMs + Math.min(dt, 100) * speed;
   updateSun(simMs, now);
   sunMat.uniforms.uTime.value = now * 0.001;
-  controls.update();
-  applyZoom(Math.min(dt, 64));
+  // the flat glare fades out as the camera closes in on the real Sun, and Earth's marker fades in with distance, so nothing pops
+  const fk = Math.min(1, Math.max(0, (camera.position.distanceTo(sunSurface.position) - 600) / 7400));
+  sunMat.uniforms.uFade.value = fk * fk * (3 - 2 * fk); sunGroup.visible = fk > 0.001;
+  const dk = Math.min(1, Math.max(0, (camera.position.length() - 400) / 3600));
+  earthDot.material.opacity = dk * (1 - binBlend); earthDot.visible = dk * (1 - binBlend) > 0.01;
+  sunSurface.rotation.y = now * 0.00002;
+  sunSurfaceMat.uniforms.uTime.value = now * 0.001;
+  const showBin = moonView && pov === 'sun' && !moonFlight;            // the binocular button exists only in the Sun view
+  if(showBin !== binShown){ binShown = showBin; binBtn.style.display = showBin ? '' : 'none'; }
+  if(moonView && !moonFlight){ if(pov === 'sun') sunFrame(dt); else povPose(camera.position, camera.quaternion, look.yaw, look.pitch); }
+  else if(!moonFlight){
+    if(moonFocus && !flying){ trackV.copy(moonPos).sub(controls.target); camera.position.add(trackV); controls.target.copy(moonPos); }
+    controls.update(); applyZoom(Math.min(dt, 64));
+  }
+  space.position.copy(camera.position);
   sunBillboard.quaternion.copy(camera.quaternion);
   renderer.render(scene, camera);
 }
