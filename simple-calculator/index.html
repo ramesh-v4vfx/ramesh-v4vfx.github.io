@@ -14,35 +14,27 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free online calculator for quick addition, subtraction, multiplication, and division. Clean, distraction-free retro calculator with keyboard support.">
+<meta name="description" content="Free online calculator for quick addition, subtraction, multiplication, and division. Clean, distraction-free Terminator HUD calculator with keyboard support.">
 
 <title>Simple Calculator | rameshverse</title>
 
 <link rel="canonical" href="https://rameshverse.com/simple-calculator">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-deep: #06070a;
-    --bg-vignette: #0b0d12;
-    --case-dark: #14161b;
-    --case-mid: #1b1e24;
-    --case-light: #262a32;
-    --bezel: #0a0b0e;
-    --display-bg: #0a1210;
-    --display-bg-2: #0d1815;
-    --glow: #6ffcb1;
-    --glow-dim: #3fae82;
-    --copper: #d98d5f;
-    --copper-light: #f0ac7e;
-    --copper-dark: #a8683f;
-    --key-face: #292c33;
-    --key-face-hi: #34383f;
-    --key-shadow: #0c0d10;
-    --text-primary: #e9edf1;
-    --text-muted: #be3939;
-    --text-faint: #454952;
+    --bg: #050000;
+    --bg-2: #120202;
+    --red: #ff2a1f;
+    --red-hi: #ff5a4a;
+    --red-mid: #b3150f;
+    --red-dim: #5e0b08;
+    --red-faint: #2a0605;
+    --line: rgba(255, 42, 31, 0.55);
+    --line-dim: rgba(255, 42, 31, 0.22);
+    --glow: 0 0 6px rgba(255, 42, 31, 0.8), 0 0 18px rgba(255, 42, 31, 0.35);
+    --amber: #ffb02e;
   }
 
   * {
@@ -52,95 +44,138 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  html, body {
-    height: 100%;
-  }
+  html, body { height: 100%; }
 
   body {
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     background:
-      radial-gradient(ellipse 900px 700px at 50% 20%, var(--bg-vignette), var(--bg-deep) 70%);
-    font-family: 'Space Grotesk', sans-serif;
-    padding: 40px 20px;
+      radial-gradient(ellipse 800px 600px at 50% 35%, #2a0504 0%, var(--bg-2) 45%, var(--bg) 100%);
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--red);
+    padding: 16px 20px 40px;
     overflow-x: hidden;
   }
 
+  /* full-screen scanlines + vignette */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
-    opacity: 0.04;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 50;
+    background:
+      repeating-linear-gradient(180deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.28) 3px),
+      radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%);
   }
 
+  /* slow scan beam */
+  body::after {
+    content: '';
+    position: fixed;
+    left: 0; right: 0;
+    height: 120px;
+    top: -120px;
+    pointer-events: none;
+    z-index: 49;
+    background: linear-gradient(180deg, transparent, rgba(255,42,31,0.07), transparent);
+    animation: beam 7s linear infinite;
+  }
+  @keyframes beam { to { transform: translateY(calc(100vh + 240px)); } }
+
+  /* ---------- device ---------- */
   .device {
     position: relative;
-    width: 340px;
+    width: 360px;
+    animation: flicker 6s infinite;
+  }
+
+  @keyframes flicker {
+    0%, 96%, 100% { opacity: 1; }
+    97% { opacity: 0.82; }
+    98% { opacity: 1; }
+    99% { opacity: 0.9; }
   }
 
   .device-label {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    padding: 0 6px 14px;
+    padding: 0 4px 12px;
   }
 
   .device-label .brand {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.28em;
-    color: var(--text-muted);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.32em;
+    color: var(--red);
     text-transform: uppercase;
+    text-shadow: var(--glow);
   }
 
   .device-label .model {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--text-faint);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--red-mid);
   }
 
+  /* ---------- HUD frame ---------- */
   .case {
     position: relative;
+    padding: 18px 16px 18px;
     background:
-      linear-gradient(155deg, var(--case-light) 0%, var(--case-mid) 18%, var(--case-dark) 55%, var(--case-mid) 100%);
-    border-radius: 28px;
-    padding: 22px 20px 24px;
+      linear-gradient(180deg, rgba(255,42,31,0.05), rgba(255,42,31,0.015));
+    border: 1px solid var(--line-dim);
     box-shadow:
-      0 1px 0 rgba(255,255,255,0.06) inset,
-      0 -1px 0 rgba(0,0,0,0.5) inset,
-      0 30px 60px -20px rgba(0,0,0,0.75),
-      0 10px 25px -10px rgba(0,0,0,0.6);
+      0 0 40px rgba(255, 42, 31, 0.12),
+      inset 0 0 40px rgba(255, 42, 31, 0.06);
   }
 
-  .case::before {
-    content: '';
+  /* corner brackets */
+  .corner {
     position: absolute;
-    top: 0; left: 14%; right: 14%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    border-color: var(--red);
+    border-style: solid;
+    filter: drop-shadow(0 0 4px rgba(255,42,31,0.8));
+    pointer-events: none;
   }
+  .corner.tl { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+  .corner.tr { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+  .corner.br { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
 
+  .hud-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--red-mid);
+    text-transform: uppercase;
+    padding-bottom: 10px;
+  }
+  .hud-bar b { color: var(--red); font-weight: normal; }
+
+  /* ---------- screen ---------- */
   .screen-bezel {
-    background: var(--bezel);
-    border-radius: 16px;
+    position: relative;
     padding: 3px;
-    box-shadow:
-      0 2px 6px rgba(0,0,0,0.6) inset,
-      0 1px 0 rgba(255,255,255,0.04);
-    margin-bottom: 18px;
+    border: 1px solid var(--line);
+    background: #000;
+    margin-bottom: 16px;
+    box-shadow: var(--glow), inset 0 0 20px rgba(255,42,31,0.15);
   }
 
   .screen {
     position: relative;
-    background: linear-gradient(180deg, var(--display-bg-2), var(--display-bg));
-    border-radius: 13px;
-    padding: 22px 20px 18px;
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(255,42,31,0.16), transparent 70%),
+      #070101;
+    padding: 16px 18px 14px;
     overflow: hidden;
     min-height: 128px;
     display: flex;
@@ -152,188 +187,263 @@
     transition: box-shadow 0.15s ease;
   }
 
-  .screen:active {
-    box-shadow: 0 0 0 1px rgba(111,252,177,0.3) inset;
-  }
+  .screen:active { box-shadow: inset 0 0 0 1px rgba(255,42,31,0.5); }
 
   .screen.copied {
-    box-shadow: 0 0 0 1px rgba(111,252,177,0.55) inset, 0 0 22px rgba(111,252,177,0.18) inset;
+    box-shadow: inset 0 0 0 1px var(--red), inset 0 0 30px rgba(255,42,31,0.35);
   }
 
+  /* targeting grid */
   .screen::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-      180deg,
-      rgba(255,255,255,0.018) 0px,
-      rgba(255,255,255,0.018) 1px,
-      transparent 1px,
-      transparent 3px
-    );
+    background-image:
+      linear-gradient(var(--line-dim) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-dim) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.35;
     pointer-events: none;
   }
 
-  .screen::after {
-    content: '';
-    position: absolute;
-    top: -40%;
-    left: -20%;
-    width: 70%;
-    height: 180%;
-    background: linear-gradient(115deg, rgba(255,255,255,0.05), transparent 55%);
-    transform: rotate(8deg);
+  /* reticle */
+  .reticle {
+    position: relative;
+    flex: none;
+    width: 24px;
+    height: 24px;
     pointer-events: none;
+    z-index: 1;
+    filter: drop-shadow(0 0 3px rgba(255,42,31,0.9));
   }
+  .reticle svg { width: 100%; height: 100%; overflow: visible; }
+  .reticle .ring-outer { transform-origin: 12px 12px; animation: spin 6s linear infinite; }
+  .reticle .ring-inner { transform-origin: 12px 12px; animation: spin 3s linear infinite reverse; }
+  .reticle .core { animation: pulse 1.4s steps(2, end) infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   .indicator-row {
+    position: absolute;
+    top: 10px;
+    left: 18px;
+    right: 12px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 10px;
+    gap: 8px;
     z-index: 1;
   }
 
   .indicator-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--glow);
-    box-shadow: 0 0 6px var(--glow), 0 0 12px var(--glow-dim);
-    animation: pulse 2.4s ease-in-out infinite;
+    width: 7px;
+    height: 7px;
+    background: var(--red);
+    box-shadow: 0 0 6px var(--red), 0 0 14px var(--red-mid);
+    animation: pulse 1.4s steps(2, end) infinite;
   }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.35; }
+    50% { opacity: 0.15; }
   }
 
   .indicator-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--glow-dim);
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    color: var(--red);
     text-transform: uppercase;
+    text-shadow: var(--glow);
   }
 
   .previous {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 15px;
-    color: var(--glow-dim);
+    position: relative;
+    font-size: 16px;
+    color: var(--red-mid);
     text-align: right;
-    min-height: 20px;
-    opacity: 0.75;
-    letter-spacing: 0.02em;
+    min-height: 22px;
+    letter-spacing: 0.06em;
     z-index: 1;
   }
 
   .current {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 44px;
+    position: relative;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 34px;
     font-weight: 500;
-    color: var(--glow);
+    color: var(--red);
     text-align: right;
-    text-shadow: 0 0 10px rgba(111,252,177,0.55), 0 0 24px rgba(111,252,177,0.25);
+    text-shadow: var(--glow);
     word-break: break-all;
-    line-height: 1.1;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
     z-index: 1;
-    transition: text-shadow 0.15s ease;
   }
 
+  /* ---------- keys ---------- */
   .buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 11px;
+    gap: 10px;
   }
 
   button {
     position: relative;
-    border: none;
+    border: 1px solid var(--line);
     outline: none;
     cursor: pointer;
-    border-radius: 14px;
-    height: 62px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 19px;
+    height: 60px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
     font-weight: 500;
-    color: var(--text-primary);
-    background: linear-gradient(160deg, var(--key-face-hi), var(--key-face));
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.08) inset,
-      0 -3px 0 rgba(0,0,0,0.35) inset,
-      0 4px 8px rgba(0,0,0,0.4);
-    transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.15s ease;
+    color: var(--red);
+    background:
+      linear-gradient(180deg, rgba(255,42,31,0.10), rgba(255,42,31,0.02));
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    text-shadow: 0 0 6px rgba(255,42,31,0.6);
+    transition: background 0.12s ease, color 0.12s ease, transform 0.06s ease;
+  }
+
+  /* clip-path hides the border on cut corners, so draw it via inset shadow */
+  button {
+    border: none;
+    box-shadow: inset 0 0 0 1px var(--line), inset 0 0 14px rgba(255,42,31,0.08);
+  }
+
+  button:hover {
+    background: linear-gradient(180deg, rgba(255,42,31,0.22), rgba(255,42,31,0.06));
+    box-shadow: inset 0 0 0 1px var(--red), inset 0 0 18px rgba(255,42,31,0.2);
   }
 
   button:active {
-    transform: translateY(2px);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.04) inset,
-      0 -1px 0 rgba(0,0,0,0.3) inset,
-      0 1px 2px rgba(0,0,0,0.3);
+    transform: scale(0.97);
+    background: var(--red);
+    color: #1a0100;
+    text-shadow: none;
   }
 
   button.util {
-    color: var(--text-muted);
+    font-family: 'Share Tech Mono', monospace;
     font-size: 15px;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    text-shadow: 0 0 6px rgba(255,176,46,0.5);
+    box-shadow: inset 0 0 0 1px rgba(255,176,46,0.45), inset 0 0 14px rgba(255,176,46,0.06);
+    background: linear-gradient(180deg, rgba(255,176,46,0.08), rgba(255,176,46,0.01));
   }
+  button.util:hover {
+    background: linear-gradient(180deg, rgba(255,176,46,0.2), rgba(255,176,46,0.04));
+    box-shadow: inset 0 0 0 1px var(--amber), inset 0 0 18px rgba(255,176,46,0.18);
+  }
+  button.util:active { background: var(--amber); color: #1a0e00; }
 
   button.operator {
-    background: linear-gradient(160deg, var(--copper-light), var(--copper));
-    color: #2a1608;
-    font-weight: 600;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.25) inset,
-      0 -3px 0 rgba(0,0,0,0.25) inset,
-      0 4px 10px rgba(217,141,95,0.25);
-  }
-
-  button.operator:active {
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.15) inset,
-      0 -1px 0 rgba(0,0,0,0.2) inset,
-      0 2px 4px rgba(217,141,95,0.2);
+    background: linear-gradient(180deg, rgba(255,42,31,0.30), rgba(255,42,31,0.10));
+    color: var(--red-hi);
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--red), inset 0 0 18px rgba(255,42,31,0.25);
   }
 
   button.equals {
     grid-column: span 2;
-    background: linear-gradient(160deg, #7ffcc0, var(--glow-dim));
-    color: #04150c;
-    font-weight: 700;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.3) inset,
-      0 -3px 0 rgba(0,0,0,0.2) inset,
-      0 4px 14px rgba(111,252,177,0.3);
+    background: var(--red);
+    color: #1a0100;
+    font-weight: 900;
+    text-shadow: none;
+    box-shadow: 0 0 18px rgba(255,42,31,0.55), inset 0 0 0 1px var(--red-hi);
+  }
+  button.equals:hover { background: var(--red-hi); }
+  button.equals:active { background: #fff; color: var(--red-mid); }
+
+  button.zero { grid-column: span 2; }
+
+  /* tiny memory keys, centred between READY and the crosshair */
+  .mem-keys {
+    margin: 0 auto;
+    display: flex;
+    gap: 5px;
+    position: relative;
+    z-index: 2;
+  }
+  .mem-keys button {
+    height: 18px;
+    padding: 0 7px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--red-mid);
+    text-shadow: none;
+    background: rgba(255,42,31,0.05);
+    clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+    box-shadow: inset 0 0 0 1px var(--line-dim);
+  }
+  .mem-keys button:hover { color: var(--red); box-shadow: inset 0 0 0 1px var(--red); background: rgba(255,42,31,0.12); }
+  .mem-keys button:active { transform: scale(0.94); background: var(--red); color: #1a0100; }
+  /* MS is filled with hatched red lines while a value is stored */
+  .mem-keys button.armed {
+    background-image: repeating-linear-gradient(45deg, rgba(255,42,31,0.75) 0 2px, transparent 2px 5px);
+    color: #fff;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    box-shadow: inset 0 0 0 1px var(--red);
+  }
+  .mem-val {
+    display: inline-block;
+    max-width: 96px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
   }
 
-  button.equals:active {
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.2) inset,
-      0 -1px 0 rgba(0,0,0,0.15) inset,
-      0 2px 6px rgba(111,252,177,0.2);
+  .footer-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--red-dim);
+    text-transform: uppercase;
   }
 
-  button.zero {
-    grid-column: span 2;
+  /* ---------- window controls ---------- */
+  .winbtn {
+    height: 22px;
+    width: auto;
+    padding: 0 9px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    color: var(--red);
+    box-shadow: inset 0 0 0 1px var(--line);
+    text-transform: uppercase;
   }
+  .winbtn.close { color: var(--amber); box-shadow: inset 0 0 0 1px rgba(255,176,46,0.5); }
+  .winbtn.close:hover { background: var(--amber); color: #1a0e00; }
+  .only-popup { display: none; }
 
-  button::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 14px;
-    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.14), transparent 60%);
-    pointer-events: none;
+  /* ---------- popup mode: calculator only, fills the window ---------- */
+  html.popup, html.popup body { height: auto; min-height: 0; }
+  html.popup body {
+    padding: 6px 8px 8px;
+    margin: 0;
+    align-items: flex-start;
+    overflow: hidden;
+    background: radial-gradient(ellipse 600px 500px at 50% 30%, #2a0504 0%, var(--bg-2) 50%, var(--bg) 100%);
   }
+  html.popup .device { width: 100%; }
+  html.popup .only-popup { display: inline-block; }
+  html.popup .only-page { display: none; }
+  html.popup #hud-home-button,
+  html.popup [class*="view-counter"],
+  html.popup [id*="view-counter"],
+  html.popup [class*="related"],
+  html.popup [id*="related"] { display: none !important; }
 
-  @media (max-width: 380px) {
-    .device { width: 100%; max-width: 340px; }
+  @media (max-width: 400px) {
+    .device { width: 100%; max-width: 360px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .indicator-dot { animation: none; }
+    .indicator-dot, .reticle, .device, body::after { animation: none; }
     button { transition: none; }
   }
 </style>
@@ -343,15 +453,45 @@
 <div class="device">
   <div class="device-label">
     <span class="brand">Rameshverse</span>
-    <span class="model">MK·01</span>
+    <span class="model">
+      <button class="winbtn only-page" id="popout" title="Open calculator in its own small window">⧉ Pop out</button>
+      <button class="winbtn close only-popup" id="closewin" title="Close window">✕ Close</button>
+    </span>
   </div>
 
   <div class="case">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+
+    <div class="hud-bar">
+      <span>Sys <b>Online</b></span>
+      <span>Mem <b class="mem-val" id="mem-val">---</b></span>
+      <span>Calc <b>T-800</b></span>
+    </div>
+
     <div class="screen-bezel">
       <div class="screen" id="screen" title="Tap to copy">
         <div class="indicator-row">
           <div class="indicator-dot"></div>
           <span class="indicator-text">Ready</span>
+          <div class="mem-keys">
+            <button id="mem-store" title="Memory store: save the number on screen (M)">MS</button>
+            <button id="mem-recall" title="Memory recall: bring it back (R)">MR</button>
+            <button id="mem-clear" title="Memory clear: empty it">MC</button>
+          </div>
+          <div class="reticle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ff2a1f" stroke-width="1">
+              <circle class="ring-outer" cx="12" cy="12" r="10.5" stroke-dasharray="6 3 1.5 3" />
+              <g class="ring-inner" stroke-width="1.4">
+                <path d="M12 5.5 A6.5 6.5 0 0 1 18.5 12" />
+                <path d="M12 18.5 A6.5 6.5 0 0 1 5.5 12" />
+              </g>
+              <path d="M12 0.5v4 M12 19.5v4 M0.5 12h4 M19.5 12h4" stroke-width="1" />
+              <rect class="core" x="10.7" y="10.7" width="2.6" height="2.6" fill="#ff2a1f" stroke="none" />
+            </svg>
+          </div>
         </div>
         <div class="previous" id="previous-operand"></div>
         <div class="current" id="current-operand">0</div>
@@ -383,6 +523,11 @@
       <button data-num=".">.</button>
       <button class="equals" id="equals">=</button>
     </div>
+
+    <div class="footer-bar">
+      <span>Tap display to copy</span>
+      <span>Skynet link: offline</span>
+    </div>
   </div>
 </div>
 
@@ -400,10 +545,20 @@
 
   const opSymbol = { '+': '+', '-': '−', '*': '×', '/': '÷', '%': '%' };
 
+  // 1,000,000 style grouping (display only; internal value stays raw)
+  function fmt(str) {
+    if (!/^-?\d*\.?\d*$/.test(str)) return str; // Error, exponent forms, etc.
+    const neg = str.startsWith('-') ? '-' : '';
+    const body = neg ? str.slice(1) : str;
+    const [int, dec] = body.split('.');
+    const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return neg + grouped + (dec !== undefined ? '.' + dec : '');
+  }
+
   function updateDisplay() {
-    currentOperandEl.textContent = currentOperand;
+    currentOperandEl.textContent = fmt(currentOperand);
     previousOperandEl.textContent = previousOperand
-      ? `${previousOperand} ${opSymbol[operation] || operation}`
+      ? `${fmt(previousOperand)} ${opSymbol[operation] || operation}`
       : '';
   }
 
@@ -535,6 +690,87 @@
 
   screenEl.addEventListener('click', copyResult);
 
+  // ---- memory: store a number, recall it any time (survives reload / popup) ----
+  const MEM_KEY = 'rv-calc-memory';
+  let memory = null;
+  try { memory = localStorage.getItem(MEM_KEY); } catch (e) {}
+  const memValEl = document.getElementById('mem-val');
+  const memStoreBtn = document.getElementById('mem-store');
+  const memRecallBtn = document.getElementById('mem-recall');
+  const memClearBtn = document.getElementById('mem-clear');
+
+  function renderMemory() {
+    const has = memory !== null && memory !== '';
+    memValEl.textContent = has ? fmt(memory) : '---';
+    memValEl.title = has ? fmt(memory) : 'Memory empty';
+    memStoreBtn.classList.toggle('armed', has);
+  }
+  function saveMemory() {
+    try {
+      if (memory === null) localStorage.removeItem(MEM_KEY);
+      else localStorage.setItem(MEM_KEY, memory);
+    } catch (e) {}
+  }
+
+  function memStore() {
+    if (isNaN(parseFloat(currentOperand))) { flash('No number'); return; }
+    memory = currentOperand;
+    saveMemory();
+    renderMemory();
+    flash('Stored');
+  }
+  function memClear() {
+    memory = null;
+    saveMemory();
+    renderMemory();
+    flash('Mem empty');
+  }
+  function memRecall() {
+    if (memory === null) { flash('Mem empty'); return; }
+    currentOperand = memory;
+    shouldResetScreen = true;   // next digit starts a new number; operators/= use the recalled value
+    flash('Recalled');
+  }
+  memStoreBtn.addEventListener('click', (e) => { e.stopPropagation(); memStore(); updateDisplay(); });
+  memRecallBtn.addEventListener('click', (e) => { e.stopPropagation(); memRecall(); updateDisplay(); });
+  memClearBtn.addEventListener('click', (e) => { e.stopPropagation(); memClear(); updateDisplay(); });
+
+  // keep the pop-out window and the page in sync
+  window.addEventListener('storage', (e) => {
+    if (e.key === MEM_KEY) { memory = e.newValue; renderMemory(); }
+  });
+  renderMemory();
+
+  // ---- pop-out: open calculator alone in a small window ----
+  if (new URLSearchParams(location.search).get('popup') === '1') {
+    document.documentElement.classList.add('popup');
+    document.title = 'Calculator';
+    // fit window exactly to the calculator (no extra space)
+    const fit = () => {
+      try {
+        const d = document.querySelector('.device');
+        const w = 380, h = Math.ceil(d.getBoundingClientRect().height) + 16;
+        window.resizeTo(w + (window.outerWidth - window.innerWidth), h + (window.outerHeight - window.innerHeight));
+      } catch (e) {}
+    };
+    window.addEventListener('load', fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  }
+
+  document.getElementById('popout').addEventListener('click', () => {
+    const w = 380, h = 590;
+    const left = Math.round(screen.width / 2 - w / 2);
+    const top = Math.round(screen.height / 2 - h / 2);
+    const win = window.open(
+      location.pathname + '?popup=1',
+      'rv-calculator',
+      `popup=yes,width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no`
+    );
+    if (win) win.focus();
+  });
+
+  document.getElementById('closewin').addEventListener('click', () => window.close());
+
   window.addEventListener('keydown', (e) => {
     if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
     else if (e.key === '.') appendNumber('.');
@@ -542,16 +778,23 @@
     else if (e.key === 'Enter' || e.key === '=') compute();
     else if (e.key === 'Backspace') deleteLast();
     else if (e.key === 'Escape') clearAll();
+    else if (e.key === 'm' || e.key === 'M') memStore();
+    else if (e.key === 'r' || e.key === 'R') memRecall();
     updateDisplay();
   });
 </script>
 
-<script src="/libraries/config.js"></script>
-<script src="/libraries/view-counter.js"></script>
-<script src="/libraries/hud-home-button.js"></script>
-
-<script src="/tools-data.js"></script>
-<script src="/related-modules.js"></script>
+<script>
+  // Site scripts (home/back button, view counter, related tools) are skipped in the popup window
+  if (new URLSearchParams(location.search).get('popup') !== '1') {
+    ['/libraries/config.js',
+     '/libraries/view-counter.js',
+     '/libraries/hud-home-button.js',
+     '/tools-data.js',
+     '/related-modules.js'
+    ].forEach(src => document.write('<scr' + 'ipt src="' + src + '"><\/scr' + 'ipt>'));
+  }
+</script>
 
 </body>
 </html>
