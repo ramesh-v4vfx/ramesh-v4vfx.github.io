@@ -557,6 +557,9 @@
     box-shadow: 0 0 0 4px rgba(255,43,43,.22), 0 0 20px rgba(255,43,43,.4), 0 8px 22px rgba(0,0,0,.5);
   }
 
+  .search-icon { display: inline-flex; flex: none; align-items: center; color: #ff2b2b; filter: drop-shadow(0 0 3px rgba(255,43,43,.8)); line-height: 0; }
+  .search-icon svg { display: block; }
+
   .site-search input::placeholder { color: rgba(255,43,43,0.8); }
 
   /* ── TABS ── */
@@ -2259,6 +2262,236 @@
 .recent-tools-launch[hidden],
 .recent-tools.is-closed { display: none !important; }
 
+/* ══════════════════════════════════════════════════════
+   RECENTLY USED — now in the LEFT rail, above My Favorite Tools.
+   Mirrors the right-rail look (notch top-right, red line on the
+   left, heading on the left) so it matches the other left panels.
+   ══════════════════════════════════════════════════════ */
+.left-rail .recent-tools {
+  padding: 16px 14px 14px 20px;
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+}
+.left-rail .recent-tools::before { left: 0; right: auto; }
+.left-rail .recent-tools::after {
+  left: auto;
+  right: 0;
+  background: linear-gradient(135deg, transparent 49%, rgba(255,43,43,0.55) 50%, transparent 51%);
+}
+.left-rail .recent-tools-close { left: auto; right: 28px; }
+.left-rail .recent-tools h2 { text-align: left; }
+.left-rail .recent-tools h2::after { right: auto; left: 0; }
+.left-rail .recent-tools-launch {
+  padding: 0 16px 0 20px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+
+/* Tablet / phone: stacks right above My Favorite Tools (same spacing) */
+@media (max-width: 1700px) {
+  .left-rail .recent-tools,
+  .left-rail .recent-tools-launch {
+    order: 2;
+    margin: 20px auto 0 !important;
+  }
+}
+@media (max-width: 700px) {
+  .left-rail .recent-tools,
+  .left-rail .recent-tools-launch { order: 4; }
+}
+
+
+/* ══════════════════════════════════════════════════════
+   HUD ICONS — small animated icons that replace the emoji on
+   every left / right panel (heading and minimized button).
+   Pure CSS, about the size of an emoji, drawn in the panel red.
+     ico-recent  radar sweep        ico-fav   lock-on crosshair
+     ico-pop     signal bars        ico-unf   processing ring
+     ico-new     ping (new signal)  ico-dist  segmented ring
+   ══════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════
+   LATEST ADDITIONS — right rail
+   Lists the 5 newest tools, read from data-added="YYYY-MM-DD"
+   on the cards in the tool grid. Same look and the same
+   minimize / launcher behaviour as Recently Used.
+   ══════════════════════════════════════════════════════ */
+.latest-tools {
+  position: relative;
+  z-index: 1;
+  width: 300px;
+  background: linear-gradient(180deg, rgba(27, 29, 27, 0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  padding: 16px 20px 14px 14px;
+  clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%, 0 22px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+}
+.latest-tools::before {
+  content: "";
+  position: absolute;
+  top: 0; right: 0;
+  width: 2px; height: 100%;
+  background: linear-gradient(180deg, #ff2b2b, rgba(255,43,43,0.05));
+  box-shadow: 0 0 10px rgba(255,43,43,0.5);
+}
+.latest-tools::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 22px; height: 22px;
+  background: linear-gradient(45deg, transparent 49%, rgba(255,43,43,0.55) 50%, transparent 51%);
+  pointer-events: none;
+}
+.latest-tools-close {
+  position: absolute;
+  top: 2px; left: 28px;
+  width: 26px; height: 26px;
+  border: 1px solid rgba(255,43,43,0.4);
+  border-radius: 0;
+  background: rgba(0,0,0,.5);
+  color: #ff2b2b;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .2s, box-shadow .2s, transform .2s;
+}
+.latest-tools-close:hover {
+  background: rgba(255,43,43,.15);
+  box-shadow: 0 0 12px rgba(255,43,43,.5);
+  transform: scale(1.08);
+}
+.latest-tools h2 {
+  margin: 0 0 12px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  font-weight: 700;
+  padding-bottom: 8px;
+  position: relative;
+  text-align: right;
+}
+.latest-tools h2::after {
+  content: "";
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 40px; height: 1px;
+  background: #ff2b2b;
+  box-shadow: 0 0 6px rgba(255,43,43,0.8);
+}
+#latestToolsList { display: flex; flex-direction: column; gap: 4px; }
+
+.latest-tool-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  color: #d8d5da;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.76rem;
+  text-decoration: none;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,43,43,0.12);
+  border-radius: 4px;
+  position: relative;
+  transform-origin: center center;
+  transition: color .25s ease, transform .3s cubic-bezier(.22,.61,.36,1),
+              background .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+.latest-tool-item:hover,
+.latest-tool-item:focus-visible {
+  color: #fff;
+  background: rgba(255,43,43,0.12);
+  border-color: rgba(255,43,43,0.7);
+  transform: scale(1.08);
+  z-index: 5;
+  box-shadow: 0 0 22px rgba(255,43,43,0.35), inset 0 0 0 1px rgba(255,43,43,0.3);
+}
+.latest-tool-item:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
+.latest-tool-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.latest-tool-date {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255,43,43,0.85);
+  white-space: nowrap;
+}
+/* added within the last 7 days */
+.latest-tool-item.is-new .latest-tool-date {
+  color: #ff2b2b;
+  text-shadow: 0 0 8px rgba(255,43,43,0.8);
+}
+.latest-tool-item.is-new .latest-tool-date::before { content: "NEW · "; }
+
+.latest-tools-launch {
+  position: relative;
+  width: 300px;
+  height: 44px;
+  padding: 0 20px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff2b2b;
+  text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25);
+  border-radius: 0;
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+}
+.latest-tools-launch:hover,
+.latest-tools-launch:focus-visible {
+  background: rgba(255,43,43,0.12);
+  border-color: rgba(255,43,43,0.6);
+  color: #fff;
+}
+/* hidden = no card has a data-added date; is-closed = minimized */
+.latest-tools[hidden],
+.latest-tools-launch[hidden],
+.latest-tools.is-closed { display: none !important; }
+
+@media (max-width: 1700px) {
+  .latest-tools,
+  .latest-tools-launch {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 92% !important;
+    min-width: 0;
+    margin: 16px auto 0 !important;
+    order: 3;
+  }
+}
+@media (max-width: 700px) {
+  /* phones: with Most Popular Tools, below the tool cards */
+  .latest-tools,
+  .latest-tools-launch { order: 4; }
+}
+
 /* Tablet / phone: the rail dissolves and its panels join the same
    stacked order as the other sections, right above System Distribution. */
 @media (max-width: 1700px) {
@@ -3467,7 +3700,7 @@
 <div class="sticky-top">
   <div class="site-search">
     <div class="search-wrap">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><circle cx="10" cy="10" r="6.2"/><path d="M10 1.5v3.2M10 15.3v3.2M1.5 10h3.2M15.3 10h3.2"/><circle cx="10" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M14.8 14.8L21.5 21.5" stroke-width="2.4"/></svg></span>
       <input type="search" id="searchInput" aria-label="Search tools" placeholder="Type or press / to search" oninput="handleSearch()" />
     </div>
   </div>
@@ -3492,52 +3725,8 @@
   </div>
 </div>
 
-<!-- LEFT RAIL: My Favorite Tools sits above Most Popular Tools -->
+<!-- LEFT RAIL: Recently Used, then My Favorite Tools, then Most Popular Tools -->
 <div class="left-rail" id="leftRail">
-
-<!-- MY FAVORITE TOOLS (top 5 most-opened tools of this visitor; hidden until a tool has been opened; filled by script) -->
-<button type="button" class="fav-tools-launch" id="favToolsOpen"
-        aria-expanded="false" aria-controls="favTools" hidden>
-  <span>⭐ My Favorites</span><span aria-hidden="true">▾</span>
-</button>
-<aside class="fav-tools" id="favTools" aria-label="My favorite tools" hidden>
-  <button type="button" class="fav-tools-close" id="favToolsClose" aria-label="Minimize my favorite tools" title="Minimize">▴</button>
-  <h2>⭐ My Favorite Tools</h2>
-  <div id="favToolsList"></div>
-  <button type="button" class="fav-tools-clear" id="favToolsClear">Reset counts</button>
-</aside>
-
-<!-- MOST POPULAR TOOLS -->
-<button type="button" class="popular-tools-launch" id="popularToolsOpen"
-        aria-expanded="false" aria-controls="popularTools">
-  <span>🏆 Most Popular Tools</span><span aria-hidden="true">▾</span>
-</button>
-<aside class="popular-tools is-closed" id="popularTools">
-  <button type="button" class="popular-tools-close" id="popularToolsClose" aria-label="Minimize most popular tools" title="Minimize">▴</button>
-  <h2>🏆 Most Popular Tools</h2>
-  <div id="popularToolsList"></div>
-  <button type="button" class="popular-tools-expand" id="popularToolsExpand">▾ Show all</button>
-</aside>
-
-</div><!-- /left-rail -->
-
-<!-- ══════════════════════════════════════════════════════
-     2. HTML — paste right after your existing
-        <aside class="popular-tools" ...>...</aside> block
-     ══════════════════════════════════════════════════════ -->
-<!-- RIGHT RAIL: Recently Used sits above System Distribution -->
-<div class="right-rail" id="rightRail">
-
-<!-- UNFINISHED BUSINESS (top of the rail; hidden until the visitor has open tasks; filled by script) -->
-<button type="button" class="unfinished-launch" id="unfinishedOpen"
-        aria-expanded="false" aria-controls="unfinishedPanel" hidden>
-  <span>⏳ Unfinished <b id="unfinishedBadge">0</b></span><span aria-hidden="true">▾</span>
-</button>
-<aside class="unfinished-panel" id="unfinishedPanel" aria-label="Unfinished tasks" hidden>
-  <button type="button" class="unfinished-close" id="unfinishedClose" aria-label="Minimize unfinished business" title="Minimize">▴</button>
-  <h2>Unfinished Business</h2>
-  <div id="unfinishedList"></div>
-</aside>
 
 <!-- RECENTLY USED TOOLS (hidden until the visitor has opened a tool; filled by script) -->
 <button type="button" class="recent-tools-launch" id="recentToolsOpen"
@@ -3551,11 +3740,66 @@
   <button type="button" class="recent-tools-clear" id="recentToolsClear">Clear list</button>
 </aside>
 
-<button type="button" class="category-radar-launch" id="categoryRadarOpen"
-        aria-expanded="false" aria-controls="categoryRadar">
-  <span>📊 System Distribution</span><span aria-hidden="true">▾</span>
+<!-- MY FAVORITE TOOLS (top 5 most-opened tools of this visitor; hidden until a tool has been opened; filled by script) -->
+<button type="button" class="fav-tools-launch" id="favToolsOpen"
+        aria-expanded="false" aria-controls="favTools" hidden>
+  <span>My Favorites</span><span aria-hidden="true">▾</span>
 </button>
-<aside class="category-radar is-closed" id="categoryRadar">
+<aside class="fav-tools" id="favTools" aria-label="My favorite tools" hidden>
+  <button type="button" class="fav-tools-close" id="favToolsClose" aria-label="Minimize my favorite tools" title="Minimize">▴</button>
+  <h2>My Favorite Tools</h2>
+  <div id="favToolsList"></div>
+  <button type="button" class="fav-tools-clear" id="favToolsClear">Reset counts</button>
+</aside>
+
+<!-- MOST POPULAR TOOLS -->
+<button type="button" class="popular-tools-launch" id="popularToolsOpen"
+        aria-expanded="false" aria-controls="popularTools">
+  <span>Most Popular Tools</span><span aria-hidden="true">▾</span>
+</button>
+<aside class="popular-tools is-closed" id="popularTools">
+  <button type="button" class="popular-tools-close" id="popularToolsClose" aria-label="Minimize most popular tools" title="Minimize">▴</button>
+  <h2>Most Popular Tools</h2>
+  <div id="popularToolsList"></div>
+  <button type="button" class="popular-tools-expand" id="popularToolsExpand">▾ Show all</button>
+</aside>
+
+</div><!-- /left-rail -->
+
+<!-- ══════════════════════════════════════════════════════
+     2. HTML — paste right after your existing
+        <aside class="popular-tools" ...>...</aside> block
+     ══════════════════════════════════════════════════════ -->
+<!-- RIGHT RAIL: Unfinished Business, Latest Additions, System Distribution -->
+<div class="right-rail" id="rightRail">
+
+<!-- UNFINISHED BUSINESS (top of the rail; hidden until the visitor has open tasks; filled by script) -->
+<button type="button" class="unfinished-launch" id="unfinishedOpen"
+        aria-expanded="false" aria-controls="unfinishedPanel" hidden>
+  <span>Unfinished <b id="unfinishedBadge">0</b></span><span aria-hidden="true">▾</span>
+</button>
+<aside class="unfinished-panel" id="unfinishedPanel" aria-label="Unfinished tasks" hidden>
+  <button type="button" class="unfinished-close" id="unfinishedClose" aria-label="Minimize unfinished business" title="Minimize">▴</button>
+  <h2>Unfinished Business</h2>
+  <div id="unfinishedList"></div>
+</aside>
+
+<!-- LATEST ADDITIONS (the 5 newest tools; filled by script from data-added dates on the cards) -->
+<button type="button" class="latest-tools-launch" id="latestToolsOpen"
+        aria-expanded="false" aria-controls="latestTools" hidden>
+  <span>Latest Additions</span><span aria-hidden="true">▾</span>
+</button>
+<aside class="latest-tools" id="latestTools" aria-label="Latest additions" hidden>
+  <button type="button" class="latest-tools-close" id="latestToolsClose" aria-label="Minimize latest additions" title="Minimize">▴</button>
+  <h2>Latest Additions</h2>
+  <div id="latestToolsList"></div>
+</aside>
+
+<button type="button" class="category-radar-launch" id="categoryRadarOpen" hidden
+        aria-expanded="true" aria-controls="categoryRadar">
+  <span>System Distribution</span><span aria-hidden="true">▾</span>
+</button>
+<aside class="category-radar" id="categoryRadar">
   <button type="button" class="category-radar-close" id="categoryRadarClose" aria-label="Minimize system distribution" title="Minimize">▴</button>
   <h2>System Distribution</h2>
   <div class="radar-donut-wrap">
@@ -3798,7 +4042,7 @@
     <p>A simple space to dump your thoughts and clear your mind.</p>
   </a>
 
-  <a class="tool has-img" href="/personal-black-box/" data-search="personal blackbox productivity tool" data-category="productivity">
+  <a class="tool has-img" href="/personal-black-box/" data-added="2026-11-23" data-search="personal blackbox productivity tool" data-category="productivity">
     <img class="tool-img" src="/images/card-images/personal-black-box.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Personnal Blackbox</h3>
     <p>Log what you did, and it saves the exact date and time.</p>
@@ -5233,6 +5477,104 @@
 </script>
 
 <script>
+  /* ── LATEST ADDITIONS ──
+     Shows the 5 newest tools. A tool counts as new by the date written on
+     its card in the grid:   <a class="tool" data-added="2026-11-23" ...>
+     Cards without data-added are ignored. To add a tool to the panel,
+     just give its card today's date. Nothing else to edit. */
+  (function () {
+    const COLLAPSE_KEY = 'rvLatestToolsCollapsed';
+    const SHOW     = 5;   // how many are listed
+    const NEW_DAYS = 7;   // tools added within this many days get a NEW label
+
+    const panel    = document.getElementById('latestTools');
+    const launch   = document.getElementById('latestToolsOpen');
+    const closeBtn = document.getElementById('latestToolsClose');
+    const list     = document.getElementById('latestToolsList');
+    if (!panel || !launch || !closeBtn || !list) return;
+
+    function normPath(href) {
+      try {
+        const u = new URL(href, location.href);
+        if (u.origin !== location.origin) return null;
+        return u.pathname.endsWith('/') ? u.pathname : u.pathname + '/';
+      } catch (e) { return null; }
+    }
+    function parseDay(str) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str || '');
+      return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+    }
+    function isCollapsed() {
+      try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) { return false; }
+    }
+    function setCollapsed(on) {
+      try {
+        if (on) localStorage.setItem(COLLAPSE_KEY, '1');
+        else localStorage.removeItem(COLLAPSE_KEY);
+      } catch (e) { /* storage unavailable */ }
+    }
+
+    // Newest first; tools added on the same day keep their order on the page
+    const items = Array.from(document.querySelectorAll('#toolsGrid a.tool[data-added]'))
+      .map((a, i) => {
+        const h3 = a.querySelector('h3');
+        return { i, day: parseDay(a.dataset.added), added: a.dataset.added,
+                 path: normPath(a.getAttribute('href')), name: h3 ? h3.textContent.trim() : '' };
+      })
+      .filter(x => x.day && x.path && x.name)
+      .sort((x, y) => (y.added < x.added ? -1 : y.added > x.added ? 1 : x.i - y.i))
+      .slice(0, SHOW);
+
+    function render() {
+      list.textContent = '';
+      if (!items.length) {           // no dated cards → show nothing
+        panel.hidden = true;
+        launch.hidden = true;
+        return;
+      }
+      const now = new Date();
+      items.forEach(it => {
+        const a = document.createElement('a');
+        a.className = 'latest-tool-item';
+        a.href = it.path;
+        a.title = it.name;
+
+        const name = document.createElement('span');
+        name.className = 'latest-tool-name';
+        name.textContent = it.name;
+
+        const date = document.createElement('span');
+        date.className = 'latest-tool-date';
+        date.textContent = it.day.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+        if ((now - it.day) / 86400000 <= NEW_DAYS) a.classList.add('is-new');
+
+        a.append(name, date);
+        list.appendChild(a);
+      });
+
+      const collapsed = isCollapsed();
+      panel.hidden = false;
+      panel.classList.toggle('is-closed', collapsed);
+      launch.hidden = !collapsed;
+    }
+
+    launch.addEventListener('click', function () {
+      setCollapsed(false);
+      render();
+      closeBtn.focus({ preventScroll: true });
+    });
+    closeBtn.addEventListener('click', function () {
+      setCollapsed(true);
+      render();
+      launch.focus({ preventScroll: true });
+    });
+    window.addEventListener('storage', e => { if (e.key === COLLAPSE_KEY) render(); });
+
+    render();
+  })();
+</script>
+
+<script>
   /* ── RECENTLY USED TOOLS ──
      Remembers the last tools this visitor opened (in their own browser,
      via localStorage) and lists up to 5 of them above System Distribution.
@@ -5436,8 +5778,8 @@
         if (v === '1') return true;
         if (v === '0') return false;
       } catch (e) { /* storage unavailable */ }
-      // No saved choice: open on desktop, minimized on tablets/phones
-      return !!(window.matchMedia && window.matchMedia('(max-width: 1700px)').matches);
+      // No saved choice: open by default
+      return false;
     }
     function setCollapsed(on) {
       try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
@@ -6333,9 +6675,8 @@
         if (v === '1') return true;
         if (v === '0') return false;
       } catch (e) { /* storage unavailable */ }
-      // No saved choice: open on desktop, minimized on tablets/phones so it
-      // doesn't push the search bar down.
-      return window.matchMedia('(max-width: 1700px)').matches;
+      // No saved choice: open by default
+      return false;
     }
     function setCollapsed(on) {
       try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
