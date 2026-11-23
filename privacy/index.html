@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy :: RameshVerse</title>
+<meta name="description" content="How rameshverse.com handles data: your tool data stays in your browser, anonymous cookieless analytics, no ads.">
+<link rel="canonical" href="https://rameshverse.com/privacy/" />
+
+<!-- Umami analytics (cookieless) -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="7c12dd34-4df3-4021-9663-1a956cb7fefa"></script>
+
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#111315;
+    --panel-edge:#1e2226;
+    --red:#e21f1f;
+    --red-dim:#7a1414;
+    --text:#c8ccd0;
+    --text-dim:#6b7278;
+    --mono:'Space Mono', monospace;
+  }
+  @font-face{
+    font-family:'Space Mono';
+    src:local('Space Mono');
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      linear-gradient(rgba(226,31,31,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(226,31,31,0.03) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--text);
+    font-family:var(--mono);
+    padding:24px 16px 80px;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+
+  .hud-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    border-bottom:1px solid var(--panel-edge);
+    padding-bottom:12px;
+    margin-bottom:24px;
+  }
+  .hud-header h1{
+    font-size:15px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--red);
+    margin:0;
+  }
+  .hud-header .tag{
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:1px;
+  }
+
+  .panel{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    padding:20px;
+    margin-bottom:28px;
+  }
+  .panel::before,.panel::after,
+  .corner-tl,.corner-br{
+    content:'';
+    position:absolute;
+    width:10px;height:10px;
+    border-color:var(--red);
+    border-style:solid;
+  }
+  .panel::before{top:-1px;left:-1px;border-width:2px 0 0 2px;}
+  .panel::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;}
+
+  label{
+    display:block;
+    font-size:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:6px;
+    margin-top:16px;
+  }
+  label:first-of-type{margin-top:0;}
+
+  input[type=text], textarea, select{
+    width:100%;
+    background:#0d0f11;
+    border:1px solid var(--panel-edge);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:13px;
+    padding:10px 12px;
+    outline:none;
+  }
+  input[type=text]:focus, textarea:focus, select:focus{
+    border-color:var(--red-dim);
+  }
+  textarea{resize:vertical;min-height:80px;}
+  select{appearance:none;cursor:pointer;}
+
+  .cat-row{display:flex;gap:8px;margin-top:16px;}
+  .cat-btn{
+    flex:1;
+    background:#0d0f11;
+    border:1px solid var(--panel-edge);
+    color:var(--text-dim);
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:9px 4px;
+    cursor:pointer;
+  }
+  .cat-btn.active{
+    color:var(--red);
+    border-color:var(--red-dim);
+    background:rgba(226,31,31,0.08);
+  }
+
+  .submit-btn{
+    width:100%;
+    margin-top:20px;
+    background:var(--red);
+    border:none;
+    color:#0a0a0a;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:12px;
+    cursor:pointer;
+    transition:opacity .15s;
+  }
+  .submit-btn:hover{opacity:.85;}
+  .submit-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  .status-line{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-top:10px;
+    min-height:14px;
+  }
+  .status-line.ok{color:#3ecf6b;}
+  .status-line.err{color:var(--red);}
+
+  .log-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .log-header h2{
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:0;
+  }
+  .log-count{
+    font-size:11px;
+    color:var(--red);
+  }
+
+  .entry{
+    border:1px solid var(--panel-edge);
+    background:var(--panel);
+    padding:14px 16px;
+    margin-bottom:10px;
+  }
+  .entry-meta{
+    display:flex;
+    justify-content:space-between;
+    font-size:10px;
+    color:var(--text-dim);
+    letter-spacing:1px;
+    margin-bottom:8px;
+    text-transform:uppercase;
+  }
+  .entry-meta .name{color:var(--text);}
+  .badge{
+    display:inline-block;
+    padding:2px 6px;
+    border:1px solid;
+    font-size:9px;
+    letter-spacing:1px;
+  }
+  .badge.bug{color:var(--red);border-color:var(--red-dim);}
+  .badge.feature{color:#3e9ecf;border-color:#1e4a5e;}
+  .badge.feedback{color:#c9c93e;border-color:#5e5e1e;}
+  .entry-message{
+    font-size:13px;
+    line-height:1.5;
+    color:var(--text);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
+  .empty-state{
+    font-size:12px;
+    color:var(--text-dim);
+    text-align:center;
+    padding:30px 0;
+    letter-spacing:1px;
+  }
+
+  @media (max-width: 768px) {
+  body{
+    padding-top:56px;
+  }
+}
+  .contact-row{margin-top:16px;font-size:13px;line-height:1.6;color:var(--text);}
+  .contact-row a{color:var(--red);text-decoration:none;border-bottom:1px solid var(--red-dim);}
+  .contact-row a:hover{opacity:.85;}
+  .note{font-size:11px;color:var(--text-dim);margin-top:18px;line-height:1.6;}
+  .note a{color:var(--red);text-decoration:none;border-bottom:1px solid var(--red-dim);}
+  h2.pv{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin:26px 0 8px;}
+  .pv-p, .pv-list{font-size:13px;line-height:1.7;color:var(--text);margin:0 0 8px;}
+  .pv-list{padding-left:18px;}
+  .pv-p a, .pv-list a{color:var(--red);text-decoration:none;border-bottom:1px solid var(--red-dim);}
+  .updated{font-size:11px;color:var(--text-dim);margin-top:24px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hud-header">
+    <h1>// Privacy</h1>
+    <span class="tag">RAMESHVERSE</span>
+  </div>
+
+  <div class="panel">
+    <p class="pv-p">RameshVerse is a set of free tools. There are no accounts, no logins and no ads. This page explains, in plain words, what happens with data when you use the site.</p>
+
+    <h2 class="pv">1. Your tool data stays on your device</h2>
+    <p class="pv-p">Tools such as notes, checklists, routines, logs, timers, and your recent and favorite tools save their data in your own browser (local storage). It is not sent to our servers, and we cannot see it. Clearing your browser data deletes it, and it does not move to other devices or browsers on its own.</p>
+
+    <h2 class="pv">2. Anonymous visit statistics</h2>
+    <p class="pv-p">We use <a href="https://umami.is" target="_blank" rel="noopener">Umami</a>, a privacy-friendly analytics service, to count visits. It does not use cookies and does not follow you across other sites. It records technical details such as the page visited, where you came from, your country, browser, operating system and device type. We use this only to see how the site is used, for example which tools are popular. We do not sell this data and do not use it for advertising.</p>
+
+    <h2 class="pv">3. Other services your browser contacts</h2>
+    <ul class="pv-list">
+      <li><strong>Google Fonts:</strong> the site loads its font from Google, so Google receives your IP address and browser details to deliver it.</li>
+      <li><strong>Cloudflare Workers:</strong> the home page asks a small service we run on Cloudflare for the list of popular tools.</li>
+      <li><strong>Live-data tools:</strong> a few tools may request public data (for example currency rates or sky data) from the provider of that data.</li>
+      <li><strong>YouTube and social links:</strong> if you click a link to YouTube or a share button, you are then on that service and its own policy applies.</li>
+    </ul>
+
+    <h2 class="pv">4. Cookies</h2>
+    <p class="pv-p">The site does not use advertising or tracking cookies. Local storage is used only to keep your own tool data and settings on your device.</p>
+
+    <h2 class="pv">5. Feedback</h2>
+    <p class="pv-p">There is no feedback form on this site and we do not collect messages here. To give feedback, comment on the <a href="https://youtu.be/c44VaD22ZEU" target="_blank" rel="noopener">demo video on YouTube</a>. Comments on YouTube are public and are handled by YouTube under its own policy.</p>
+
+    <h2 class="pv">6. Your choices</h2>
+    <p class="pv-p">You can clear the data of this site at any time in your browser settings. You can also use a content blocker if you prefer not to be counted in the statistics.</p>
+
+    <h2 class="pv">7. Changes</h2>
+    <p class="pv-p">If this changes, for example if accounts, sync or donations are added, this page will be updated first.</p>
+
+    <div class="updated">Last updated: 24 November 2026</div>
+  </div>
+
+  <div class="contact-row"><a href="/">&larr; Back to RameshVerse</a></div>
+</div>
+
+</body>
+</html>
