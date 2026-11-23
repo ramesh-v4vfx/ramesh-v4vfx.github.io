@@ -5,51 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRANSMISSION LOG :: RameshVerse Feedback</title>
 
-<!--
-  ============================================================
-  SETUP (5 min, one time)
-  ============================================================
-  1. Go to https://console.firebase.google.com -> Add project
-     (name it anything, e.g. "rameshverse"). Analytics optional.
-  2. Inside the project: Build > Firestore Database > Create database
-     -> choose "Start in production mode" (we lock it down below).
-  3. Project settings (gear icon) > General > "Your apps" > click
-     the </> (Web) icon > register app (no hosting needed).
-     Firebase will show you a firebaseConfig object — copy it.
-  4. Paste that object into FIREBASE_CONFIG below, replacing the
-     placeholder.
-  5. Firestore > Rules tab, replace the default rules with:
-
-     rules_version = '2';
-     service cloud.firestore {
-       match /databases/{database}/documents {
-         match /feedback/{entryId} {
-           allow read: if true;
-           allow create: if request.resource.data.name is string
-             && request.resource.data.name.size() > 0
-             && request.resource.data.name.size() < 60
-             && request.resource.data.message is string
-             && request.resource.data.message.size() > 0
-             && request.resource.data.message.size() < 2000
-             && request.resource.data.category in ['bug','feature','feedback']
-             && request.resource.data.createdAt == request.time;
-           allow update, delete: if false;
-         }
-       }
-     }
-
-     This lets anyone read and post, but nobody can edit/delete
-     other people's entries, and it validates the shape of every
-     post server-side. Publish the rules.
-  6. Upload this file to rameshverse.com (as its own page, or embed
-     the <div id="rv-feedback-root"> + <script> block into an
-     existing page). Done — it's live for every visitor.
-
-  Free tier covers roughly 50K reads / 20K writes per day, which is
-  far more than a feedback board needs.
-  ============================================================
--->
-
 <style>
   :root{
     --bg:#0a0a0a;
@@ -256,6 +211,10 @@
     padding-top:56px;
   }
 }
+  .contact-row{margin-top:16px;font-size:13px;line-height:1.6;color:var(--text);}
+  .contact-row a{color:var(--red);text-decoration:none;border-bottom:1px solid var(--red-dim);}
+  .contact-row a:hover{opacity:.85;}
+  .note{font-size:11px;color:var(--text-dim);margin-top:18px;line-height:1.6;}
 </style>
 </head>
 <body>
@@ -267,153 +226,24 @@
   </div>
 
   <div class="panel">
-    <label for="rv-name">Callsign (your name)</label>
-    <input type="text" id="rv-name" maxlength="60" placeholder="e.g. Ramesh" autocomplete="name">
-
-    <label>Category</label>
-    <div class="cat-row">
-      <button type="button" class="cat-btn active" data-cat="bug">Bug</button>
-      <button type="button" class="cat-btn" data-cat="feature">Feature</button>
-      <button type="button" class="cat-btn" data-cat="feedback">Feedback</button>
+    <label>Report a bug or request a feature</label>
+    <div class="contact-row">
+      Email: <a href="mailto:YOUR_EMAIL_HERE">YOUR_EMAIL_HERE</a>
     </div>
 
-    <label for="rv-message">Message</label>
-    <textarea id="rv-message" maxlength="2000" placeholder="Describe the bug, idea, or feedback..."></textarea>
+    <label>General feedback</label>
+    <div class="contact-row">
+      Leave a comment on the demo video:
+      <a href="YOUR_VIDEO_LINK_HERE" target="_blank" rel="noopener">Watch on YouTube</a>
+    </div>
 
-    <button class="submit-btn" id="rv-submit">Transmit</button>
-    <div class="status-line" id="rv-status"></div>
-  </div>
-
-  <div class="log-header">
-    <h2>Incoming Transmissions</h2>
-    <span class="log-count" id="rv-count">--</span>
-  </div>
-
-  <div id="rv-feedback-root">
-    <div class="empty-state">Loading log...</div>
+    <div class="note">
+      The on-site feedback form has been retired. RameshVerse no longer
+      collects or displays feedback on this site. If you email us, your
+      message is used only to reply and can be deleted on request.
+    </div>
   </div>
 </div>
-
-<!-- Firebase SDKs (modular v10, loaded from Google's CDN) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import {
-    getFirestore, collection, addDoc, query, orderBy, limit,
-    onSnapshot, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-  // ------------------------------------------------------------
-  // PASTE YOUR FIREBASE CONFIG HERE (see setup notes at top of file)
-  // ------------------------------------------------------------
-  const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyDD7T__rYYhAar9QknMYCX8Ob876ChAvPo",
-    authDomain: "rameshverse-hub.firebaseapp.com",
-    projectId: "rameshverse-hub",
-    storageBucket: "rameshverse-hub.firebasestorage.app",
-    messagingSenderId: "385147058247",
-    appId: "1:385147058247:web:990390fd9976d6e5d01962"
-  };
-
-  const app = initializeApp(FIREBASE_CONFIG);
-  const db = getFirestore(app);
-  const feedbackRef = collection(db, "feedback");
-
-  // --- UI refs ---
-  const nameInput = document.getElementById('rv-name');
-  const msgInput = document.getElementById('rv-message');
-  const submitBtn = document.getElementById('rv-submit');
-  const statusLine = document.getElementById('rv-status');
-  const listRoot = document.getElementById('rv-feedback-root');
-  const countEl = document.getElementById('rv-count');
-  const catButtons = document.querySelectorAll('.cat-btn');
-
-  let activeCategory = 'bug';
-  catButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      catButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeCategory = btn.dataset.cat;
-    });
-  });
-
-  function setStatus(text, type){
-    statusLine.textContent = text;
-    statusLine.className = 'status-line' + (type ? ' ' + type : '');
-  }
-
-  function escapeHtml(str){
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function timeAgo(date){
-    if(!date) return 'just now';
-    const s = Math.floor((Date.now() - date.getTime())/1000);
-    if(s < 60) return 'just now';
-    if(s < 3600) return Math.floor(s/60)+'m ago';
-    if(s < 86400) return Math.floor(s/3600)+'h ago';
-    return Math.floor(s/86400)+'d ago';
-  }
-
-  submitBtn.addEventListener('click', async () => {
-    const name = nameInput.value.trim();
-    const message = msgInput.value.trim();
-
-    if(!name){ setStatus('ERROR: callsign required.', 'err'); nameInput.focus(); return; }
-    if(!message){ setStatus('ERROR: message required.', 'err'); msgInput.focus(); return; }
-    if(message.length > 2000){ setStatus('ERROR: message too long.', 'err'); return; }
-
-    submitBtn.disabled = true;
-    setStatus('Transmitting...');
-
-    try{
-      await addDoc(feedbackRef, {
-        name: name.slice(0,60),
-        message: message.slice(0,2000),
-        category: activeCategory,
-        createdAt: serverTimestamp()
-      });
-      msgInput.value = '';
-      setStatus('Transmission received. Thank you.', 'ok');
-    }catch(err){
-      console.error(err);
-      setStatus('ERROR: transmission failed. Try again.', 'err');
-    }finally{
-      submitBtn.disabled = false;
-    }
-  });
-
-  // --- Live-updating log, newest first, capped at 100 ---
-  const q = query(feedbackRef, orderBy('createdAt', 'desc'), limit(100));
-  onSnapshot(q, (snapshot) => {
-    countEl.textContent = snapshot.size;
-
-    if(snapshot.empty){
-      listRoot.innerHTML = '<div class="empty-state">No transmissions yet. Be the first.</div>';
-      return;
-    }
-
-    let html = '';
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      const ts = d.createdAt ? d.createdAt.toDate() : null;
-      const cat = ['bug','feature','feedback'].includes(d.category) ? d.category : 'feedback';
-      html += `
-        <div class="entry">
-          <div class="entry-meta">
-            <span class="name">${escapeHtml(d.name || 'anonymous')}</span>
-            <span><span class="badge ${cat}">${cat}</span> &nbsp; ${timeAgo(ts)}</span>
-          </div>
-          <div class="entry-message">${escapeHtml(d.message || '')}</div>
-        </div>`;
-    });
-    listRoot.innerHTML = html;
-  }, (err) => {
-    console.error(err);
-    listRoot.innerHTML = '<div class="empty-state">ERROR: could not load log. Check Firebase config.</div>';
-  });
-</script>
 
 <script src="/libraries/config.js"></script>
 
