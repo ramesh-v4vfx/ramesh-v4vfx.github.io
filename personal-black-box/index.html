@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DZMEQ7NQCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DZMEQ7NQCD');
+</script>
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personal Black Box – Free Timestamp Log | RameshVerse</title>
+<meta name="description" content="Personal Black Box: a free private log. Type what you did and it saves the date and time. No sign-up, data stays in your browser.">
+<meta property="og:title" content="Personal Black Box – Free Timestamp Log">
+<meta property="og:description" content="Everything you did. Timestamped. Free, private, no sign-up.">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b10;--panel:#0d141c;--line:#1b2a38;--cyan:#27e0ff;--green:#3dff9a;--red:#ff4d5e;--dim:#6f8799;--txt:#d6e6f2}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#0f2230 0,var(--bg) 60%);color:var(--txt);font-family:'Rajdhani',system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:680px;margin:0 auto;padding:24px 16px 80px}
+h1{margin:0;font-size:28px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 14px #27e0ff55}
+.sub{font-family:'Share Tech Mono',monospace;color:var(--dim);font-size:12px;margin-top:4px}
+form{display:flex;gap:8px;margin:20px 0 8px}
+input[type=text],input[type=search]{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:12px 14px;font:600 18px 'Rajdhani',sans-serif;border-radius:6px;outline:none;min-width:0}
+input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #27e0ff22}
+button{cursor:pointer;font:700 15px 'Rajdhani',sans-serif;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;border:1px solid var(--cyan);background:#27e0ff14;color:var(--cyan);padding:0 18px}
+button:hover{background:#27e0ff2a}
+.opt{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--dim);display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.opt a{color:var(--cyan);cursor:pointer;text-decoration:underline}
+input[type=datetime-local]{background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:5px 8px;border-radius:5px;font:12px 'Share Tech Mono',monospace;color-scheme:dark}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.head>div:first-child{flex:1;min-width:0}
+.search{flex:none;margin-top:2px}
+.day{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:20px 0 8px;display:flex;justify-content:space-between}
+.item{display:flex;gap:12px;align-items:flex-start;background:#0b1a16;border:1px solid var(--line);border-left:3px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.tick{color:var(--green);font-size:20px;line-height:1.2;flex:none}
+.body{flex:1;min-width:0}
+.t{font-size:20px;font-weight:600;word-break:break-word}
+.when{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green);margin-top:3px;cursor:pointer}
+.when:hover{text-decoration:underline}
+.note{width:100%;margin-top:8px;background:#0a1118;border:1px dashed var(--line);color:var(--txt);padding:7px 9px;font:14px 'Share Tech Mono',monospace;border-radius:5px;outline:none}
+.note:focus{border-color:var(--cyan)}
+.del{border-color:transparent;background:none;color:var(--dim);font-size:20px;padding:0 6px}
+.del:hover{color:var(--red);background:none}
+.empty{text-align:center;color:var(--dim);padding:30px 0;font-family:'Share Tech Mono',monospace}
+.tools{display:flex;justify-content:center;gap:8px;margin-top:24px}
+.tools button{padding:8px 12px;font-size:13px;border-color:var(--line);color:var(--dim);background:none}
+.tools button:hover{color:var(--cyan);border-color:var(--cyan)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #27e0ff55}50%{box-shadow:0 0 18px 2px #27e0ff44}}
+@keyframes pop{from{opacity:0;transform:translateY(-10px) scale(.98);background:#1f5a42}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:.15}}
+.live{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.1em;color:var(--green);margin-top:18px}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.2s infinite}
+#in{font-size:22px;padding:16px;border-color:#27e0ff77}
+#in:focus{animation:none;border-color:var(--cyan);box-shadow:0 0 0 2px #27e0ff55,0 0 22px #27e0ff55}
+form button{font-size:18px;padding:0 24px;background:var(--cyan);color:#001018;box-shadow:0 0 16px #27e0ff66;transition:transform .08s}
+form button:hover{background:#6df0ff}
+form button:active{transform:scale(.94)}
+.item.new{animation:pop .55s ease}
+.scan{position:relative;flex:1;min-width:0;display:block}
+.scan input{width:100%;position:relative;z-index:1;background:#08121a}
+.scan .sw{position:absolute;inset:0;overflow:hidden;border-radius:6px;pointer-events:none;z-index:2;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,#27e0ff0d 3px 4px)}
+.scan .sw::after{content:'';position:absolute;top:0;bottom:0;left:-80px;width:80px;
+  background:linear-gradient(90deg,transparent,#27e0ff33 60%,#27e0ffcc);border-right:2px solid #8ff3ff;
+  box-shadow:6px 0 18px #27e0ff88;animation:sweep 2.2s linear infinite}
+.scan:focus-within .sw::after{animation-duration:1s}
+@keyframes sweep{to{left:100%}}
+.scan b{position:absolute;width:14px;height:14px;border:2px solid var(--cyan);z-index:3;pointer-events:none;filter:drop-shadow(0 0 4px var(--cyan))}
+.scan .c1{top:-5px;left:-5px;border-right:0;border-bottom:0}
+.scan .c2{top:-5px;right:-5px;border-left:0;border-bottom:0}
+.scan .c3{bottom:-5px;left:-5px;border-right:0;border-top:0}
+.scan .c4{bottom:-5px;right:-5px;border-left:0;border-top:0}
+.readout{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--cyan);margin:14px 0 -6px;text-transform:uppercase}
+.readout.ok{color:var(--green)}
+.sbox{position:relative;display:flex;align-items:center;gap:8px;width:200px;height:34px;padding:0 10px;background:#08121a;border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:4px;transition:width .25s,border-color .2s,box-shadow .2s}
+.sbox:focus-within{width:270px;border-color:var(--cyan);box-shadow:0 0 14px #27e0ff33}
+.sbox .si{color:var(--cyan);font-size:16px;line-height:1;flex:none}
+.sbox input{flex:1;min-width:0;width:auto;height:100%;border:0;background:transparent;box-shadow:none;padding:0;font:13px 'Share Tech Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--txt)}
+.sbox input:focus{border:0;box-shadow:none}
+.sbox input::placeholder{color:#4f6677}
+.sbox input::-webkit-search-cancel-button{display:none}
+#sc{font:11px 'Share Tech Mono',monospace;letter-spacing:.08em;color:var(--dim);white-space:nowrap}
+.status{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);margin-top:24px;text-align:center}
+@media(max-width:520px){.head{flex-wrap:wrap}.head>div:first-child{flex:1 1 100%}.search{width:100%}.sbox,.sbox:focus-within{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div><h1>Black Box</h1>
+    <div class="sub">Everything you did. Timestamped. Type it and press Add.</div></div>
+    <div class="search"><label class="sbox"><span class="si">⌕</span><input type="search" id="q" placeholder="Search log_" autocomplete="off"><span id="sc"></span></label></div>
+  </div>
+
+  <div class="live"><i></i><span>LIVE · <b id="clk"></b></span></div>
+  <div class="readout" id="ro">▶ Scanning for input_</div>
+  <form id="f">
+    <div class="scan"><input type="text" id="in" placeholder="e.g. Passport checked" autocomplete="off"><div class="sw"></div><b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b></div>
+    <button>Add</button>
+  </form>
+  <div class="opt">
+    <span id="nowlbl">Logged as: now</span>
+    <a id="pick">set a different time</a>
+    <input type="datetime-local" id="dt" hidden>
+  </div>
+
+  <div id="list"></div>
+  <div class="tools">
+    <button type="button" id="exp">Export</button>
+    <button type="button" id="imp">Import</button>
+    <input type="file" id="file" accept="application/json" hidden>
+  </div>
+  <div class="status" id="status">loading…</div>
+</div>
+
+<script>
+let items=[];let newId=null;
+const LS='checklist-v2';
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+const timeFmt=ts=>new Date(ts).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+const dateFmt=ts=>new Date(ts).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()};
+const toLocalInput=ts=>{const d=new Date(ts-new Date(ts).getTimezoneOffset()*60000);return d.toISOString().slice(0,16)};
+function setStatus(t){$('#status').textContent=t}
+
+function normalize(arr){ // also upgrades older tick-style data
+  return (arr||[]).filter(i=>i&&i.text&&(i.at||i.doneAt)).map(i=>({id:i.id||uid(),text:i.text,at:i.at||i.doneAt,note:i.note||''}));
+}
+
+function save(){
+  try{localStorage.setItem(LS,JSON.stringify(items));setStatus('saved in this browser ✓')}
+  catch(e){setStatus('could not save — browser storage is blocked')}
+}
+
+function render(){
+  const list=$('#list');list.innerHTML='';
+  const q=$('#q').value.trim().toLowerCase();
+  const shown=items.filter(i=>!q||i.text.toLowerCase().includes(q)||(i.note||'').toLowerCase().includes(q))
+                   .sort((a,b)=>b.at-a.at);
+  $('#sc').textContent=q?shown.length+' / '+items.length:items.length+' logs';
+  if(!shown.length){list.innerHTML='<div class="empty">'+(items.length?'No matches.':'Nothing logged yet. Add your first item above.')+'</div>';return}
+  let last='';
+  shown.forEach(it=>{
+    const k=dayKey(it.at);
+    if(k!==last){
+      last=k;
+      const n=shown.filter(x=>dayKey(x.at)===k).length;
+      const h=document.createElement('div');h.className='day';
+      h.innerHTML='<span></span><span>'+n+' done</span>';h.firstChild.textContent=dateFmt(it.at);
+      list.appendChild(h);
+    }
+    const el=document.createElement('div');el.className='item'+(it.id===newId?' new':'');
+    const tick=document.createElement('div');tick.className='tick';tick.textContent='✔';
+    const body=document.createElement('div');body.className='body';
+    const t=document.createElement('div');t.className='t';t.textContent=it.text;
+    const w=document.createElement('div');w.className='when';w.textContent='Done at '+timeFmt(it.at)+'  ✎';w.title='Click to change time';
+    w.onclick=()=>{
+      const inp=document.createElement('input');inp.type='datetime-local';inp.value=toLocalInput(it.at);
+      inp.onchange=()=>{const v=new Date(inp.value).getTime();if(!isNaN(v)){it.at=v;save();render()}};
+      inp.onblur=()=>render();
+      w.replaceWith(inp);inp.focus();
+    };
+    const n=document.createElement('input');n.className='note';n.placeholder='add a note…';n.value=it.note||'';
+    n.onchange=()=>{it.note=n.value;save()};
+    body.append(t,w,n);
+    const d=document.createElement('button');d.className='del';d.textContent='×';d.setAttribute('aria-label','delete');
+    d.onclick=()=>{items=items.filter(x=>x!==it);save();render()};
+    el.append(tick,body,d);list.appendChild(el);
+  });
+}
+
+$('#f').onsubmit=e=>{
+  e.preventDefault();const v=$('#in').value.trim();if(!v)return;
+  let at=Date.now();
+  if(!$('#dt').hidden&&$('#dt').value){const x=new Date($('#dt').value).getTime();if(!isNaN(x))at=x}
+  const id=uid();newId=id;items.push({id,text:v,at,note:''});
+  $('#in').value='';save();render();newId=null;$('#in').focus();
+};
+$('#pick').onclick=()=>{
+  const dt=$('#dt');
+  if(dt.hidden){dt.hidden=false;dt.value=toLocalInput(Date.now());$('#nowlbl').textContent='Logged as:';$('#pick').textContent='use now'}
+  else{dt.hidden=true;dt.value='';$('#nowlbl').textContent='Logged as: now';$('#pick').textContent='set a different time'}
+};
+$('#q').oninput=render;
+
+try{items=normalize(JSON.parse(localStorage.getItem(LS)||localStorage.getItem('checklist-v1')||'[]'))}catch(e){items=[]}
+render();setStatus('saved in this browser');
+
+
+
+$('#exp').onclick=()=>{
+  const blob=new Blob([JSON.stringify(items,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='black-box-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+};
+$('#imp').onclick=()=>$('#file').click();
+$('#file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const data=normalize(JSON.parse(await f.text()));
+    const have=new Set(items.map(i=>i.id));
+    data.forEach(i=>{if(!have.has(i.id))items.push(i)});
+    save();render();setStatus('imported '+data.length+' entries ✓');
+  }catch(err){setStatus('that file is not a valid backup')}
+  e.target.value='';
+};
+
+const clk=()=>{$('#clk').textContent=new Date().toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',second:'2-digit'})};
+clk();setInterval(clk,1000);
+const ex=['Passport checked','Paid electricity bill','Uploaded the video','Visa checked','Called the bank','Workout done','Cards checked'];
+let ei=0;setInterval(()=>{if(!$('#in').value&&document.activeElement!==$('#in')){ei=(ei+1)%ex.length;$('#in').placeholder='e.g. '+ex[ei]}},2500);
+
+let roT=null;
+const ro=(t,ok)=>{const e=$('#ro');e.textContent=t;e.classList.toggle('ok',!!ok)};
+const idle=()=>ro('▶ Scanning for input_');
+$('#in').addEventListener('input',()=>{const n=$('#in').value.length;n?ro('▶ Analyzing '+n+' chars_'):idle()});
+const origAdd=$('#f').onsubmit;
+$('#f').onsubmit=e=>{
+  const had=$('#in').value.trim();
+  origAdd(e);
+  if(had){ro('✔ Logged '+new Date().toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',second:'2-digit'}),true);
+    clearTimeout(roT);roT=setTimeout(idle,2500)}
+};
+</script>
+</body>
+</html>
