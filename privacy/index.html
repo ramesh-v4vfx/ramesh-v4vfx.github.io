@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Privacy Policy :: RameshVerse</title>
-<meta name="description" content="How rameshverse.com handles data: your tool data stays in your browser, Google Analytics for visit statistics only if you accept, no ads.">
+<meta name="description" content="How rameshverse.com handles data: your tool data stays in your browser, cookie-free visit counts, Google Analytics only if you accept, no ads.">
 <link rel="canonical" href="https://rameshverse.com/privacy/" />
 
 <!-- Analytics consent: loads the Google tag only after the visitor accepts -->
@@ -242,12 +242,15 @@
     <h2 class="pv">1. Your tool data stays on your device</h2>
     <p class="pv-p">Tools such as notes, checklists, routines, logs, timers, the sky tools (your saved place, coordinates and birth details) and your recent and favorite tools save their data in your own browser (local storage). It is not sent to our servers, and we cannot see it, with these exceptions: reminders, tool counts, and the place lookups and sky data requests described in section 3. Clearing your browser data deletes it, and it does not move to other devices or browsers on its own.</p>
 
-    <h2 class="pv">2. Visit statistics (Google Analytics)</h2>
-    <p class="pv-p">We use <a href="https://marketingplatform.google.com/about/analytics/" target="_blank" rel="noopener">Google Analytics</a>, a service from Google, to count visits and see how the site is used. It uses cookies (see section 4), and only after you press Accept in the banner shown on your first visit. If you decline, Google Analytics is not loaded and no analytics cookies are set. If you accept, it sends Google technical details such as the page visited, where you came from, your approximate location (such as country), browser, operating system, device type, screen size and language. It also records a few interactions, such as using the home-page banner. We use this only to see how the site is used, for example which tools are popular. We have switched off Google's advertising features for this site, do not use it to show ads and do not sell this data. Google handles the data under its own policy: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">how Google uses data from sites that use its services</a>. Your tool data (notes, checklists, logs and so on) is never sent to Google Analytics.</p>
+    <h2 class="pv">2. Visit statistics (Cloudflare Web Analytics and Google Analytics)</h2>
+    <p class="pv-p">We use <a href="https://www.cloudflare.com/web-analytics/" target="_blank" rel="noopener">Cloudflare Web Analytics</a> to count visits in a way that does not use cookies. It does not set cookies or store anything on your device, and it does not identify individual visitors or follow you across other sites. It records basic technical details such as the page visited, where you came from, your approximate country, browser, device type and page loading speed. Because it uses no cookies, it runs for every visitor whatever you choose in the cookie banner. We use it only to see how many people visit and which pages are popular. Cloudflare handles the data under its own policy.</p>
+    <p class="pv-p"><strong>Google Analytics (only if you accept).</strong></p>
+    <p class="pv-p">We use <a href="https://marketingplatform.google.com/about/analytics/" target="_blank" rel="noopener">Google Analytics</a>, a service from Google, to count visits and see how the site is used. It uses cookies (see section 4), and only after you press Accept in the banner shown on your first visit. If you decline, Google Analytics is not loaded and no analytics cookies are set. If you accept, it sends Google technical details such as the page visited, where you came from, your approximate location (such as country), browser, operating system, device type, screen size and language. It also records a few interactions, such as using the home-page banner. We use this only to see how the site is used, for example which tools are popular. We have switched off Google's advertising features for this site, do not use it to show ads and do not sell this data. Google handles the data under its own policy: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">how Google uses data from sites that use its services</a>. Your tool data (notes, checklists, logs and so on) is never sent to Google Analytics or to Cloudflare Web Analytics.</p>
 
     <h2 class="pv">3. Other services your browser contacts</h2>
     <ul class="pv-list">
       <li><strong>Google Fonts:</strong> the site loads its font from Google, so Google receives your IP address and browser details to deliver it.</li>
+      <li><strong>Cloudflare Web Analytics:</strong> a small script loaded from Cloudflare (static.cloudflareinsights.com) counts visits without cookies. It runs whatever you choose in the cookie banner, and Cloudflare receives technical details such as your IP address, as with any request on the internet. See section 2.</li>
       <li><strong>Google Analytics:</strong> the analytics script is loaded from Google's servers (googletagmanager.com), only if you accept analytics. See section 2.</li>
       <li><strong>Cloudflare Workers (tool counts):</strong> each time a tool page is opened, the page sends the tool's name to a small service we run on Cloudflare, which adds one to that tool's total. The home page asks the same service for the Most Popular Tools list. No name, account or ID is sent with the count, and it counts pages opened, not people. Like any request on the internet, it reaches Cloudflare with technical details such as your IP address. This count does not depend on your analytics choice.</li>
       <li><strong>Reminders (only if you allow notifications):</strong> if you turn on notifications (for Today's Notes, Calendar, or the timer tools), the reminder text (for Today's Notes the text of your open notes, for Calendar your event titles, notes and reminder times), your browser's push address and a random ID (created by this site and kept in your browser) are sent to a small notification service we run on Cloudflare, so reminders can arrive when the page is closed. They are delivered through your browser's own push service (run by Google, Apple or Mozilla, depending on your browser). If notifications are not allowed, nothing is sent. Tools with reminders use the same service.</li>
@@ -261,18 +264,18 @@
     </ul>
 
     <h2 class="pv">4. Cookies</h2>
-    <p class="pv-p">The site does not use advertising cookies and sets no cookies of its own. If you accept analytics, Google Analytics sets cookies (their names start with _ga) to tell visitors apart and count visits. If you decline, none are set. Local storage keeps your own tool data and settings on your device. It also remembers your analytics choice (accepted or declined, and the date) so the banner is not shown again; you are asked again after about a year. The site also registers a service worker, a small helper script your browser keeps for reminders and offline use. It stores copies of pages from this site that you visit, on your device only, so they can open without a connection.</p>
+    <p class="pv-p">The site does not use advertising cookies and sets no cookies of its own. Cloudflare Web Analytics sets no cookies either. If you accept analytics, Google Analytics sets cookies (their names start with _ga) to tell visitors apart and count visits. If you decline, none are set. Local storage keeps your own tool data and settings on your device. It also remembers your analytics choice (accepted or declined, and the date) so the banner is not shown again; you are asked again after about a year. The site also registers a service worker, a small helper script your browser keeps for reminders and offline use. It stores copies of pages from this site that you visit, on your device only, so they can open without a connection.</p>
 
     <h2 class="pv">5. Feedback and contact</h2>
     <p class="pv-p">There is no feedback form on this site and we do not collect messages here. To contact us, use the <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">YouTube channel</a>. Anything you post there, such as a comment, is public and is handled by YouTube under its own policy.</p>
 
     <h2 class="pv">6. Your choices</h2>
-    <p class="pv-p">You can change your analytics choice at any time: <a href="#" data-rv-cookie-settings>Cookie settings</a>. You can also clear the data and cookies of this site in your browser settings, and switch off notifications for the site there to stop reminders. The site works the same whichever analytics choice you make.</p>
+    <p class="pv-p">You can change your analytics choice at any time: <a href="#" data-rv-cookie-settings>Cookie settings</a>. You can also clear the data and cookies of this site in your browser settings, and switch off notifications for the site there to stop reminders. This choice covers Google Analytics only. The cookie-free count from Cloudflare Web Analytics (section 2) and the tool counts (section 3) do not use cookies and do not depend on it. The site works the same whichever analytics choice you make.</p>
 
     <h2 class="pv">7. Changes</h2>
     <p class="pv-p">If this changes, for example if accounts, sync or donations are added, this page will be updated first.</p>
 
-    <div class="updated">Last updated: 24 November 2026</div>
+    <div class="updated">Last updated: 25 November 2026</div>
   </div>
 
   <div class="contact-row"><a href="/">&larr; Back to RameshVerse</a></div>
