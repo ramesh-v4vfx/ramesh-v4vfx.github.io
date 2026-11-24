@@ -8,9 +8,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Free Pomodoro timer with 25-minute focus sessions and 5-minute breaks. Track daily sessions, total work time, and session notes, with full history saved locally.">
 
-<title>Advanced Pomodoro Timer</title>
+<title>Pomodoro Timer | rameshverse</title>
 
 <link rel="canonical" href="https://rameshverse.com/pomodoro-focus">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -231,6 +235,17 @@
     color: var(--accent);
   }
 
+  .notify-hint, .notify-note {
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin-top: 8px;
+    text-align: center;
+  }
+  .notify-note { margin-top: 3px; opacity: .75; }
+  .notify-note a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+  #notifyBtn:disabled { opacity: .5; cursor: wait; }
+
   .link-danger {
     display: block;
     width: 100%;
@@ -379,13 +394,64 @@
     .btn-toggle, .btn-row button:only-child { padding: 14px; font-size: 1.02rem; }
     .panel { max-height: 160px; }
   }
+
+  /* ---------- rameshverse HUD skin ---------- */
+  :root {
+    --bg: #0a0a0c;
+    --card-bg-1: #111114;
+    --card-bg-2: #0d0d10;
+    --border: #232327;
+    --text: #e8e8ea;
+    --text-dim: #7a7a82;
+    --accent-work: #ff2b2b;
+    --accent-break: #23e07a;
+    --danger: #ff2b2b;
+    --danger-bright: #ff5a5a;
+  }
+  body {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(rgba(255,43,43,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,43,43,0.02) 1px, transparent 1px),
+      radial-gradient(circle at 50% 12%, rgba(255,43,43,0.10), transparent 55%);
+    background-size: 24px 24px, 24px 24px, auto;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.012) 0, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  }
+  .app { border-radius: 4px; box-shadow: 0 0 0 1px rgba(255,43,43,0.08), 0 24px 60px rgba(0,0,0,.6); background: var(--card-bg-1); border-color: var(--border); }
+  .app::before, .app::after { content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none; border: 0 solid var(--accent); transition: border-color .4s; }
+  .app::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+  .app::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+  .badge { border-radius: 2px; font-family: inherit; letter-spacing: 2.5px; }
+  h1 { font-size: 1.05rem; letter-spacing: 3px; text-transform: uppercase; }
+  .subtitle { letter-spacing: 1.5px; text-transform: uppercase; font-size: 0.68rem; }
+  .dial { background: conic-gradient(var(--accent) calc(var(--progress, 0) * 360deg), #1c1c20 0deg); box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .dial-inner { background: radial-gradient(circle at 50% 35%, #17171b, #09090b 75%); }
+  .timer { font-weight: 700; text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .info { letter-spacing: 1.5px; text-transform: uppercase; font-size: 0.7rem; }
+  .stat { border-radius: 2px; background: #0d0d10; }
+  .stat span { color: var(--accent); }
+  .stat label { letter-spacing: 1.4px; font-size: 0.58rem; }
+  button { border-radius: 2px; font-family: inherit; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+  .btn-toggle { color: #0a0a0c; box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 40%, transparent); }
+  .btn-row button { font-size: 0.72rem; letter-spacing: 1.2px; }
+  .secondary { background: transparent; border: 1px solid var(--border); font-size: 0.78rem; }
+  .secondary:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .modal { border-radius: 4px; background: var(--card-bg-1); border-color: var(--accent); }
+  .modal h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 0.95rem; }
+  .modal textarea { border-radius: 2px; background: #0d0d10; }
+  .modal-overlay { background: rgba(5,5,6,0.8); }
+  .notify-hint, .notify-note { font-size: 0.66rem; }
 </style>
 </head>
 
 <body>
 <div class="app" id="app" data-mode="work" style="--progress:0">
   <span class="badge" id="modeBadge">Focus</span>
-  <h1>Pomodoro Focus</h1>
+  <h1>Pomodoro Timer</h1>
   <div class="subtitle">25 min focus · 5 min break</div>
 
   <div class="dial" id="dial">
@@ -400,12 +466,16 @@
     <div class="stat"><span id="totalWork">0 min</span><label>Total work</label></div>
   </div>
 
-  <button class="btn-toggle" id="toggleBtn" onclick="toggleTimer()">▶ Start</button>
+  <button class="btn-toggle" id="toggleBtn" onclick="toggleTimer()">START</button>
   <div class="btn-row">
-    <button class="secondary" onclick="resetTimer()">↺ Reset</button>
-    <button class="secondary" id="todayBtn" onclick="togglePanel('today')">📅 Today</button>
-    <button class="secondary" id="historyBtn" onclick="togglePanel('history')">🕘 History</button>
+    <button class="secondary" onclick="resetTimer()">Reset</button>
+    <button class="secondary" id="todayBtn" onclick="togglePanel('today')">Today</button>
+    <button class="secondary" id="historyBtn" onclick="togglePanel('history')">History</button>
   </div>
+
+  <button class="secondary" id="notifyBtn" type="button" style="margin-top:8px;" aria-pressed="false">Notify me: OFF</button>
+  <div class="notify-hint" id="notifyHint"></div>
+  <div class="notify-note">Reminders go through our notification service. <a href="/privacy/">Privacy Policy</a></div>
 
   <div class="panel" id="todayPanel" hidden></div>
   <div class="panel" id="historyPanel" hidden></div>
@@ -416,7 +486,7 @@
        Nested inside .app so it inherits the live --accent color (work/break). -->
   <div class="modal-overlay" id="noteOverlay" hidden>
     <div class="modal">
-      <h3>Session complete 🎉</h3>
+      <h3>Session complete</h3>
       <p class="modal-sub">What did you get done this session?</p>
       <textarea id="noteInput" rows="3" placeholder="e.g. Drafted the intro section..."></textarea>
       <div class="modal-actions">
@@ -428,6 +498,7 @@
 </div>
 
 <script>
+const RV_LANE = "pomodoro";   // own reminder lane: never replaces or cancels another tool's reminders
 /* =====================================================================
    HOW THIS TIMER WORKS
    localStorage key "rvActiveSession" is the single source of truth:
@@ -526,18 +597,69 @@ function pulseDial() {
   dialEl.classList.add("pulse");
 }
 
-/* ---------------- NOTIFICATIONS ---------------- */
-function ensureNotificationPermission() {
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
-  }
+/* ---------------- NOTIFICATIONS (opt-in) ---------------- */
+// Nothing is asked or sent until the visitor presses "Notify me". The choice is kept in
+// localStorage ("rv_pomodoro_notify") and only counts while the browser permission is granted.
+const NOTIFY_KEY = "rv_pomodoro_notify";
+const notifyBtn = document.getElementById("notifyBtn");
+const notifyHint = document.getElementById("notifyHint");
+
+function notifySupported() {
+  return "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
 }
+function notifyOn() {
+  try {
+    return localStorage.getItem(NOTIFY_KEY) === "1" && notifySupported() && Notification.permission === "granted";
+  } catch (e) { return false; }
+}
+function setNotifyFlag(on) {
+  try { if (on) localStorage.setItem(NOTIFY_KEY, "1"); else localStorage.removeItem(NOTIFY_KEY); } catch (e) {}
+}
+function renderNotify(msg) {
+  const on = notifyOn();
+  notifyBtn.textContent = "Notify me: " + (on ? "ON" : "OFF");
+  notifyBtn.classList.toggle("open", on);
+  notifyBtn.setAttribute("aria-pressed", on ? "true" : "false");
+  if (msg) notifyHint.textContent = msg;
+  else if (!notifySupported()) notifyHint.textContent = "Reminders are not supported in this browser. On iPhone, add rameshverse to the Home Screen first.";
+  else if (Notification.permission === "denied") notifyHint.textContent = "Notifications are blocked for this site. Allow them in your browser settings to use this.";
+  else if (on) notifyHint.textContent = "You will get reminders when 5 minutes are left, when focus ends and when the break ends, even if this page is closed.";
+  else notifyHint.textContent = "Off. You will only see a session end while this page is open. Turn on for reminders even when it is closed.";
+}
+
+notifyBtn.addEventListener("click", async () => {
+  if (notifyOn()) {                         // turn off
+    setNotifyFlag(false);
+    cancelPushes();
+    saveActive();
+    renderNotify("Reminders turned off.");
+    return;
+  }
+  if (!notifySupported() || Notification.permission === "denied") { renderNotify(); return; }
+  if (!window.RVNotify) { renderNotify("Reminder service did not load. Please try again."); return; }
+  notifyBtn.disabled = true;
+  try {
+    const sub = await RVNotify.ensurePushSubscription();   // asks the browser for permission here
+    if (sub) {
+      setNotifyFlag(true);
+      if (state === "running") schedulePushes();           // a phase is already running: schedule it now
+      renderNotify();
+    } else {
+      renderNotify("Permission was not granted, so reminders stay off.");
+    }
+  } catch (err) {
+    rvLog("ERROR: " + (err && err.message ? err.message : String(err)));
+    renderNotify("Could not turn on reminders. Please try again later.");
+  }
+  notifyBtn.disabled = false;
+});
 
 // Local banner, used ONLY when the Worker push isn't scheduled
 // (push denied/unsupported). Otherwise the push already delivers it
 // and showing both would double-notify.
 function notifyLocal(title, body) {
   if (pushOn) return;
+  if (!notifyOn()) return;                  // opt-in: no system notification unless Notify me is ON
   if (!("Notification" in window)) return;
   if (Notification.permission === "granted") {
     try {
@@ -685,6 +807,7 @@ function buildPushPlan() {
 }
 
 function schedulePushes() {
+  if (!notifyOn()) return;                   // reminders are opt-in
   if (!window.RVNotify) {
     rvLog("RVNotify not loaded — check script tag / file path");
     return;
@@ -699,10 +822,10 @@ function schedulePushes() {
       if (!sub) { rvLog("ensurePushSubscription returned null (denied/unsupported)"); return; }
       if (token !== pushToken) return;               // paused or reset before subscribing finished
       rvLog("subscribed OK, scheduling...");
-      return RVNotify.scheduleNotifications(plan).then(function () {
+      return RVNotify.scheduleNotifications(plan, RV_LANE).then(function () {
         if (token !== pushToken && state !== "running") {
           // paused/reset while the request was in flight: undo what just got scheduled
-          Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+          Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {});
           return;
         }
         pushOn = true;
@@ -719,19 +842,18 @@ function cancelPushes() {
   pushToken++;
   pushOn = false;
   if (window.RVNotify) {
-    try { Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}); } catch (e) {}
+    try { Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {}); } catch (e) {}
   }
 }
 
 /* ---------------- TIMER ---------------- */
 function toggleTimer() {
   if (state === "idle") {
-    ensureNotificationPermission();
     setMode("work");
     duration = WORK_TIME;
     elapsedAtPause = 0;
     beginRun();
-    schedulePushes();          // fires even if the phone is locked or the PWA is closed
+    schedulePushes();          // only does anything if "Notify me" is ON
   } else if (state === "running") {
     if (Date.now() >= startTime + duration) { settle(); return; }   // phase already ended; let it roll over
     pauseRun();
@@ -746,7 +868,7 @@ function beginRun() {
   startTime = Date.now() - elapsedAtPause;
   elapsedAtPause = 0;
   statusEl.textContent = mode === "work" ? "Focus time" : "Break time";
-  toggleBtn.textContent = "⏸ Pause";
+  toggleBtn.textContent = "Pause";
   clearInterval(intervalId);
   intervalId = setInterval(tick, TICK_MS);
   saveActive();
@@ -757,7 +879,7 @@ function pauseRun() {
   elapsedAtPause = Date.now() - startTime;
   clearInterval(intervalId);
   statusEl.textContent = "Paused";
-  toggleBtn.textContent = "▶ Resume";
+  toggleBtn.textContent = "Resume";
   cancelPushes();
   saveActive();
 }
@@ -771,7 +893,7 @@ function showIdle(statusText) {
   elapsedAtPause = 0;
   display.textContent = format(WORK_TIME);
   statusEl.textContent = statusText || "Ready to focus";
-  toggleBtn.textContent = "▶ Start";
+  toggleBtn.textContent = "START";
   setProgress(0);
 }
 
@@ -814,7 +936,7 @@ function finishWork(endAt) {
   elapsedAtPause = 0;
   state = "running";
   statusEl.textContent = "Break time";
-  toggleBtn.textContent = "⏸ Pause";
+  toggleBtn.textContent = "Pause";
   saveActive();
 }
 
@@ -876,7 +998,7 @@ function restoreActive() {
     display.textContent = format(duration - elapsedAtPause);
     setProgress(elapsedAtPause / duration);
     statusEl.textContent = "Paused";
-    toggleBtn.textContent = "▶ Resume";
+    toggleBtn.textContent = "Resume";
     return true;
   }
 
@@ -884,7 +1006,7 @@ function restoreActive() {
   startTime = s.startedAt;
   elapsedAtPause = 0;
   statusEl.textContent = mode === "work" ? "Focus time" : "Break time";
-  toggleBtn.textContent = "⏸ Pause";
+  toggleBtn.textContent = "Pause";
   settle();     // credits anything that finished while away, then keeps the clock running
   return true;
 }
@@ -1035,7 +1157,7 @@ setInterval(() => {
 // Coming back to the app (unlocking the phone, switching tabs): recompute from
 // the saved session immediately instead of waiting for the next tick.
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) syncFromStorage();
+  if (!document.hidden) { syncFromStorage(); renderNotify(); }
 });
 
 // Restored from the back/forward cache.
@@ -1056,6 +1178,7 @@ window.addEventListener("storage", (e) => {
 /* ---------------- INIT ---------------- */
 loadToday();
 syncFromStorage();   // resumes a running/paused session, or counts one that finished while away
+renderNotify();
 </script>
 
 <script src="/libraries/config.js"></script>

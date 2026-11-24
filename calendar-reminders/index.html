@@ -298,6 +298,8 @@
   .notify-btn.on { color: var(--green); box-shadow: inset 0 0 0 1px var(--green), 0 0 10px rgba(74,222,128,0.2); }
   .notify-btn:disabled { opacity: .45; cursor: not-allowed; }
   .notify-hint { display: block; margin-top: 8px; font-size: 0.62rem; line-height: 1.5; letter-spacing: 0.03em; color: var(--text-dim); }
+  .notify-note { display: block; margin-top: 4px; font-size: 0.58rem; line-height: 1.5; letter-spacing: 0.03em; color: var(--text-dim); opacity: .75; }
+  .notify-note a { color: var(--red); text-decoration: none; border-bottom: 1px solid rgba(255,43,43,0.4); }
 
   /* ---------- ADD / EDIT SHEET ---------- */
   .sheet {
@@ -472,8 +474,9 @@
   <div id="upList"></div>
 
   <div class="notify-row" id="notifyRow">
-    <button type="button" class="notify-btn" id="notifyBtn">ENABLE ALERTS</button>
+    <button type="button" class="notify-btn" id="notifyBtn">NOTIFY ME: OFF</button>
     <span class="notify-hint" id="notifyHint"></span>
+    <span class="notify-note">Turning this on sends your reminder times, event titles and notes to our notification service. <a href="/privacy/">Privacy Policy</a></span>
   </div>
 </div>
 
@@ -522,6 +525,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><b></b><span></span></div>
 
 <script>
+const RV_LANE = "calendar";   // own reminder lane: never replaces or cancels another tool's reminders
 /* =====================================================================
    HOW THIS CALENDAR WORKS
    localStorage key "rvCalendarEvents" holds every event:
@@ -544,7 +548,7 @@
 
   /* ---------------- CONFIG ---------------- */
   var EVENTS_KEY = "rvCalendarEvents";
-  var NOTIFY_KEY = "rv_calendar_notify";        // "0" once alerts were switched off
+  var NOTIFY_KEY = "rv_calendar_notify";        // "1" once the visitor turned NOTIFY ME on; "0" once they turned it off again
   var PUSHED_KEY = "rvCalendarPushed";          // [{t:tag, at:ms}] queued on the worker
   var FIRED_KEY = "rvCalendarFired";            // {tag: ms} reminders already shown by this page
   var ALL_DAY_HOUR = 9;                         // all-day reminders count from 09:00
@@ -794,7 +798,8 @@
   /* ---------------- ALERTS: PERMISSION + TOGGLE ---------------- */
   var canNotify = "Notification" in window;
 
-  function alertsWanted() { return lsGet(NOTIFY_KEY) !== "0"; }
+  // Opt-in: push and system alerts only after the visitor has pressed NOTIFY ME ("1").
+  function alertsWanted() { return lsGet(NOTIFY_KEY) === "1"; }
   function notifyReady() { return canNotify && Notification.permission === "granted" && alertsWanted(); }
 
   function nextReminderText() {
@@ -818,21 +823,10 @@
     btn.style.display = "";
     btn.classList.toggle("on", on);
     btn.disabled = perm === "denied";
-    btn.textContent = perm === "denied" ? "ALERTS BLOCKED" : on ? "ALERTS ON" : "ENABLE ALERTS";
+    btn.textContent = perm === "denied" ? "ALERTS BLOCKED" : on ? "NOTIFY ME: ON" : "NOTIFY ME: OFF";
     if (perm === "denied") hint.textContent = "Notifications are blocked for this site. Allow them in your browser settings to get reminders.";
     else if (on) hint.textContent = (nextReminderText() || "Reminders are sent to this device, even if the page is closed.");
-    else hint.textContent = "Get a reminder before your events, even with this page closed.";
-  }
-
-  // Ask once, from a tap, and only if there is something to be reminded about
-  function askPermission(want) {
-    if (!want || !canNotify || !alertsWanted() || Notification.permission !== "default") return Promise.resolve();
-    return new Promise(function (resolve) {
-      try {
-        var r = Notification.requestPermission(resolve);
-        if (r && typeof r.then === "function") r.then(resolve);
-      } catch (e) { resolve(); }
-    });
+    else hint.textContent = "Off. Reminders show only while this page is open. Turn on to get them even when it is closed.";
   }
 
   function toggleNotify() {
@@ -911,7 +905,7 @@
     var had = pushedList().length > 0;
     lsSet(PUSHED_KEY, "[]");
     if (!had || !window.RVNotify) return Promise.resolve();
-    return Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+    return Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {});
   }
 
   function syncPushes() {
@@ -930,11 +924,11 @@
         if (token !== pushToken) return;
         // Replace what this page queued before (if anything) with the current list
         var hadQueue = pushedList().some(function (x) { return x.at > Date.now(); });
-        var cleared = hadQueue ? Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}) : Promise.resolve();
+        var cleared = hadQueue ? Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {}) : Promise.resolve();
         return cleared.then(function () {
           if (token !== pushToken) return;
           var send = plan.map(function (p) { return { delayMs: p.delayMs, title: p.title, body: p.body, tag: p.tag }; });
-          return RVNotify.scheduleNotifications(send).then(function () {
+          return RVNotify.scheduleNotifications(send, RV_LANE).then(function () {
             if (token !== pushToken) return;
             lsSet(PUSHED_KEY, JSON.stringify(plan.map(function (p) { return { t: p.tag, at: p.at }; })));
           });
@@ -972,7 +966,7 @@
   }
 
   function checkDue() {
-    if (!notifyReady() && !alertsWanted()) return;  // alerts switched off: no in-page reminders either
+    if (lsGet(NOTIFY_KEY) === "0") return;  // switched off by the visitor: no in-page reminders either
     var now = Date.now();
     var queued = {};
     if (window.RVNotify && notifyReady()) pushedList().forEach(function (x) { queued[x.t] = 1; });   // the worker delivers these
@@ -1136,7 +1130,7 @@
     view = { y: p.y, m: p.m };
     closeSheet();
     renderAll();
-    askPermission(ev.remind.length > 0).then(syncPushes).then(checkDue);   // permission is requested inside this tap
+    syncPushes().then(checkDue);   // never asks for permission: that only happens when NOTIFY ME is pressed
   }
 
   function deleteForm() {

@@ -11,6 +11,10 @@
 <link rel="canonical" href="https://rameshverse.com/focus-timer">
 <meta name="description" content="Free focus timer and deep work session tracker. Log sessions, track interruptions, and monitor your daily focus streak — no signup required.">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
   :root{
     --bg: #0a0a0c;
@@ -405,6 +409,8 @@
   .notify-btn.on{color:var(--green); border-color:var(--green); box-shadow:0 0 10px rgba(35,224,122,0.2);}
   .notify-btn:disabled{opacity:0.4; cursor:not-allowed;}
   .notify-hint{display:block; margin-top:8px; line-height:1.5;}
+  .notify-note{display:block; margin-top:4px; line-height:1.5; opacity:0.75;}
+  .notify-note a{color:var(--red); text-decoration:none; border-bottom:1px solid var(--red-dim);}
 </style>
 </head>
 <body>
@@ -450,8 +456,9 @@
     <div class="away-note" id="awayNote" style="display:none;"></div>
 
     <div class="notify-row" id="notifyRow" style="display:none;">
-      <button class="notify-btn" id="notifyBtn" type="button">ENABLE ALERTS</button>
+      <button class="notify-btn" id="notifyBtn" type="button">NOTIFY ME: OFF</button>
       <span class="notify-hint" id="notifyHint"></span>
+      <span class="notify-note">Reminders go through our notification service. <a href="/privacy/">Privacy Policy</a></span>
     </div>
   </div>
 
@@ -467,11 +474,12 @@
     <div id="sessionLog"></div>
   </div>
 
-  <p class="intro">Track deep work sessions with a distraction-free timer, log interruptions as they happen, and see your focus streak, completion rate, and daily output charted over the last two weeks, all stored locally in your browser. A running session survives a page reload and shows up on the rameshverse homepage, and alerts remind you partway through and when a block ends, even if the page is closed.</p>
+  <p class="intro">Track deep work sessions with a distraction-free timer, log interruptions as they happen, and see your focus streak, completion rate, and daily output charted over the last two weeks, all stored locally in your browser. A running session survives a page reload and shows up on the rameshverse homepage, and optional alerts (off until you turn them on) remind you partway through and when a block ends, even if the page is closed.</p>
 
 </div>
 
 <script>
+const RV_LANE = "focus";   // own reminder lane: never replaces or cancels another tool's reminders
 (function(){
   const STORAGE_KEY = 'rv_focus_data_v1';
   const ACTIVE_KEY  = 'rvActiveFocus';   // the open block; read by the rameshverse homepage "Unfinished Business" panel
@@ -607,11 +615,11 @@
     return "You'll be notified: " + parts.join(' · ');
   }
 
-  // Alerts count as wanted unless the visitor switched them off with the button below
-  function alertsWanted(){ return lsGet(NOTIFY_KEY) !== '0'; }
+  // Alerts are opt-in: wanted only after the visitor has pressed NOTIFY ME (stored as '1')
+  function alertsWanted(){ return lsGet(NOTIFY_KEY) === '1'; }
 
   function pushSchedule(){
-    if(!alertsWanted()) return;
+    if(!notifyReady()) return;             // needs the visitor's choice AND the browser permission
     if(state !== 'running') return;
     if(!window.RVNotify){ rvLog('RVNotify not loaded — check script tag / file path'); return; }
     const plan = buildPushPlan(durationMs, Date.now() - sessionStartTs);
@@ -623,10 +631,10 @@
       .then(function(sub){
         if(!sub){ rvLog('push denied/unsupported'); return; }
         if(token !== pushToken) return;                // paused, ended or re-scheduled before subscribing finished
-        return RVNotify.scheduleNotifications(plan).then(function(){
+        return RVNotify.scheduleNotifications(plan, RV_LANE).then(function(){
           if(token !== pushToken && (state !== 'running' || sid !== forSid)){
             // paused or ended while the request was in flight: undo what just got scheduled
-            Promise.resolve(RVNotify.cancelNotifications()).catch(function(){});
+            Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function(){});
             return;
           }
           if(token !== pushToken) return;
@@ -641,7 +649,7 @@
     pushToken++;
     pushOn = false;
     if(window.RVNotify){
-      try{ Promise.resolve(RVNotify.cancelNotifications()).catch(function(){}); }catch(e){}
+      try{ Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function(){}); }catch(e){}
     }
   }
 
@@ -659,11 +667,11 @@
     els.notifyRow.style.display = 'block';
     els.notifyBtn.classList.toggle('on', on);
     els.notifyBtn.disabled = perm === 'denied';
-    els.notifyBtn.textContent = perm === 'denied' ? 'ALERTS BLOCKED' : (on ? 'ALERTS ON' : 'ENABLE ALERTS');
+    els.notifyBtn.textContent = perm === 'denied' ? 'ALERTS BLOCKED' : (on ? 'NOTIFY ME: ON' : 'NOTIFY ME: OFF');
     els.notifyHint.textContent = perm === 'denied'
       ? 'Notifications are blocked for this site. Allow them in your browser settings to get alerts.'
       : (on ? describeReminders(selectedMin) + '. Works with this page closed.'
-            : 'Get reminders while a block runs, even with this page closed.');
+            : 'Off. Turn on to get reminders while a block runs, even with this page closed.');
   }
 
   // Alerts were turned on or off: keep the queued pushes in step with it
@@ -689,22 +697,12 @@
     }catch(e){ renderNotify(); }
   }
 
-  // Runs from the Begin / Resume tap: asks for permission once (if never asked), then queues the pushes
+  // Runs from the Begin / Resume tap. Never asks for permission: that only happens when the
+  // visitor presses NOTIFY ME. Queues the pushes only if they have already turned alerts on.
   function startAlerts(){
-    const mySid = sid;
-    const asked = (!canNotify || !alertsWanted() || Notification.permission !== 'default')
-      ? Promise.resolve()
-      : new Promise(function(resolve){
-          try{
-            const r = Notification.requestPermission(resolve);
-            if(r && typeof r.then === 'function') r.then(resolve);
-          }catch(e){ resolve(); }
-        });
-    asked.then(function(){
-      if(state !== 'running' || sid !== mySid) return;   // paused or ended while the prompt was open
-      renderNotify();
-      pushSchedule();
-    });
+    if(state !== 'running') return;
+    renderNotify();
+    pushSchedule();
   }
 
   function pageIsAway(){

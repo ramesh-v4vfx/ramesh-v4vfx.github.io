@@ -6,7 +6,7 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Free online countdown timer from 1 to 60 minutes. Keeps running when you close the page and sends reminders along the way and when time is up.">
+<meta name="description" content="Free online countdown timer from 1 to 60 minutes. Keeps running when you close the page. Optional reminders along the way and when time is up.">
 
 <title>Timer — Countdown up to 1 Hour with Reminders</title>
 
@@ -373,6 +373,23 @@
     box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 16px rgba(255,43,43,0.25);
   }
 
+  .ico { width: 1.05em; height: 1.05em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .btn-toggle, .secondary, .notify-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-toggle .ico { fill: currentColor; }
+  .notify-btn {
+    margin: 0 0 6px; padding: 10px 6px; font-size: 0.72rem; color: var(--text-dim);
+    background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
+    box-shadow: inset 0 0 0 1px rgba(255,43,43,0.25);
+  }
+  .notify-btn:hover { color: var(--red); box-shadow: inset 0 0 0 1px rgba(255,43,43,0.6), 0 0 16px rgba(255,43,43,0.25); }
+  .notify-btn[aria-pressed="true"] { color: var(--accent-done); box-shadow: inset 0 0 0 1px rgba(74,222,128,0.55), 0 0 14px rgba(74,222,128,0.18); }
+  .notify-btn:disabled { opacity: .6; cursor: wait; }
+  .notify-note { min-height: 1.3em; margin: 0 0 12px; text-align: center; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); line-height: 1.5; }
+  .notify-note.error { color: #ff6b52; }
+  .foot { margin: 16px 0 0; text-align: center; font-size: 0.58rem; letter-spacing: 0.05em; color: var(--text-dim); }
+  .foot a { color: var(--text-dim); text-decoration: underline; }
+  .foot a:hover { color: var(--red); }
+
   button:focus-visible, #minutes:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 3px; }
 </style>
 </head>
@@ -383,7 +400,7 @@
   <span class="badge" id="modeBadge">Timer</span>
   <div class="brand"><span class="dot"></span> Rameshverse Systems · Timer</div>
   <h1>Timer</h1>
-  <div class="subtitle">1–60 minutes · reminders along the way</div>
+  <div class="subtitle">1–60 minutes · optional reminders</div>
 
   <div class="dial" id="dial">
     <div class="dial-inner">
@@ -408,11 +425,16 @@
     <div class="hint" id="hint"></div>
   </div>
 
-  <button class="btn-toggle" id="toggleBtn" onclick="toggleTimer()">▶ Start</button>
-  <button class="secondary" id="resetBtn" onclick="resetTimer()">↺ Reset</button>
+  <button type="button" class="notify-btn" id="notifyBtn" aria-pressed="false"></button>
+  <div class="notify-note" id="notifyNote"></div>
+
+  <button class="btn-toggle" id="toggleBtn" onclick="toggleTimer()"></button>
+  <button class="secondary" id="resetBtn" onclick="resetTimer()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg>Reset</button>
+  <p class="foot">Timer data stays in your browser. Reminders, if turned on, use a private push address. · <a href="/privacy/index.html">Privacy Policy</a></p>
 </div>
 
 <script>
+const RV_LANE = "timer";   // own reminder lane: never replaces or cancels another tool's reminders
 /* =====================================================================
    HOW THIS TIMER WORKS
    localStorage key "rvActiveTimer" is the single source of truth:
@@ -435,6 +457,7 @@ const MAX_MINUTES = 60;
 const MINUTE = 60 * 1000;
 const TICK_MS = 200;
 const ACTIVE_KEY = "rvActiveTimer";
+const NOTIFY_KEY = "rvTimerNotify";        // "1" once the person has opted in to reminders
 const LAST_KEY = "rvTimerLast";            // last minutes used, to prefill the box
 const BASE_TITLE = document.title;
 
@@ -446,6 +469,8 @@ let startTime = 0;           // wall-clock ms the run (re)started, shifted for t
 let intervalId = null;
 let pushOn = false;
 let pushToken = 0;
+let notifyOn = false;        // reminders are opt-in (Notify me button)
+let audioCtx = null;
 
 /* ---------------- ELEMENTS ---------------- */
 const appEl = document.getElementById("app");
@@ -458,6 +483,16 @@ const minutesEl = document.getElementById("minutes");
 const chipsEl = document.getElementById("chips");
 const hintEl = document.getElementById("hint");
 const toggleBtn = document.getElementById("toggleBtn");
+const notifyBtn = document.getElementById("notifyBtn");
+const notifyNote = document.getElementById("notifyNote");
+
+/* ---------------- ICONS ---------------- */
+const BTN_ICONS = {
+  play:  '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>',
+  pause: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>',
+  bell:  '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>'
+};
+function setToggle(icon, label) { toggleBtn.innerHTML = BTN_ICONS[icon] + label; }
 
 /* ---------------- HELPERS ---------------- */
 const pad = n => String(n).padStart(2, "0");
@@ -528,7 +563,7 @@ function buildPushPlan(durMs, elapsedMs) {
 function describeReminders(m) {
   const parts = reminderMarks(m).map(mk => mk.left + " min left");
   parts.push("at the end");
-  return "You'll be notified: " + parts.join(" · ");
+  return (notifyOn ? "You'll be notified: " : "Reminders are off. Turn on Notify me for: ") + parts.join(" · ");
 }
 
 /* ---------------- STORAGE ---------------- */
@@ -572,21 +607,80 @@ function lastMinutes() {
 }
 
 /* ---------------- PUSH (Cloudflare Worker via RVNotify) ---------------- */
-function ensureNotificationPermission() {
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
+/* Reminders are opt-in: nothing asks for permission until the person taps "Notify me". */
+function renderNotify() {
+  notifyBtn.setAttribute("aria-pressed", notifyOn ? "true" : "false");
+  notifyBtn.innerHTML = BTN_ICONS.bell + "Notify me: " + (notifyOn ? "On" : "Off");
+  notifyNote.classList.remove("error");
+  notifyNote.textContent = notifyOn ? "Reminders arrive even if this page is closed." : "Get reminders while the timer runs.";
+  if (state === "idle") refreshIdle();
+}
+
+function notifyProblem(msg) {
+  notifyNote.classList.add("error");
+  notifyNote.textContent = msg;
+}
+
+notifyBtn.addEventListener("click", function () {
+  if (notifyOn) {
+    notifyOn = false;
+    try { localStorage.setItem(NOTIFY_KEY, "0"); } catch (e) {}
+    cancelPushes();
+    if (state !== "idle") saveActive();
+    renderNotify();
+    return;
   }
+  if (!window.RVNotify || !("Notification" in window)) { notifyProblem("Notifications aren't supported in this browser."); return; }
+  notifyBtn.disabled = true;
+  Promise.resolve(RVNotify.ensurePushSubscription())
+    .then(function (sub) {
+      if (!sub) { notifyProblem("Notifications are blocked. Allow them in your browser settings."); return; }
+      notifyOn = true;
+      try { localStorage.setItem(NOTIFY_KEY, "1"); } catch (e) {}
+      renderNotify();
+      if (state === "running") schedulePushes();
+    })
+    .catch(function (err) {
+      const unsupported = !("serviceWorker" in navigator) || !("PushManager" in window);
+      notifyProblem(unsupported ? "Reminders aren't supported in this browser." : "Couldn't turn on reminders. Try again.");
+    })
+    .then(function () { notifyBtn.disabled = false; });
+});
+
+/* ---------------- SOUND ---------------- */
+// Created on a tap (Start) so the browser allows it; used for the finish beep when the page is open.
+function primeAudio() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch (e) {}
+}
+function beep() {
+  if (!audioCtx) return;
+  try {
+    [0, 0.35, 0.7].forEach(function (d) {
+      const t = audioCtx.currentTime + d;
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "sine"; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t); o.stop(t + 0.3);
+    });
+  } catch (e) {}
 }
 
 // Local banner, used ONLY when the Worker push isn't scheduled (push denied or
 // unsupported). Otherwise the push already delivers it and both would show.
 function notifyLocal(title, body) {
-  if (pushOn) return;
+  if (!notifyOn || pushOn) return;
   if (!("Notification" in window) || Notification.permission !== "granted") return;
   try { new Notification(title, { body, tag: "timer" }); } catch (e) {}
 }
 
 function schedulePushes() {
+  if (!notifyOn) return;
   if (!window.RVNotify) { rvLog("RVNotify not loaded — check script tag / file path"); return; }
   const plan = buildPushPlan(duration, Date.now() - startTime);
   if (!plan.length) return;
@@ -596,10 +690,10 @@ function schedulePushes() {
     .then(function (sub) {
       if (!sub) { rvLog("push denied/unsupported"); return; }
       if (token !== pushToken) return;               // paused or reset before subscribing finished
-      return RVNotify.scheduleNotifications(plan).then(function () {
+      return RVNotify.scheduleNotifications(plan, RV_LANE).then(function () {
         if (token !== pushToken && state !== "running") {
           // paused/reset while the request was in flight: undo what just got scheduled
-          Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+          Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {});
           return;
         }
         pushOn = true;
@@ -613,7 +707,7 @@ function cancelPushes() {
   pushToken++;
   pushOn = false;
   if (window.RVNotify) {
-    try { Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}); } catch (e) {}
+    try { Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {}); } catch (e) {}
   }
 }
 
@@ -687,7 +781,7 @@ function showIdle(statusText) {
   minutesEl.value = String(Math.round(duration / MINUTE) || lastMinutes());
   lockInputs(false);
   statusEl.textContent = statusText || "Set your time";
-  toggleBtn.textContent = "▶ Start";
+  setToggle("play", "Start");
   refreshIdle();
 }
 
@@ -697,7 +791,7 @@ function showRunning() {
   minutesEl.value = String(Math.round(duration / MINUTE));
   lockInputs(true);
   statusEl.textContent = "Running";
-  toggleBtn.textContent = "⏸ Pause";
+  setToggle("pause", "Pause");
 }
 
 function showPaused() {
@@ -709,7 +803,7 @@ function showPaused() {
   display.textContent = fmt(duration - elapsedAtPause);
   setProgress(elapsedAtPause / duration);
   statusEl.textContent = "Paused";
-  toggleBtn.textContent = "▶ Resume";
+  setToggle("play", "Resume");
   document.title = fmt(duration - elapsedAtPause) + " · " + BASE_TITLE;
 }
 
@@ -720,7 +814,7 @@ function showFinished(endAt) {
   display.textContent = "00:00";
   setProgress(1);
   statusEl.textContent = "Time's up · " + clock(endAt);
-  toggleBtn.textContent = "▶ Start again";
+  setToggle("play", "Start again");
 }
 
 /* ---------------- TIMER ---------------- */
@@ -734,16 +828,17 @@ function toggleTimer() {
       minutesEl.focus();
       return;
     }
-    ensureNotificationPermission();
+    primeAudio();
     try { localStorage.setItem(LAST_KEY, String(m)); } catch (e) {}
     duration = m * MINUTE;
     elapsedAtPause = 0;
     beginRun();
-    schedulePushes();          // fires even if the phone is locked or the PWA is closed
+    schedulePushes();          // only if Notify me is on; fires even if the phone is locked or the PWA is closed
   } else if (state === "running") {
     if (Date.now() >= startTime + duration) { settle(); return; }
     pauseRun();
   } else if (state === "paused") {
+    primeAudio();
     beginRun();
     schedulePushes();          // pushes were cancelled on pause; schedule again for the time left
   }
@@ -787,6 +882,7 @@ function finishTimer(endAt) {
   clearInterval(intervalId);
   const fresh = Date.now() - endAt < 5000;
   if (fresh) {
+    beep();
     if ("vibrate" in navigator) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} }
     notifyLocal("Time's up", "Your " + Math.round(duration / MINUTE) + "-minute timer has finished.");
   }
@@ -835,6 +931,8 @@ window.addEventListener("storage", function (e) {
 
 /* ---------------- INIT ---------------- */
 duration = lastMinutes() * MINUTE;
+try { notifyOn = localStorage.getItem(NOTIFY_KEY) === "1" && "Notification" in window && Notification.permission === "granted"; } catch (e) {}
+renderNotify();
 showIdle();
 syncFromStorage();       // a running or paused timer saved earlier takes over the screen
 </script>

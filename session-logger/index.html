@@ -38,23 +38,23 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --bg: #05030f;
-    --panel: #12122a;
-    --panel-2: #0a0a1c;
-    --line: rgba(34,211,238,0.18);
-    --line-soft: rgba(34,211,238,0.09);
-    --cyan: #22d3ee;
-    --cyan-dim: rgba(34,211,238,0.14);
-    --magenta: #ec4899;
-    --violet: #8b5cf6;
+    --bg: #0e0101;
+    --panel: #170707;
+    --panel-2: #0b0303;
+    --line: rgba(255,43,43,0.18);
+    --line-soft: rgba(255,43,43,0.09);
+    --cyan: #ff2b2b;
+    --cyan-dim: rgba(255,43,43,0.14);
+    --magenta: #ff5c33;
+    --violet: #8a1212;
     --amber: #f59e0b;
-    --text: #f0eefc;
-    --text-dim: #8280a0;
-    --sans: 'Sora', system-ui, -apple-system, sans-serif;
+    --text: #f2dede;
+    --text-dim: #9b5555;
+    --sans: 'Space Mono', 'Courier New', monospace;
     --mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
   }
 
@@ -67,8 +67,8 @@
     min-height: 100vh;
     min-height: 100dvh;
     background:
-      radial-gradient(circle at 1px 1px, rgba(34,211,238,0.08) 1px, transparent 1.4px) 0 0 / 26px 26px,
-      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(139,92,246,0.14), transparent 62%),
+      radial-gradient(circle at 1px 1px, rgba(255,43,43,0.08) 1px, transparent 1.4px) 0 0 / 26px 26px,
+      radial-gradient(ellipse 800px 550px at 50% -8%, rgba(176,24,24,0.14), transparent 62%),
       var(--bg);
     font-family: var(--sans);
     display: flex;
@@ -92,8 +92,12 @@
 
   h1 {
     font-family: var(--sans);
-    font-weight: 800;
-    font-size: 1.5rem;
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--magenta);
+    text-shadow: 0 0 10px rgba(255,43,43,0.6);
     text-align: center;
     margin: 0;
   }
@@ -125,19 +129,21 @@
     width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--magenta);
-    box-shadow: 0 0 6px 1px rgba(236,72,153,0.7);
+    box-shadow: 0 0 6px 1px rgba(255,92,51,0.7);
   }
 
   /* ---------- App card ---------- */
   .app {
     position: relative;
     width: 100%;
-    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    background:
+      repeating-linear-gradient(to bottom, rgba(255,43,43,0.035) 0px, rgba(255,43,43,0.035) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg, var(--panel), var(--panel-2));
     border: 1px solid var(--line);
     padding: 26px 22px;
-    border-radius: 20px;
+    border-radius: 14px;
     text-align: center;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(34,211,238,0.03) inset;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,43,43,0.03) inset;
     margin-top: 18px;
     overflow: hidden;
   }
@@ -168,9 +174,9 @@
     max-width: 320px;
     height: 130px;
     margin: 4px auto 24px;
-    border-radius: 20px;
+    border-radius: 12px;
     padding: 5px;
-    background: conic-gradient(from 0deg, rgba(34,211,238,0.25), rgba(139,92,246,0.25), rgba(236,72,153,0.25), rgba(34,211,238,0.25));
+    background: conic-gradient(from 0deg, rgba(255,43,43,0.25), rgba(176,24,24,0.25), rgba(255,92,51,0.25), rgba(255,43,43,0.25));
     transition: background 0.4s ease;
   }
 
@@ -184,8 +190,8 @@
   }
 
   @keyframes ringGlow {
-    0%, 100% { box-shadow: 0 0 18px 2px rgba(34,211,238,0.35); }
-    50%      { box-shadow: 0 0 32px 6px rgba(34,211,238,0.6); }
+    0%, 100% { box-shadow: 0 0 18px 2px rgba(255,43,43,0.35); }
+    50%      { box-shadow: 0 0 32px 6px rgba(255,43,43,0.6); }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -195,8 +201,8 @@
   .timer-inner {
     width: 100%;
     height: 100%;
-    border-radius: 16px;
-    background: radial-gradient(circle, var(--panel-2), #060613);
+    border-radius: 8px;
+    background: radial-gradient(circle, var(--panel-2), #050101);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -209,8 +215,8 @@
   }
 
   @keyframes innerPulse {
-    0%, 100% { box-shadow: inset 0 0 30px rgba(34,211,238,0.15); }
-    50%      { box-shadow: inset 0 0 46px rgba(34,211,238,0.4); }
+    0%, 100% { box-shadow: inset 0 0 30px rgba(255,43,43,0.15); }
+    50%      { box-shadow: inset 0 0 46px rgba(255,43,43,0.4); }
   }
 
   #display {
@@ -219,7 +225,7 @@
     font-weight: 700;
     letter-spacing: 0.01em;
     color: var(--text);
-    text-shadow: 0 0 16px rgba(34,211,238,0.35);
+    text-shadow: 0 0 16px rgba(255,43,43,0.35);
     white-space: nowrap;
   }
 
@@ -247,7 +253,7 @@
     flex: 1;
     padding: 13px;
     border: none;
-    border-radius: 11px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.85rem;
     font-family: var(--mono);
@@ -262,11 +268,11 @@
   .hidden { display: none !important; }
 
   #start {
-    background: linear-gradient(180deg, rgba(34,211,238,0.16), rgba(34,211,238,0.05));
-    border: 1px solid rgba(34,211,238,0.4);
+    background: linear-gradient(180deg, rgba(255,43,43,0.16), rgba(255,43,43,0.05));
+    border: 1px solid rgba(255,43,43,0.4);
     color: var(--cyan);
   }
-  #start:hover { box-shadow: 0 0 16px rgba(34,211,238,0.3); }
+  #start:hover { box-shadow: 0 0 16px rgba(255,43,43,0.3); }
 
   #pause {
     background: linear-gradient(180deg, rgba(245,158,11,0.16), rgba(245,158,11,0.05));
@@ -279,32 +285,32 @@
     background: linear-gradient(135deg, var(--violet), var(--magenta));
     border: none;
     color: #fff;
-    box-shadow: 0 6px 18px rgba(236,72,153,0.28);
+    box-shadow: 0 6px 18px rgba(255,92,51,0.28);
   }
   #reset:hover { filter: brightness(1.1); }
 
   #historyBtn, #todayBtn {
-    background: linear-gradient(180deg, rgba(34,211,238,0.08), rgba(34,211,238,0.02));
-    border: 1px solid rgba(34,211,238,0.28);
+    background: linear-gradient(180deg, rgba(255,43,43,0.08), rgba(255,43,43,0.02));
+    border: 1px solid rgba(255,43,43,0.28);
     color: var(--cyan);
   }
-  #historyBtn:hover, #todayBtn:hover { box-shadow: 0 0 14px rgba(34,211,238,0.25); }
+  #historyBtn:hover, #todayBtn:hover { box-shadow: 0 0 14px rgba(255,43,43,0.25); }
 
   .clear-btn {
     padding: 6px 10px;
     font-size: 0.68rem;
-    background: rgba(236,72,153,0.1);
-    border: 1px solid rgba(236,72,153,0.35);
+    background: rgba(255,92,51,0.1);
+    border: 1px solid rgba(255,92,51,0.35);
     color: var(--magenta);
     border-radius: 8px;
     flex: none;
   }
-  .clear-btn:hover { box-shadow: 0 0 12px rgba(236,72,153,0.25); }
+  .clear-btn:hover { box-shadow: 0 0 12px rgba(255,92,51,0.25); }
 
   /* ---------- History ---------- */
   #historyPanel {
     margin-top: 15px;
-    background: #06060f;
+    background: #050101;
     border: 1px solid var(--line-soft);
     border-radius: 12px;
     padding: 14px;
@@ -342,7 +348,7 @@
   #historyList li {
     margin-bottom: 10px;
     padding-bottom: 8px;
-    border-bottom: 1px dashed rgba(34,211,238,0.12);
+    border-bottom: 1px dashed rgba(255,43,43,0.12);
     color: var(--text-dim);
   }
 
@@ -406,7 +412,7 @@
     font-family: var(--sans);
     border-radius: 10px;
     border: 1px solid var(--line-soft);
-    background: #06060f;
+    background: #050101;
     color: var(--text);
     outline: none;
   }
@@ -430,7 +436,7 @@
   }
 
   .confirm-yes {
-    background: linear-gradient(135deg, var(--magenta), #be185d);
+    background: linear-gradient(135deg, var(--magenta), #b01818);
     color: #fff;
     border: none;
   }
@@ -446,7 +452,7 @@
     justify-content: space-between;
     gap: 10px;
     padding: 7px 0;
-    border-bottom: 1px dashed rgba(34,211,238,0.12);
+    border-bottom: 1px dashed rgba(255,43,43,0.12);
     font-size: 0.85rem;
   }
 
@@ -465,6 +471,46 @@
   }
 
   .today-total b { color: var(--cyan); }
+
+  /* ---------- HUD corner marks (same as the tool cards on the home page) ---------- */
+  .hud-corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    z-index: 2;
+    pointer-events: none;
+    opacity: .7;
+    filter: drop-shadow(0 0 2px var(--cyan));
+  }
+  .hud-corner.tl { top: 8px; left: 8px;     border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+  .hud-corner.tr { top: 8px; right: 8px;    border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+  .hud-corner.bl { bottom: 8px; left: 8px;  border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+  .hud-corner.br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+
+  /* ---------- Notify me ---------- */
+  .notify-row { margin: 2px 0 12px; text-align: left; }
+  #notifyBtn {
+    width: 100%;
+    flex: none;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+  }
+  #notifyBtn:hover:not(:disabled) { box-shadow: 0 0 14px rgba(255,43,43,0.25); color: var(--cyan); }
+  #notifyBtn.on {
+    background: linear-gradient(180deg, rgba(255,43,43,0.16), rgba(255,43,43,0.05));
+    border-color: rgba(255,43,43,0.5);
+    color: var(--cyan);
+  }
+  #notifyBtn:disabled { opacity: .5; cursor: wait; }
+  .notify-hint, .notify-note {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin-top: 7px;
+  }
+  .notify-note { opacity: .75; margin-top: 3px; }
+  .notify-note a { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(255,43,43,0.35); }
 
   @media (max-width: 480px) {
     body { align-items: flex-start; padding-top: 40px; }
@@ -490,6 +536,10 @@
   </div>
 
   <div class="app">
+    <span class="hud-corner tl" aria-hidden="true"></span>
+    <span class="hud-corner tr" aria-hidden="true"></span>
+    <span class="hud-corner bl" aria-hidden="true"></span>
+    <span class="hud-corner br" aria-hidden="true"></span>
 
     <div class="timer-ring" id="timerRing">
       <div class="timer-inner">
@@ -507,6 +557,12 @@
     <div class="extra">
       <button id="historyBtn">Show History</button>
       <button id="todayBtn">Today</button>
+    </div>
+
+    <div class="notify-row">
+      <button id="notifyBtn" type="button" aria-pressed="false">Notify me: OFF</button>
+      <div class="notify-hint" id="notifyHint" aria-live="polite"></div>
+      <div class="notify-note">Reminders go through our notification service. <a href="/privacy/">Privacy Policy</a></div>
     </div>
 
     <div id="historyPanel" class="hidden">
@@ -557,6 +613,7 @@
 </div>
 
 <script>
+const RV_LANE = "session";   // own reminder lane: never replaces or cancels another tool's reminders
 /* =====================
    UTILITIES
 ===================== */
@@ -739,6 +796,7 @@ function buildPushPlan() {
 }
 
 function schedulePushes() {
+  if (!notifyOn()) return;                    // reminders are opt-in: only after "Notify me" is ON
   if (!window.RVNotify) { rvLog("RVNotify not loaded"); return; }
   const plan = buildPushPlan();
   if (!plan.length) return;
@@ -748,10 +806,10 @@ function schedulePushes() {
     .then(function (sub) {
       if (!sub) { rvLog("push denied/unsupported"); return; }
       if (token !== pushToken) return;               // paused or finished before subscribing finished
-      return RVNotify.scheduleNotifications(plan).then(function () {
+      return RVNotify.scheduleNotifications(plan, RV_LANE).then(function () {
         if (token !== pushToken && !timer) {
           // paused/finished while the request was in flight: undo what just got scheduled
-          Promise.resolve(RVNotify.cancelNotifications()).catch(function () {});
+          Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {});
           return;
         }
         pushOn = true;
@@ -765,9 +823,68 @@ function cancelPushes() {
   pushToken++;
   pushOn = false;
   if (window.RVNotify) {
-    try { Promise.resolve(RVNotify.cancelNotifications()).catch(function () {}); } catch (e) {}
+    try { Promise.resolve(RVNotify.cancelNotifications(RV_LANE)).catch(function () {}); } catch (e) {}
   }
 }
+
+/* =====================
+   NOTIFY ME (opt-in)
+   Nothing is asked or sent until the visitor turns this on. The choice is kept in
+   localStorage ("rvLoggerNotify"); it only counts while the browser permission is granted.
+===================== */
+
+const NOTIFY_KEY = "rvLoggerNotify";
+const notifyBtn = document.getElementById("notifyBtn");
+const notifyHint = document.getElementById("notifyHint");
+
+function notifySupported() {
+  return "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+}
+function notifyOn() {
+  try {
+    return localStorage.getItem(NOTIFY_KEY) === "1" && notifySupported() && Notification.permission === "granted";
+  } catch (e) { return false; }
+}
+function setNotifyFlag(on) {
+  try { if (on) localStorage.setItem(NOTIFY_KEY, "1"); else localStorage.removeItem(NOTIFY_KEY); } catch (e) {}
+}
+function renderNotify(msg) {
+  const on = notifyOn();
+  notifyBtn.textContent = "Notify me: " + (on ? "ON" : "OFF");
+  notifyBtn.classList.toggle("on", on);
+  notifyBtn.setAttribute("aria-pressed", on ? "true" : "false");
+  if (msg) notifyHint.textContent = msg;
+  else if (!notifySupported()) notifyHint.textContent = "Reminders are not supported in this browser. On iPhone, add rameshverse to the Home Screen first.";
+  else if (Notification.permission === "denied") notifyHint.textContent = "Notifications are blocked for this site. Allow them in your browser settings to use this.";
+  else if (on) notifyHint.textContent = "You will get reminders at 30 min, 50 min and the 1-hour limit, even if this page is closed.";
+  else notifyHint.textContent = "Turn on to get reminders at 30 min, 50 min and the 1-hour limit, even if this page is closed.";
+}
+
+notifyBtn.onclick = async () => {
+  if (notifyOn()) {                           // turn off
+    setNotifyFlag(false);
+    cancelPushes();
+    renderNotify("Reminders turned off.");
+    return;
+  }
+  if (!notifySupported() || Notification.permission === "denied") { renderNotify(); return; }
+  if (!window.RVNotify) { renderNotify("Reminder service did not load. Please try again."); return; }
+  notifyBtn.disabled = true;
+  try {
+    const sub = await RVNotify.ensurePushSubscription();   // asks the browser for permission here
+    if (sub) {
+      setNotifyFlag(true);
+      if (timer) schedulePushes();            // already running: schedule the reminders now
+      renderNotify();
+    } else {
+      renderNotify("Permission was not granted, so reminders stay off.");
+    }
+  } catch (err) {
+    rvLog("ERROR: " + (err && err.message ? err.message : String(err)));
+    renderNotify("Could not turn on reminders. Please try again later.");
+  }
+  notifyBtn.disabled = false;
+};
 
 /* =====================
    RESTORE / SYNC
@@ -851,7 +968,7 @@ function applyStored() {
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) applyStored();
+  if (!document.hidden) { applyStored(); renderNotify(); }
 });
 window.addEventListener("pageshow", (e) => { if (e.persisted) applyStored(); });
 window.addEventListener("storage", (e) => {
@@ -886,7 +1003,7 @@ start.onclick = () => {
   setState("running");
   setBadge();
   saveActive();
-  schedulePushes();           // reminder pushes fire even if the app gets closed
+  schedulePushes();           // only does anything if "Notify me" is ON
 };
 
 pause.onclick = () => {
@@ -1074,7 +1191,7 @@ resizeFW();
 addEventListener("resize", resizeFW);
 
 let fireworks = [];
-const burstColors = ["#22d3ee", "#8b5cf6", "#ec4899", "#f0eefc"];
+const burstColors = ["#ff2b2b", "#ff5c33", "#b01818", "#ffe0e0"];
 
 function runFireworks(duration = 2500) {
   const start = Date.now();
@@ -1119,6 +1236,7 @@ function runFireworks(duration = 2500) {
 }
 
 applyStored();      // restore a running/paused session saved earlier (or show idle)
+renderNotify();
 </script>
 
 <script src="/libraries/config.js"></script>

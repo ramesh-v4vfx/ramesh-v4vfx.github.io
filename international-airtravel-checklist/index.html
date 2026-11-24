@@ -10,19 +10,24 @@
 
 <title>International Travel Checklist | rameshverse</title>
 
+<meta name="theme-color" content="#040813">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <link rel="canonical" href="https://rameshverse.com/international-airtravel-checklist">
 
 <style>
   :root {
-    --bg: #070c14;
-    --card-1: 16,28,46;
-    --card-2: 10,20,32;
-    --border: rgba(255,179,71,0.16);
-    --text: #eef3f8;
-    --text-dim: rgba(238,243,248,0.6);
-    --accent: #ffb347;
-    --accent-soft: rgba(255,179,71,0.12);
-    --green: #34d399;
+    --bg: #040813;
+    --card-1: 12,18,30;
+    --card-2: 7,11,20;
+    --border: rgba(77,163,255,0.16);
+    --text: #dbe6f5;
+    --text-dim: #94a3bd;
+    --accent: #4da3ff;
+    --accent-soft: rgba(77,163,255,0.12);
+    --green: #2fe37a;
     --danger: #ef4444;
     --danger-bright: #f87171;
   }
@@ -32,7 +37,7 @@
   html, body { height: 100%; }
 
   body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Space Mono', 'Courier New', monospace;
     background: var(--bg);
     color: var(--text);
     margin: 0;
@@ -47,8 +52,8 @@
     overflow: hidden;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 80% 45% at 50% 112%, rgba(255,179,71,0.24), transparent 70%),
-      linear-gradient(#050a14 0%, #0a1426 55%, #15192b 100%);
+      radial-gradient(ellipse 80% 45% at 50% 112%, rgba(77,163,255,0.24), transparent 70%),
+      linear-gradient(#050a14 0%, #040813 55%, #15192b 100%);
   }
 
   .sky::before {                       /* faint stars */
@@ -150,7 +155,7 @@
     background: linear-gradient(160deg, rgba(var(--card-1),0.84), rgba(var(--card-2),0.88));
     -webkit-backdrop-filter: blur(3px);
             backdrop-filter: blur(3px);
-    border-radius: 16px;
+    border-radius: 0;
     border: 1px solid var(--border);
     box-shadow: 0 24px 55px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
     display: flex;
@@ -176,13 +181,13 @@
      (Setting an explicit width also keeps it on screen on iPhone and Android, where the
      default scrollbar fades out.) */
   .app-scroll::-webkit-scrollbar { width: 9px; }
-  .app-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.06); border-radius: 9px; margin: 6px 0; }
+  .app-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.06); border-radius: 0; margin: 6px 0; }
   .app-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--accent), #e08a1a);
-    border-radius: 9px;
+    background: linear-gradient(180deg, var(--accent), #2a6fc9);
+    border-radius: 0;
     border: 1px solid rgba(7,12,20,0.6);
   }
-  .app-scroll::-webkit-scrollbar-thumb:hover { background: #ffd08a; }
+  .app-scroll::-webkit-scrollbar-thumb:hover { background: #a8d4ff; }
   @supports (-moz-appearance: none) {
     .app-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) rgba(255,255,255,0.08); }
   }
@@ -200,8 +205,8 @@
     font-size: 12px;
     letter-spacing: 0.04em;
     color: var(--accent);
-    background: linear-gradient(180deg, rgba(10,20,32,0), rgba(10,20,32,0.92));
-    border-radius: 0 0 16px 16px;
+    background: linear-gradient(180deg, rgba(7,11,20,0), rgba(7,11,20,0.92));
+    border-radius: 0;
     opacity: 1;
     transition: opacity .25s ease;
   }
@@ -227,7 +232,7 @@
   .save-note {
     text-align: center;
     font-size: 11.5px;
-    color: rgba(52,211,153,0.85);
+    color: rgba(47,227,122,0.85);
     margin-bottom: 14px;
   }
 
@@ -246,22 +251,22 @@
 
   .progress-track {
     height: 8px;
-    border-radius: 999px;
+    border-radius: 0;
     background: rgba(255,255,255,0.07);
     overflow: hidden;
   }
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent), #ffd08a);
-    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), #a8d4ff);
+    border-radius: 0;
     transition: width 0.45s cubic-bezier(.2,.8,.2,1);
   }
 
   .progress-wrap.complete .progress-label #readyLabel { color: var(--green); font-weight: 700; }
   .progress-wrap.complete .progress-fill {
-    background: linear-gradient(90deg, #34d399, #8bf0c6);
-    box-shadow: 0 0 14px rgba(52,211,153,0.6);
+    background: linear-gradient(90deg, #2fe37a, #7dffb0);
+    box-shadow: 0 0 14px rgba(47,227,122,0.6);
   }
 
   /* ---------- TICKET PERFORATION DIVIDER ---------- */
@@ -281,7 +286,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #0a1426;
+    background: #040813;
   }
 
   .ticket-divider::before { left: -10px; }
@@ -327,7 +332,7 @@
     padding: 10px 2px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     gap: 8px;
-    border-radius: 8px;
+    border-radius: 0;
   }
 
   li:last-child { border-bottom: none; }
@@ -340,8 +345,8 @@
   li.just-done { animation: row-flash 1.3s ease-out; }
 
   @keyframes row-flash {
-    0%   { background: rgba(52,211,153,0.28); }
-    100% { background: rgba(52,211,153,0); }
+    0%   { background: rgba(47,227,122,0.28); }
+    100% { background: rgba(47,227,122,0); }
   }
 
   .left {
@@ -369,20 +374,20 @@
   .task-link {
     font-size: 12px;
     font-weight: 700;
-    color: #1a1006;
+    color: #070b14;
     text-decoration: none;
-    background: linear-gradient(135deg, var(--accent), #ffd08a);
+    background: linear-gradient(135deg, var(--accent), #a8d4ff);
     padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: 0;
     white-space: nowrap;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(255,179,71,0.35);
+    box-shadow: 0 4px 12px rgba(77,163,255,0.35);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .task-link:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(255,179,71,0.5);
+    box-shadow: 0 6px 16px rgba(77,163,255,0.5);
   }
 
   button.delete {
@@ -405,8 +410,8 @@
     height: 22px;
     min-width: 22px;
     margin: 0;
-    border-radius: 7px;
-    border: 2px solid rgba(255,179,71,0.55);
+    border-radius: 2px; 
+    border: 2px solid rgba(77,163,255,0.55);
     background: rgba(255,255,255,0.04);
     display: grid;
     place-content: center;
@@ -418,7 +423,7 @@
     content: "";
     width: 6px;
     height: 11px;
-    border: solid #1a1006;
+    border: solid #070b14;
     border-width: 0 2.5px 2.5px 0;
     transform: translateY(-1px) rotate(45deg) scale(0);
     transition: transform 0.2s cubic-bezier(.3,1.6,.5,1);
@@ -436,8 +441,8 @@
 
   @keyframes box-pop {
     0%   { transform: scale(0.6); }
-    55%  { transform: scale(1.3); box-shadow: 0 0 0 8px rgba(255,179,71,0.25); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,179,71,0); }
+    55%  { transform: scale(1.3); box-shadow: 0 0 0 8px rgba(77,163,255,0.25); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(77,163,255,0); }
   }
 
   .empty-note {
@@ -457,7 +462,7 @@
   .add-task input {
     flex: 1;
     padding: 11px 12px;
-    border-radius: 9px;
+    border-radius: 0;
     border: 1px solid var(--border);
     background: rgba(255,255,255,0.05);
     color: var(--text);
@@ -481,9 +486,9 @@
   .add-task button {
     padding: 10px 16px;
     border: none;
-    border-radius: 9px;
+    border-radius: 0;
     background: var(--accent);
-    color: #1a1006;
+    color: #070b14;
     font-weight: 700;
   }
 
@@ -496,7 +501,7 @@
     margin-top: 10px;
     width: 100%;
     padding: 11px;
-    border-radius: 9px;
+    border-radius: 0;
     font-weight: 600;
     font-size: 14px;
   }
@@ -512,20 +517,20 @@
   }
 
   .btn-export {
-    background: rgba(52,211,153,0.12);
+    background: rgba(47,227,122,0.12);
     color: var(--green);
-    border: 1px solid rgba(52,211,153,0.4);
+    border: 1px solid rgba(47,227,122,0.4);
   }
 
-  .btn-export:hover { background: rgba(52,211,153,0.2); }
+  .btn-export:hover { background: rgba(47,227,122,0.2); }
 
   .btn-share-checklist {
     background: var(--accent-soft);
     color: var(--accent);
-    border: 1px solid rgba(255,179,71,0.4);
+    border: 1px solid rgba(77,163,255,0.4);
   }
 
-  .btn-share-checklist:hover { background: rgba(255,179,71,0.2); }
+  .btn-share-checklist:hover { background: rgba(77,163,255,0.2); }
 
   .btn-reset {
     background: rgba(239,68,68,0.1);
@@ -542,10 +547,13 @@
     background: rgba(255,255,255,0.04);
     border: 1px solid var(--border);
     padding: 11px 12px;
-    border-radius: 9px;
+    border-radius: 0;
   }
 
   .hint + .hint { margin-top: 10px; }
+  .priv-line { margin: 14px 0 0; text-align: center; font-size: 11.5px; color: var(--text-dim); }
+  .priv-line a { color: var(--text-dim); text-decoration: underline; }
+  .priv-line a:hover { color: var(--accent); }
 
   /* ---------- FEEDBACK: toast, praise, banner, confetti ---------- */
   .fx-layer {
@@ -562,11 +570,11 @@
     position: absolute;
     font-weight: 800;
     font-size: 14px;
-    color: #1a1006;
-    background: linear-gradient(135deg, var(--accent), #ffd08a);
+    color: #070b14;
+    background: linear-gradient(135deg, var(--accent), #a8d4ff);
     padding: 5px 12px;
-    border-radius: 999px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 16px rgba(255,179,71,0.55);
+    border-radius: 0;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 16px rgba(77,163,255,0.55);
     white-space: nowrap;
     will-change: transform, opacity;
   }
@@ -600,9 +608,9 @@
     width: calc(100% - 32px);
     max-width: 400px;
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: 0;
     background: rgba(8,16,28,0.96);
-    border: 1px solid rgba(52,211,153,0.5);
+    border: 1px solid rgba(47,227,122,0.5);
     box-shadow: 0 12px 30px rgba(0,0,0,0.55);
     font-size: 13.5px;
     line-height: 1.4;
@@ -627,10 +635,10 @@
     max-width: 420px;
     text-align: center;
     padding: 14px 18px;
-    border-radius: 14px;
-    background: linear-gradient(160deg, rgba(26,40,62,0.97), rgba(10,20,32,0.97));
+    border-radius: 0;
+    background: linear-gradient(160deg, rgba(14,22,38,0.97), rgba(7,11,20,0.97));
     border: 1px solid var(--accent);
-    box-shadow: 0 14px 34px rgba(0,0,0,0.55), 0 0 26px rgba(255,179,71,0.25);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.55), 0 0 26px rgba(77,163,255,0.25);
     transform: translate(-50%, -160%);
     opacity: 0;
     transition: transform 0.45s cubic-bezier(.2,1.2,.3,1), opacity 0.25s ease;
@@ -673,7 +681,7 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(4,8,16,0.84);
+    background: rgba(2,5,12,0.86);
     -webkit-backdrop-filter: blur(5px);
             backdrop-filter: blur(5px);
   }
@@ -685,7 +693,7 @@
     max-width: 400px;
     text-align: center;
     padding: 26px 22px 22px;
-    border-radius: 16px;
+    border-radius: 0;
     border: 1px solid var(--border);
     background: linear-gradient(160deg, rgba(var(--card-1),0.97), rgba(var(--card-2),0.98));
     box-shadow: 0 24px 55px rgba(0,0,0,0.55);
@@ -713,7 +721,7 @@
   .gate-card input[type="date"] {
     width: 100%;
     padding: 12px;
-    border-radius: 9px;
+    border-radius: 0;
     border: 1px solid var(--border);
     background: rgba(255,255,255,0.06);
     color: var(--text);
@@ -790,9 +798,9 @@
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 9px;
+    border-radius: 0;
     background: var(--accent);
-    color: #1a1006;
+    color: #070b14;
     font-weight: 700;
   }
 
@@ -802,7 +810,7 @@
     width: 100%;
     margin-top: 8px;
     padding: 10px;
-    border-radius: 9px;
+    border-radius: 0;
     background: none;
     border: 1px solid var(--border);
     color: var(--text-dim);
@@ -837,7 +845,7 @@
     padding: 12px 12px 12px;
     background: rgba(255,255,255,0.04);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 0;
   }
   .remind-card[hidden] { display: none; }
   .remind-title { font-size: 13px; font-weight: 700; color: var(--accent); }
@@ -850,12 +858,12 @@
     color: var(--text-dim);
     background: rgba(255,255,255,0.05);
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: 0;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition: background .2s ease, color .2s ease, border-color .2s ease;
   }
-  .remind-chip:hover { color: var(--text); border-color: rgba(255,179,71,0.5); }
+  .remind-chip:hover { color: var(--text); border-color: rgba(77,163,255,0.5); }
   .remind-chip.on { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
   .remind-chip.on::before { content: "✓ "; }
   .remind-chip:disabled { opacity: .32; cursor: not-allowed; border-style: dashed; }
@@ -868,13 +876,13 @@
     font: inherit;
     font-size: 14px;
     font-weight: 700;
-    color: #1a1204;
-    background: linear-gradient(135deg, var(--accent), #ffd08a);
+    color: #070b14;
+    background: linear-gradient(135deg, var(--accent), #a8d4ff);
     border: none;
-    border-radius: 9px;
+    border-radius: 0;
     cursor: pointer;
   }
-  .remind-alerts.on { color: var(--green); background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.5); }
+  .remind-alerts.on { color: var(--green); background: rgba(47,227,122,0.1); border: 1px solid rgba(47,227,122,0.5); }
   .remind-alerts:disabled { opacity: .5; cursor: not-allowed; }
   .remind-alerts[hidden] { display: none; }
 
@@ -885,9 +893,70 @@
     .flight.far { display: none; }
     .toast, .banner { transition: opacity 0.2s ease; }
   }
+  /* ================= RAMESHVERSE HUD SKIN ================= */
+  body {
+    background:
+      radial-gradient(ellipse 600px 420px at 50% -6%, rgba(77,163,255,0.12), transparent 65%),
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+      #040813;
+    background-size: auto, 34px 34px, 34px 34px, auto;
+  }
+  #scanlines { position: fixed; inset: 0; pointer-events: none; z-index: 80;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px); mix-blend-mode: overlay; }
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 79; box-shadow: inset 0 0 180px rgba(0,0,0,0.85); }
+  .corner { position: fixed; width: 26px; height: 26px; border: 2px solid var(--accent); z-index: 81; pointer-events: none; opacity: .85; }
+  .corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  .app {
+    background:
+      repeating-linear-gradient(to bottom, rgba(77,163,255,0.035) 0, rgba(77,163,255,0.035) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg, #131a2a, #0a0f1b);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    box-shadow: 0 0 30px rgba(77,163,255,0.08), 0 20px 45px rgba(0,0,0,.5);
+  }
+  .app::before { content: ""; position: absolute; top: 0; left: 0; width: 2px; height: 100%; z-index: 2; pointer-events: none;
+    background: linear-gradient(180deg, var(--accent), transparent); box-shadow: 0 0 10px rgba(77,163,255,.6); }
+
+  h1 { text-transform: uppercase; letter-spacing: 0.12em; font-size: 17px; color: #7cc0ff; text-shadow: 0 0 10px rgba(77,163,255,0.55); }
+  .subtitle { text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+  .save-note { text-transform: uppercase; letter-spacing: 0.05em; font-size: 10.5px; }
+  .category-header, .progress-label, .remind-title { letter-spacing: 0.1em; }
+  .trip-line { text-transform: uppercase; letter-spacing: 0.06em; font-size: 11.5px; }
+
+  .ico { width: 1.05em; height: 1.05em; flex: none; vertical-align: -0.15em; margin-right: 8px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .category-header .ico { margin-right: 6px; }
+  button.delete .ico { width: 14px; height: 14px; margin: 0; vertical-align: middle; stroke-width: 2.4; }
+  .gate-plane .ico { width: 30px; height: 30px; margin: 0; }
+  .remind-title .ico { margin-right: 6px; }
+
+  input, button, .add-task input, .gate-card input[type="date"] { font-family: inherit; }
+  .add-task input, .gate-card input[type="date"] { background: #070b14; border-color: rgba(77,163,255,.4); }
+  .add-task button, .gate-go, .remind-alerts {
+    background: rgba(77,163,255,0.1); color: var(--accent); border: 1px solid var(--accent);
+    text-shadow: 0 0 6px rgba(77,163,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; font-size: 13px;
+  }
+  .add-task button:hover, .gate-go:hover, .remind-alerts:hover { background: rgba(77,163,255,0.2); box-shadow: 0 0 14px rgba(77,163,255,.35); filter: none; }
+  .remind-alerts.on { color: var(--green); background: rgba(47,227,122,0.08); border: 1px solid rgba(47,227,122,0.5); text-shadow: none; }
+  .btn-export, .btn-share-checklist, .btn-reset, .gate-alt { text-transform: uppercase; letter-spacing: 0.08em; font-size: 12.5px; }
+  .task-link { background: rgba(77,163,255,0.1); color: var(--accent); border: 1px solid var(--accent); box-shadow: none; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+  .task-link:hover { background: rgba(77,163,255,0.2); box-shadow: 0 0 12px rgba(77,163,255,.35); }
+  .remind-chip { text-transform: uppercase; letter-spacing: 0.04em; font-size: 11.5px; }
+  .progress-wrap.complete .progress-fill { background: linear-gradient(90deg, #2fe37a, #7dffb0); }
+  .praise { text-transform: uppercase; letter-spacing: 0.06em; font-size: 12px; }
+  .hint, .remind-hint, .gate-sub { letter-spacing: 0.02em; }
+  .gate-card h2 { text-transform: uppercase; letter-spacing: 0.12em; font-size: 16px; color: #7cc0ff; text-shadow: 0 0 10px rgba(77,163,255,0.5); }
+  .gate-card { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
 </style>
 </head>
 <body>
+
+  <div id="scanlines"></div>
+  <div id="vignette"></div>
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
 
   <!-- shared drawings for the sky (referenced with <use>) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -902,9 +971,9 @@
       </symbol>
       <symbol id="plane" viewBox="0 0 160 50">
         <path d="M14 22 L5 3 L21 3 L38 19 Z" fill="#cfd9e8"/>
-        <path d="M5 3 L21 3 L22 6 L7 6 Z" fill="#ffb347"/>
+        <path d="M5 3 L21 3 L22 6 L7 6 Z" fill="#4da3ff"/>
         <path d="M10 24 Q10 18 24 17 L126 17 Q150 18 157 25 Q150 31 126 32 L24 32 Q10 31 10 24 Z" fill="#eef3f8"/>
-        <rect x="24" y="27" width="114" height="2" rx="1" fill="#ffb347" opacity="0.85"/>
+        <rect x="24" y="27" width="114" height="2" rx="1" fill="#4da3ff" opacity="0.85"/>
         <path d="M132 19.5 L142 19.5 L150 24 L132 24 Z" fill="#5b7fb0"/>
         <path d="M38 22.5 H122" stroke="#5b7fb0" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3 4.2" fill="none"/>
         <path d="M72 29 L48 47 L66 47 L104 29 Z" fill="#b9c6da"/>
@@ -922,20 +991,11 @@
     </defs>
   </svg>
 
-  <div class="sky" id="sky" aria-hidden="true">
-    <div class="flight">
-      <svg class="plane" viewBox="0 0 160 50"><use href="#plane"/></svg>
-    </div>
-    <div class="flight far">
-      <svg class="plane" viewBox="0 0 160 50"><use href="#plane"/></svg>
-    </div>
-  </div>
-
   <div class="app">
     <div class="app-header">
-      <h1>✈ International Travel Checklist</h1>
+      <h1><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>International Travel Checklist</h1>
       <div class="subtitle">Everything to sort before you fly</div>
-      <div class="save-note" id="saveNote">💾 Auto-saved on this device — continue anytime</div>
+      <div class="save-note" id="saveNote">Auto-saved on this device — continue anytime</div>
       <div class="trip-line" id="tripLine" hidden>
         <span id="tripText"></span><button type="button" class="link-btn" id="changeDateBtn">Change date</button>
       </div>
@@ -955,11 +1015,11 @@
 
     <div class="app-scroll">
       <div class="remind-card" id="remindCard" hidden>
-        <div class="remind-title">🔔 Departure reminders</div>
-        <div class="remind-sub">Tick when you want to be reminded. They ring at 9:00 AM.</div>
+        <div class="remind-title"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Departure reminders</div>
+        <div class="remind-sub">Tick when you want to be reminded. Each one arrives as a notification at 9:00 AM, even if this page is closed, once you turn reminders on.</div>
         <div class="remind-chips" id="remindChips"></div>
         <div class="remind-hint" id="remindHint"></div>
-        <button type="button" class="remind-alerts" id="remindAlertsBtn">🔔 Turn on reminders</button>
+        <button type="button" class="remind-alerts" id="remindAlertsBtn">Turn on reminders</button>
       </div>
 
       <div id="taskListWrap"></div>
@@ -970,20 +1030,21 @@
       </div>
 
       <div class="export-row">
-        <button id="downloadBtn" class="btn-export">⬇ Download checklist</button>
-        <button id="shareBtn" class="btn-share-checklist">📤 Share checklist</button>
+        <button id="downloadBtn" class="btn-export"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download checklist</button>
+        <button id="shareBtn" class="btn-share-checklist"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>Share checklist</button>
       </div>
-      <button id="resetBtn" class="btn-reset">🔄 Reset to default checklist</button>
+      <button id="resetBtn" class="btn-reset"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg>Reset to default checklist</button>
 
       <div class="hint">
-        💡 Some countries require 6 months passport validity and proof of onward travel.
+        Some countries require 6 months passport validity and proof of onward travel.
       </div>
       <div class="hint">
-        💾 Your ticks are saved in this browser only. Clearing site data or switching device or browser starts a fresh list, so use Download to keep a copy.
+        Your ticks are saved in this browser only. Clearing site data or switching device or browser starts a fresh list, so use Download to keep a copy.
       </div>
       <div class="hint">
-        🔔 Items you haven't ticked off stay on the rameshverse homepage as a reminder until your travel date. Departure reminders (30 days, 15 days, 1 week, 2 days and 1 day to go) are sent as notifications, even when this page is closed.
+        Items you haven't ticked off stay on the rameshverse homepage as a reminder until your travel date. Departure reminders (30 days, 15 days, 1 week, 2 days and 1 day to go) are sent as notifications, even when this page is closed.
       </div>
+      <p class="priv-line">Saved only in this browser. Reminders, if turned on, use a private push address. · <a href="/privacy/index.html">Privacy Policy</a></p>
     </div>
     <div class="scroll-more" id="scrollMore" aria-hidden="true"></div>
   </div>
@@ -991,7 +1052,7 @@
   <!-- Travel date: asked before the checklist can be used -->
   <div class="date-gate" id="dateGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
     <form class="gate-card" id="gateForm" novalidate>
-      <div class="gate-plane" aria-hidden="true">✈</div>
+      <div class="gate-plane" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></div>
       <h2 id="gateTitle">When are you travelling?</h2>
       <p class="gate-sub" id="gateSub"></p>
       <label class="gate-label" for="tripDateInput">Date of travel</label>
@@ -1042,14 +1103,15 @@
       "Other"
     ];
 
+    const svgIco = p => '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">' + p + '</svg>';
     const CATEGORY_ICONS = {
-      "Documents & Entry": "📄",
-      "Flights & Stay": "✈️",
-      "Packing": "🧳",
-      "Money & Cards": "💳",
-      "Connectivity": "📶",
-      "Insurance": "🛡️",
-      "Other": "📝"
+      "Documents & Entry": svgIco('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>'),
+      "Flights & Stay": svgIco('<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>'),
+      "Packing": svgIco('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+      "Money & Cards": svgIco('<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'),
+      "Connectivity": svgIco('<path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/>'),
+      "Insurance": svgIco('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'),
+      "Other": svgIco('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>')
     };
 
     const defaultTasks = [
@@ -1130,7 +1192,7 @@
 
       const complete = total > 0 && done === total;
       progressWrap.classList.toggle("complete", complete);
-      readyLabel.textContent = complete ? "Ready for take-off! ✈" : "Trip readiness";
+      readyLabel.textContent = complete ? "Ready for take-off!" : "Trip readiness";
     }
 
     function renderTasks() {
@@ -1155,7 +1217,7 @@
         const header = document.createElement("div");
         header.className = "category-header";
         header.innerHTML = `
-          <span>${CATEGORY_ICONS[category] || "📝"} ${category}</span>
+          <span>${CATEGORY_ICONS[category] || ""}${category}</span>
           <span class="count">${doneCount === items.length ? "✓ " : ""}${doneCount}/${items.length}</span>
         `;
         section.appendChild(header);
@@ -1198,7 +1260,7 @@
           }
 
           const delBtn = document.createElement("button");
-          delBtn.textContent = "✕";
+          delBtn.innerHTML = svgIco('<line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/>');
           delBtn.className = "delete";
           delBtn.setAttribute("aria-label", "Remove item: " + task.text);
           delBtn.addEventListener("click", () => {
@@ -1246,7 +1308,7 @@
         span.textContent = "Come back any time on this device and continue where you left off.";
         toastEl.classList.remove("warn");
       } else {
-        strong.textContent = "⚠ Couldn't save here";
+        strong.textContent = "Couldn't save here";
         span.textContent = "Your browser is blocking storage. Use Download checklist to keep a copy.";
         toastEl.classList.add("warn");
       }
@@ -1266,7 +1328,7 @@
 
     const PRAISE = ["Well done!", "Nice one!", "Well done!", "One step closer!", "Great job!", "Boarding soon!"];
     let praiseIdx = 0;
-    const CONFETTI = ["#ffb347", "#ffd08a", "#34d399", "#eef3f8", "#7cc4ff", "#ff7a7a"];
+    const CONFETTI = ["#4da3ff", "#a8d4ff", "#2fe37a", "#eef3f8", "#7cc4ff", "#a8d4ff"];
 
     function floatText(rect, text) {
       if (!CAN_ANIMATE) return;
@@ -1340,7 +1402,7 @@
 
       if (allComplete) {
         floatText(rect, "Amazing!");
-        showBanner("Ready for take-off! ✈️", "Every item is checked. Have a great trip!", 5200);
+        showBanner("Ready for take-off!", "Every item is checked. Have a great trip!", 5200);
         burst(cx, cy, 34, 1.2);
         burst(window.innerWidth / 2, 90, 50, 1.6);
         setTimeout(() => burst(window.innerWidth * 0.25, 140, 30, 1.3), 250);
@@ -1348,11 +1410,11 @@
         planeBurst();
       } else if (catComplete) {
         floatText(rect, "Section done!");
-        showBanner(`${CATEGORY_ICONS[cat] || "✓"} ${cat} complete`, "Nicely done, one section fully sorted.", 3600);
+        showBanner(`${cat} complete`, "Nicely done, one section fully sorted.", 3600);
         burst(cx, cy, 34, 1.25);
       } else if (halfway) {
         floatText(rect, "Halfway there!");
-        showBanner("Halfway to take-off! 🛫", `${done} of ${total} items done. Keep going!`, 3600);
+        showBanner("Halfway to take-off!", `${done} of ${total} items done. Keep going!`, 3600);
         burst(cx, cy, 28, 1.1);
       } else {
         floatText(rect, PRAISE[praiseIdx++ % PRAISE.length]);
@@ -1395,7 +1457,7 @@
 
         content += `${category}\n`;
         items.forEach(task => {
-          const mark = task.completed ? "✔" : "⬜";
+          const mark = task.completed ? "[x]" : "[ ]";
           content += `  ${mark} ${task.text}\n`;
         });
         content += "\n";
@@ -1493,26 +1555,6 @@
 
     resetBtn.addEventListener("click", resetEverything);
 
-    /* ---------- sky: drifting cloud layers (the plane + contrail are plain CSS above) ---------- */
-    (function buildClouds() {
-      const sky = document.getElementById("sky");
-      function layer(cls, count, topMin, topMax, wMin, wMax, seed) {
-        let s = seed;
-        const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-        let group = "";
-        for (let i = 0; i < count; i++) {
-          const left = (i / count) * 92 + rnd() * 6;
-          const top = topMin + rnd() * (topMax - topMin);
-          const w = Math.round(wMin + rnd() * (wMax - wMin));
-          group += `<svg class="cloud" viewBox="0 0 240 100" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%;width:${w}px"><use href="#cloud"/></svg>`;
-        }
-        return `<div class="cloud-layer ${cls}"><div class="grp">${group}</div><div class="grp">${group}</div></div>`;
-      }
-      // far clouds sit behind the plane, near clouds drift in front of it
-      sky.insertAdjacentHTML("afterbegin", layer("cloud-far", 6, 8, 78, 160, 270, 7));
-      sky.insertAdjacentHTML("beforeend", layer("cloud-near", 4, 16, 86, 280, 440, 31));
-    })();
-
     /* ---------- travel date gate ---------- */
     const appEl = document.querySelector(".app");
     const dateGate = document.getElementById("dateGate");
@@ -1555,7 +1597,7 @@
       const n = daysUntil(tripDate);
       const when = n === 0 ? "today" : n === 1 ? "tomorrow" : "in " + n + " days";
       const pretty = tripDate.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-      tripText.textContent = "🛫 Departure " + pretty + " · " + when;
+      tripText.textContent = "Departure " + pretty + " · " + when;
       tripLine.hidden = false;
       renderRemindCard();
     }
@@ -1574,7 +1616,7 @@
       if (!d) { gatePreview.textContent = ""; return; }
       const n = daysUntil(d);
       const when = n === 0 ? "today" : n === 1 ? "tomorrow" : n < 0 ? "already passed" : "in " + n + " days";
-      gatePreview.textContent = "🛫 " + d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" }) + " · " + when;
+      gatePreview.textContent = d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" }) + " · " + when;
     }
 
     tripInput.addEventListener("input", syncGateField);
@@ -1636,6 +1678,7 @@
     const R_NOTIFY = "rv_travel_notify";        // "0" once reminders were switched off
     const R_PUSHED = "travelChecklistPushed";   // [{t:tag, at:ms}] queued on the Worker
     const R_FIRED = "travelChecklistFired";     // {tag: ms} reminders already shown by this page
+    const R_LANE = "travel";                    // own reminder lane: never touches another tool's reminders
     const R_HOUR = 9;                           // reminders ring at 09:00 local time
     const R_TIERS = [60, 30, 7];                // try to queue this many days ahead, then fewer if the Worker refuses
     const R_TIER_KEY = "travelChecklistReach";  // {days, t}: the reach the Worker accepted last time (trusted for a day)
@@ -1666,7 +1709,11 @@
     const remindAt = (d) => new Date(tripDate.getFullYear(), tripDate.getMonth(), tripDate.getDate() - d, R_HOUR, 0).getTime();
     const prettyDay = d => d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
     const rTag = d => "travel-" + dateToStr(tripDate) + "-" + d;
-    const rAlertsWanted = () => rGet(R_NOTIFY) !== "0";
+    // Reminders are opt-in. Browser permission is shared by every rameshverse tool, so having
+// allowed notifications elsewhere must NOT switch these on. Only an explicit "on" here counts
+// (older visitors who already had reminders queued are kept on).
+const rOptedOut = () => rGet(R_NOTIFY) === "0";
+const rAlertsWanted = () => { const v = rGet(R_NOTIFY); return v === "1" || (v == null && rQueued().length > 0); };
     const rReady = () => rCanNotify && Notification.permission === "granted" && rAlertsWanted();
 
     function remindText(d) {
@@ -1704,7 +1751,11 @@
             if (i === -1) cur.push(c.d); else cur.splice(i, 1);
             rSet(R_KEY, JSON.stringify(cur));
             renderRemindCard();
-            remindAsk(cur.some(applies)).then(remindSync);   // permission is asked inside this tap
+            remindAsk(cur.some(applies)).then(() => {      // permission is asked inside this tap
+              // ticking a reminder is an explicit "yes" (unless they switched reminders off with the button)
+              if (cur.some(applies) && rCanNotify && Notification.permission === "granted" && !rOptedOut()) rSet(R_NOTIFY, "1");
+              renderRemindCard(); remindSync();
+            });
           });
           remindChips.appendChild(b);
         });
@@ -1721,11 +1772,12 @@
 
       // exact dates, so "2 days to go" is never a guess
       const active = R_CHOICES.filter(c => applies(c.d) && saved.indexOf(c.d) !== -1);
-      const lines = active.map(c => "🔔 " + prettyDay(new Date(remindAt(c.d))) + " 9:00 AM (" + c.label.toLowerCase() + ")");
+      const lines = active.map(c => "› " + prettyDay(new Date(remindAt(c.d))) + " 9:00 AM (" + c.label.toLowerCase() + ")");
       if (!active.length) lines.push(skipped === R_CHOICES.length
         ? "No reminders are possible for this date: every reminder time has already passed."
         : "No reminders ticked. The checklist still shows on the rameshverse homepage.");
       if (skipped && skipped < R_CHOICES.length) lines.push("Greyed-out reminders are already in the past for your travel date.");
+      if (active.length && rCanNotify && !rReady() && Notification.permission !== "denied") lines.push("Tap Turn on reminders below to get these.");
       remindHint.textContent = lines.join("\n");
 
       if (!rCanNotify) {
@@ -1739,11 +1791,11 @@
       remindAlertsBtn.disabled = perm === "denied";
       remindAlertsBtn.classList.toggle("on", ready);
       remindAlertsBtn.textContent = perm === "denied" ? "Notifications are blocked in your browser settings"
-                                  : ready ? "🔔 Reminders on · tap to turn off" : "🔔 Turn on reminders";
+                                  : ready ? "Reminders on · tap to turn off" : "Turn on reminders";
     }
 
     function remindAsk(want) {
-      if (!want || !rCanNotify || !rAlertsWanted() || Notification.permission !== "default") return Promise.resolve();
+      if (!want || !rCanNotify || rOptedOut() || Notification.permission !== "default") return Promise.resolve();
       return new Promise(resolve => {
         try { const r = Notification.requestPermission(resolve); if (r && typeof r.then === "function") r.then(resolve); }
         catch (e) { resolve(); }
@@ -1767,7 +1819,7 @@
       const had = rQueued().length > 0;
       rSet(R_PUSHED, "[]");
       if (!had || !window.RVNotify) return Promise.resolve();
-      return Promise.resolve(RVNotify.cancelNotifications()).catch(() => {});
+      return Promise.resolve(RVNotify.cancelNotifications(R_LANE)).catch(() => {});
     }
 
     // Reset: forget the reminder choices as well as cancelling anything queued
@@ -1804,7 +1856,7 @@
       const attempt = i => {
         const plan = remindPlan(Date.now(), R_TIERS[i]);
         if (!plan.length || token !== rToken) return;
-        return Promise.resolve(RVNotify.scheduleNotifications(send(plan))).then(() => {
+        return Promise.resolve(RVNotify.scheduleNotifications(send(plan), R_LANE)).then(() => {
           if (token !== rToken) return;
           rSet(R_PUSHED, JSON.stringify(plan.map(p => ({ t: p.tag, at: p.at }))));
           rSet(R_TIER_KEY, JSON.stringify({ days: R_TIERS[i], t: Date.now() }));
@@ -1816,7 +1868,7 @@
 
       return Promise.resolve(RVNotify.ensurePushSubscription()).then(sub => {
         if (!sub || token !== rToken) return;
-        const cleared = hadQueue ? Promise.resolve(RVNotify.cancelNotifications()).catch(() => {}) : Promise.resolve();
+        const cleared = hadQueue ? Promise.resolve(RVNotify.cancelNotifications(R_LANE)).catch(() => {}) : Promise.resolve();
         return cleared.then(() => token === rToken ? attempt(R_TIERS.indexOf(reach)) : undefined);
       }).catch(err => { console.log("[rv-notify]", err && err.message ? err.message : String(err)); }).then(renderRemindCard);
     }

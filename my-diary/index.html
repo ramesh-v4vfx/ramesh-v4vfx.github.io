@@ -363,6 +363,9 @@ button:active { transform: scale(0.96); }
 }
 .btn-danger:hover { background: #f7e6e1; border-color: #a63b2e; }
 
+.voice-note { margin: 10px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--ink-faint); }
+.voice-note[hidden] { display: none; }
+
 /* Voice bar layout */
 .voice-bar {
   display: flex;
@@ -548,6 +551,7 @@ body.dark textarea {
       <button id="stopBtn">⏹ Stop</button>
     </div>
   </div>
+  <p class="voice-note" id="voiceNote" hidden>Voices marked "(online)" may send your text to the browser maker's servers to be read aloud. The other voices run on your device.</p>
 </div>
 
 <textarea
@@ -610,6 +614,28 @@ function formatShort(key) {
 // currentDate is the single source of truth for "which day is open"
 let currentDate = toKey(new Date());
 
+// A save is waiting on the 400 ms timer (declared here, before the first loadEntry call below)
+let saveTimer = null;
+
+const MOOD_NAMES = {
+  "😊": "Happy",
+  "😐": "Neutral",
+  "😞": "Sad",
+  "🤯": "Stressed"
+};
+
+// Reads one saved day. Returns { text, mood } or null if missing or damaged,
+// so one bad entry can never break the whole page.
+function readEntry(date) {
+  try {
+    const e = JSON.parse(localStorage.getItem("diary-" + date));
+    if (e && typeof e.text === "string") {
+      return { text: e.text, mood: MOOD_NAMES[e.mood] ? e.mood : "😊" };
+    }
+  } catch (err) { /* damaged entry: treated as empty */ }
+  return null;
+}
+
 // Load entry
 loadEntry(currentDate);
 
@@ -636,7 +662,19 @@ function updateStatsLine() {
     cursor.setDate(cursor.getDate() - 1);
   }
 
-  statsLine.innerHTML = `<b>${dates.length}</b> ${dates.length === 1 ? "entry" : "entries"} written · <b>${streak}</b> day streak`;
+  // Entries live only in this browser, so say when they were last backed up
+  let backupNote = "";
+  try {
+    const t = parseInt(localStorage.getItem("diary-last-backup"), 10);
+    if (Number.isFinite(t)) {
+      const days = Math.floor((Date.now() - t) / 864e5);
+      backupNote = days < 1 ? " · backed up today" : ` · last backup ${days} day${days === 1 ? "" : "s"} ago`;
+    } else {
+      backupNote = " · never backed up";
+    }
+  } catch (e) { /* storage unavailable */ }
+
+  statsLine.innerHTML = `<b>${dates.length}</b> ${dates.length === 1 ? "entry" : "entries"} written · <b>${streak}</b> day streak${backupNote}`;
 }
 
 // BUG FIX: previously this only enabled Prev/Next when the *currently open*
@@ -670,9 +708,10 @@ function updateNavigationButtons() {
 
 // Load entry
 function loadEntry(date) {
+  if (saveTimer) saveNow();      // never lose the last few typed words when switching days
   currentDate = date;
 
-  const data = JSON.parse(localStorage.getItem("diary-" + date)) || {
+  const data = readEntry(date) || {
     text: "",
     mood: "😊"
   };
@@ -687,24 +726,39 @@ function loadEntry(date) {
 
 
 // Auto-save
-let saveTimer;
+// An empty page is not kept as an entry, and the status only says "saved" when it really was.
+function saveNow() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  try {
+    if (diaryText.value.trim() === "") {
+      localStorage.removeItem("diary-" + currentDate);
+    } else {
+      localStorage.setItem(
+        "diary-" + currentDate,
+        JSON.stringify({ text: diaryText.value, mood: moodSelect.value })
+      );
+    }
+  } catch (err) {
+    status.textContent = "Could not save: browser storage is full or blocked. Use Backup now.";
+    return false;
+  }
+  status.textContent = "Auto-saved ✔";
+  updateNavigationButtons();
+  updateStatsLine();
+  if (!calendarPopup.hidden) renderCalendar();
+  return true;
+}
+
 function autoSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    const entry = {
-      text: diaryText.value,
-      mood: moodSelect.value
-    };
-    localStorage.setItem(
-      "diary-" + currentDate,
-      JSON.stringify(entry)
-    );
-    status.textContent = "Auto-saved ✔";
-    updateNavigationButtons();
-    updateStatsLine();
-    if (!calendarPopup.hidden) renderCalendar();
-  }, 400);
+  status.textContent = "Saving…";
+  saveTimer = setTimeout(saveNow, 400);
 }
+
+// Closing or hiding the page must not drop what was typed in the last moment
+window.addEventListener("pagehide", () => { if (saveTimer) saveNow(); });
+document.addEventListener("visibilitychange", () => { if (document.hidden && saveTimer) saveNow(); });
 
 // Word count
 function updateWordCount() {
@@ -742,20 +796,26 @@ diaryText.addEventListener("keydown", (e) => {
 
 moodSelect.addEventListener("change", autoSave);
 
-const moodNames = {
-    "😊": "Happy",
-    "😐": "Neutral",
-    "😞": "Sad",
-    "🤯": "Stressed"
-};
+const moodNames = MOOD_NAMES;
+
+function getJsPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("The PDF tool did not load. Please reload the page and try again.");
+    return null;
+  }
+  return window.jspdf.jsPDF;
+}
 
 downloadDiaryBtn.addEventListener("click", () => {
 
-    const { jsPDF } = window.jspdf;
+    if (saveTimer) saveNow();
 
-    const doc = new jsPDF();
+    const jsPDF = getJsPDF();
+    if (!jsPDF) return;
 
     const dates = getDiaryDates();
+
+    const doc = new jsPDF();
 
     doc.setFontSize(16);
     doc.setFont(undefined, "bold");
@@ -773,7 +833,8 @@ for (const date of dates) {
     y = 20;
     }
 
-    const entry = JSON.parse(localStorage.getItem("diary-" + date));
+    const entry = readEntry(date);
+    if (!entry) continue;
 
     const formattedDate = formatLong(date);
 
@@ -787,7 +848,7 @@ for (const date of dates) {
       doc.text("Mood :", 20, y + 10);
 
       doc.setFont(undefined, "normal");
-      doc.text(moodNames[entry.mood], 40, y + 10);
+      doc.text(moodNames[entry.mood] || "—", 40, y + 10);
 
       // Separator
       doc.line(20, y + 15, 190, y + 15);
@@ -825,14 +886,17 @@ for (const date of dates) {
 // Download
 downloadBtn.addEventListener("click", () => {
 
+    if (saveTimer) saveNow();
+
     const date = currentDate;
 
-    const data = JSON.parse(localStorage.getItem("diary-" + date)) || {
+    const data = readEntry(date) || {
         text: "",
         mood: ""
     };
 
-    const { jsPDF } = window.jspdf;
+    const jsPDF = getJsPDF();
+    if (!jsPDF) return;
 
     const doc = new jsPDF();
 
@@ -893,7 +957,8 @@ downloadBtn.addEventListener("click", () => {
 const themeToggle = document.getElementById("themeToggle");
 
 // Load saved theme
-if (localStorage.getItem("theme") === "dark") {
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "dark" || (!savedTheme && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
   document.body.classList.add("dark");
   themeToggle.textContent = "☀️";
 }
@@ -937,22 +1002,34 @@ function loadVoices() {
   voiceSelect.innerHTML = "";
 
   let selectedIndex = 0;
+  let firstLocal = -1;
+  let savedFound = false;
+  let anyOnline = false;
 
   voices.forEach((voice, index) => {
     if (voice.lang.startsWith("en")) {
       const option = document.createElement("option");
       option.value = index;
-      option.textContent = voice.name;
+      option.textContent = voice.localService ? voice.name : voice.name + " (online)";
       voiceSelect.appendChild(option);
+      const pos = voiceSelect.options.length - 1;
+
+      if (!voice.localService) anyOnline = true;
+      else if (firstLocal === -1) firstLocal = pos;
 
       // Restore last used voice
       if (voice.name === savedVoiceName) {
-        selectedIndex = voiceSelect.options.length - 1;
+        selectedIndex = pos;
+        savedFound = true;
       }
     }
   });
 
+  // No saved choice: start with a voice that stays on this device
+  if (!savedFound && firstLocal !== -1) selectedIndex = firstLocal;
+
   voiceSelect.selectedIndex = selectedIndex;
+  document.getElementById("voiceNote").hidden = !anyOnline;
 }
 
 // Required for Chrome
@@ -1011,7 +1088,8 @@ backupBtn.addEventListener("click", () => {
 
         if (/^diary-\d{4}-\d{2}-\d{2}$/.test(key)) {
 
-            backup[key] = JSON.parse(localStorage.getItem(key));
+            const entry = readEntry(key.substring(6));
+            if (entry) backup[key] = entry;
 
         }
 
@@ -1031,7 +1109,10 @@ backupBtn.addEventListener("click", () => {
       a.download = fileName;
       a.click();
 
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      try { localStorage.setItem("diary-last-backup", String(Date.now())); } catch (e) {}
+      updateStatsLine();
 
 });
 
@@ -1059,6 +1140,9 @@ Delete all diary entries?`
 
     if (!confirmed) return;
 
+clearTimeout(saveTimer);   // a save still waiting must not bring the deleted text back
+saveTimer = null;
+
 const dates = getDiaryDates();
 
 for (const date of dates) {
@@ -1082,14 +1166,14 @@ restoreFile.addEventListener("change", () => {
     if (!file) return;
 
     const confirmed = confirm(
-      `Restore Backup?
+`Restore Backup?
 
-      Existing diary entries will be preserved.
+Existing diary entries will be kept.
 
-      If the backup contains an entry for the same date as an existing diary entry, the backup version will replace the current one.
+If the backup has an entry for the same date as an existing one, the backup version replaces it.
 
-      Do you want to continue?`
-          );
+Do you want to continue?`
+    );
 
           if (!confirmed) return;
 
@@ -1105,12 +1189,21 @@ restoreFile.addEventListener("change", () => {
           return;
         }
 
+        if (!backup || typeof backup !== "object" || Array.isArray(backup)) {
+          alert("This file doesn't look like a valid diary backup.");
+          return;
+        }
+
+        // Only well-formed entries are imported, so a bad file can't break the diary
+        let imported = 0, skipped = 0;
         for (const key in backup) {
           if (!/^diary-\d{4}-\d{2}-\d{2}$/.test(key)) continue;
-          localStorage.setItem(
-          key,
-          JSON.stringify(backup[key])
-          );
+          const e = backup[key];
+          if (!e || typeof e.text !== "string") { skipped++; continue; }
+          try {
+            localStorage.setItem(key, JSON.stringify({ text: e.text, mood: MOOD_NAMES[e.mood] ? e.mood : "😊" }));
+            imported++;
+          } catch (err) { skipped++; }
         }
 
         loadEntry(currentDate);
@@ -1118,9 +1211,10 @@ restoreFile.addEventListener("change", () => {
         updateNavigationButtons();
 
         alert(
-        `Diary restored successfully!
-        ${Object.keys(backup).length} entries imported.`
-      );
+`Diary restored.
+${imported} ${imported === 1 ? "entry" : "entries"} imported.` + (skipped ? `
+${skipped} could not be imported.` : "")
+        );
 
     };
 
@@ -1160,6 +1254,10 @@ document.addEventListener("click", (e) => {
   if (!calendarPopup.hidden && !calendarPopup.contains(e.target) && e.target !== dateBtn) {
     closeCalendar();
   }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !calendarPopup.hidden) { closeCalendar(); dateBtn.focus(); }
 });
 
 calPrevMonth.addEventListener("click", () => {
@@ -1219,6 +1317,12 @@ function renderCalendar() {
     const el = document.createElement("div");
     el.className = "cal-day";
     el.textContent = cell.d;
+    el.tabIndex = 0;
+    el.setAttribute("role", "button");
+    el.setAttribute("aria-label", formatLong(key) + (entryDates.has(key) ? ", has an entry" : ""));
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); el.click(); }
+    });
 
     if (cell.otherMonth) el.classList.add("other-month");
     if (key === todayKey) el.classList.add("today");

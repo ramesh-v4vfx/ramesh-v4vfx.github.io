@@ -5,7 +5,7 @@
 <script defer src="https://cloud.umami.is/script.js" data-website-id="7c12dd34-4df3-4021-9663-1a956cb7fefa"></script>
 
 <meta charset="UTF-8">
-<meta name="description" content="Brain Dump — a free, private journaling tool to write down your thoughts. Auto-saves locally in your browser, nothing is uploaded, searchable entry history." />
+<meta name="description" content="Brain Dump — a free, private journaling tool to write down your thoughts. Auto-saves locally in your browser, your writing is never uploaded, searchable entry history." />
 <title>Brain Dump</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="canonical" href="https://rameshverse.com/brain-dump" />
@@ -19,13 +19,13 @@
 
 <meta property="og:url" content="https://rameshverse.com/brain-dump" />
 <meta property="og:title" content="Brain Dump" />
-<meta property="og:description" content="Brain Dump — a free, private journaling tool to write down your thoughts. Auto-saves locally in your browser, nothing is uploaded, searchable entry history." />
+<meta property="og:description" content="Brain Dump — a free, private journaling tool to write down your thoughts. Auto-saves locally in your browser, your writing is never uploaded, searchable entry history." />
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://rameshverse.com/brain-dump/preview-image/bd-preview.jpg" />
 <meta name="twitter:title" content="Brain Dump" />
-<meta name="twitter:description" content="Brain Dump — a free, private journaling tool to write down your thoughts. Auto-saves locally in your browser, nothing is uploaded, searchable entry history." />
+<meta name="twitter:description" content="Brain Dump — a free, private journaling tool to write down your thoughts. Auto-saves locally in your browser, your writing is never uploaded, searchable entry history." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -414,6 +414,7 @@
     transition: all 0.2s ease;
   }
 
+  .btn-share{white-space:nowrap;}
   .btn-share:hover { background: rgba(255,43,43,0.1); box-shadow: 0 0 14px var(--red-dim); }
   .btn-share:active { transform: scale(0.97); }
 
@@ -475,6 +476,39 @@
     box-shadow:0 0 0 0 rgba(255,43,43,0.5); animation:dumpPulse 2.6s ease-in-out infinite;}
   .dump-btn:hover{background:var(--red); color:#0a0a0c; text-shadow:none; box-shadow:0 0 22px rgba(255,43,43,0.6); animation:none;}
   @keyframes dumpPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,43,43,0);} 50%{box-shadow:0 0 16px 0 rgba(255,43,43,0.35);}}
+  .dump-btn:disabled, .dump-btn:disabled:hover{cursor:not-allowed; animation:none; box-shadow:none; color:#c9d1d9; text-shadow:0 0 3px #000, 0 0 6px #000;
+    border:1px dashed rgba(255,255,255,0.2);
+    background:linear-gradient(90deg, rgba(255,43,43,0.55) 0, rgba(var(--fc,255,43,43),0.85) calc(var(--p,0) * 100%), rgba(255,255,255,0.03) calc(var(--p,0) * 100%), rgba(255,255,255,0.03) 100%);}
+  .actions > button{height:46px; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; font-size:0.8rem; line-height:1;}
+  .actions > .dump-btn{font-size:0.9rem;}
+  @media (max-width:420px){ .actions > button{padding:0 8px; font-size:0.7rem; letter-spacing:0.5px;} .actions > .dump-btn{font-size:0.8rem;} .actions{gap:6px;} }
+  .dump-btn{position:relative; overflow:hidden;}
+  .dump-btn.unlock{animation:unlockPop .7s ease-out 1, dumpReady 2.2s ease-in-out .7s infinite;}
+  .dump-btn.unlock::after{content:""; position:absolute; top:0; bottom:0; left:-50%; width:40%; pointer-events:none; background:linear-gradient(100deg, transparent, rgba(255,255,255,0.75), transparent); animation:unlockShine .7s ease-out 1;}
+  @keyframes unlockPop{0%{transform:scale(0.97); box-shadow:0 0 0 0 rgba(94,242,200,0.9);} 45%{transform:scale(1.04); box-shadow:0 0 22px 6px rgba(94,242,200,0.6);} 100%{transform:scale(1); box-shadow:0 0 0 0 rgba(94,242,200,0);}}
+  @keyframes unlockShine{to{left:120%;}}
+  @media (prefers-reduced-motion: reduce){.dump-btn.unlock, .dump-btn.unlock::after{animation:none;}}
+  .ta-wrap{position:relative;}
+  .paste-warn{position:absolute; left:50%; top:50%; transform:translate(-50%,-40%) scale(.96); opacity:0; pointer-events:none; z-index:6;
+    max-width:86%; text-align:center; padding:12px 18px; background:rgba(10,10,12,.94); border:1px solid var(--red); color:var(--red);
+    font-weight:700; letter-spacing:.04em; box-shadow:0 0 24px rgba(255,43,43,.35); transition:opacity .18s, transform .18s;}
+  .paste-warn.show{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  .ta-wrap.locked textarea{opacity:.4; cursor:not-allowed;}
+  .again-btn{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:3; padding:16px 30px; font-size:0.9rem; font-weight:700; letter-spacing:2px;
+    border-color:#5ef2c8; color:#5ef2c8; background:rgba(5,6,8,0.88); text-shadow:0 0 8px rgba(94,242,200,0.5); white-space:nowrap;
+    animation:againPulse 1.8s ease-in-out infinite;}
+  .again-btn:hover{background:rgba(94,242,200,0.16); color:#5ef2c8; border-color:#5ef2c8;}
+  .again-btn[hidden]{display:none;}
+  @keyframes againPulse{0%,100%{transform:translate(-50%,-50%) scale(1); box-shadow:0 0 0 0 rgba(94,242,200,0.0);} 50%{transform:translate(-50%,-50%) scale(1.06); box-shadow:0 0 26px 2px rgba(94,242,200,0.45);}}
+  @media (prefers-reduced-motion: reduce){.again-btn{animation:none;}}
+  .dump-btn.ready{color:#0a0a0c; border:1px solid #5ef2c8; background:#5ef2c8; text-shadow:none; animation:dumpReady 2.2s ease-in-out infinite;}
+  .dump-btn.ready:hover{background:#8ff7dd; color:#0a0a0c; text-shadow:none; box-shadow:0 0 22px rgba(94,242,200,0.55); animation:none;}
+  @keyframes dumpReady{0%,100%{box-shadow:0 0 0 0 rgba(94,242,200,0);} 50%{box-shadow:0 0 16px 0 rgba(94,242,200,0.35);}}
+  .ico{width:1.05em; height:1.05em; vertical-align:-0.17em; margin-right:6px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .search-wrap{position:relative;}
+  .search-wrap .ico{position:absolute; left:10px; top:50%; margin:0; transform:translateY(-50%); color:var(--muted); pointer-events:none;}
+  .search-wrap input{padding-left:30px;}
+  .dump-need{min-height:16px; margin-top:8px; font-size:0.68rem; letter-spacing:0.4px; color:var(--muted);}
   textarea.fresh{animation:freshIn .7s ease-out;}
   @keyframes freshIn{0%{border-color:var(--red); box-shadow:0 0 24px rgba(255,43,43,0.55), inset 0 0 30px rgba(255,43,43,0.12); opacity:.4;} 100%{opacity:1;}}
   textarea.nudge{animation:nudge .35s;}
@@ -512,7 +546,7 @@
   .toast.show{opacity:1; transform:translate(-50%,0); pointer-events:auto;}
   .toast button{flex:none; padding:4px 10px; font-size:0.68rem; color:var(--red); border-color:var(--red);}
   .toast button[hidden]{display:none;}
-  @media (prefers-reduced-motion: reduce){.dump-btn,textarea.fresh,.app.shake,.entry.fresh-entry{animation:none;}}
+  @media (prefers-reduced-motion: reduce){.dump-btn,.dump-btn.ready,textarea.fresh,.app.shake,.entry.fresh-entry{animation:none;}}
 
   /* ── BRAIN ── */
   .brain-strip{display:flex; align-items:center; gap:16px; border:1px solid var(--line); background:#08090b; padding:10px 14px; margin-bottom:12px;}
@@ -544,7 +578,7 @@
   <div class="card">
 
     <div class="editing-banner" id="editingBanner" hidden>
-      <span id="editingLabel">✏️ Editing a saved entry</span>
+      <span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span id="editingLabel">Editing a saved entry</span></span>
       <button id="cancelEditBtn">Start new entry</button>
     </div>
 
@@ -558,100 +592,37 @@
       </div>
     </div>
 
-    <textarea id="text" aria-label="Your brain dump"
-      placeholder="Write whatever's on your mind. Save for future reference"></textarea>
+    <div class="ta-wrap" id="taWrap">
+      <div class="paste-warn" id="pasteWarn" role="alert" aria-live="assertive"></div>
+      <textarea id="text" aria-label="Your brain dump"
+        placeholder="Write whatever's on your mind. Save for future reference"></textarea>
+      <button type="button" class="mini-btn again-btn" id="againBtn" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg>Another session</button>
+    </div>
 
     <div class="meta-row tools-row">
       <div class="left-tools">
-        <button type="button" class="mini-btn" id="promptBtn">🎲 New prompt</button>
-        <button type="button" class="mini-btn" id="soundBtn" aria-pressed="false">🔇 Sound off</button>
+        <button type="button" class="mini-btn" id="promptBtn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>New prompt</button>
+        <button type="button" class="mini-btn" id="soundBtn" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>Sound off</button>
       </div>
       <span class="counter" id="counter">0 words · 0 characters</span>
       <div class="junk-warn" id="junkWarn" role="alert"></div>
     </div>
 
     <div class="actions">
-      <button id="saveBtn" class="primary dump-btn">💥 Dump</button>
+      <button id="saveBtn" class="primary dump-btn"><svg class="ico volc" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c1.2 1.6 2.6 2.6 2.4 4.6-.2 1.3-1 1.9-1.4 2.9H11c-.5-.9-1.6-1.5-1.7-3-.1-1.7 1.6-2.2 2.7-4.5Z" fill="#ff6a00" stroke="#d94a00" stroke-width="1"/><path d="M12 4.4c.6.9 1.3 1.4 1.2 2.4-.1.7-.6 1-.8 1.6h-.9c-.3-.5-.8-.8-.8-1.6 0-.9.8-1.2 1.3-2.4Z" fill="#ffd21a" stroke="none"/><path d="M3 22 8.5 9.5h7L21 22Z" fill="#1a1a1a" stroke="#000" stroke-width="1.4"/><path d="M8.5 9.5q3.5 1.6 7 0" stroke="#ff6a00" stroke-width="1.6" fill="none"/><path d="M10.6 11.2 9.4 16.5M13.4 11.4l1.3 5.6" stroke="#ff6a00" stroke-width="1.5" fill="none"/><circle cx="6.6" cy="5.4" r=".9" fill="#ff6a00" stroke="none"/><circle cx="17.6" cy="4.6" r=".9" fill="#ff8a00" stroke="none"/><circle cx="19" cy="8.2" r=".7" fill="#ffd21a" stroke="none"/></svg>Dump</button>
       <button id="clearBtn" class="secondary">Clear</button>
-      <button class="btn-share" onclick="toggleShare()">📤 Share</button>
+      <button class="btn-share" id="copyToolBtn" type="button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy tool link</button>
     </div>
+
+    <div class="dump-need" id="dumpNeed" aria-live="polite"></div>
 
     <div class="meta-row" style="justify-content: flex-start; margin-top: 6px; min-height: 18px;">
       <span class="save-toast" id="saveToast" aria-live="polite">✓ Dumped</span>
     </div>
 
     <div class="note">
-      Auto-saved locally • Nothing is uploaded • You're free to delete anytime<br>
+      Auto-saved locally • Your writing is never uploaded • You're free to delete anytime<br>
       Tip: press Ctrl + Enter (⌘ + Enter on Mac) to dump
-    </div>
-
-    <!-- Share Panel -->
-    <div class="share-panel" id="sharePanel">
-      <p>Share this tool with friends:</p>
-      <div class="share-icons">
-
-        <!-- WhatsApp -->
-        <button class="share-icon-btn" id="shareWhatsapp">
-          <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.123 1.532 5.855L.057 23.885l6.194-1.623A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.499-5.24-1.374l-.375-.222-3.878 1.017 1.034-3.774-.243-.386A9.959 9.959 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-          WhatsApp
-        </button>
-
-        <!-- Facebook -->
-        <button class="share-icon-btn" id="shareFacebook">
-          <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.971h-1.513c-1.491 0-1.956.93-1.956 1.874v2.279h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-          Facebook
-        </button>
-
-        <!-- Messenger -->
-        <button class="share-icon-btn" id="shareMessenger">
-          <svg viewBox="0 0 24 24">
-            <defs>
-              <linearGradient id="msgGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#0099FF"/>
-                <stop offset="100%" style="stop-color:#A033FF"/>
-              </linearGradient>
-            </defs>
-            <path fill="url(#msgGrad)" d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.652V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8.1l3.131 3.26L19.752 8.1l-6.561 6.863z"/>
-          </svg>
-          Messenger
-        </button>
-
-        <!-- Instagram -->
-        <button class="share-icon-btn" id="shareInstagram">
-          <svg viewBox="0 0 24 24">
-            <defs>
-              <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#f09433"/>
-                <stop offset="25%" style="stop-color:#e6683c"/>
-                <stop offset="50%" style="stop-color:#dc2743"/>
-                <stop offset="75%" style="stop-color:#cc2366"/>
-                <stop offset="100%" style="stop-color:#bc1888"/>
-              </linearGradient>
-            </defs>
-            <path fill="url(#igGrad)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-          </svg>
-          Instagram
-        </button>
-
-        <!-- X (Twitter) -->
-        <button class="share-icon-btn" id="shareTwitter">
-          <svg viewBox="0 0 24 24" fill="#e5e7eb"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          X (Twitter)
-        </button>
-
-        <!-- Telegram -->
-        <button class="share-icon-btn" id="shareTelegram">
-          <svg viewBox="0 0 24 24" fill="#229ED9"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-          Telegram
-        </button>
-
-        <!-- Copy Link -->
-        <button class="share-icon-btn" id="shareCopy">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy Link
-        </button>
-
-      </div>
     </div>
 
   </div>
@@ -663,7 +634,7 @@
     <div class="stats" id="stats" hidden></div>
 
     <div class="search-wrap">
-      <input id="searchEntries" placeholder="🔍 Search past entries..." aria-label="Search past entries" />
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="searchEntries" placeholder="Search past entries..." aria-label="Search past entries" />
     </div>
 
     <div id="history"></div>
@@ -687,6 +658,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const STORAGE_KEY = "brainDumpEntries";
   const DRAFT_KEY = "brainDumpDraft";
   const SOUND_KEY = "brainDumpSound";
+  const FULL_WORDS = 150;      // real words that fill the bar completely
+  const NEED_WORDS = 138;     // just above 90% of FULL_WORDS, so the bar crosses 90% within a couple of seconds
 
   const PROMPTS = [
     "Write whatever's on your mind. Save for future reference",
@@ -702,10 +675,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const $ = id => document.getElementById(id);
   const textarea = $("text"), historyBox = $("history"), counterEl = $("counter"), searchInput = $("searchEntries");
+  let pwTimer; const warnNoPaste = () => { const w = $("pasteWarn"); w.textContent = "No copy-paste in here. Just you and your thoughts."; w.classList.add("show"); clearTimeout(pwTimer); pwTimer = setTimeout(() => w.classList.remove("show"), 2200); };
+  ["paste","copy","cut","drop","dragstart","contextmenu"].forEach(ev => textarea.addEventListener(ev, e => { e.preventDefault(); if(ev !== "dragstart") warnNoPaste(); }));   // type it yourself: no paste / copy / drag-drop
+  textarea.addEventListener("beforeinput", e => { if(/^insertFromPaste|^insertFromDrop|^insertFromYank|^deleteByCut/.test(e.inputType)){ e.preventDefault(); warnNoPaste(); } });
   const saveBtn = $("saveBtn"), clearBtn = $("clearBtn"), saveToast = $("saveToast"), statsEl = $("stats");
   const editingBanner = $("editingBanner"), editingLabel = $("editingLabel"), cancelEditBtn = $("cancelEditBtn");
   const toastEl = $("toast"), toastMsg = $("toastMsg"), toastUndo = $("toastUndo");
   const soundBtn = $("soundBtn"), promptBtn = $("promptBtn"), fileInput = $("restoreFile");
+  const ICO = { zap:`<svg class="ico volc" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c1.2 1.6 2.6 2.6 2.4 4.6-.2 1.3-1 1.9-1.4 2.9H11c-.5-.9-1.6-1.5-1.7-3-.1-1.7 1.6-2.2 2.7-4.5Z" fill="#ff6a00" stroke="#d94a00" stroke-width="1"/><path d="M12 4.4c.6.9 1.3 1.4 1.2 2.4-.1.7-.6 1-.8 1.6h-.9c-.3-.5-.8-.8-.8-1.6 0-.9.8-1.2 1.3-2.4Z" fill="#ffd21a" stroke="none"/><path d="M3 22 8.5 9.5h7L21 22Z" fill="#1a1a1a" stroke="#000" stroke-width="1.4"/><path d="M8.5 9.5q3.5 1.6 7 0" stroke="#ff6a00" stroke-width="1.6" fill="none"/><path d="M10.6 11.2 9.4 16.5M13.4 11.4l1.3 5.6" stroke="#ff6a00" stroke-width="1.5" fill="none"/><circle cx="6.6" cy="5.4" r=".9" fill="#ff6a00" stroke="none"/><circle cx="17.6" cy="4.6" r=".9" fill="#ff8a00" stroke="none"/><circle cx="19" cy="8.2" r=".7" fill="#ffd21a" stroke="none"/></svg>`, spk:`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>`, mute:`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>` };
   const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let editingId = null;      // id of the saved entry being edited, or null for a fresh one
@@ -887,29 +864,33 @@ document.addEventListener("DOMContentLoaded", () => {
       [0.45, "CLUTTERED",  "Cluttered. Keep going…"],
       [0.7,  "SETTLING",   "Settling. The words are leaving your head."],
       [0.9,  "CLEARING",   "Clearing. Almost there."],
-      [9,    "CALM",       "Calm. Hit Dump to let it go."]
+      [9,    "CALM",       "Calm. Dump when you're ready, or keep writing."]
     ];
 
-    let lastRl = false, lastNoisy = false, noisy = false, calm = 0, words = 0, reliefUntil = 0, stage = -1, last = performance.now(), t0 = last, rippleAt = 0;
+    let lastRl = false, lastNoisy = false, noisy = false, cleared = false, dropFast = false, calm = 0, words = 0, reliefUntil = 0, stage = -1, last = performance.now(), t0 = last, rippleAt = 0;
     const glyphs = [], sparks = [], motes = [], rings = [];
     const GL = ["?", "!", "…", "*", "#@!", "$", "??", "!!"];
 
-    function setWords(n, junk){ words = n; junk = !!junk; if(junk !== noisy){ noisy = junk; stage = -1; } if(reduceMotion){ calm = target(); draw(0); label(); } }
-    const target = () => performance.now() < reliefUntil ? 1 : 1 - Math.exp(-words / 40);
+    function setWords(n, junk, len){ words = n; junk = !!junk; if(len > 0 && cleared){ cleared = false; stage = -1; }   // typing again ends the cleared state, clutter creeps back
+      if(junk !== noisy){ noisy = junk; stage = -1; } if(reduceMotion){ calm = target(); draw(0); label(); } }
+    const target = () => (cleared || performance.now() < reliefUntil) ? 1 : Math.min(1, words / FULL_WORDS);
     function relief(){
-      reliefUntil = performance.now() + 5500;
+      reliefUntil = performance.now() + 3500; cleared = true; stage = -1;   // stays calm until you start typing again
       for(let i=0;i<18;i++){ const a = Math.random() * 6.28, s = 40 + Math.random() * 70; glyphs.push({ x:CX, y:CY, vx:Math.cos(a)*s, vy:Math.sin(a)*s, ch:GL[Math.random()*GL.length|0], life:0, max:1.1 + Math.random()*0.8, fling:true }); }
       rings.push({ r:10, a:0.9, fast:true });
       if(reduceMotion){ calm = 1; draw(0); label(); }
     }
+    // "Another session": the clutter comes back quickly, ready for the next dump
+    function again(){ cleared = false; dropFast = true; reliefUntil = 0; stage = -1; if(reduceMotion){ calm = target(); draw(0); label(); } }
     function label(){
       let s = STAGES.findIndex(x => calm < x[0]); if(s < 0) s = STAGES.length - 1;
       $("brainBar").style.width = Math.round(calm * 100) + "%";
       $("brainBar").style.background = rgba(mix(calm), 1);
       if(s !== stage){
         stage = s;
-        $("brainState").textContent = performance.now() < reliefUntil ? "MIND CLEARED ✓" : STAGES[s][1];
-        $("brainHint").textContent = performance.now() < reliefUntil ? "Dumped. That's out of your head now." : noisy ? "Random keystrokes don't count. Write real words to calm down." : STAGES[s][2];
+        const fresh = performance.now() < reliefUntil;
+        $("brainState").textContent = cleared ? "MIND CLEARED" : STAGES[s][1];
+        $("brainHint").textContent = cleared ? (fresh ? "Dumped. That's out of your head now." : "Want another session? Press the button, then start typing.") : noisy ? "Random keystrokes don't count. Write real words to calm down." : STAGES[s][2];
         $("brainState").style.color = rgba(mix(calm), 1);
       }
     }
@@ -954,7 +935,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // the tangle of worries: lots of jittery scribbles that thin out and fade
-      const n = Math.ceil(scribbles.length * Math.pow(ch, 0.9));
+      const n = Math.min(scribbles.length, Math.max(0, Math.ceil(scribbles.length * Math.pow(Math.max(0, ch), 0.9))));
       ctx.lineWidth = 0.9;
       for(let i = 0; i < n; i++){
         const s = scribbles[i], j = still ? 0 : (1.2 + ch * 3.4);
@@ -1019,18 +1000,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function frame(now){
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      const tg = target(), rate = tg > calm ? 0.55 : 0.2;       // calms slowly as you write, clutter creeps back even slower
+      const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+      const tg = target(), rate = tg > calm ? 1.1 : (dropFast ? 1.8 : 0.2);       // calms slowly as you write, clutter creeps back even slower
       calm += (tg - calm) * (1 - Math.exp(-rate * dt));
+      calm = Math.max(0, Math.min(1, calm));
       if(Math.abs(tg - calm) < 0.0005) calm = tg;
+      if(dropFast && calm <= tg + 0.03) dropFast = false;
+      requestAnimationFrame(frame);            // schedule the next frame first, so one error can never freeze the brain
       draw(dt);
       const rl = now < reliefUntil; if(rl !== lastRl){ lastRl = rl; stage = -1; }
       const s = STAGES.findIndex(x => calm < x[0]);
       if(s !== stage || Math.random() < 0.1) label();
-      requestAnimationFrame(frame);
+      try{ syncDump(); }catch(e){}
     }
     if(reduceMotion){ calm = target(); draw(0); label(); } else { requestAnimationFrame(frame); }
-    return { setWords, relief };
+    return { setWords, relief, again, ready: () => calm >= 0.9, level: () => calm, isCleared: () => cleared };
   })();
 
   /* ---------- editor ---------- */
@@ -1044,23 +1028,56 @@ document.addEventListener("DOMContentLoaded", () => {
     const t = textarea.value, a = analyze(t), w = a.real;
     counterEl.textContent = `${w} word${w === 1 ? "" : "s"} · ${t.length} character${t.length === 1 ? "" : "s"}` + (a.ignored ? ` · ${a.ignored} ignored` : "");
     const junky = a.ignored >= 3 && a.ignored >= a.real;
-    brain.setWords(w, a.ignored > 0 && a.ignored >= a.real);
+    brain.setWords(w, a.ignored > 0 && a.ignored >= a.real, t.length);
     const jw = $("junkWarn");
     if(junky){
-      jw.textContent = `⚠ WARNING: random keys detected (${a.ignored} of ${a.total} words ignored). Just filling the page won't calm your mind. Write what's really in your head.`;
+      jw.textContent = `WARNING: random keys detected (${a.ignored} of ${a.total} words ignored). Just filling the page won't calm your mind. Write what's really in your head.`;
       if(!jw.classList.contains("show")){ jw.classList.add("show"); }
     }else jw.classList.remove("show");
     textarea.classList.toggle("junk", junky);
+    syncDump();
+  }
+  const dumpNeed = $("dumpNeed"), againBtn = $("againBtn");
+  let wasReady = false, unlockTimer = null;
+  againBtn.addEventListener("click", () => { brain.again(); syncDump(); textarea.placeholder = randomPrompt(); textarea.focus(); });
+  // Dump unlocks when the brain is 90% green (enough real words and the bar at 90%).
+  // Updating an older entry is not gated: you may be fixing a short note.
+  function syncDump(){
+    const a = analyze(textarea.value), editing = editingId !== null;
+    let ok, msg = "";
+    if(editing){ ok = a.real >= 1; }
+    else{
+      const left = Math.max(0, NEED_WORDS - a.real);
+      ok = left === 0 && brain.ready();
+      if(!ok) msg = left > 0 ? `Write ${left} more real word${left === 1 ? "" : "s"} to turn the brain 90% green and unlock Dump.` : "Almost there. The brain is still turning green.";
+    }
+    saveBtn.disabled = !ok;
+    saveBtn.classList.toggle("ready", ok);
+    if(ok && !wasReady && !reduceMotion){                // just unlocked: a short pop and shine
+      saveBtn.classList.remove("unlock"); void saveBtn.offsetWidth; saveBtn.classList.add("unlock");
+      clearTimeout(unlockTimer); unlockTimer = setTimeout(() => saveBtn.classList.remove("unlock"), 900);
+    }
+    wasReady = ok;
+    // progress on the locked Dump button: follows the words written and the brain actually turning green
+    const prog = editing ? 1 : Math.max(0, Math.min(1, a.real / NEED_WORDS, brain.level() / 0.9));
+    saveBtn.style.setProperty("--p", prog.toFixed(3));
+    const fc = [255,43,43].map((v, i) => Math.round(v + ([94,242,200][i] - v) * prog));   // same red -> space green as the brain
+    saveBtn.style.setProperty("--fc", fc.join(","));
+    const cleared = brain.isCleared();
+    againBtn.hidden = !cleared;
+    textarea.disabled = cleared;                       // locked until "Another session" is pressed
+    $("taWrap").classList.toggle("locked", cleared);
+    dumpNeed.textContent = cleared ? "" : msg;
   }
   function setEditingMode(id, dateLabel){
     editingId = id;
     if(id === null){
       editingBanner.hidden = true;
-      saveBtn.textContent = "💥 Dump";
+      saveBtn.innerHTML = ICO.zap + "Dump";
     }else{
       editingBanner.hidden = false;
-      editingLabel.textContent = `✏️ Editing entry from ${dateLabel}`;
-      saveBtn.textContent = "💥 Update dump";
+      editingLabel.textContent = `Editing entry from ${dateLabel}`;
+      saveBtn.innerHTML = ICO.zap + "Update dump";
     }
   }
   function resetEditor(){
@@ -1104,7 +1121,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- sound (off by default) ---------- */
   soundOn = store.get(SOUND_KEY) === "1";
-  const paintSound = () => { soundBtn.textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off"; soundBtn.setAttribute("aria-pressed", soundOn); };
+  const paintSound = () => { soundBtn.innerHTML = soundOn ? ICO.spk + "Sound on" : ICO.mute + "Sound off"; soundBtn.setAttribute("aria-pressed", soundOn); };
   paintSound();
   soundBtn.addEventListener("click", () => { soundOn = !soundOn; store.set(SOUND_KEY, soundOn ? "1" : "0"); paintSound(); if(soundOn) boom(); });
   let ac = null;
@@ -1200,7 +1217,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let last = performance.now();
     function frame(now){
-      const dt = Math.min(0.033, (now - last) / 1000); last = now;
+      const dt = Math.max(0, Math.min(0.033, (now - last) / 1000)); last = now;
       let alive = 0;
       for(const p of parts){
         if(p.done) continue;
@@ -1227,6 +1244,11 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------- DUMP ---------- */
   function dump(){
     if(busy) return;
+    if(saveBtn.disabled){                                      // Ctrl+Enter must respect the gate too
+      textarea.classList.remove("nudge"); void textarea.offsetWidth; textarea.classList.add("nudge");
+      if(dumpNeed.textContent) notify(dumpNeed.textContent);
+      return;
+    }
     const text = textarea.value;
     if(!text.trim()){
       textarea.classList.remove("nudge"); void textarea.offsetWidth; textarea.classList.add("nudge");
@@ -1234,7 +1256,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     const an = analyze(text);
-    if(an.real === 0 || (an.total >= 4 && an.real < 2)){
+    if(an.real === 0 || (an.ignored >= 5 && an.real * 2 < an.ignored)){   // block only clear random keys, not names or slang
       textarea.classList.remove("nudge"); void textarea.offsetWidth; textarea.classList.add("nudge");
       textarea.focus();
       notify("Mostly random keys. Write real words to dump.");
@@ -1260,6 +1282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     textarea.classList.remove("fresh"); void textarea.offsetWidth; textarea.classList.add("fresh");
     explode(cap);
     brain.relief();
+    syncDump();                          // lock the box and show "Another session" right away (also without animation frames)
     showSaved(updated ? "✓ UPDATED · SAFE IN PAST ENTRIES" : "✓ DUMPED · SAFE IN PAST ENTRIES");
     renderStats();
     renderHistory();
@@ -1416,52 +1439,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-// ── SHARE LOGIC ──
-const APP_URL = 'https://rameshverse.com/brain-dump'; // 👈 Replace with your actual URL
-const APP_TITLE = 'Brain Dump – a free tool to clear your mind!';
+// ── COPY TOOL LINK (copies only the website address, never any entries) ──
+const APP_URL = 'https://rameshverse.com/brain-dump';
+const COPY_ICO = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
-function toggleShare() {
-  const panel = document.getElementById('sharePanel');
-  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+function copyText(text) {
+  const fallback = () => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    } catch (e) { return false; }
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(() => true, () => fallback());
+  }
+  return Promise.resolve(fallback());
 }
 
-document.getElementById('shareWhatsapp').onclick = () =>
-  window.open(`https://wa.me/?text=${encodeURIComponent(APP_TITLE + '\n' + APP_URL)}`, '_blank');
-
-document.getElementById('shareFacebook').onclick = () =>
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}`, '_blank');
-
-document.getElementById('shareMessenger').onclick = () => {
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile) {
-    window.open(`fb-messenger://share?link=${encodeURIComponent(APP_URL)}`, '_blank');
-  } else {
-    window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(APP_URL)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(APP_URL)}`, '_blank');
-  }
-};
-
-document.getElementById('shareInstagram').onclick = () => {
-  const btn = document.getElementById('shareInstagram');
-  navigator.clipboard.writeText(APP_URL).then(() => {
-    btn.classList.add('copied');
-    btn.lastChild.textContent = 'Link copied!';
-    window.open('https://www.instagram.com/', '_blank');
-    setTimeout(() => { btn.classList.remove('copied'); btn.lastChild.textContent = 'Instagram'; }, 3000);
-  });
-};
-
-document.getElementById('shareTwitter').onclick = () =>
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(APP_TITLE)}&url=${encodeURIComponent(APP_URL)}`, '_blank');
-
-document.getElementById('shareTelegram').onclick = () =>
-  window.open(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(APP_TITLE)}`, '_blank');
-
-document.getElementById('shareCopy').onclick = () => {
-  const btn = document.getElementById('shareCopy');
-  navigator.clipboard.writeText(APP_URL).then(() => {
-    btn.classList.add('copied');
-    btn.lastChild.textContent = 'Copied!';
-    setTimeout(() => { btn.classList.remove('copied'); btn.lastChild.textContent = 'Copy Link'; }, 2000);
+document.getElementById('copyToolBtn').onclick = () => {
+  const btn = document.getElementById('copyToolBtn');
+  copyText(APP_URL).then(ok => {
+    btn.innerHTML = COPY_ICO + (ok ? 'Copied!' : 'Could not copy');
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => { btn.innerHTML = COPY_ICO + 'Copy tool link'; }, 2200);
   });
 };
 </script>
