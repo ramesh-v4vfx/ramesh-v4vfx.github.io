@@ -3330,30 +3330,30 @@
 }
 .notes-every input:focus { border-color: #ff2b2b; box-shadow: 0 0 0 3px rgba(255,43,43,.15); }
 
-/* notification notice: shown until notifications are allowed */
+/* notification notice: Terminator red while off; green once notifications are on */
 .notes-perm {
   margin: 0 0 12px;
   padding: 10px 10px 10px 12px;
   font-size: 0.66rem;
   line-height: 1.5;
   color: #fff;
-  background: rgba(255,176,32,0.07);
-  border: 1px solid rgba(255,176,32,0.55);
-  border-left: 3px solid #ffb020;
+  background: rgba(255,43,43,0.07);
+  border: 1px solid rgba(255,43,43,0.55);
+  border-left: 3px solid #ff2b2b;
 }
 .notes-perm strong {
   display: block;
   margin-bottom: 3px;
-  color: #ffb020;
+  color: #ff2b2b;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .notes-perm-btn {
   margin-top: 8px;
   background: linear-gradient(180deg, #1e1e1f, #0e0e0f);
-  color: #ffb020;
+  color: #ff2b2b;
   border: none;
-  box-shadow: inset 0 0 0 1px rgba(255,176,32,0.55);
+  box-shadow: inset 0 0 0 1px rgba(255,43,43,0.55);
   border-radius: 6px;
   padding: 7px 12px;
   font-family: inherit;
@@ -3364,7 +3364,11 @@
   cursor: pointer;
 }
 .notes-perm-btn:hover,
-.notes-perm-btn:focus-visible { box-shadow: inset 0 0 0 1px #ffb020, 0 0 14px rgba(255,176,32,0.3); }
+.notes-perm-btn:focus-visible { box-shadow: inset 0 0 0 1px #ff2b2b, 0 0 14px rgba(255,43,43,0.3); }
+.notes-perm.is-on { background: rgba(47,227,122,0.06); border-color: rgba(47,227,122,0.5); border-left-color: #2fe37a; }
+.notes-perm.is-on strong, .notes-perm.is-on .notes-perm-btn { color: #2fe37a; }
+.notes-perm.is-on .notes-perm-btn { box-shadow: inset 0 0 0 1px rgba(47,227,122,0.5); }
+.notes-perm.is-on .notes-perm-btn:hover, .notes-perm.is-on .notes-perm-btn:focus-visible { box-shadow: inset 0 0 0 1px #2fe37a, 0 0 14px rgba(47,227,122,0.3); }
 .notes-perm[hidden], .notes-perm-btn[hidden] { display: none !important; }
 
 @media (max-width: 700px) {
@@ -6097,7 +6101,6 @@
         text: text, day: dayKey(), created: now, remind: now, done: false, doneDay: null
       });
       save(notes);
-      askPermission().then(syncPush);     // asked inside the click / Enter that added the note, which browsers require
       changed();
     }
 
@@ -6131,7 +6134,7 @@
 
     // The notice above the list, shown until notifications are allowed
     function renderPerm() {
-      let title = '', text = '', button = false;
+      let title = '', text = '', button = '';
       if (!('Notification' in window)) {
         if (isIOS && !isStandalone) {
           title = '⚠ Notifications need the Home Screen app';
@@ -6140,18 +6143,24 @@
           title = '⚠ No notifications in this browser';
           text = 'This browser cannot show notifications, so reminders only pop up while this page is open.';
         }
-      } else if (Notification.permission === 'default') {
+      } else if (Notification.permission !== 'denied' && notifyOn()) {
+        title = '✓ Notifications are on';
+        text = 'Your reminders reach you even when this page is closed.';
+        button = 'Turn off';
+      } else if (Notification.permission !== 'denied') {
         title = '⚠ Notifications are off';
-        text = 'Turn them on so your reminders reach you when this tab is in the background or closed. Without them, reminders only pop up while this page is open.';
-        button = true;
+        text = 'Tap Notify me to get your reminders when this tab is in the background or closed. Until then, reminders only pop up while this page is open.';
+        button = 'Notify me';
       } else if (Notification.permission === 'denied') {
         title = '⚠ Notifications are blocked';
         text = 'Your browser is blocking notifications from rameshverse. To get reminders, allow notifications for this site in your browser settings (the icon next to the web address), then reload the page.';
       }
       permEl.hidden = !title;
+      permEl.classList.toggle('is-on', title.charAt(0) === '✓');
       permTitle.textContent = title;
       permText.textContent = text;
       permBtn.hidden = !button;
+      if (button) permBtn.textContent = button;
     }
 
     function renderHint() {
@@ -6159,7 +6168,7 @@
       let msg;
       const when = everyLabel();
       if (!storageOk) msg = 'This browser is not letting the page save notes.';
-      else if (!('Notification' in window) || Notification.permission !== 'granted') msg = 'You get a reminder ' + when + ' while rameshverse is open.';
+      else if (!('Notification' in window) || !notifyOn()) msg = 'You get a reminder ' + when + ' while rameshverse is open.';
       else if (pushOn) {
         msg = 'You get a reminder ' + when + ', even when this page is closed.';
         const end = new Date(); end.setHours(24, 0, 0, 0);
@@ -6210,8 +6219,14 @@
     everyEl.addEventListener('change', applyEvery);
     everyEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); applyEvery(); everyEl.blur(); } });
 
+    // Notifications are opt-in: nothing asks the browser for permission until this button is tapped,
+    // and permission already given to another rameshverse tool does not switch these reminders on.
     permBtn.addEventListener('click', function () {
-      askPermission().then(function () { renderHint(); syncPush(); });
+      if (notifyOn()) { setNotify(false); renderHint(); syncPush(); return; }
+      askPermission().then(function () {
+        if ('Notification' in window && Notification.permission === 'granted') setNotify(true);
+        renderHint(); syncPush();
+      });
     });
 
     function openPanel() {
@@ -6268,7 +6283,7 @@
     toast.addEventListener('click', openPanel);
 
     function systemNotify(title, body) {
-      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      if (!('Notification' in window) || Notification.permission !== 'granted' || !notifyOn()) return;
       const opts = { body: body, tag: 'rv-daily-notes', renotify: true, icon: '/icons/apple-touch-icon.png' };
       try {
         const n = new Notification(title, opts);
@@ -6305,6 +6320,15 @@
     function flag(v) { try { if (v) localStorage.setItem(PUSH_FLAG, '1'); else localStorage.removeItem(PUSH_FLAG); } catch (e) { /* ignore */ } }
     function flagged() { try { return localStorage.getItem(PUSH_FLAG) === '1'; } catch (e) { return false; } }
 
+    // Opt-in switch for notifications. Only an explicit "on" counts; visitors who already had reminders
+    // queued before this switch existed stay on.
+    const NOTIFY_KEY = 'rvNotesNotify';
+    function notifyOn() {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+      try { const v = localStorage.getItem(NOTIFY_KEY); return v === '1' || (v === null && flagged()); } catch (e) { return false; }
+    }
+    function setNotify(on) { try { localStorage.setItem(NOTIFY_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ } }
+
     // One reminder per interval from the next due time until midnight (a note only works for its own day)
     function pushPlan() {
       const now = Date.now(), today = dayKey();
@@ -6324,7 +6348,12 @@
     function runPush(token) {
       if (token !== pushToken) return;          // a newer change is queued behind this one
       const R = window.RVNotify;
-      if (!R || !('Notification' in window) || Notification.permission !== 'granted') { setPushOn(false); return; }
+      if (!R || !('Notification' in window)) { setPushOn(false); return; }
+      if (!notifyOn()) {                        // not opted in (or switched off): hand back anything the worker still holds
+        setPushOn(false);
+        if (!flagged()) return;
+        return Promise.resolve(R.cancelNotifications(PUSH_LANE)).then(function () { flag(false); }).catch(function () { /* ignore */ });
+      }
       const plan = pushPlan();
       if (!plan.length) {                       // nothing open: clear the worker's queue, but only if we ever filled it
         setPushOn(false);
