@@ -4430,8 +4430,9 @@
 
 <footer>
   <p>
-    © <span id="footerYear">2026</span> Ramesh Singh · rameshverse · All rights reserved ·
-    <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">Contact on YouTube</a> ·
+    © <span id="footerYear">2026</span> Ramesh Singh ·
+    <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">YouTube</a> ·
+    rameshverse · All rights reserved ·
     <a href="/privacy/">Privacy Policy</a> ·
     <a href="#" data-rv-cookie-settings>Cookie settings</a>
   </p>
@@ -4704,24 +4705,6 @@
     staticSignal.id = 'hudRotatorSlot';
     staticSignal.classList.add('hud-rotator');
 
-    function moonPhaseLabel() {
-      // Simple synodic-month approximation — good enough for ambient flavor.
-      const synodic = 29.53058867;
-      const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14);
-      const now = Date.now();
-      const days = (now - knownNewMoon) / 86400000;
-      const phase = ((days % synodic) + synodic) % synodic;
-      const frac = phase / synodic;
-      if (frac < 0.03 || frac > 0.97) return "NEW MOON";
-      if (frac < 0.22) return "WAXING CRESCENT";
-      if (frac < 0.28) return "FIRST QUARTER";
-      if (frac < 0.47) return "WAXING GIBBOUS";
-      if (frac < 0.53) return "FULL MOON";
-      if (frac < 0.72) return "WANING GIBBOUS";
-      if (frac < 0.78) return "LAST QUARTER";
-      return "WANING CRESCENT";
-    }
-
         function stardate() {
       // Simple "stardate"-style readout: year + day-of-year fraction
       const now = new Date();
@@ -4747,18 +4730,9 @@
     }
 
     const messages = [
-      () => "SIGNAL STABLE",
-      () => moonPhaseLabel(),
-      () => {
-        const n = document.querySelectorAll(".tool").length;
-        return n + " MODULES LOADED";
-      },
-      () => "ALL SYSTEMS NOMINAL",
       () => stardate(),
       () => uptimeLabel(),
-      () => dayNightLabel(),
-      () => "TELEMETRY LINK ACTIVE",
-      () => "NO ANOMALIES DETECTED"
+      () => dayNightLabel()
     ];
 
     let i = 0;
@@ -4785,16 +4759,11 @@
     const el = document.getElementById('systemLogTicker');
     if (!el) return;
 
-    const lines = [
-      "[OK] orbital calc synced",
-      "[OK] tool cache warm",
-      "[OK] telemetry link nominal",
-      "[OK] starfield render 60fps",
-      "[OK] all modules responsive",
-      "[OK] search index ready"
-    ];
-
-    let i = 0;
+    // A line is added only after its check has really passed.
+    // Nothing is shown for a check that fails or can't be measured.
+    const lines = [];
+    let idx = 0;
+    let timer = null;
 
     function show(line) {
       el.classList.remove('log-visible');
@@ -4804,14 +4773,68 @@
       }, 250);
     }
 
-    // First appearance, after a short delay so it doesn't compete
-    // with the initial page load.
-    setTimeout(() => show(lines[0]), 1200);
+    function add(line) {
+      if (lines.includes(line)) return;
+      lines.push(line);
+      if (lines.length === 1) {
+        idx = 0;
+        show(line);
+      } else if (!timer) {
+        timer = setInterval(() => {
+          idx = (idx + 1) % lines.length;
+          show(lines[idx]);
+        }, 5000);
+      }
+    }
 
-    setInterval(() => {
-      i = (i + 1) % lines.length;
-      show(lines[i]);
-    }, 6000);
+    // Page speed, from the browser's own load timing.
+    function speedLine() {
+      const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      if (!nav || !(nav.loadEventEnd > 0)) return null;
+      const ms = nav.loadEventEnd;
+      let label, tag;
+      if (ms < 1000)      { label = 'excellent'; tag = '[OK]'; }
+      else if (ms < 2000) { label = 'great';     tag = '[OK]'; }
+      else if (ms < 3000) { label = 'good';      tag = '[OK]'; }
+      else if (ms < 5000) { label = 'average';   tag = '[--]'; }
+      else                { label = 'poor';      tag = '[!!]'; }
+      return tag + ' page speed ' + label + ' (' + (ms / 1000).toFixed(1) + 's)';
+    }
+
+    // Offline support: only true if a cache really holds saved files.
+    function checkOffline() {
+      if (!('caches' in window)) return;
+      caches.keys().then(names => Promise.all(
+        names.map(name => caches.open(name).then(c => c.keys()).then(k => k.length))
+      )).then(counts => {
+        if (counts.some(c => c > 0)) add('[OK] offline mode ready');
+      }).catch(() => {});
+    }
+
+    function runChecks() {
+      const toolCount = document.querySelectorAll('.tool').length;
+
+      // 1. Page finished loading and the tool grid rendered
+      if (document.readyState === 'complete' && toolCount > 0) {
+        add('[OK] site working');
+      }
+      // 2. Real tool count
+      if (toolCount > 0) add('[OK] ' + toolCount + ' tools loaded');
+      // 3. Page speed
+      const speed = speedLine();
+      if (speed) add(speed);
+      // 4. Offline support
+      checkOffline();
+    }
+
+    // 5. Popular tools: announced by the loader after a successful fetch
+    window.addEventListener('rv-popular-loaded', () => add('[OK] popular tools synced'));
+
+    if (document.readyState === 'complete') {
+      setTimeout(runChecks, 1200);
+    } else {
+      window.addEventListener('load', () => setTimeout(runChecks, 1200));
+    }
   })();
 
 
@@ -5008,6 +5031,7 @@
     popularToolsPromise ??= fetch("https://rameshverse-api.ramesh-rkvfx.workers.dev/api/top-apps")
       .then(response => response.json())
       .then(renderPopularToolsWithTrend)
+      .then(() => window.dispatchEvent(new Event('rv-popular-loaded')))
       .catch(error => {
         popularToolsPromise = null;   // allow a retry next time
         console.error("Popular tools failed:", error);
