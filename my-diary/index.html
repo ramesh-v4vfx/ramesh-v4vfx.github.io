@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 
-<script defer src="https://cloud.umami.is/script.js" data-website-id="7c12dd34-4df3-4021-9663-1a956cb7fefa"></script>
+<!-- Analytics consent: loads the Google tag only after the visitor accepts -->
+<script src="/libraries/rv-analytics.js"></script>
 
 <meta charset="UTF-8">
 
@@ -551,7 +552,7 @@ body.dark textarea {
       <button id="stopBtn">⏹ Stop</button>
     </div>
   </div>
-  <p class="voice-note" id="voiceNote" hidden>Voices marked "(online)" may send your text to the browser maker's servers to be read aloud. The other voices run on your device.</p>
+  <p class="voice-note" id="voiceNote" hidden>No built-in voice was found on this device, so Read Aloud is not available here.</p>
 </div>
 
 <textarea
@@ -1002,34 +1003,26 @@ function loadVoices() {
   voiceSelect.innerHTML = "";
 
   let selectedIndex = 0;
-  let firstLocal = -1;
-  let savedFound = false;
-  let anyOnline = false;
 
+  // Only voices built into this device are listed, so the diary text is never
+  // sent to a browser maker's server to be turned into speech.
   voices.forEach((voice, index) => {
-    if (voice.lang.startsWith("en")) {
+    if (voice.lang.startsWith("en") && voice.localService) {
       const option = document.createElement("option");
       option.value = index;
-      option.textContent = voice.localService ? voice.name : voice.name + " (online)";
+      option.textContent = voice.name;
       voiceSelect.appendChild(option);
-      const pos = voiceSelect.options.length - 1;
-
-      if (!voice.localService) anyOnline = true;
-      else if (firstLocal === -1) firstLocal = pos;
 
       // Restore last used voice
-      if (voice.name === savedVoiceName) {
-        selectedIndex = pos;
-        savedFound = true;
-      }
+      if (voice.name === savedVoiceName) selectedIndex = voiceSelect.options.length - 1;
     }
   });
 
-  // No saved choice: start with a voice that stays on this device
-  if (!savedFound && firstLocal !== -1) selectedIndex = firstLocal;
-
-  voiceSelect.selectedIndex = selectedIndex;
-  document.getElementById("voiceNote").hidden = !anyOnline;
+  const none = voiceSelect.options.length === 0;
+  voiceSelect.selectedIndex = none ? -1 : selectedIndex;
+  playBtn.disabled = none;
+  // Only say "no voice" once the browser has actually reported its voices
+  document.getElementById("voiceNote").hidden = !(none && voices.length > 0);
 }
 
 // Required for Chrome

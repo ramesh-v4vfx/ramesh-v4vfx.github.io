@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 
-<script defer src="https://cloud.umami.is/script.js" data-website-id="7c12dd34-4df3-4021-9663-1a956cb7fefa"></script>
+<!-- Analytics consent: loads the Google tag only after the visitor accepts -->
+<script src="/libraries/rv-analytics.js"></script>
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -43,6 +44,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 .app{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:16px;padding:10px 16px 16px;align-items:start}
 @media (max-width:860px){.app{grid-template-columns:1fr}.card-wrap{order:-1}}
+/* desktop: the list column stretches down to the bottom of the card, so there is no empty space under it */
+@media (min-width:861px){
+  .app{align-items:stretch}
+  .side{min-height:420px}
+  .side .list{flex:1 1 0;max-height:none;min-height:320px}
+}
 
 /* HUD corners */
 .hud-box{position:relative;background:var(--panel);border:1px solid var(--line)}
@@ -262,6 +269,7 @@ body.fs-open{overflow:hidden}
 .disc{padding:10px 16px;border-top:1px solid var(--line);font-size:12px;line-height:1.55;color:var(--dim)}
 .disc b{color:var(--cand);font-weight:400;letter-spacing:.14em;margin-right:8px}
 .foot{padding:14px 16px 28px;color:var(--dim);font-size:11px;max-width:100ch}
+@media (min-width:861px){.foot{max-width:none}.foot p{columns:2;column-gap:48px}}
 .err{padding:20px;color:var(--red)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 

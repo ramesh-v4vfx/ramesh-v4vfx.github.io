@@ -8,8 +8,8 @@
   Copying, reproducing, redistributing or reusing any part of it without written permission is not allowed.
 -->
 
-<!-- Umami analytics (cookieless) -->
-<script defer src="https://cloud.umami.is/script.js" data-website-id="7c12dd34-4df3-4021-9663-1a956cb7fefa"></script>
+<!-- Analytics consent: loads the Google tag only after the visitor accepts -->
+<script src="/libraries/rv-analytics.js"></script>
 
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -4432,7 +4432,8 @@
   <p>
     © <span id="footerYear">2026</span> Ramesh Singh · rameshverse · All rights reserved ·
     <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">Contact on YouTube</a> ·
-    <a href="/privacy/">Privacy Policy</a>
+    <a href="/privacy/">Privacy Policy</a> ·
+    <a href="#" data-rv-cookie-settings>Cookie settings</a>
   </p>
  
 </footer>
@@ -4474,11 +4475,11 @@
   (function() {const hero = document.getElementById("hero");
     const heroClose = document.getElementById("heroClose");
 
-    // Banner analytics: sends events to Umami (cookieless).
+    // Banner analytics: sends events to Google Analytics (the Google tag in <head>).
     function track(name, params) {
       try {
-        if (window.umami && typeof window.umami.track === 'function') {
-          window.umami.track(name, params || {});
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', name, params || {});
         }
       } catch (e) {}
     }
