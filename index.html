@@ -3629,6 +3629,68 @@
   .bb-panel,
   .bb-launch { order: 0; }
 }
+
+/* ══════════════════════════════════════════════════════
+   INSULIN & GLUCOSE TRACKER — right rail, directly above Unfinished Business
+   Appears only once this visitor has logged something in the tracker.
+   Reads the tracker's own saved log (localStorage "insulinlog.v1");
+   nothing is sent anywhere.
+   ══════════════════════════════════════════════════════ */
+.it-panel { position: relative; z-index: 1; width: 300px;
+  background: linear-gradient(180deg, rgba(27, 29, 27, 0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25); border-radius: 0; padding: 16px 20px 14px 14px;
+  clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%, 0 22px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace; }
+.it-panel::before { content: ""; position: absolute; top: 0; right: 0; width: 2px; height: 100%;
+  background: linear-gradient(180deg, #ff2b2b, rgba(255,43,43,0.05)); box-shadow: 0 0 10px rgba(255,43,43,0.5); }
+.it-panel::after { content: ""; position: absolute; top: 0; left: 0; width: 22px; height: 22px;
+  background: linear-gradient(45deg, transparent 49%, rgba(255,43,43,0.55) 50%, transparent 51%); pointer-events: none; }
+.it-close { position: absolute; top: 2px; left: 28px; width: 26px; height: 26px;
+  border: 1px solid rgba(255,43,43,0.4); border-radius: 0; background: rgba(0,0,0,.5); color: #ff2b2b;
+  font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  z-index: 10; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: background .2s, box-shadow .2s, transform .2s; }
+.it-close:hover { background: rgba(255,43,43,.15); box-shadow: 0 0 12px rgba(255,43,43,.5); transform: scale(1.08); }
+.it-panel h2 { margin: 0 0 12px; font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #ff2b2b; text-shadow: 0 0 10px rgba(255,43,43,0.6); font-weight: 700; padding-bottom: 8px;
+  position: relative; text-align: right; }
+.it-panel h2::after { content: ""; position: absolute; right: 0; bottom: 0; width: 40px; height: 1px;
+  background: #ff2b2b; box-shadow: 0 0 6px rgba(255,43,43,0.8); }
+.it-stat { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px;
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,43,43,0.12); border-radius: 4px;
+  font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,43,43,0.9); }
+.it-stat + .it-stat { margin-top: 6px; }
+.it-stat b { color: #fff; font-size: 1.05rem; letter-spacing: 0; }
+.it-stat small { white-space: nowrap; color: rgba(255,255,255,0.5); font-size: 0.62rem; letter-spacing: 0.06em; margin-left: 4px; text-transform: none; }
+.it-stat span:last-child { color: rgba(255,255,255,0.5); }
+.it-stat .it-low { color: #ff8a80; } .it-stat .it-high { color: #f5c451; } .it-stat .it-ok { color: #5fd394; }
+.it-note { margin: 8px 0 0; color: rgba(255,255,255,0.55); font-size: 0.7rem; line-height: 1.4; }
+.it-open { display: block; margin-top: 10px; padding: 8px 10px; text-align: center; text-decoration: none;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #ff2b2b;
+  text-shadow: 0 0 8px rgba(255,43,43,0.5); background: rgba(255,43,43,0.08);
+  border: 1px solid rgba(255,43,43,0.35); border-radius: 4px;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease; }
+.it-open:hover, .it-open:focus-visible { background: rgba(255,43,43,0.16); border-color: #ff2b2b; color: #fff; box-shadow: 0 0 14px rgba(255,43,43,0.3); }
+.it-open:focus-visible { outline: 2px solid #6aa9ff; outline-offset: 2px; }
+.it-launch { position: relative; width: 300px; height: 44px; padding: 0 20px 0 16px; display: flex;
+  align-items: center; justify-content: space-between; gap: 10px;
+  font-family: 'Space Mono', 'Space Mono Fallback', 'Courier New', monospace; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #ff2b2b; text-shadow: 0 0 10px rgba(255,43,43,0.6);
+  background: linear-gradient(180deg, rgba(27,29,27,0.75), rgba(12,12,13,0.75));
+  border: 1px solid rgba(255,43,43,0.25); border-radius: 0; clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+  box-shadow: 0 0 30px rgba(255,43,43,0.08), 0 20px 45px rgba(0,0,0,.5); cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: background .25s ease, border-color .25s ease, color .25s ease; }
+.it-launch:hover, .it-launch:focus-visible { background: rgba(255,43,43,0.12); border-color: rgba(255,43,43,0.6); color: #fff; }
+.it-launch b { color: #fff; font-weight: 700; }
+.it-panel[hidden], .it-launch[hidden], .it-panel.is-closed { display: none !important; }
+@media (max-width: 1700px) {
+  .it-panel, .it-launch { position: relative !important; width: 100% !important; max-width: 92% !important;
+    min-width: 0; margin: 16px auto 0 !important; order: 3; }
+}
+@media (max-width: 700px) { .it-panel, .it-launch { order: 0; } }
 </style>
 </head>
 <body>
@@ -3971,6 +4033,21 @@
   <ul class="bb-items" id="bbItems"></ul>
   <p class="bb-empty" id="bbEmpty">Log what you did. It saves the exact date and time.</p>
   <a class="bb-open" id="bbLink" href="/personal-black-box/">▶ Open today's log</a>
+</aside>
+
+<!-- INSULIN & GLUCOSE TRACKER (just above Unfinished Business; hidden until the visitor has logged an entry; filled by script) -->
+<button type="button" class="it-launch" id="itOpen"
+        aria-expanded="false" aria-controls="itPanel" hidden>
+  <span>Insulin <b id="itBadge"></b></span><span aria-hidden="true">▾</span>
+</button>
+<aside class="it-panel" id="itPanel" aria-label="Insulin and glucose tracker" hidden>
+  <button type="button" class="it-close" id="itClose" aria-label="Minimize Insulin tracker" title="Minimize">▴</button>
+  <h2>Insulin Tracker</h2>
+  <div class="it-stat"><span>Logged today</span><span><b id="itCount">0</b></span></div>
+  <div class="it-stat"><span>Last glucose</span><span><b id="itBg">—</b><small id="itBgUnit"></small></span></div>
+  <div class="it-stat"><span>Insulin today</span><span><b id="itUnits">0</b><small>units</small></span></div>
+  <p class="it-note" id="itNote"></p>
+  <a class="it-open" id="itLink" href="/insulin-and-glucose-tracker/">▶ Open tracker</a>
 </aside>
 
 <!-- UNFINISHED BUSINESS (top of the rail; hidden until the visitor has open tasks; filled by script) -->
@@ -7096,6 +7173,84 @@
     setInterval(function () { if (!document.hidden) render(); }, 60000);
 
     applyCollapsed();
+    render();
+  })();
+</script>
+
+<script>
+  /* ── INSULIN & GLUCOSE TRACKER PANEL ──
+     Right rail, directly above Unfinished Business. Shown only after the visitor has logged at least
+     one entry in the tracker. Reads the tracker's own saved log (localStorage "insulinlog.v1":
+     { settings:{unit,low,high}, entries:[{ t(ms), bg(mg/dL), units }] }).
+     Only this visitor's own browser storage is read; nothing is sent anywhere. */
+  (function () {
+    const DATA_KEY = 'insulinlog.v1';
+    const COLLAPSE_KEY = 'rvInsulinTrackerCollapsed';
+    const MGDL_PER_MMOL = 18.016;
+
+    const $ = function (id) { return document.getElementById(id); };
+    const panel = $('itPanel'), launch = $('itOpen'), closeBtn = $('itClose'), badge = $('itBadge');
+    const countEl = $('itCount'), bgEl = $('itBg'), bgUnitEl = $('itBgUnit'), unitsEl = $('itUnits'), noteEl = $('itNote');
+    if (!panel || !launch || !closeBtn || !badge || !countEl || !bgEl || !bgUnitEl || !unitsEl || !noteEl) return;
+
+    function readData() {
+      try {
+        const d = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
+        if (!d || !Array.isArray(d.entries)) return null;
+        const s = d.settings || {};
+        return {
+          mmol: s.unit === 'mmol',
+          low: isFinite(+s.low) ? +s.low : 70,
+          high: isFinite(+s.high) ? +s.high : 180,
+          entries: d.entries.filter(function (e) { return e && isFinite(+e.t); })
+        };
+      } catch (e) { return null; }
+    }
+    const dayKey = function (ts) { const d = new Date(ts); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); };
+
+    function isCollapsed() { try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) { return false; } }
+    function setCollapsed(on) { try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ } }
+
+    let hasData = false;
+    function applyCollapsed() {
+      const c = isCollapsed();
+      panel.hidden = !hasData || c;
+      launch.hidden = !hasData || !c;
+      launch.setAttribute('aria-expanded', c ? 'false' : 'true');
+    }
+
+    function render() {
+      const d = readData();
+      hasData = !!(d && d.entries.length);
+      if (hasData) {
+        const today = dayKey(Date.now());
+        const todays = d.entries.filter(function (e) { return dayKey(+e.t) === today; });
+        const units = todays.reduce(function (n, e) { return n + (+e.units > 0 ? +e.units : 0); }, 0);
+        const withBg = d.entries.filter(function (e) { return +e.bg > 0; }).sort(function (a, b) { return b.t - a.t; });
+        const last = withBg[0];
+
+        countEl.textContent = todays.length;
+        badge.textContent = todays.length ? todays.length + ' today' : '';
+        unitsEl.textContent = Math.round(units * 10) / 10;
+        bgEl.className = '';
+        if (last) {
+          const mg = +last.bg;
+          bgEl.textContent = d.mmol ? (mg / MGDL_PER_MMOL).toFixed(1) : String(Math.round(mg));
+          bgEl.className = mg < d.low ? 'it-low' : mg > d.high ? 'it-high' : 'it-ok';
+          bgUnitEl.textContent = (d.mmol ? 'mmol/L' : 'mg/dL') + (mg < d.low ? ' · low' : mg > d.high ? ' · high' : '');
+        } else { bgEl.textContent = '—'; bgUnitEl.textContent = ''; }
+        noteEl.textContent = todays.length ? '' : 'Nothing logged yet today.';
+        noteEl.hidden = !!todays.length;
+      }
+      applyCollapsed();
+    }
+
+    closeBtn.addEventListener('click', function () { setCollapsed(true); applyCollapsed(); });
+    launch.addEventListener('click',   function () { setCollapsed(false); applyCollapsed(); });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
+    window.addEventListener('pageshow', render);
+    window.addEventListener('storage', function (e) { if (!e.key || e.key === DATA_KEY) render(); });
+    setInterval(function () { if (!document.hidden) render(); }, 60000);
     render();
   })();
 </script>
