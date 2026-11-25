@@ -4050,6 +4050,19 @@
   <a class="it-open" id="itLink" href="/insulin-and-glucose-tracker/">▶ Open tracker</a>
 </aside>
 
+<!-- RUNNING NOW (just above Unfinished Business; shown only while a Start/End timer or a saved countdown from the Time Difference Calculator is running; filled by script) -->
+<button type="button" class="it-launch" id="tmOpen"
+        aria-expanded="false" aria-controls="tmPanel" hidden>
+  <span>Running <b id="tmBadge"></b></span><span aria-hidden="true">▾</span>
+</button>
+<aside class="it-panel" id="tmPanel" aria-label="Running timer and countdowns" hidden>
+  <button type="button" class="it-close" id="tmClose" aria-label="Minimize running timers" title="Minimize">▴</button>
+  <h2>Running Now</h2>
+  <div id="tmList"></div>
+  <p class="it-note" id="tmMore" hidden></p>
+  <a class="it-open" id="tmLink" href="/time-difference-calculator/">▶ Open calculator</a>
+</aside>
+
 <!-- UNFINISHED BUSINESS (top of the rail; hidden until the visitor has open tasks; filled by script) -->
 <button type="button" class="unfinished-launch" id="unfinishedOpen"
         aria-expanded="false" aria-controls="unfinishedPanel" hidden>
@@ -4349,6 +4362,12 @@
     <p>Log glucose and insulin, check your dose, and see your trends.</p>
   </a>
 
+  <a class="tool has-img" href="/time-difference-calculator/" data-added="2026-11-25" data-search="time difference calculator countdown days between two dates timer start end stopwatch trip left productivity calculator" data-category="productivity calculator">
+    <img class="tool-img" src="/images/card-images/time-difference-calculator.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
+    <h3>Time Difference &amp; Countdown</h3>
+    <p>Days between two dates, a live countdown to your trip, and a Start/End timer.</p>
+  </a>
+
   <a class="tool has-img" href="/time-converter/" data-search="time converter calculator" data-category="calculator">
     <img class="tool-img" src="/images/card-images/time-converter.webp" alt="" width="600" height="315" loading="lazy" decoding="async">
     <h3>Time Converter</h3>
@@ -4509,12 +4528,24 @@
   <p>
     © <span id="footerYear">2026</span> Ramesh Singh ·
     <a href="https://www.youtube.com/@v4vfx" target="_blank" rel="noopener">YouTube</a> ·
-    rameshverse · All rights reserved ·
+    <span id="rv-mail">contact [at] rameshverse [dot] com</span> · All rights reserved ·
     <a href="/privacy/">Privacy Policy</a> ·
     <a href="#" data-rv-cookie-settings>Cookie settings</a>
   </p>
- 
+
 </footer>
+<script>
+/* Contact email: built in the browser so scrapers reading raw HTML do not see it */
+(function(){
+  var e = document.getElementById('rv-mail');
+  if (!e) return;
+  var u = 'contact', d = 'rameshverse.com';
+  var a = document.createElement('a');
+  a.href = 'mailto:' + u + '@' + d;
+  a.textContent = u + '@' + d;
+  e.replaceWith(a);
+})();
+</script>
 
 <div id="systemLogTicker" aria-hidden="true"></div>
 
@@ -5473,7 +5504,7 @@
     games:        "GAMES"
   };
 
-  const CATEGORY_ORDER = ["science", "games", "finance", "calculator", "productivity", "geography", "health"];
+  const CATEGORY_ORDER = ["science", "games", "finance", "productivity", "calculator", "geography", "health"];
   const CATEGORY_COLORS = {
     science:      { accent: TERMINATOR_RED, title: "#ff3b3b" },   // red
     games:        { accent: "#b66bff",      title: "#c995ff" },   // purple
@@ -7199,6 +7230,7 @@
         if (!d || !Array.isArray(d.entries)) return null;
         const s = d.settings || {};
         return {
+          show: s.showHome !== false,   /* the tracker's "Show on home page" setting */
           mmol: s.unit === 'mmol',
           low: isFinite(+s.low) ? +s.low : 70,
           high: isFinite(+s.high) ? +s.high : 180,
@@ -7221,7 +7253,7 @@
 
     function render() {
       const d = readData();
-      hasData = !!(d && d.entries.length);
+      hasData = !!(d && d.show && d.entries.length);
       if (hasData) {
         const today = dayKey(Date.now());
         const todays = d.entries.filter(function (e) { return dayKey(+e.t) === today; });
@@ -7251,6 +7283,95 @@
     window.addEventListener('pageshow', render);
     window.addEventListener('storage', function (e) { if (!e.key || e.key === DATA_KEY) render(); });
     setInterval(function () { if (!document.hidden) render(); }, 60000);
+    render();
+  })();
+</script>
+<script>
+  /* ── RUNNING NOW PANEL ──
+     Right rail, directly above Unfinished Business. Shown only while the Time Difference Calculator has
+     a Start/End timer running or a saved countdown still to come. Reads that tool's own saved data
+     (localStorage "rv-timediff-v1": { running:{start,label}, countdowns:[{target,label}] }).
+     Only this visitor's own browser storage is read; nothing is sent anywhere. */
+  (function () {
+    const DATA_KEY = 'rv-timediff-v1';
+    const COLLAPSE_KEY = 'rvTimerPanelCollapsed';
+    const MAX_CD = 3;
+    const $ = function (id) { return document.getElementById(id); };
+    const panel = $('tmPanel'), launch = $('tmOpen'), closeBtn = $('tmClose'), badge = $('tmBadge');
+    const listEl = $('tmList'), moreEl = $('tmMore'), linkEl = $('tmLink');
+    if (!panel || !launch || !closeBtn || !badge || !listEl || !moreEl || !linkEl) return;
+
+    let running = null, cds = [], extra = 0, rows = [], timer = null;
+
+    function num(n) { return typeof n === 'number' && isFinite(n); }
+    function lab(s) { return typeof s === 'string' ? s.slice(0, 40) : ''; }
+    function read() {
+      let d = null;
+      try { d = JSON.parse(localStorage.getItem(DATA_KEY) || 'null'); } catch (e) { d = null; }
+      running = (d && d.running && num(d.running.start)) ? { start: d.running.start, label: lab(d.running.label) } : null;
+      const now = Date.now();
+      const all = (d && Array.isArray(d.countdowns) ? d.countdowns : [])
+        .filter(function (c) { return c && num(c.target) && c.target > now; })
+        .sort(function (a, b) { return a.target - b.target; });
+      cds = all.slice(0, MAX_CD).map(function (c) { return { target: c.target, label: lab(c.label) }; });
+      extra = all.length - cds.length;
+    }
+    function isCollapsed() { try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) { return false; } }
+    function setCollapsed(on) { try { localStorage.setItem(COLLAPSE_KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ } }
+
+    function two(n) { return n < 10 ? '0' + n : '' + n; }
+    function clock(ms) {
+      ms = Math.max(0, ms);
+      const t = Math.floor(ms / 1000), d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600);
+      const m = Math.floor(t % 3600 / 60), s = t % 60;
+      return (d ? d + 'd ' : '') + h + ':' + two(m) + ':' + two(s);
+    }
+    function tick() {
+      const now = Date.now();
+      let expired = false;
+      rows.forEach(function (r) {
+        if (r.kind === 'timer') r.el.textContent = clock(now - r.at);
+        else if (r.at <= now) expired = true;
+        else r.el.textContent = clock(r.at - now);
+      });
+      if (expired) { render(); return; }
+      if (rows.length) badge.textContent = rows[0].el.textContent;
+    }
+    function addRow(kind, name, at) {
+      const row = document.createElement('div'); row.className = 'it-stat';
+      const left = document.createElement('span'); left.textContent = (kind === 'timer' ? '▶ ' : '') + name;
+      const right = document.createElement('span');
+      const b = document.createElement('b'); right.appendChild(b);
+      row.appendChild(left); row.appendChild(right);
+      listEl.appendChild(row);
+      rows.push({ kind: kind, at: at, el: b });
+    }
+    function applyCollapsed() {
+      const c = isCollapsed(), on = rows.length > 0;
+      panel.hidden = !on || c;
+      launch.hidden = !on || !c;
+      launch.setAttribute('aria-expanded', c ? 'false' : 'true');
+    }
+    function render() {
+      read();
+      listEl.textContent = ''; rows = [];
+      if (running) addRow('timer', running.label || 'Timer', running.start);
+      cds.forEach(function (c) { addRow('countdown', c.label || 'Countdown', c.target); });
+      moreEl.hidden = extra <= 0;
+      moreEl.textContent = extra > 0 ? '+' + extra + ' more countdown' + (extra === 1 ? '' : 's') : '';
+      linkEl.href = '/time-difference-calculator/' + (running ? '#start-end' : cds.length ? '#countdown' : '');
+      linkEl.textContent = running ? '▶ Open timer' : '▶ Open countdown';
+      tick();
+      if (rows.length && !timer) timer = setInterval(function () { if (!document.hidden) tick(); }, 1000);
+      else if (!rows.length && timer) { clearInterval(timer); timer = null; }
+      applyCollapsed();
+    }
+
+    closeBtn.addEventListener('click', function () { setCollapsed(true); applyCollapsed(); });
+    launch.addEventListener('click',   function () { setCollapsed(false); applyCollapsed(); });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
+    window.addEventListener('pageshow', render);
+    window.addEventListener('storage', function (e) { if (!e.key || e.key === DATA_KEY) render(); });
     render();
   })();
 </script>

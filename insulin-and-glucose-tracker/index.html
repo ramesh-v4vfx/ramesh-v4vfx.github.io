@@ -90,6 +90,9 @@ details summary{cursor:pointer;font-weight:600;padding:6px 0}
 .grid>*{min-width:0}
 #toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,10px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:50}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+/* checkbox row */
+.chk{display:flex;align-items:flex-start;gap:12px;margin:14px 0 0;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer}
+.chk input{width:24px;height:24px;min-height:24px;flex:none;margin:1px 0 0;padding:0;accent-color:var(--brand)}
 /* every field the same size */
 input,select{min-height:52px;font-size:16px}
 select{-webkit-appearance:none;appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%2398a8b6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
@@ -272,6 +275,11 @@ select{-webkit-appearance:none;appearance:none;padding-right:40px;background-ima
       <p class="hint">Use the low and high limits your doctor gave you. Saved automatically on this device.</p>
     </div>
     <div class="card">
+      <h2>Home page</h2>
+      <label class="chk" for="sHome"><input type="checkbox" id="sHome"><span>Show my latest glucose and insulin totals on the RameshVerse home page</span></label>
+      <p class="hint">When this is off, nothing from this log appears on the home page. The numbers are read from this device only and are never uploaded.</p>
+    </div>
+    <div class="card">
       <h2>Your data</h2>
       <p class="muted" style="margin-top:0" id="storageMsg"></p>
       <div class="grid g2">
@@ -298,7 +306,7 @@ select{-webkit-appearance:none;appearance:none;padding-right:40px;background-ima
 (function(){
 "use strict";
 var K=18.016, KEY="insulinlog.v1";
-var state={settings:{unit:"mgdl",wunit:"kg",low:70,high:180},entries:[]};
+var state={settings:{unit:"mgdl",wunit:"kg",low:70,high:180,showHome:true},entries:[]};
 var storageOK=true, view="today", range=7, editingId=null;
 
 /* ---------- storage ---------- */
@@ -661,13 +669,13 @@ window.exportPDF=function(days){
 function dispOrBlank(mg){return mg==null?"":(isMmol()?(mg/K).toFixed(1):String(Math.round(mg)))}
 function fillSettings(){
   var s=state.settings;
-  $("sUnit").value=s.unit; $("sWUnit").value=s.wunit||"kg";
+  $("sUnit").value=s.unit; $("sWUnit").value=s.wunit||"kg"; $("sHome").checked=s.showHome!==false;
   $("sLow").value=dispOrBlank(s.low); $("sHigh").value=dispOrBlank(s.high);
   Array.prototype.forEach.call(document.querySelectorAll(".uLbl"),function(e){e.textContent=uName()});
 }
 function readSettings(){
   var s=state.settings, v;
-  s.unit=$("sUnit").value; s.wunit=$("sWUnit").value;
+  s.unit=$("sUnit").value; s.wunit=$("sWUnit").value; s.showHome=$("sHome").checked;
   v=num($("sLow").value); if(v>0) s.low=fromDisp(v);
   v=num($("sHigh").value); if(v>0) s.high=fromDisp(v);
   save();
@@ -770,7 +778,7 @@ $("entryForm").addEventListener("submit",function(ev){
   else{go("today");toast("Saved ✓");}
 });
 initTimePicker();
-["sUnit","sWUnit","sLow","sHigh"].forEach(function(id){
+["sUnit","sWUnit","sLow","sHigh","sHome"].forEach(function(id){
   $(id).addEventListener("change",function(){
     var unitChanged=id==="sUnit"; readSettings(); if(unitChanged) fillSettings(); render();
   });
