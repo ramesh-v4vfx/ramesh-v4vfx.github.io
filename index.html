@@ -4535,15 +4535,69 @@
 
 </footer>
 <script>
-/* Contact email: built in the browser so scrapers reading raw HTML do not see it */
+/* Contact popup: email is built in the browser so scrapers reading raw HTML do not see it.
+   Footer "Contact" opens a popup with Copy / Gmail / Mail-app options (no confusing mailto picker). */
 (function(){
   var e = document.getElementById('rv-mail');
   if (!e) return;
-  var u = 'contact', d = 'rameshverse.com';
+  var u = 'contact', d = 'rameshverse.com', EMAIL = u + '@' + d, SUBJECT = 'RameshVerse feedback';
+
   var a = document.createElement('a');
-  a.href = 'mailto:' + u + '@' + d;
-  a.textContent = u + '@' + d;
+  a.href = '#'; a.id = 'rvContactBtn'; a.textContent = 'Contact';
   e.replaceWith(a);
+
+  var css = document.createElement('style');
+  css.textContent =
+   '#rvContactOverlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:2147483000;padding:16px}'+
+   '#rvContactOverlay.open{display:flex}'+
+   '.rvc-box{width:100%;max-width:420px;background:#0d0506;border:1px solid #6b1414;border-radius:12px;padding:24px;box-shadow:0 0 40px rgba(220,40,40,.25);font-family:"Space Mono",ui-monospace,monospace;color:#ddd;position:relative}'+
+   '.rvc-title{color:#e03232;letter-spacing:.2em;font-size:13px;text-transform:uppercase;margin:0 0 6px}'+
+   '.rvc-sub{font-size:13px;color:#999;margin:0 0 18px}'+
+   '.rvc-email{display:block;text-align:center;padding:12px;border:1px dashed #6b1414;border-radius:8px;color:#fff;font-size:15px;margin-bottom:16px;user-select:all;word-break:break-all}'+
+   '.rvc-btn{display:block;box-sizing:border-box;width:100%;padding:12px;margin-bottom:10px;border-radius:8px;border:1px solid #6b1414;background:#1a0808;color:#eee;font:inherit;font-size:13px;letter-spacing:.08em;text-align:center;text-decoration:none;cursor:pointer;transition:.15s}'+
+   '.rvc-btn:hover{border-color:#e03232;background:#2a0b0b}'+
+   '.rvc-btn.primary{background:#8f1d1d;border-color:#e03232;color:#fff}'+
+   '.rvc-btn.done{background:#14532d;border-color:#22c55e}'+
+   '.rvc-note{font-size:11px;color:#777;text-align:center;margin:6px 0 0}'+
+   '.rvc-close{position:absolute;top:10px;right:14px;background:none;border:0;color:#999;font-size:22px;cursor:pointer}'+
+   '.rvc-close:hover{color:#fff}';
+  document.head.appendChild(css);
+
+  var ov = document.createElement('div');
+  ov.id = 'rvContactOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-labelledby','rvcTitle');
+  ov.innerHTML =
+   '<div class="rvc-box">'+
+   '<button class="rvc-close" type="button" aria-label="Close">&times;</button>'+
+   '<h3 class="rvc-title" id="rvcTitle">Contact</h3>'+
+   '<p class="rvc-sub">Feedback, bugs or ideas? Send me a message.</p>'+
+   '<span class="rvc-email"></span>'+
+   '<button class="rvc-btn primary" type="button" data-copy>COPY EMAIL</button>'+
+   '<a class="rvc-btn" data-gmail target="_blank" rel="noopener">OPEN IN GMAIL</a>'+
+   '<a class="rvc-btn" data-mail>OPEN MAIL APP</a>'+
+   '<p class="rvc-note">No mail app? Just copy the address and send from anywhere.</p>'+
+   '</div>';
+  document.body.appendChild(ov);
+
+  ov.querySelector('.rvc-email').textContent = EMAIL;
+  ov.querySelector('[data-gmail]').href = 'https://mail.google.com/mail/?view=cm&to=' + encodeURIComponent(EMAIL) + '&su=' + encodeURIComponent(SUBJECT);
+  ov.querySelector('[data-mail]').href  = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(SUBJECT);
+
+  function open(ev){ if (ev) ev.preventDefault(); ov.classList.add('open'); }
+  function close(){ ov.classList.remove('open'); }
+  a.addEventListener('click', open);
+  ov.querySelector('.rvc-close').addEventListener('click', close);
+  ov.addEventListener('click', function(ev){ if (ev.target === ov) close(); });
+  document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') close(); });
+
+  var cb = ov.querySelector('[data-copy]');
+  cb.addEventListener('click', function(){
+    function ok(){ cb.textContent = 'COPIED ✓'; cb.classList.add('done');
+      setTimeout(function(){ cb.textContent = 'COPY EMAIL'; cb.classList.remove('done'); }, 2000); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(EMAIL).then(ok, fallback);
+    else fallback();
+    function fallback(){ var t = document.createElement('textarea'); t.value = EMAIL; document.body.appendChild(t);
+      t.select(); try{ document.execCommand('copy'); }catch(x){} document.body.removeChild(t); ok(); }
+  });
 })();
 </script>
 
