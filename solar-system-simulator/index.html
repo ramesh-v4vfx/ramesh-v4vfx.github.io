@@ -580,6 +580,11 @@
   #main-star{max-width:190px;font-size:11px;padding:8px 10px;color-scheme:dark;cursor:pointer;background:rgba(5,6,8,.82);color:#ffd36a;border:1px dashed rgba(255,211,106,.6);}
   #main-star option{background:#0a0c10;color:#d8dde3;}
   #main-star.active{border-style:solid;border-color:#ffd36a;background:rgba(255,211,106,.12);}
+  #surf-vis{color:#ffd36a !important;border:1px solid #ffd36a !important;background:rgba(255,211,106,.1) !important;font-weight:700;letter-spacing:2px;box-shadow:0 0 12px rgba(255,211,106,.35);}
+  #surf-vis:hover{background:rgba(255,211,106,.25) !important;}
+  #surf-vis{position:fixed;z-index:83;font-size:10.5px;padding:8px 12px;white-space:nowrap;}
+  #toast.left,body.surf #toast.left{left:24px;top:50%;bottom:auto;transform:translateY(-50%);max-width:260px;text-align:left;line-height:1.6;}
+  body.surf #toast.left{left:130px;}
 </style>
 </head>
 <body>
@@ -670,6 +675,7 @@
   <button class="btn" id="btn-face" title="Turn back to the Sun (or Earth)">☀ RECENTRE</button>
 </div>
 <div id="surf-lat"><span>LATITUDE<br>N</span><input type="range" id="surf-lat-in" min="-90" max="90" step="1" value="0" aria-label="Latitude of the observer (up is north)"><span>S</span><b id="surf-lat-val"></b></div>
+<button class="btn" id="surf-vis" style="display:none" title="Change the observer's latitude so it rises above the horizon">▼ BELOW HORIZON · CHANGE LATITUDE TO VIEW</button>
 <div id="bino-hint"></div>
 <div id="bino" hidden>
   <svg id="bino-svg" aria-hidden="true"></svg>
@@ -1162,7 +1168,7 @@ function hideStarTip(){ if(starTip) starTip.style.display = 'none'; }
 })();
 
 // ---------- HUD pointer for the star you turned to: reticle + leader + label on screen, an edge arrow when it is out of view ----------
-let starMark = null, smSvg = null, smG = null, smArrow = null;
+let starMark = null, smSvg = null, smG = null, smArrow = null; const smBtn = {x:0, y:0, mode:0};     // where the 'change latitude' button goes, next to the marker
 const SMNS = 'http://www.w3.org/2000/svg';
 function smEl(parent, tag, attrs){ const e = document.createElementNS(SMNS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; }
 function setStarMark(st){
@@ -1228,6 +1234,7 @@ function updateStarMark(){
     if(st.kind){ smG.t2.textContent = (starBelowHorizon(smD) ? 'BELOW THE HORIZON · ' : '') + markKind(st); }
     else smG.t2.textContent = (starBelowHorizon(st.dir) ? 'BELOW THE HORIZON · ' : 'STAR · ') + st.con.toUpperCase();
     smG.ring.style.transformOrigin = cx + 'px ' + cy + 'px';
+    smBtn.mode = side > 0 ? 1 : 2; smBtn.x = lx; smBtn.y = below ? ky+54 : ky+24;
   } else {
     smG.setAttribute('visibility','hidden'); smArrow.setAttribute('visibility','visible');
     // direction from the centre of the screen towards the star (flipped when it is behind the viewer)
@@ -1236,6 +1243,7 @@ function updateStarMark(){
     const ang = Math.atan2(dy, dx), pad = 70, kx = (W/2-pad)/Math.max(1e-3,Math.abs(dx)), ky = (H/2-pad)/Math.max(1e-3,Math.abs(dy)), k = Math.min(kx, ky);
     const ax = W/2 + dx*k, ay = H/2 + dy*k;
     smArrow.setAttribute('transform', 'translate('+ax+','+ay+') rotate('+(ang*180/Math.PI+90)+')');
+    smBtn.mode = 3; smBtn.x = Math.max(190, Math.min(W-190, ax)); smBtn.y = Math.min(ay - 50, H - 215);
     const left = ax > W/2, tx = left ? -22 : 22;
     [smArrow.t1, smArrow.t2].forEach((t,i)=>{
       t.setAttribute('transform', 'rotate('+(-(ang*180/Math.PI+90))+')');           // keep the text upright
@@ -2578,7 +2586,7 @@ function autoPace(b){
   if(vLim < base - 0.4){
     if(paceSaved === null) paceSaved = base;
     const v = isE ? vLim : Math.max(0, Math.round(vLim*2)/2);
-    if(Math.abs(v - +speedEl.value) > 0.2){ speedEl.value = v; setSpeedFromSlider(v); showToast(isE ? 'EARTH · TIME SET TO ' + speedVal.textContent : 'TIME EASED TO ' + speedVal.textContent + ' · MOONS AND SPIN STAY WATCHABLE'); }
+    if(Math.abs(v - +speedEl.value) > 0.2){ speedEl.value = v; setSpeedFromSlider(v); showToast(isE ? 'EARTH · TIME SET TO ' + speedVal.textContent : 'TIME EASED TO ' + speedVal.textContent + ' · MOONS AND SPIN STAY WATCHABLE'); document.getElementById('toast').classList.add('left'); }
   } else if(paceSaved !== null){ restorePace(); }
 }
 function restorePace(){ paceSaved = null; }                                          // the eased speed simply stays: closing a card never changes the speed
@@ -2682,7 +2690,7 @@ dockToggle.addEventListener('click', ()=>setDock(!dockEl.classList.contains('ope
 renderer.domElement.addEventListener('pointerdown', ()=>{ if(isMobile() && dockEl.classList.contains('open')) setDock(false); });   // tap the sky to put the controls away
 let toastTimer = null;
 function showToast(msg){
-  const t = $('toast'); t.textContent = msg; t.classList.add('on');
+  const t = $('toast'); t.classList.remove('left'); t.textContent = msg; t.classList.add('on');
   clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('on'), 2600);
 }
 // the on-screen hint fades after the first touch / click
@@ -3314,7 +3322,38 @@ const fmtSigned = v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1);
 function fmtAng(rad){ const d = rad/DEG; return d >= 1 ? d.toFixed(2) + '°' : d >= 1/60 ? (d*60).toFixed(1) + '′' : (d*3600).toFixed(1) + '″'; }
 // ---- hint: a planet that is only a dot ----
 const binoBtn = $('btn-bino'), binoHint = $('bino-hint');
+// ---- a marked star or planet that is below the horizon: one button changes the observer's latitude until it rises ----
+const mvBtn = $('surf-vis'), _mvD = new THREE.Vector3(), _mvA = new THREE.Vector3(), _mvB = new THREE.Vector3(), _mvU = new THREE.Vector3(); let _mvShown = false;
+function markDirNow(out){ const m = (typeof starMark !== 'undefined') ? starMark : null; if(!m) return null; if(m.kind) m.worldPos(out).sub(camera.position).normalize(); else out.copy(m.dir); return out; }
+function updateMakeVis(){
+  let show = false; if(surf && markDirNow(_mvD)) show = starBelowHorizon(_mvD);
+  if(show !== _mvShown){ _mvShown = show; mvBtn.style.display = show ? '' : 'none'; }
+  if(show){                                                       // the button sits right beside the marker's label
+    const w = mvBtn.offsetWidth, x = smBtn.mode === 2 ? smBtn.x - w : smBtn.mode === 3 ? smBtn.x - w/2 : smBtn.x;
+    mvBtn.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x)) + 'px'; mvBtn.style.top = Math.max(8, Math.min(window.innerHeight - 50, smBtn.y)) + 'px';
+  }
+}
+function observerAt(Pole, altDeg, latDeg, out){                        // the same observer position the frame uses, for any latitude
+  const dS = Math.max(-1, Math.min(1, Pole.dot(sfS))), cd = Math.sqrt(1 - dS*dS);
+  _mvA.copy(sfS).addScaledVector(Pole, -dS); if(_mvA.lengthSq() < 1e-8) _mvA.set(1,0,0).addScaledVector(Pole, -Pole.x); _mvA.normalize(); _mvB.crossVectors(Pole, _mvA);
+  const phi = latDeg*DEG, den = Math.cos(phi)*cd; let cH = den > 1e-4 ? (Math.sin(altDeg*DEG) - Math.sin(phi)*dS)/den : 1; cH = Math.max(-1, Math.min(1, cH)); const sH = Math.sqrt(1 - cH*cH);
+  return out.copy(Pole).multiplyScalar(Math.sin(phi)).addScaledVector(_mvA, Math.cos(phi)*cH).addScaledVector(_mvB, -Math.cos(phi)*sH).normalize();
+}
+mvBtn.addEventListener('click', ()=>{
+  const s = surf, m = (typeof starMark !== 'undefined') ? starMark : null; if(!s || !m || !markDirNow(_mvD)) return;
+  const isSun = s.b.kind === 'sun', Pole = isSun ? sunPole() : (s.b.kind === 'moon' ? s.b.parent : s.b).pole, alt = isSun ? EARTH_ALT_DEG : SUN_ALT_DEG;
+  let best = null, bestEl = -2, bestNear = 1e9;
+  for(let la = -90; la <= 90; la++){
+    const el = _mvD.dot(observerAt(Pole, alt, la, _mvU));                                  // sine of the elevation of the target at this latitude
+    if(el > Math.sin(8*DEG)){ const dn = Math.abs(la - s.tlat); if(dn < bestNear){ bestNear = dn; best = la; } }
+    else if(best === null && el > bestEl){ bestEl = el; s._fallback = la; }
+  }
+  const la = best !== null ? best : s._fallback;
+  s.tlat = la; $('surf-lat-in').value = la; s.track = m;                                   // the view follows it up as the latitude eases over
+  showToast((m.name || '').toUpperCase() + ' NOW RISES · LATITUDE ' + Math.abs(la) + '° ' + (la > 0 ? 'N' : la < 0 ? 'S' : ''));
+});
 function updateBinoHint(){
+  updateMakeVis();
   const s = surf; let on = false, nm = '';
   if(s && !s.bino && s.track && s.track.kind && s.track.kind !== 'sun' && s.track.discPx !== undefined && s.track.discPx < 8 && s.track !== s.b){ on = true; nm = s.track.name; }
   binoBtn.classList.toggle('hint', on);
