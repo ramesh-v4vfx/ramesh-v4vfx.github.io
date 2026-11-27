@@ -380,6 +380,17 @@
     display:none;box-shadow:0 0 30px rgba(255,43,43,.18);
   }
   #tour.show{display:block;}
+  #starthl,#starthint{position:fixed;z-index:70;display:none;pointer-events:none;}
+  #starthl.show,#starthint.show{display:block;}
+  #starthl{border:1px solid var(--red);overflow:hidden;animation:shpulse 1.4s ease-in-out infinite;}
+  #starthl b{position:absolute;top:50%;left:-40px;width:26px;height:26px;margin-top:-13px;border-right:3px solid var(--red);border-top:3px solid var(--red);
+    transform:rotate(45deg) scale(.7);opacity:0;animation:shsweep 2.4s linear infinite;filter:drop-shadow(0 0 6px rgba(255,43,43,.9));}
+  #starthl b:nth-child(2){animation-delay:.25s;} #starthl b:nth-child(3){animation-delay:.5s;}
+  #starthint{transform:translateX(-50%);padding:6px 14px;font-size:11px;letter-spacing:3px;font-weight:700;color:var(--red);background:rgba(8,9,12,.94);border:1px solid var(--red);
+    box-shadow:0 0 18px rgba(255,43,43,.45),inset 0 0 10px rgba(255,43,43,.15);text-shadow:0 0 8px rgba(255,43,43,.7);animation:shbob 1.2s ease-in-out infinite;white-space:nowrap;}
+  @keyframes shpulse{0%,100%{box-shadow:0 0 0 rgba(255,43,43,0);}50%{box-shadow:0 0 18px rgba(255,43,43,.65),inset 0 0 12px rgba(255,43,43,.22);}}
+  @keyframes shsweep{0%{left:-40px;opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{left:100%;opacity:0;}}
+  @keyframes shbob{0%,100%{margin-top:0;}50%{margin-top:5px;}}
   #tour .tn{font-size:10px;letter-spacing:2px;color:var(--dim);}
   #tour .tt{margin:6px 0 8px;font-size:14px;letter-spacing:2px;color:var(--red);font-weight:700;}
   #tour .tb{font-size:12px;line-height:1.75;color:var(--text);}
@@ -659,6 +670,8 @@
 </div>
 
 <div id="tour-hl"></div>
+<div id="starthl"><b></b><b></b><b></b></div>
+<div id="starthint">&#9650; START HERE &middot; PICK A PLANET</div>
 <div id="tour">
   <div class="tn" id="tour-n"></div>
   <div class="tt" id="tour-t"></div>
@@ -2292,6 +2305,7 @@ function kindColor(b){
 }
 
 function selectBody(b){
+  hideStartHint();
   if(intro){ skipIntro(); glideRelease = false; }   // picking a body during the intro must not let go of it afterwards
   if(flight) endFlight(false);
   locked = b;
@@ -2844,6 +2858,7 @@ function showTourStep(){
 }
 function startTour(){
   if(tour.active) return;
+  hideStartHint();
   if(intro) skipIntro();
   tour.active = true; tour.demo = false; tour.i = surf ? TOUR_STEPS.findIndex(s=>s.surf) : 0;     // from the surface it starts at the surface steps
   $('tour').classList.add('show');
@@ -2857,6 +2872,30 @@ function closeTour(){
   if(isMobile()) setDock(false);
   try{ localStorage.setItem(TOUR_KEY, '1'); }catch(e){}
 }
+// ---------- FIRST VISIT: a pulsing frame with arrows sweeping along the planet menu and a START HERE flag, until the visitor picks something ----------
+const HINT_KEY = 'rv_solar_hint_v1';
+let hintOn = false;
+function placeStartHint(){
+  if(!hintOn) return;
+  const r = bodiesRow.getBoundingClientRect(), tb = $('topbar').getBoundingClientRect(), hl = $('starthl'), ht = $('starthint'), pad = 5;
+  hl.style.left = (r.left-pad)+'px'; hl.style.top = (r.top-pad)+'px'; hl.style.width = (r.width+pad*2)+'px'; hl.style.height = (r.height+pad*2)+'px';
+  ht.style.left = (r.left + r.width/2)+'px'; let bot = Math.max(r.bottom, $('cat-row').getBoundingClientRect().bottom); $('cat-row').querySelectorAll('*').forEach(e=>{ const q = e.getBoundingClientRect(); if(q.height > 0 && q.width > 0 && q.bottom < 220 && q.bottom > bot) bot = q.bottom; });
+  ht.style.top = (bot + 8)+'px';
+}
+function hideStartHint(){
+  if(!hintOn) return;
+  hintOn = false; $('starthl').classList.remove('show'); $('starthint').classList.remove('show');
+  try{ localStorage.setItem(HINT_KEY, '1'); }catch(e){}
+}
+function maybeStartHint(){
+  let seen = false;
+  try{ seen = localStorage.getItem(HINT_KEY) === '1'; }catch(e){}
+  if(/[?&]hint=1\b/.test(location.search)) seen = false;            // add ?hint=1 to the address to see it again
+  if(seen) return;
+  setTimeout(()=>{ if(tour.active || surf) return; hintOn = true; $('starthl').classList.add('show'); $('starthint').classList.add('show'); placeStartHint(); }, 900);
+}
+window.addEventListener('resize', placeStartHint);
+bodiesRow.addEventListener('scroll', placeStartHint);
 function maybeStartTour(){
   let seen = false;
   try{ seen = localStorage.getItem(TOUR_KEY) === '1'; }catch(e){}
@@ -3771,7 +3810,7 @@ setTimeout(()=>{
   const ld = $('loading');
   ld.style.transition = 'opacity .4s'; ld.style.opacity = '0';
   setTimeout(()=>ld.remove(), 450);
-  if(!sharedView){ camFocus.set(0,0,0); lockOffset.set(0,0,0); camRadius = targetRadius = 250000; camTheta = targetTheta = 0.9; camPhi = targetPhi = 1.309; startTextures(); maybeStartTour(); }
+  if(!sharedView){ camFocus.set(0,0,0); lockOffset.set(0,0,0); camRadius = targetRadius = 250000; camTheta = targetTheta = 0.9; camPhi = targetPhi = 1.309; startTextures(); maybeStartHint(); }
 }, 500);
 
 })();
