@@ -286,16 +286,20 @@
     font-size:9.5px;color:var(--dim);letter-spacing:1px;z-index:56;
     opacity:.85;pointer-events:none;max-width:300px;transition:opacity .5s;
   }
-  #creditsbtn{position:fixed;bottom:5px;left:calc(50% + 78px);z-index:57;background:none;border:0;font-family:inherit;font-size:9px;letter-spacing:2px;color:var(--dim);opacity:.55;cursor:pointer;padding:3px 6px;}
-  #creditsbtn:hover{opacity:1;color:#7fd6ff;}
-  #creditsbox{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);width:min(560px,92vw);box-sizing:border-box;z-index:90;display:none;background:rgba(6,8,12,.95);border:1px solid rgba(255,70,70,.55);padding:16px 22px 12px;font-size:10.5px;line-height:1.6;letter-spacing:.05em;color:#aab3c4;}
+  /* HELP and CREDITS: rounded pills with a round icon, so they read as "info" buttons, not controls */
+  #btn-tour,#surf-tour,#btn-credits,#surf-credits{border-radius:999px;padding:4px 11px 4px 8px !important;min-height:0 !important;height:auto !important;font-size:9px !important;line-height:1.3;font-weight:600;letter-spacing:.12em;align-self:center;width:auto;}
+  #btn-tour::before,#surf-tour::before,#btn-credits::before,#surf-credits::before{content:'?';display:inline-block;width:12px;height:12px;line-height:11px;margin-right:6px;border:1px solid currentColor;border-radius:50%;font-size:8px;text-align:center;vertical-align:0;letter-spacing:0;}
+  #btn-credits::before,#surf-credits::before{content:'©';}
+  #btn-tour,#surf-tour{background:rgba(79,216,255,.14);}
+  #btn-credits,#surf-credits{border-color:#4fd8ff;color:#4fd8ff;background:rgba(79,216,255,.14);}
+  #btn-credits:hover,#surf-credits:hover{background:rgba(79,216,255,.28);color:#fff;box-shadow:0 0 12px rgba(79,216,255,.45);}
+  #creditsbox{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,92vw);box-sizing:border-box;z-index:90;display:none;background:rgba(6,8,12,.95);border:1px solid rgba(255,70,70,.55);padding:16px 22px 12px;font-size:10.5px;line-height:1.6;letter-spacing:.05em;color:#aab3c4;}
   #creditsbox.show{display:block;}
   #creditsbox h4{margin:0 0 8px;font-size:10px;letter-spacing:.3em;color:#ff4d4d;font-weight:normal;}
   #creditsbox p{margin:0 0 8px;}
   #creditsbox b{color:#cfd8e8;letter-spacing:.14em;margin-right:6px;}
   #creditsbox a{color:#7fd6ff;}
   #creditsx{position:absolute;top:4px;right:10px;background:none;border:0;color:#aab3c4;font-size:18px;cursor:pointer;}
-  body.hud-hidden #creditsbtn{display:none;}
   #watermark{
     position:fixed;bottom:8px;left:50%;transform:translateX(-50%);
     font-size:9px;color:var(--dim);letter-spacing:2px;z-index:56;
@@ -678,7 +682,8 @@
   <button class="btn" id="surf-const">CONSTELLATIONS: OFF</button>
 </div>
 <div id="surf-br">
-  <button class="btn" id="surf-tour" title="Guided tour: how to use the surface view">? HELP</button>
+  <button class="btn" id="surf-credits" title="Data and image credits">CREDITS</button>
+  <button class="btn" id="surf-tour" title="Guided tour: how to use the surface view">HELP</button>
   <button class="btn" id="btn-face" title="Turn back to the Sun (or Earth)">☀ RECENTRE</button>
 </div>
 <div id="surf-lat"><span>LATITUDE<br>N</span><input type="range" id="surf-lat-in" min="-90" max="90" step="1" value="0" aria-label="Latitude of the observer (up is north)"><span>S</span><b id="surf-lat-val"></b></div>
@@ -704,7 +709,6 @@
 <div id="scale-note">TO SCALE — TRUE DISTANCES &amp; SIZES</div>
 <div id="scalebar"><div class="txt"></div><div class="bar"></div></div>
 <div id="watermark">rameshverse.com</div>
-<button id="creditsbtn" type="button">© CREDITS</button>
 <div id="creditsbox" role="dialog" aria-label="Data and image credits"><button id="creditsx" type="button" aria-label="Close">×</button>
 <h4>CREDITS</h4>
 <p><b>STARS</b> Bright Star Catalogue, 5th Rev. Ed. (Hoffleit &amp; Warren, Yale). Proper motion applied to 2026.9. Distances: Wikipedia.</p>
@@ -729,6 +733,7 @@
     <button class="btn" id="btn-const" title="Show / hide constellation lines and names">CONSTELLATIONS: OFF</button>
     <button class="btn" id="btn-reset">RESET</button>
     <button class="btn" id="btn-tour" title="Guided tour: how to use the simulator, surface view and stars">HELP</button>
+    <button class="btn" id="btn-credits" title="Data and image credits">CREDITS</button>
   </div>
 </div>
 <button class="btn" id="btn-showhud">SHOW HUD</button>
@@ -3450,7 +3455,7 @@ function updateOrbitLOD(){
 
 // ---------- KEYBOARD ----------
 
-$('creditsbtn').addEventListener('click', ()=>$('creditsbox').classList.toggle('show'));
+['btn-credits','surf-credits'].forEach(id=>$(id).addEventListener('click', ()=>$('creditsbox').classList.toggle('show')));
 $('creditsx').addEventListener('click', ()=>$('creditsbox').classList.remove('show'));
 window.addEventListener('keydown', e=>{
   if(intro){ skipIntro(); return; }
