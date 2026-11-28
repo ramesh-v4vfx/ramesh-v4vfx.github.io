@@ -9,396 +9,570 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="description" content="Free percentage change calculator for stocks, salary, rent, or any value. Enter an old and new value to instantly see the percent increase or decrease.">
+<meta name="description" content="Free percentage change calculator for stocks, salary, rent, or any value. Enter an old and new value to instantly see the percent increase or decrease, the difference, the multiple, and the annual growth rate.">
 
 <title>Percentage Change Calculator | rameshverse</title>
 
 <link rel="canonical" href="https://rameshverse.com/percentage-change-calculator">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
-
-  :root {
-    --bg: #0f172a;
-    --card: #020617;
-    --track: #1e293b;
-    --accent-a: #6366f1;
-    --accent-b: #a855f7;
-    --up: #22c55e;
-    --down: #ef4444;
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --error: #f87171;
-    --field: #0b1220;
-    --field-border: #1e293b;
+  :root{
+    --bg:#050505; --panel:rgba(11,8,8,.88); --line:#2a1616;
+    --red:#ff2b2b; --red-dim:#7a1414;
+    --text:#e8e2e2; --text-dim:#8a7a7a;
+    --up:#2bff88; --down:#ff2b2b; --error:#ff7a75;
+    --font:'Space Mono', ui-monospace, monospace;
   }
-
-  * { box-sizing: border-box; }
-
-  body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
+  /* starts at the top of the page */
+  body{min-height:100vh; padding:20px 16px 50px; position:relative; overflow-x:hidden;}
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; z-index:50;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      radial-gradient(circle at 15% -10%, rgba(99,102,241,0.15), transparent 45%),
-      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
-      var(--bg);
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    min-height: 100svh;
-    margin: 0;
-    padding: 16px;
+      repeating-linear-gradient(0deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      repeating-linear-gradient(90deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.09), transparent 60%);
   }
+  .wrap{max-width:560px; margin:0 auto; position:relative; z-index:1;}
 
-  .calculator {
-    background: var(--card);
-    padding: 24px;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    border: 1px solid rgba(148,163,184,0.08);
+  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px; gap:12px;}
+  .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
+  .back-link:hover{color:var(--red);}
+  .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  h1{font-size:21px; letter-spacing:3px; font-weight:700;}
+  h1 span{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .tagline{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); margin-top:6px;}
+  .status{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-align:right; white-space:nowrap;}
+  .status b{display:block; color:var(--red); font-size:11px; margin-top:3px;}
+  .status.up b{color:var(--up);}
+  .status.err b{color:var(--error);}
+  .status b::before{content:"● "; animation:blink 1.4s infinite;}
+  @keyframes blink{50%{opacity:.25;}}
+
+  .panel{position:relative; background:var(--panel); backdrop-filter:blur(3px); border:1px solid var(--line); padding:18px; margin-bottom:14px; animation:rise .5s ease both;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{position:absolute; width:10px; height:10px; border-color:var(--red); border-style:solid; opacity:.7;}
+  .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
+  .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
+  .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
+
+  .cur-row{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin:-2px 0 14px; font-size:10px; letter-spacing:1.5px; color:var(--text-dim);}
+  select{height:32px; padding:0 8px; background:#160d0d; border:1px solid var(--red-dim); color:var(--text); font-family:var(--font); font-size:12px; outline:none;}
+  select:focus{border-color:var(--red);}
+
+  /* ---------- Chart ---------- */
+  .trend{margin-bottom:14px;}
+  .trend-badge{text-align:center; margin-bottom:10px;}
+  .trend-badge-inner{display:inline-flex; align-items:center; gap:8px; font-size:16px; font-weight:700; padding:6px 16px; border:1px solid var(--line); background:rgba(15,10,10,.7); color:var(--text); letter-spacing:1px; transition:color .3s,border-color .3s;}
+  .trend-badge-inner .arrow{font-size:12px;}
+  .trend-badge-inner.up{color:var(--up); border-color:rgba(43,255,136,.45); text-shadow:0 0 10px rgba(43,255,136,.4);}
+  .trend-badge-inner.down{color:var(--down); border-color:rgba(255,43,43,.5); text-shadow:0 0 10px rgba(255,43,43,.4);}
+  .trend-chart{background:rgba(15,10,10,.7); border:1px solid var(--line); overflow:hidden;}
+  .trend-chart svg{width:100%; height:auto; display:block;}
+  .grid-line{stroke:rgba(255,43,43,.09); stroke-width:1;}
+  #trendArea{fill:rgba(138,122,122,.1); transition:fill .3s;}
+  #trendArea.up{fill:rgba(43,255,136,.1);} #trendArea.down{fill:rgba(255,43,43,.12);}
+  #trendLine{fill:none; stroke:var(--text-dim); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; transition:stroke .3s;}
+  #trendLine.up{stroke:var(--up);} #trendLine.down{stroke:var(--down);}
+  #trendDotOld,#trendDotNew{fill:var(--text-dim); transition:fill .3s;}
+  #trendDotNew.up{fill:var(--up);} #trendDotNew.down{fill:var(--down);}
+  .dot-label{font-size:10px; fill:var(--text-dim); font-family:var(--font); font-weight:700;}
+  .trend-labels{display:flex; justify-content:space-between; margin-top:6px; font-size:9px; letter-spacing:2px; color:var(--text-dim);}
+
+  /* ---------- Fields ---------- */
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px; min-width:0;}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  label{font-size:10px; letter-spacing:1.5px; color:var(--red); text-transform:uppercase;}
+  label .opt{color:var(--text-dim); letter-spacing:.5px; text-transform:none; font-size:10px;}
+  input{
+    width:100%; height:50px; padding:0 14px; background:#160d0d; border:1px solid var(--red-dim); border-left:3px solid var(--red);
+    color:#fff; font-family:var(--font); font-size:16px; outline:none;
+    box-shadow:inset 0 0 22px rgba(255,43,43,.07), 0 0 16px rgba(255,43,43,.08);
+    transition:border-color .15s, box-shadow .15s;
   }
+  input::placeholder{color:#7a5a5a;}
+  input:focus{border-color:var(--red); box-shadow:inset 0 0 22px rgba(255,43,43,.1), 0 0 24px rgba(255,43,43,.3);}
 
-  h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    text-align: center;
-    margin: 0 0 6px;
-    font-size: 20px;
-    font-weight: 600;
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .chip{padding:5px 10px; font-size:10px; letter-spacing:.5px; color:var(--text-dim); border:1px solid var(--line); background:transparent; cursor:pointer; font-family:var(--font);}
+  .chip:hover{color:var(--text); background:#1a0d0d;}
+
+  /* ---------- Buttons ---------- */
+  .btn-row{display:grid; grid-template-columns:1fr auto auto; gap:8px;}
+  button{font-family:var(--font); letter-spacing:1.5px; cursor:pointer; transition:all .15s;}
+  button:active{transform:translateY(1px);}
+  .primary{height:50px; border:1px solid var(--red-dim); background:linear-gradient(90deg,#3a0a0a,#5a1010); color:var(--text); font-size:13px; font-weight:700; box-shadow:0 0 22px rgba(255,43,43,.18);}
+  .primary:hover{background:linear-gradient(90deg,#5a1010,#8a1818); box-shadow:0 0 30px rgba(255,43,43,.4);}
+  .ghost{height:50px; padding:0 16px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .ghost:hover{background:var(--red-dim); color:var(--text);}
+  .copy-btn{width:100%; height:40px; margin-top:12px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .copy-btn:hover{background:var(--red-dim); color:var(--text);}
+  .copy-btn[hidden]{display:none;}
+
+  /* ---------- Results ---------- */
+  .result{margin-top:18px; text-align:center; font-size:26px; font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere; min-height:34px; letter-spacing:1px;}
+  .result.pop{animation:pop .35s ease;}
+  @keyframes pop{0%{transform:scale(.95); opacity:.4;}100%{transform:none; opacity:1;}}
+  .result-sub{text-align:center; font-size:11px; letter-spacing:.5px; color:var(--text-dim); margin-top:4px; min-height:16px; line-height:1.5; word-break:break-word;}
+  .positive{color:var(--up); text-shadow:0 0 14px rgba(43,255,136,.35);}
+  .negative{color:var(--down); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .error{color:var(--error); font-size:13px; font-weight:700; letter-spacing:1px;}
+
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;}
+  .stats[hidden]{display:none;}
+  .stat{border:1px solid var(--line); background:rgba(15,10,10,.7); padding:10px 12px; min-width:0;}
+  .stat span{display:block; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:5px; text-transform:uppercase;}
+  .stat b{font-size:15px; font-weight:700; word-break:break-word; overflow-wrap:anywhere;}
+  .hint{font-size:10.5px; color:var(--text-dim); margin-top:12px; line-height:1.55; text-align:center; min-height:16px; letter-spacing:.3px;}
+
+  .about{font-size:11px; color:var(--text-dim); line-height:1.6;}
+  .about strong{color:var(--text);}
+  .about .example{margin-top:10px; padding:10px 12px; background:rgba(15,10,10,.7); border:1px solid var(--line);}
+  footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+
+  @media (max-width:480px){
+    h1{font-size:16px; letter-spacing:2px;}
+    .row-2{grid-template-columns:1fr; gap:0;}
+    .result{font-size:21px;}
+    .status{display:none;}
+    .btn-row{grid-template-columns:1fr 1fr;}
+    .btn-row .primary{grid-column:1 / -1;}
   }
-
-  .subtitle {
-    text-align: center;
-    font-size: 13.5px;
-    color: var(--muted);
-    margin-bottom: 18px;
-    line-height: 1.4;
-  }
-
-  /* --- Signature element: trend sparkline from old value to new, with a live badge --- */
-  .trend {
-    margin-bottom: 20px;
-  }
-
-  .trend-badge {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .trend-badge-inner {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    padding: 5px 14px;
-    border-radius: 999px;
-    background: var(--field);
-    border: 1px solid var(--field-border);
-    color: var(--text);
-  }
-
-  .trend-badge-inner .arrow { font-size: 13px; }
-  .trend-badge-inner.up { color: var(--up); border-color: rgba(34,197,94,0.35); }
-  .trend-badge-inner.down { color: var(--down); border-color: rgba(239,68,68,0.35); }
-
-  .trend-chart {
-    width: 100%;
-    height: 76px;
-    background: var(--field);
-    border: 1px solid var(--field-border);
-    border-radius: 12px;
-    padding: 6px 0;
-  }
-
-  .trend-chart svg { width: 100%; height: 100%; display: block; }
-
-  #trendLine {
-    fill: none;
-    stroke: var(--muted);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transition: d 0.4s ease;
-  }
-
-  #trendLine.up { stroke: var(--up); }
-  #trendLine.down { stroke: var(--down); }
-
-  #trendDotOld, #trendDotNew {
-    fill: var(--muted);
-    transition: cx 0.4s ease, cy 0.4s ease, fill 0.4s ease;
-  }
-
-  #trendDotNew.up { fill: var(--up); }
-  #trendDotNew.down { fill: var(--down); }
-
-  .trend-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  label {
-    font-size: 13.5px;
-    color: #cbd5f5;
-  }
-
-  input {
-    width: 100%;
-    height: 50px;
-    padding: 0 14px;
-    border-radius: 12px;
-    border: 1px solid var(--field-border);
-    outline: none;
-    font-size: 16px;
-    background: var(--field);
-    color: var(--text);
-    font-family: 'Space Grotesk', sans-serif;
-    transition: border-color 0.2s;
-  }
-
-  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
-  input:focus { border-color: var(--accent-a); }
-
-  button {
-    width: 100%;
-    height: 52px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
-    color: white;
-    margin-top: 4px;
-    font-family: 'Inter', sans-serif;
-  }
-
-  button:active { transform: scale(0.98); }
-
-  #resetBtn {
-    margin-top: 10px;
-    background: var(--field);
-    border: 1px solid var(--field-border);
-    font-size: 13.5px;
-    font-weight: 500;
-    height: 42px;
-    color: var(--muted);
-  }
-
-  #resetBtn:hover { background: #131c2e; }
-
-  .result {
-    margin-top: 16px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.4;
-    word-break: break-word;
-    min-height: 22px;
-  }
-
-  .positive { color: var(--up); }
-  .negative { color: var(--down); }
-  .error { color: var(--error); font-size: 14px; font-weight: 500; }
-
-  .about {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(148,163,184,0.12);
-    font-size: 12.5px;
-    color: var(--muted);
-    line-height: 1.55;
-  }
-
-  .about strong { color: #cbd5f5; }
-
-  .about .example {
-    margin-top: 8px;
-    padding: 10px 12px;
-    background: var(--field);
-    border-radius: 10px;
-    border: 1px solid var(--field-border);
+  @media (prefers-reduced-motion:reduce){
+    .panel,.status b::before,.result.pop{animation:none;}
   }
 </style>
 </head>
 
 <body>
 
-  <div class="calculator">
-    <h1>📈 Percentage Change</h1>
-    <div class="subtitle">Increase / Decrease (Stock Market)</div>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
+      <div class="brand">RAMESHVERSE // RV·PERCENT</div>
+      <h1>PERCENTAGE <span>CHANGE</span></h1>
+      <div class="tagline">INCREASE / DECREASE // STOCKS · SALARY · RENT</div>
+    </div>
+    <div class="status" id="status">SYSTEM<b id="statusText">AWAITING INPUT</b></div>
+  </header>
 
-    <div class="trend">
-      <div class="trend-badge">
-        <span class="trend-badge-inner" id="trendBadge">
-          <span class="arrow" id="trendArrow">→</span>
-          <span id="trendBadgeText">— % change</span>
-        </span>
-      </div>
-      <div class="trend-chart">
-        <svg viewBox="0 0 300 76" preserveAspectRatio="none">
-          <polyline id="trendLine" points="30,38 270,38" />
-          <circle id="trendDotOld" cx="30" cy="38" r="5" />
-          <circle id="trendDotNew" cx="270" cy="38" r="5" />
-        </svg>
-      </div>
-      <div class="trend-labels">
-        <span>Old</span>
-        <span>New</span>
-      </div>
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+
+    <div class="cur-row" id="curRow">
+      <label for="currency" style="color:var(--text-dim)">Currency</label>
+      <select id="currency" aria-label="Currency symbol">
+        <option value="">None</option>
+        <option value="₹">₹ Rupee</option>
+        <option value="$">$ Dollar</option>
+        <option value="€">€ Euro</option>
+        <option value="£">£ Pound</option>
+      </select>
     </div>
 
-    <div class="field">
-      <label for="oldValue">Old Value (Buy / Previous)</label>
-      <input
-        type="number"
-        id="oldValue"
-        inputmode="decimal"
-        placeholder="e.g. 100"
-      >
-    </div>
+    <!-- ===== PANE 1: % CHANGE ===== -->
+    <section id="paneChange">
+      <div class="trend">
+        <div class="trend-badge">
+          <span class="trend-badge-inner" id="trendBadge">
+            <span class="arrow" id="trendArrow">→</span>
+            <span id="trendBadgeText">— % change</span>
+          </span>
+        </div>
+        <div class="trend-chart">
+          <svg viewBox="0 0 300 96" aria-hidden="true">
+            <line class="grid-line" x1="0" y1="24" x2="300" y2="24"/>
+            <line class="grid-line" x1="0" y1="48" x2="300" y2="48"/>
+            <line class="grid-line" x1="0" y1="72" x2="300" y2="72"/>
+            <path id="trendArea" d="M30,56 L270,56 L270,92 L30,92 Z" />
+            <polyline id="trendLine" points="30,56 270,56" />
+            <circle id="trendDotOld" cx="30" cy="56" r="5" />
+            <circle id="trendDotNew" cx="270" cy="56" r="5" />
+            <text id="lblOld" class="dot-label" x="14" y="40" text-anchor="start"></text>
+            <text id="lblNew" class="dot-label" x="286" y="40" text-anchor="end"></text>
+          </svg>
+        </div>
+        <div class="trend-labels"><span>OLD</span><span>NEW</span></div>
+      </div>
 
-    <div class="field">
-      <label for="newValue">New Value (Current)</label>
-      <input
-        type="number"
-        id="newValue"
-        inputmode="decimal"
-        placeholder="e.g. 150"
-      >
-    </div>
+      <div class="chips" id="chipsChange">
+        <button type="button" class="chip" data-o="100" data-n="135">STOCK +35%</button>
+        <button type="button" class="chip" data-o="50000" data-n="55000">SALARY HIKE</button>
+        <button type="button" class="chip" data-o="100" data-n="50">HALVED</button>
+      </div>
 
-    <button onclick="calculateChange()">Calculate</button>
-    <button type="button" id="resetBtn" onclick="resetCalculator()">Reset</button>
+      <div class="row-2">
+        <div class="field">
+          <label for="oldValue">Old value (buy / previous)</label>
+          <input type="number" id="oldValue" inputmode="decimal" step="any" placeholder="e.g. 100">
+        </div>
+        <div class="field">
+          <label for="newValue">New value (current)</label>
+          <input type="number" id="newValue" inputmode="decimal" step="any" placeholder="e.g. 150">
+        </div>
+      </div>
 
-    <div class="result" id="result"></div>
+      <div class="field">
+        <label for="years">Over how many years? <span class="opt">(optional, gives yearly growth)</span></label>
+        <input type="number" id="years" inputmode="decimal" step="any" min="0" placeholder="e.g. 3">
+      </div>
 
+      <div class="btn-row">
+        <button class="primary" onclick="calculateChange(true)">CALCULATE</button>
+        <button type="button" class="ghost" id="swapBtn" title="Swap old and new values" onclick="swapValues()">⇄ SWAP</button>
+        <button type="button" class="ghost" id="resetBtn" onclick="resetCalculator()">RESET</button>
+      </div>
+
+      <div class="result" id="result" aria-live="polite"></div>
+      <div class="result-sub" id="resultSub"></div>
+
+      <div class="stats" id="stats" hidden>
+        <div class="stat"><span>Difference</span><b id="stDiff">–</b></div>
+        <div class="stat"><span>Multiple</span><b id="stMult">–</b></div>
+        <div class="stat"><span>To get back to old value</span><b id="stRev">–</b></div>
+        <div class="stat"><span>Per year (CAGR)</span><b id="stCagr">–</b></div>
+      </div>
+
+      <div class="hint" id="changeHint"></div>
+      <button type="button" class="copy-btn" id="copyBtn" hidden>COPY RESULT</button>
+    </section>
+
+  </div>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
     <div class="about">
       <strong>What this does:</strong> it tells you how much a value went up or down, as a percentage of where it started — the same math behind stock returns, price hikes, and growth rates.
       <div class="example">
         <strong>Example:</strong> you bought a stock at ₹100 and it's now trading at ₹135. Old Value = 100, New Value = 135 → <strong>+35% change</strong>. The same formula works for salary hikes, rent increases, or a drop in weight.
       </div>
+      <div class="example">
+        <strong>Why “to get back” matters:</strong> a 50% fall needs a 100% rise to recover. Percentages are always measured from a different starting point, so gains and losses are not symmetrical.
+      </div>
     </div>
   </div>
 
-  <script>
-    function updateTrend(oldVal, newVal, rounded) {
-      const trendLine = document.getElementById("trendLine");
-      const dotOld = document.getElementById("trendDotOld");
-      const dotNew = document.getElementById("trendDotNew");
-      const badge = document.getElementById("trendBadge");
-      const arrow = document.getElementById("trendArrow");
+  <footer>RAMESHVERSE.COM</footer>
+</div>
 
-      const magnitude = Math.max(Math.abs(oldVal), Math.abs(newVal)) || 1;
-      const yFor = (v) => 66 - (Math.abs(v) / magnitude) * 56; // 10 (top) .. 66 (bottom)
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const MINUS = "−";
+    const MAX_DIGITS_NOTE = "Number too large";
+
+    // ---------- helpers ----------
+    // Empty or unreadable input comes back as NaN; the browser already blocks letters in number fields.
+    function num(el) {
+      const raw = el.value.trim();
+      if (raw === "") return NaN;
+      return Number(raw);
+    }
+
+    // The browser blanks a number field that holds something unreadable (like 1e400); validity tells us it was typed
+    function badInput(el) { return !!(el.validity && el.validity.badInput); }
+    const BAD_NOTE = "Enter a valid number (too large or malformed)";
+
+    // Very large or very tiny numbers switch to short scientific form so they never break the layout
+    function fmtNum(x, max) {
+      if (!Number.isFinite(x)) return x > 0 ? "∞" : x < 0 ? MINUS + "∞" : "–";
+      const a = Math.abs(x);
+      if (a >= 1e15 || (a > 0 && a < 1e-6)) return x.toExponential(3).replace("e+", "e");
+      return x.toLocaleString("en-US", { maximumFractionDigits: max == null ? 3 : max });
+    }
+
+    function cur() { return $("currency").value; }
+
+    function fmtMoney(x) {
+      if (!Number.isFinite(x)) return "–";
+      const sign = x < 0 ? MINUS : "";
+      const a = Math.abs(x);
+      if (a > 0 && a < 0.01) return sign + cur() + "<0.01";
+      return sign + cur() + fmtNum(a, 2);
+    }
+
+    function fmtSignedMoney(x) {
+      if (!Number.isFinite(x)) return "–";
+      if (x === 0) return cur() + "0";
+      const a = Math.abs(x);
+      const body = a < 0.01 ? "<0.01" : fmtNum(a, 2);
+      return (x > 0 ? "+" : MINUS) + cur() + body;
+    }
+
+    // A real change that rounds to 0.000% is shown as "<0.001%", never as a false "0%"
+    function fmtPct(x, signed) {
+      if (!Number.isFinite(x)) return "–";
+      const r = Number(x.toFixed(3));
+      if (r === 0) {
+        if (x === 0) return "0%";
+        return (x > 0 ? (signed ? "+" : "") : MINUS) + "<0.001%";
+      }
+      const sign = r > 0 ? (signed ? "+" : "") : MINUS;
+      return sign + fmtNum(Math.abs(r), 3) + "%";
+    }
+
+    function setResult(el, html, cls) {
+      el.innerHTML = cls ? `<span class="${cls}">${html}</span>` : html;
+      el.classList.remove("pop");
+      void el.offsetWidth;
+      el.classList.add("pop");
+    }
+
+    function flashError(el, msg) {
+      el.innerHTML = `<span class="error">${msg}</span>`;
+    }
+
+    function setStatus(text, kind) {
+      $("statusText").textContent = text;
+      $("status").classList.remove("up", "err");
+      if (kind) $("status").classList.add(kind);
+    }
+
+    // ---------- currency memory ----------
+    try {
+      const saved = localStorage.getItem("rv_pct_currency");
+      if (saved !== null) $("currency").value = saved;
+    } catch (e) {}
+    $("currency").addEventListener("change", () => {
+      try { localStorage.setItem("rv_pct_currency", $("currency").value); } catch (e) {}
+      calculateChange(false);
+    });
+
+    // ================= PANE 1: % CHANGE =================
+    function updateTrend(oldVal, newVal, dir) {
+      const trendLine = $("trendLine");
+      const area = $("trendArea");
+      const dotOld = $("trendDotOld");
+      const dotNew = $("trendDotNew");
+      const badge = $("trendBadge");
+      const arrow = $("trendArrow");
+
+      // Scale between the two real values (handles negatives; falls back to flat if the span overflows)
+      const lo = Math.min(oldVal, newVal);
+      const hi = Math.max(oldVal, newVal);
+      const span = hi - lo;
+      const yFor = (v) => {
+        if (!Number.isFinite(span) || span === 0) return 56;
+        const y = 74 - ((v - lo) / span) * 40; // 34 (top) .. 74 (bottom)
+        return Number.isFinite(y) ? y : 56;
+      };
 
       const yOld = yFor(oldVal);
       const yNew = yFor(newVal);
 
       trendLine.setAttribute("points", `30,${yOld} 270,${yNew}`);
+      area.setAttribute("d", `M30,${yOld} L270,${yNew} L270,92 L30,92 Z`);
       dotOld.setAttribute("cy", yOld);
       dotNew.setAttribute("cy", yNew);
 
-      trendLine.classList.remove("up", "down");
-      dotNew.classList.remove("up", "down");
-      badge.classList.remove("up", "down");
+      const lblOld = $("lblOld"), lblNew = $("lblNew");
+      lblOld.textContent = cur() + fmtNum(oldVal, 2);
+      lblNew.textContent = cur() + fmtNum(newVal, 2);
+      lblOld.setAttribute("y", Math.max(12, yOld - 12));
+      lblNew.setAttribute("y", Math.max(12, yNew - 12));
 
-      if (rounded > 0) {
-        trendLine.classList.add("up");
-        dotNew.classList.add("up");
-        badge.classList.add("up");
+      [trendLine, area, dotNew, badge].forEach((el) => el.classList.remove("up", "down"));
+
+      if (dir > 0) {
+        [trendLine, area, dotNew, badge].forEach((el) => el.classList.add("up"));
         arrow.textContent = "▲";
-      } else if (rounded < 0) {
-        trendLine.classList.add("down");
-        dotNew.classList.add("down");
-        badge.classList.add("down");
+      } else if (dir < 0) {
+        [trendLine, area, dotNew, badge].forEach((el) => el.classList.add("down"));
         arrow.textContent = "▼";
       } else {
         arrow.textContent = "→";
       }
     }
 
-    function calculateChange() {
-      const oldInput = document.getElementById("oldValue");
-      const newInput = document.getElementById("newValue");
-      const oldVal = Number(oldInput.value);
-      const newVal = Number(newInput.value);
-      const resultDiv = document.getElementById("result");
-      const badgeText = document.getElementById("trendBadgeText");
+    let lastSummary = "";
 
-      if (oldInput.value.trim() === "" || newInput.value.trim() === "" ||
-          Number.isNaN(oldVal) || Number.isNaN(newVal)) {
-        resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
+    function resetTrendVisual() {
+      $("trendBadgeText").textContent = "— % change";
+      $("trendArrow").textContent = "→";
+      [$("trendBadge"), $("trendLine"), $("trendArea"), $("trendDotNew")].forEach((el) => el.classList.remove("up", "down"));
+      $("trendLine").setAttribute("points", "30,56 270,56");
+      $("trendArea").setAttribute("d", "M30,56 L270,56 L270,92 L30,92 Z");
+      $("trendDotOld").setAttribute("cy", 56);
+      $("trendDotNew").setAttribute("cy", 56);
+      $("lblOld").textContent = "";
+      $("lblNew").textContent = "";
+    }
+
+    function clearChangeOutput() {
+      $("result").textContent = "";
+      $("resultSub").textContent = "";
+      $("stats").hidden = true;
+      $("copyBtn").hidden = true;
+      $("changeHint").textContent = "";
+      lastSummary = "";
+      resetTrendVisual();
+      setStatus("AWAITING INPUT");
+    }
+
+    function changeError(msg) {
+      clearChangeOutput();
+      flashError($("result"), msg);
+      setStatus("INPUT ERROR", "err");
+    }
+
+    // showErr = true when CALCULATE was pressed; while typing we stay quiet about missing values
+    function calculateChange(showErr) {
+      const oldVal = num($("oldValue"));
+      const newVal = num($("newValue"));
+
+      if (badInput($("oldValue")) || badInput($("newValue")) || badInput($("years"))) {
+        changeError(BAD_NOTE);
+        return;
+      }
+
+      if (Number.isNaN(oldVal) || Number.isNaN(newVal)) {
+        if (showErr) {
+          changeError("Please enter both values");
+        } else if ($("oldValue").value.trim() === "" || $("newValue").value.trim() === "") {
+          clearChangeOutput();
+        }
+        return;
+      }
+
+      if (!Number.isFinite(oldVal) || !Number.isFinite(newVal)) {
+        changeError(MAX_DIGITS_NOTE);
         return;
       }
 
       if (oldVal === 0) {
-        resultDiv.innerHTML = "<span class='error'>Old value cannot be zero</span>";
+        changeError("Old value cannot be zero");
         return;
       }
 
-      const rawChange = ((newVal - oldVal) / oldVal) * 100;
-      const rounded = Number(rawChange.toFixed(3));
+      const diff = newVal - oldVal;
+      // Dividing by |old| keeps the sign meaningful when the old value is negative
+      const raw = (diff / Math.abs(oldVal)) * 100;
 
-      const sign = rounded > 0 ? "+" : rounded < 0 ? "−" : "";
-      const value = parseFloat(Math.abs(rounded).toFixed(3)).toString();
-      const label = `${sign}${value}% Change`;
-
-      updateTrend(oldVal, newVal, rounded);
-
-      if (rounded > 0) {
-        resultDiv.innerHTML = `<span class="positive">${label}</span>`;
-      } else if (rounded < 0) {
-        resultDiv.innerHTML = `<span class="negative">${label}</span>`;
-      } else {
-        resultDiv.textContent = "0% Change";
+      if (!Number.isFinite(diff) || !Number.isFinite(raw)) {
+        changeError("Result too large to show");
+        return;
       }
 
-      badgeText.textContent = label;
+      const dir = Math.sign(raw); // direction comes from the true change, not the rounded one
+      updateTrend(oldVal, newVal, dir);
+
+      const label = dir === 0 ? "0% Change" : `${fmtPct(raw, true)} Change`;
+      setResult($("result"), label, dir > 0 ? "positive" : dir < 0 ? "negative" : "");
+      $("trendBadgeText").textContent = label;
+      setStatus(dir > 0 ? "GAIN DETECTED" : dir < 0 ? "LOSS DETECTED" : "NO CHANGE", dir > 0 ? "up" : dir < 0 ? "err" : "");
+
+      const word = dir > 0 ? "increase" : "decrease";
+      $("resultSub").textContent = dir === 0
+        ? "The value did not change"
+        : fmtMoney(oldVal) === fmtMoney(newVal)
+          ? `A tiny ${word}: both values look the same once rounded`
+          : `${dir > 0 ? "An" : "A"} ${word} of ${fmtMoney(Math.abs(diff))} from ${fmtMoney(oldVal)} to ${fmtMoney(newVal)}`;
+
+      // ----- stats -----
+      $("stDiff").textContent = fmtSignedMoney(diff);
+      $("stDiff").className = diff > 0 ? "positive" : diff < 0 ? "negative" : "";
+
+      const mult = newVal / oldVal;
+      $("stMult").textContent = oldVal > 0 && newVal >= 0 && Number.isFinite(mult) ? fmtNum(mult, 3) + "×" : "–";
+
+      // Percentage needed to return from the new value to the old one
+      let back = NaN;
+      if (newVal !== 0 && diff !== 0) back = ((oldVal - newVal) / Math.abs(newVal)) * 100;
+      if (Number.isFinite(back)) {
+        $("stRev").textContent = fmtPct(back, true);
+        $("stRev").className = back > 0 ? "positive" : "negative";
+      } else {
+        $("stRev").textContent = "–";
+        $("stRev").className = "";
+      }
+
+      // Yearly growth (CAGR) needs a positive time span and two positive values
+      const years = num($("years"));
+      let cagr = NaN;
+      if (years > 0 && oldVal > 0 && newVal > 0) cagr = (Math.pow(newVal / oldVal, 1 / years) - 1) * 100;
+      if (Number.isFinite(cagr)) {
+        $("stCagr").textContent = fmtPct(cagr, true);
+        $("stCagr").className = cagr > 0 ? "positive" : cagr < 0 ? "negative" : "";
+      } else {
+        $("stCagr").textContent = "–";
+        $("stCagr").className = "";
+      }
+      $("stats").hidden = false;
+
+      // ----- one helpful note at most -----
+      let hint = "";
+      if ($("years").value.trim() !== "" && !(years > 0)) {
+        hint = "Years must be greater than zero for yearly growth.";
+      } else if (years > 0 && !(oldVal > 0 && newVal > 0)) {
+        hint = "Yearly growth needs both values above zero.";
+      } else if (newVal === 0 && diff !== 0) {
+        hint = "A fall to zero can't be recovered by any percentage.";
+      } else if (oldVal < 0) {
+        hint = "The old value is negative, so the change is measured against its size (absolute value).";
+      } else if (dir < 0 && Number.isFinite(back) && raw <= -20) {
+        hint = `A ${fmtPct(Math.abs(raw))} fall needs a ${fmtPct(back)} rise to get back to ${fmtMoney(oldVal)}.`;
+      }
+      $("changeHint").textContent = hint;
+
+      lastSummary = `${fmtMoney(oldVal)} → ${fmtMoney(newVal)}: ${label} (${fmtSignedMoney(diff)})`;
+      $("copyBtn").hidden = false;
     }
 
     function resetCalculator() {
-      document.getElementById("oldValue").value = "";
-      document.getElementById("newValue").value = "";
-      document.getElementById("result").textContent = "";
-      document.getElementById("trendBadgeText").textContent = "— % change";
-      document.getElementById("trendArrow").textContent = "→";
-
-      const badge = document.getElementById("trendBadge");
-      const trendLine = document.getElementById("trendLine");
-      const dotNew = document.getElementById("trendDotNew");
-
-      badge.classList.remove("up", "down");
-      trendLine.classList.remove("up", "down");
-      dotNew.classList.remove("up", "down");
-
-      trendLine.setAttribute("points", "30,38 270,38");
-      document.getElementById("trendDotOld").setAttribute("cy", 38);
-      dotNew.setAttribute("cy", 38);
-
-      document.getElementById("oldValue").focus();
+      ["oldValue", "newValue", "years"].forEach((id) => { $(id).value = ""; });
+      clearChangeOutput();
+      $("oldValue").focus();
     }
 
-    // Allow Enter key from either field to trigger calculation
-    ["oldValue", "newValue"].forEach(id => {
-      document.getElementById(id).addEventListener("keydown", (e) => {
-        if (e.key === "Enter") calculateChange();
+    function swapValues() {
+      const o = $("oldValue").value;
+      $("oldValue").value = $("newValue").value;
+      $("newValue").value = o;
+      calculateChange(false);
+    }
+
+    // live results while typing + Enter key
+    ["oldValue", "newValue", "years"].forEach((id) => {
+      $(id).addEventListener("input", () => calculateChange(false));
+      $(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculateChange(true);
       });
     });
+
+    document.querySelectorAll("#chipsChange .chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        $("oldValue").value = chip.dataset.o;
+        $("newValue").value = chip.dataset.n;
+        calculateChange(true);
+      });
+    });
+
+    $("copyBtn").addEventListener("click", () => {
+      if (!lastSummary) return;
+      const done = () => {
+        const b = $("copyBtn");
+        const t = b.textContent;
+        b.textContent = "COPIED";
+        setTimeout(() => { b.textContent = t; }, 1200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lastSummary).then(done, () => {});
+      } else {
+        done();
+      }
+    });
+
   </script>
 
   <script src="/libraries/config.js"></script>

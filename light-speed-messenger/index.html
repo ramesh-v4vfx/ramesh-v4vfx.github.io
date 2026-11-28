@@ -8,133 +8,297 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Send a message at the speed of light to the Moon, planets, or distant stars, and see the real light-delay time for it to arrive and a reply to return.">
+<meta property="og:title" content="Light-Speed Messenger // RameshVerse">
+<meta property="og:description" content="Send a message across space at the speed of light. See the real delay, the arrival date and the reply.">
+<meta property="og:type" content="website">
 
 <title>LIGHT-SPEED MESSENGER // RV·LIGHTSPEED</title>
 
 <link rel="canonical" href="https://rameshverse.com/light-speed-messenger">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.js"></script>
 <style>
   :root{
-    --bg:#050505; --panel:#0b0b0b; --line:#241414;
-    --red:#ff2b2b; --red-dim:#7a1414;
+    --bg:#050505; --panel:rgba(11,8,8,.84); --line:#2a1616;
+    --red:#ff2b2b; --red-dim:#7a1414; --red-glow:rgba(255,43,43,.35);
     --text:#e8e2e2; --text-dim:#8a7a7a;
-    --go:#2bff88;
-    --font:'Space Mono', monospace;
+    --go:#2bff88; --go-dim:#127a41;
+    --font:'Space Mono', ui-monospace, monospace;
   }
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
-  body{min-height:100vh; padding:20px 16px 50px; position:relative;}
+  body{min-height:100vh; padding:20px 16px 50px; position:relative; overflow-x:hidden;}
   body::before{
     content:""; position:fixed; inset:0;
     background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
     pointer-events:none; z-index:50;
   }
-  .wrap{max-width:700px; margin:0 auto; position:relative;}
+  #stars{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none;}
+  .wrap{max-width:740px; margin:0 auto; position:relative; z-index:1;}
+
   header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px;}
   .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
   .back-link:hover{color:var(--red);}
   .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
-  h1{font-size:20px; letter-spacing:4px; font-weight:700;}
-  h1 span{color:var(--red);}
-  .clock{font-size:11px; color:var(--text-dim); text-align:right; letter-spacing:1px;}
+  h1{font-size:22px; letter-spacing:4px; font-weight:700;}
+  h1 span{color:var(--red); text-shadow:0 0 14px var(--red-glow);}
+  .tagline{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); margin-top:6px;}
+  .clock{font-size:12px; color:var(--text); text-align:right; letter-spacing:1px; font-variant-numeric:tabular-nums;}
+  .clock small{display:block; font-size:9px; color:var(--text-dim); letter-spacing:1.5px; margin-top:3px;}
+  .sound-btn{margin-top:8px; width:auto; padding:4px 8px; font-size:9px; letter-spacing:1.5px;}
 
-  .panel{position:relative; background:var(--panel); border:1px solid var(--line); padding:18px; margin-bottom:14px;}
-  .panel .tl,.panel .tr,.panel .bl,.panel .br{content:""; position:absolute; width:10px; height:10px; border-color:var(--red-dim); border-style:solid;}
+  .panel{position:relative; background:var(--panel); backdrop-filter:blur(3px); border:1px solid var(--line); padding:18px; margin-bottom:14px; animation:rise .5s ease both;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{position:absolute; width:10px; height:10px; border-color:var(--red); border-style:solid; opacity:.7;}
   .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
   .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
   .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
   .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
-  .label{font-size:10px; letter-spacing:2px; color:var(--text-dim); margin-bottom:8px;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
 
-  select, textarea{width:100%; background:#0f0a0a; border:1px solid var(--line); color:var(--text); font-family:var(--font); font-size:13px; padding:10px; resize:vertical;}
-  select:focus, textarea:focus{outline:1px solid var(--red-dim);}
-  textarea{min-height:70px;}
   .field{margin-bottom:14px;}
-  .field label{display:block; font-size:9px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:6px;}
+  .field label{display:flex; justify-content:space-between; font-size:9px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:6px;}
+  select, textarea{width:100%; background:#0f0a0a; border:1px solid var(--line); color:var(--text); font-family:var(--font); font-size:13px; padding:10px; resize:vertical; transition:border-color .15s, box-shadow .15s;}
+  select:focus, textarea:focus{outline:none; border-color:var(--red-dim); box-shadow:0 0 0 1px var(--red-dim), 0 0 18px rgba(255,43,43,.12);}
+  textarea{min-height:76px;}
+  #msgInput{background:#160d0d; border:1px solid var(--red-dim); border-left:3px solid var(--red); font-size:15px; line-height:1.5; padding:14px; color:#fff; box-shadow:inset 0 0 22px rgba(255,43,43,.07), 0 0 16px rgba(255,43,43,.1);}
+  #msgInput::placeholder{color:#8a6a6a;}
+  #msgInput:focus{border-color:var(--red); box-shadow:inset 0 0 22px rgba(255,43,43,.1), 0 0 24px rgba(255,43,43,.3);}
+  .field.msg-field label{font-size:11px; color:var(--red); letter-spacing:2px;}
+  textarea.shake{animation:shake .35s;}
+  @keyframes shake{20%,60%{transform:translateX(-5px);}40%,80%{transform:translateX(5px);}}
 
-  .dist-preview{font-size:11px; color:var(--text-dim); margin-top:8px; letter-spacing:.5px;}
-  .dist-preview b{color:var(--red);}
+  .dest-blurb{font-size:11px; color:var(--text-dim); margin-top:8px; line-height:1.5; min-height:16px;}
+  .live-badge{display:inline-block; font-size:9px; letter-spacing:1.5px; color:var(--go); margin-left:8px;}
+  .live-badge::before{content:"●"; margin-right:4px; animation:blink 1.4s infinite;}
+  @keyframes blink{50%{opacity:.25;}}
+
+  .meta{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px;}
+  .meta div{border:1px solid var(--line); padding:8px 10px; background:rgba(15,10,10,.7);}
+  .meta span{display:block; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:4px;}
+  .meta b{font-size:13px; color:var(--red); font-weight:700; font-variant-numeric:tabular-nums;}
+
+  .scale{position:relative; height:34px; margin-top:16px;}
+  .scale .line{position:absolute; left:0; right:0; top:11px; height:1px; background:linear-gradient(90deg,var(--red-dim),var(--line));}
+  .scale .dot{position:absolute; top:7px; width:9px; height:9px; margin-left:-4px; border-radius:50%; background:#3a2222; cursor:pointer; transition:all .2s; border:none; padding:0;}
+  .scale .dot:hover{background:var(--red-dim);}
+  .scale .dot.sel{background:var(--red); box-shadow:0 0 12px var(--red); top:6px; width:11px; height:11px; margin-left:-5px;}
+  .scale .end{position:absolute; top:22px; font-size:8px; letter-spacing:1px; color:var(--text-dim);}
+  .scale-title{font-size:8px; letter-spacing:1.5px; color:var(--text-dim);}
+
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .chip{width:auto; padding:4px 9px; font-size:10px; letter-spacing:.5px; color:var(--text-dim); border-color:var(--line);}
+  .chip:hover{color:var(--text); background:#1a0d0d;}
 
   button{background:transparent; border:1px solid var(--red-dim); color:var(--red); font-family:var(--font); font-size:12px; letter-spacing:1.5px; padding:11px 18px; cursor:pointer; transition:all .15s; width:100%;}
   button:hover{background:var(--red-dim); color:var(--text);}
   button:disabled{opacity:.4; cursor:default;}
+  .primary{background:linear-gradient(90deg,#3a0a0a,#5a1010); color:var(--text); font-weight:700; padding:14px 18px; box-shadow:0 0 22px rgba(255,43,43,.18); animation:pulse 2.4s infinite;}
+  .primary:hover{background:linear-gradient(90deg,#5a1010,#8a1818); box-shadow:0 0 30px rgba(255,43,43,.4);}
+  @keyframes pulse{50%{box-shadow:0 0 30px rgba(255,43,43,.35);}}
+  .btn-row{display:flex; gap:10px; margin-top:16px;}
+  .btn-row button{flex:1;}
+  .btn-ghost{border-color:var(--line); color:var(--text-dim);}
 
-  .transmit-panel{text-align:center;}
-  .transmit-status{font-size:11px; color:var(--text-dim); letter-spacing:2px; margin-bottom:14px;}
-  .real-delay{font-size:26px; font-weight:700; color:var(--text); letter-spacing:1px; margin-bottom:4px;}
-  .real-delay-sub{font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-bottom:18px;}
+  .transmit-status{font-size:11px; color:var(--text); letter-spacing:2px; margin-bottom:4px; text-align:center;}
+  .speed-line{font-size:9px; color:var(--text-dim); letter-spacing:1.5px; text-align:center; margin-bottom:10px;}
+  #scene{display:block; width:100%; height:200px; background:radial-gradient(ellipse at center, rgba(255,43,43,.05), transparent 70%); border:1px solid var(--line);}
+
+  .readouts{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:12px 0;}
+  .readouts div{border:1px solid var(--line); padding:8px; background:rgba(15,10,10,.7); min-width:0;}
+  .readouts span{display:block; font-size:8px; letter-spacing:1.2px; color:var(--text-dim); margin-bottom:4px;}
+  .readouts b{font-size:12px; color:var(--text); font-weight:700; font-variant-numeric:tabular-nums; word-break:break-word;}
+
+  .readouts div.hl{border-color:#ffb02b; background:rgba(255,176,43,.09); box-shadow:0 0 18px rgba(255,176,43,.25);}
+  .readouts div.hl span{color:#ffb02b;}
+  .readouts div.hl b{color:#ffb02b; font-size:14px; text-shadow:0 0 10px rgba(255,176,43,.6);}
+  .readouts div.hl.real{border-color:var(--go); background:rgba(43,255,136,.08); box-shadow:0 0 18px rgba(43,255,136,.22);}
+  .readouts div.hl.real span, .readouts div.hl.real b{color:var(--go); text-shadow:0 0 10px rgba(43,255,136,.5);}
+  .readouts div.hl2{border-color:var(--red); background:rgba(255,43,43,.1);}
+  .readouts div.hl2 span{color:var(--red);}
+  .readouts div.hl2 b{color:#fff; font-size:14px; text-shadow:0 0 10px rgba(255,43,43,.7);}
+  .readouts div.hl2.blink{animation:blinkbox 1s ease-in-out infinite;}
+  @keyframes blinkbox{0%,100%{box-shadow:0 0 6px rgba(255,43,43,.2); border-color:var(--red-dim);}50%{box-shadow:0 0 22px rgba(255,43,43,.8); border-color:#ff6a6a;}}
+  .readouts div.hl3{border-color:#3ad8ff; background:rgba(58,216,255,.08);}
+  .readouts div.hl3 span{color:#3ad8ff;}
+  .readouts div.hl3 b{color:#fff; font-size:14px; text-shadow:0 0 10px rgba(58,216,255,.7);}
+  .readouts div.hl3.blink{animation:blinkcyan 1s ease-in-out infinite;}
+  @keyframes blinkcyan{0%,100%{box-shadow:0 0 6px rgba(58,216,255,.2); border-color:#1d6e84;}50%{box-shadow:0 0 22px rgba(58,216,255,.8); border-color:#a0ecff;}}
+  .readouts div.hl3.done{box-shadow:0 0 14px rgba(58,216,255,.35);}
+  .readouts div.pending b{color:var(--text-dim); font-weight:400;}
+  .readouts div.reveal{animation:reveal .8s ease both;}
+  @keyframes reveal{0%{box-shadow:0 0 0 rgba(43,255,136,0); transform:scale(.96);}40%{box-shadow:0 0 24px rgba(43,255,136,.8); border-color:var(--go); transform:scale(1.04);}100%{box-shadow:none; transform:none;}}
+  .readouts div.hl.blink{animation:blinkamber 1s ease-in-out infinite;}
+  .readouts div.hl.real.blink{animation:blinkgreen 1s ease-in-out infinite;}
+  @keyframes blinkamber{0%,100%{box-shadow:0 0 6px rgba(255,176,43,.2); border-color:#a8741c;}50%{box-shadow:0 0 22px rgba(255,176,43,.85); border-color:#ffd27a;}}
+  @keyframes blinkgreen{0%,100%{box-shadow:0 0 6px rgba(43,255,136,.2); border-color:var(--go-dim);}50%{box-shadow:0 0 22px rgba(43,255,136,.8); border-color:#8affbd;}}
+  .readouts div.hl2.done{box-shadow:0 0 14px rgba(255,43,43,.4);}
   .progress-track{height:8px; background:#1a0d0d; margin-bottom:10px; position:relative; overflow:hidden;}
-  .progress-fill{position:absolute; top:0; left:0; height:100%; width:0%; background:linear-gradient(90deg, var(--red-dim), var(--red)); transition:width .15s linear;}
-  .progress-fill.reverse{left:auto; right:0; background:linear-gradient(270deg, var(--red-dim), var(--red));}
-  .progress-label{font-size:11px; color:var(--text-dim); letter-spacing:1px;}
+  .progress-fill{position:absolute; top:0; left:0; height:100%; width:0%; background:linear-gradient(90deg, var(--red-dim), var(--red)); box-shadow:0 0 12px var(--red);}
+  .progress-fill.reverse{left:auto; right:0; background:linear-gradient(270deg, var(--go-dim), var(--go)); box-shadow:0 0 12px var(--go);}
+  .progress-label{font-size:10px; color:var(--text-dim); letter-spacing:1px; text-align:center; min-height:14px;}
 
-  .reply-panel{display:none;}
-  .reply-panel.show{display:block;}
-  .reply-header{font-size:11px; letter-spacing:2px; color:var(--go); margin-bottom:10px;}
-  .reply-text{font-size:13px; line-height:1.7; color:var(--text); border-left:2px solid var(--red-dim); padding-left:14px; margin-bottom:14px;}
-  .reply-meta{font-size:10px; color:var(--text-dim); letter-spacing:1px;}
+  .reply-panel{display:none; margin-top:18px; border-top:1px solid var(--line); padding-top:16px;}
+  .reply-panel.show{display:block; animation:rise .5s ease both;}
+  .reply-header{font-size:11px; letter-spacing:2px; color:var(--go); margin-bottom:10px; text-shadow:0 0 10px rgba(43,255,136,.35);}
+  .reply-text{font-size:15px; line-height:1.7; color:var(--text); border-left:2px solid var(--go-dim); padding-left:14px; margin-bottom:8px; min-height:26px;}
+  .reply-text.typing::after{content:"▌"; color:var(--go); animation:blink .7s infinite;}
+  .echo{font-size:10px; color:var(--text-dim); letter-spacing:.5px; padding-left:16px; margin-bottom:16px; word-break:break-word;}
+  .times{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:12px;}
+  .times div{border:1px solid var(--line); padding:8px 10px; background:rgba(15,10,10,.7);}
+  .times span{display:block; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:4px;}
+  .times b{font-size:12px; color:var(--text); font-weight:700;}
+  .times b.g{color:var(--go);}
+  .log-inline{margin-top:18px; padding-top:14px; border-top:1px dashed var(--line);}
+  .facts-title{font-size:9px; letter-spacing:2px; color:var(--red-dim); margin:14px 0 6px;}
+  .facts{list-style:none; font-size:11px; line-height:1.6; color:var(--text-dim);}
+  .facts li{padding:5px 0 5px 14px; position:relative; border-bottom:1px dashed #1a0f0f;}
+  .facts li::before{content:"›"; position:absolute; left:2px; color:var(--red);}
+  .facts b{color:var(--text);}
 
-  .hidden{display:none;}
+  .log-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .log-head span{font-size:10px; letter-spacing:2px; color:var(--text-dim);}
+  .log-head button{width:auto; padding:3px 8px; font-size:9px; border-color:var(--line); color:var(--text-dim);}
+    .loglist{list-style:none; font-size:11px;}
+  .loglist li{display:grid; grid-template-columns:auto 1fr auto; gap:10px; padding:6px 0; border-bottom:1px dashed #1a0f0f; align-items:baseline;}
+    .loglist .d{color:var(--red); letter-spacing:1px; font-size:10px;}
+    .loglist .m{color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    .loglist .t{color:var(--text-dim); font-size:10px; white-space:nowrap;}
+
+  .hidden{display:none !important;}
   footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+
+  @media (max-width:560px){
+    .readouts{grid-template-columns:repeat(2,1fr);}
+    .meta b{font-size:11px;}
+    h1{font-size:17px; letter-spacing:3px;}
+    #scene{height:170px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .panel,.primary,.live-badge::before,.readouts div.hl2.blink,.readouts div.hl.blink,.readouts div.hl3.blink,.readouts div.reveal{animation:none;}
+  }
 </style>
 </head>
 <body>
+<canvas id="stars" aria-hidden="true"></canvas>
 <div class="wrap">
   <header>
     <div>
       <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
       <div class="brand">RAMESHVERSE // RV·LIGHTSPEED</div>
       <h1>LIGHT-SPEED <span>MESSENGER</span></h1>
+      <div class="tagline">299,792.458 KM/S · THE FASTEST THING THERE IS · AND IT'S STILL SLOW</div>
     </div>
-    <div class="clock" id="clockDisplay">--:--:--</div>
-    
+    <div class="clock">
+      <span id="clockDisplay">--:--:--</span>
+      <small id="utcDisplay">UTC --:--</small>
+      <button class="sound-btn" id="soundBtn" type="button" aria-pressed="false">SOUND: OFF</button>
+    </div>
   </header>
 
   <div class="panel" id="composePanel">
     <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
     <div class="field">
-      <label>SEND TO</label>
+      <label for="destSelect"><span>SEND TO</span><span id="liveTag"></span></label>
       <select id="destSelect"></select>
-      <div class="dist-preview" id="distPreview"></div>
+      <div class="dest-blurb" id="destBlurb"></div>
+      <div class="meta">
+        <div><span>DISTANCE</span><b id="mDist">—</b></div>
+        <div><span>ONE-WAY DELAY</span><b id="mOne">—</b></div>
+        <div><span>ROUND TRIP</span><b id="mRound">—</b></div>
+      </div>
+      <div class="scale" id="scale">
+        <div class="line"></div>
+      </div>
+      <div class="scale-title">DISTANCE FROM EARTH, LOG SCALE · TAP A DOT TO JUMP</div>
     </div>
-    <div class="field">
-      <label>MESSAGE</label>
+    <div class="field msg-field">
+      <label for="msgInput"><span>MESSAGE</span><span id="charCount">0 / 200</span></label>
       <textarea id="msgInput" placeholder="Type your message..." maxlength="200"></textarea>
+      <div class="chips" id="chips"></div>
     </div>
-    <button id="sendBtn">TRANSMIT AT LIGHT SPEED</button>
+    <button id="sendBtn" class="primary" type="button">TRANSMIT AT LIGHT SPEED</button>
   </div>
 
-  <div class="panel transmit-panel hidden" id="transmitPanel">
+  <div class="panel hidden" id="transmitPanel">
     <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
-    <div class="transmit-status" id="transmitStatus">SIGNAL EN ROUTE</div>
-    <div class="real-delay" id="realDelayText">—</div>
-    <div class="real-delay-sub" id="realDelaySub">real one-way light delay</div>
+    <div class="transmit-status" id="transmitStatus" aria-live="polite">SIGNAL EN ROUTE</div>
+    <div class="speed-line">SIGNAL SPEED 299,792.458 KM/S</div>
+    <canvas id="scene" aria-label="Animation of your signal travelling from Earth to the destination and back"></canvas>
+
+    <div class="readouts">
+      <div class="pending" id="rdDelayBox"><span>ONE-WAY DELAY (REAL)</span><b id="rdDelay">—</b></div>
+      <div class="hl2" id="rdElapsedBox"><span>ELAPSED (REAL)</span><b id="rdElapsed">—</b></div>
+      <div class="hl3" id="rdCoveredBox"><span>DISTANCE COVERED</span><b id="rdCovered">—</b></div>
+      <div class="hl" id="rdModeBox"><span>PLAYBACK</span><b id="rdMode">—</b></div>
+    </div>
+
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
     <div class="progress-label" id="progressLabel">—</div>
 
-    <div class="reply-panel" id="replyPanel">
-      <div class="reply-header">✓ SIGNAL RECEIVED — REPLY INCOMING</div>
-      <div class="reply-text" id="replyText">—</div>
-      <div class="reply-meta" id="replyMeta">—</div>
-      <button id="resetBtn" style="margin-top:16px;">SEND ANOTHER MESSAGE</button>
+    <div class="btn-row" id="abortRow">
+      <button id="abortBtn" class="btn-ghost" type="button">ABORT TRANSMISSION</button>
     </div>
+
+    <div class="reply-panel" id="replyPanel">
+      <div class="reply-header">✓ SIGNAL RECEIVED — REPLY DELIVERED</div>
+      <div class="reply-text" id="replyText"></div>
+      <div class="echo" id="echoText"></div>
+      <div class="times">
+        <div><span>YOUR MESSAGE WOULD ARRIVE</span><b id="tArrive">—</b></div>
+        <div><span>THE REPLY WOULD REACH YOU</span><b class="g" id="tReply">—</b></div>
+      </div>
+      <div class="meta">
+        <div><span>DISTANCE</span><b id="rDist">—</b></div>
+        <div><span>ONE-WAY</span><b id="rOne">—</b></div>
+        <div><span>ROUND TRIP</span><b id="rRound">—</b></div>
+      </div>
+      <div class="btn-row">
+        <button id="resetBtn" type="button">SEND ANOTHER MESSAGE</button>
+        <button id="copyBtn" class="btn-ghost" type="button">COPY RESULT</button>
+      </div>
+      <div class="log-inline">
+        <div class="log-head"><span>TRANSMISSION LOG</span><button id="clearLog2" type="button">CLEAR</button></div>
+        <ul id="logList2" class="loglist"></ul>
+      </div>
+      <div class="facts-title">PUT IT IN PERSPECTIVE</div>
+      <ul class="facts" id="facts"></ul>
+    </div>
+  </div>
+
+  <div class="panel hidden" id="logPanel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+    <div class="log-head"><span>TRANSMISSION LOG</span><button id="clearLog" type="button">CLEAR</button></div>
+    <ul id="logList" class="loglist"></ul>
   </div>
 
   <footer>DISTANCES: LIVE ORBITAL POSITIONS + CATALOG STAR DATA &nbsp;|&nbsp; RAMESHVERSE.COM</footer>
 </div>
 
 <script>
-setInterval(()=>{
-  document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('en-US',{hour12:false});
-},1000);
+(function(){
+'use strict';
 
+const $ = id => document.getElementById(id);
 const C_KM_S = 299792.458;
 const AU_KM = 149597870.7;
 const LY_KM = 9.4607e12;
+const YEAR_S = 365.25*86400;
+const EARTH_CIRC_KM = 40075;
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// circular-orbit model (same as other RV tools), for live current Earth-planet distances
+/* ---------- clock ---------- */
+function tickClock(){
+  const d = new Date();
+  $('clockDisplay').textContent = d.toLocaleTimeString('en-US',{hour12:false});
+  $('utcDisplay').textContent = 'UTC ' + d.toISOString().slice(11,16);
+}
+tickClock(); setInterval(tickClock,1000);
+
+/* ---------- orbit model (same as other RV tools) ---------- */
 const planetOrbits = [
   {name:'MERCURY', a:0.387, T:87.969,   L0:252.25},
   {name:'VENUS',   a:0.723, T:224.701,  L0:181.98},
@@ -146,194 +310,640 @@ const planetOrbits = [
   {name:'NEPTUNE', a:30.069,T:60182.0,  L0:304.22},
   {name:'PLUTO',   a:39.482,T:90560.0,  L0:238.93},
 ];
-
 function deg2rad(d){return d*Math.PI/180;}
 function norm360(d){ d=d%360; return d<0?d+360:d; }
+function daysJ2000(){ return (Date.now()/86400000) + 2440587.5 - 2451545.0; }
 function planetHelio(p, days){
   const ang = deg2rad(norm360(p.L0 + (360/p.T)*days));
   return {x:p.a*Math.cos(ang), y:p.a*Math.sin(ang)};
 }
 function currentDistanceAU(name){
-  const days = (Date.now()/86400000) + 2440587.5 - 2451545.0;
+  const days = daysJ2000();
   const earth = planetHelio(planetOrbits.find(p=>p.name==='EARTH'), days);
-  const target = planetOrbits.find(p=>p.name===name);
-  const pos = planetHelio(target, days);
+  const pos = planetHelio(planetOrbits.find(p=>p.name===name), days);
   return Math.hypot(pos.x-earth.x, pos.y-earth.y);
 }
 function currentSunDistanceAU(){
-  const days = (Date.now()/86400000) + 2440587.5 - 2451545.0;
-  const n = days;
-  const g = deg2rad(norm360(357.528 + 0.9856003*n));
+  const g = deg2rad(norm360(357.528 + 0.9856003*daysJ2000()));
   return 1.00014 - 0.01671*Math.cos(g) - 0.00014*Math.cos(2*g);
 }
+function moonKm(){
+  try{ return SunCalc.getMoonPosition(new Date(), 0, 0).distance; }
+  catch(e){ return 384400; }   // fallback if the CDN script is blocked
+}
+// Voyager 1: crosses one light-day (~25.9 billion km) from Earth around mid-Nov 2026, moving ~16.95 km/s
+function voyagerKm(){
+  const lightDayKm = C_KM_S*86400;
+  const t0 = Date.UTC(2026,10,15);
+  return lightDayKm + ((Date.now()-t0)/1000)*16.95;
+}
 
+/* ---------- destinations ---------- */
+// body: how it is drawn in the scene (kind, colours, radius in px)
 const destinations = [
-  {group:'THE MOON', items:[
-    {id:'moon', name:'The Moon', live:true, getKm: ()=>{
-      const p = SunCalc.getMoonPosition(new Date(), 0, 0);
-      return p.distance;
-    }}
+  {group:'NEAR EARTH', items:[
+    {id:'iss', name:'International Space Station', km:408, body:{kind:'sat', c:'#cfd8e3', r:8},
+      blurb:'Low Earth orbit, about 408 km up. Faster than a blink.'},
+    {id:'moon', name:'The Moon', live:true, getKm:moonKm, body:{kind:'rock', c:'#cfcac2', c2:'#6d6a66', r:15},
+      blurb:"Earth's only natural satellite. The classic radio-delay example."},
   ]},
   {group:'THE SUN', items:[
-    {id:'sun', name:'The Sun', live:true, getKm: ()=> currentSunDistanceAU()*AU_KM }
+    {id:'sun', name:'The Sun', live:true, getKm:()=>currentSunDistanceAU()*AU_KM, body:{kind:'star', c:'#ffb02b', r:22},
+      blurb:'Every photon of sunlight you see is about 8 minutes old.'},
   ]},
   {group:'PLANETS (LIVE DISTANCE)', items:[
-    {id:'mercury', name:'Mercury', live:true, getKm: ()=> currentDistanceAU('MERCURY')*AU_KM},
-    {id:'venus', name:'Venus', live:true, getKm: ()=> currentDistanceAU('VENUS')*AU_KM},
-    {id:'mars', name:'Mars', live:true, getKm: ()=> currentDistanceAU('MARS')*AU_KM},
-    {id:'jupiter', name:'Jupiter', live:true, getKm: ()=> currentDistanceAU('JUPITER')*AU_KM},
-    {id:'saturn', name:'Saturn', live:true, getKm: ()=> currentDistanceAU('SATURN')*AU_KM},
-    {id:'uranus', name:'Uranus', live:true, getKm: ()=> currentDistanceAU('URANUS')*AU_KM},
-    {id:'neptune', name:'Neptune', live:true, getKm: ()=> currentDistanceAU('NEPTUNE')*AU_KM},
-    {id:'pluto', name:'Pluto', live:true, getKm: ()=> currentDistanceAU('PLUTO')*AU_KM},
+    {id:'mercury', name:'Mercury', live:true, getKm:()=>currentDistanceAU('MERCURY')*AU_KM, body:{kind:'rock', c:'#b8a99a', c2:'#5c5148', r:10}, blurb:'Closest planet to the Sun, but rarely close to us.'},
+    {id:'venus', name:'Venus', live:true, getKm:()=>currentDistanceAU('VENUS')*AU_KM, body:{kind:'rock', c:'#f0d9a0', c2:'#a07a38', r:15}, blurb:'Earth’s nearest neighbour at its closest approach.'},
+    {id:'mars', name:'Mars', live:true, getKm:()=>currentDistanceAU('MARS')*AU_KM, body:{kind:'rock', c:'#e0684a', c2:'#6e2414', r:12}, blurb:'Mission control waits 3 to 22 minutes for each reply.'},
+    {id:'jupiter', name:'Jupiter', live:true, getKm:()=>currentDistanceAU('JUPITER')*AU_KM, body:{kind:'gas', c:'#e6c49a', c2:'#a8683a', r:24}, blurb:'The giant of the Solar System. Light needs 30 to 55 minutes.'},
+    {id:'saturn', name:'Saturn', live:true, getKm:()=>currentDistanceAU('SATURN')*AU_KM, body:{kind:'ring', c:'#ecd9a8', c2:'#a58a52', r:18}, blurb:'Over an hour of light-travel on the best days.'},
+    {id:'uranus', name:'Uranus', live:true, getKm:()=>currentDistanceAU('URANUS')*AU_KM, body:{kind:'rock', c:'#9be6ee', c2:'#3a8a98', r:15}, blurb:'The tilted ice giant, roughly 2.5 hours away.'},
+    {id:'neptune', name:'Neptune', live:true, getKm:()=>currentDistanceAU('NEPTUNE')*AU_KM, body:{kind:'rock', c:'#5b86ff', c2:'#1c2f8a', r:15}, blurb:'The farthest planet, about 4 light-hours out.'},
+    {id:'pluto', name:'Pluto', live:true, getKm:()=>currentDistanceAU('PLUTO')*AU_KM, body:{kind:'rock', c:'#d8c2ae', c2:'#6b5846', r:8}, blurb:'A dwarf planet at the edge of the classical Solar System.'},
+  ]},
+  {group:'DEEP SPACE PROBES', items:[
+    {id:'voyager1', name:'Voyager 1', live:true, getKm:voyagerKm, body:{kind:'sat', c:'#ffd27a', r:8},
+      blurb:'Launched 1977, now reaching one full light-day from Earth around November 2026. Estimated position.'},
   ]},
   {group:'STARS & DEEP SPACE', items:[
-    {id:'proxima', name:'Proxima Centauri', live:false, ly:4.246},
-    {id:'alphacent', name:'Alpha Centauri', live:false, ly:4.37},
-    {id:'sirius', name:'Sirius', live:false, ly:8.6},
-    {id:'vega', name:'Vega', live:false, ly:25},
-    {id:'betelgeuse', name:'Betelgeuse', live:false, ly:548},
-    {id:'galcenter', name:'Center of the Milky Way', live:false, ly:26000},
-    {id:'andromeda', name:'Andromeda Galaxy', live:false, ly:2500000},
+    {id:'proxima', name:'Proxima Centauri', ly:4.246, body:{kind:'star', c:'#ff6a4a', r:10}, blurb:'The nearest star to the Sun, a small red dwarf.'},
+    {id:'alphacent', name:'Alpha Centauri', ly:4.37, body:{kind:'star', c:'#ffe29a', r:14}, blurb:'A triple star system, our closest stellar neighbours.'},
+    {id:'sirius', name:'Sirius', ly:8.6, body:{kind:'star', c:'#cfe4ff', r:15}, blurb:'The brightest star in the night sky.'},
+    {id:'trappist1', name:'TRAPPIST-1', ly:40.7, body:{kind:'star', c:'#ff7a5a', r:9}, blurb:'A dim red dwarf with seven Earth-sized planets.'},
+    {id:'vega', name:'Vega', ly:25, body:{kind:'star', c:'#bcd4ff', r:15}, blurb:'A bright blue-white star in the constellation Lyra.'},
+    {id:'polaris', name:'Polaris', ly:433, body:{kind:'star', c:'#fff2c8', r:15}, blurb:'The North Star. What you see left it before 1600.'},
+    {id:'betelgeuse', name:'Betelgeuse', ly:548, body:{kind:'star', c:'#ff8a3a', r:24}, blurb:'A red supergiant that will explode as a supernova one day.'},
+    {id:'orion', name:'Orion Nebula', ly:1344, body:{kind:'star', c:'#ff7ad9', r:20}, blurb:'A stellar nursery you can spot with the naked eye.'},
+    {id:'galcenter', name:'Center of the Milky Way', ly:26000, body:{kind:'galaxy', c:'#ffc46a', r:18}, blurb:'Home of the supermassive black hole Sagittarius A*.'},
+    {id:'lmc', name:'Large Magellanic Cloud', ly:160000, body:{kind:'galaxy', c:'#9ab8ff', r:16}, blurb:'A small satellite galaxy orbiting the Milky Way.'},
+    {id:'andromeda', name:'Andromeda Galaxy', ly:2500000, body:{kind:'galaxy', c:'#b9a6ff', r:22}, blurb:'The nearest large galaxy. A message sent today arrives in the year 2,502,026.'},
   ]},
 ];
 
-const destSelect = document.getElementById('destSelect');
+const replyTemplates = {
+  iss: ["ISS here. We got your message before you finished pressing send. Also, we've orbited Earth 16 times today. Send snacks.", "Received! We're going 28,000 km/h and still got the signal faster than your Wi-Fi gets a webpage.", "Message received. We just watched 16 sunrises today, so please keep it short, we're busy being dizzy."],
+  moon: ["Moon here. Message received. No, I will not stop following you around. It's my job.", "Lunar base copies. Please stop asking if I'm made of cheese. I'm sensitive about it.", "Received! Sorry for the delay, 1.3 seconds is a long time to wait when you're a rock with nothing else to do.", "Moon speaking. Yes, I'm still the one running your tides. Anyway, got your message."],
+  sun: ["Sun here. Your message got lost in 15 million degrees of 'not my problem'. Kidding, I read it. Please stop looking at me directly.", "Received. You're basically messaging a giant fusion reactor. Please wear sunscreen and use less caps lock.", "Sun responding. Your message has been vaporized and then, out of politeness, un-vaporized."],
+  mercury: ["Mercury here. A day lasts forever and a year is 88 days, so I'm already late replying to your message.", "Message received. It's 430°C in the sun and -180°C in the shade. I have mood swings, don't take it personally.", "Mercury copies. I'm so close to the Sun that I just sweat in Kelvin."],
+  venus: ["Venus here. It's 465°C on my surface. I'd invite you over but you'd melt before the tea gets cold.", "Message received through the sulfuric acid clouds. My day is longer than my year. I never get anything done.", "Venus copies. Yes I spin backwards. No I won't explain myself."],
+  mars: ["Mars Base copies. Send oxygen, snacks, and a single potato. Our last farmer left.", "Received on Mars. The dust storm ruined my solar panels, but your message made it through. Priorities!", "Message received. Olympus Mons is about 2.5 times the height of Everest, and I still can't get a decent signal.", "Mars here. Yes, I'm red. No, I'm not angry. It's just iron oxide. Rust. Please send a mechanic."],
+  jupiter: ["Jupiter here. Your message got swallowed by a storm that has been raging for centuries.", "Received. I'm so big that all the other planets would fit inside me. I'm not bragging, it's just physics.", "Jupiter copies. I like to think I've been protecting Earth from comets for billions of years. A thank-you would be nice."],
+  saturn: ["Saturn here. I got your message and wore it as a ring. Looks great, doesn't it?", "Message received. Fun fact: I'm light enough to float in water. If you could find a big enough bathtub.", "Saturn copies. Yes, the rings are all mine. No, I won't lend you one."],
+  uranus: ["Uranus here. Yes, I know the name. We've heard all the jokes. Message received anyway.", "Received. I spin on my side like a ball rolling around the Sun. Nobody asked, but there it is.", "Uranus copies. It's -224°C here. Please send blankets and fewer puns."],
+  neptune: ["Neptune here. Winds of 2,000 km/h blew your message to me. Nice mail service.", "Message received. A year here is 165 Earth years, so I'll reply to your next one in about a century.", "Neptune copies. I was found by math before anyone saw me. I'm basically a theorem with a nice colour."],
+  pluto: ["Pluto here. I'm still a planet. Don't @ me.", "Received. Yes, I'm a dwarf planet. No, I'm not over it.", "Pluto copies. It's -230°C and there's a heart-shaped glacier on me. Stay jealous, Earth.", "Message received. It's lonely at the edge of the solar system. Please send more messages, even spam."],
+  voyager1: ["Voyager 1 here. 49 years old, still working, no software updates. Your phone dies in two years.", "Received at 160 bits per second. Please keep your message short, I'm 49 and my memory is a tape recorder.", "Voyager 1 copies. I carry a gold record with greetings in 55 languages and a few songs. No refunds."],
+  proxima: ["Proxima here. Hello from your nearest neighbour. We have a planet in the habitable zone, but the flares may ruin the vibe.", "Message received 4.2 years late. You're lucky we don't charge for roaming.", "Proxima Centauri copies. We're the closest star and still 40 trillion km away. That's how empty space is."],
+  alphacent: ["Alpha Centauri here. We're three stars in one system. Yes, it's crowded, and no, nobody will lower the rent.", "Message received by all three of us. We disagree about the reply. This is the compromise.", "Alpha Centauri copies. Yes, three suns means three sunsets a day. No, we still don't get a tan."],
+  sirius: ["Sirius here. Brightest star in your sky, and we got your message. We were just too cool to reply faster.", "Received. Yes, I'm the Dog Star. Yes, I'll fetch. No, I won't roll over.", "Sirius copies. I'm twice as massive as your Sun and 25 times as bright. I'm basically the main character."],
+  trappist1: ["TRAPPIST-1 here. We have seven Earth-sized planets, tightly packed. Our landlord is a red dwarf. Message received.", "Received. Seven planets, one star, zero personal space. Send a bigger sky.", "TRAPPIST-1 copies. Our planets are so close together that neighbours loom large in the sky. Our WiFi sees them too."],
+  vega: ["Vega here. Message received 25 years after you hit send, so we're basically in your past already.", "Received. I'm your future North Star in about 12,000 years. Book early for the best view.", "Vega copies. I spin so fast I'm squashed like a pancake. Sorry for the delay."],
+  polaris: ["Polaris here. Sailors have used me to find their way for centuries. You used me to send a text. Still fine.", "Message received. I'm the North Star, so technically I never move. Unlike your messages.", "Polaris copies. What you see of me left in the 1500s. I'm basically a time machine with a twinkle."],
+  betelgeuse: ["Betelgeuse here. I might explode tomorrow or in 100,000 years. Make it quick, I'm busy being a red giant.", "Received. If I were in your Sun's spot, I'd stretch out to about Jupiter's orbit. So, no, I can't come over.", "Betelgeuse copies. Message received, 548 years late. I'm basically the grandpa of the galaxy."],
+  orion: ["Orion Nebula here. We're a stellar nursery. New stars are being born right now, so please keep the noise down.", "Received. We've got baby stars everywhere. Please send diapers and a very large rocket.", "Orion Nebula copies. You can see me without a telescope, so please wave."],
+  galcenter: ["Galactic center here. Our black hole Sagittarius A* ate your message, then burped. It's fine, it was delicious.", "Received 26,000 years after you sent it. Humans were still drawing on cave walls. How's the internet?", "Message received. 4 million suns packed into a black hole here. We're not mad, just heavy."],
+  lmc: ["Large Magellanic Cloud here. We're a small galaxy orbiting yours. Yes, we're clingy.", "Message received. Please don't mind us, we're just a dwarf galaxy with a big tarantula.", "Magellanic Cloud copies. Southern sky folks see us with the naked eye. Northern folks, sorry."],
+  andromeda: ["Andromeda here. Your message took 2.5 million years. We were going to reply, but then we're coming to merge with you in 4 billion years anyway. See you then.", "Received. This message left before humans existed. Impressive delivery, honestly.", "Andromeda copies. We're heading toward you at 110 km/s. Please clean up the Milky Way before we arrive.", "Message received. Please don't expect a quick reply. Round trip: 5 million years. Go grab a coffee."],
+};
+
+const CHIPS = ['Hello, world!', 'Is anyone out there?', 'Can you hear me?', 'Greetings from Earth'];
+
+/* ---------- helpers ---------- */
+const destSelect = $('destSelect');
 destinations.forEach(g=>{
   const og = document.createElement('optgroup');
   og.label = g.group;
   g.items.forEach(item=>{
     const opt = document.createElement('option');
-    opt.value = item.id;
-    opt.textContent = item.name;
+    opt.value = item.id; opt.textContent = item.name;
     og.appendChild(opt);
   });
   destSelect.appendChild(og);
 });
+const allDests = destinations.flatMap(g=>g.items);
+function findDest(id){ return allDests.find(d=>d.id===id) || allDests[0]; }
 
-function findDest(id){
-  for(const g of destinations) for(const it of g.items) if(it.id===id) return it;
+function getDistanceKm(d){
+  if(d.getKm) return d.getKm();
+  if(d.km) return d.km;
+  return d.ly * LY_KM;
 }
-
-function getDistanceKm(dest){
-  if(dest.live) return dest.getKm();
-  return dest.ly * LY_KM;
+function fmtNum(n, dec){
+  return n.toLocaleString('en-US',{maximumFractionDigits:dec==null?0:dec, minimumFractionDigits:0});
 }
-
+function formatDistance(km){
+  if(km < 1e7) return fmtNum(km)+' km';
+  if(km < 0.1*LY_KM) return fmtNum(km/AU_KM,2)+' AU';
+  const ly = km/LY_KM;
+  return fmtNum(ly, ly<1000?2:0)+' ly';
+}
 function formatDuration(sec){
+  if(sec === 0) return '0 sec';
+  if(sec < 0.001) return (sec*1e6).toFixed(1)+' µs';
+  if(sec < 1) return (sec*1000).toFixed(2)+' ms';
   if(sec < 60) return sec.toFixed(2)+' sec';
   if(sec < 3600) return (sec/60).toFixed(2)+' min';
   if(sec < 86400) return (sec/3600).toFixed(2)+' hr';
-  if(sec < 365.25*86400) return (sec/86400).toFixed(2)+' days';
-  return (sec/(365.25*86400)).toFixed(2)+' years';
+  if(sec < YEAR_S) return (sec/86400).toFixed(2)+' days';
+  const y = sec/YEAR_S;
+  if(y >= 1e12) return (y/1e12).toFixed(2)+' trillion years';
+  if(y >= 1e9) return (y/1e9).toFixed(2)+' billion years';
+  if(y >= 1e6) return (y/1e6).toFixed(2)+' million years';
+  if(y >= 1000) return fmtNum(y)+' years';
+  return y.toFixed(2)+' years';
+}
+function arrivalText(sec){
+  const years = sec/YEAR_S;
+  if(years < 50){
+    const d = new Date(Date.now()+sec*1000);
+    if(sec < 86400) return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}) + ' today';
+    return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+  }
+  const yr = Math.round(new Date().getFullYear() + years);
+  return 'Year ' + fmtNum(yr);
+}
+function rgba(hex,a){
+  const n = parseInt(hex.slice(1),16);
+  return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';
+}
+function trunc(s,n){ return s.length>n ? s.slice(0,n-1)+'…' : s; }
+
+/* ---------- compose panel ---------- */
+const SCALE_MIN = Math.log10(300), SCALE_MAX = Math.log10(4e19);
+function scalePct(km){ return Math.max(0,Math.min(100,(Math.log10(km)-SCALE_MIN)/(SCALE_MAX-SCALE_MIN)*100)); }
+
+const scaleEl = $('scale');
+const dotEls = {};
+allDests.forEach(d=>{
+  const b = document.createElement('button');
+  b.type='button'; b.className='dot'; b.title=d.name; b.setAttribute('aria-label','Select '+d.name);
+  b.addEventListener('click',()=>{ destSelect.value=d.id; updatePreview(); });
+  scaleEl.appendChild(b); dotEls[d.id]=b;
+});
+['400 km','2.5M ly'].forEach((t,i)=>{
+  const e = document.createElement('div'); e.className='end'; e.textContent=t;
+  e.style[i?'right':'left']='0'; scaleEl.appendChild(e);
+});
+function placeDots(){
+  allDests.forEach(d=>{ dotEls[d.id].style.left = scalePct(getDistanceKm(d))+'%'; });
 }
 
 function updatePreview(){
   const dest = findDest(destSelect.value);
   const km = getDistanceKm(dest);
   const sec = km / C_KM_S;
-  document.getElementById('distPreview').innerHTML =
-    `Distance: <b>${km < 1e7 ? Math.round(km).toLocaleString()+' km' : (km/AU_KM).toFixed(2)+' AU'}</b> &nbsp;·&nbsp; One-way light delay: <b>${formatDuration(sec)}</b>`;
+  $('mDist').textContent = formatDistance(km);
+  $('mOne').textContent = formatDuration(sec);
+  $('mRound').textContent = formatDuration(sec*2);
+  $('destBlurb').textContent = dest.blurb || '';
+  $('liveTag').innerHTML = dest.live ? '<span class="live-badge">LIVE POSITION</span>' : '';
+  Object.keys(dotEls).forEach(id=>dotEls[id].classList.toggle('sel', id===dest.id));
+  placeDots();
 }
 destSelect.addEventListener('change', updatePreview);
+setInterval(()=>{ if(!$('composePanel').classList.contains('hidden')) updatePreview(); }, 5000);
+
+// optional deep link: ?to=mars
+try{
+  const to = new URLSearchParams(location.search).get('to');
+  if(to && allDests.some(d=>d.id===to)) destSelect.value = to;
+}catch(e){}
 updatePreview();
 
-function simulatedWaitSeconds(real){
-  if(real <= 45) return real;
-  const v = 4.2*Math.log10(real);
-  return Math.max(10, Math.min(55, v));
+const msgInput = $('msgInput');
+function updateCount(){ $('charCount').textContent = msgInput.value.length+' / 200'; }
+msgInput.addEventListener('input', updateCount);
+msgInput.addEventListener('keydown', e=>{ if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); startTransmission(); } });
+CHIPS.forEach(t=>{
+  const b = document.createElement('button');
+  b.type='button'; b.className='chip'; b.textContent=t;
+  b.addEventListener('click',()=>{ msgInput.value=t; updateCount(); msgInput.focus(); });
+  $('chips').appendChild(b);
+});
+
+/* ---------- sound (off by default) ---------- */
+let soundOn=false, actx=null;
+function tone(freq, dur, opts){
+  if(!soundOn) return;
+  opts = opts||{};
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const t0 = actx.currentTime + (opts.delay||0);
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = opts.type||'sine';
+    o.frequency.setValueAtTime(freq, t0);
+    if(opts.to) o.frequency.exponentialRampToValueAtTime(opts.to, t0+dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(opts.vol||0.05, t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(t0); o.stop(t0+dur+0.05);
+  }catch(e){}
+}
+$('soundBtn').addEventListener('click',()=>{
+  soundOn = !soundOn;
+  $('soundBtn').textContent = 'SOUND: '+(soundOn?'ON':'OFF');
+  $('soundBtn').setAttribute('aria-pressed', soundOn);
+  tone(660,0.12);
+});
+
+/* ---------- background starfield + warp streaks ---------- */
+const bg = $('stars'), bctx = bg.getContext('2d');
+let stars=[], streaks=[], warp=0, warpDir=1;
+function sizeBg(){
+  bg.width = innerWidth; bg.height = innerHeight;
+  const n = Math.min(260, Math.round(innerWidth*innerHeight/8000));
+  stars = Array.from({length:n},()=>({
+    x:Math.random()*bg.width, y:Math.random()*bg.height,
+    r:Math.random()*1.3+.3, tw:Math.random()*2+.6, ph:Math.random()*6.28, v:Math.random()*4+1,
+    red: Math.random()<.18
+  }));
+}
+function drawBg(t,dt){
+  bctx.clearRect(0,0,bg.width,bg.height);
+  for(const s of stars){
+    const a = reduceMotion ? .6 : .25 + .75*(0.5+0.5*Math.sin(t*s.tw+s.ph));
+    bctx.fillStyle = s.red ? 'rgba(255,90,90,'+a+')' : 'rgba(235,225,225,'+a*.85+')';
+    bctx.fillRect(s.x, s.y, s.r, s.r);
+    if(!reduceMotion){
+      s.y -= s.v*dt*(1+warp*0)*1; if(s.y<-2){ s.y=bg.height+2; s.x=Math.random()*bg.width; }
+    }
+  }
+  if(reduceMotion) return;
+  // light streaks, many while a signal is travelling, a few at idle
+  const rate = 0.25 + warp*14;
+  if(Math.random() < rate*dt && streaks.length<60){
+    streaks.push({x:warpDir>0?-100:bg.width+100, y:Math.random()*bg.height, len:60+Math.random()*160, sp:(500+Math.random()*1100)*(warpDir), a:.15+Math.random()*.35*(.3+warp)});
+  }
+  for(let i=streaks.length-1;i>=0;i--){
+    const s = streaks[i]; s.x += s.sp*dt;
+    const x2 = s.x - Math.sign(s.sp)*s.len;
+    const g = bctx.createLinearGradient(x2,0,s.x,0);
+    const col = warpDir>0 ? '255,43,43' : '43,255,136';
+    g.addColorStop(0,'rgba('+col+',0)'); g.addColorStop(1,'rgba('+col+','+s.a+')');
+    bctx.strokeStyle = g; bctx.lineWidth = 1;
+    bctx.beginPath(); bctx.moveTo(x2,s.y); bctx.lineTo(s.x,s.y); bctx.stroke();
+    if(s.x < -400 || s.x > bg.width+400) streaks.splice(i,1);
+  }
+}
+sizeBg();
+
+/* ---------- transmission scene ---------- */
+const scene = $('scene'), sctx = scene.getContext('2d');
+let sw=0, sh=0;
+function sizeScene(){
+  const r = scene.getBoundingClientRect();
+  if(!r.width) return;
+  const dpr = Math.min(2, window.devicePixelRatio||1);
+  sw = r.width; sh = r.height;
+  scene.width = Math.round(sw*dpr); scene.height = Math.round(sh*dpr);
+  sctx.setTransform(dpr,0,0,dpr,0,0);
+}
+function glow(c,x,y,r,hex,a){
+  const g = c.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,rgba(hex,a)); g.addColorStop(1,rgba(hex,0));
+  c.fillStyle = g; c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+}
+function sphere(c,x,y,r,c1,c2){
+  const g = c.createRadialGradient(x-r*.35,y-r*.35,r*.1,x,y,r);
+  g.addColorStop(0,c1); g.addColorStop(1,c2);
+  c.fillStyle = g; c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+}
+function drawBody(c,x,y,b,t){
+  switch(b.kind){
+    case 'earth':
+      glow(c,x,y,b.r*2.4,'#4aa8ff',.35);
+      sphere(c,x,y,b.r,'#7fd0ff','#123f86');
+      c.save(); c.beginPath(); c.arc(x,y,b.r,0,Math.PI*2); c.clip();
+      c.fillStyle='rgba(70,170,90,.8)';
+      c.beginPath(); c.ellipse(x-b.r*.3,y-b.r*.1,b.r*.4,b.r*.55,.4,0,Math.PI*2); c.fill();
+      c.beginPath(); c.ellipse(x+b.r*.45,y+b.r*.3,b.r*.25,b.r*.3,-.3,0,Math.PI*2); c.fill();
+      c.restore(); break;
+    case 'rock':
+      glow(c,x,y,b.r*2.4,b.c,.16);
+      sphere(c,x,y,b.r,b.c,b.c2); break;
+    case 'gas':
+    case 'ring':
+      glow(c,x,y,b.r*2.2,b.c,.15);
+      if(b.kind==='ring'){
+        c.save(); c.translate(x,y); c.rotate(-.35);
+        c.strokeStyle=rgba(b.c,.6); c.lineWidth=3;
+        c.beginPath(); c.ellipse(0,0,b.r*1.9,b.r*.5,0,Math.PI,Math.PI*2); c.stroke(); c.restore();
+      }
+      sphere(c,x,y,b.r,b.c,b.c2);
+      c.save(); c.beginPath(); c.arc(x,y,b.r,0,Math.PI*2); c.clip();
+      c.fillStyle=rgba(b.c2,.4);
+      for(let i=-3;i<=3;i++) c.fillRect(x-b.r, y+i*b.r*.28-b.r*.06, b.r*2, b.r*.13);
+      c.restore();
+      if(b.kind==='ring'){
+        c.save(); c.translate(x,y); c.rotate(-.35);
+        c.strokeStyle=rgba(b.c,.85); c.lineWidth=3;
+        c.beginPath(); c.ellipse(0,0,b.r*1.9,b.r*.5,0,0,Math.PI); c.stroke(); c.restore();
+      }
+      break;
+    case 'star':{
+      const pulse = 1+0.06*Math.sin(t*2.2);
+      glow(c,x,y,b.r*3.4*pulse,b.c,.4);
+      glow(c,x,y,b.r*1.7,b.c,.9);
+      c.fillStyle='#fff'; c.beginPath(); c.arc(x,y,b.r*.6,0,Math.PI*2); c.fill();
+      break;}
+    case 'galaxy':
+      glow(c,x,y,b.r*3,b.c,.22);
+      for(let arm=0;arm<2;arm++){
+        for(let i=0;i<90;i++){
+          const ang = i*.14 + arm*Math.PI + t*.12;
+          const rad = i*b.r*.017;
+          c.fillStyle = rgba(b.c, Math.max(.08,.7*(1-i/90)));
+          c.fillRect(x+Math.cos(ang)*rad*1.6, y+Math.sin(ang)*rad*.55, 1.8, 1.8);
+        }
+      }
+      glow(c,x,y,b.r*.8,'#ffffff',.8); break;
+    case 'sat':
+      glow(c,x,y,b.r*2.6,b.c,.25);
+      c.fillStyle='#3d8cff'; c.fillRect(x-b.r*1.7,y-b.r*.28,b.r*1.2,b.r*.56); c.fillRect(x+b.r*.5,y-b.r*.28,b.r*1.2,b.r*.56);
+      c.fillStyle=b.c; c.fillRect(x-b.r*.5,y-b.r*.5,b.r,b.r); break;
+  }
 }
 
-const replyTemplates = {
-  moon: ["Tranquility Base copies. Signal clear.", "Message received on the lunar surface. Over."],
-  sun: ["Your words survived the corona. Barely.", "Received, somewhere inside 5,500°C of plasma."],
-  mercury: ["Signal received on the scorched side of Mercury.", "Message logged. Daytime here is brutal."],
-  venus: ["Received through 96% carbon dioxide. Loud and clear.", "Message logged beneath the sulfuric clouds."],
-  mars: ["Message received, Olympus Mons standing by.", "Signal confirmed. Dust storm season here, but we got it."],
-  jupiter: ["Received somewhere above the Great Red Spot.", "Signal logged amid the radiation belts. Noted."],
-  saturn: ["Message received, drifting past the rings.", "Signal confirmed near Titan's orbit."],
-  uranus: ["Received on our side, tilted 98° to the sun.", "Message logged in the ice-giant dark."],
-  neptune: ["Signal received in the fastest winds in the solar system.", "Message confirmed, far side of the Kuiper belt beckons."],
-  pluto: ["Message received at the edge of the classical solar system.", "Signal logged. It's cold and quiet out here."],
-  proxima: ["Received at the nearest star to your Sun.", "Signal confirmed, 4.2 years well spent."],
-  alphacent: ["Message received in the Alpha Centauri system.", "Signal logged, three suns and counting."],
-  sirius: ["Received at the brightest star in your sky.", "Signal confirmed from the Dog Star."],
-  vega: ["Message received, 25 years after you hit send.", "Signal logged near Vega."],
-  betelgeuse: ["Received on a star that could go supernova any millennium now.", "Signal confirmed, 548 years in transit."],
-  galcenter: ["Message received near the supermassive black hole at galactic center.", "Signal confirmed, 26,000 years after transmission."],
-  andromeda: ["Received in the Andromeda Galaxy — this message left before humans existed.", "Signal confirmed, 2.5 million years in transit."],
-};
+const EARTH_BODY = {kind:'earth', r:17};
+let S = {running:false, phase:'idle', raf:0, lastDom:0, delivered:false};
 
-let timerHandle = null;
+function drawScene(phase,p,el,now){
+  const c = sctx, t = now/1000;
+  c.clearRect(0,0,sw,sh);
+  const cy = sh/2 - 8;
+  const DB = S.dest.body, ER = EARTH_BODY.r, DR = DB.kind==='galaxy' ? DB.r*2.3 : DB.r;
+  const ex = ER+34, dx = Math.max(ex+120, sw-DR-34);
+  const x0 = ex+ER+8, x1 = dx-DR-8;
 
-document.getElementById('sendBtn').addEventListener('click', ()=>{
-  const msg = document.getElementById('msgInput').value.trim();
-  if(!msg) return;
+  // path
+  c.setLineDash([3,7]); c.strokeStyle='rgba(255,43,43,.3)'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(x0,cy); c.lineTo(x1,cy); c.stroke(); c.setLineDash([]);
+
+  drawBody(c,ex,cy,EARTH_BODY,t);
+  drawBody(c,dx,cy,DB,t);
+
+  c.font = '9px "Space Mono", monospace'; c.textAlign='center'; c.fillStyle='#8a7a7a';
+  c.fillText('EARTH', ex, cy+ER+22);
+  c.fillText(trunc(S.dest.name.toUpperCase(), 22), Math.min(sw-50,dx), cy+DR+22);
+
+  // arrival ring at destination
+  if(phase==='turn' || (phase==='back' && p<.06)){
+    const k = phase==='turn' ? (el-S.simSec)/TURN : 1;
+    c.strokeStyle = rgba('#2bff88', Math.max(0,1-k)); c.lineWidth=2;
+    c.beginPath(); c.arc(dx,cy,DR+6+k*44,0,Math.PI*2); c.stroke();
+    glow(c,dx,cy,DR*2.2,'#2bff88',.25*(1-k));
+  }
+  // delivery ring at Earth
+  if(phase==='done'){
+    const k = Math.min(1,(el-(2*S.simSec+TURN))/1.2);
+    c.strokeStyle = rgba('#2bff88', Math.max(0,1-k)); c.lineWidth=2;
+    c.beginPath(); c.arc(ex,cy,ER+6+k*50,0,Math.PI*2); c.stroke();
+  }
+
+  if(phase==='out' || phase==='back'){
+    const dir = phase==='out' ? 1 : -1;
+    const pos = phase==='out' ? x0+(x1-x0)*p : x1-(x1-x0)*p;
+    const start = phase==='out' ? x0 : x1;
+    const col = phase==='out' ? '#ff2b2b' : '#2bff88';
+    // lit portion of the path
+    c.strokeStyle = rgba(col,.35); c.lineWidth=1;
+    c.beginPath(); c.moveTo(start,cy); c.lineTo(pos,cy); c.stroke();
+    // trail
+    const L = Math.min(110, Math.abs(pos-start));
+    const tail = pos - dir*L;
+    const g = c.createLinearGradient(tail,0,pos,0);
+    g.addColorStop(0,rgba(col,0)); g.addColorStop(1,rgba(col,.95));
+    c.strokeStyle=g; c.lineWidth=3;
+    c.beginPath(); c.moveTo(tail,cy); c.lineTo(pos,cy); c.stroke();
+    glow(c,pos,cy,18,col,.9);
+    c.fillStyle='#fff'; c.beginPath(); c.arc(pos,cy,3.2,0,Math.PI*2); c.fill();
+    // message tag
+    c.fillStyle = col; c.textAlign='center';
+    const label = phase==='out' ? '“'+trunc(S.msg,18)+'”' : 'REPLY';
+    c.fillText(label, Math.max(60,Math.min(sw-60,pos)), cy-24);
+  }
+}
+
+/* ---------- transmission state machine ---------- */
+const TURN = 0.5;
+function simulatedWaitSeconds(real){
+  if(real <= 10) return real;
+  return Math.max(6, Math.min(40, 3.4*Math.log10(real)));
+}
+function compact(n){
+  if(n>=1e12) return (n/1e12).toFixed(1)+'T';
+  if(n>=1e9) return (n/1e9).toFixed(1)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e4) return (n/1e3).toFixed(0)+'K';
+  return fmtNum(n, n<10?1:0);
+}
+function modeText(real, sim){
+  if(real <= 10 && sim <= real*1.02) return 'REAL TIME';
+  if(sim > real) return 'SLOW-MO \u00D7'+compact(sim/real);
+  return 'COMPRESSED \u00D7'+compact(real/sim);
+}
+
+function startTransmission(){
+  const msg = msgInput.value.trim();
+  if(!msg){
+    msgInput.classList.remove('shake'); void msgInput.offsetWidth; msgInput.classList.add('shake');
+    msgInput.focus(); return;
+  }
+  if(S.running) return;
   const dest = findDest(destSelect.value);
   const km = getDistanceKm(dest);
   const realSec = km / C_KM_S;
   const simSec = simulatedWaitSeconds(realSec);
+  S = {running:true, phase:'', raf:0, lastDom:0, delivered:false, dest, msg, km, realSec, simSec, t0:performance.now()};
 
-  document.getElementById('composePanel').classList.add('hidden');
-  document.getElementById('transmitPanel').classList.remove('hidden');
-  document.getElementById('replyPanel').classList.remove('show');
-  document.getElementById('realDelayText').textContent = formatDuration(realSec);
-  document.getElementById('transmitStatus').textContent = `SIGNAL EN ROUTE TO ${dest.name.toUpperCase()}`;
-
-  const fill = document.getElementById('progressFill');
-  const label = document.getElementById('progressLabel');
-  fill.classList.remove('reverse');
-  fill.style.width = '0%';
-
-  function runLeg(startTime, onDone){
-    const elapsed = (Date.now() - startTime)/1000;
-    const pct = Math.min(100, (elapsed/simSec)*100);
-    fill.style.width = pct+'%';
-    const remainingReal = Math.max(0, realSec * (1 - elapsed/simSec));
-    label.textContent = realSec > 45
-      ? `SIMULATED (COMPRESSED) — REAL DELAY REMAINING: ${formatDuration(remainingReal)}`
-      : `${remainingReal.toFixed(2)} sec remaining (real time)`;
-
-    if(elapsed < simSec){
-      timerHandle = setTimeout(()=>runLeg(startTime, onDone), 100);
-    } else {
-      fill.style.width = '100%';
-      onDone();
-    }
-  }
-
-  // leg 1: outbound
-  runLeg(Date.now(), ()=>{
-    document.getElementById('transmitStatus').textContent = `REACHED ${dest.name.toUpperCase()} — REPLY EN ROUTE BACK`;
-    label.textContent = 'PREPARING RETURN SIGNAL...';
-    setTimeout(()=>{
-      fill.style.width = '0%';
-      fill.classList.add('reverse');
-      // leg 2: return
-      runLeg(Date.now(), ()=>{
-        label.textContent = 'DELIVERED';
-        showReply(dest, realSec);
-      });
-    }, 400);
-  });
-});
-
-function showReply(dest, realSec){
-  const options = replyTemplates[dest.id] || ["Signal received."];
-  const reply = options[Math.floor(Math.random()*options.length)];
-  document.getElementById('replyText').textContent = reply;
-  document.getElementById('replyMeta').textContent =
-    `Round trip (real): ${formatDuration(realSec*2)} · One-way: ${formatDuration(realSec)}`;
-  document.getElementById('replyPanel').classList.add('show');
+  $('composePanel').classList.add('hidden');
+  $('transmitPanel').classList.remove('hidden');
+  $('replyPanel').classList.remove('show');
+  $('abortRow').classList.remove('hidden');
+  $('rdDelay').textContent = 'measuring\u2026';
+  $('rdDelayBox').classList.add('pending'); $('rdDelayBox').classList.remove('reveal');
+  $('rdMode').textContent = modeText(realSec, simSec);
+  $('rdModeBox').classList.toggle('real', $('rdMode').textContent==='REAL TIME');
+  $('rdModeBox').classList.add('blink');
+  $('rdElapsed').textContent = '0 sec';
+  $('rdElapsedBox').classList.remove('done'); $('rdElapsedBox').classList.add('blink');
+  $('rdCoveredBox').classList.remove('done'); $('rdCoveredBox').classList.add('blink');
+  $('rdCovered').textContent = '0 km';
+  $('transmitStatus').textContent = 'SIGNAL EN ROUTE TO '+dest.name.toUpperCase();
+  $('progressFill').classList.remove('reverse');
+  $('progressFill').style.width = '0%';
+  warpDir = 1;
+  sizeScene();
+  tone(180,0.6,{to:900,type:'sawtooth',vol:.035});
 }
 
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(timerHandle) clearTimeout(timerHandle);
-  document.getElementById('transmitPanel').classList.add('hidden');
-  document.getElementById('composePanel').classList.remove('hidden');
-  document.getElementById('msgInput').value = '';
-  updatePreview();
+function onPhase(phase){
+  const fill = $('progressFill'), dn = S.dest.name.toUpperCase();
+  if(phase==='out'){ fill.classList.remove('reverse'); }
+  if(phase==='turn'){
+    $('transmitStatus').textContent = 'REACHED '+dn+' — REPLY EN ROUTE BACK';
+    $('progressLabel').textContent = 'PREPARING RETURN SIGNAL...';
+    fill.style.width = '100%';
+    $('rdDelay').textContent = formatDuration(S.realSec);
+    $('rdDelayBox').classList.remove('pending'); $('rdDelayBox').classList.add('reveal');
+    tone(880,0.15); tone(1320,0.2,{delay:.14});
+  }
+  if(phase==='back'){
+    fill.classList.add('reverse'); fill.style.width='0%';
+    warpDir = -1;
+    tone(900,0.5,{to:200,type:'sawtooth',vol:.03});
+  }
+  if(phase==='done'){
+    $('progressLabel').textContent = 'DELIVERED';
+    fill.style.width = '100%';
+  }
+}
+
+function updateReadouts(phase,p,f){
+  const fill = $('progressFill');
+  if(phase==='out'){ fill.style.width = (p*100)+'%'; }
+  if(phase==='back'){ fill.style.width = (p*100)+'%'; }
+  if(phase==='out' || phase==='back'){
+    const leg = phase==='out' ? 'OUTBOUND' : 'RETURN';
+    $('progressLabel').textContent = leg+' · '+Math.round(p*100)+'% · '+formatDuration(S.realSec*(1-p))+' REAL DELAY REMAINING';
+  }
+  $('rdElapsed').textContent = formatDuration(S.realSec*f);
+  $('rdCovered').textContent = formatDistance(S.km*f);
+}
+
+function step(now){
+  const el = (now - S.t0)/1000, sim = S.simSec;
+  let phase, p, f;
+  if(el < sim){ phase='out'; p=el/sim; f=p; }
+  else if(el < sim+TURN){ phase='turn'; p=1; f=1; }
+  else if(el < 2*sim+TURN){ phase='back'; p=(el-sim-TURN)/sim; f=1+p; }
+  else { phase='done'; p=1; f=2; }
+
+  warp = Math.min(1, warp + (phase==='done'?-0.04:0.06));
+  S.el = el;
+  drawScene(phase,p,el,now);
+
+  if(phase!==S.phase){ S.phase=phase; onPhase(phase); updateReadouts(phase,p,f); S.lastDom=now; }
+  else if(now - S.lastDom > 70){ updateReadouts(phase,p,f); S.lastDom=now; }
+
+  if(phase==='done'){
+    if(!S.delivered){ S.delivered=true; S.endEl=el; showReply(); }
+    if(el > 2*sim+TURN+1.3){ S.running=false; }
+  }
+}
+
+/* ---------- reply ---------- */
+let typeTimer=null;
+function showReply(){
+  const dest = S.dest, real = S.realSec, km = S.km;
+  const options = replyTemplates[dest.id] || ['Signal received.'];
+  const reply = options[Math.floor(Math.random()*options.length)];
+
+  $('abortRow').classList.add('hidden');
+  $('transmitStatus').textContent = 'TRANSMISSION COMPLETE';
+  $('rdElapsedBox').classList.remove('blink'); $('rdElapsedBox').classList.add('done'); $('rdModeBox').classList.remove('blink'); $('rdCoveredBox').classList.remove('blink'); $('rdCoveredBox').classList.add('done');
+  $('echoText').textContent = 'YOUR MESSAGE: “'+S.msg+'” — RECEIVED INTACT';
+  $('tArrive').textContent = arrivalText(real);
+  $('tReply').textContent = arrivalText(real*2);
+  $('rDist').textContent = formatDistance(km);
+  $('rOne').textContent = formatDuration(real);
+  $('rRound').textContent = formatDuration(real*2);
+
+  const laps = km/EARTH_CIRC_KM;
+  const lapTxt = laps >= 1
+    ? 'Light could circle the Earth <b>'+fmtNum(laps, laps<100?1:0)+' times</b> in that one-way trip.'
+    : 'That one-way trip is only <b>'+fmtNum(laps*100,1)+'%</b> of a lap around the Earth for light.';
+  const facts = [
+    lapTxt,
+    'A jet airliner (900 km/h) would need <b>'+formatDuration(km/900*3600)+'</b> to get there.',
+    'Voyager 1 (about 17 km/s) would need <b>'+formatDuration(km/16.95)+'</b>.',
+    'Parker Solar Probe, the fastest craft ever built (about 192 km/s), would need <b>'+formatDuration(km/192)+'</b>.',
+  ];
+  $('facts').innerHTML = facts.map(x=>'<li>'+x+'</li>').join('');
+
+  const rt = $('replyText');
+  rt.textContent = ''; rt.classList.add('typing');
+  clearInterval(typeTimer);
+  let i = 0;
+  typeTimer = setInterval(()=>{
+    rt.textContent = reply.slice(0,++i);
+    if(i>=reply.length){ clearInterval(typeTimer); rt.classList.remove('typing'); }
+  }, reduceMotion?0:24);
+  $('replyPanel').classList.add('show');
+  tone(523,0.18); tone(659,0.18,{delay:.15}); tone(784,0.3,{delay:.3});
+
+  S.reply = reply;
+  addLog({d:dest.name, m:S.msg, rt:formatDuration(real*2), ts:Date.now()});
+  renderLog();
+}
+
+/* ---------- log ---------- */
+const LOG_KEY = 'rv_lightspeed_log';
+function readLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ return []; } }
+function writeLog(a){ try{ localStorage.setItem(LOG_KEY, JSON.stringify(a)); }catch(e){} }
+let memLog = null;
+function addLog(entry){
+  const a = readLog(); a.unshift(entry);
+  const trimmed = a.slice(0,6);
+  writeLog(trimmed); memLog = trimmed;
+}
+function renderLog(){
+  const a = memLog || readLog();
+  ['logList','logList2'].forEach(id=>{
+    const ul = $(id); ul.textContent='';
+    a.forEach(e=>{
+      const li = document.createElement('li');
+      const d = document.createElement('span'); d.className='d'; d.textContent = String(e.d).toUpperCase();
+      const m = document.createElement('span'); m.className='m'; m.textContent = '\u201C'+e.m+'\u201D';
+      const t = document.createElement('span'); t.className='t'; t.textContent = 'RT '+e.rt;
+      li.append(d,m,t); ul.appendChild(li);
+    });
+  });
+  $('logPanel').classList.toggle('hidden', !a.length || !$('transmitPanel').classList.contains('hidden'));
+}
+['clearLog','clearLog2'].forEach(id=>$(id).addEventListener('click',()=>{ writeLog([]); memLog=[]; renderLog(); }));
+
+/* ---------- buttons ---------- */
+function backToCompose(){
+  S.running = false; clearInterval(typeTimer);
+  warpDir = 1;
+  $('transmitPanel').classList.add('hidden');
+  $('composePanel').classList.remove('hidden');
+  msgInput.value=''; updateCount(); updatePreview(); renderLog();
+}
+$('sendBtn').addEventListener('click', startTransmission);
+$('resetBtn').addEventListener('click', backToCompose);
+$('abortBtn').addEventListener('click', ()=>{ backToCompose(); });
+$('copyBtn').addEventListener('click', ()=>{
+  const url = 'https://rameshverse.com/light-speed-messenger?to='+S.dest.id;
+  const text = 'I sent “'+S.msg+'” to '+S.dest.name+' at the speed of light. One-way: '+formatDuration(S.realSec)+
+    ', round trip: '+formatDuration(S.realSec*2)+'. Reply: “'+S.reply+'” Try it: '+url;
+  const done = ()=>{ $('copyBtn').textContent='COPIED ✓'; setTimeout(()=>{ $('copyBtn').textContent='COPY RESULT'; },1600); };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done,()=>{}); }
+  else{ done(); }
 });
+window.addEventListener('resize', ()=>{
+  sizeBg();
+  if(!$('transmitPanel').classList.contains('hidden')){
+    sizeScene();
+    if(S.phase==='done' && !S.running) drawScene('done',1,S.endEl+10,performance.now());
+  }
+});
+
+/* ---------- main loop ---------- */
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(.05,(now-last)/1000); last = now;
+  if(!S.running) warp = Math.max(0, warp-0.03);
+  drawBg(now/1000, dt);
+  if(S.running) step(now);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+renderLog();
+
+})();
 </script>
 
 <script src="/libraries/config.js"></script>

@@ -94,7 +94,9 @@ h1 {
   align-items: center;
 }
 
-#themeToggle {
+.masthead { gap: 8px; }
+
+#themeToggle, #focusToggle {
   background: var(--paper-3);
   border: 1px solid var(--line);
   border-radius: 50%;
@@ -391,6 +393,90 @@ button:disabled {
   pointer-events: none;
 }
 
+/* ---------- NEW: mood strip, chips, folds, search, prompts, toast ---------- */
+
+.stats-line .backup-note { transition: color .2s; }
+.stats-line.warn .backup-note { color: #a63b2e; font-weight: 600; }
+body.dark .stats-line.warn .backup-note { color: #e58b78; }
+
+.mood-strip {
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px; flex-wrap: wrap; margin: -12px 0 20px;
+}
+.ms-label { font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.4px; margin-right: 6px; }
+.ms {
+  width: 26px; height: 26px; padding: 0; border-radius: 8px;
+  font-size: 14px; line-height: 1; background: var(--paper-3);
+  border: 1px dashed var(--line); color: var(--ink-faint);
+}
+.ms.has { border-style: solid; background: var(--paper-2); }
+.ms.cur { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+.mood-chips { order: 5; width: 100%; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.mood-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 999px; font-size: 13px;
+}
+.mood-chip .me { font-size: 15px; line-height: 1; }
+.mood-chip.on { background: var(--accent); color: var(--paper-3); border-color: var(--accent); }
+.mood-chip.on:hover { background: var(--accent); }
+
+.otd { border-left: 3px solid var(--accent-2); }
+.otd .otd-text {
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 14.5px;
+  line-height: 1.6; color: var(--ink-soft); margin: 0 0 10px; white-space: pre-wrap;
+}
+.otd[hidden] { display: none; }
+
+details.fold { padding: 0; }
+details.fold > summary {
+  list-style: none; cursor: pointer; padding: 14px 16px; margin: 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::after { content: "+"; font-size: 18px; color: var(--ink-faint); line-height: 1; }
+details.fold[open] > summary::after { content: "\2212"; }
+details.fold > summary:hover { color: var(--accent); }
+.fold-body { padding: 0 16px 16px; }
+
+#searchInput {
+  width: 100%; padding: 10px 12px; font-size: 15px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+}
+#searchInput:focus { outline: none; border-color: var(--accent); }
+.search-note { font-size: 11.5px; color: var(--ink-faint); margin: 8px 2px 0; }
+.sr {
+  display: block; width: 100%; text-align: left; margin-top: 6px;
+  padding: 9px 12px; border-radius: 10px; font-size: 13px; line-height: 1.5;
+}
+.sr .sr-head { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-soft); margin-bottom: 2px; font-weight: 600; }
+.sr mark { background: rgba(189,107,71,0.28); color: inherit; border-radius: 3px; padding: 0 1px; }
+
+.prompt-line {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0 4px;
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 14.5px; color: var(--ink-soft);
+}
+.prompt-line #promptText { flex: 1; min-width: 0; line-height: 1.45; }
+.mini { padding: 5px 10px; font-size: 12.5px; flex-shrink: 0; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px);
+  background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 999px;
+  font-size: 13.5px; box-shadow: 0 8px 24px var(--shadow); opacity: 0; pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease; z-index: 60; max-width: calc(100vw - 32px); text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Export and Search sit under the page */
+.bottom-panels { margin-top: 18px; }
+
+/* Focus mode: only the page itself */
+body.focus .subtitle, body.focus .stats-line, body.focus .mood-strip,
+body.focus .panel, body.focus .prompt-line { display: none; }
+body.focus textarea { min-height: 70vh; }
+body.focus #focusToggle { background: var(--accent); color: var(--paper-3); border-color: var(--accent); }
+
 /* ---------- DARK MODE ---------- */
 
 body.dark {
@@ -425,7 +511,7 @@ body.dark textarea {
   body {
     padding-left: 12px;
     padding-right: 12px;
-    padding-top: 0.75rem;
+    padding-top: 60px;   /* room for the fixed focus + theme buttons */
     padding-bottom: 0.75rem;
     margin: 0;
   }
@@ -447,12 +533,18 @@ body.dark textarea {
     font-size: 15px;
   }
 
-  #themeToggle {
+  #themeToggle, #focusToggle {
     position: fixed;
     top: 12px;
     right: 12px;
     z-index: 10;
   }
+
+  #focusToggle { right: 60px; }
+
+  .ms-label { flex-basis: 100%; text-align: center; margin: 0 0 4px; }
+  .mood-chip .mn { display: none; }
+  .mood-chip { padding: 8px 11px; }
 
   .masthead { justify-content: flex-start; height: 0; }
 
@@ -478,12 +570,16 @@ body.dark textarea {
 <body>
 
 <div class="masthead">
+  <button id="focusToggle" title="Focus mode: hide everything except the page (Esc to leave)">🧘</button>
   <button id="themeToggle" title="Toggle dark mode">🌙</button>
 </div>
 
 <h1>My Calm Daily Diary</h1>
 <p class="subtitle">A quiet page for today's thoughts</p>
 <p class="stats-line" id="statsLine"></p>
+<div class="mood-strip" id="moodStrip" aria-label="Your last 14 days"></div>
+
+<div class="panel otd" id="onThisDay" hidden></div>
 
 <div class="panel">
   <p class="panel-title">Today</p>
@@ -512,39 +608,18 @@ body.dark textarea {
       </div>
     </div>
 
-    <select id="mood">
-      <option value="😊">😊 Happy</option>
-      <option value="😐">😐 Neutral</option>
-      <option value="😞">😞 Sad</option>
-      <option value="🤯">🤯 Stressed</option>
-    </select>
+    <select id="mood" aria-label="Mood"></select>
 
     <button id="prevBtn" title="Previous entry">⬅ Previous</button>
     <button id="nextBtn" title="Next entry">Next ➡</button>
+    <button id="todayBtn" type="button" title="Go to today">Today</button>
+
   </div>
 </div>
 
-<div class="panel">
-  <p class="panel-title">Export &amp; Backup</p>
-  <div class="top-bar">
-    <button class="btn-accent" id="downloadBtn">⬇️ Entry PDF</button>
-    <button class="btn-accent" id="downloadDiaryBtn">⬇️ Full Diary PDF</button>
-    <button id="backupBtn">💾 Backup</button>
-    <button id="restoreBtn">📂 Restore</button>
-    <button class="btn-danger" id="deleteAllBtn">🗑 Delete All</button>
-
-    <input
-      type="file"
-      id="restoreFile"
-      accept=".json"
-      hidden
-    >
-  </div>
-</div>
-
-<div class="panel">
-  <p class="panel-title">Read Aloud</p>
-  <div class="voice-bar">
+<details class="panel fold" id="voicePanel">
+  <summary class="panel-title">Read Aloud</summary>
+  <div class="fold-body"><div class="voice-bar">
     <select id="voiceSelect"></select>
 
     <div class="voice-actions">
@@ -552,7 +627,13 @@ body.dark textarea {
       <button id="stopBtn">⏹ Stop</button>
     </div>
   </div>
-  <p class="voice-note" id="voiceNote" hidden>No built-in voice was found on this device, so Read Aloud is not available here.</p>
+  <p class="voice-note" id="voiceNote" hidden>No built-in voice was found on this device, so Read Aloud is not available here.</p></div>
+</details>
+
+<div class="prompt-line">
+  <span id="promptText"></span>
+  <button type="button" class="mini" id="promptBtn" title="Another prompt">🎲</button>
+  <button type="button" class="mini" id="promptUse" title="Add this prompt to the page">Use</button>
 </div>
 
 <textarea
@@ -571,6 +652,37 @@ body.dark textarea {
   <span id="status">Auto-saved</span>
 </div>
 
+<div class="bottom-panels">
+<details class="panel fold" id="exportPanel">
+  <summary class="panel-title">Export &amp; Backup</summary>
+  <div class="fold-body"><div class="top-bar">
+    <button class="btn-accent" id="downloadBtn">⬇️ Entry PDF</button>
+    <button class="btn-accent" id="downloadDiaryBtn">⬇️ Full Diary PDF</button>
+    <button id="backupBtn">💾 Backup</button>
+    <button id="restoreBtn">📂 Restore</button>
+    <button class="btn-danger" id="deleteAllBtn">🗑 Delete All</button>
+
+    <input
+      type="file"
+      id="restoreFile"
+      accept=".json"
+      hidden
+    >
+  </div></div>
+</details>
+
+<details class="panel fold" id="searchPanel">
+  <summary class="panel-title">Search entries</summary>
+  <div class="fold-body">
+    <input id="searchInput" type="search" placeholder="Search words, or a mood like “happy”…" autocomplete="off">
+    <p class="search-note" id="searchNote">Type at least 2 letters</p>
+    <div id="searchResults"></div>
+  </div>
+</details>
+</div>
+
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="../libraries/pdf/jspdf.umd.min.js"></script>
 
@@ -620,9 +732,14 @@ let saveTimer = null;
 
 const MOOD_NAMES = {
   "😊": "Happy",
+  "😌": "Calm",
+  "🥰": "Grateful",
   "😐": "Neutral",
+  "😴": "Tired",
   "😞": "Sad",
-  "🤯": "Stressed"
+  "😰": "Anxious",
+  "🤯": "Stressed",
+  "😠": "Angry"
 };
 
 // Reads one saved day. Returns { text, mood } or null if missing or damaged,
@@ -637,6 +754,188 @@ function readEntry(date) {
   return null;
 }
 
+// ---------- Moods, prompts, toast, search (set up before the first entry loads) ----------
+
+const moodStripEl = document.getElementById("moodStrip");
+const onThisDayEl = document.getElementById("onThisDay");
+const toastEl = document.getElementById("toast");
+const promptTextEl = document.getElementById("promptText");
+
+Object.keys(MOOD_NAMES).forEach(m => {
+  const opt = document.createElement("option");
+  opt.value = m;
+  opt.textContent = m + " " + MOOD_NAMES[m];
+  moodSelect.appendChild(opt);
+
+});
+
+function syncMoodChips() { /* mood is a plain dropdown now */ }
+
+let toastTimer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
+}
+
+function snippetOf(text, max) {
+  const flat = text.replace(/\s+/g, " ").trim();
+  return flat.length > max ? flat.slice(0, max).trimEnd() + "…" : flat;
+}
+
+// Last 14 days at a glance: tap a day to open it
+function renderMoodStrip() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let html = '<span class="ms-label">Last 14 days</span>';
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = toKey(d);
+    const e = readEntry(key);
+    const title = formatShort(key) + (e ? " · " + MOOD_NAMES[e.mood] : " · no entry");
+    html += '<button type="button" class="ms' + (e ? " has" : "") + (key === currentDate ? " cur" : "") +
+            '" data-key="' + key + '" title="' + title + '" aria-label="' + title + '">' + (e ? e.mood : "") + '</button>';
+  }
+  moodStripEl.innerHTML = html;
+}
+moodStripEl.addEventListener("click", (e) => {
+  const b = e.target.closest(".ms");
+  if (b) { loadEntry(b.dataset.key); status.textContent = "Loaded"; }
+});
+
+// "On this day": an entry written on this date in an earlier year
+function renderOnThisDay() {
+  const mmdd = currentDate.slice(5);
+  const year = Number(currentDate.slice(0, 4));
+  const prev = getDiaryDates().filter(d => d.slice(5) === mmdd && Number(d.slice(0, 4)) < year).pop();
+  const entry = prev ? readEntry(prev) : null;
+  if (!entry) { onThisDayEl.hidden = true; return; }
+
+  const years = year - Number(prev.slice(0, 4));
+  onThisDayEl.textContent = "";
+  const title = document.createElement("p");
+  title.className = "panel-title";
+  title.textContent = "On this day · " + years + " year" + (years === 1 ? "" : "s") + " ago";
+  const txt = document.createElement("p");
+  txt.className = "otd-text";
+  txt.textContent = entry.mood + "  " + snippetOf(entry.text, 200);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = "Open " + formatShort(prev);
+  btn.addEventListener("click", () => { loadEntry(prev); status.textContent = "Loaded"; });
+  onThisDayEl.append(title, txt, btn);
+  onThisDayEl.hidden = false;
+}
+
+// Gentle writing prompts
+const PROMPTS = [
+  "What made you smile today?",
+  "What is weighing on your mind right now?",
+  "Describe a small moment you want to remember.",
+  "What are three things you are grateful for today?",
+  "What did you learn today?",
+  "Who did you think about today, and why?",
+  "What would make tomorrow a good day?",
+  "What is something you are proud of this week?",
+  "Write about a place where you feel calm.",
+  "What is one thing you would tell yourself a year ago?",
+  "What are you looking forward to?",
+  "What drained your energy today, and what restored it?",
+  "Describe today in three words, then explain them.",
+  "What is a fear you would like to let go of?",
+  "What did you do today just for yourself?",
+  "Write about someone who made your day easier.",
+  "What is one thing you want to change, and one you want to keep?",
+  "What did you notice today that you usually miss?",
+  "What is a memory that came back to you recently?",
+  "If today were a chapter in a book, what would it be called?"
+];
+let promptIndex = Math.floor(Date.now() / 864e5) % PROMPTS.length;
+function showPrompt() { promptTextEl.textContent = PROMPTS[promptIndex % PROMPTS.length]; }
+document.getElementById("promptBtn").addEventListener("click", () => { promptIndex++; showPrompt(); });
+document.getElementById("promptUse").addEventListener("click", () => {
+  const p = PROMPTS[promptIndex % PROMPTS.length];
+  const cur = diaryText.value;
+  diaryText.value = cur.trim() ? cur.replace(/\s+$/, "") + "\n\n" + p + "\n" : p + "\n";
+  diaryText.focus();
+  diaryText.setSelectionRange(diaryText.value.length, diaryText.value.length);
+  updateWordCount();
+  autoSave();
+});
+showPrompt();
+
+// Search across all entries
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+const searchNote = document.getElementById("searchNote");
+
+function runSearch() {
+  const q = searchInput.value.trim().toLowerCase();
+  searchResults.textContent = "";
+  if (q.length < 2) { searchNote.textContent = "Type at least 2 letters"; return; }
+
+  const hits = [];
+  getDiaryDates().reverse().forEach(d => {
+    const e = readEntry(d);
+    if (!e) return;
+    const inText = e.text.toLowerCase().indexOf(q);
+    const inMood = MOOD_NAMES[e.mood].toLowerCase().includes(q);
+    if (inText >= 0 || inMood) hits.push({ d, e, at: inText });
+  });
+
+  searchNote.textContent = hits.length
+    ? hits.length + (hits.length === 1 ? " entry found" : " entries found") + (hits.length > 40 ? " (showing 40)" : "")
+    : "No entries found";
+
+  hits.slice(0, 40).forEach(h => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "sr";
+    const head = document.createElement("div");
+    head.className = "sr-head";
+    const l = document.createElement("span"); l.textContent = formatLong(h.d);
+    const r = document.createElement("span"); r.textContent = h.e.mood + " " + MOOD_NAMES[h.e.mood];
+    head.append(l, r);
+    const body = document.createElement("div");
+    if (h.at >= 0) {
+      const flat = h.e.text.replace(/\s+/g, " ");
+      const idx = flat.toLowerCase().indexOf(q);
+      const start = Math.max(0, idx - 40);
+      const end = Math.min(flat.length, idx + q.length + 90);
+      body.append(
+        document.createTextNode((start > 0 ? "…" : "") + flat.slice(start, idx)),
+        Object.assign(document.createElement("mark"), { textContent: flat.slice(idx, idx + q.length) }),
+        document.createTextNode(flat.slice(idx + q.length, end) + (end < flat.length ? "…" : ""))
+      );
+    } else {
+      body.textContent = snippetOf(h.e.text, 120);
+    }
+    b.append(head, body);
+    b.addEventListener("click", () => { loadEntry(h.d); status.textContent = "Loaded"; window.scrollTo({ top: 0, behavior: "smooth" }); });
+    searchResults.appendChild(b);
+  });
+}
+searchInput.addEventListener("input", runSearch);
+
+// Focus mode
+const focusToggle = document.getElementById("focusToggle");
+function setFocus(on) {
+  document.body.classList.toggle("focus", on);
+  focusToggle.title = on ? "Leave focus mode (Esc)" : "Focus mode: hide everything except the page (Esc to leave)";
+  if (on) diaryText.focus();
+}
+focusToggle.addEventListener("click", () => setFocus(!document.body.classList.contains("focus")));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.body.classList.contains("focus") && calendarPopup.hidden) setFocus(false);
+});
+
+document.getElementById("todayBtn").addEventListener("click", () => {
+  loadEntry(toKey(new Date()));
+  status.textContent = "Loaded";
+});
+
 // Load entry
 loadEntry(currentDate);
 
@@ -649,8 +948,10 @@ function getDiaryDates() {
 
 function updateStatsLine() {
   const dates = getDiaryDates();
+  renderMoodStrip();
   if (dates.length === 0) {
     statsLine.textContent = "No entries yet — today is a good day to start";
+    statsLine.classList.remove("warn");
     return;
   }
 
@@ -665,17 +966,21 @@ function updateStatsLine() {
 
   // Entries live only in this browser, so say when they were last backed up
   let backupNote = "";
+  let needsBackup = false;
   try {
     const t = parseInt(localStorage.getItem("diary-last-backup"), 10);
     if (Number.isFinite(t)) {
       const days = Math.floor((Date.now() - t) / 864e5);
       backupNote = days < 1 ? " · backed up today" : ` · last backup ${days} day${days === 1 ? "" : "s"} ago`;
+      needsBackup = days >= 7;
     } else {
-      backupNote = " · never backed up";
+      backupNote = " · stored only on this device, back up to keep a copy";
+      needsBackup = true;
     }
   } catch (e) { /* storage unavailable */ }
+  statsLine.classList.toggle("warn", needsBackup);
 
-  statsLine.innerHTML = `<b>${dates.length}</b> ${dates.length === 1 ? "entry" : "entries"} written · <b>${streak}</b> day streak${backupNote}`;
+  statsLine.innerHTML = `<b>${dates.length}</b> ${dates.length === 1 ? "entry" : "entries"} written · <b>${streak}</b> day streak<span class="backup-note">${backupNote}</span>`;
 }
 
 // BUG FIX: previously this only enabled Prev/Next when the *currently open*
@@ -720,9 +1025,11 @@ function loadEntry(date) {
   diaryText.value = data.text;
   moodSelect.value = data.mood;
   document.getElementById("dateBtnLabel").textContent = formatLong(date);
+  syncMoodChips();
   updateWordCount();
   updateNavigationButtons();
   updateStatsLine();
+  renderOnThisDay();
 }
 
 
@@ -747,6 +1054,7 @@ function saveNow() {
   status.textContent = "Auto-saved ✔";
   updateNavigationButtons();
   updateStatsLine();
+  renderOnThisDay();
   if (!calendarPopup.hidden) renderCalendar();
   return true;
 }
@@ -764,7 +1072,8 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && sav
 // Word count
 function updateWordCount() {
   const words = diaryText.value.trim().split(/\s+/).filter(Boolean);
-  wordCount.textContent = `${words.length} words`;
+  const mins = Math.max(1, Math.ceil(words.length / 200));
+  wordCount.textContent = `${words.length} ${words.length === 1 ? "word" : "words"}` + (words.length ? ` · ${mins} min read` : "");
 }
 
 // Events
@@ -795,7 +1104,7 @@ diaryText.addEventListener("keydown", (e) => {
 
 });
 
-moodSelect.addEventListener("change", autoSave);
+moodSelect.addEventListener("change", () => { syncMoodChips(); autoSave(); });
 
 const moodNames = MOOD_NAMES;
 
@@ -1106,6 +1415,7 @@ backupBtn.addEventListener("click", () => {
 
       try { localStorage.setItem("diary-last-backup", String(Date.now())); } catch (e) {}
       updateStatsLine();
+      toast("Backup downloaded · keep the file somewhere safe");
 
 });
 
@@ -1148,7 +1458,7 @@ loadEntry(currentDate);
 
 updateNavigationButtons();
 
-alert("All diary entries have been deleted.");
+toast("All diary entries deleted");
 
 });
 
@@ -1203,11 +1513,7 @@ Do you want to continue?`
 
         updateNavigationButtons();
 
-        alert(
-`Diary restored.
-${imported} ${imported === 1 ? "entry" : "entries"} imported.` + (skipped ? `
-${skipped} could not be imported.` : "")
-        );
+        toast(`Diary restored · ${imported} ${imported === 1 ? "entry" : "entries"} imported` + (skipped ? ` · ${skipped} could not be imported` : ""));
 
     };
 

@@ -13,309 +13,397 @@
 
 <link rel="canonical" href="https://rameshverse.com/percentage-of-total">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
-
-  :root {
-    --bg: #0f172a;
-    --card: #020617;
-    --track: #1e293b;
-    --ring-a: #6366f1;
-    --ring-b: #a855f7;
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --error: #f87171;
-    --field: #0b1220;
-    --field-border: #1e293b;
+  :root{
+    --bg:#050505; --panel:rgba(11,8,8,.88); --line:#2a1616;
+    --red:#ff2b2b; --red-dim:#7a1414;
+    --amber:#ffb02b;
+    --text:#e8e2e2; --text-dim:#8a7a7a;
+    --up:#2bff88; --down:#ff2b2b; --error:#ff7a75;
+    --font:'Space Mono', ui-monospace, monospace;
   }
-
-  * { box-sizing: border-box; }
-
-  body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
+  /* starts at the top of the page */
+  body{min-height:100vh; padding:20px 16px 50px; position:relative; overflow-x:hidden;}
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; z-index:50;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      radial-gradient(circle at 20% -10%, rgba(99,102,241,0.15), transparent 45%),
-      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
-      var(--bg);
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    min-height: 100svh;
-    margin: 0;
-    padding: 16px;
+      repeating-linear-gradient(0deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      repeating-linear-gradient(90deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.09), transparent 60%);
   }
+  .wrap{max-width:560px; margin:0 auto; position:relative; z-index:1;}
 
-  .calculator {
-    background: var(--card);
-    padding: 24px;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 380px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    border: 1px solid rgba(148,163,184,0.08);
+  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px; gap:12px;}
+  .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
+  .back-link:hover{color:var(--red);}
+  .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  h1{font-size:21px; letter-spacing:3px; font-weight:700;}
+  h1 span{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .tagline{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); margin-top:6px;}
+  .status{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-align:right; white-space:nowrap;}
+  .status b{display:block; color:var(--red); font-size:11px; margin-top:3px;}
+  .status.ok b{color:var(--up);}
+  .status.err b{color:var(--error);}
+  .status b::before{content:"● "; animation:blink 1.4s infinite;}
+  @keyframes blink{50%{opacity:.25;}}
+
+  .panel{position:relative; background:var(--panel); backdrop-filter:blur(3px); border:1px solid var(--line); padding:18px; margin-bottom:14px; animation:rise .5s ease both;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{position:absolute; width:10px; height:10px; border-color:var(--red); border-style:solid; opacity:.7;}
+  .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
+  .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
+  .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
+
+  /* ---------- Ring ---------- */
+  .ring-wrap{display:flex; justify-content:center; margin-bottom:16px;}
+  .ring-inner{position:relative; width:176px; height:176px;}
+  .ring-inner svg{width:100%; height:100%; transform:rotate(-90deg); overflow:visible;}
+  .ring-tick{fill:none; stroke:var(--line); stroke-width:14; stroke-dasharray:1.4 9.6;}
+  .ring-track{fill:none; stroke:rgba(255,43,43,.08); stroke-width:3;}
+  .ring-fill{fill:none; stroke:var(--red); stroke-width:6; stroke-dasharray:439.8; stroke-dashoffset:439.8; transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1); filter:drop-shadow(0 0 6px rgba(255,43,43,.65));}
+  .ring-fill.over{stroke:var(--amber); filter:drop-shadow(0 0 6px rgba(255,176,43,.65));}
+  .ring-label{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 26px; text-align:center;}
+  .ring-value{font-size:26px; font-weight:700; line-height:1.1; color:var(--text); word-break:break-all; max-width:100%;}
+  .ring-value.on{color:var(--red); text-shadow:0 0 12px rgba(255,43,43,.4);}
+  .ring-value.over{color:var(--amber); text-shadow:0 0 12px rgba(255,176,43,.35);}
+  .ring-caption{font-size:9px; color:var(--text-dim); margin-top:6px; letter-spacing:2px;}
+
+  /* ---------- Fields ---------- */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .chip{padding:5px 10px; font-size:10px; letter-spacing:.5px; color:var(--text-dim); border:1px solid var(--line); background:transparent; cursor:pointer; font-family:var(--font);}
+  .chip:hover{color:var(--text); background:#1a0d0d;}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px; min-width:0;}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  label{font-size:10px; letter-spacing:1.5px; color:var(--red); text-transform:uppercase;}
+  label small{display:block; color:var(--text-dim); font-size:9px; letter-spacing:.5px; text-transform:none; margin-top:2px;}
+  input{
+    width:100%; height:50px; padding:0 14px; background:#160d0d; border:1px solid var(--red-dim); border-left:3px solid var(--red);
+    color:#fff; font-family:var(--font); font-size:16px; outline:none;
+    box-shadow:inset 0 0 22px rgba(255,43,43,.07), 0 0 16px rgba(255,43,43,.08);
+    transition:border-color .15s, box-shadow .15s;
   }
+  #total{border-left-color:var(--amber);}
+  input::placeholder{color:#7a5a5a;}
+  input:focus{border-color:var(--red); box-shadow:inset 0 0 22px rgba(255,43,43,.1), 0 0 24px rgba(255,43,43,.3);}
+  /* hide the browser spinner arrows */
+  input[type=number]{-moz-appearance:textfield; appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
 
-  h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    text-align: center;
-    margin: 0 0 6px;
-    font-size: 21px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
+  /* ---------- Buttons ---------- */
+  button{font-family:var(--font); letter-spacing:1.5px; cursor:pointer; transition:all .15s;}
+  button:active{transform:translateY(1px);}
+  .ghost{width:100%; height:44px; padding:0 16px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .ghost:hover{background:var(--red-dim); color:var(--text);}
+  .copy-btn{width:100%; height:40px; margin-top:12px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .copy-btn:hover{background:var(--red-dim); color:var(--text);}
+  .copy-btn[hidden]{display:none;}
+
+  /* ---------- Results ---------- */
+  .result{margin-top:18px; text-align:center; font-size:22px; font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere; min-height:34px; letter-spacing:1px;}
+  .result.pop{animation:pop .35s ease;}
+  @keyframes pop{0%{transform:scale(.95); opacity:.4;}100%{transform:none; opacity:1;}}
+  .result-sub{text-align:center; font-size:11px; letter-spacing:.5px; color:var(--text-dim); margin-top:4px; min-height:16px; line-height:1.5; word-break:break-word; overflow-wrap:anywhere;}
+  .awaiting{color:var(--red-dim); font-size:15px; letter-spacing:3px; animation:blink 1.4s infinite;}
+  .main{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .negative{color:var(--down);}
+  .error{color:var(--error); font-size:13px; font-weight:700; letter-spacing:1px;}
+
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;}
+  .stats[hidden]{display:none;}
+  .stat{border:1px solid var(--line); background:rgba(15,10,10,.7); padding:10px 12px; min-width:0;}
+  .stat span{display:block; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:5px; text-transform:uppercase;}
+  .stat b{font-size:15px; font-weight:700; word-break:break-word; overflow-wrap:anywhere;}
+  .hint{font-size:10.5px; color:var(--text-dim); margin-top:12px; line-height:1.55; text-align:center; min-height:16px; letter-spacing:.3px;}
+
+  .about{font-size:11px; color:var(--text-dim); line-height:1.6;}
+  .about strong{color:var(--text);}
+  .about .example{margin-top:10px; padding:10px 12px; background:rgba(15,10,10,.7); border:1px solid var(--line);}
+  .about a{color:var(--red); text-decoration:none; border-bottom:1px dashed var(--red-dim);}
+  .about a:hover{color:var(--text);}
+  footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+
+  @media (max-width:480px){
+    h1{font-size:16px; letter-spacing:2px;}
+    .row-2{grid-template-columns:1fr; gap:0;}
+    .result{font-size:19px;}
+    .status{display:none;}
   }
-
-  .subtitle {
-    text-align: center;
-    font-size: 13.5px;
-    color: var(--muted);
-    margin-bottom: 20px;
-    line-height: 1.4;
-  }
-
-  /* --- Signature element: live donut ring showing part-of-whole --- */
-  .ring-wrap {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 22px;
-  }
-
-  .ring-inner {
-    position: relative;
-    width: 168px;
-    height: 168px;
-  }
-
-  .ring-inner svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-
-  .ring-track { fill: none; stroke: var(--track); stroke-width: 12; }
-
-  .ring-fill {
-    fill: none;
-    stroke: url(#ringGradient);
-    stroke-width: 12;
-    stroke-linecap: round;
-    stroke-dasharray: 439.8;
-    stroke-dashoffset: 439.8;
-    transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1);
-  }
-
-  .ring-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .ring-value {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .ring-caption {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-    letter-spacing: 0.3px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  label {
-    font-size: 13.5px;
-    color: #cbd5f5;
-  }
-
-  input {
-    width: 100%;
-    height: 50px;
-    padding: 0 14px;
-    border-radius: 12px;
-    border: 1px solid var(--field-border);
-    outline: none;
-    font-size: 16px;
-    background: var(--field);
-    color: var(--text);
-    font-family: 'Space Grotesk', sans-serif;
-    transition: border-color 0.2s;
-  }
-
-  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
-  input:focus { border-color: var(--ring-a); }
-
-  button {
-    width: 100%;
-    height: 52px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    background: linear-gradient(135deg, var(--ring-a), var(--ring-b));
-    color: white;
-    margin-top: 4px;
-    font-family: 'Inter', sans-serif;
-  }
-
-  button:active { transform: scale(0.98); }
-
-  .result {
-    margin-top: 16px;
-    text-align: center;
-    font-size: 15.5px;
-    font-weight: 500;
-    line-height: 1.4;
-    word-break: break-word;
-    min-height: 20px;
-  }
-
-  .error { color: var(--error); font-size: 14px; }
-
-  .about {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(148,163,184,0.12);
-    font-size: 12.5px;
-    color: var(--muted);
-    line-height: 1.55;
-  }
-
-  .about strong { color: #cbd5f5; }
-
-  .about .example {
-    margin-top: 8px;
-    padding: 10px 12px;
-    background: var(--field);
-    border-radius: 10px;
-    border: 1px solid var(--field-border);
+  @media (prefers-reduced-motion:reduce){
+    .panel,.status b::before,.result.pop,.awaiting{animation:none;}
+    .ring-fill{transition:none;}
   }
 </style>
 </head>
 
 <body>
 
-  <div class="calculator">
-    <h1>Percentage of Total</h1>
-    <div class="subtitle">
-      Find what percent one value is of another
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
+      <div class="brand">RAMESHVERSE // RV·SHARE</div>
+      <h1>PERCENTAGE <span>OF TOTAL</span></h1>
+      <div class="tagline">WHAT PERCENT IS ONE VALUE OF ANOTHER // SCORES, BUDGETS, STORAGE</div>
     </div>
+    <div class="status" id="status">SYSTEM<b id="statusText">AWAITING INPUT</b></div>
+  </header>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
 
     <div class="ring-wrap">
       <div class="ring-inner">
         <svg viewBox="0 0 160 160">
-          <defs>
-            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="var(--ring-a)" />
-              <stop offset="100%" stop-color="var(--ring-b)" />
-            </linearGradient>
-          </defs>
-          <circle class="ring-track" cx="80" cy="80" r="70" />
-          <circle class="ring-fill" id="ringFill" cx="80" cy="80" r="70" />
+          <circle class="ring-tick" cx="80" cy="80" r="76"/>
+          <circle class="ring-track" cx="80" cy="80" r="70"/>
+          <circle class="ring-fill" id="ringFill" cx="80" cy="80" r="70"/>
         </svg>
         <div class="ring-label">
-          <div class="ring-value" id="ringValue">0%</div>
-          <div class="ring-caption">of total</div>
+          <div class="ring-value" id="ringValue">—</div>
+          <div class="ring-caption">OF TOTAL</div>
         </div>
       </div>
     </div>
 
-    <div class="field">
-      <label for="part">Part (obtained / used / completed)</label>
-      <input
-        type="number"
-        id="part"
-        inputmode="decimal"
-        placeholder="e.g. 200"
-      >
+    <div class="chips" id="chips">
+      <button type="button" class="chip" data-p="42" data-t="60">42 OF 60 MARKS</button>
+      <button type="button" class="chip" data-p="7" data-t="12">7 OF 12 TASKS</button>
+      <button type="button" class="chip" data-p="35" data-t="128">35 OF 128 GB</button>
     </div>
 
-    <div class="field">
-      <label for="total">Total (maximum / available)</label>
-      <input
-        type="number"
-        id="total"
-        inputmode="decimal"
-        placeholder="e.g. 500"
-      >
+    <div class="row-2">
+      <div class="field">
+        <label for="part">Part<small>obtained / used / completed</small></label>
+        <input type="number" id="part" inputmode="decimal" step="any" placeholder="e.g. 200">
+      </div>
+      <div class="field">
+        <label for="total">Total<small>maximum / available</small></label>
+        <input type="number" id="total" inputmode="decimal" step="any" placeholder="e.g. 500">
+      </div>
     </div>
 
-    <button onclick="calculatePercentage()">Calculate</button>
+    <button type="button" class="ghost" id="resetBtn" onclick="resetCalculator()">RESET</button>
 
-    <div class="result" id="result"></div>
+    <div class="result" id="result" aria-live="polite"><span class="awaiting">AWAITING INPUT</span></div>
+    <div class="result-sub" id="resultSub"></div>
 
+    <div class="stats" id="stats" hidden>
+      <div class="stat"><span>Part as a fraction</span><b id="stFrac">–</b></div>
+      <div class="stat"><span>Part as a ratio</span><b id="stRatio">–</b></div>
+      <div class="stat"><span>Remaining</span><b id="stRem">–</b></div>
+      <div class="stat"><span>Remaining %</span><b id="stRemPct">–</b></div>
+    </div>
+
+    <div class="hint" id="hint"></div>
+    <button type="button" class="copy-btn" id="copyBtn" hidden>COPY RESULT</button>
+  </div>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
     <div class="about">
       <strong>What this does:</strong> it tells you what share the "part" is of the "total", expressed as a percentage — how much of a whole something represents.
       <div class="example">
-        <strong>Example:</strong> you scored 42 marks out of a 60‑mark test. Part = 42, Total = 60 → <strong>70%</strong>. Same idea works for budgets spent, tasks completed, storage used, or votes received.
+        <strong>Example:</strong> you scored 42 marks out of a 60-mark test. Part = 42, Total = 60 → <strong>70%</strong>, with 18 marks (30%) remaining. Same idea works for budgets spent, tasks completed, storage used, or votes received.
+      </div>
+      <div class="example">
+        <strong>Other percentage tools:</strong> <a href="/percentage-of-a-number">percent of a number</a> · <a href="/percentage-change-calculator">percentage change</a> · <a href="/percentage-difference-calculator">percentage difference</a>
       </div>
     </div>
   </div>
 
+  <footer>RAMESHVERSE.COM</footer>
+</div>
+
   <script>
-    const CIRCUMFERENCE = 2 * Math.PI * 70; // 439.8
+    const $ = (id) => document.getElementById(id);
+    const MINUS = "−";
+    const BAD_NOTE = "Enter a valid number (too large or malformed)";
+    const CIRC = 2 * Math.PI * 70;   // 439.8
 
-    function setRing(percent) {
-      const ringFill = document.getElementById("ringFill");
-      const ringValue = document.getElementById("ringValue");
-      const clamped = Math.max(0, Math.min(100, percent));
-      const offset = CIRCUMFERENCE * (1 - clamped / 100);
-      ringFill.style.strokeDashoffset = offset;
+    // ---------- helpers ----------
+    // Empty input comes back as NaN. A value like 1e400 is blanked by the browser; validity.badInput tells us it was typed.
+    function num(el) {
+      const raw = el.value.trim();
+      return raw === "" ? NaN : Number(raw);
+    }
+    function badInput(el) { return !!(el.validity && el.validity.badInput); }
 
-      let label = Number.isFinite(percent) ? percent : 0;
-      let labelText;
-      if (Number.isInteger(label)) {
-        labelText = label.toString();
-      } else {
-        labelText = parseFloat(label.toFixed(1)).toString();
-      }
-      ringValue.textContent = labelText + "%";
+    // Very large or very tiny numbers switch to short scientific form so they never break the layout
+    function fmtNum(x, max) {
+      if (!Number.isFinite(x)) return x > 0 ? "∞" : x < 0 ? MINUS + "∞" : "–";
+      const a = Math.abs(x);
+      if (a >= 1e15 || (a > 0 && a < 1e-6)) return x.toExponential(3).replace("e+", "e");
+      return x.toLocaleString("en-US", { maximumFractionDigits: max == null ? 3 : max });
+    }
+    function fmtVal(x) {
+      if (!Number.isFinite(x)) return "–";
+      const a = Math.abs(x), s = x < 0 ? MINUS : "";
+      if (a > 0 && a < 0.001) return s + fmtNum(a, 6);
+      return s + fmtNum(a, 3);
+    }
+    // A real share that rounds to 0.000% shows as "<0.001%", never as a false "0%"
+    function fmtPct(x) {
+      if (!Number.isFinite(x)) return "–";
+      const r = Number(x.toFixed(3));
+      if (r === 0) return x === 0 ? "0%" : (x > 0 ? "" : MINUS) + "<0.001%";
+      return (r < 0 ? MINUS : "") + fmtNum(Math.abs(r), 3) + "%";
     }
 
-    function calculatePercentage() {
-      const part = Number(document.getElementById("part").value);
-      const total = Number(document.getElementById("total").value);
-      const resultDiv = document.getElementById("result");
-
-      if (document.getElementById("part").value.trim() === "" ||
-          document.getElementById("total").value.trim() === "" ||
-          Number.isNaN(part) || Number.isNaN(total)) {
-        resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
-        return;
-      }
-
-      if (total === 0) {
-        resultDiv.innerHTML = "<span class='error'>Total cannot be zero</span>";
-        return;
-      }
-
-      const raw = (part / total) * 100;
-
-      let display;
-      if (raw !== 0 && Math.abs(raw) < 0.001) {
-        display = parseFloat(raw.toFixed(6)).toString();
-      } else {
-        display = parseFloat(raw.toFixed(3)).toString();
-      }
-
-      resultDiv.textContent = `${part} out of ${total} = ${display}%`;
-      setRing(raw);
+    function setResult(html, cls) {
+      const el = $("result");
+      el.innerHTML = cls ? `<span class="${cls}">${html}</span>` : html;
+      el.classList.remove("pop");
+      void el.offsetWidth;
+      el.classList.add("pop");
+    }
+    function setStatus(text, kind) {
+      $("statusText").textContent = text;
+      $("status").classList.remove("ok", "err");
+      if (kind) $("status").classList.add(kind);
     }
 
-    // Allow Enter key from either field to trigger calculation
-    ["part", "total"].forEach(id => {
-      document.getElementById(id).addEventListener("keydown", (e) => {
-        if (e.key === "Enter") calculatePercentage();
+    // ---------- ring ----------
+    function resetRing() {
+      $("ringFill").style.strokeDashoffset = CIRC;
+      $("ringFill").classList.remove("over");
+      const rv = $("ringValue");
+      rv.textContent = "—";
+      rv.className = "ring-value";
+      rv.style.fontSize = "";
+    }
+    // The ring is capped at one full turn: above 100% it stays full and turns amber
+    function updateRing(pct) {
+      const clamped = Math.max(0, Math.min(100, pct));
+      $("ringFill").style.strokeDashoffset = CIRC * (1 - clamped / 100);
+      $("ringFill").classList.toggle("over", pct > 100);
+      const rv = $("ringValue");
+      const t = fmtPct(pct);
+      rv.textContent = t;
+      rv.className = "ring-value " + (pct > 100 ? "over" : "on");
+      // long numbers shrink so they stay inside the ring
+      rv.style.fontSize = t.length > 12 ? "13px" : t.length > 9 ? "17px" : t.length > 6 ? "22px" : "";
+    }
+
+    // ---------- main calculation ----------
+    let lastSummary = "";
+
+    function clearOutput() {
+      $("result").innerHTML = '<span class="awaiting">AWAITING INPUT</span>';
+      $("resultSub").textContent = "";
+      $("stats").hidden = true;
+      $("copyBtn").hidden = true;
+      $("hint").textContent = "";
+      lastSummary = "";
+      resetRing();
+      setStatus("AWAITING INPUT");
+    }
+
+    function showError(msg) {
+      clearOutput();
+      $("result").innerHTML = `<span class="error">${msg}</span>`;
+      setStatus("INPUT ERROR", "err");
+    }
+
+    // showErr = true when Enter or a chip was used; while typing we stay quiet about missing values
+    function calculate(showErr) {
+      const pEl = $("part"), tEl = $("total");
+      const part = num(pEl), total = num(tEl);
+
+      if (badInput(pEl) || badInput(tEl)) { showError(BAD_NOTE); return; }
+
+      if (Number.isNaN(part) || Number.isNaN(total)) {
+        if (showErr) showError("Please enter both values");
+        else if (pEl.value.trim() === "" || tEl.value.trim() === "") clearOutput();
+        return;
+      }
+      if (!Number.isFinite(part) || !Number.isFinite(total)) { showError("Number too large"); return; }
+
+      if (total === 0) { showError("Total cannot be zero"); return; }
+
+      let pct = (part / total) * 100;
+      if (!Number.isFinite(pct)) { showError("Result too large to show"); return; }
+      if (pct === 0) pct = 0;   // never show "-0%"
+
+      updateRing(pct);
+
+      const main = fmtPct(pct);
+      setResult(main, pct < 0 ? "negative" : "main");
+      $("resultSub").textContent = `${fmtVal(part)} out of ${fmtVal(total)}`;
+      setStatus("COMPUTED", "ok");
+
+      // ----- stats -----
+      const frac = part / total;
+      $("stFrac").textContent = fmtVal(frac);
+      // "1 in N" is only meaningful for a positive part that is smaller than the total
+      const inN = total / part;
+      $("stRatio").textContent = (part !== 0 && Number.isFinite(inN) && inN >= 1) ? `1 in ${fmtNum(inN, 2)}` : "–";
+      const rem = total - part;
+      const remPct = 100 - pct;
+      $("stRem").textContent = Number.isFinite(rem) ? fmtVal(rem) : "–";
+      $("stRemPct").textContent = Number.isFinite(remPct) ? fmtPct(remPct) : "–";
+      $("stats").hidden = false;
+
+      // ----- one helpful note at most -----
+      let hint = "";
+      if (part === 0) hint = "The part is 0, so it is 0% of the total.";
+      else if (part === total) hint = "The part equals the total — exactly 100%.";
+      else if (part < 0 && total < 0) hint = "Both are negative, so the share is positive, just as with positive numbers.";
+      else if (part < 0 || total < 0) hint = "One of the two is negative, so the share is negative. Parts and totals are usually positive.";
+      else if (pct > 100) hint = "The part is bigger than the total, so it is over 100% — the ring shows a full turn, and \"Remaining\" is negative (the amount over).";
+      $("hint").textContent = hint;
+
+      lastSummary = `${fmtVal(part)} out of ${fmtVal(total)} = ${main}`;
+      $("copyBtn").hidden = false;
+    }
+
+    function resetCalculator() {
+      $("part").value = "";
+      $("total").value = "";
+      clearOutput();
+      $("part").focus();
+    }
+
+    // live results while typing + Enter key
+    ["part", "total"].forEach((id) => {
+      $(id).addEventListener("input", () => calculate(false));
+      $(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculate(true);
       });
+    });
+
+    document.querySelectorAll("#chips .chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        $("part").value = chip.dataset.p;
+        $("total").value = chip.dataset.t;
+        calculate(true);
+      });
+    });
+
+    $("copyBtn").addEventListener("click", () => {
+      if (!lastSummary) return;
+      const done = () => {
+        const btn = $("copyBtn");
+        const t = btn.textContent;
+        btn.textContent = "COPIED";
+        setTimeout(() => { btn.textContent = t; }, 1200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lastSummary).then(done, () => {});
+      } else {
+        done();
+      }
     });
   </script>
 

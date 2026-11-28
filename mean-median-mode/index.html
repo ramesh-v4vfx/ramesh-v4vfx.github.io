@@ -13,605 +13,401 @@
 
 <link rel="canonical" href="https://rameshverse.com/mean-median-mode">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg: #070b14;
-    --card-1: #121a2c;
-    --card-2: #0a0f1c;
-    --border: rgba(231,236,245,0.08);
-    --text: #e7ecf5;
-    --text-dim: rgba(231,236,245,0.58);
-    --mean: #5ad1ff;
-    --median: #b98bff;
-    --mode: #ffb85c;
-    --danger: #ef5350;
-    --danger-bright: #ff7a75;
+  :root{
+    --bg:#050505; --panel:rgba(11,8,8,.88); --line:#2a1616;
+    --red:#ff2b2b; --red-dim:#7a1414;
+    --text:#e8e2e2; --text-dim:#8a7a7a;
+    --mean:#ff2b2b; --median:#ffb02b; --mode:#2bff88;
+    --font:'Space Mono', ui-monospace, monospace;
   }
-
-  * { box-sizing: border-box; }
-
-  body {
-    font-family: system-ui, Arial, sans-serif;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
+  /* starts at the top of the page: no vertical centering */
+  body{min-height:100vh; padding:20px 16px 50px; position:relative; overflow-x:hidden;}
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; z-index:50;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 34px),
-      repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 34px),
-      radial-gradient(circle at 20% 0%, rgba(90,209,255,0.06), transparent 55%),
-      var(--bg);
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;   /* fallback */
-    min-height: 100svh;  /* modern Safari */
-    padding: 16px;
+      repeating-linear-gradient(0deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      repeating-linear-gradient(90deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.09), transparent 60%);
   }
+  .wrap{max-width:640px; margin:0 auto; position:relative; z-index:1;}
 
-  .card {
-    background: linear-gradient(160deg, var(--card-1), var(--card-2));
-    padding: 24px 22px 20px;
-    border-radius: 16px;
-    border: 1px solid var(--border);
+  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px; gap:12px;}
+  .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
+  .back-link:hover{color:var(--red);}
+  .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  h1{font-size:21px; letter-spacing:3px; font-weight:700;}
+  h1 span{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .tagline{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); margin-top:6px;}
+  .status{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-align:right; white-space:nowrap;}
+  .status b{display:block; color:var(--red); font-size:11px; margin-top:3px;}
+  .status.ok b{color:var(--mode);}
+  .status b::before{content:"● "; animation:blink 1.4s infinite;}
+  @keyframes blink{50%{opacity:.25;}}
 
-    width: 100%;
-    max-width: 380px;
-    margin: 0 auto;
+  .panel{position:relative; background:var(--panel); backdrop-filter:blur(3px); border:1px solid var(--line); padding:18px; margin-bottom:14px; animation:rise .5s ease both;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{position:absolute; width:10px; height:10px; border-color:var(--red); border-style:solid; opacity:.7;}
+  .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
+  .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
+  .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
 
-    box-shadow: 0 24px 55px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
-    overflow: hidden; /* belt-and-braces: nothing (e.g. a very long number)
-                          should be able to visually spill past the card edge */
+  .label-top{display:flex; justify-content:space-between; font-size:11px; letter-spacing:2px; color:var(--red); margin-bottom:6px;}
+  input{
+    width:100%; background:#160d0d; border:1px solid var(--red-dim); border-left:3px solid var(--red);
+    color:#fff; font-family:var(--font); font-size:16px; padding:14px; outline:none;
+    box-shadow:inset 0 0 22px rgba(255,43,43,.07), 0 0 16px rgba(255,43,43,.1);
+    transition:border-color .15s, box-shadow .15s;
   }
+  input::placeholder{color:#8a6a6a;}
+  input:focus{border-color:var(--red); box-shadow:inset 0 0 22px rgba(255,43,43,.1), 0 0 24px rgba(255,43,43,.3);}
+  input.shake{animation:shake .35s;}
+  @keyframes shake{20%,60%{transform:translateX(-5px);}40%,80%{transform:translateX(5px);}}
 
-  h1 {
-    text-align: center;
-    margin: 0 0 3px;
-    font-size: 21px;
-    letter-spacing: 0.2px;
-  }
+  .hint-row{display:flex; justify-content:space-between; gap:10px; font-size:10px; letter-spacing:1px; color:var(--text-dim); margin:8px 2px 14px; min-height:14px;}
+  .hint-row .error{color:#ff7a75; font-weight:700;}
 
-  .subtitle {
-    text-align: center;
-    font-size: 12.5px;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-  }
-
-  input {
-    width: 100%;
-    padding: 11px 12px;
-    border-radius: 9px;
-    border: 1px solid var(--border);
-    outline: none;
-    font-size: 16px;
-    font-family: inherit;
-    background: rgba(231,236,245,0.05);
-    color: var(--text);
-    transition: border-color 0.15s ease, background 0.15s ease;
-  }
-
-  input::placeholder { color: var(--text-dim); }
-
-  input:hover { background: rgba(231,236,245,0.07); }
-
-  input:focus {
-    border-color: var(--mean);
-    background: rgba(231,236,245,0.08);
-  }
-
-  .input-row {
-    margin-bottom: 4px;
-  }
-
-  .hint-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11.5px;
-    color: var(--text-dim);
-    margin: 6px 2px 14px;
-    min-height: 14px;
-  }
-
-  .hint-row .error {
-    color: var(--danger-bright);
-    font-weight: 600;
-  }
-
-  .input-row.buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-
-  button {
-    border: none;
-    border-radius: 9px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    font-family: inherit;
-    padding: 11px;
-    transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
-  }
-
-  button:active { transform: translateY(1px); }
-
-  .calc.primary {
-    flex: 2;
-    background: var(--mean);
-    color: #071018;
-    box-shadow: 0 10px 22px rgba(90,209,255,0.25);
-  }
-
-  .calc.primary:hover { filter: brightness(1.08); }
-
-  .calc.secondary {
-    flex: 1;
-    background: rgba(239,83,80,0.12);
-    color: var(--danger-bright);
-    border: 1px solid rgba(239,83,80,0.35);
-  }
-
-  .calc.secondary:hover {
-    background: rgba(239,83,80,0.22);
-  }
+  .btn-row{display:flex; gap:10px;}
+  button{background:transparent; border:1px solid var(--red-dim); color:var(--red); font-family:var(--font); font-size:12px; letter-spacing:1.5px; padding:12px 18px; cursor:pointer; transition:all .15s;}
+  button:hover{background:var(--red-dim); color:var(--text);}
+  button:active{transform:translateY(1px);}
+  .primary{flex:2; background:linear-gradient(90deg,#3a0a0a,#5a1010); color:var(--text); font-weight:700; box-shadow:0 0 22px rgba(255,43,43,.18);}
+  .primary:hover{background:linear-gradient(90deg,#5a1010,#8a1818); box-shadow:0 0 30px rgba(255,43,43,.4);}
+  .ghost{flex:1; border-color:var(--line); color:var(--text-dim);}
+  .chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+  .chip{padding:4px 9px; font-size:10px; letter-spacing:.5px; color:var(--text-dim); border-color:var(--line);}
+  .chip:hover{color:var(--text); background:#1a0d0d;}
 
   /* ---------- RESULTS ---------- */
-  .result {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  .result{display:flex; flex-direction:column; gap:8px;}
+  .row{display:flex; align-items:center; gap:12px; background:rgba(15,10,10,.7); border:1px solid var(--line); border-left:3px solid var(--c); padding:12px;}
+  .row.mean{--c:var(--mean);} .row.median{--c:var(--median);} .row.mode{--c:var(--mode);}
+  .label{width:62px; flex-shrink:0; font-size:11px; letter-spacing:2px; color:var(--c);}
+  .value{flex:1; min-width:0; font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; word-break:break-word; overflow-wrap:anywhere; color:#fff;}
+  .value.flash{animation:flash .7s ease;}
+  @keyframes flash{0%{color:var(--c); text-shadow:0 0 16px var(--c);}100%{color:#fff; text-shadow:none;}}
+  .row.mean .value.flash{--c:var(--mean);} .row.median .value.flash{--c:var(--median);} .row.mode .value.flash{--c:var(--mode);}
+  .copy-btn{padding:5px 9px; font-size:10px; flex-shrink:0; border-color:var(--line); color:var(--text-dim);}
+
+  .quickstats{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px;}
+  .quickstats[hidden], .plot-wrap[hidden], .sorted-wrap[hidden]{display:none;}
+  .qstat{border:1px solid var(--line); background:rgba(15,10,10,.7); padding:9px 8px; min-width:0;}
+  .qstat label{display:block; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase;}
+  .qstat span{display:block; font-size:14px; font-weight:700; color:var(--red); font-variant-numeric:tabular-nums; word-break:break-all; overflow-wrap:anywhere; line-height:1.2;}
+  .qstat span.long{font-size:11px;} .qstat span.longer{font-size:9.5px;}
+
+  /* ---------- NUMBER LINE ---------- */
+  .plot-wrap{margin-top:16px; border-top:1px dashed var(--line); padding-top:14px;}
+  .plot-title{font-size:10px; letter-spacing:2px; color:var(--red-dim); margin-bottom:14px;}
+  .numberline{position:relative; height:52px; margin:0 6px;}
+  .track{position:absolute; top:22px; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--red-dim),#3a2222,var(--red-dim));}
+  .dot{position:absolute; top:-3px; width:8px; height:8px; border-radius:50%; background:rgba(232,226,226,.6); transform:translateX(-50%);}
+  .dot.mode-dot{width:12px; height:12px; top:-5px; background:var(--mode); box-shadow:0 0 10px var(--mode);}
+  .marker{position:absolute; display:flex; flex-direction:column; align-items:center; transform:translateX(-50%);}
+  .marker em{font-style:normal; font-size:8px; letter-spacing:1px; margin:2px 0;}
+  .marker-tip{width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent;}
+  .mean-marker{top:0; color:var(--mean);}
+  .mean-marker .marker-tip{border-top:7px solid var(--mean);}
+  .median-marker{top:30px; color:var(--median);}
+  .median-marker .marker-tip{border-bottom:7px solid var(--median);}
+  .median-marker{flex-direction:column;}
+  .plot-scale{display:flex; justify-content:space-between; gap:8px; font-size:10px; color:var(--text-dim); margin-top:10px; font-variant-numeric:tabular-nums;}
+  .plot-scale span{min-width:0; word-break:break-all;}
+  .plot-scale span:last-child{text-align:right;}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-top:12px; font-size:10px; letter-spacing:1px; color:var(--text-dim);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .swatch{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  .swatch.mean{background:var(--mean);} .swatch.median{background:var(--median);} .swatch.mode{background:var(--mode);}
+
+  .sorted-wrap{margin-top:14px; border-top:1px dashed var(--line); padding-top:12px;}
+  .sorted{font-size:11px; color:var(--text-dim); line-height:1.7; word-break:break-word; max-height:96px; overflow:auto;}
+
+  footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+
+  @media (max-width:560px){
+    .quickstats{grid-template-columns:repeat(2,1fr);}
+    h1{font-size:16px; letter-spacing:2px;}
+    .value{font-size:17px;}
+    .status{display:none;}
   }
-
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(231,236,245,0.03);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 10px;
-  }
-
-  .dot-label {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .row.mean .dot-label { background: var(--mean); box-shadow: 0 0 8px rgba(90,209,255,0.6); }
-  .row.median .dot-label { background: var(--median); box-shadow: 0 0 8px rgba(185,139,255,0.6); }
-  .row.mode .dot-label { background: var(--mode); box-shadow: 0 0 8px rgba(255,184,92,0.6); }
-
-  .label {
-    color: var(--text-dim);
-    font-size: 12.5px;
-    width: 56px;
-    flex-shrink: 0;
-  }
-
-  .value {
-    flex: 1;
-    min-width: 0; /* lets a flex child actually shrink/wrap instead of
-                      forcing the row wider than its container */
-    text-align: left;
-    font-variant-numeric: tabular-nums;
-    font-size: 15px;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-  }
-
-  .copy-btn {
-    background: rgba(231,236,245,0.06);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 5px 9px;
-    border-radius: 7px;
-    cursor: pointer;
-    font-size: 11.5px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .copy-btn:hover { background: rgba(231,236,245,0.12); }
-
-  /* ---------- QUICK STATS STRIP ---------- */
-  .quickstats {
-    /* Was a rigid 4-column grid, which left almost no room per box and let
-       long numbers (e.g. a std-dev computed from very large/spread-out
-       inputs) spill straight past the card edge. 2x2 gives each box
-       roughly double the width. */
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px 6px;
-    margin: 14px 0 4px;
-  }
-
-  .qstat {
-    background: rgba(231,236,245,0.03);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 8px 6px;
-    text-align: center;
-    min-width: 0; /* required for a grid child to actually shrink/wrap
-                     instead of overflowing its track */
-  }
-
-  .qstat span {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    word-break: break-all;
-    overflow-wrap: anywhere;
-    line-height: 1.2;
-  }
-
-  /* Applied via JS when a value is long enough to otherwise crowd the box */
-  .qstat span.long { font-size: 10.5px; }
-  .qstat span.longer { font-size: 9px; }
-
-  .qstat label {
-    display: block;
-    font-size: 9.5px;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-top: 3px;
-  }
-
-  /* ---------- NUMBER LINE PLOT ---------- */
-  .plot-wrap {
-    margin-top: 16px;
-    border-top: 1px solid var(--border);
-    padding-top: 14px;
-  }
-
-  .plot-wrap[hidden] { display: none; }
-
-  .plot-title {
-    font-size: 11px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 14px;
-  }
-
-  .numberline {
-    position: relative;
-    height: 46px;
-    margin: 0 4px;
-  }
-
-  .track {
-    position: absolute;
-    top: 20px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: rgba(231,236,245,0.14);
-    border-radius: 2px;
-  }
-
-  .dot {
-    position: absolute;
-    top: -3px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(231,236,245,0.55);
-    transform: translateX(-50%);
-  }
-
-  .dot.mode-dot {
-    width: 11px;
-    height: 11px;
-    top: -4.5px;
-    background: var(--mode);
-    box-shadow: 0 0 8px rgba(255,184,92,0.7);
-  }
-
-  .marker {
-    position: absolute;
-    top: 26px;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .marker-tip {
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-  }
-
-  .mean-marker .marker-tip { border-bottom: 7px solid var(--mean); }
-  .median-marker .marker-tip { border-bottom: 7px solid var(--median); }
-  .mean-marker { top: 8px; flex-direction: column-reverse; }
-  .median-marker { top: 26px; }
-
-  .plot-scale {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 10.5px;
-    color: var(--text-dim);
-    margin-top: 10px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .plot-scale span {
-    min-width: 0;
-    word-break: break-all;
-    overflow-wrap: anywhere;
-  }
-
-  .plot-scale span:last-child { text-align: right; }
-
-  .legend {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 12px;
-    font-size: 10.5px;
-    color: var(--text-dim);
-  }
-
-  .legend span {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .legend .swatch {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  .legend .swatch.mean { background: var(--mean); }
-  .legend .swatch.median { background: var(--median); }
-  .legend .swatch.mode { background: var(--mode); }
-
-  /* Mobile friendly */
-  @media (max-width: 600px) {
-    input { font-size: 16px; padding: 12px; } /* prevents iOS zoom */
-    button { font-size: 16px; padding: 13px; }
+  @media (prefers-reduced-motion:reduce){
+    .panel,.status b::before,.value.flash,input.shake{animation:none;}
   }
 </style>
 </head>
 <body>
 
-  <div class="card">
-    <h1>Mean · Median · Mode 📊</h1>
-    <div class="subtitle">Enter a data set to see its full distribution</div>
-
-    <div class="input-row">
-      <input id="numbers" placeholder="Enter numbers (e.g. 2, 4, 6, 8)" inputmode="decimal" />
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
+      <div class="brand">RAMESHVERSE // RV·STATS</div>
+      <h1>MEAN · MEDIAN · <span>MODE</span></h1>
+      <div class="tagline">ENTER A DATA SET // READ THE DISTRIBUTION</div>
     </div>
+    <div class="status" id="status">SYSTEM<b id="statusText">AWAITING INPUT</b></div>
+  </header>
 
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+    <label class="label-top" for="numbers"><span>DATA INPUT</span><span id="countHint">0 SAMPLES</span></label>
+    <input id="numbers" type="text" placeholder="Enter numbers (e.g. 2, 4, 6, 8)" inputmode="text" autocomplete="off" />
     <div class="hint-row">
-      <span id="hint">Comma or space separated</span>
+      <span>COMMA OR SPACE SEPARATED</span>
       <span id="error" class="error"></span>
     </div>
-
-    <div class="input-row buttons">
-      <button class="calc primary" onclick="calculate()">Calculate</button>
-      <button class="calc secondary" onclick="resetAll()">Reset</button>
+    <div class="btn-row">
+      <button class="primary" onclick="calculate()">ANALYZE</button>
+      <button class="ghost" onclick="resetAll()">RESET</button>
     </div>
+    <div class="chips"><button class="chip" type="button" onclick="loadSample()">LOAD SAMPLE DATA</button></div>
+  </div>
 
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
     <div class="result">
       <div class="row mean">
-        <span class="dot-label"></span>
-        <span class="label">Mean</span>
+        <span class="label">MEAN</span>
         <span class="value" id="mean">–</span>
-        <button class="copy-btn" onclick="copyText('mean', this)">Copy</button>
+        <button class="copy-btn" onclick="copyText('mean', this)">COPY</button>
       </div>
-
       <div class="row median">
-        <span class="dot-label"></span>
-        <span class="label">Median</span>
+        <span class="label">MEDIAN</span>
         <span class="value" id="median">–</span>
-        <button class="copy-btn" onclick="copyText('median', this)">Copy</button>
+        <button class="copy-btn" onclick="copyText('median', this)">COPY</button>
       </div>
-
       <div class="row mode">
-        <span class="dot-label"></span>
-        <span class="label">Mode</span>
+        <span class="label">MODE</span>
         <span class="value" id="mode">–</span>
-        <button class="copy-btn" onclick="copyText('mode', this)">Copy</button>
+        <button class="copy-btn" onclick="copyText('mode', this)">COPY</button>
       </div>
     </div>
 
     <div class="quickstats" id="quickstats" hidden>
-      <div class="qstat"><span id="qCount">–</span><label>Count</label></div>
-      <div class="qstat"><span id="qSum">–</span><label>Sum</label></div>
-      <div class="qstat"><span id="qRange">–</span><label>Range</label></div>
-      <div class="qstat"><span id="qStd">–</span><label>Std dev</label></div>
+      <div class="qstat"><label>Count</label><span id="qCount">–</span></div>
+      <div class="qstat"><label>Sum</label><span id="qSum">–</span></div>
+      <div class="qstat"><label>Range</label><span id="qRange">–</span></div>
+      <div class="qstat"><label>Std dev</label><span id="qStd">–</span></div>
     </div>
 
     <div class="plot-wrap" id="plotWrap" hidden>
-      <div class="plot-title">Distribution</div>
+      <div class="plot-title">DISTRIBUTION</div>
       <div class="numberline" id="numberline"></div>
       <div class="plot-scale" id="plotScale"></div>
       <div class="legend">
-        <span><span class="swatch mean"></span>Mean</span>
-        <span><span class="swatch median"></span>Median</span>
-        <span><span class="swatch mode"></span>Mode</span>
+        <span><span class="swatch mean"></span>MEAN</span>
+        <span><span class="swatch median"></span>MEDIAN</span>
+        <span><span class="swatch mode"></span>MODE</span>
       </div>
+    </div>
+
+    <div class="sorted-wrap" id="sortedWrap" hidden>
+      <div class="plot-title">SORTED DATA</div>
+      <div class="sorted" id="sortedList"></div>
     </div>
   </div>
 
-  <script>
-    const numbersInput = document.getElementById("numbers");
-    const errorEl = document.getElementById("error");
-    const quickstats = document.getElementById("quickstats");
-    const plotWrap = document.getElementById("plotWrap");
-    const numberline = document.getElementById("numberline");
-    const plotScale = document.getElementById("plotScale");
+  <footer>RAMESHVERSE.COM</footer>
+</div>
 
-    // Rounds to a sane number of decimal places and adds thousands
-    // separators, so results read as "3.33" or "1,000,505,500" instead of
-    // "3.3333333333333335" or "1000000505500" (one long unbroken run of
-    // digits, which is what was overflowing the quick-stats boxes).
-    function fmt(n) {
-      if (!isFinite(n)) return "–";
-      const rounded = Math.round(n * 10000) / 10000;
-      return rounded.toLocaleString(undefined, { maximumFractionDigits: 4 });
-    }
+<script>
+  const numbersInput = document.getElementById("numbers");
+  const errorEl = document.getElementById("error");
+  const quickstats = document.getElementById("quickstats");
+  const plotWrap = document.getElementById("plotWrap");
+  const sortedWrap = document.getElementById("sortedWrap");
+  const numberline = document.getElementById("numberline");
+  const plotScale = document.getElementById("plotScale");
+  const statusEl = document.getElementById("status");
+  const statusText = document.getElementById("statusText");
 
-    // Shrinks a quick-stat's font size once its text gets long enough to
-    // crowd its box, instead of letting it overflow.
-    function fitQuickStat(el) {
-      const len = el.textContent.replace(/[^0-9]/g, "").length;
-      el.classList.remove("long", "longer");
-      if (len > 14) el.classList.add("longer");
-      else if (len > 9) el.classList.add("long");
-    }
+  // Rounds to a sane number of decimals and adds thousands separators.
+  function fmt(n) {
+    if (!isFinite(n)) return "–";
+    const rounded = Math.round(n * 10000) / 10000;
+    return rounded.toLocaleString(undefined, { maximumFractionDigits: 4 });
+  }
 
-    function parseNumbers(raw) {
-      return raw
-        .split(/[\s,]+/)
-        .filter(s => s.trim() !== "")
-        .map(Number)
-        .filter(n => !isNaN(n));
-    }
+  function fitQuickStat(el) {
+    const len = el.textContent.replace(/[^0-9]/g, "").length;
+    el.classList.remove("long", "longer");
+    if (len > 14) el.classList.add("longer");
+    else if (len > 9) el.classList.add("long");
+  }
 
-    function calculate() {
-      const raw = numbersInput.value;
-      errorEl.textContent = "";
+  function parseNumbers(raw) {
+    return raw
+      .split(/[\s,;]+/)
+      .filter(s => s.trim() !== "")
+      .map(Number)
+      .filter(n => !isNaN(n));
+  }
 
-      const arr = parseNumbers(raw);
+  function setValue(id, text) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.classList.remove("flash");
+    void el.offsetWidth;
+    el.classList.add("flash");
+  }
 
-      if (raw.trim() === "") {
-        errorEl.textContent = "Enter at least one number";
-        clearResults();
-        return;
-      }
+  function setStatus(text, ok) {
+    statusText.textContent = text;
+    statusEl.classList.toggle("ok", !!ok);
+  }
 
-      if (arr.length === 0) {
-        errorEl.textContent = "No valid numbers found";
-        clearResults();
-        return;
-      }
+  numbersInput.addEventListener("input", () => {
+    document.getElementById("countHint").textContent =
+      parseNumbers(numbersInput.value).length + " SAMPLES";
+  });
 
-      // Mean
-      const sum = arr.reduce((a, b) => a + b, 0);
-      const mean = sum / arr.length;
+  function calculate() {
+    const raw = numbersInput.value;
+    errorEl.textContent = "";
 
-      // Median
-      const sorted = [...arr].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      const median = sorted.length % 2 === 0
-        ? (sorted[mid - 1] + sorted[mid]) / 2
-        : sorted[mid];
+    const arr = parseNumbers(raw);
 
-      // Mode
-      const freq = {};
-      let maxFreq = 0;
-      sorted.forEach(n => {
-        freq[n] = (freq[n] || 0) + 1;
-        maxFreq = Math.max(maxFreq, freq[n]);
-      });
-
-      const modes = [];
-      for (const n in freq) {
-        if (freq[n] === maxFreq && maxFreq > 1) modes.push(Number(n));
-      }
-
-      // Standard deviation (population)
-      const variance = arr.reduce((a, b) => a + (b - mean) ** 2, 0) / arr.length;
-      const std = Math.sqrt(variance);
-
-      document.getElementById("mean").textContent = fmt(mean);
-      document.getElementById("median").textContent = fmt(median);
-      document.getElementById("mode").textContent = modes.length ? modes.map(fmt).join(", ") : "No mode";
-
-      const qCount = document.getElementById("qCount");
-      const qSum = document.getElementById("qSum");
-      const qRange = document.getElementById("qRange");
-      const qStd = document.getElementById("qStd");
-
-      qCount.textContent = arr.length;
-      qSum.textContent = fmt(sum);
-      qRange.textContent = fmt(sorted[sorted.length - 1] - sorted[0]);
-      qStd.textContent = fmt(std);
-
-      [qCount, qSum, qRange, qStd].forEach(fitQuickStat);
-
-      quickstats.hidden = false;
-
-      renderPlot(sorted, mean, median, modes);
-    }
-
-    function pct(value, min, max) {
-      if (max === min) return 50;
-      return ((value - min) / (max - min)) * 100;
-    }
-
-    function renderPlot(sorted, mean, median, modes) {
-      const min = sorted[0];
-      const max = sorted[sorted.length - 1];
-      const modeSet = new Set(modes);
-
-      const dotsHtml = sorted.map(n => {
-        const isMode = modeSet.has(n);
-        return `<span class="dot ${isMode ? "mode-dot" : ""}" style="left:${pct(n, min, max)}%" title="${n}"></span>`;
-      }).join("");
-
-      numberline.innerHTML = `
-        <div class="track">${dotsHtml}</div>
-        <div class="marker mean-marker" style="left:${pct(mean, min, max)}%"><span class="marker-tip"></span></div>
-        <div class="marker median-marker" style="left:${pct(median, min, max)}%"><span class="marker-tip"></span></div>
-      `;
-
-      plotScale.innerHTML = `<span>${fmt(min)}</span><span>${fmt(max)}</span>`;
-      plotWrap.hidden = false;
-    }
-
-    function clearResults() {
-      document.getElementById("mean").textContent = "–";
-      document.getElementById("median").textContent = "–";
-      document.getElementById("mode").textContent = "–";
-      quickstats.hidden = true;
-      plotWrap.hidden = true;
-    }
-
-    function copyText(id, btn) {
-      const text = document.getElementById(id).textContent;
-      if (text === "–") return;
-
-      navigator.clipboard.writeText(text);
-
-      const original = btn.textContent;
-      btn.textContent = "Copied!";
-      setTimeout(() => btn.textContent = original, 1000);
-    }
-
-    function resetAll() {
-      numbersInput.value = "";
-      errorEl.textContent = "";
+    if (raw.trim() === "" || arr.length === 0) {
+      errorEl.textContent = raw.trim() === "" ? "ENTER AT LEAST ONE NUMBER" : "NO VALID NUMBERS FOUND";
+      numbersInput.classList.remove("shake"); void numbersInput.offsetWidth; numbersInput.classList.add("shake");
       clearResults();
-      numbersInput.focus();
+      return;
     }
 
-    // Enter key triggers calculation
-    numbersInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") calculate();
+    const sum = arr.reduce((a, b) => a + b, 0);
+    const mean = sum / arr.length;
+
+    const sorted = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    const median = sorted.length % 2 === 0
+      ? (sorted[mid - 1] + sorted[mid]) / 2
+      : sorted[mid];
+
+    const freq = new Map();
+    let maxFreq = 0;
+    sorted.forEach(n => {
+      const c = (freq.get(n) || 0) + 1;
+      freq.set(n, c);
+      maxFreq = Math.max(maxFreq, c);
     });
-  </script>
+    const modes = [];
+    if (maxFreq > 1) freq.forEach((c, n) => { if (c === maxFreq) modes.push(n); });
 
-  <script src="/libraries/config.js"></script>
-  <script src="/libraries/view-counter.js"></script>
-  <script src="/libraries/hud-home-button.js"></script>
+    // population standard deviation
+    const variance = arr.reduce((a, b) => a + (b - mean) ** 2, 0) / arr.length;
+    const std = Math.sqrt(variance);
 
-  <script src="/tools-data.js"></script>
-  <script src="/related-modules.js"></script>
+    setValue("mean", fmt(mean));
+    setValue("median", fmt(median));
+    setValue("mode", modes.length ? modes.map(fmt).join(", ") : "No mode");
 
-  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "aa7dc56982544317888a1a6701eb38c5"}'></script><!-- End Cloudflare Web Analytics -->
+    const qCount = document.getElementById("qCount");
+    const qSum = document.getElementById("qSum");
+    const qRange = document.getElementById("qRange");
+    const qStd = document.getElementById("qStd");
+    qCount.textContent = arr.length;
+    qSum.textContent = fmt(sum);
+    qRange.textContent = fmt(sorted[sorted.length - 1] - sorted[0]);
+    qStd.textContent = fmt(std);
+    [qCount, qSum, qRange, qStd].forEach(fitQuickStat);
+    quickstats.hidden = false;
+
+    document.getElementById("sortedList").textContent = sorted.map(fmt).join("  ·  ");
+    sortedWrap.hidden = false;
+
+    renderPlot(sorted, mean, median, modes);
+    setStatus("ANALYSIS COMPLETE · " + arr.length + " SAMPLES", true);
+  }
+
+  function pct(value, min, max) {
+    if (max === min) return 50;
+    return ((value - min) / (max - min)) * 100;
+  }
+
+  function renderPlot(sorted, mean, median, modes) {
+    const min = sorted[0];
+    const max = sorted[sorted.length - 1];
+    const modeSet = new Set(modes);
+
+    const dotsHtml = sorted.map(n => {
+      const isMode = modeSet.has(n);
+      return `<span class="dot ${isMode ? "mode-dot" : ""}" style="left:${pct(n, min, max)}%" title="${fmt(n)}"></span>`;
+    }).join("");
+
+    numberline.innerHTML = `
+      <div class="marker mean-marker" style="left:${pct(mean, min, max)}%"><em>MEAN</em><span class="marker-tip"></span></div>
+      <div class="track">${dotsHtml}</div>
+      <div class="marker median-marker" style="left:${pct(median, min, max)}%"><span class="marker-tip"></span><em>MEDIAN</em></div>
+    `;
+
+    plotScale.innerHTML = `<span>${fmt(min)}</span><span>${fmt(max)}</span>`;
+    plotWrap.hidden = false;
+  }
+
+  function clearResults() {
+    ["mean", "median", "mode"].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = "–"; el.classList.remove("flash");
+    });
+    quickstats.hidden = true;
+    plotWrap.hidden = true;
+    sortedWrap.hidden = true;
+    setStatus("AWAITING INPUT", false);
+  }
+
+  function copyText(id, btn) {
+    const text = document.getElementById(id).textContent;
+    if (text === "–") return;
+    const original = btn.textContent;
+    const done = () => { btn.textContent = "COPIED"; setTimeout(() => btn.textContent = original, 1000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => {});
+    } else {
+      done();
+    }
+  }
+
+  function loadSample() {
+    const n = 8 + Math.floor(Math.random() * 8);
+    const vals = Array.from({ length: n }, () => Math.round(Math.random() * 20 + 1));
+    numbersInput.value = vals.join(", ");
+    numbersInput.dispatchEvent(new Event("input"));
+    calculate();
+  }
+
+  function resetAll() {
+    numbersInput.value = "";
+    errorEl.textContent = "";
+    document.getElementById("countHint").textContent = "0 SAMPLES";
+    clearResults();
+    numbersInput.focus();
+  }
+
+  numbersInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") calculate();
+  });
+</script>
+
+<script src="/libraries/config.js"></script>
+<script src="/libraries/view-counter.js"></script>
+<script src="/libraries/hud-home-button.js"></script>
+
+<script src="/tools-data.js"></script>
+<script src="/related-modules.js"></script>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "aa7dc56982544317888a1a6701eb38c5"}'></script><!-- End Cloudflare Web Analytics -->
 
 </body>
 </html>

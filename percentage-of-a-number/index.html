@@ -5,212 +5,178 @@
 <!-- Analytics consent: loads the Google tag only after the visitor accepts -->
 <script src="/libraries/rv-analytics.js"></script>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Free percent of a number calculator. Enter a percentage and a value to instantly find discounts, tips, tax, interest, or commission amounts.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Free percent of a number calculator. Enter a percentage and a value to instantly find discounts, tips, tax, interest, or commission amounts.">
 
-  <title>Percent of a Number Calculator</title>
+<title>Percent of a Number Calculator</title>
 
-  <link rel="canonical" href="https://rameshverse.com/percentage-of-a-number">
+<link rel="canonical" href="https://rameshverse.com/percentage-of-a-number">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
-
-  :root {
-    --bg: #0f172a;
-    --card: #020617;
-    --track: #1e293b;
-    --accent-a: #6366f1;
-    --accent-b: #a855f7;
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --error: #f87171;
-    --field: #0b1220;
-    --field-border: #1e293b;
+  :root{
+    --bg:#050505; --panel:rgba(11,8,8,.88); --line:#2a1616;
+    --red:#ff2b2b; --red-dim:#7a1414;
+    --amber:#ffb02b;
+    --text:#e8e2e2; --text-dim:#8a7a7a;
+    --up:#2bff88; --down:#ff2b2b; --error:#ff7a75;
+    --font:'Space Mono', ui-monospace, monospace;
   }
-
-  * { box-sizing: border-box; }
-
-  body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
+  /* starts at the top of the page */
+  body{min-height:100vh; padding:20px 16px 50px; position:relative; overflow-x:hidden;}
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; z-index:50;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      radial-gradient(circle at 15% -10%, rgba(99,102,241,0.15), transparent 45%),
-      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
-      var(--bg);
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    min-height: 100svh;
-    margin: 0;
-    padding: 16px;
+      repeating-linear-gradient(0deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      repeating-linear-gradient(90deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.09), transparent 60%);
   }
+  .wrap{max-width:560px; margin:0 auto; position:relative; z-index:1;}
 
-  .calculator {
-    background: var(--card);
-    padding: 24px;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    border: 1px solid rgba(148,163,184,0.08);
+  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px; gap:12px;}
+  .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
+  .back-link:hover{color:var(--red);}
+  .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  h1{font-size:21px; letter-spacing:3px; font-weight:700;}
+  h1 span{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .tagline{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); margin-top:6px;}
+  .status{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-align:right; white-space:nowrap;}
+  .status b{display:block; color:var(--red); font-size:11px; margin-top:3px;}
+  .status.ok b{color:var(--up);}
+  .status.err b{color:var(--error);}
+  .status b::before{content:"● "; animation:blink 1.4s infinite;}
+  @keyframes blink{50%{opacity:.25;}}
+
+  .panel{position:relative; background:var(--panel); backdrop-filter:blur(3px); border:1px solid var(--line); padding:18px; margin-bottom:14px; animation:rise .5s ease both;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{position:absolute; width:10px; height:10px; border-color:var(--red); border-style:solid; opacity:.7;}
+  .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
+  .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
+  .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
+
+  .cur-row{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-bottom:14px; font-size:10px; letter-spacing:1.5px; color:var(--text-dim);}
+  select{height:32px; padding:0 8px; background:#160d0d; border:1px solid var(--red-dim); color:var(--text); font-family:var(--font); font-size:12px; outline:none;}
+  select:focus{border-color:var(--red);}
+
+  /* ---------- Proportion bar ---------- */
+  .proportion{margin-bottom:16px;}
+  .bar-track{position:relative; width:100%; height:30px; background:rgba(255,43,43,.05); border:1px solid var(--line); overflow:hidden;}
+  .bar-fill{position:absolute; top:0; bottom:0; left:0; width:0%; background:linear-gradient(90deg,#8a1818,var(--red)); box-shadow:0 0 14px rgba(255,43,43,.45); transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .bar-fill.neg{opacity:.6; background-image:repeating-linear-gradient(45deg, rgba(0,0,0,.35) 0 4px, transparent 4px 8px);}
+  .bar-caption{display:flex; justify-content:space-between; gap:10px; margin-top:8px; font-size:10px; letter-spacing:1px; color:var(--text-dim);}
+  .bar-caption .value{color:var(--red); font-weight:700; text-align:center; word-break:break-all; overflow-wrap:anywhere;}
+  .bar-caption span:last-child{text-align:right; word-break:break-all; overflow-wrap:anywhere;}
+
+  /* ---------- Fields ---------- */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .chip{padding:5px 10px; font-size:10px; letter-spacing:.5px; color:var(--text-dim); border:1px solid var(--line); background:transparent; cursor:pointer; font-family:var(--font);}
+  .chip:hover{color:var(--text); background:#1a0d0d;}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px; min-width:0;}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  label{font-size:10px; letter-spacing:1.5px; color:var(--red); text-transform:uppercase;}
+  input{
+    width:100%; height:50px; padding:0 14px; background:#160d0d; border:1px solid var(--red-dim); border-left:3px solid var(--red);
+    color:#fff; font-family:var(--font); font-size:16px; outline:none;
+    box-shadow:inset 0 0 22px rgba(255,43,43,.07), 0 0 16px rgba(255,43,43,.08);
+    transition:border-color .15s, box-shadow .15s;
   }
+  #value{border-left-color:var(--amber);}
+  input::placeholder{color:#7a5a5a;}
+  input:focus{border-color:var(--red); box-shadow:inset 0 0 22px rgba(255,43,43,.1), 0 0 24px rgba(255,43,43,.3);}
+  /* hide the browser spinner arrows */
+  input[type=number]{-moz-appearance:textfield; appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
 
-  h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    text-align: center;
-    margin: 0 0 6px;
-    font-size: 21px;
-    font-weight: 600;
+  /* ---------- Buttons ---------- */
+  .btn-row{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  button{font-family:var(--font); letter-spacing:1.5px; cursor:pointer; transition:all .15s;}
+  button:active{transform:translateY(1px);}
+  .ghost{height:44px; padding:0 16px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .ghost:hover{background:var(--red-dim); color:var(--text);}
+  .ghost.on{border-color:var(--red-dim); color:var(--text);}
+  .copy-btn{width:100%; height:40px; margin-top:12px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .copy-btn:hover{background:var(--red-dim); color:var(--text);}
+  .copy-btn[hidden]{display:none;}
+
+  /* ---------- Results ---------- */
+  .result{margin-top:18px; text-align:center; font-size:24px; font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere; min-height:34px; letter-spacing:1px;}
+  .result.pop{animation:pop .35s ease;}
+  @keyframes pop{0%{transform:scale(.95); opacity:.4;}100%{transform:none; opacity:1;}}
+  .result-sub{text-align:center; font-size:11px; letter-spacing:.5px; color:var(--text-dim); margin-top:4px; min-height:16px; line-height:1.5; word-break:break-word; overflow-wrap:anywhere;}
+  .awaiting{color:var(--red-dim); font-size:15px; letter-spacing:3px; animation:blink 1.4s infinite;}
+  .main{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .positive{color:var(--up); text-shadow:0 0 12px rgba(43,255,136,.3);}
+  .negative{color:var(--down);}
+  .error{color:var(--error); font-size:13px; font-weight:700; letter-spacing:1px;}
+
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;}
+  .stats[hidden]{display:none;}
+  .stat{border:1px solid var(--line); background:rgba(15,10,10,.7); padding:10px 12px; min-width:0;}
+  .stat span{display:block; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:5px; text-transform:uppercase;}
+  .stat b{font-size:15px; font-weight:700; word-break:break-word; overflow-wrap:anywhere;}
+  .hint{font-size:10.5px; color:var(--text-dim); margin-top:12px; line-height:1.55; text-align:center; min-height:16px; letter-spacing:.3px;}
+
+  .about{font-size:11px; color:var(--text-dim); line-height:1.6;}
+  .about strong{color:var(--text);}
+  .about .example{margin-top:10px; padding:10px 12px; background:rgba(15,10,10,.7); border:1px solid var(--line);}
+  .about a{color:var(--red); text-decoration:none; border-bottom:1px dashed var(--red-dim);}
+  .about a:hover{color:var(--text);}
+  footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+
+  @media (max-width:480px){
+    h1{font-size:16px; letter-spacing:2px;}
+    .row-2{grid-template-columns:1fr; gap:0;}
+    .result{font-size:20px;}
+    .status{display:none;}
   }
-
-  .subtitle {
-    text-align: center;
-    font-size: 13.5px;
-    color: var(--muted);
-    margin-bottom: 20px;
-    line-height: 1.4;
-  }
-
-  /* --- Signature element: proportion bar showing X% carved out of the value --- */
-  .proportion {
-    margin-bottom: 22px;
-  }
-
-  .bar-track {
-    position: relative;
-    width: 100%;
-    height: 34px;
-    background: var(--track);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    position: absolute;
-    inset: 0;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
-    border-radius: 10px 0 0 10px;
-    transition: width 0.6s cubic-bezier(.4,0,.2,1);
-  }
-
-  .bar-fill.full {
-    border-radius: 10px;
-  }
-
-  .bar-caption {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .bar-caption .value {
-    font-family: 'Space Grotesk', sans-serif;
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  label {
-    font-size: 13.5px;
-    color: #cbd5f5;
-  }
-
-  input {
-    width: 100%;
-    height: 50px;
-    padding: 0 14px;
-    border-radius: 12px;
-    border: 1px solid var(--field-border);
-    outline: none;
-    font-size: 16px;
-    background: var(--field);
-    color: var(--text);
-    font-family: 'Space Grotesk', sans-serif;
-    transition: border-color 0.2s;
-  }
-
-  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
-  input:focus { border-color: var(--accent-a); }
-
-  button {
-    width: 100%;
-    height: 52px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
-    color: white;
-    margin-top: 4px;
-    font-family: 'Inter', sans-serif;
-  }
-
-  button:active { transform: scale(0.98); }
-
-  #rawBtn {
-    margin-top: 10px;
-    background: var(--field);
-    border: 1px solid var(--field-border);
-    font-size: 13.5px;
-    font-weight: 500;
-    height: 42px;
-  }
-
-  #rawBtn:hover { background: #131c2e; }
-
-  .result {
-    margin-top: 16px;
-    text-align: center;
-    font-size: 15.5px;
-    font-weight: 500;
-    line-height: 1.4;
-    word-break: break-word;
-    min-height: 20px;
-  }
-
-  .error { color: var(--error); font-size: 14px; }
-
-  .about {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(148,163,184,0.12);
-    font-size: 12.5px;
-    color: var(--muted);
-    line-height: 1.55;
-  }
-
-  .about strong { color: #cbd5f5; }
-
-  .about .example {
-    margin-top: 8px;
-    padding: 10px 12px;
-    background: var(--field);
-    border-radius: 10px;
-    border: 1px solid var(--field-border);
+  @media (prefers-reduced-motion:reduce){
+    .panel,.status b::before,.result.pop,.awaiting{animation:none;}
+    .bar-fill{transition:none;}
   }
 </style>
 </head>
+
 <body>
 
-  <div class="calculator">
-    <h1>％ Percent of a Number</h1>
-    <div class="subtitle">Find X% of a number</div>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
+      <div class="brand">RAMESHVERSE // RV·PERCENT</div>
+      <h1>PERCENT <span>OF A NUMBER</span></h1>
+      <div class="tagline">FIND X% OF ANY VALUE // DISCOUNT, TAX, TIP, INTEREST</div>
+    </div>
+    <div class="status" id="status">SYSTEM<b id="statusText">AWAITING INPUT</b></div>
+  </header>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+
+    <div class="cur-row">
+      <label for="currency" style="color:var(--text-dim)">Currency</label>
+      <select id="currency" aria-label="Currency symbol">
+        <option value="">None</option>
+        <option value="₹">₹ Rupee</option>
+        <option value="$">$ Dollar</option>
+        <option value="€">€ Euro</option>
+        <option value="£">£ Pound</option>
+      </select>
+    </div>
 
     <div class="proportion">
-      <div class="bar-track">
-        <div class="bar-fill" id="barFill"></div>
-      </div>
+      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
       <div class="bar-caption">
         <span>0</span>
         <span class="value" id="barValueLabel">—</span>
@@ -218,123 +184,280 @@
       </div>
     </div>
 
-    <div class="field">
-      <label for="percent">Percentage (%)</label>
-      <input type="number" id="percent" inputmode="decimal" placeholder="e.g. 10">
+    <div class="chips" id="chips">
+      <button type="button" class="chip" data-p="15" data-v="2400">15% OFF ₹2,400</button>
+      <button type="button" class="chip" data-p="18" data-v="5000">18% GST ON 5,000</button>
+      <button type="button" class="chip" data-p="10" data-v="850">10% TIP ON 850</button>
     </div>
 
-    <div class="field">
-      <label for="value">Value</label>
-      <input type="number" id="value" inputmode="decimal" placeholder="e.g. 500">
+    <div class="row-2">
+      <div class="field">
+        <label for="percent">Percentage (%)</label>
+        <input type="number" id="percent" inputmode="decimal" step="any" placeholder="e.g. 10">
+      </div>
+      <div class="field">
+        <label for="value">Value</label>
+        <input type="number" id="value" inputmode="decimal" step="any" placeholder="e.g. 500">
+      </div>
     </div>
 
-    <button onclick="calculatePercent()">Calculate</button>
-    <button type="button" id="rawBtn" onclick="toggleRaw()">Show raw value</button>
+    <div class="btn-row">
+      <button type="button" class="ghost" id="rawBtn" onclick="toggleRaw()">SHOW RAW VALUE</button>
+      <button type="button" class="ghost" id="resetBtn" onclick="resetCalculator()">RESET</button>
+    </div>
 
-    <div class="result" id="result"></div>
+    <div class="result" id="result" aria-live="polite"><span class="awaiting">AWAITING INPUT</span></div>
+    <div class="result-sub" id="resultSub"></div>
 
+    <div class="stats" id="stats" hidden>
+      <div class="stat"><span>Amount</span><b id="stAmount">–</b></div>
+      <div class="stat"><span>1% of the value</span><b id="stOne">–</b></div>
+      <div class="stat"><span>Value + the amount</span><b id="stPlus">–</b></div>
+      <div class="stat"><span>Value − the amount</span><b id="stMinus">–</b></div>
+    </div>
+
+    <div class="hint" id="hint"></div>
+    <button type="button" class="copy-btn" id="copyBtn" hidden>COPY RESULT</button>
+  </div>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
     <div class="about">
       <strong>What this does:</strong> it scales a number by a percentage — telling you how much X% actually comes out to when applied to a value.
       <div class="example">
-        <strong>Example:</strong> a shop offers 15% off a ₹2,400 jacket. Percentage = 15, Value = 2400 → discount is <strong>₹360</strong>. Same idea works for tips, tax, interest, or commission on any amount.
+        <strong>Example:</strong> a shop offers 15% off a ₹2,400 jacket. Percentage = 15, Value = 2400 → discount is <strong>₹360</strong>, so you pay <strong>₹2,040</strong> (the "Value − the amount" tile). Same idea works for tips, tax, interest, or commission on any amount; "Value + the amount" gives the total after adding tax or a tip.
+      </div>
+      <div class="example">
+        <strong>Other percentage tools:</strong> <a href="/percentage-change-calculator">percentage change</a> · <a href="/percentage-difference-calculator">percentage difference</a>
       </div>
     </div>
   </div>
 
+  <footer>RAMESHVERSE.COM</footer>
+</div>
+
   <script>
-  let lastRawValue = null;
-  let lastPercent = null;
-  let lastValue = null;
-  let showRaw = false;
+    const $ = (id) => document.getElementById(id);
+    const MINUS = "−";
+    const BAD_NOTE = "Enter a valid number (too large or malformed)";
 
-  function toggleRaw() {
-    showRaw = !showRaw;
-    document.getElementById("rawBtn").textContent =
-      showRaw ? "Hide raw value" : "Show raw value";
+    let showRaw = false;
+    let last = null;   // { p, v, raw } of the last good result
 
-    if (lastRawValue !== null) {
-      displayResult(lastRawValue);
+    // ---------- helpers ----------
+    // Empty input comes back as NaN. A value like 1e400 is blanked by the browser; validity.badInput tells us it was typed.
+    function num(el) {
+      const raw = el.value.trim();
+      return raw === "" ? NaN : Number(raw);
     }
-  }
+    function badInput(el) { return !!(el.validity && el.validity.badInput); }
 
-  function setBar(percent, value, raw) {
-    const barFill = document.getElementById("barFill");
-    const barValueLabel = document.getElementById("barValueLabel");
-    const barTotalLabel = document.getElementById("barTotalLabel");
-
-    const magnitude = Math.abs(value) || 1;
-    const filledFraction = Math.max(0, Math.min(1, Math.abs(raw) / magnitude));
-    const widthPct = filledFraction * 100;
-
-    barFill.style.width = widthPct + "%";
-    barFill.classList.toggle("full", widthPct >= 99.5);
-
-    const rawLabel = Number.isInteger(raw) ? raw.toString() : parseFloat(raw.toFixed(2)).toString();
-    const valueLabel = Number.isInteger(value) ? value.toString() : parseFloat(value.toFixed(2)).toString();
-
-    barValueLabel.textContent = rawLabel;
-    barTotalLabel.textContent = "of " + valueLabel;
-  }
-
-  function calculatePercent() {
-    const percentInput = document.getElementById("percent");
-    const valueInput = document.getElementById("value");
-    const percent = Number(percentInput.value);
-    const value = Number(valueInput.value);
-    const resultDiv = document.getElementById("result");
-
-    if (percentInput.value.trim() === "" || valueInput.value.trim() === "" ||
-        Number.isNaN(percent) || Number.isNaN(value)) {
-      resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
-      return;
+    // Very large or very tiny numbers switch to short scientific form so they never break the layout
+    function fmtNum(x, max) {
+      if (!Number.isFinite(x)) return x > 0 ? "∞" : x < 0 ? MINUS + "∞" : "–";
+      const a = Math.abs(x);
+      if (a >= 1e15 || (a > 0 && a < 1e-6)) return x.toExponential(3).replace("e+", "e");
+      return x.toLocaleString("en-US", { maximumFractionDigits: max == null ? 3 : max });
     }
+    // Amounts: up to 3 decimals, but tiny non-zero amounts keep enough digits to not look like 0
+    function fmtAmt(x) {
+      if (!Number.isFinite(x)) return "–";
+      const a = Math.abs(x);
+      const s = x < 0 ? MINUS : "";
+      if (a > 0 && a < 0.001) return s + fmtNum(a, 6);
+      return s + fmtNum(a, 3);
+    }
+    function cur() { return $("currency").value; }
+    function fmtMoney(x) {
+      if (!Number.isFinite(x)) return "–";
+      const sign = x < 0 ? MINUS : "";
+      const a = Math.abs(x);
+      if (a > 0 && a < 0.001) return sign + cur() + fmtNum(a, 6);
+      return sign + cur() + fmtNum(a, 3);
+    }
+    function fmtPlain(x) { return (x < 0 ? MINUS : "") + fmtNum(Math.abs(x), 3); }
 
-    // exact raw calculation
-    lastRawValue = (percent * value) / 100;
-    lastPercent = percent;
-    lastValue = value;
-
-    setBar(percent, value, lastRawValue);
-    displayResult(lastRawValue);
-  }
-
-  function displayResult(raw) {
-    const resultDiv = document.getElementById("result");
-
-    if (showRaw) {
-      // RAW MODE: no rounding, no formatting tricks
-      resultDiv.textContent = `${lastPercent}% of ${lastValue} = ${raw}`;
-      return;
+    function setResult(html, cls) {
+      const el = $("result");
+      el.innerHTML = cls ? `<span class="${cls}">${html}</span>` : html;
+      el.classList.remove("pop");
+      void el.offsetWidth;
+      el.classList.add("pop");
+    }
+    function setStatus(text, kind) {
+      $("statusText").textContent = text;
+      $("status").classList.remove("ok", "err");
+      if (kind) $("status").classList.add(kind);
     }
 
-    // NORMAL MODE (rounded / adaptive, no trailing zero clutter)
-    let display;
-
-    if (raw !== 0 && Math.abs(raw) < 0.001) {
-      display = parseFloat(raw.toFixed(6)).toString();
-    } else {
-      display = parseFloat(raw.toFixed(3)).toString();
-    }
-
-    resultDiv.textContent = `${lastPercent}% of ${lastValue} = ${display}`;
-  }
-
-  // Allow Enter key from either field to trigger calculation
-  ["percent", "value"].forEach(id => {
-    document.getElementById(id).addEventListener("keydown", (e) => {
-      if (e.key === "Enter") calculatePercent();
+    // ---------- currency memory ----------
+    try {
+      const saved = localStorage.getItem("rv_pct_currency");
+      if (saved !== null) $("currency").value = saved;
+    } catch (e) {}
+    $("currency").addEventListener("change", () => {
+      try { localStorage.setItem("rv_pct_currency", $("currency").value); } catch (e) {}
+      calculate(false);
     });
-  });
+
+    // ---------- bar ----------
+    function resetBar() {
+      $("barFill").style.width = "0%";
+      $("barFill").classList.remove("neg");
+      $("barValueLabel").textContent = "—";
+      $("barTotalLabel").textContent = "value";
+    }
+    // The bar shows how much of the value the amount covers; it is capped at full (and hatched when the amount is negative)
+    function updateBar(v, raw) {
+      const mag = Math.abs(v);
+      const frac = mag > 0 ? Math.min(1, Math.abs(raw) / mag) : 0;
+      $("barFill").style.width = (Number.isFinite(frac) ? frac * 100 : 0) + "%";
+      $("barFill").classList.toggle("neg", raw < 0);
+      $("barValueLabel").textContent = fmtMoney(raw);
+      $("barTotalLabel").textContent = "of " + fmtMoney(v);
+    }
+
+    // ---------- main calculation ----------
+    let lastSummary = "";
+
+    function clearOutput() {
+      $("result").innerHTML = '<span class="awaiting">AWAITING INPUT</span>';
+      $("resultSub").textContent = "";
+      $("stats").hidden = true;
+      $("copyBtn").hidden = true;
+      $("hint").textContent = "";
+      lastSummary = "";
+      last = null;
+      resetBar();
+      setStatus("AWAITING INPUT");
+    }
+
+    function showError(msg) {
+      clearOutput();
+      $("result").innerHTML = `<span class="error">${msg}</span>`;
+      setStatus("INPUT ERROR", "err");
+    }
+
+    // showErr = true when Enter or a chip was used; while typing we stay quiet about missing values
+    function calculate(showErr) {
+      const pEl = $("percent"), vEl = $("value");
+      const p = num(pEl), v = num(vEl);
+
+      if (badInput(pEl) || badInput(vEl)) { showError(BAD_NOTE); return; }
+
+      if (Number.isNaN(p) || Number.isNaN(v)) {
+        if (showErr) showError("Please enter both values");
+        else if (pEl.value.trim() === "" || vEl.value.trim() === "") clearOutput();
+        return;
+      }
+      if (!Number.isFinite(p) || !Number.isFinite(v)) { showError("Number too large"); return; }
+
+      // Dividing the percentage by 100 first keeps huge values from overflowing mid-way
+      let raw = (p * v) / 100;
+      if (!Number.isFinite(raw)) raw = (p / 100) * v;
+      if (!Number.isFinite(raw)) { showError("Result too large to show"); return; }
+      if (raw === 0) raw = 0;   // never show "-0"
+
+      last = { p, v, raw };
+      render();
+    }
+
+    function render() {
+      if (!last) return;
+      const { p, v, raw } = last;
+      const pTxt = fmtPlain(p);
+
+      updateBar(v, raw);
+
+      // main line: the raw toggle shows the full-precision number with no rounding
+      let shown;
+      if (showRaw) {
+        shown = String(raw).replace("e+", "e");
+      } else {
+        shown = fmtAmt(raw);
+      }
+      const money = (showRaw ? cur() + shown : (raw < 0 ? MINUS + cur() + shown.replace(MINUS, "") : cur() + shown));
+      setResult(money, raw < 0 ? "negative" : "main");
+      $("resultSub").textContent = `${pTxt}% of ${fmtMoney(v)}${showRaw ? " (unrounded)" : ""}`;
+      setStatus("COMPUTED", "ok");
+
+      // ----- stats -----
+      const plus = v + raw, minus = v - raw, one = v / 100;
+      $("stAmount").textContent = fmtMoney(raw);
+      $("stOne").textContent = fmtMoney(one);
+      $("stPlus").textContent = Number.isFinite(plus) ? fmtMoney(plus) : "–";
+      $("stMinus").textContent = Number.isFinite(minus) ? fmtMoney(minus) : "–";
+      $("stats").hidden = false;
+
+      // ----- one helpful note at most -----
+      let hint = "";
+      if (v === 0) hint = "The value is 0, so any percentage of it is 0.";
+      else if (p === 0) hint = "0% of anything is 0.";
+      else if (p < 0 && v < 0) hint = "Both are negative, so the amount comes out positive.";
+      else if (p < 0) hint = "A negative percentage gives a negative amount, so \"Value + the amount\" is the same as taking that percentage off.";
+      else if (v < 0) hint = "The value is negative, so the amount is negative too.";
+      else if (p > 100) hint = "More than 100%, so the amount is bigger than the value (the bar shows it as full).";
+      else if (p === 100) hint = "100% of a value is the value itself.";
+      $("hint").textContent = hint;
+
+      lastSummary = `${pTxt}% of ${fmtMoney(v)} = ${money}`;
+      $("copyBtn").hidden = false;
+    }
+
+    function toggleRaw() {
+      showRaw = !showRaw;
+      $("rawBtn").textContent = showRaw ? "HIDE RAW VALUE" : "SHOW RAW VALUE";
+      $("rawBtn").classList.toggle("on", showRaw);
+      render();
+    }
+
+    function resetCalculator() {
+      $("percent").value = "";
+      $("value").value = "";
+      clearOutput();
+      $("percent").focus();
+    }
+
+    // live results while typing + Enter key
+    ["percent", "value"].forEach((id) => {
+      $(id).addEventListener("input", () => calculate(false));
+      $(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculate(true);
+      });
+    });
+
+    document.querySelectorAll("#chips .chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        $("percent").value = chip.dataset.p;
+        $("value").value = chip.dataset.v;
+        calculate(true);
+      });
+    });
+
+    $("copyBtn").addEventListener("click", () => {
+      if (!lastSummary) return;
+      const done = () => {
+        const btn = $("copyBtn");
+        const t = btn.textContent;
+        btn.textContent = "COPIED";
+        setTimeout(() => { btn.textContent = t; }, 1200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lastSummary).then(done, () => {});
+      } else {
+        done();
+      }
+    });
   </script>
 
-<script src="/libraries/config.js"></script>
-<script src="/libraries/view-counter.js"></script>
-<script src="/libraries/hud-home-button.js"></script>
+  <script src="/libraries/config.js"></script>
+  <script src="/libraries/view-counter.js"></script>
+  <script src="/libraries/hud-home-button.js"></script>
 
-<script src="/tools-data.js"></script>
-<script src="/related-modules.js"></script>
+  <script src="/tools-data.js"></script>
+  <script src="/related-modules.js"></script>
 
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "aa7dc56982544317888a1a6701eb38c5"}'></script><!-- End Cloudflare Web Analytics -->
+  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "aa7dc56982544317888a1a6701eb38c5"}'></script><!-- End Cloudflare Web Analytics -->
 
 
 </body>

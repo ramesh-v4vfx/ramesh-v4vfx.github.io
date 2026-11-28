@@ -13,368 +13,514 @@
 
 <link rel="canonical" href="https://rameshverse.com/percentage-difference-calculator">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
-
-  :root {
-    --bg: #0f172a;
-    --card: #020617;
-    --track: #1e293b;
-    --accent-a: #6366f1;
-    --accent-b: #a855f7;
-    --bar-a: #818cf8;
-    --bar-b: #c084fc;
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --error: #f87171;
-    --field: #0b1220;
-    --field-border: #1e293b;
+  :root{
+    --bg:#050505; --panel:rgba(11,8,8,.88); --line:#2a1616;
+    --red:#ff2b2b; --red-dim:#7a1414;
+    --amber:#ffb02b;
+    --text:#e8e2e2; --text-dim:#8a7a7a;
+    --up:#2bff88; --down:#ff2b2b; --error:#ff7a75;
+    --font:'Space Mono', ui-monospace, monospace;
   }
-
-  * { box-sizing: border-box; }
-
-  body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--font);}
+  /* starts at the top of the page */
+  body{min-height:100vh; padding:20px 16px 50px; position:relative; overflow-x:hidden;}
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; z-index:50;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      radial-gradient(circle at 15% -10%, rgba(99,102,241,0.15), transparent 45%),
-      radial-gradient(circle at 90% 110%, rgba(168,85,247,0.12), transparent 45%),
-      var(--bg);
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    min-height: 100svh;
-    margin: 0;
-    padding: 16px;
+      repeating-linear-gradient(0deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      repeating-linear-gradient(90deg, rgba(255,43,43,0.035) 0 1px, transparent 1px 38px),
+      radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.09), transparent 60%);
   }
+  .wrap{max-width:560px; margin:0 auto; position:relative; z-index:1;}
 
-  .calculator {
-    background: var(--card);
-    padding: 24px;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    border: 1px solid rgba(148,163,184,0.08);
+  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px; gap:12px;}
+  .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px; transition:color .15s;}
+  .back-link:hover{color:var(--red);}
+  .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  h1{font-size:21px; letter-spacing:3px; font-weight:700;}
+  h1 span{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .tagline{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); margin-top:6px;}
+  .status{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-align:right; white-space:nowrap;}
+  .status b{display:block; color:var(--red); font-size:11px; margin-top:3px;}
+  .status.ok b{color:var(--up);}
+  .status.err b{color:var(--error);}
+  .status b::before{content:"● "; animation:blink 1.4s infinite;}
+  @keyframes blink{50%{opacity:.25;}}
+
+  .panel{position:relative; background:var(--panel); backdrop-filter:blur(3px); border:1px solid var(--line); padding:18px; margin-bottom:14px; animation:rise .5s ease both;}
+  .panel .tl,.panel .tr,.panel .bl,.panel .br{position:absolute; width:10px; height:10px; border-color:var(--red); border-style:solid; opacity:.7;}
+  .panel .tl{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .panel .tr{top:-1px; right:-1px; border-width:1px 1px 0 0;}
+  .panel .bl{bottom:-1px; left:-1px; border-width:0 0 1px 1px;}
+  .panel .br{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
+
+  .cur-row{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-bottom:14px; font-size:10px; letter-spacing:1.5px; color:var(--text-dim);}
+  select{height:32px; padding:0 8px; background:#160d0d; border:1px solid var(--red-dim); color:var(--text); font-family:var(--font); font-size:12px; outline:none;}
+  select:focus{border-color:var(--red);}
+
+  /* ---------- Compare chart ---------- */
+  .compare{margin-bottom:16px;}
+  .bracket{text-align:center; margin-bottom:12px;}
+  .bracket-value{display:inline-block; font-size:16px; font-weight:700; padding:6px 16px; border:1px solid var(--line); background:rgba(15,10,10,.7); letter-spacing:1px; transition:color .3s,border-color .3s; word-break:break-word;}
+  .bracket-value.on{color:var(--red); border-color:rgba(255,43,43,.5); text-shadow:0 0 10px rgba(255,43,43,.4);}
+  .chart{background:rgba(15,10,10,.7); border:1px solid var(--line); padding:16px 12px 12px;}
+  .columns{display:flex; align-items:flex-end; justify-content:center; gap:44px;}
+  .col-wrap{display:flex; flex-direction:column; align-items:center; width:86px; min-width:0;}
+  .col-track{position:relative; width:100%; height:120px; display:flex; align-items:flex-end; background:rgba(255,43,43,.04); border:1px solid var(--line); overflow:hidden;}
+  .col-fill{width:100%; height:4%; transition:height .6s cubic-bezier(.4,0,.2,1);}
+  .col-fill.a{background:linear-gradient(180deg,#ff6a6a,var(--red)); box-shadow:0 0 14px rgba(255,43,43,.45);}
+  .col-fill.b{background:linear-gradient(180deg,#ffd27a,var(--amber)); box-shadow:0 0 14px rgba(255,176,43,.4);}
+  .col-fill.neg{opacity:.55; background-image:repeating-linear-gradient(45deg, rgba(0,0,0,.35) 0 4px, transparent 4px 8px);}
+  .avg-line{position:absolute; left:0; right:0; bottom:0; height:0; border-top:1px dashed rgba(232,226,226,.75); transition:bottom .6s cubic-bezier(.4,0,.2,1); opacity:0; z-index:2;}
+  .avg-line.on{opacity:1;}
+  .col-label{margin-top:8px; font-size:9px; letter-spacing:2px; color:var(--text-dim);}
+  .col-value{font-size:13px; font-weight:700; color:var(--text); max-width:100%; text-align:center; word-break:break-all; overflow-wrap:anywhere;}
+  .avg-note{text-align:center; font-size:9px; letter-spacing:1.5px; color:var(--text-dim); margin-top:10px;}
+  .avg-note i{display:inline-block; width:18px; border-top:1px dashed rgba(232,226,226,.75); vertical-align:middle; margin-right:6px;}
+
+  /* ---------- Fields ---------- */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .chip{padding:5px 10px; font-size:10px; letter-spacing:.5px; color:var(--text-dim); border:1px solid var(--line); background:transparent; cursor:pointer; font-family:var(--font);}
+  .chip:hover{color:var(--text); background:#1a0d0d;}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px; min-width:0;}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  label{font-size:10px; letter-spacing:1.5px; color:var(--red); text-transform:uppercase;}
+  input{
+    width:100%; height:50px; padding:0 14px; background:#160d0d; border:1px solid var(--red-dim); border-left:3px solid var(--red);
+    color:#fff; font-family:var(--font); font-size:16px; outline:none;
+    box-shadow:inset 0 0 22px rgba(255,43,43,.07), 0 0 16px rgba(255,43,43,.08);
+    transition:border-color .15s, box-shadow .15s;
   }
+  #valueB{border-left-color:var(--amber);}
+  /* hide the browser spinner arrows */
+  input[type=number]{-moz-appearance:textfield; appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  input::placeholder{color:#7a5a5a;}
+  input:focus{border-color:var(--red); box-shadow:inset 0 0 22px rgba(255,43,43,.1), 0 0 24px rgba(255,43,43,.3);}
 
-  h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    text-align: center;
-    margin: 0 0 6px;
-    font-size: 20px;
-    font-weight: 600;
+  /* ---------- Buttons ---------- */
+  .btn-row{display:grid; grid-template-columns:1fr; gap:8px;}
+  button{font-family:var(--font); letter-spacing:1.5px; cursor:pointer; transition:all .15s;}
+  button:active{transform:translateY(1px);}
+  .primary{height:50px; border:1px solid var(--red-dim); background:linear-gradient(90deg,#3a0a0a,#5a1010); color:var(--text); font-size:13px; font-weight:700; box-shadow:0 0 22px rgba(255,43,43,.18);}
+  .primary:hover{background:linear-gradient(90deg,#5a1010,#8a1818); box-shadow:0 0 30px rgba(255,43,43,.4);}
+  .ghost{height:44px; padding:0 16px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .ghost:hover{background:var(--red-dim); color:var(--text);}
+  .copy-btn{width:100%; height:40px; margin-top:12px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-size:11px;}
+  .copy-btn:hover{background:var(--red-dim); color:var(--text);}
+  .copy-btn[hidden]{display:none;}
+
+  /* ---------- Results ---------- */
+  .result{margin-top:18px; text-align:center; font-size:26px; font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere; min-height:34px; letter-spacing:1px;}
+  .result.pop{animation:pop .35s ease;}
+  @keyframes pop{0%{transform:scale(.95); opacity:.4;}100%{transform:none; opacity:1;}}
+  .result-sub{text-align:center; font-size:11px; letter-spacing:.5px; color:var(--text-dim); margin-top:4px; min-height:16px; line-height:1.5; word-break:break-word;}
+  .awaiting{color:var(--red-dim); font-size:15px; letter-spacing:3px; animation:blink 1.4s infinite;}
+  .main{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .positive{color:var(--up); text-shadow:0 0 12px rgba(43,255,136,.3);}
+  .negative{color:var(--down);}
+  .error{color:var(--error); font-size:13px; font-weight:700; letter-spacing:1px;}
+
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;}
+  .stats[hidden]{display:none;}
+  .stat{border:1px solid var(--line); background:rgba(15,10,10,.7); padding:10px 12px; min-width:0;}
+  .stat span{display:block; font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:5px; text-transform:uppercase;}
+  .stat b{font-size:15px; font-weight:700; word-break:break-word; overflow-wrap:anywhere;}
+  .hint{font-size:10.5px; color:var(--text-dim); margin-top:12px; line-height:1.55; text-align:center; min-height:16px; letter-spacing:.3px;}
+
+  .about{font-size:11px; color:var(--text-dim); line-height:1.6;}
+  .about strong{color:var(--text);}
+  .about .example{margin-top:10px; padding:10px 12px; background:rgba(15,10,10,.7); border:1px solid var(--line);}
+  .about a{color:var(--red); text-decoration:none; border-bottom:1px dashed var(--red-dim);}
+  .about a:hover{color:var(--text);}
+  footer{text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; margin-top:20px;}
+
+  @media (max-width:480px){
+    h1{font-size:16px; letter-spacing:2px;}
+    .row-2{grid-template-columns:1fr; gap:0;}
+    .result{font-size:21px;}
+    .status{display:none;}
+    .columns{gap:28px;}
+    .col-wrap{width:72px;}
   }
-
-  .subtitle {
-    text-align: center;
-    font-size: 13.5px;
-    color: var(--muted);
-    margin-bottom: 18px;
-    line-height: 1.4;
-  }
-
-  /* --- Signature element: two columns compared, gap bracket shows the % difference --- */
-  .compare {
-    margin-bottom: 20px;
-  }
-
-  .bracket {
-    text-align: center;
-    margin-bottom: 6px;
-  }
-
-  .bracket-value {
-    display: inline-block;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: var(--field);
-    border: 1px solid var(--field-border);
-  }
-
-  .columns {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 28px;
-    margin-top: 14px;
-  }
-
-  .col-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 64px;
-  }
-
-  .col-track {
-    width: 100%;
-    height: 88px;
-    display: flex;
-    align-items: flex-end;
-    background: var(--track);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .col-fill {
-    width: 100%;
-    height: 8%;
-    border-radius: 8px 8px 0 0;
-    transition: height 0.6s cubic-bezier(.4,0,.2,1);
-  }
-
-  .col-fill.a { background: linear-gradient(180deg, var(--bar-a), var(--accent-a)); }
-  .col-fill.b { background: linear-gradient(180deg, var(--bar-b), var(--accent-b)); }
-
-  .col-label {
-    margin-top: 8px;
-    font-size: 11.5px;
-    color: var(--muted);
-  }
-
-  .col-value {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  label {
-    font-size: 13.5px;
-    color: #cbd5f5;
-  }
-
-  input {
-    width: 100%;
-    height: 50px;
-    padding: 0 14px;
-    border-radius: 12px;
-    border: 1px solid var(--field-border);
-    outline: none;
-    font-size: 16px;
-    background: var(--field);
-    color: var(--text);
-    font-family: 'Space Grotesk', sans-serif;
-    transition: border-color 0.2s;
-  }
-
-  input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
-  input:focus { border-color: var(--accent-a); }
-
-  button {
-    width: 100%;
-    height: 52px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
-    color: white;
-    margin-top: 4px;
-    font-family: 'Inter', sans-serif;
-  }
-
-  button:active { transform: scale(0.98); }
-
-  #resetBtn {
-    margin-top: 10px;
-    background: var(--field);
-    border: 1px solid var(--field-border);
-    font-size: 13.5px;
-    font-weight: 500;
-    height: 42px;
-    color: var(--muted);
-  }
-
-  #resetBtn:hover { background: #131c2e; }
-
-  .result {
-    margin-top: 16px;
-    text-align: center;
-    font-size: 15.5px;
-    font-weight: 500;
-    line-height: 1.4;
-    word-break: break-word;
-    min-height: 20px;
-  }
-
-  .error { color: var(--error); font-size: 14px; }
-
-  .about {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(148,163,184,0.12);
-    font-size: 12.5px;
-    color: var(--muted);
-    line-height: 1.55;
-  }
-
-  .about strong { color: #cbd5f5; }
-
-  .about .example {
-    margin-top: 8px;
-    padding: 10px 12px;
-    background: var(--field);
-    border-radius: 10px;
-    border: 1px solid var(--field-border);
+  @media (prefers-reduced-motion:reduce){
+    .panel,.status b::before,.result.pop{animation:none;}
+    .col-fill,.avg-line{transition:none;}
   }
 </style>
 </head>
 
 <body>
 
-  <div class="calculator">
-    <h1>📊 Percentage Difference</h1>
-    <div class="subtitle">See how far apart two values are, relative to their average</div>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
+      <div class="brand">RAMESHVERSE // RV·DIFFERENCE</div>
+      <h1>PERCENTAGE <span>DIFFERENCE</span></h1>
+      <div class="tagline">HOW FAR APART ARE TWO VALUES // RELATIVE TO THEIR AVERAGE</div>
+    </div>
+    <div class="status" id="status">SYSTEM<b id="statusText">AWAITING INPUT</b></div>
+  </header>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+
+    <div class="cur-row">
+      <label for="currency" style="color:var(--text-dim)">Currency</label>
+      <select id="currency" aria-label="Currency symbol">
+        <option value="">None</option>
+        <option value="₹">₹ Rupee</option>
+        <option value="$">$ Dollar</option>
+        <option value="€">€ Euro</option>
+        <option value="£">£ Pound</option>
+      </select>
+    </div>
 
     <div class="compare">
       <div class="bracket">
         <span class="bracket-value" id="bracketValue">— % difference</span>
       </div>
-      <div class="columns">
-        <div class="col-wrap">
-          <div class="col-track">
-            <div class="col-fill a" id="colA"></div>
+      <div class="chart">
+        <div class="columns">
+          <div class="col-wrap">
+            <div class="col-track">
+              <div class="avg-line" id="avgLineA"></div>
+              <div class="col-fill a" id="colA"></div>
+            </div>
+            <div class="col-label">VALUE A</div>
+            <div class="col-value" id="colAValue">—</div>
           </div>
-          <div class="col-label">Value A</div>
-          <div class="col-value" id="colAValue">—</div>
-        </div>
-        <div class="col-wrap">
-          <div class="col-track">
-            <div class="col-fill b" id="colB"></div>
+          <div class="col-wrap">
+            <div class="col-track">
+              <div class="avg-line" id="avgLineB"></div>
+              <div class="col-fill b" id="colB"></div>
+            </div>
+            <div class="col-label">VALUE B</div>
+            <div class="col-value" id="colBValue">—</div>
           </div>
-          <div class="col-label">Value B</div>
-          <div class="col-value" id="colBValue">—</div>
         </div>
+        <div class="avg-note"><i></i><span id="avgNote">AVERAGE</span></div>
       </div>
     </div>
 
-    <div class="field">
-      <label for="valueA">Value A</label>
-      <input
-        type="number"
-        id="valueA"
-        inputmode="decimal"
-        placeholder="Enter first value"
-      >
+    <div class="chips" id="chips">
+      <button type="button" class="chip" data-a="1800" data-b="2200">TWO SHOP PRICES</button>
+      <button type="button" class="chip" data-a="55000" data-b="62000">TWO LAPTOPS</button>
+      <button type="button" class="chip" data-a="48.2" data-b="51.8">TWO READINGS</button>
     </div>
 
-    <div class="field">
-      <label for="valueB">Value B</label>
-      <input
-        type="number"
-        id="valueB"
-        inputmode="decimal"
-        placeholder="Enter second value"
-      >
+    <div class="row-2">
+      <div class="field">
+        <label for="valueA">Value A</label>
+        <input type="number" id="valueA" inputmode="decimal" step="any" placeholder="Enter first value">
+      </div>
+      <div class="field">
+        <label for="valueB">Value B</label>
+        <input type="number" id="valueB" inputmode="decimal" step="any" placeholder="Enter second value">
+      </div>
     </div>
 
-    <button onclick="calculateDifference()">Calculate</button>
-    <button type="button" id="resetBtn" onclick="resetCalculator()">Reset</button>
+    <div class="btn-row">
+      <button type="button" class="ghost" id="resetBtn" onclick="resetCalculator()">RESET</button>
+    </div>
 
-    <div class="result" id="result"></div>
+    <div class="result" id="result" aria-live="polite"><span class="awaiting">AWAITING INPUT</span></div>
+    <div class="result-sub" id="resultSub"></div>
 
+    <div class="stats" id="stats" hidden>
+      <div class="stat"><span>Difference</span><b id="stDiff">–</b></div>
+      <div class="stat"><span>Average (the base)</span><b id="stAvg">–</b></div>
+      <div class="stat"><span>If A is the base</span><b id="stFromA">–</b></div>
+      <div class="stat"><span>If B is the base</span><b id="stFromB">–</b></div>
+    </div>
+
+    <div class="hint" id="hint"></div>
+    <button type="button" class="copy-btn" id="copyBtn" hidden>COPY RESULT</button>
+  </div>
+
+  <div class="panel">
+    <div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
     <div class="about">
       <strong>What this does:</strong> it measures how far apart two values are, as a percentage of their average — neither value is treated as the "base", so A vs B gives the same result as B vs A.
       <div class="example">
         <strong>Example:</strong> two shops quote ₹1,800 and ₹2,200 for the same item. Value A = 1800, Value B = 2200 → <strong>20% difference</strong>. Useful for comparing prices, quotes, or readings where neither number is the "original".
       </div>
+      <div class="example">
+        <strong>Difference or change?</strong> Use difference when neither number came first. If one value is the starting point (a buy price, last year's salary), use the <a href="/percentage-change-calculator">percentage change calculator</a> instead.
+      </div>
     </div>
   </div>
 
+  <footer>RAMESHVERSE.COM</footer>
+</div>
+
   <script>
-    function updateColumns(a, b) {
-      const colA = document.getElementById("colA");
-      const colB = document.getElementById("colB");
-      const colAValue = document.getElementById("colAValue");
-      const colBValue = document.getElementById("colBValue");
+    const $ = (id) => document.getElementById(id);
+    const MINUS = "−";
+    const BAD_NOTE = "Enter a valid number (too large or malformed)";
 
-      const magnitude = Math.max(Math.abs(a), Math.abs(b)) || 1;
-      const heightA = Math.max(6, (Math.abs(a) / magnitude) * 100);
-      const heightB = Math.max(6, (Math.abs(b) / magnitude) * 100);
+    // ---------- helpers ----------
+    // Empty input comes back as NaN. A value like 1e400 is blanked by the browser; validity.badInput tells us it was typed.
+    function num(el) {
+      const raw = el.value.trim();
+      return raw === "" ? NaN : Number(raw);
+    }
+    function badInput(el) { return !!(el.validity && el.validity.badInput); }
 
-      colA.style.height = heightA + "%";
-      colB.style.height = heightB + "%";
-
-      colAValue.textContent = a.toString();
-      colBValue.textContent = b.toString();
+    // Very large or very tiny numbers switch to short scientific form so they never break the layout
+    function fmtNum(x, max) {
+      if (!Number.isFinite(x)) return x > 0 ? "∞" : x < 0 ? MINUS + "∞" : "–";
+      const a = Math.abs(x);
+      if (a >= 1e15 || (a > 0 && a < 1e-6)) return x.toExponential(3).replace("e+", "e");
+      return x.toLocaleString("en-US", { maximumFractionDigits: max == null ? 3 : max });
     }
 
-    function calculateDifference() {
-      const aInput = document.getElementById("valueA");
-      const bInput = document.getElementById("valueB");
-      const a = Number(aInput.value);
-      const b = Number(bInput.value);
-      const resultDiv = document.getElementById("result");
-      const bracketValue = document.getElementById("bracketValue");
+    function cur() { return $("currency").value; }
 
-      if (aInput.value.trim() === "" || bInput.value.trim() === "" ||
-          Number.isNaN(a) || Number.isNaN(b)) {
-        resultDiv.innerHTML = "<span class='error'>Please enter both values</span>";
+    function fmtMoney(x) {
+      if (!Number.isFinite(x)) return "–";
+      const sign = x < 0 ? MINUS : "";
+      const a = Math.abs(x);
+      if (a > 0 && a < 0.01) return sign + cur() + "<0.01";
+      return sign + cur() + fmtNum(a, 2);
+    }
+
+    // A real difference that rounds to 0.000% shows as "<0.001%", never as a false "0%"
+    function fmtPct(x, signed) {
+      if (!Number.isFinite(x)) return "–";
+      const r = Number(x.toFixed(3));
+      if (r === 0) {
+        if (x === 0) return "0%";
+        return (x > 0 ? (signed ? "+" : "") : MINUS) + "<0.001%";
+      }
+      const sign = r > 0 ? (signed ? "+" : "") : MINUS;
+      return sign + fmtNum(Math.abs(r), 3) + "%";
+    }
+
+    function setResult(html, cls) {
+      const el = $("result");
+      el.innerHTML = cls ? `<span class="${cls}">${html}</span>` : html;
+      el.classList.remove("pop");
+      void el.offsetWidth;
+      el.classList.add("pop");
+    }
+
+    function setStatus(text, kind) {
+      $("statusText").textContent = text;
+      $("status").classList.remove("ok", "err");
+      if (kind) $("status").classList.add(kind);
+    }
+
+    // ---------- currency memory ----------
+    try {
+      const saved = localStorage.getItem("rv_pct_currency");
+      if (saved !== null) $("currency").value = saved;
+    } catch (e) {}
+    $("currency").addEventListener("change", () => {
+      try { localStorage.setItem("rv_pct_currency", $("currency").value); } catch (e) {}
+      calculateDifference(false);
+    });
+
+    // ---------- chart ----------
+    function resetChart() {
+      $("colA").style.height = "4%";
+      $("colB").style.height = "4%";
+      $("colA").classList.remove("neg");
+      $("colB").classList.remove("neg");
+      $("colAValue").textContent = "—";
+      $("colBValue").textContent = "—";
+      $("avgLineA").classList.remove("on");
+      $("avgLineB").classList.remove("on");
+      $("avgNote").textContent = "AVERAGE";
+      $("bracketValue").textContent = "— % difference";
+      $("bracketValue").classList.remove("on");
+    }
+
+    // Bars show the size of each value (so negatives are drawn as hatched bars); the dashed line is the average used as the base
+    function updateChart(a, b, base) {
+      const magnitude = Math.max(Math.abs(a), Math.abs(b));
+      const pct = (v) => (magnitude > 0 && Number.isFinite(v / magnitude)) ? Math.max(4, (Math.abs(v) / magnitude) * 100) : 4;
+
+      $("colA").style.height = pct(a) + "%";
+      $("colB").style.height = pct(b) + "%";
+      $("colA").classList.toggle("neg", a < 0);
+      $("colB").classList.toggle("neg", b < 0);
+      $("colAValue").textContent = cur() + fmtNum(a, 3);
+      $("colBValue").textContent = cur() + fmtNum(b, 3);
+
+      const avgPct = magnitude > 0 ? Math.min(100, (base / magnitude) * 100) : 0;
+      ["avgLineA", "avgLineB"].forEach((id) => {
+        $(id).style.bottom = avgPct + "%";
+        $(id).classList.add("on");
+      });
+      $("avgNote").textContent = "AVERAGE " + cur() + fmtNum(base, 2);
+    }
+
+    // ---------- main calculation ----------
+    let lastSummary = "";
+
+    function clearOutput() {
+      $("result").innerHTML = '<span class="awaiting">AWAITING INPUT</span>';
+      $("resultSub").textContent = "";
+      $("stats").hidden = true;
+      $("copyBtn").hidden = true;
+      $("hint").textContent = "";
+      lastSummary = "";
+      resetChart();
+      setStatus("AWAITING INPUT");
+    }
+
+    function showError(msg) {
+      clearOutput();
+      $("result").innerHTML = `<span class="error">${msg}</span>`;
+      setStatus("INPUT ERROR", "err");
+    }
+
+    // showErr = true when CALCULATE was pressed; while typing we stay quiet about missing values
+    function calculateDifference(showErr) {
+      const aEl = $("valueA"), bEl = $("valueB");
+      const a = num(aEl), b = num(bEl);
+
+      if (badInput(aEl) || badInput(bEl)) { showError(BAD_NOTE); return; }
+
+      if (Number.isNaN(a) || Number.isNaN(b)) {
+        if (showErr) showError("Please enter both values");
+        else if (aEl.value.trim() === "" || bEl.value.trim() === "") clearOutput();
         return;
       }
 
-      updateColumns(a, b);
+      if (!Number.isFinite(a) || !Number.isFinite(b)) { showError("Number too large"); return; }
 
-      if (a === 0 && b === 0) {
-        resultDiv.textContent = "0% difference";
-        bracketValue.textContent = "0.00% difference";
+      // Identical values (including 0 and 0): no difference, nothing to divide
+      if (a === b) {
+        updateChart(a, b, Math.abs(a));
+        $("bracketValue").textContent = "0% difference";
+        $("bracketValue").classList.add("on");
+        setResult("0% difference", "main");
+        $("resultSub").textContent = "The two values are identical";
+        setStatus("NO DIFFERENCE");
+        $("stDiff").textContent = fmtMoney(0).replace(/^/, "");
+        $("stAvg").textContent = fmtMoney(Math.abs(a));
+        $("stFromA").textContent = "0%";
+        $("stFromB").textContent = "0%";
+        ["stFromA", "stFromB"].forEach((id) => { $(id).className = ""; });
+        $("stats").hidden = false;
+        $("hint").textContent = "";
+        lastSummary = `${fmtMoney(a)} vs ${fmtMoney(b)}: 0% difference`;
+        $("copyBtn").hidden = false;
         return;
       }
 
-      const difference = Math.abs(a - b);
-      const average = (a + b) / 2;
+      const diff = Math.abs(a - b);
+      // Halving first stops two huge values from overflowing when added.
+      // Using the sizes (absolute values) keeps the base positive, so negatives never divide by zero.
+      const base = Math.abs(a) / 2 + Math.abs(b) / 2;
+      const pct = (diff / base) * 100;
 
-      if (average === 0) {
-        resultDiv.textContent = "Undefined (average is zero)";
-        bracketValue.textContent = "Undefined";
+      if (!Number.isFinite(diff) || !Number.isFinite(base) || !Number.isFinite(pct)) {
+        showError("Result too large to show");
         return;
       }
 
-      const percentageDifference = (difference / average) * 100;
-      const label = `${percentageDifference.toFixed(2)}% difference`;
+      updateChart(a, b, base);
 
-      resultDiv.textContent = label;
-      bracketValue.textContent = label;
+      const label = `${fmtPct(pct)} difference`;
+      $("bracketValue").textContent = label;
+      $("bracketValue").classList.add("on");
+      setResult(label, "main");
+      $("resultSub").textContent = `${fmtMoney(a)} and ${fmtMoney(b)} are ${fmtMoney(diff)} apart`;
+      setStatus("COMPUTED", "ok");
+
+      // ----- stats -----
+      $("stDiff").textContent = fmtMoney(diff);
+      $("stAvg").textContent = fmtMoney(base);
+
+      // The same two numbers read differently depending on which one you treat as the starting point
+      const fromA = a !== 0 ? ((b - a) / Math.abs(a)) * 100 : NaN;
+      const fromB = b !== 0 ? ((a - b) / Math.abs(b)) * 100 : NaN;
+      [["stFromA", fromA], ["stFromB", fromB]].forEach(([id, v]) => {
+        if (Number.isFinite(v)) {
+          $(id).textContent = fmtPct(v, true);
+          $(id).className = v > 0 ? "positive" : v < 0 ? "negative" : "";
+        } else {
+          $(id).textContent = "–";
+          $(id).className = "";
+        }
+      });
+      $("stats").hidden = false;
+
+      // ----- one helpful note at most -----
+      let hint = "";
+      if (a * b < 0) {
+        hint = "The values have opposite signs, so the difference is always 200% — the maximum possible.";
+      } else if (a === 0 || b === 0) {
+        hint = "One value is zero, so the difference is always 200% — the maximum possible.";
+      } else if (a < 0 && b < 0) {
+        hint = "Both values are negative, so the comparison uses their sizes (absolute values).";
+      } else if (Number.isFinite(fromA) && Math.abs(fromA) !== Math.abs(fromB)) {
+        hint = "Percentage difference ignores order. Treating one value as the starting point (A or B above) gives a different percentage.";
+      }
+      $("hint").textContent = hint;
+
+      lastSummary = `${fmtMoney(a)} vs ${fmtMoney(b)}: ${label} (${fmtMoney(diff)} apart)`;
+      $("copyBtn").hidden = false;
     }
 
     function resetCalculator() {
-      document.getElementById("valueA").value = "";
-      document.getElementById("valueB").value = "";
-      document.getElementById("result").textContent = "";
-      document.getElementById("bracketValue").textContent = "— % difference";
-      document.getElementById("colA").style.height = "6%";
-      document.getElementById("colB").style.height = "6%";
-      document.getElementById("colAValue").textContent = "—";
-      document.getElementById("colBValue").textContent = "—";
-      document.getElementById("valueA").focus();
+      $("valueA").value = "";
+      $("valueB").value = "";
+      clearOutput();
+      $("valueA").focus();
     }
 
-    // Allow Enter key from either field to trigger calculation
-    ["valueA", "valueB"].forEach(id => {
-      document.getElementById(id).addEventListener("keydown", (e) => {
-        if (e.key === "Enter") calculateDifference();
+    // live results while typing + Enter key
+    ["valueA", "valueB"].forEach((id) => {
+      $(id).addEventListener("input", () => calculateDifference(false));
+      $(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculateDifference(true);
       });
+    });
+
+    document.querySelectorAll("#chips .chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        $("valueA").value = chip.dataset.a;
+        $("valueB").value = chip.dataset.b;
+        calculateDifference(true);
+      });
+    });
+
+    $("copyBtn").addEventListener("click", () => {
+      if (!lastSummary) return;
+      const done = () => {
+        const btn = $("copyBtn");
+        const t = btn.textContent;
+        btn.textContent = "COPIED";
+        setTimeout(() => { btn.textContent = t; }, 1200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lastSummary).then(done, () => {});
+      } else {
+        done();
+      }
     });
   </script>
 
   <script src="/libraries/config.js"></script>
   <script src="/libraries/view-counter.js"></script>
-  <script src="/libraries/hud-home-button.js"></script> 
+  <script src="/libraries/hud-home-button.js"></script>
 
   <script src="/tools-data.js"></script>
   <script src="/related-modules.js"></script>
