@@ -74,9 +74,9 @@
     font-family: var(--sans);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;   /* starts at the top of the page, not vertically centred */
     color: var(--text);
-    padding: 24px 16px;
+    padding: 20px 16px 48px;
   }
 
   #fireworks {
@@ -369,7 +369,7 @@
   .popup {
     position: fixed;
     inset: 0;
-    background: rgba(3,3,10,0.78);
+    background: rgba(8,1,1,0.82);
     backdrop-filter: blur(3px);
     display: flex;
     justify-content: center;
@@ -513,8 +513,32 @@
   .notify-note { opacity: .75; margin-top: 3px; }
   .notify-note a { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(255,43,43,0.35); }
 
+  /* ---------- Disabled buttons ---------- */
+  button:disabled { opacity: .35; cursor: default; box-shadow: none !important; filter: none !important; transform: none !important; }
+
+  /* ---------- Progress toward the session limit ---------- */
+  .limit-wrap { margin: -10px auto 20px; max-width: 320px; }
+  .limit-bar { height: 4px; background: rgba(255,43,43,0.12); border: 1px solid var(--line-soft); overflow: hidden; }
+  .limit-bar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--violet), var(--cyan)); box-shadow: 0 0 8px rgba(255,43,43,.6); }
+  .limit-bar.warn i { background: linear-gradient(90deg, #b45309, var(--amber)); box-shadow: 0 0 8px rgba(245,158,11,.6); }
+  .limit-text { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); }
+
+  /* ---------- Today line ---------- */
+  .today-line { margin: 0 0 14px; padding: 9px 12px; border: 1px dashed var(--line); font-family: var(--mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); text-align: center; }
+  .today-line b { color: var(--cyan); font-weight: 700; }
+
+  /* ---------- History grouped by day ---------- */
+  #historyList li.day-head { display: flex; justify-content: space-between; gap: 8px; margin: 12px 0 8px; padding: 0 0 6px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); }
+  #historyList li.day-head:first-child { margin-top: 0; }
+  #historyList li.day-head span:last-child { color: var(--text-dim); }
+  .hist-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .del-btn { flex: none; padding: 2px 8px; font-size: .62rem; background: transparent; border: 1px solid var(--line-soft); color: var(--text-dim); border-radius: 6px; letter-spacing: .06em; }
+  .del-btn:hover { border-color: var(--magenta); color: var(--magenta); }
+  .del-btn.arm { border-color: var(--magenta); color: #fff; background: rgba(255,92,51,.25); }
+  .hist-note { word-break: break-word; overflow-wrap: anywhere; margin: 3px 0; }
+
   @media (max-width: 480px) {
-    body { align-items: flex-start; padding-top: 40px; }
+    body { padding-top: 20px; }
     .buttons, .extra { flex-direction: column; }
     button { font-size: 0.95rem; padding: 15px; }
     .timer-ring { height: 110px; }
@@ -549,6 +573,11 @@
       </div>
     </div>
 
+    <div class="limit-wrap">
+      <div class="limit-bar" id="limitBar"><i id="limitFill"></i></div>
+      <div class="limit-text"><span id="limitText">0 min</span><span>60 min limit</span></div>
+    </div>
+
     <div class="buttons">
       <button id="start">Start</button>
       <button id="pause">Pause</button>
@@ -559,6 +588,8 @@
       <button id="historyBtn">Show History</button>
       <button id="todayBtn">Today</button>
     </div>
+
+    <div class="today-line" id="todayLine" aria-live="polite"></div>
 
     <div class="notify-row">
       <button id="notifyBtn" type="button" aria-pressed="false">Notify me: OFF</button>
@@ -578,11 +609,11 @@
 </div>
 
 <!-- COMMENT POPUP -->
-<div id="popup" class="popup hidden">
+<div id="popup" class="popup hidden" role="dialog" aria-modal="true" aria-label="Session note">
   <div class="popup-box">
     <h3>What did you do?</h3>
     <div class="popup-sub" id="popupDuration"></div>
-    <textarea id="commentInput" placeholder="Write here..."></textarea>
+    <textarea id="commentInput" maxlength="500" placeholder="Write here...  (Ctrl+Enter to save)"></textarea>
     <div class="buttons" style="margin-top:14px;">
       <button id="saveSession">Save</button>
       <button id="cancelSession">Cancel</button>
@@ -591,7 +622,7 @@
 </div>
 
 <!-- TODAY SUMMARY POPUP -->
-<div id="todayPopup" class="popup hidden">
+<div id="todayPopup" class="popup hidden" role="dialog" aria-modal="true" aria-label="Today's sessions">
   <div class="popup-box">
     <h3>Today's Sessions</h3>
     <div id="todayContent"></div>
@@ -602,10 +633,10 @@
 </div>
 
 <!-- CLEAR HISTORY CONFIRM -->
-<div id="confirmPopup" class="popup hidden">
+<div id="confirmPopup" class="popup hidden" role="dialog" aria-modal="true" aria-label="Clear history">
   <div class="popup-box">
     <h3>Clear all history?</h3>
-    <div class="popup-sub">This can't be undone.</div>
+    <div class="popup-sub" id="confirmSub">This can't be undone.</div>
     <div class="buttons" style="margin-top:14px;">
       <button id="confirmYes" class="confirm-yes">Clear</button>
       <button id="confirmNo" class="confirm-no">Cancel</button>
@@ -658,6 +689,15 @@ function formatDurationHM(ms) {
 // calendar day in UTC — so it could silently vanish from "Today" or get
 // filed under the wrong date in history. This uses the browser's local
 // date instead.
+// Short form for the "Today" line: 1h 05m / 12m 30s / 45s
+function formatShort(ms) {
+  const t = Math.floor(ms / 1000);
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
+  if (h > 0) return `${h}h ${String(m).padStart(2, "0")}m`;
+  if (m > 0) return `${m}m ${String(sec).padStart(2, "0")}s`;
+  return `${sec}s`;
+}
+
 function localDateKey(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -686,15 +726,47 @@ let endedAt = null;           // when the session really ended (set when it hits
 let pushOn = false;
 let pushToken = 0;
 
+const baseTitle = document.title;
+const limitFill = document.getElementById("limitFill");
+const limitBar = document.getElementById("limitBar");
+const limitText = document.getElementById("limitText");
+const todayLine = document.getElementById("todayLine");
+let lastTitleSec = -1;
+let lastLimitMin = -1;
+
 const display = document.getElementById("display");
 const timerRing = document.getElementById("timerRing");
 const statusLabel = document.getElementById("statusLabel");
 
 function updateDisplay() {
   display.textContent = formatTime(elapsed);
+
+  // progress toward the 1-hour limit (turns amber for the last 10 minutes)
+  const pct = Math.max(0, Math.min(100, (elapsed / MAX_SESSION_MS) * 100));
+  limitFill.style.width = pct + "%";
+  limitBar.classList.toggle("warn", elapsed >= MAX_SESSION_MS - 10 * 60000);
+  const mins = Math.floor(elapsed / 60000);
+  if (mins !== lastLimitMin) { lastLimitMin = mins; limitText.textContent = mins + " min"; }
+
+  // the browser tab shows the running time, so you can see it from another tab
+  if (timer) {
+    const sec = Math.floor(elapsed / 1000);
+    if (sec !== lastTitleSec) { lastTitleSec = sec; document.title = formatTime(elapsed).slice(0, 8) + " · Session Logger"; }
+  } else if (lastTitleSec !== -1) {
+    lastTitleSec = -1; document.title = baseTitle;
+  }
+}
+
+// Only the buttons that make sense right now are clickable
+function syncButtons(state) {
+  start.disabled = state === "running";
+  pause.disabled = state !== "running";
+  reset.disabled = state === "idle";
+  start.textContent = (state === "paused" && elapsed > 0) ? "Resume" : "Start";
 }
 
 function setState(state) {
+  syncButtons(state);
   timerRing.classList.remove("running", "paused");
   if (state === "running") {
     timerRing.classList.add("running");
@@ -969,13 +1041,14 @@ function applyStored() {
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) { applyStored(); renderNotify(); }
+  if (!document.hidden) { sessions = loadSessions(); applyStored(); renderNotify(); updateTodayLine(); }
 });
 window.addEventListener("pageshow", (e) => { if (e.persisted) applyStored(); });
 window.addEventListener("storage", (e) => {
   if (e.key === ACTIVE_KEY || e.key === null) applyStored();
   if (e.key === "sessions" || e.key === null) {
     sessions = loadSessions();
+    updateTodayLine();
     if (!historyPanel.classList.contains("hidden")) renderHistory();
   }
 });
@@ -1056,7 +1129,7 @@ saveSession.onclick = () => {
   sessions.unshift({
     ms: elapsed,
     time: formatTime(elapsed),
-    comment: commentInput.value || "No comment",
+    comment: commentInput.value.trim().slice(0, 500) || "No comment",
     startISO: sessionStartISO,
     endISO: end.toISOString(),
     day: localDateKey(end)
@@ -1065,6 +1138,8 @@ saveSession.onclick = () => {
   saveSessions();
   popup.classList.add("hidden");
   commentInput.value = "";
+  updateTodayLine();
+  if (!historyPanel.classList.contains("hidden")) renderHistory();
 
   runFireworks();
 
@@ -1100,24 +1175,88 @@ historyBtn.onclick = () => {
   if (!isHidden) renderHistory();
 };
 
+function clockOf(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? "—" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+// Older saved sessions may lack the "day" field — fall back to when they ended
+function sessionDay(s) {
+  if (s && typeof s.day === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.day)) return s.day;
+  const d = new Date(s && (s.endISO || s.startISO));
+  return isNaN(d) ? "unknown" : localDateKey(d);
+}
+
+function dayLabel(key) {
+  if (key === "unknown") return "Earlier";
+  const [y, m, d] = key.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const now = new Date();
+  if (key === localDateKey(now)) return "Today";
+  const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  if (key === localDateKey(yest)) return "Yesterday";
+  const opts = { weekday: "short", day: "numeric", month: "short" };
+  if (y !== now.getFullYear()) opts.year = "numeric";
+  return date.toLocaleDateString([], opts);
+}
+
 function renderHistory() {
   if (!sessions.length) {
     historyList.innerHTML = `<li class="empty-state" style="border:none;">No sessions logged yet.</li>`;
     return;
   }
 
-  historyList.innerHTML = "";
-  sessions.forEach(s => {
-    const from = new Date(s.startISO).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    const to = new Date(s.endISO).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-    historyList.innerHTML += `
-      <li>
-        <strong>${from} → ${to}</strong><br>
-        ${escapeHtml(s.comment)}<br>
-        <small>Duration: ${formatDurationHM(s.ms)}</small>
-      </li>`;
+  // newest first, grouped by day, each day with its own total
+  const groups = [];
+  sessions.forEach((s, idx) => {
+    const key = sessionDay(s);
+    let g = groups[groups.length - 1];
+    if (!g || g.key !== key) { g = { key, total: 0, items: [] }; groups.push(g); }
+    g.total += Number(s.ms) || 0;
+    g.items.push({ s, idx });
   });
+
+  let html = "";
+  groups.forEach((g) => {
+    html += `<li class="day-head"><span>${escapeHtml(dayLabel(g.key))}</span><span>${escapeHtml(formatShort(g.total))} · ${g.items.length} session${g.items.length === 1 ? "" : "s"}</span></li>`;
+    g.items.forEach(({ s, idx }) => {
+      html += `
+      <li>
+        <div class="hist-top">
+          <strong>${clockOf(s.startISO)} → ${clockOf(s.endISO)}</strong>
+          <button class="del-btn" data-i="${idx}" aria-label="Delete this session">✕</button>
+        </div>
+        <div class="hist-note">${escapeHtml(String(s.comment == null ? "" : s.comment))}</div>
+        <small>Duration: ${formatDurationHM(Number(s.ms) || 0)}</small>
+      </li>`;
+    });
+  });
+  historyList.innerHTML = html;
+}
+
+// Delete one session: first tap arms the button, second tap deletes
+historyList.addEventListener("click", (e) => {
+  const btn = e.target.closest(".del-btn");
+  if (!btn) return;
+  if (!btn.classList.contains("arm")) {
+    btn.classList.add("arm");
+    btn.textContent = "Delete?";
+    setTimeout(() => { if (btn.isConnected) { btn.classList.remove("arm"); btn.textContent = "✕"; } }, 2500);
+    return;
+  }
+  sessions = loadSessions();                 // another tab may have changed the list
+  const idx = Number(btn.dataset.i);
+  if (idx >= 0 && idx < sessions.length) { sessions.splice(idx, 1); saveSessions(); }
+  renderHistory();
+  updateTodayLine();
+});
+
+function updateTodayLine() {
+  const today = localDateKey(new Date());
+  const list = sessions.filter((s) => sessionDay(s) === today);
+  if (!list.length) { todayLine.innerHTML = "Today · no sessions yet"; return; }
+  const total = list.reduce((a, s) => a + (Number(s.ms) || 0), 0);
+  todayLine.innerHTML = `Today · <b>${escapeHtml(formatShort(total))}</b> focused · ${list.length} session${list.length === 1 ? "" : "s"}`;
 }
 
 function escapeHtml(str) {
@@ -1127,6 +1266,9 @@ function escapeHtml(str) {
 }
 
 clearHistory.onclick = () => {
+  if (!sessions.length) return;
+  document.getElementById("confirmSub").textContent =
+    `This deletes all ${sessions.length} saved session${sessions.length === 1 ? "" : "s"}. This can't be undone.`;
   confirmPopup.classList.remove("hidden");
 };
 
@@ -1134,6 +1276,7 @@ confirmYes.onclick = () => {
   sessions = [];
   saveSessions();
   renderHistory();
+  updateTodayLine();
   confirmPopup.classList.add("hidden");
 };
 
@@ -1147,7 +1290,7 @@ confirmNo.onclick = () => {
 
 todayBtn.onclick = () => {
   const today = localDateKey(new Date());
-  const todaySessions = sessions.filter(s => s.day === today);
+  const todaySessions = sessions.filter(s => sessionDay(s) === today);
 
   const content = document.getElementById("todayContent");
 
@@ -1168,7 +1311,7 @@ todayBtn.onclick = () => {
 
     content.innerHTML = `
       <div class="today-summary-list">${rows}</div>
-      <div class="today-total"><span>Total focused time</span><b>${formatDurationHM(total)}</b></div>
+      <div class="today-total"><span>Total focused time · ${todaySessions.length} session${todaySessions.length === 1 ? "" : "s"}</span><b>${formatDurationHM(total)}</b></div>
     `;
   }
 
@@ -1236,8 +1379,20 @@ function runFireworks(duration = 2500) {
   loop();
 }
 
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if (!confirmPopup.classList.contains("hidden")) confirmNo.onclick();
+    else if (!todayPopup.classList.contains("hidden")) closeToday.onclick();
+    else if (!popup.classList.contains("hidden") && !cancelSession.classList.contains("hidden")) cancelSession.onclick();
+  }
+});
+commentInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveSession.onclick(); }
+});
+
 applyStored();      // restore a running/paused session saved earlier (or show idle)
 renderNotify();
+updateTodayLine();
 </script>
 
 <script src="/libraries/config.js"></script>

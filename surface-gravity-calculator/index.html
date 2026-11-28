@@ -589,6 +589,8 @@
     .dec-toggle button { font-size: 0.7rem; padding: 10px 4px; }
   }
 </style>
+</head>
+<body>
 
 <div class="app">
   <div class="app-inner">
@@ -651,13 +653,13 @@
       <!-- Surface Gravity Result -->
       <div class="result-box" id="resultBox">
         <div class="result-text" id="resultText"></div>
-        <button class="copy-btn" onclick="copyResult()">⧉ Copy</button>
+        <button class="copy-btn" onclick="copyResult(this)">⧉ Copy</button>
       </div>
 
       <!-- Escape Velocity Result -->
       <div class="result-box" id="escapeBox" style="display:none;">
         <div class="result-text" id="escapeText"></div>
-        <button class="copy-btn" onclick="copyEscape()">⧉ Copy</button>
+        <button class="copy-btn" onclick="copyEscape(this)">⧉ Copy</button>
       </div>
 
       <div class="dec-toggle">
@@ -709,9 +711,21 @@
 
   const EARTH_ESCAPE = 11186; // m/s
 
+  // Strict parser: plain numbers, 1,234.5 style grouping and e-notation only.
+  // (Number() alone accepts 0x10 / 0b11, and removing every comma turned "5,5" into 55.)
   function parseFlexibleNumber(value) {
-    if (!value) return NaN;
-    return Number(value.replace(/,/g, ""));
+    if (value === null || value === undefined) return NaN;
+    const t = String(value).trim();
+    if (!t) return NaN;
+    const m = /^([+-]?)([\d,]*\.?\d*)(?:e([+-]?\d+))?$/i.exec(t);
+    if (!m) return NaN;
+    let mant = m[2];
+    if (mant.indexOf(",") !== -1) {
+      if (!/^\d{1,3}(,\d{3})+(\.\d*)?$/.test(mant)) return NaN;
+      mant = mant.replace(/,/g, "");
+    }
+    if (!/\d/.test(mant)) return NaN;
+    return Number(m[1] + mant + (m[3] ? "e" + m[3] : ""));
   }
 
   // Tidy floating-point noise before display (e.g. 9.80999999999998 -> 9.81)
@@ -721,6 +735,10 @@
   }
 
   function toDecimal(num, decimals = null) {
+    if (!isFinite(num)) return String(num);
+    // a non-zero value that would display as 0 is shown in scientific notation instead
+    const tiny = decimals === null ? 1e-20 : 0.5 * Math.pow(10, -decimals);
+    if (num !== 0 && Math.abs(num) < tiny) return num.toExponential(decimals === null ? undefined : 3);
     if (decimals === null) {
       return num.toLocaleString("en-US", {
         useGrouping: true,
@@ -739,14 +757,17 @@
   // instead of reformatting on every keystroke (which used to jump the
   // cursor to the end while editing digits in the middle of a number).
   function prettyFormat(input) {
-    let value = input.value.trim();
+    const value = input.value.trim();
 
     if (value === "" || /e/i.test(value)) return; // leave scientific notation untouched
 
-    value = value.replace(/,/g, "");
-    if (isNaN(value)) return;
+    const n = parseFlexibleNumber(value);
+    if (!isFinite(n)) return;                                  // invalid text: leave it as typed
+    if (n !== 0 && Math.abs(n) < 1e-6) return;                 // would be shown as 0
+    if (Math.abs(n) >= 1e21) return;
+    if (value.replace(/[^0-9]/g, "").replace(/^0+/, "").length > 15) return;   // more digits than a number can hold
 
-    input.value = Number(value).toLocaleString("en-US", { maximumFractionDigits: 20 });
+    input.value = n.toLocaleString("en-US", { maximumFractionDigits: 20 });
   }
 
   function calculateAll() {
@@ -758,13 +779,19 @@
       return;
     }
 
-    // Surface gravity
-    rawG = cleanFloat((G * mass) / (radius * radius));
-    rawEarthG = cleanFloat(rawG / EARTH_G);
+    // Surface gravity and escape velocity (computed so huge or tiny inputs don't overflow midway)
+    const gm = G * mass;
+    const g = (gm / radius) / radius;
+    const v = Math.sqrt((2 * gm) / radius);
+    if (!isFinite(gm) || !isFinite(g) || !isFinite(v) || g === 0 || v === 0) {
+      alert("These values are outside the range this calculator can handle.");
+      return;
+    }
 
-    // Escape velocity
-    rawEscapeV = cleanFloat(Math.sqrt(2 * rawG * radius));
-    rawEscapeEarth = cleanFloat(rawEscapeV / EARTH_ESCAPE);
+    rawG = cleanFloat(g);
+    rawEarthG = cleanFloat(g / EARTH_G);
+    rawEscapeV = cleanFloat(v);
+    rawEscapeEarth = cleanFloat(v / EARTH_ESCAPE);
 
     renderResult();
     renderEscape();
@@ -805,24 +832,28 @@
     `;
   }
 
-  function copyEscape() {
+  function copyEscape(btn) {
     if (!lastEscape) return;
-    navigator.clipboard.writeText(lastEscape);
+    copyText(lastEscape, btn);
   }
 
   async function pasteValue(id) {
     try {
       const text = await navigator.clipboard.readText();
       const input = document.getElementById(id);
-      const num = parseFlexibleNumber(text);
+      let num = parseFlexibleNumber(text);
+      if (!isFinite(num)) {                                   // e.g. "5.97e24 kg": take the first number in the text
+        const m = String(text).match(/[-+]?(?:\d[\d,]*\.?\d*|\.\d+)(?:e[-+]?\d+)?/i);
+        num = m ? parseFlexibleNumber(m[0]) : NaN;
+      }
 
       if (!isFinite(num)) {
         alert("Invalid number in clipboard.");
         return;
       }
 
-      if (Math.abs(num) >= 1e15) {
-        input.value = num.toExponential(5);
+      if (num !== 0 && (Math.abs(num) >= 1e15 || Math.abs(num) < 1e-6)) {
+        input.value = num.toExponential();                    // shortest exact form, no digits lost
       } else {
         input.value = num.toLocaleString("en-US", { maximumFractionDigits: 20 });
       }
@@ -831,9 +862,27 @@
     }
   }
 
-  function copyResult() {
+  function copyText(text, btn) {
+    const orig = btn ? btn.textContent : "";
+    const done = ok => {
+      if (!btn) return;
+      btn.textContent = ok ? "✓ Copied" : "Copy failed";
+      setTimeout(() => { btn.textContent = orig; }, 900);
+    };
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta); done(ok);
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => done(true), fallback);
+    else fallback();
+  }
+
+  function copyResult(btn) {
     if (!lastResult) return;
-    navigator.clipboard.writeText(lastResult);
+    copyText(lastResult, btn);
   }
 
   function addToHistory(g, earthG) {

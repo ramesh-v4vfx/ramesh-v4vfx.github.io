@@ -496,6 +496,8 @@ input[type="number"] {
     .history { max-height: 160px; }
   }
 </style>
+</head>
+<body>
 
 <div class="app">
   <div>
@@ -680,12 +682,13 @@ const archiveBtn = document.getElementById("archiveBtn");
       const text = await navigator.clipboard.readText();
       if (!text) return;
 
-      const match = text.replace(/,/g, "").match(/-?\d+(\.\d+)?/);
+      const match = text.replace(/,/g, "").match(/-?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/i);
       if (!match) return;
 
       const input = document.getElementById("value");
       input.value = match[0];
       input.focus();
+      autoConvert();
     } catch (err) {
       alert("Clipboard access blocked. Use Ctrl+V instead.");
     }
@@ -776,8 +779,10 @@ const archiveBtn = document.getElementById("archiveBtn");
   }
 
   function roundSafe(num, dp) {
+    if (Math.abs(num) >= 4503599627370496) return num;   // 2^52: already a whole number
     const factor = 10 ** dp;
-    return Math.round((num + Number.EPSILON) * factor) / factor;
+    const sign = num < 0 ? -1 : 1;
+    return sign * Math.round((Math.abs(num) + Number.EPSILON) * factor) / factor;
   }
 
   function cleanFloat(num) {
@@ -785,6 +790,29 @@ const archiveBtn = document.getElementById("archiveBtn");
   }
 
   // ---------------------------------------------------------------------
+
+  // Exact integer from the typed text (so 12345678901234567890 and 1e25 keep every digit).
+  // Returns a BigInt, or null if the text is not a whole number.
+  function exactInteger(raw) {
+    const m = /^([+-]?)(\d*)\.?(\d*)(?:e([+-]?\d+))?$/i.exec(raw.trim());
+    if (!m || (m[2] === "" && m[3] === "")) return null;
+    let digits = m[2] + m[3];
+    let shift = (m[4] ? parseInt(m[4], 10) : 0) - m[3].length;
+    if (shift > 1000 || digits.length > 1000) return null;
+    if (shift >= 0) digits += "0".repeat(shift);
+    else {
+      const cut = digits.slice(digits.length + shift);
+      if (digits.length + shift < 0 || /[1-9]/.test(cut)) return null;   // has a fractional part
+      digits = digits.slice(0, digits.length + shift) || "0";
+    }
+    const big = BigInt(digits);
+    return m[1] === "-" ? -big : big;
+  }
+
+  function showMessage(msg) {
+    invalidateResult();
+    resultValueEl.textContent = msg;
+  }
 
   function autoConvert() {
     const raw = document.getElementById("value").value;
@@ -797,7 +825,7 @@ const archiveBtn = document.getElementById("archiveBtn");
 
 function archiveResult() {
     if (!hasResult) return;
-    const value = parseFloat(document.getElementById("value").value);
+    const value = document.getElementById("value").value.trim();
     const from = document.getElementById("from").value;
     const to = document.getElementById("to").value;
     addToHistory(value, from, resultValueEl.textContent, to);
@@ -816,8 +844,10 @@ function archiveResult() {
     let decimalsAvailable = true;
 
     // --- EXACT INTEGER PATH (meter → tiny units) ---
-    if (from === "m" && exactPowers[to] !== undefined && Number.isInteger(value)) {
-      const big = BigInt(value) * (10n ** BigInt(exactPowers[to]));
+    const exactInt = (from === "m" && exactPowers[to] !== undefined)
+      ? exactInteger(document.getElementById("value").value) : null;
+    if (exactInt !== null) {
+      const big = exactInt * (10n ** BigInt(exactPowers[to]));
       outputText = big.toLocaleString("en-US");
 
       rawResult = null;
@@ -826,7 +856,10 @@ function archiveResult() {
     }
     // --- NORMAL FLOAT PATH ---
     else {
-      rawResult = (value * factors[from]) / factors[to];
+      const res = (value * factors[from]) / factors[to];
+      if (!isFinite(res)) { showMessage("Result too large to display"); return; }
+      if (res === 0 && value !== 0) { showMessage("Result too small to represent"); return; }
+      rawResult = res;
       decimals = null;
       outputText = format(rawResult);
     }
@@ -873,9 +906,20 @@ decimalButtons.forEach(btn => {
 
   function copyResult() {
     if (!hasResult) return;
-    navigator.clipboard.writeText(resultValueEl.textContent);
-    copyBtn.textContent = "Copied!";
-    setTimeout(() => copyBtn.textContent = "Copy", 800);
+    const text = resultValueEl.textContent;
+    const done = ok => {
+      copyBtn.textContent = ok ? "Copied!" : "Copy failed";
+      setTimeout(() => copyBtn.textContent = "Copy", 800);
+    };
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta); done(ok);
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => done(true), fallback);
+    else fallback();
   }
 
   function toggleHistory() {

@@ -147,12 +147,46 @@
   .about ul{margin:10px 0 0; padding-left:18px;}
   .about li{margin-bottom:6px;}
 
+
+  /* ---------- RameshVerse HUD header ---------- */
+  body{position:relative; background:radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.08), transparent 60%), var(--bg);}
+  body::before{content:""; position:fixed; inset:0; background:repeating-linear-gradient(to bottom, rgba(255,43,43,0.02) 0px, rgba(255,43,43,0.02) 1px, transparent 1px, transparent 3px); pointer-events:none; z-index:50;}
+  .rv-head{display:flex; justify-content:space-between; align-items:flex-end; gap:12px; max-width:960px; margin:0 auto 14px; padding:6px 2px 14px; border-bottom:1px solid var(--line);}
+  .rv-head .back-link{display:inline-block; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-decoration:none; margin-bottom:8px;}
+  .rv-head .back-link:hover{color:var(--red);}
+  .rv-head .brand{font-size:11px; letter-spacing:3px; color:var(--red-dim);}
+  .rv-head h1{font-size:21px; letter-spacing:3px; font-weight:700; margin:2px 0 0; line-height:1.25;}
+  .rv-head h1 span{color:var(--red); text-shadow:0 0 14px rgba(255,43,43,.4);}
+  .rv-head .tagline{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); margin-top:6px;}
+  .rv-head .status{font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-align:right; white-space:nowrap;}
+  .rv-head .status b{display:block; color:var(--red); font-size:11px; margin-top:3px;}
+  .rv-head .status b::before{content:"● "; animation:rvblink 1.4s infinite;}
+  @keyframes rvblink{50%{opacity:.25;}}
+  @media (max-width:640px){ .rv-head h1{font-size:15px; letter-spacing:2px;} .rv-head .status{display:none;} }
+  @media (prefers-reduced-motion:reduce){ .rv-head .status b::before{animation:none;} }
+  .preset-bar{margin-bottom:16px;}
+  .result-actions{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;}
 </style>
 </head>
 <body>
 
+<header class="rv-head">
+  <div>
+    <a class="back-link" href="https://rameshverse.com">← RAMESHVERSE</a>
+    <div class="brand">RAMESHVERSE // RV·COLLIDE</div>
+    <h1>BLACK HOLE &amp; STAR <span>COLLISION SIMULATOR</span></h1>
+    <div class="tagline">SMASH COMPACT OBJECTS TOGETHER // REAL PHYSICS, 3D INSPIRAL</div>
+  </div>
+  <div class="status">SYSTEM<b id="statusText">READY</b></div>
+</header>
+
 <div class="frame">
   <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <div class="preset-bar">
+    <label for="presetSelect">⚡ PRESET</label>
+    <select class="preset-select" id="presetSelect"></select>
+  </div>
 
   <div class="objects-row">
     <div class="obj-card a">
@@ -206,11 +240,6 @@
     <button class="run-btn side ghost" id="shareBtn" type="button">🔗 COPY LINK</button>
   </div>
 
-  <div class="preset-bar">
-    <label for="presetSelect">⚡ PRESET</label>
-    <select class="preset-select" id="presetSelect"></select>
-  </div>
-
   <div class="stage" id="stage">
     <span class="tag">COLLISION VIEW</span>
     <span class="not-to-scale">NOT TO SCALE — DISTANCES &amp; SIZES ARE STYLIZED</span>
@@ -242,6 +271,7 @@
     <div class="result-sub" id="resultSub">—</div>
     <div class="readout-grid" id="readoutGrid"></div>
     <div class="result-foot" id="resultFoot"></div>
+    <div class="result-actions"><button class="tool-btn" id="copyResBtn" type="button">⧉ COPY RESULTS</button></div>
   </div>
   <div class="sub" id="resultsHint" style="margin-bottom:14px;">Pick a preset or set up two objects, then run the collision.</div>
 
@@ -256,6 +286,7 @@
     <li><b>Black hole mergers:</b> radiated energy and final spin come from numerical-relativity fits for non-spinning, quasi-circular binaries; the ringdown frequency uses the dominant ℓ=m=2 quasi-normal mode.</li>
     <li><b>Neutron stars:</b> the remnant’s fate uses approximate mass thresholds around the maximum neutron-star mass (≈2.2–2.3 M☉). The real answer depends on the equation of state and spins, so treat those rows as estimates.</li>
     <li><b>White dwarfs:</b> a pair heavier than the Chandrasekhar mass (≈1.4 M☉) is treated as a Type Ia supernova.</li>
+    <li><b>Typing numbers:</b> the boxes accept scientific notation (for example <code>4.3e6</code> for 4.3 million M☉). Mass is limited to 0.01 – 10 billion M☉ and radius to 0.00001 – 2,000 R☉; the note under each box tells you when a value is adjusted. Press Enter to run.</li>
     <li><b>Animation:</b> stylized. Sizes and distances are not to scale, but the orbit decays the way a gravitational-wave inspiral does — slowly, then in a rapid plunge.</li>
   </ul>
 </details>
@@ -349,7 +380,7 @@ function classifyStar(rSolar){
   return 'star';
 }
 function normalize(o){
-  var m = Math.max(0.01, o.mass || 1), r = Math.max(0.00001, o.radius || 1);
+  var m = clamp(o.mass > 0 ? o.mass : 1, 0.01, 1e10), r = clamp(o.radius > 0 ? o.radius : 1, 0.00001, 2000);
   return {type:o.type, mass:m, radius:r, cls:o.type === 'bh' ? 'bh' : classifyStar(r)};
 }
 function physRadiusKm(b){ return b.cls === 'bh' ? schwarzschildKm(b.mass) : b.radius * RSUN_KM; }
@@ -595,6 +626,12 @@ var resultChip = $('resultChip'), rcBtn = $('rcBtn');
 var resultsEl = $('results'), resultsHint = $('resultsHint'), resultHeadline = $('resultHeadline');
 var resultSub = $('resultSub'), readoutGrid = $('readoutGrid'), resultFoot = $('resultFoot');
 
+var lastOutcome = null;
+function setSys(t){ var e = $('statusText'); if (e) e.textContent = t; }
+function setRunState(running){
+  runBtn.disabled = !!running;               // can't start a second run while one is playing
+  runBtn.dataset.running = running ? '1' : '';
+}
 var SHORT = {bh:'BH', ns:'NS', wd:'WD', star:'STAR'};
 var LONG = {bh:'BLACK HOLE', ns:'NEUTRON STAR', wd:'WHITE DWARF', star:'STAR'};
 var KINDS = [['bh','⬤ BLACK HOLE'],['star','☀ STAR'],['wd','◌ WHITE DWARF'],['ns','✦ NEUTRON STAR']];
@@ -602,12 +639,12 @@ var KINDS = [['bh','⬤ BLACK HOLE'],['star','☀ STAR'],['wd','◌ WHITE DWARF'
 // ---------- inputs ----------
 function readBody(k){
   var s = side[k];
-  return {type:s.type, mass:pv(s.mass) || 1, radius:pv(s.radius) || 1};
+  return {type:s.type, mass:posVal(s.mass), radius:posVal(s.radius)};
 }
 function readConfig(){ return {A:readBody('A'), B:readBody('B')}; }
 function activeKind(k){
   var s = side[k];
-  return s.type === 'bh' ? 'bh' : classifyStar(pv(s.radius) || 1);
+  return s.type === 'bh' ? 'bh' : classifyStar(posVal(s.radius));
 }
 function groupDigits(str){
   var neg = str.charAt(0) === '-' ? '-' : '';
@@ -619,8 +656,15 @@ function groupDigits(str){
   return neg + ip + fp;
 }
 function pv(el){ return parseFloat(String(el.value).replace(/,/g, '')); }
+function posVal(el){ var v = pv(el); return (v > 0 && isFinite(v)) ? v : 1; }
 function fmtInput(v){ return groupDigits(String(parseFloat(v.toPrecision(3)))); }
 function liveFormat(el){
+  // scientific notation (4.3e6): leave it as typed, only drop characters that can't belong to a number
+  if (/e/i.test(el.value)){
+    var cleaned = String(el.value).replace(/[^0-9.eE+\-]/g, '');
+    if (cleaned !== el.value) el.value = cleaned;
+    return;
+  }
   var pos = el.selectionStart, before = String(el.value).slice(0, pos).replace(/[^0-9.]/g, '').length;
   var out = groupDigits(String(el.value));
   el.value = out;
@@ -634,7 +678,16 @@ function liveFormat(el){
 }
 
 function noteFor(k){
-  var s = side[k], m = pv(s.mass) || 1, r = pv(s.radius) || 1, kind = activeKind(k);
+  var s = side[k], m = posVal(s.mass), r = posVal(s.radius), kind = activeKind(k);
+  var rm = pv(s.mass), rr = pv(s.radius);
+  if (!(rm > 0)) return 'Enter a mass above zero — using 1 M☉ for now.';
+  if (rm > 1e10 || !isFinite(rm)) return 'Mass is limited to 10 billion M☉ — using that.';
+  if (rm < 0.01) return 'Mass is limited to 0.01 M☉ and above — using 0.01.';
+  if (s.type === 'star'){
+    if (!(rr > 0)) return 'Enter a radius above zero — using 1 R☉ for now.';
+    if (rr > 2000) return 'Radius is limited to 2,000 R☉ — using that.';
+    if (rr < 0.00001) return 'Radius is limited to 0.00001 R☉ (about 7 km) — using that.';
+  }
   if (kind === 'bh') return m < 2.2 ? 'Lighter than any known stellar-remnant black hole — only a hypothetical primordial black hole could be this small.' : '';
   if (r * RSUN_KM < schwarzschildKm(m)) return 'This radius is inside the object’s own event horizon — it would already be a black hole.';
   if (kind === 'ns' && m > 2.3) return 'Above the maximum neutron-star mass (≈2.2–2.3 M☉) — a real star this heavy would have collapsed into a black hole.';
@@ -644,7 +697,7 @@ function noteFor(k){
 
 function refresh(k){
   var s = side[k], kind = activeKind(k);
-  var m = pv(s.mass) || 1, r = pv(s.radius) || 1;
+  var m = posVal(s.mass), r = posVal(s.radius);
   s.massSlider.value = Math.log10(clamp(m, 0.01, 1e10));
   s.radiusSlider.value = Math.log10(clamp(r, 1e-5, 2000));
   s.typeRow.innerHTML = '';
@@ -687,7 +740,17 @@ function setBody(k, spec){
   function onNum(ev){ if (ev && ev.target) liveFormat(ev.target); refresh(k); configChanged(); }
   s.mass.addEventListener('input', onNum);
   s.radius.addEventListener('input', onNum);
-  [s.mass, s.radius].forEach(function(el){ el.addEventListener('blur', function(){ el.value = groupDigits(String(el.value)); }); });
+  [s.mass, s.radius].forEach(function(el){
+    el.addEventListener('blur', function(){
+      if (/e/i.test(el.value)){
+        var v = pv(el);
+        if (v > 0 && isFinite(v) && v < 1e15 && v >= 1e-6) el.value = groupDigits(String(+v.toPrecision(12)));
+        return;
+      }
+      el.value = groupDigits(String(el.value));
+    });
+    el.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); el.blur(); if (runBtn.dataset.running !== '1') runCollision(); } });
+  });
   s.massSlider.addEventListener('input', function(){
     s.mass.value = fmtInput(Math.pow(10, parseFloat(s.massSlider.value)));
     refresh(k); configChanged();
@@ -704,22 +767,26 @@ var PRESETS = [
     {label:'GW150914 (36 + 29 M☉)', a:{type:'bh',mass:36}, b:{type:'bh',mass:29}},
     {label:'GW190521 (85 + 66 M☉)', a:{type:'bh',mass:85}, b:{type:'bh',mass:66}},
     {label:'Equal-mass merger', a:{type:'bh',mass:25}, b:{type:'bh',mass:25}},
-    {label:'Massive pair (LISA band)', a:{type:'bh',mass:4000000}, b:{type:'bh',mass:1000000}}
+    {label:'Massive pair (LISA band)', a:{type:'bh',mass:4000000}, b:{type:'bh',mass:1000000}},
+    {label:'Supermassive pair (3 + 2 billion M☉)', a:{type:'bh',mass:3000000000}, b:{type:'bh',mass:2000000000}}
   ]},
   {group:'STAR DESTROYERS (TIDAL DISRUPTION & CAPTURE)', items:[
     {label:'Sgr A*-class TDE', a:{type:'bh',mass:4300000}, b:{type:'star',mass:1,radius:1}},
     {label:'Stellar BH + Sun', a:{type:'bh',mass:10}, b:{type:'star',mass:1,radius:1}},
     {label:'Intermediate-mass BH + Sun', a:{type:'bh',mass:100000}, b:{type:'star',mass:1,radius:1}},
-    {label:'BH swallows red giant', a:{type:'bh',mass:8}, b:{type:'star',mass:1.2,radius:150}},
+    {label:'Stellar BH vs red giant', a:{type:'bh',mass:8}, b:{type:'star',mass:1.2,radius:150}},
     {label:'M87*-class direct capture', a:{type:'bh',mass:6500000000}, b:{type:'star',mass:1,radius:1}}
   ]},
   {group:'COMPACT-OBJECT COLLISIONS', items:[
     {label:'GW170817-like NS merger (1.46 + 1.27)', a:{type:'star',mass:1.46,radius:0.0000158}, b:{type:'star',mass:1.27,radius:0.0000162}},
+    {label:'Heavy NS merger → hypermassive (1.5 + 1.4)', a:{type:'star',mass:1.5,radius:0.0000158}, b:{type:'star',mass:1.4,radius:0.0000158}},
+    {label:'Prompt collapse NS merger (1.8 + 1.7)', a:{type:'star',mass:1.8,radius:0.0000158}, b:{type:'star',mass:1.7,radius:0.0000158}},
     {label:'NS–BH, swallowed whole (8.9 + 1.9)', a:{type:'bh',mass:8.9}, b:{type:'star',mass:1.9,radius:0.0000158}},
     {label:'NS–BH, disrupted (3 + 1.4)', a:{type:'bh',mass:3}, b:{type:'star',mass:1.4,radius:0.0000158}},
     {label:'NS shreds a white dwarf', a:{type:'star',mass:1.4,radius:0.0000158}, b:{type:'star',mass:0.6,radius:0.0125}},
     {label:'White dwarf merger (Type Ia)', a:{type:'star',mass:0.6,radius:0.0125}, b:{type:'star',mass:0.9,radius:0.008}},
-    {label:'Sun + Sun', a:{type:'star',mass:1,radius:1}, b:{type:'star',mass:1,radius:1}}
+    {label:'Sun + Sun', a:{type:'star',mass:1,radius:1}, b:{type:'star',mass:1,radius:1}},
+    {label:'Two blue giants (20 + 15 M☉)', a:{type:'star',mass:20,radius:8}, b:{type:'star',mass:15,radius:6.5}}
   ]}
 ];
 var presetSelect = $('presetSelect');
@@ -790,6 +857,30 @@ function copyLink(){
   } else fallback();
 }
 shareBtn.addEventListener('click', copyLink);
+
+// ---------- copy results ----------
+function copyTextTo(text, btn, orig){
+  function done(ok){ btn.textContent = ok ? '✔ COPIED' : '⚠ COPY FAILED'; setTimeout(function(){ btn.textContent = orig; }, 1600); }
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta); done(ok);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ done(true); }, fallback);
+  } else fallback();
+}
+var copyResBtn = $('copyResBtn');
+copyResBtn.addEventListener('click', function(){
+  if (!lastOutcome) return;
+  var lines = [lastOutcome.headline, ''];
+  lastOutcome.rows.forEach(function(r){ lines.push(r[0] + ': ' + r[1]); });
+  lines.push('', 'rameshverse.com/space-collision-simulator');
+  copyTextTo(lines.join('\n'), copyResBtn, '⧉ COPY RESULTS');
+});
 
 // ---------- sound (gravitational-wave chirp) ----------
 var snd = {on:false, ctx:null, osc:null, gain:null};
@@ -1218,13 +1309,33 @@ function initThree(){
   var renderer;
   try { renderer = new THREE.WebGLRenderer({antialias:true, alpha:false, powerPreference:'high-performance'}); }
   catch(e){ return false; }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setClearColor(0x000000, 1);
   stage3d.appendChild(renderer.domElement);
+  renderer.domElement.addEventListener('webglcontextlost', function(e){
+    e.preventDefault();
+    stageMsg.textContent = '3D view interrupted (the browser reclaimed the graphics card). Reload the page to bring it back — the physics results still work.';
+    stageMsg.classList.add('show');
+  });
 
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(48, 1, 0.05, 400);
   var bg = makeSkyAndStars(scene);
+  // The Milky Way is static, so it is rendered once into a cube map and used as a cheap background.
+  // (Before, its noise shader ran on every pixel of every frame.)
+  var skyScene = null;
+  try {
+    skyScene = new THREE.Scene();
+    scene.remove(bg.sky); skyScene.add(bg.sky);
+    var cubeRT = new THREE.WebGLCubeRenderTarget(512);
+    var cubeCam = new THREE.CubeCamera(0.1, 400, cubeRT);
+    cubeCam.update(renderer, skyScene);
+    scene.background = cubeRT.texture;
+    skyScene.remove(bg.sky); bg.sky.geometry.dispose(); bg.sky.material.dispose();
+  } catch(e){
+    if (bg.sky.parent !== scene) scene.add(bg.sky);   // fall back to the live shader
+    scene.background = null;
+  }
   bg.stars.material.uniforms.uPR.value = renderer.getPixelRatio();
 
   var post = null;
@@ -1403,6 +1514,29 @@ function placeBodies(sep, theta, wA, wB){
   three.objB.group.position.set(-Math.cos(theta)*sep*wB, 0, -Math.sin(theta)*sep*wB);
 }
 
+// ---------- performance ----------
+var stageVisible = true;
+if (window.IntersectionObserver){
+  new IntersectionObserver(function(es){ stageVisible = es[0].isIntersecting; }).observe(stage);
+}
+var perf = {ema:0.016, slow:0};
+// If frames stay slow, quietly lower the render resolution a step (never below 0.75x)
+function adaptQuality(raw){
+  if (!three || !stageVisible || document.hidden || raw > 0.5) { perf.slow = 0; return; }
+  perf.ema += (raw - perf.ema) * 0.08;
+  if (perf.ema > 0.032){ perf.slow += raw; } else { perf.slow = 0; }
+  if (perf.slow > 1.5){
+    var pr = three.renderer.getPixelRatio();
+    if (pr > 0.76){
+      pr = Math.max(0.75, pr - 0.25);
+      three.renderer.setPixelRatio(pr);
+      three.bg.stars.material.uniforms.uPR.value = pr;
+      resizeThree();
+    }
+    perf.slow = 0; perf.ema = 0.024;
+  }
+}
+
 var previewTimer = null;
 function startPreview(){
   if (!three) return;
@@ -1414,7 +1548,7 @@ function startPreview(){
   resultsEl.classList.remove('show');
   resultChip.classList.remove('show');
   resultsHint.style.display = '';
-  runBtn.disabled = false;
+  setRunState(false); setSys('READY');
   paused = false; pauseBtn.textContent = '⏸ PAUSE';
 }
 function configChanged(){
@@ -1459,7 +1593,7 @@ function startAnimation(cfg, outcome){
   statusLine.classList.add('show');
   resultsEl.classList.remove('show');
   resultChip.classList.remove('show');
-  runBtn.disabled = true;
+  setRunState(true); setSys('INSPIRAL');
   paused = false; pauseBtn.textContent = '⏸ PAUSE';
   sndStop();
   if (outcome.emitsGW) sndStart();
@@ -1562,6 +1696,7 @@ function updateTweens(sp){
 function fireMergeEffect(){
   var o = anim.outcome, origin = new THREE.Vector3(0,0,0);
   statusLine.textContent = o.mergeStatus;
+  setSys('MERGE EVENT');
 
   if (o.kind === 'tde' || o.kind === 'capture'){
     var vicObj = o.victimIsA ? three.objA : three.objB;
@@ -1692,7 +1827,7 @@ function updateAnimation(dt){
       anim.phase = 'idle';
       statusLine.classList.remove('show');
       showResults(anim.outcome);
-      runBtn.disabled = false;
+      setRunState(false);
     }
   }
 }
@@ -1745,19 +1880,21 @@ function update3D(dt){
   three.camera.lookAt(0,0,0);
   three.camera.updateMatrixWorld();
   faceCamera(three.objA); faceCamera(three.objB); faceCamera(three.mergedObj);
-  renderFrame();
-  updateLabels();
+  if (stageVisible || isExpanded){ renderFrame(); updateLabels(); }   // nothing to draw while scrolled out of view
 }
 function loop(){
   var now = performance.now();
-  var dt = Math.min(0.05, (now - (loop.last || now))/1000);
+  var raw = (now - (loop.last || now))/1000;
+  var dt = Math.min(0.05, raw);
   loop.last = now;
+  adaptQuality(raw);
   if (three) update3D(dt);
   requestAnimationFrame(loop);
 }
 
 // ---------- results ----------
 function showResults(outcome){
+  lastOutcome = outcome; setSys('RESULT READY');
   resultHeadline.textContent = outcome.headline;
   resultSub.textContent = outcome.sub;
   resultFoot.textContent = outcome.foot || '';
@@ -1872,6 +2009,15 @@ if (fromHash){
 } else if (ok){
   startPreview();
 }
+// a share link pasted into a tab that is already open (only the #part changes) loads that setup too
+window.addEventListener('hashchange', function(){
+  var h = decodeHash();
+  if (!h) return;
+  var cur = encodeCfg(readConfig());
+  if (location.hash.replace(/^#/, '') === cur) return;   // our own writeHash, nothing to do
+  setBody('A', h.A); setBody('B', h.B);
+  runCollision();
+});
 requestAnimationFrame(loop);
 
 })();

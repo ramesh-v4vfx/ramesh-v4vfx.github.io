@@ -7,1048 +7,426 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description"
-content="Free stock profit calculator. Calculate investment, profit, or loss by entering buying price, selling price, and number of shares.">
+<meta name="theme-color" content="#050505">
+<meta name="description" content="Free stock profit calculator. Calculate investment, profit, or loss by entering buying price, selling price, and number of shares.">
 
 <title>Stock Profit Calculator 💰</title>
 
 <link rel="canonical" href="https://rameshverse.com/stock-profit-calculator">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-deep: #06070a;
-    --bg-vignette: #0b0d12;
-    --case-dark: #14161b;
-    --case-mid: #1b1e24;
-    --case-light: #262a32;
-    --bezel: #0a0b0e;
-    --display-bg: #0a1210;
-    --display-bg-2: #0d1815;
-    --glow: #6ffcb1;
-    --glow-dim: #3fae82;
-    --loss: #ff6b6b;
-    --loss-dim: #b5453f;
-    --copper: #d98d5f;
-    --copper-light: #f0ac7e;
-    --blue: #6db8ff;
-    --key-face: #292c33;
-    --key-face-hi: #34383f;
-    --text-primary: #e9edf1;
-    --text-muted: #d44242;
-    --text-faint: #475245;
-    --accent: var(--glow);
-    --accent-dim: var(--glow-dim);
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  html, body { height: 100%; }
-
-  body {
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-start;   /* was: center */
-  justify-content: center;
-  background: radial-gradient(ellipse 900px 700px at 50% 20%, var(--bg-vignette), var(--bg-deep) 70%);
-  font-family: 'Space Grotesk', sans-serif;
-  padding: 60px 20px 40px;   /* was: 40px 20px */
-  overflow-x: hidden;
+:root{
+  --bg:#050505; --panel:#0b0b0c; --red:#ff2b2b; --red-dim:#7a1414; --red-glow:rgba(255,43,43,.5);
+  --text:#e6dede; --dim:#8a7a7a; --up:#2bff88; --amber:#ffb02b; --blue:#4fd1ff;
+  --accent:var(--up);
 }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.04;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  .device { position: relative; width: 360px; }
-
-  @media (max-width: 400px) {
-    .device { width: 100%; max-width: 360px; }
-  }
-
-  .device-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 0 6px 14px;
-  }
-
-  .device-label .brand {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.28em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-  }
-
-  .device-label .model {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--text-faint);
-  }
-
-  .case {
-    position: relative;
-    background: linear-gradient(155deg, var(--case-light) 0%, var(--case-mid) 18%, var(--case-dark) 55%, var(--case-mid) 100%);
-    border-radius: 28px;
-    padding: 22px 20px 24px;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.06) inset,
-      0 -1px 0 rgba(0,0,0,0.5) inset,
-      0 30px 60px -20px rgba(0,0,0,0.75),
-      0 10px 25px -10px rgba(0,0,0,0.6);
-  }
-
-  .case::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 14%; right: 14%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-    border-radius: 50%;
-  }
-
-  .screen-bezel {
-    background: var(--bezel);
-    border-radius: 16px;
-    padding: 3px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.6) inset, 0 1px 0 rgba(255,255,255,0.04);
-    margin-bottom: 18px;
-  }
-
-  .screen {
-    position: relative;
-    background: linear-gradient(180deg, var(--display-bg-2), var(--display-bg));
-    border-radius: 13px;
-    padding: 20px 20px 16px;
-    overflow: hidden;
-    min-height: 150px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    cursor: pointer;
-    -webkit-user-select: none;
-    user-select: none;
-    transition: box-shadow 0.15s ease;
-  }
-
-  .screen.copied {
-    box-shadow: 0 0 0 1px rgba(111,252,177,0.55) inset, 0 0 22px rgba(111,252,177,0.18) inset;
-  }
-
-  .screen::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(180deg, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 3px);
-    pointer-events: none;
-  }
-
-  .screen::after {
-    content: '';
-    position: absolute;
-    top: -40%; left: -20%;
-    width: 70%; height: 180%;
-    background: linear-gradient(115deg, rgba(255,255,255,0.05), transparent 55%);
-    transform: rotate(8deg);
-    pointer-events: none;
-  }
-
-  .indicator-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 10px;
-    z-index: 1;
-  }
-
-  .indicator-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 6px var(--accent), 0 0 12px var(--accent-dim);
-    animation: pulse 2.4s ease-in-out infinite;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-
-  .indicator-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--accent-dim);
-    text-transform: uppercase;
-    transition: color 0.2s ease;
-  }
-
-  .context {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-    text-align: right;
-    min-height: 16px;
-    letter-spacing: 0.01em;
-    z-index: 1;
-  }
-
-  .hero {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 34px;
-    font-weight: 500;
-    color: var(--accent);
-    text-align: right;
-    text-shadow: 0 0 10px rgba(111,252,177,0.5), 0 0 24px rgba(111,252,177,0.22);
-    word-break: break-word;
-    line-height: 1.15;
-    z-index: 1;
-    transition: color 0.2s ease, text-shadow 0.2s ease;
-  }
-
-  .hero .pct {
-    font-size: 16px;
-    font-weight: 500;
-    opacity: 0.85;
-    margin-left: 4px;
-    display: inline-block;
-    white-space: nowrap;   /* keep "(+5.71%)" together instead of splitting mid-number */
-  }
-
-  .subline {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
-    text-align: right;
-    margin-top: 6px;
-    z-index: 1;
-  }
-
-  .fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
-
-  .field label {
-    display: block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    margin-bottom: 6px;
-    padding-left: 2px;
-  }
-
-  .field input {
-    width: 100%;
-    padding: 13px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.04);
-    background: linear-gradient(160deg, var(--key-face-hi), var(--key-face));
-    color: var(--text-primary);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    outline: none;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 -2px 0 rgba(0,0,0,0.3) inset, 0 3px 6px rgba(0,0,0,0.35);
-    transition: box-shadow 0.15s ease;
-    appearance: textfield;
-    -moz-appearance: textfield;
-  }
-
-  .field input::-webkit-outer-spin-button,
-  .field input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  .field input::placeholder { color: var(--text-faint); }
-
-  .field input:focus {
-    box-shadow: 0 0 0 1px var(--glow-dim), 0 0 10px rgba(111,252,177,0.25), 0 1px 0 rgba(255,255,255,0.06) inset;
-  }
-
-  .field.invalid input {
-    box-shadow: 0 0 0 1px var(--loss-dim), 0 1px 0 rgba(255,255,255,0.06) inset;
-  }
-
-  .actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
-
-  button.reset {
-    border: none;
-    outline: none;
-    cursor: pointer;
-    border-radius: 12px;
-    height: 52px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    background: linear-gradient(160deg, var(--key-face-hi), var(--key-face));
-    box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 -3px 0 rgba(0,0,0,0.35) inset, 0 4px 8px rgba(0,0,0,0.4);
-    transition: transform 0.06s ease, box-shadow 0.06s ease;
-  }
-
-  button.reset:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 -1px 0 rgba(0,0,0,0.3) inset, 0 1px 2px rgba(0,0,0,0.3);
-  }
-
-  .hint {
-    margin-top: 10px;
-    text-align: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    color: var(--text-faint);
-  }
-
-  .note {
-    margin-top: 12px;
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(217,141,95,0.18);
-    background: transparent;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    line-height: 1.5;
-    text-align: center;
-    color: rgba(240,172,126,0.8);
-  }
-
-  .note[hidden] { display: none; }
-  .note:not([hidden]) { animation: note-in 0.45s ease-out; }
-  @keyframes note-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-
-  /* ---------- Deduct charges ---------- */
-  button.deduct {
-    border: none;
-    outline: none;
-    cursor: pointer;
-    border-radius: 12px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--loss);
-    background: linear-gradient(160deg, var(--key-face-hi), var(--key-face));
-    box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 -3px 0 rgba(0,0,0,0.35) inset, 0 4px 8px rgba(0,0,0,0.4);
-    transition: transform 0.06s ease, box-shadow 0.15s ease;
-  }
-
-  button.deduct:active { transform: translateY(2px); }
-  button.reset:focus-visible, .unit button:focus-visible { outline: 2px solid var(--loss); outline-offset: 2px; }
-  button.deduct:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-
-  /* enabled (unlocked) = bluish bar; locked stays red and dim */
-  button.deduct:not(:disabled) {
-    color: var(--loss);
-    background: linear-gradient(160deg, #2e4a6b, #1f3350);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 -3px 0 rgba(0,0,0,0.35) inset, 0 4px 8px rgba(0,0,0,0.4), 0 0 0 1px rgba(109,184,255,0.35);
-  }
-
-  button.deduct:not(:disabled) .state { background: rgba(0,0,0,0.3); color: #7fb8f0; }
-
-  /* the short wait before it unlocks: a blue bar fills across the button */
-  button.deduct::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    background: linear-gradient(90deg, rgba(109,184,255,0.38), rgba(109,184,255,0.12));
-    transform: scaleX(0);
-    transform-origin: left center;
-    pointer-events: none;
-  }
-
-  button.deduct.unlocking::before { animation: unlock-fill var(--unlock-ms, 700ms) linear forwards; }
-  button.deduct.unlocking:disabled { opacity: 0.8; }
-
-  @keyframes unlock-fill { to { transform: scaleX(1); } }
-
-  button.deduct { position: relative; transition: transform 0.06s ease, box-shadow 0.15s ease, opacity 0.35s ease; }
-
-  button.deduct:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* little "unlocked" pop: the button bounces and a ring ripples out of it */
-  button.deduct::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    border: 1.5px solid var(--blue);
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  button.deduct.unlocked { animation: deduct-pop 0.55s cubic-bezier(.2,1.6,.4,1); }
-  button.deduct.unlocked::after { animation: deduct-ring 0.8s ease-out; }
-
-  @keyframes deduct-pop {
-    0%   { transform: scale(0.97); }
-    45%  { transform: scale(1.04); }
-    100% { transform: scale(1); }
-  }
-
-  @keyframes deduct-ring {
-    0%   { opacity: 0.85; transform: scale(1); }
-    100% { opacity: 0;    transform: scale(1.1, 1.45); }
-  }
-
-  /* turning it ON: the charges panel drops in, its fields follow one by one */
-  .charges:not([hidden]) { animation: panel-in 0.35s cubic-bezier(.2,.9,.3,1); }
-  .charges:not([hidden]) .field { animation: field-in 0.4s cubic-bezier(.2,.9,.3,1) both; }
-  .charges:not([hidden]) .field:nth-child(1) { animation-delay: 0.08s; }
-  .charges:not([hidden]) .field:nth-child(2) { animation-delay: 0.16s; }
-  .charges:not([hidden]) .field:nth-child(3) { animation-delay: 0.24s; }
-
-  @keyframes panel-in {
-    from { opacity: 0; transform: translateY(-10px) scale(0.98); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  @keyframes field-in {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  /* profit / loss result: the screen flashes and the number pops (profit) or shakes (loss) */
-  .screen.fx-profit { animation: flash-profit 0.9s ease-out; }
-  .screen.fx-loss   { animation: flash-loss 0.9s ease-out; }
-  .screen.fx-profit .hero { animation: hero-win 0.7s cubic-bezier(.2,1.4,.4,1); }
-  .screen.fx-loss .hero   { animation: hero-lose 0.6s ease-out; }
-
-  @keyframes flash-profit {
-    0%   { box-shadow: 0 0 0 1px rgba(111,252,177,0.8) inset, 0 0 46px rgba(111,252,177,0.38) inset; }
-    100% { box-shadow: 0 0 0 1px rgba(111,252,177,0) inset, 0 0 0 rgba(111,252,177,0) inset; }
-  }
-
-  @keyframes flash-loss {
-    0%   { box-shadow: 0 0 0 1px rgba(255,107,107,0.8) inset, 0 0 46px rgba(255,107,107,0.38) inset; }
-    100% { box-shadow: 0 0 0 1px rgba(255,107,107,0) inset, 0 0 0 rgba(255,107,107,0) inset; }
-  }
-
-  @keyframes hero-win {
-    0%   { transform: translateY(8px) scale(0.88); text-shadow: 0 0 4px rgba(111,252,177,0.3); }
-    45%  { transform: translateY(-2px) scale(1.08); text-shadow: 0 0 30px rgba(111,252,177,0.95), 0 0 60px rgba(111,252,177,0.5); }
-    100% { transform: none; }
-  }
-
-  @keyframes hero-lose {
-    0%, 100% { transform: translateX(0); }
-    15% { transform: translateX(-9px); }
-    30% { transform: translateX(8px); }
-    45% { transform: translateX(-6px); }
-    60% { transform: translateX(5px); }
-    75% { transform: translateX(-3px); }
-    90% { transform: translateX(2px); }
-  }
-
-  /* the screen result flashes when it switches between gross and final */
-  .hero.swap, .context.swap { animation: result-swap 0.6s ease-out; }
-
-  @keyframes result-swap {
-    0%   { opacity: 0.2; transform: translateY(6px) scale(0.97); filter: brightness(1.8); }
-    60%  { opacity: 1; transform: translateY(-1px) scale(1.02); }
-    100% { opacity: 1; transform: none; filter: none; }
-  }
-
-  .deduct-hint {
-    margin-top: -4px;
-    text-align: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    color: var(--text-faint);
-  }
-
-  .deduct-hint[hidden] { display: none; }
-
-  button.deduct .state {
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: rgba(0,0,0,0.35);
-    color: var(--text-faint);
-  }
-
-  button.deduct[aria-pressed="true"] {
-    box-shadow: 0 0 0 1px var(--blue), 0 0 16px rgba(109,184,255,0.35), 0 1px 0 rgba(255,255,255,0.12) inset, 0 -3px 0 rgba(0,0,0,0.35) inset;
-  }
-
-  button.deduct[aria-pressed="true"] .state { background: var(--blue); color: #08182a; }
-
-  .charges {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 14px 14px 12px;
-    border-radius: 14px;
-    background: rgba(0,0,0,0.22);
-    border: 1px solid rgba(217,141,95,0.22);
-  }
-
-  .charges[hidden] { display: none; }
-
-  .charges .row { display: flex; gap: 8px; align-items: stretch; }
-  .charges .row input { flex: 1; min-width: 0; }
-
-  .unit {
-    display: flex;
-    flex: none;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--bezel);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5) inset;
-  }
-
-  .unit button {
-    border: none;
-    outline: none;
-    cursor: pointer;
-    width: 46px;
-    background: transparent;
-    color: var(--text-faint);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-
-  .unit button.on { background: var(--copper); color: #1a0f08; font-weight: 700; }
-
-  .charges-help {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    line-height: 1.5;
-    color: var(--text-faint);
-  }
-
-  .breakdown {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    color: var(--copper-light);
-    text-align: right;
-    margin-top: 4px;
-    z-index: 1;
-    min-height: 0;
-  }
-
-  .breakdown:empty { display: none; }
-  .breakdown span { display: inline-block; white-space: nowrap; }
-
-  @media (max-width: 360px) {
-    button.deduct { font-size: 11px; letter-spacing: 0.05em; gap: 7px; padding: 0 8px; white-space: nowrap; }
-    button.deduct .state { padding: 3px 6px; font-size: 9px; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .indicator-dot { animation: none; }
-    button.deduct.unlocked, button.deduct.unlocked::after, button.deduct.unlocking::before,
-    .charges:not([hidden]), .charges:not([hidden]) .field,
-    .hero.swap, .context.swap,
-    .screen.fx-profit, .screen.fx-loss, .screen.fx-profit .hero, .screen.fx-loss .hero,
-    .note:not([hidden]) { animation: none; }
-    button, .field input, .screen { transition: none; }
-  }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);}
+body{min-height:100vh;color:var(--text);font-family:'Space Mono',monospace;padding:28px 18px 50px;overflow-x:hidden;position:relative;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:50;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 3px);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(255,43,43,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,43,43,.045) 1px,transparent 1px);
+  background-size:44px 44px;}
+
+.device{position:relative;z-index:1;width:100%;max-width:400px;margin:0 auto;}
+.label{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 12px;}
+.label .brand{font-size:11px;letter-spacing:.3em;color:var(--red);text-shadow:0 0 10px var(--red-glow);}
+.label .model{font-size:10px;letter-spacing:.12em;color:var(--dim);}
+h1{font-size:12px;font-weight:400;letter-spacing:.16em;color:var(--dim);padding:0 4px 14px;text-transform:uppercase;}
+
+.case{position:relative;background:var(--panel);border:1px solid var(--red-dim);padding:20px 18px 20px;}
+.case .tl,.case .tr,.case .bl,.case .br{position:absolute;width:12px;height:12px;border:2px solid var(--red);}
+.tl{top:-1px;left:-1px;border-right:0!important;border-bottom:0!important}
+.tr{top:-1px;right:-1px;border-left:0!important;border-bottom:0!important}
+.bl{bottom:-1px;left:-1px;border-right:0!important;border-top:0!important}
+.br{bottom:-1px;right:-1px;border-left:0!important;border-top:0!important}
+
+/* display */
+.screen{position:relative;background:#060909;border:1px solid var(--red-dim);padding:18px 16px 14px;min-height:150px;
+  display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;user-select:none;-webkit-user-select:none;
+  margin-bottom:18px;transition:box-shadow .15s,border-color .15s;}
+.screen:hover{border-color:var(--red)}
+.screen.copied{box-shadow:0 0 0 1px var(--accent) inset,0 0 22px rgba(43,255,136,.15) inset;}
+.screen::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px);}
+.ind{display:flex;align-items:center;gap:7px;margin-bottom:10px;position:relative}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2.2s ease-in-out infinite}
+.status{font-size:10px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase}
+@keyframes pulse{50%{opacity:.35}}
+.context{font-size:11px;color:var(--dim);text-align:right;min-height:16px;line-height:1.5;position:relative}
+.hero{font-size:32px;font-weight:700;color:var(--accent);text-align:right;line-height:1.15;word-break:break-word;min-height:38px;
+  text-shadow:0 0 12px color-mix(in srgb,var(--accent) 45%,transparent);position:relative}
+.hero .pct{display:inline-block;white-space:nowrap;font-size:15px;margin-left:6px;opacity:.9}
+.hero.warn{color:var(--amber);text-shadow:none}
+.awaiting{color:var(--red);font-size:18px;letter-spacing:.2em;animation:blink 1.2s steps(2,start) infinite;text-shadow:0 0 10px var(--red-glow)}
+@keyframes blink{to{visibility:hidden}}
+.subline{font-size:11px;color:var(--dim);text-align:right;margin-top:6px;position:relative}
+.breakdown{font-size:10.5px;color:var(--amber);text-align:right;margin-top:4px;position:relative;line-height:1.5}
+.breakdown:empty{display:none}
+.breakdown span{display:inline-block;white-space:nowrap}
+
+/* entry -> exit track */
+.track{display:flex;align-items:center;gap:8px;margin:2px 0 14px;position:relative;font-size:10px;letter-spacing:.08em}
+.track[hidden]{display:none}
+.track .pt{flex:none;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track .pt small{display:block;font-size:8px;letter-spacing:.2em;color:var(--dim)}
+.track .pt b{font-weight:700;color:var(--text)}
+.track .pt.r{text-align:right}
+.track .ln{flex:1;height:0;border-top:1px dashed var(--accent);position:relative;min-width:20px}
+.track .ln::after{content:'';position:absolute;right:-1px;top:-5px;border:4px solid transparent;border-left:7px solid var(--accent);border-right:0}
+.track.rev .ln::after{right:auto;left:-1px;border-left:0;border-right:7px solid var(--accent)}
+.track.flat .ln::after{display:none}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pair .field{min-width:0}
+.tagb{display:inline-block;font-size:9px;padding:1px 5px;margin-right:6px;letter-spacing:.1em;border:1px solid currentColor}
+.tagb.buy{color:var(--up)} .tagb.sell{color:var(--red)} .tagb.qty{color:var(--blue)}
+/* inputs */
+.field{margin-bottom:14px}
+.field label{white-space:nowrap}
+.field label{display:block;font-size:10px;letter-spacing:.16em;color:var(--dim);margin-bottom:6px;text-transform:uppercase}
+input.num{width:100%;background:#0d0d0e;border:1px solid var(--red-dim);color:var(--text);font-family:'Space Mono',monospace;font-size:16px;
+  padding:12px;outline:none;border-radius:0;-moz-appearance:textfield;appearance:textfield;transition:box-shadow .15s,border-color .15s}
+input::placeholder{color:#4a3e3e}
+input:focus{border-color:var(--red);box-shadow:0 0 10px var(--red-dim)}
+.field.invalid input{border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 0 12px var(--red-glow)}
+.row{display:flex;gap:8px}
+.row input{flex:1;min-width:0}
+.unit{display:flex;flex:none;border:1px solid var(--red-dim)}
+.unit button{width:46px;background:transparent;color:var(--dim);border:0;font:700 11px 'Space Mono',monospace;cursor:pointer}
+.unit button.on{background:var(--red);color:#120303}
+
+.btn{width:100%;background:#0d0d0e;color:var(--red);border:1px solid var(--red-dim);font:700 12px 'Space Mono',monospace;letter-spacing:.14em;
+  padding:14px 10px;cursor:pointer;text-transform:uppercase;transition:background .15s,box-shadow .15s}
+.btn:hover:not(:disabled){background:rgba(255,43,43,.1);box-shadow:0 0 10px var(--red-dim)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.secondary{color:var(--dim)}
+button:focus-visible,input:focus-visible,.screen:focus-visible{outline:1px solid var(--blue);outline-offset:3px}
+.deduct{display:flex;justify-content:center;align-items:center;gap:12px}
+.deduct .state{font-size:10px;padding:2px 8px;border:1px solid currentColor;letter-spacing:.14em}
+.deduct[aria-pressed=true]{color:var(--blue);border-color:var(--blue);background:rgba(79,209,255,.07)}
+.hintline{font-size:10px;color:var(--dim);letter-spacing:.05em;margin:8px 0 14px;line-height:1.5;text-align:center}
+.hintline[hidden]{display:none}
+.deduct{margin-bottom:0}
+.actions{display:grid;gap:10px}
+
+.charges{margin:14px 0 4px;padding:14px 12px 2px;border:1px dashed var(--red-dim);background:rgba(255,43,43,.03)}
+.charges[hidden]{display:none}
+.chelp{font-size:10px;line-height:1.55;color:var(--dim);margin:0 0 12px}
+
+.hint{margin-top:12px;text-align:center;font-size:10px;letter-spacing:.05em;color:var(--dim)}
+.note{margin-top:12px;font-size:10px;color:var(--dim);line-height:1.55;border-left:2px solid var(--red-dim);padding-left:10px}
+.note[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-
 <body>
 
 <div class="device">
-  <div class="device-label">
-    <span class="brand">Rameshverse</span>
+  <div class="label">
+    <span class="brand">RAMESHVERSE</span>
     <span class="model">P&amp;L · 01</span>
   </div>
+  <h1>Stock Profit Calculator</h1>
 
   <div class="case">
-    <div class="screen-bezel">
-      <div class="screen" id="screen" title="Tap to copy result">
-        <div class="indicator-row">
-          <div class="indicator-dot" id="dot"></div>
-          <span class="indicator-text" id="status">Standby</span>
-        </div>
-        <div class="context" id="context">Enter your trade details</div>
-        <div class="hero" id="hero">0.00</div>
-        <div class="subline" id="subline">Per share: 0.00</div>
-        <div class="breakdown" id="breakdown"></div>
+    <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+
+    <div class="screen" id="screen" role="button" tabindex="0" title="Tap to copy result" aria-label="Result. Tap to copy.">
+      <div class="ind"><div class="dot" id="dot"></div><span class="status" id="status">Standby</span></div>
+      <div class="track" id="track" hidden>
+        <div class="pt"><small>BUY</small><b id="tBuy">—</b></div>
+        <div class="ln"></div>
+        <div class="pt r"><small>SELL</small><b id="tSell">—</b></div>
       </div>
+      <div class="context" id="context">Enter your trade details</div>
+      <div class="hero" id="hero" aria-live="polite"><span class="awaiting">AWAITING INPUT</span></div>
+      <div class="subline" id="subline">Per share: 0</div>
+      <div class="breakdown" id="breakdown"></div>
     </div>
 
-    <div class="fields">
+    <div class="pair">
       <div class="field" id="field-buy">
-        <label for="buy">Buying price / share</label>
-        <input id="buy" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 254.00" oninput="calculate()">
+        <label for="buy"><span class="tagb buy">BUY</span>price/share</label>
+        <input id="buy" class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="254.00">
       </div>
       <div class="field" id="field-sell">
-        <label for="sell">Selling price / share</label>
-        <input id="sell" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 268.50" oninput="calculate()">
+        <label for="sell"><span class="tagb sell">SELL</span>price/share</label>
+        <input id="sell" class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="268.50">
       </div>
-      <div class="field" id="field-qty">
-        <label for="qty">Number of shares</label>
-        <input id="qty" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 1000" oninput="calculate()">
-      </div>
+    </div>
+    <div class="field" id="field-qty">
+      <label for="qty"><span class="tagb qty">QTY</span>number of shares</label>
+      <input id="qty" class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="e.g. 1000">
     </div>
 
     <div class="actions">
-      <button class="deduct" id="deductBtn" type="button" aria-pressed="false" aria-controls="charges" aria-describedby="deductHint" disabled onclick="toggleDeduct()">
-        <span id="deductLabel">Deduct charges</span> <span class="state" id="deductState">OFF</span>
+      <button class="btn deduct" id="deductBtn" type="button" aria-pressed="false" aria-controls="charges" aria-describedby="deductHint" disabled>
+        <span id="deductLabel">Deduct charges</span><span class="state" id="deductState">OFF</span>
       </button>
-      <div class="deduct-hint" id="deductHint">Enter buying price, selling price and shares first</div>
+      <div class="hintline" id="deductHint">Enter buying price, selling price and shares first</div>
 
       <div class="charges" id="charges" hidden>
         <div class="field" id="field-brok">
-          <label for="brok" id="label-brok">Brokerage in %</label>
+          <label for="brok" id="label-brok">Brokerage %</label>
           <div class="row">
-            <input id="brok" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 0.1" oninput="calculate()">
+            <input id="brok" class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="e.g. 0.1">
             <div class="unit" role="group" aria-label="Brokerage unit">
-              <button type="button" data-key="brok" data-unit="amt" onclick="setUnit('brok','amt')">AMT</button>
-              <button type="button" class="on" data-key="brok" data-unit="pct" onclick="setUnit('brok','pct')">%</button>
+              <button type="button" data-key="brok" data-unit="amt">AMT</button>
+              <button type="button" class="on" data-key="brok" data-unit="pct">%</button>
             </div>
           </div>
         </div>
-
         <div class="field" id="field-tax">
-          <label for="tax" id="label-tax">Tax in %</label>
+          <label for="tax" id="label-tax">Tax %</label>
           <div class="row">
-            <input id="tax" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 15" oninput="calculate()">
+            <input id="tax" class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="e.g. 15">
             <div class="unit" role="group" aria-label="Tax unit">
-              <button type="button" data-key="tax" data-unit="amt" onclick="setUnit('tax','amt')">AMT</button>
-              <button type="button" class="on" data-key="tax" data-unit="pct" onclick="setUnit('tax','pct')">%</button>
+              <button type="button" data-key="tax" data-unit="amt">AMT</button>
+              <button type="button" class="on" data-key="tax" data-unit="pct">%</button>
             </div>
           </div>
         </div>
-
         <div class="field" id="field-other">
-          <label for="other" id="label-other">Other charges in amount</label>
+          <label for="other" id="label-other">Other charges (amount)</label>
           <div class="row">
-            <input id="other" type="number" inputmode="decimal" step="any" min="0" placeholder="e.g. 50.00" oninput="calculate()">
+            <input id="other" class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="e.g. 50.00">
             <div class="unit" role="group" aria-label="Other charges unit">
-              <button type="button" class="on" data-key="other" data-unit="amt" onclick="setUnit('other','amt')">AMT</button>
-              <button type="button" data-key="other" data-unit="pct" onclick="setUnit('other','pct')">%</button>
+              <button type="button" class="on" data-key="other" data-unit="amt">AMT</button>
+              <button type="button" data-key="other" data-unit="pct">%</button>
             </div>
           </div>
         </div>
-
-        <div class="charges-help">Brokerage and other: % of total traded value (buy + sell). Tax: % of profit after charges, none on a loss. Leave blank if not applicable.</div>
+        <p class="chelp">Brokerage and other: % of total traded value (buy + sell). Tax: % of profit after those charges, none on a loss (a fixed tax amount is capped at the profit). Leave blank if not applicable.</p>
       </div>
 
-      <button class="reset" onclick="resetApp()">Reset</button>
+      <button class="btn secondary" id="resetBtn" type="button">Reset</button>
     </div>
 
-    <div class="hint" id="hint">Tap the screen to copy the result</div>
-
-    <div class="note" id="note" role="note" hidden>ℹ <span id="noteText">Raw result only. Brokerage, tax and other charges are not included.</span></div>
+    <div class="hint">Tap the screen to copy the result</div>
+    <div class="note" id="note" hidden></div>
   </div>
 </div>
 
 <script>
-  const buyEl = document.getElementById('buy');
-  const sellEl = document.getElementById('sell');
-  const qtyEl = document.getElementById('qty');
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const buyEl=$('buy'), sellEl=$('sell'), qtyEl=$('qty'), brokEl=$('brok'), taxEl=$('tax'), otherEl=$('other');
+const fields={buy:$('field-buy'),sell:$('field-sell'),qty:$('field-qty'),brok:$('field-brok'),tax:$('field-tax'),other:$('field-other')};
+const trackEl=$('track'), tBuy=$('tBuy'), tSell=$('tSell');
+const screenEl=$('screen'), dotEl=$('dot'), statusEl=$('status'), heroEl=$('hero'), ctxEl=$('context'), subEl=$('subline'), brkEl=$('breakdown'), noteEl=$('note');
+const deductBtn=$('deductBtn'), deductState=$('deductState'), deductLabel=$('deductLabel'), deductHint=$('deductHint'), chargesEl=$('charges');
+const HINT_LOCKED=deductHint.textContent;
 
-  const screenEl = document.getElementById('screen');
-  const dotEl = document.getElementById('dot');
-  const statusEl = document.getElementById('status');
-  const contextEl = document.getElementById('context');
-  const heroEl = document.getElementById('hero');
-  const sublineEl = document.getElementById('subline');
-  const hintEl = document.getElementById('hint');
+let deductOn=false, lastCopy='', flashT=null;
+const units={brok:'pct',tax:'pct',other:'amt'};
+const LOCALE='en-US';   // 1,000,000 style grouping
 
-  const fieldBuy = document.getElementById('field-buy');
-  const fieldSell = document.getElementById('field-sell');
-  const fieldQty = document.getElementById('field-qty');
+/* ---- formatting ---- */
+function fmt(n){
+  if(!isFinite(n)) return '—';
+  const a=Math.abs(n);
+  if(a>=1e15){ const p=a.toExponential(3).split('e'); return p[0]+'e'+(+p[1]); }
+  try{
+    if(a>0&&a<0.01) return a.toLocaleString(LOCALE,{maximumSignificantDigits:3,maximumFractionDigits:12});
+    return a.toLocaleString(LOCALE,{minimumFractionDigits:0,maximumFractionDigits:2});
+  }catch(e){ return String(+a.toFixed(2)); }
+}
+const isZero=(n,ref)=>Math.abs(n)<=1e-9*(ref||1);
+const sgn=(n,ref)=>isZero(n,ref)?fmt(0):(n>0?'+':'−')+fmt(n);
 
-  const brokEl = document.getElementById('brok');
-  const taxEl = document.getElementById('tax');
-  const otherEl = document.getElementById('other');
-  const fieldBrok = document.getElementById('field-brok');
-  const fieldTax = document.getElementById('field-tax');
-  const fieldOther = document.getElementById('field-other');
-  const chargesEl = document.getElementById('charges');
-  const deductBtn = document.getElementById('deductBtn');
-  const deductState = document.getElementById('deductState');
-  const deductHint = document.getElementById('deductHint');
-  const deductLabel = document.getElementById('deductLabel');
-  const breakdownEl = document.getElementById('breakdown');
-  const noteTextEl = document.getElementById('noteText');
-  const noteEl = document.getElementById('note');
+function read(el){
+  const t=el.value.replace(/,/g,'').trim();
+  if(t==='') return {state:'empty'};
+  if(!/^-?\d*\.?\d*$/.test(t)) return {state:'bad'};
+  if(!/\d/.test(t)) return t==='-'?{state:'bad'}:{state:'empty'};   // a lone "." is still being typed
+  const v=Number(t);
+  return isFinite(v)?{state:'ok',v}:{state:'bad'};
+}
 
-  const UNLOCK_DELAY = 700;                        // ms the button waits before it unlocks
-  const HINT_LOCKED = deductHint.textContent;
-  deductBtn.style.setProperty('--unlock-ms', UNLOCK_DELAY + 'ms');
-  let unlockTimer = null;
+/* live 1,000,000 grouping while typing (keeps the caret in place) */
+function groupDigits(i){ return i.replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function formatInput(el){
+  let raw=el.value;
+  const ex=raw.replace(/,/g,'').trim();
+  const em=/^(\d*)\.?(\d*)e([-+]?\d+)$/i.exec(ex);
+  if(em&&(em[1]+em[2])!==''&&Math.abs(+em[3])<=400){                  // pasted 1e6 style: expand it to plain digits
+    const digits=em[1]+em[2], point=em[1].length+(+em[3]);
+    raw = point<=0 ? '0.'+'0'.repeat(-point)+digits
+        : point>=digits.length ? digits+'0'.repeat(point-digits.length)
+        : digits.slice(0,point)+'.'+digits.slice(point);
+  }
+  const pos=el.selectionStart==null?raw.length:el.selectionStart;
+  const keep=ch=>/[\d.]/.test(ch);
+  let before=0; for(let i=0;i<Math.min(pos,el.value.length);i++) if(keep(el.value[i])) before++;
+  let neg=raw.trim().startsWith('-');
+  let c=raw.replace(/[^\d.]/g,'');
+  const d=c.indexOf('.');
+  let ip=d<0?c:c.slice(0,d), fp=d<0?'':c.slice(d+1).replace(/\./g,'');
+  ip=ip.replace(/^0+(?=\d)/,'');
+  let out=(neg?'-':'')+groupDigits(ip)+(d<0?'':'.'+fp);
+  if(out===el.value) return;
+  el.value=out;
+  let n=0, np=neg?1:0;
+  if(before>0){ for(np=0;np<out.length;np++){ if(keep(out[np])) n++; if(n>=before){np++;break;} } }
+  try{ el.setSelectionRange(np,np); }catch(e){}
+}
 
-  const NOTE_RAW = noteTextEl.textContent;
-  const NOTE_NET = 'Final result after the charges you entered.';
+/* mode: 'standby' | 'up' | 'down' | 'warn' */
+function setMode(mode,text){
+  const root=document.documentElement.style;
+  root.setProperty('--accent', mode==='down'?'var(--red)':mode==='warn'?'var(--amber)':mode==='standby'?'var(--dim)':'var(--up)');
+  statusEl.textContent=text;
+}
+function clearInvalid(){ Object.values(fields).forEach(f=>f.classList.remove('invalid')); }
+function showAwaiting(ctx){
+  heroEl.className='hero'; heroEl.innerHTML='<span class="awaiting">AWAITING INPUT</span>';
+  ctxEl.textContent=ctx||'Enter your trade details';
+  subEl.textContent='Per share: 0'; brkEl.textContent=''; noteEl.hidden=true; lastCopy=''; trackEl.hidden=true;
+}
+function showError(msg){
+  setMode('warn','Error');
+  heroEl.className='hero warn'; heroEl.textContent='ERROR';
+  ctxEl.textContent=msg; subEl.textContent=''; brkEl.textContent=''; noteEl.hidden=true; lastCopy=''; trackEl.hidden=true;
+}
 
-  let deductOn = false;
-  const units = { brok: 'pct', tax: 'pct', other: 'amt' };   // 'amt' = fixed amount, 'pct' = percent
-  const unitPlaceholders = { amt: 'e.g. 100.00' };
+function applyDeductUI(){
+  deductBtn.setAttribute('aria-pressed',String(deductOn));
+  deductState.textContent=deductOn?'ON':'OFF';
+  chargesEl.hidden=!deductOn;
+}
+function updateDeduct(){
+  const b=read(buyEl), s=read(sellEl), q=read(qtyEl);
+  const ready=b.state==='ok'&&s.state==='ok'&&q.state==='ok'&&b.v>0&&q.v>0&&s.v>=0&&isFinite(b.v*q.v)&&isFinite(s.v*q.v);
+  deductBtn.disabled=!ready;
+  deductHint.hidden=ready;
+  if(!ready&&deductOn){ deductOn=false; applyDeductUI(); }
+  deductLabel.textContent=!ready?'Deduct charges':deductOn?'Charges deducted':'Click to deduct charges';
+}
 
-  let flashTimeout = null;
-  let lastCopyText = '';
+function calculate(){
+  clearInvalid();
+  updateDeduct();
+  const b=read(buyEl), s=read(sellEl), q=read(qtyEl);
 
-  function fmt(n) {
-    const locale = navigator.language || 'en-IN';
-    return n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if(b.state==='empty'&&s.state==='empty'&&q.state==='empty'){ setMode('standby','Standby'); showAwaiting(); return; }
+
+  let bad=false;
+  [['buy',b],['sell',s],['qty',q]].forEach(([k,r])=>{
+    if(r.state==='bad'||(r.state==='ok'&&r.v<0)){ fields[k].classList.add('invalid'); bad=true; }
+  });
+  if(bad){ showError('Enter valid positive numbers'); return; }
+
+  if(b.state==='empty'||s.state==='empty'||q.state==='empty'){ setMode('standby','Waiting'); showAwaiting('Fill in all three fields'); return; }
+
+  if(b.v===0||q.v===0){
+    fields[b.v===0?'buy':'qty'].classList.add('invalid');
+    showError('Buy price and quantity must be above zero'); return;
   }
 
-  function setMode(mode) {
-    // mode: 'standby' | 'profit' | 'loss' | 'even' | 'error'
-    const root = document.documentElement.style;
-    if (mode === 'loss') {
-      root.setProperty('--accent', 'var(--loss)');
-      root.setProperty('--accent-dim', 'var(--loss-dim)');
-    } else {
-      root.setProperty('--accent', 'var(--glow)');
-      root.setProperty('--accent-dim', 'var(--glow-dim)');
-    }
+  const invested=b.v*q.v, returned=s.v*q.v;
+  if(!isFinite(invested)||!isFinite(returned)){
+    ['buy','sell','qty'].forEach(k=>fields[k].classList.add('invalid'));
+    showError('Numbers too large to calculate'); return;
   }
+  const gross=returned-invested;
 
-  // ----- result animation: number counts up/down, screen flashes, profit pops / loss shakes -----
-  let heroRaf = null;
-  let shown = null;          // what the hero currently displays: { pnl, pct, kind }
-
-  function renderHeroValue(v, pc) {
-    const sg = v >= 0 ? '+' : '−';
-    heroEl.innerHTML = `${sg}${fmt(Math.abs(v))}<span class="pct">(${sg}${fmt(Math.abs(pc))}%)</span>`;
-  }
-
-  function animateHero(pnl, pct, kind, prev) {
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const fromP = prev ? prev.pnl : 0;
-    const fromC = prev ? prev.pct : 0;
-
-    if (!reduce && (!prev || prev.kind !== kind) && kind !== 'even') {
-      screenEl.classList.remove('fx-profit', 'fx-loss');
-      playOnce(screenEl, kind === 'profit' ? 'fx-profit' : 'fx-loss');
-    }
-
-    if (reduce || (fromP === pnl && fromC === pct)) {
-      renderHeroValue(pnl, pct);
-      shown = { pnl, pct, kind };
-      return;
-    }
-
-    const t0 = performance.now(), DUR = 550;
-    renderHeroValue(fromP, fromC);
-    shown = { pnl: fromP, pct: fromC, kind };
-    const step = now => {
-      const t = Math.min(1, (now - t0) / DUR);
-      const e = 1 - Math.pow(1 - t, 3);                       // ease-out
-      if (t < 1) {
-        const v = fromP + (pnl - fromP) * e;
-        const pc = fromC + (pct - fromC) * e;
-        renderHeroValue(v, pc);
-        shown = { pnl: v, pct: pc, kind };
-        heroRaf = requestAnimationFrame(step);
-      } else {
-        heroRaf = null;
-        renderHeroValue(pnl, pct);
-        shown = { pnl, pct, kind };
-      }
+  let brokerage=0, other=0, tax=0, charges=0;
+  if(deductOn){
+    const rc=(el,key)=>{
+      const r=read(el);
+      if(r.state==='empty') return 0;
+      if(r.state==='bad'||r.v<0||(units[key]==='pct'&&r.v>100)){ fields[key].classList.add('invalid'); return null; }
+      return r.v;
     };
-    heroRaf = requestAnimationFrame(step);
+    const bk=rc(brokEl,'brok'), tx=rc(taxEl,'tax'), ot=rc(otherEl,'other');
+    if(bk===null||tx===null||ot===null){ showError('Charges must be 0 or more (and a % can\'t exceed 100)'); return; }
+    const turnover=invested+returned;
+    brokerage=units.brok==='pct'?turnover*bk/100:bk;
+    other=units.other==='pct'?turnover*ot/100:ot;
+    const taxable=Math.max(0,gross-brokerage-other);
+    tax=units.tax==='pct'?taxable*tx/100:Math.min(tx,taxable);
+    charges=brokerage+other+tax;
+    if(!isFinite(charges)){ showError('Numbers too large to calculate'); return; }
   }
 
-  function clearInvalid() {
-    [fieldBuy, fieldSell, fieldQty, fieldBrok, fieldTax, fieldOther].forEach(f => f.classList.remove('invalid'));
-  }
+  const pnl=gross-charges, pct=pnl/invested*100, perShare=pnl/q.v;
+  if(!isFinite(pnl)||!isFinite(pct)){ showError('Numbers too large to calculate'); return; }
 
-  // restart a one-shot CSS animation class
-  function playOnce(el, cls) {
-    el.classList.remove(cls);
-    void el.offsetWidth;                       // force reflow so the animation can run again
-    el.classList.add(cls);
-    el.addEventListener('animationend', function done(e) {
-      if (e.target !== el) return;
-      el.classList.remove(cls);
-      el.removeEventListener('animationend', done);
-    });
-  }
+  const even=isZero(pnl,invested), profit=!even&&pnl>0;
+  const word=even?'Break-even':(profit?'Profit':'Loss');
+  const label=deductOn&&!even?'Net '+word.toLowerCase():word;
+  setMode(even?'standby':(profit?'up':'down'),label);
 
-  // locked: "Deduct charges" · enabled: "Click to deduct charges" · on: "Charges deducted 😢"
-  function updateDeductLabel() {
-    deductLabel.textContent = deductBtn.disabled ? 'Deduct charges'
-                            : deductOn ? 'Charges deducted 😢'
-                            : 'Click to deduct charges';
-  }
+  const pctZero=even||isZero(pct);
+  const pctTxt=pctZero?fmt(0):fmt(pct);
+  const pn=even?'':(pnl>0?'+':'−'), pc=pctZero?'':(pct>0?'+':'−');
+  heroEl.className='hero';
+  heroEl.innerHTML=pn+fmt(even?0:pnl)+'<span class="pct">('+pc+pctTxt+'%)</span>';
+  ctxEl.textContent=deductOn?'Gross '+sgn(gross,invested)+' · Charges −'+fmt(charges):'Invested '+fmt(invested)+' · Returned '+fmt(returned);
+  subEl.textContent='Per share'+(deductOn?' (after charges)':'')+': '+sgn(perShare,b.v);
+  brkEl.innerHTML=deductOn?'<span>Brokerage '+fmt(brokerage)+'</span> <span>· Tax '+fmt(tax)+'</span> <span>· Other '+fmt(other)+'</span>':'';
+  trackEl.hidden=false; trackEl.className='track'+(even?' flat':(profit?'':' rev'));
+  tBuy.textContent=fmt(b.v); tSell.textContent=fmt(s.v);
+  noteEl.hidden=false;
+  noteEl.textContent=deductOn?'Final result after the charges you entered.':'Raw result only. Brokerage, tax and other charges are not included.';
 
-  function applyDeductUI() {
-    updateDeductLabel();
-    deductBtn.setAttribute('aria-pressed', String(deductOn));
-    deductState.textContent = deductOn ? 'ON' : 'OFF';
-    chargesEl.hidden = !deductOn;
-    noteTextEl.textContent = deductOn ? NOTE_NET : NOTE_RAW;
-  }
+  const base=label+': '+pn+fmt(even?0:pnl)+' ('+pc+pctTxt+'%) | Invested: '+fmt(invested)+' | Returned: '+fmt(returned);
+  lastCopy=deductOn
+    ? base+' | Gross: '+sgn(gross,invested)+' | Brokerage: '+fmt(brokerage)+' | Tax: '+fmt(tax)+' | Other charges: '+fmt(other)+' | Per share: '+sgn(perShare,b.v)
+    : base+' | Per share: '+sgn(perShare,b.v)+' | Before any brokerage, taxes or charges';
+}
 
-  function toggleDeduct() {
-    if (deductBtn.disabled) return;
-    deductOn = !deductOn;
-    applyDeductUI();
-    calculate();
-    if (!heroEl.textContent.includes('—')) { playOnce(heroEl, 'swap'); playOnce(contextEl, 'swap'); }
-  }
+function setUnit(key,unit,noCalc){
+  units[key]=unit;
+  document.querySelectorAll('.unit button[data-key="'+key+'"]').forEach(b=>b.classList.toggle('on',b.dataset.unit===unit));
+  const names={brok:'Brokerage',tax:'Tax',other:'Other charges'};
+  $('label-'+key).textContent=key==='other'?'Other charges ('+(unit==='pct'?'%':'amount')+')':names[key]+' '+(unit==='pct'?'%':'amount');
+  ({brok:brokEl,tax:taxEl,other:otherEl})[key].placeholder=unit==='pct'?(key==='tax'?'e.g. 15':'e.g. 0.1'):'e.g. 100.00';
+  if(!noCalc) calculate();
+}
 
-  // The button only works once the main calculation (buy, sell, shares) is complete and valid.
-  function updateDeductAvailability() {
-    const buy = parseFloat(buyEl.value);
-    const sell = parseFloat(sellEl.value);
-    const qty = parseFloat(qtyEl.value);
-    const ready = buyEl.value !== '' && sellEl.value !== '' && qtyEl.value !== '' &&
-                  !isNaN(buy) && !isNaN(sell) && !isNaN(qty) && buy > 0 && qty > 0 && sell >= 0;
-    if (ready) {
-      // wait a moment (blue bar fills) before unlocking, so it doesn't flicker while you're still typing
-      if (deductBtn.disabled && !unlockTimer) {
-        deductBtn.classList.add('unlocking');
-        deductHint.textContent = 'Unlocking…';
-        deductHint.hidden = false;
-        unlockTimer = setTimeout(() => {
-          unlockTimer = null;
-          deductBtn.classList.remove('unlocking');
-          deductBtn.disabled = false;
-          updateDeductLabel();
-          deductHint.hidden = true;
-          playOnce(deductBtn, 'unlocked');
-        }, UNLOCK_DELAY);
-      }
-    } else {
-      clearTimeout(unlockTimer);
-      unlockTimer = null;
-      deductBtn.classList.remove('unlocking');
-      deductBtn.disabled = true;
-      updateDeductLabel();
-      deductHint.textContent = HINT_LOCKED;
-      deductHint.hidden = false;
-      if (deductOn) {                  // trade became incomplete: switch charges off, keep what was typed
-        deductOn = false;
-        applyDeductUI();
-      }
-    }
-  }
+function flashStatus(text){
+  clearTimeout(flashT);
+  statusEl.textContent=text;
+  flashT=setTimeout(calculate,900);
+}
+function copyResult(){
+  if(!lastCopy) return;
+  const done=ok=>{
+    flashStatus(ok?'Copied':'Copy failed');
+    if(ok){ screenEl.classList.add('copied'); setTimeout(()=>screenEl.classList.remove('copied'),350); }
+  };
+  const fallback=()=>{
+    const ta=document.createElement('textarea');
+    ta.value=lastCopy; ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    let ok=false; try{ok=document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta); done(ok);
+  };
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(lastCopy).then(()=>done(true),fallback);
+  else fallback();
+}
 
-  function setUnit(key, unit) {
-    units[key] = unit;
-    document.querySelectorAll('.unit button[data-key="' + key + '"]').forEach(b => {
-      b.classList.toggle('on', b.dataset.unit === unit);
-    });
-    const names = { brok: 'Brokerage', tax: 'Tax', other: 'Other charges' };
-    document.getElementById('label-' + key).textContent = names[key] + ' in ' + (unit === 'pct' ? '%' : 'amount');
-    const input = { brok: brokEl, tax: taxEl, other: otherEl }[key];
-    input.placeholder = unit === 'pct' ? (key === 'tax' ? 'e.g. 15' : 'e.g. 0.1') : unitPlaceholders.amt;
-    calculate();
-  }
+[buyEl,sellEl,qtyEl,brokEl,taxEl,otherEl].forEach(el=>{
+  el.addEventListener('input',()=>{formatInput(el);calculate();});
+  el.addEventListener('keydown',e=>{ if(e.key==='Enter') el.blur(); });
+});
+deductBtn.addEventListener('click',()=>{ if(deductBtn.disabled) return; deductOn=!deductOn; applyDeductUI(); calculate(); });
+document.querySelectorAll('.unit button').forEach(b=>b.addEventListener('click',()=>setUnit(b.dataset.key,b.dataset.unit)));
+screenEl.addEventListener('click',copyResult);
+screenEl.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); copyResult(); } });
+$('resetBtn').addEventListener('click',()=>{
+  [buyEl,sellEl,qtyEl,brokEl,taxEl,otherEl].forEach(e=>e.value='');
+  setUnit('brok','pct',true); setUnit('tax','pct',true); setUnit('other','amt',true);
+  deductOn=false; applyDeductUI(); calculate();
+});
 
-  // Blank = 0. Returns null (and flags the fields) if any entry is negative / not a number / a % above 100.
-  function readCharge(inputEl, fieldEl, key) {
-    const raw = inputEl.value;
-    if (raw === '') return 0;
-    const v = parseFloat(raw);
-    if (isNaN(v) || v < 0 || (units[key] === 'pct' && v > 100)) {
-      fieldEl.classList.add('invalid');
-      return null;
-    }
-    return v;
-  }
-
-  function calculate() {
-    clearInvalid();
-    breakdownEl.textContent = '';
-    noteEl.hidden = true;               // the note only appears once there is a calculated result
-    updateDeductAvailability();
-
-    // stop any running count animation; remember what is on screen so the next one starts from there
-    if (heroRaf) { cancelAnimationFrame(heroRaf); heroRaf = null; }
-    const prev = shown;
-    shown = null;
-
-    const buyRaw = buyEl.value;
-    const sellRaw = sellEl.value;
-    const qtyRaw = qtyEl.value;
-
-    if (buyRaw === '' && sellRaw === '' && qtyRaw === '') {
-      setMode('standby');
-      statusEl.textContent = 'Standby';
-      contextEl.textContent = 'Enter your trade details';
-      heroEl.innerHTML = '0.00';
-      sublineEl.textContent = 'Per share: 0.00';
-      lastCopyText = '';
-      return;
-    }
-
-    const buy = parseFloat(buyRaw);
-    const sell = parseFloat(sellRaw);
-    const qty = parseFloat(qtyRaw);
-
-    let hasInvalid = false;
-    if (buyRaw !== '' && (isNaN(buy) || buy < 0)) { fieldBuy.classList.add('invalid'); hasInvalid = true; }
-    if (sellRaw !== '' && (isNaN(sell) || sell < 0)) { fieldSell.classList.add('invalid'); hasInvalid = true; }
-    if (qtyRaw !== '' && (isNaN(qty) || qty < 0)) { fieldQty.classList.add('invalid'); hasInvalid = true; }
-
-        if (hasInvalid) {
-      setMode('loss');
-      statusEl.textContent = 'Error';
-      contextEl.textContent = 'Enter valid positive numbers';
-      heroEl.innerHTML = '—';
-      sublineEl.textContent = '';
-      lastCopyText = '';
-      return;
-    }
-
-    if (isNaN(buy) || isNaN(sell) || isNaN(qty)) {
-      setMode('standby');
-      statusEl.textContent = 'Waiting';
-      contextEl.textContent = 'Fill in all three fields';
-      heroEl.innerHTML = '—';
-      sublineEl.textContent = '';
-      lastCopyText = '';
-      return;
-    }
-
-    if (buy === 0 || qty === 0) {
-      setMode('standby');
-      statusEl.textContent = 'Error';
-      contextEl.textContent = 'Buy price and quantity must be above zero';
-      heroEl.innerHTML = '—';
-      sublineEl.textContent = '';
-      lastCopyText = '';
-      return;
-    }
-
-    const invested = buy * qty;
-    const returned = sell * qty;
-    const gross = returned - invested;
-
-    // ----- optional charges -----
-    let brokerage = 0, other = 0, tax = 0, totalCharges = 0;
-    if (deductOn) {
-      const b = readCharge(brokEl, fieldBrok, 'brok');
-      const t = readCharge(taxEl, fieldTax, 'tax');
-      const o = readCharge(otherEl, fieldOther, 'other');
-      if (b === null || t === null || o === null) {
-        setMode('loss');
-        statusEl.textContent = 'Error';
-        contextEl.textContent = 'Charges must be 0 or more (and a % can\'t exceed 100)';
-        heroEl.innerHTML = '—';
-        sublineEl.textContent = '';
-        breakdownEl.textContent = '';
-        lastCopyText = '';
-        return;
-      }
-      const turnover = invested + returned;
-      brokerage = units.brok === 'pct' ? turnover * b / 100 : b;
-      other = units.other === 'pct' ? turnover * o / 100 : o;
-      const taxable = Math.max(0, gross - brokerage - other);   // no tax when there is no profit
-      tax = units.tax === 'pct' ? taxable * t / 100 : t;
-      totalCharges = brokerage + other + tax;
-    }
-
-    const pnl = gross - totalCharges;            // final result (equals gross when charges are off)
-    const pnlPct = (pnl / invested) * 100;
-    const perShare = pnl / qty;
-
-    const isEven = Math.abs(pnl) < 0.005;
-    const isProfit = pnl > 0;
-    const word = isEven ? 'Break-even' : (isProfit ? 'Profit' : 'Loss');
-    const label = deductOn && !isEven ? 'Net ' + word.toLowerCase() : word;
-
-    setMode(isEven ? 'standby' : (isProfit ? 'profit' : 'loss'));
-    statusEl.textContent = label;
-
-    const sgn = n => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
-    contextEl.textContent = deductOn
-      ? `Gross ${sgn(gross)} · Charges −${fmt(totalCharges)}`
-      : `Invested ${fmt(invested)} · Returned ${fmt(returned)}`;
-
-    const sign = pnl >= 0 ? '+' : '−';
-    animateHero(pnl, pnlPct, isEven ? 'even' : (isProfit ? 'profit' : 'loss'), prev);
-    sublineEl.textContent = `Per share${deductOn ? ' (after charges)' : ''}: ${sgn(perShare)}`;
-    breakdownEl.innerHTML = deductOn
-      ? `<span>Brokerage ${fmt(brokerage)}</span> <span>· Tax ${fmt(tax)}</span> <span>· Other ${fmt(other)}</span>`
-      : '';
-
-    noteEl.hidden = false;
-
-    lastCopyText = deductOn
-      ? `${label}: ${sign}${fmt(Math.abs(pnl))} (${sign}${fmt(Math.abs(pnlPct))}%) | Invested: ${fmt(invested)} | Returned: ${fmt(returned)} | Gross: ${sgn(gross)} | Brokerage: ${fmt(brokerage)} | Tax: ${fmt(tax)} | Other charges: ${fmt(other)} | Per share: ${sgn(perShare)}`
-      : `${word}: ${sign}${fmt(Math.abs(pnl))} (${sign}${fmt(Math.abs(pnlPct))}%) | Invested: ${fmt(invested)} | Returned: ${fmt(returned)} | Per share: ${sgn(perShare)} | Before any brokerage, taxes or charges`;
-  }
-
-  function resetApp() {
-    buyEl.value = '';
-    sellEl.value = '';
-    qtyEl.value = '';
-    brokEl.value = '';
-    taxEl.value = '';
-    otherEl.value = '';
-    setUnit('brok', 'pct');
-    setUnit('tax', 'pct');
-    setUnit('other', 'amt');
-    if (deductOn) { toggleDeduct(); }   // switches charges off and restores the note
-    clearInvalid();
-    calculate();
-  }
-
-  function flashStatus(text) {
-    clearTimeout(flashTimeout);
-    statusEl.textContent = text;
-    flashTimeout = setTimeout(() => { calculate(); }, 900);
-  }
-
-  function copyResult() {
-    if (!lastCopyText) return;
-
-    const onSuccess = () => {
-      flashStatus('Copied');
-      screenEl.classList.add('copied');
-      setTimeout(() => screenEl.classList.remove('copied'), 300);
-    };
-    const onFail = () => flashStatus('Copy failed');
-
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(lastCopyText).then(onSuccess).catch(onFail);
-    } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = lastCopyText;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        onSuccess();
-      } catch (err) {
-        onFail();
-      }
-      document.body.removeChild(textarea);
-    }
-  }
-
-  screenEl.addEventListener('click', copyResult);
-
-  calculate();
+applyDeductUI(); calculate();
+})();
 </script>
 
 <script src="/libraries/config.js"></script>
